@@ -1,0 +1,25 @@
+{% extends "AGORAPlatformBundle::layout.html.twig" %}
+{% block title %}{{ parent() }} - {{ gameInfo.gameName }} {% endblock %}
+
+{% block header %}
+    <h1>Créer une partie pour {{ gameInfo.gameName }}</h1>
+{% endblock %}
+
+{% block content %}
+    <form method="post" action="{{ path('agora_game_create_' ~ gameInfo.gameCode) }}">
+        <label>Nom de la partie</label>
+        <input required type="text" name="lobbyName">
+        </br></br>
+        <label>Nombre de joueurs</label>
+        <input required type="number" min="{{ gameInfo.minPlayers }}" max="{{ gameInfo.maxPlayers }}" name="nbPlayers">
+        </br></br>
+        <label>Souhaitez vous inviter un joueur ?</label>
+        </br>
+        <label>Mail du contact</label>
+        <input type="text" name="Mail du contact">
+        <input type="submit" value="Inviter">
+
+        </br></br>
+        <input type="submit" name="créer partie" value="Créer la partie">
+    </form>
+{% endblock %}

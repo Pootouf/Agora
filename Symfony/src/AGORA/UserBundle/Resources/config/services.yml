@@ -1,0 +1,4 @@
+services:
+#    agora_user.example:
+#        class: AGORA\UserBundle\Example
+#        arguments: ["@service_id", "plain_value", "%parameter%"]

@@ -1,0 +1,95 @@
+:root {
+    --board-width: 1100px;
+    --board-ratio: calc(960/2228);
+    --personal-board-width: 650px;
+    --personal-board-ratio: calc(739/1024);
+}
+
+.action {
+    position: absolute;
+}
+
+.action:not(.unavailable):hover {
+    border-radius: 5px;
+    outline: solid 1px white;
+}
+
+.unavailable {
+    display: none;
+}
+
+#order {
+    position: absolute;
+    display: flex;
+    gap:10%;
+    width: 23%;
+    height: 5%;
+    flex-direction: row;
+    margin-top: 0;
+}
+
+#workers {
+    width: 67%;
+}
+
+.turn {
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    font-size: 95%;
+    margin: 0 1%;
+}
+
+.turn * {
+    margin:auto;
+}
+
+.board {
+    position: relative;
+    display: flex;
+    width: var(--board-width);
+    height: calc(var(--board-width) * var(--board-ratio));
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.eng {
+    width: 13.75%;
+    height: 14%;
+    position: absolute;
+    background-image: url('../images/eng-back.png');
+    background-size: 609px;
+    transform: rotate(270deg) translate(-41px, -40px);
+}
+
+#red_board {
+    background-image: url('../images/pboard_red.png');
+}
+
+#green_board {
+    background-image: url('../images/pboard_green.png');
+}
+
+#yellow_board {
+    background-image: url('../images/pboard_yellow.png');
+}
+
+#blue_board {
+    background-image: url('../images/pboard_blue.png');
+}
+
+.personal_board {
+    width: var(--personal-board-width);
+    height: calc(var(--personal-board-width) * var(--personal-board-ratio));
+    background-size: cover;
+}
+
+#engineers {
+    display: inline;
+}
+
+body {
+    display: flex;
+    gap: 1%;
+}

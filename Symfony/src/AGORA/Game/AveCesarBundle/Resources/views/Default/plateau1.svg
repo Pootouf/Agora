@@ -1,0 +1,89 @@
+<svg id="gameBoardSvg" width="978.72" height="690">
+    <rect onclick="playOnCell('0b')" x="385" y="147" width="169" height="14"></rect>
+    <rect onclick="playOnCell('0c')" x="385" y="163" width="169" height="18"></rect>
+    <rect onclick="playOnCell('0d')" x="385" y="185" width="169" height="18"></rect>
+    <rect onclick="playOnCell('0e')" x="385" y="206" width="169" height="17"></rect>
+    <rect onclick="playOnCell('0f')" x="385" y="225" width="169" height="17"></rect>
+    <rect onclick="playOnCell('0g')" x="385" y="246" width="169" height="17"></rect>
+
+    <rect onclick="playOnCell('2b')" x="557" y="148" width="73" height="14"></rect>
+    <rect onclick="playOnCell('2c')" x="558" y="166" width="71" height="14"></rect>
+    <rect onclick="playOnCell('2d')" x="558" y="185" width="71" height="17"></rect>
+    <rect onclick="playOnCell('2e')" x="558" y="207" width="71" height="16"></rect>
+    <rect onclick="playOnCell('2f')" x="558" y="227" width="71" height="16"></rect>
+    <polygon onclick="playOnCell('2g')" points="559,246,559,263,581,261,605,258,630,253,629,246"></polygon>
+
+    <polygon onclick="playOnCell('3a')" points="634,126,633,160,691,163,713,169,718,154,679,135"></polygon>
+    <polygon onclick="playOnCell('3b')" points="634,180,633,166,694,168,711,173,706,187,692,183"></polygon>
+    <polygon onclick="playOnCell('3c')" points="700,208,705,190,688,186,634,185,633,203,683,204"></polygon>
+    <polygon onclick="playOnCell('3d')" points="633,206,632,224,682,224,694,227,700,211,680,208"></polygon>
+    <polygon onclick="playOnCell('3e')" points="633,227,632,251,664,248,683,248,690,249,694,231,663,227"></polygon>
+
+    <polygon onclick="playOnCell('4a')" points="722,157,711,188,737,197,763,214,783,228,794,213,759,182"></polygon>
+    <polygon onclick="playOnCell('4b')" points="709,192,706,207,734,219,771,244,781,231,739,203,718,193"></polygon>
+    <polygon onclick="playOnCell('4c')" points="703,211,698,230,730,242,760,262,769,247,736,224"></polygon>
+    <polygon onclick="playOnCell('4d')" points="749,279,759,263,728,245,697,233,692,249,722,261"></polygon>
+
+    <polygon onclick="playOnCell('5a')" points="795,216,776,244,802,267,821,289,831,303,854,282,826,249"></polygon>
+    <polygon onclick="playOnCell('5b')" points="824,308,817,317,763,264,772,250,792,265,807,284,819,298"></polygon>
+    <polygon onclick="playOnCell('5c')" points="751,281,760,292,797,330,812,318,761,267"></polygon>
+
+    <polygon onclick="playOnCell('6a')" points="858,286,882,326,903,371,877,385,859,344,833,304"></polygon>
+    <polygon onclick="playOnCell('6b')" points="826,311,850,348,868,389,839,403,799,334"></polygon>
+
+    <polygon onclick="playOnCell('7a')" points="840,405,856,443,857,480,921,490,926,437,906,376"></polygon>
+
+    <polygon onclick="playOnCell('8a')" points="919,495,889,489,877,525,855,555,837,567,857,593,898,553,909,529"></polygon>
+
+    <polygon onclick="playOnCell('8b')" points="885,488,857,484,843,513,831,532,819,542,835,563,855,549,872,524"></polygon>
+
+    <polygon onclick="playOnCell('9a')" points="837,574,804,590,811,617,853,596"></polygon>
+    <polygon onclick="playOnCell('10b')" points="757,584,759,562,778,559,796,556,816,546,830,564,816,575,782,583"></polygon>
+
+    <polygon onclick="playOnCell('10a')" points="754,619,756,592,774,593,799,590,806,617,777,621"></polygon>
+
+    <polygon onclick="playOnCell('11b')" points="705,535,721,547,739,556,756,558,754,587,732,585,712,576,692,562"></polygon>
+    <polygon onclick="playOnCell('11a')" points="750,621,753,592,723,585,699,573,691,565,679,587,695,598,718,609"></polygon>
+
+    <polygon onclick="playOnCell('12a')" points="668,587,675,587,687,562,668,544,652,528,627,514,617,545"></polygon>
+    <polygon onclick="playOnCell('12b')" points="637,483,629,509,646,517,656,527,666,537,689,558,703,531,667,501,647,488"></polygon>
+
+    <polygon onclick="playOnCell('13a')" points="623,513,613,546,586,537,572,538,533,548,531,523,562,514,588,510,611,509"></polygon>
+
+    <polygon onclick="playOnCell('15b')" points="460,484,449,508,483,514,519,514,566,505,589,501,623,508,633,483,620,474,595,472,548,480,515,486,488,487"></polygon>
+    <polygon onclick="playOnCell('14a')" points="528,536,530,548,508,551,488,552,489,524,529,522"></polygon>
+    <polygon onclick="playOnCell('15a')" points="446,517,435,541,455,546,482,551,486,524"></polygon>
+    <polygon onclick="playOnCell('16a')" points="397,495,382,517,432,539,443,516,420,506"></polygon>
+    <polygon onclick="playOnCell('16b')" points="412,466,401,485,447,506,457,482,432,472"></polygon>
+    <polygon onclick="playOnCell('17a')" points="317,487,335,466,355,439,407,464,377,514"></polygon>
+    <polygon onclick="playOnCell('18a')" points="333,463,314,484,266,450,248,429,240,412,236,380,237,359,245,333,256,315,268,302,278,290,291,284,297,282,312,308,294,321,284,331,278,340,274,347,270,357,269,367,268,377,269,388,271,400,275,411,282,423,292,433,303,442,312,448,319,452"></polygon>
+    <polygon onclick="playOnCell('18b')" points="354,436,334,459,309,442,293,428,282,415,274,401,272,384,273,371,276,354,286,337,295,326,306,317,313,314,318,320,322,327,325,333,328,340,320,345,315,350,311,354,307,359,305,365,304,371,303,378,303,385,305,391,308,397,311,402,315,407,320,411,326,416,334,421,342,426,348,432"></polygon>
+    <polygon onclick="playOnCell('19a')" points="302,280,313,303,337,297,355,296,366,297,379,301,388,273,368,268,349,266,329,269,312,274"></polygon>
+    <polygon onclick="playOnCell('21b')" points="319,311,330,336,344,336,353,336,363,338,369,341,375,345,379,350,383,356,386,363,389,376,388,387,416,399,419,384,420,370,420,357,417,346,408,330,398,321,385,312,365,304,345,303,329,307"></polygon>
+    <polygon onclick="playOnCell('20a')" points="383,302,396,308,405,316,413,325,425,345,455,335,445,318,431,305,412,289,402,281,392,275"></polygon>
+    <polygon onclick="playOnCell('21a')" points="427,351,456,342,459,354,459,368,457,384,454,396,448,411,421,401,428,383,428,367"></polygon>
+    <polygon onclick="playOnCell('22a')" points="418,405,449,417,426,457,395,445"></polygon>
+    <polygon onclick="playOnCell('22b')" points="388,392,413,402,392,443,365,430"></polygon>
+    <polygon onclick="playOnCell('23a')" points="341,511,374,525,344,552,322,563,290,571,286,538,312,531"></polygon>
+    <polygon onclick="playOnCell('24b')" points="232,484,214,510,245,525,267,531,293,528,310,522,333,509,303,493,276,500,259,499,244,492"></polygon>
+    <polygon onclick="playOnCell('24a')" points="196,538,210,516,238,530,258,537,283,538,284,571,265,568,236,558,217,550"></polygon>
+    <polygon onclick="playOnCell('25a')" points="191,537,168,523,169,503,170,491,165,481,156,469,140,461,124,460,107,426,168,407,168,414,164,420,162,427,161,436,163,445,166,453,170,459,176,466,182,472,189,475,198,477,205,477,213,478,221,475,229,482"></polygon>
+    <polygon onclick="playOnCell('26a')" points="106,421,95,403,98,381,94,372,97,353,101,323,104,299,112,283,125,259,149,275,141,290,136,305,130,318,125,346,124,358,124,373,125,385,127,399,132,415"></polygon>
+    <polygon onclick="playOnCell('26b')" points="139,412,168,405,164,382,163,353,169,330,174,315,184,300,156,280,148,294,141,314,136,334,134,354,134,374,134,392"></polygon>
+    <polygon onclick="playOnCell('27a')" points="128,256,151,273,162,254,174,241,189,228,205,217,229,205,216,176,200,183,183,196,167,207,144,233"></polygon>
+    <polygon onclick="playOnCell('27b')" points="158,276,174,254,183,242,200,230,215,219,230,212,243,237,224,248,204,268,193,284,186,296"></polygon>
+    <polygon onclick="playOnCell('28a')" points="226,188,219,175,261,151,307,134,308,182,255,183,238,186"></polygon>
+    <polygon onclick="playOnCell('28b')" points="227,192,233,207,269,202,308,203,308,185,262,185"></polygon>
+    <polygon onclick="playOnCell('28c')" points="234,211,246,235,278,238,307,243,307,206,260,207"></polygon>
+    <polygon onclick="playOnCell('29a')" points="311,134,347,125,382,124,382,161,311,161"></polygon>
+    <polygon onclick="playOnCell('29b')" points="311,166,310,181,381,181,382,166,330,166"></polygon>
+    <rect onclick="playOnCell('29c')" x="311" y="186" width="71" height="17"></rect>
+    <rect onclick="playOnCell('29d')" x="311" y="206" width="71" height="17"></rect>
+    <polygon onclick="playOnCell('29e')" points="311,227,383,227,382,262,356,255,329,249,311,246"></polygon>
+
+    <rect onclick="playOnCell('30a')" x="386" y="124" width="46" height="14"></rect>
+    <rect onclick="playOnCell('31a')" x="436" y="123" width="46" height="14"></rect>
+    <rect onclick="playOnCell('0a')" x="486" y="123" width="45" height="14"></rect>
+    <rect onclick="playOnCell('1a')" x="535" y="124" width="45" height="14"></rect>
+    <rect onclick="playOnCell('2a')" x="584" y="124" width="45" height="14"></rect>
+</svg>

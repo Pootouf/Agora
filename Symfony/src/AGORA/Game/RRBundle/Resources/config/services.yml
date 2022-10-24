@@ -1,0 +1,16 @@
+services:
+  agora_game.game:
+    class: AGORA\Game\GameBundle\Service\GameService
+    arguments: ["@doctrine.orm.entity_manager"]
+    public: true
+
+  agora_game.rr:
+    class: AGORA\Game\RRBundle\Service\RRService
+    arguments: ["@doctrine.orm.entity_manager", "@agora_game.game"]
+    public: true
+
+  agora_game.rrLog:
+    class: AGORA\Game\RRBundle\Service\RRLogService
+    arguments: ['@logger']
+    tags:
+      - { name: monolog.logger, channel: rrSocket }

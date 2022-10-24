@@ -1,0 +1,122 @@
+
+.turn {  
+    width: 100%;
+    height: 170%;
+    background-image: url('../images/tokens.png');
+    background-size: 215px;
+}
+
+.green_turn {
+    background-position: 0% 70%;
+}
+
+.red_turn {
+    background-position: 22.5% 70%;
+}
+
+.yellow_turn {
+    background-position: 46% 70%;
+}
+
+.blue_turn {
+    background-position: 68.5% 70%;
+}
+
+#common_board_2p {
+    background-image: url('../images/board2p.png');
+}
+
+#common_board_4p {
+    background-image: url('../images/board4p.png');
+}
+
+.rail {
+    width: 39px;
+    height: 32px;
+    background-image: url('../images/tokens.png');
+    background-size: 320px;
+}
+
+.black_rail {
+    background-position: 0% 10%;
+}
+
+
+.grey_rail {
+    background-position: 14% 10%;
+}
+
+.brown_rail {
+    background-position: 28% 10%;
+}
+
+.beige_rail {
+    background-position: 42.6% 10%;
+}
+
+.white_rail {
+    background-position: 57% 10%;
+}
+
+.eng {
+    --eng-tex1: 0%;
+    --eng-tex2: 33.3%;
+    --eng-tex3: 66.66%;
+    --eng-tex4: 100%;
+}
+
+#eng_1 {
+    background-position: var(--eng-tex1) var(--eng-tex1);
+}
+
+#eng_2 {
+    background-position: var(--eng-tex2) var(--eng-tex1);
+}
+
+#eng_3 {
+    background-position: var(--eng-tex3) var(--eng-tex1);
+}
+
+#eng_4 {
+    background-position: var(--eng-tex4) var(--eng-tex1);
+}
+
+#eng_5 {
+    background-position: var(--eng-tex1) var(--eng-tex2);
+}
+
+#eng_6 {
+    background-position: var(--eng-tex2) var(--eng-tex2);
+}
+
+#eng_7 {
+    background-position: var(--eng-tex3) var(--eng-tex2);
+}
+
+#eng_8 {
+    background-position: var(--eng-tex4) var(--eng-tex2);
+}
+
+#eng_9 {
+    background-position: var(--eng-tex1) var(--eng-tex3);
+}
+
+#eng_10 {
+    background-position: var(--eng-tex2) var(--eng-tex3);
+}
+
+#eng_11 {
+    background-position: var(--eng-tex3) var(--eng-tex3);
+}
+
+#eng_12 {
+    background-position: var(--eng-tex4) var(--eng-tex3);
+}
+
+#eng_13 {
+    background-position: var(--eng-tex1) var(--eng-tex4);
+}
+
+#eng_14 {
+    background-position: var(--eng-tex2) var(--eng-tex4);
+}

@@ -1,0 +1,19 @@
+agora_game_create_rr:
+  path: /create
+  defaults: { _controller: AGORAGameRRBundle:Default:createGame }
+
+agora_game_join_rr:
+  path: /join/{gameId}
+  defaults: { _controller: AGORAGameRRBundle:Default:joinGame }
+
+agora_game_homepage_rr:
+  path: /play/{gameId}
+  defaults: { _controller: AGORAGameRRBundle:Default:play }
+
+agora_game_quit_rr:
+  path: /quit/{gameId}
+  defaults: { _controller: AGORAGameRRBundle:Default:quit }
+
+agora_game_delete_rr:
+  path: /delete/{gameId}
+  defaults: { _controller: AGORAGameRRBundle:Default:delete, gameId: "7" }

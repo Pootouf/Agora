@@ -1,0 +1,43 @@
+:root {
+    --common-action-width: 10.25%;
+    --common-action-height: 9.8%;
+    --left-column1-x: 3.75%;
+    --left-column2-x: 15.8%;
+    --left-row1-y: 8.75%;
+    --left-row2-y: 20.75%;
+    --left-row3-y: 32.75%;
+    --left-row4-y: 45%;
+    --left-row5-y: 57%;
+    --left-row6-x: 8.7%;
+    --left-row6-y: 69%;
+    --left-row6-width: 12.2%;
+    --left-row6-height: 9.75%;
+    --left-row7-x: 3.75%;
+    --left-row7-y: 81%;
+    --left-row7-width: 22.2%;
+    --left-row7-height: 13.25%;
+    --right-col1-x: 57%;
+    --right-col1-width:14.5%;  
+    --right-col2-x: 74%;
+    --right-col3-x: 86.55%;
+    --right-row1-y: 9%;
+    --right-row2-y: 21%;
+    --right-row3-y: 33%;
+    --eng-row1-y: 56.75%;
+    --eng-row1-y: 56.75%;
+    --eng-row-y: 57.25%;
+    --eng-col6-x: 28.85%;
+    --eng-col5-x: 36%;
+    --eng-col4-x: 42.85%;
+    --eng-col3-x: 49.85%;
+    --eng-col2-x: 56.75%;
+    --eng-col1-x: 71.5%;
+    --eng-col-buy-x: 90.5%;
+}
+
+
+.eng_slot2 {
+    background-image: url('../images/eng.png');
+    transform: none;
+    top: var(--eng-row1-y) !important;
+}

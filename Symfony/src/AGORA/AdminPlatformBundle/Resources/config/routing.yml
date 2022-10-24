@@ -1,0 +1,20 @@
+agora_admin_platform_addUsers:
+    path: /
+    defaults: { _controller: AGORAAdminPlatformBundle:Default:index }
+
+agora_admin_platform_ajax_add_user:
+    path: /ajaxAddUser
+    defaults: { _controller: AGORAAdminPlatformBundle:GestionUser:addUser }
+
+agora_admin_platform_ajax_remove_user:
+    path: /ajaxRemoveUser
+    defaults: { _controller: AGORAAdminPlatformBundle:GestionUser:removeUser }
+
+
+agora_admin_platform_ajax_demote_user:
+    path: /ajaxDemoteUser
+    defaults: { _controller: AGORAAdminPlatformBundle:GestionUser:demoteUser }
+
+agora_admin_platform_ajax_promote_user:
+    path: /ajaxPromoteUser
+    defaults: { _controller: AGORAAdminPlatformBundle:GestionUser:promoteUser }

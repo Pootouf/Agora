@@ -1,0 +1,12 @@
+AGORA\UserBundle\Entity\User:
+    type: entity
+    table: null
+    repositoryClass: AGORA\UserBundle\Repository\UserRepository
+    id:
+        id:
+            type: integer
+            id: true
+            generator:
+                strategy: AUTO
+    fields:
+    lifecycleCallbacks: {  }

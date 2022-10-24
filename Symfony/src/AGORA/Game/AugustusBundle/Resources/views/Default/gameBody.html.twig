@@ -1,0 +1,1222 @@
+<div class="overlay" onclick="removeOverlay(this)">
+    <div class="overlayContent" onclick="event.stopPropagation()"></div>
+    <div class="overlayCaptured" onclick="event.stopPropagation()"></div>
+</div>
+
+<div id="gameContent" class="flexContainer">
+    <div id="playersInfo" class="flexContainer flexColumn">
+        <div id="allPlayersInfo" class="flexContainer flexColumn" onload="selectPlayer(0)">
+            {% set meInd = "" %}
+            {% for player in game.players %}
+                {% if player.getId != me.getId %}
+
+                    <div class="marble playerInfo" onclick="selectPlayer(this, {{ loop.index0 }} )">
+                        <p class="p">
+                            {{ player.userName ? player.userName : "null" }}<br>
+                            Légions : {{ player.legion }}/{{ player.legionMax }}<br>
+                            Objectifs sous contrôle : {{ player.ctrlCards|length }} <br>
+                            Ressources :<br>
+                            Blé : {{ player.wheat }}<br>
+                            Or : {{ player.gold }}<br>
+                            Score : {{ player.score }}<br>
+                        </p>
+                    </div>
+                {% else %}
+                    {% set meInd = loop.index0 %}
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        <div class="flex1"></div>
+
+        <div id="myInfo" class="marble">
+            <p class="p">
+                {{ me.userName }}<br>
+                Légions : {{ me.legion }}/{{ me.legionMax }}<br>
+                Objectifs sous contrôle : {{ me.ctrlCards|length }} <br>
+                Ressources :<br>
+                Blé : {{ me.wheat }}<br>
+                Or : {{ me.gold }}<br>
+                Score : {{ me.score }}<br>
+            </p>
+        </div>
+    </div>
+
+    <div class="flex1"></div>
+
+    <div id="boardAndHand" class="flexContainer flexColumn">
+        <div id="instructions" class="marble">
+            <!-- {{ game.affectedPlayer }} and  {{ game.getState }} -->
+
+            {% if me.isLock or (game.affectedPlayer != me.getId and game.getState == "aveCesar") %}
+                <p class="p">Veuillez patienter</p>
+            {% elseif game.getState == "legion" %}
+                <p class="p">Veuillez placer votre légion</p>
+            {% elseif game.getState == "aveCesar" %}
+                <p class="p">Choisissez votre carte</p>
+            {% elseif game.getState == "takeLoot" %}
+                <p class="p">Voulez-vous la récompense en surbrillance (une seule de la partie)</p>
+            {% elseif game.getAffectedPlayer != me.getId and game.getState == "removeOneLegion" %}
+                <p class="p">Choississez une légion à retirer</p>
+            {% elseif game.getAffectedPlayer != me.getId and game.getState =="removeTwoLegion" %}
+                <p class="p">Choisissez deux légions à retirer</p>
+            {% elseif game.getAffectedPlayer != me.getId and game.getState == "removeAllLegion" %}
+                <p class="p">Choisissez une carte, toutes les légions lui seront retirées</p>
+            {% elseif game.getAffectedPlayer == me.getId and game.getState == "oneCard" %}
+                <p class="p">Choisissez une carte pour la récupérer</p>
+            {% elseif game.getAffectedPlayer == me.getId and game.getState == "moveLegion" %}
+                <p class="p">Vous pouvez bouger vos légions comme vous le souhaitez</p>
+            {% elseif game.getAffectedPlayer == me.getId and game.getState == "oneLegionOnAnything" %}
+                <p class="p">Vous pouvez placer une légion n'importe où</p>
+            {% elseif game.getAffectedPlayer == me.getId and game.getState == "twoLegionOnChariot" %}
+                <p class="p">Vous pouvez placer deux légions sur des chars</p>
+            {% elseif game.getAffectedPlayer == me.getId and game.getState == "twoLegionOnCatapult" %}
+                <p class="p">Vous pouvez placer deux légions sur des catapultes</p>
+            {% elseif game.getAffectedPlayer == me.getId and game.getState == "twoLegionOnAnything" %}
+                <p class="p">Vous pouvez placer deux légions n'importe où</p>
+            {% elseif game.getAffectedPlayer == me.getId and game.getState == "twoLegionOnTeaches" %}
+                <p class="p">Vous pouvez placer deux légions sur des enseignes</p>
+            {% elseif game.getAffectedPlayer == me.getId and game.getState == "twoLegionOnDoubleSword" %}
+                <p class="p">Vous pouvez placer deux légions sur des doubles glaives</p>
+            {% elseif game.getAffectedPlayer == me.getId and game.getState == "twoLegionOnKnife" %}
+                <p class="p">Vous pouvez placer deux légions sur des poignards</p>
+            {% elseif game.getAffectedPlayer == me.getId and game.getState == "twoLegionOnShield" %}
+                <p class="p">Vous pouvez placer deux légions sur des boucliers</p>
+            {% elseif game.getAffectedPlayer != me.getId and game.getState == "removeOneCard" %}
+                <p class="p">Vous devez retirer un de vos objectifs capturés</p>
+            {% elseif game.getAffectedPlayer == me.getId and game.getState == "completeCard" %}
+                <p class="p">Vous pouvez capturer un de vos objectifs</p>
+            {% else %}
+                <p class="p">{{ "En attente des joueurs" }}</p>
+            {% endif %}
+        </div>
+
+
+        <div id="playerBar" class="marble flexContainer flexRow">
+
+            {% for player in game.players %}
+
+                <div class="selectedPlayerInfo flexContainer flexRow" style="display: none; width: 100%;">
+
+                    {% for card in player.cards %}
+                        <div class="card"
+                             style="background-image: url('{{ asset('bundles/augustus/img/Cards/' ~ card.number ~ '.jpg') }}');"
+                             ondblclick="getOverlay(cardInfo({{ card.number }}))">
+                            {% for token in card.tokens %}
+                                {% if card.ctrlTokens[loop.index0] %}
+                                    <img src='{{ asset('bundles/augustus/img/Token/legion.png') }}' alt="TokenLegion" class="legion"
+                                         style="top: {{ 31 * loop.index0 }}px;">
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+
+                    <div class="flex1"></div>
+
+                    <div class="flexContainer flexColumn">
+                        <button onclick="getCapturedOverlay({{ loop.index0 }})">Captures</button>
+                        <button onclick="getTreasureOverlay({{ loop.index0 }})">Récompenses</button>
+                    </div>
+                </div>
+            {% endfor %}
+
+        </div>
+
+        <!-- <div class="flex1"></div> -->
+
+        <div id="boardBar" class="flexContainer flexRow">
+            <div class="flex1"></div>
+
+            <div id="lootBars" class="flexContainer flexColumn">
+                <div id="topLoot" class="flexContainer flexRow">
+                    <img src="{{ asset('bundles/augustus/img/Loot/Loot2Cards.jpg') }}" alt="Loot2Cards" height="100"
+                         class="{{ me.ctrlCards|length == 2 and game.getState == "takeLoot" ? 'chosenLoot' : '' }}" ondblclick="getOverlay(lootInfo( '2' ))">
+                    <img src="{{ asset('bundles/augustus/img/Loot/Loot3Cards.jpg') }}" alt="Loot3Cards" height="100"
+                         class="{{ me.ctrlCards|length == 3 and game.getState == "takeLoot" ? 'chosenLoot' : '' }}" ondblclick="getOverlay(lootInfo( '3' ))">
+                    <img src="{{ asset('bundles/augustus/img/Loot/Loot4Cards.jpg') }}" alt="Loot4Cards" height="100"
+                         class="{{ me.ctrlCards|length == 4 and game.getState == "takeLoot" ? 'chosenLoot' : '' }}" ondblclick="getOverlay(lootInfo( '4' ))">
+                    <img src="{{ asset('bundles/augustus/img/Loot/Loot5Cards.jpg') }}" alt="Loot5Cards" height="100"
+                         class="{{ me.ctrlCards|length == 5 and game.getState == "takeLoot" ? 'chosenLoot' : '' }}" ondblclick="getOverlay(lootInfo( '5' ))">
+                    <img src="{{ asset('bundles/augustus/img/Loot/Loot6Cards.jpg') }}" alt="Loot6Cards" height="100"
+                         class="{{ me.ctrlCards|length == 6 and game.getState == "takeLoot" ? 'chosenLoot' : '' }}" ondblclick="getOverlay(lootInfo( '6' ))">
+                    <img src="{{ asset('bundles/augustus/img/Loot/LootGold.jpg') }}" alt="LootGold" height="100"
+                         ondblclick="getOverlay(lootInfo( 'gold' ))">
+                </div>
+
+                <div class="flex1"></div>
+
+                <div id="botLoot" class="flexContainer flexRow">
+                    <img src="{{ asset('bundles/augustus/img/Loot/Lootsenator.jpg') }}" alt="Lootsenator" height="100"
+                         ondblclick="getOverlay(lootInfo( 'senator' ))">
+                    <img src="{{ asset('bundles/augustus/img/Loot/Lootgreen.jpg') }}" alt="Lootgreen" height="100"
+                         ondblclick="getOverlay(lootInfo( 'green' ))">
+                    <img src="{{ asset('bundles/augustus/img/Loot/Lootall.jpg') }}" alt="Lootall" height="100"
+                         ondblclick="getOverlay(lootInfo( 'all' ))">
+                    <img src="{{ asset('bundles/augustus/img/Loot/Lootpink.jpg') }}" alt="Lootpink" height="100"
+                         ondblclick="getOverlay(lootInfo( 'pink' ))">
+                    <img src="{{ asset('bundles/augustus/img/Loot/Lootorange.jpg') }}" alt="Lootorange" height="100"
+                         ondblclick="getOverlay(lootInfo( 'orange' ))">
+                    <img src="{{ asset('bundles/augustus/img/Loot/LootWheat.jpg') }}" alt="LootWheat" height="100"
+                         ondblclick="getOverlay(lootInfo( 'wheat' ))">
+                </div>
+            </div>
+
+            <div class="flex1"></div>
+
+            <div id="objLine" class="flexContainer flexRow">
+                <div class="flexContainer flexColumn">
+                    <div>
+                        <img src="{{ asset('bundles/augustus/img/Cards/' ~ game.board.objLine[0].number ~ '.jpg') }}"
+                             alt="Card{{ board.objLine[0].number }}" height="100"
+                             onclick="{% if (game.getState == "aveCesar" or game.getState == "oneCard") and game.getAffectedPlayer == me.getId %}selectObj(this, 0);{% endif %}"
+                             ondblclick="getOverlay(cardInfo( {{ game.board.objLine[0].number }} ))">
+                        <img src="{{ asset('bundles/augustus/img/Cards/' ~ game.board.objLine[1].number ~ '.jpg') }}"
+                             alt="Card{{ board.objLine[1].number }}" height="100"
+                             onclick="{% if (game.getState == "aveCesar" or game.getState == "oneCard") and game.getAffectedPlayer == me.getId %}selectObj(this, 1);{% endif %}"
+                             ondblclick="getOverlay(cardInfo( {{ game.board.objLine[1].number }} ))">
+                    </div>
+                    <div>
+                        <img src="{{ asset('bundles/augustus/img/Cards/' ~ game.board.objLine[2].number ~ '.jpg') }}"
+                             alt="Card{{ board.objLine[2].number }}" height="100"
+                             onclick="{% if (game.getState == "aveCesar" or game.getState == "oneCard") and game.getAffectedPlayer == me.getId %}selectObj(this, 2);{% endif %}"
+                             ondblclick="getOverlay(cardInfo( {{ game.board.objLine[2].number }} ))">
+                        <img src="{{ asset('bundles/augustus/img/Cards/' ~ game.board.objLine[3].number ~ '.jpg') }}"
+                             alt="Card{{ board.objLine[3].number }}" height="100"
+                             onclick="{% if (game.getState == "aveCesar" or game.getState == "oneCard") and game.getAffectedPlayer == me.getId %}selectObj(this, 3);{% endif %}"
+                             ondblclick="getOverlay(cardInfo( {{ game.board.objLine[3].number }} ))">
+                    </div>
+                </div>
+                <div class="flexContainer flexColumn">
+                    <div class="flex1"></div>
+                    <img src="{{ asset('bundles/augustus/img/Cards/' ~ game.board.objLine[4].number ~ '.jpg') }}"
+                         alt="Card{{ board.objLine[4].number }}" height="100"
+                         onclick="{% if (game.getState == "aveCesar" or game.getState == "oneCard") and game.getAffectedPlayer == me.getId %}selectObj(this, 4);{% endif %}"
+                         ondblclick="getOverlay(cardInfo( {{ game.board.objLine[4].number }} ))">
+                    <div class="flex1"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- <div class="flex1"></div> -->
+
+        <div id="myBar" class="marble flexContainer flexRow">
+            {% for card in me.cards %}
+                {% set cardIndex = loop.index0 %}
+                <div class="card" style="background-image: url('{{ asset('bundles/augustus/img/Cards/' ~ card.number ~ '.jpg') }}');"
+                        {% set isCaptured = not(0 in card.ctrlTokens) %}
+                        {% set notRemovable = (game.state starts with "remove" and not(1 in card.ctrlTokens)) %}
+                        {% if me.isLock or game.getState == 'aveCesar' or game.getState =='oneCard' or game.getState == 'takeLoot' or isCaptured or notRemovable %}
+                            onclick=""
+                        {% else %}
+                            onclick="selectHand(this)"
+                        {% endif %}
+                     ondblclick="getOverlay(cardInfo({{ card.number }}))">
+                    {% for token in card.tokens %}
+                        {% if card.ctrlTokens[loop.index0] %}
+                            <img src='{{ asset('bundles/augustus/img/Token/legion.png') }}' alt="TokenLegion" class="legion"
+                                 style="top: {{ 31 * loop.index0 }}px;">
+                        {% endif %}
+                    {% endfor %}
+                    <div class="cardAction{{ loop.index0 }} cardAction" style="visibility: hidden;">
+                        {% if game.getState() == "removeAllLegion" and me.legionMax != me.legion %}
+                            <div>
+                                <p>Vous devez retirer toutes les légions de cette carte si vous la choisissez.</p>
+                                <button onclick="removeAllLegionOnCard({{ cardIndex }})">Retirer</button>
+                            </div>
+                        {% elseif game.state == "completeCard" and game.getAffectedPlayer() == me.getId() %}
+                            <div>
+                                <p>Vous pouvez capturer cet objectif.</p>
+                                <button onclick="doCompleteCard({{ cardIndex }})">Capturer</button>
+                            </div>
+                        {% elseif (game.getState() == "removeAllLegion" and game.getAffectedPlayer() == me.getId())
+                            or (game.state == "completeCard" and game.getAffectedPlayer() != me.getId()) %}
+                            <div>
+                                <p>Veuillez attendre que les autres joueurs aient fini leurs actions.</p>
+                            </div>
+                        {% else %}
+                            <div>
+                                {% if 1 in card.ctrlTokens %}
+                                    <p>Vous pouvez retirer une légion d'un de ces emplacements en le sélectionnant:</p>
+                                    {% if me.isLock %}
+                                        {% for token in card.tokens %}
+                                            {% if card.ctrlTokens[loop.index0] %}
+                                                <img class="token" src='{{ asset('bundles/augustus/img/Token/Token' ~  token  ~'.jpg') }}' alt="{{ token }}"
+                                                     height="32">
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% else %}
+                                        {% for token in card.tokens %}
+                                            {% if card.ctrlTokens[loop.index0] %}
+                                                <img class="token" src='{{ asset('bundles/augustus/img/Token/Token' ~  token  ~'.jpg') }}' alt="{{ token }}"
+                                                     height="32"
+                                                     onclick="selectToken(this, {{ loop.index0 }}, {{ cardIndex }})">
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endif %}
+                                    {% if me.isLock %}
+                                        <button disabled class="remove" onclick="removeSelectedLegion()">Retirer</button>
+                                    {% else %}
+                                        <button disabled class="remove" onclick="removeSelectedLegion()">Retirer</button>
+                                    {% endif %}
+                                {% else %}
+                                    <p>Aucune légion sur cette carte a retiré</p>
+                                {% endif %}
+
+                                <br>
+                                <br>
+                            </div>
+                            <div {% if game.state == "moveLegion" %}
+                                style="visibility:hidden;"
+                                    {% endif %}>
+                                <p>Vous pouvez placer une légion sur cette carte :</p>
+                                {% if me.isLock %}
+                                    <button disabled>
+                                        Placer
+                                    </button>
+
+                                {% else %}
+                                    <button onclick="addBestToken(this, [ '{{ card.tokens|join('\',\'') }}' ], [ '{{ card.ctrlTokens|join('\',\'') }}' ], {{ cardIndex }})">
+                                        Placer
+                                    </button>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {#<img src="{{ asset('bundles/augustus/img/Cards/' ~ card.number ~ '.jpg') }}" alt="Card{{ card.number }}" height="200" onclick="selectHand(this)" ondblclick="getOverlay(cardInfo( {{ card.number }} ))">#}
+
+            {% endfor %}
+
+            <div class="flex1"></div>
+
+            <div class="flexContainer flexColumn">
+                <button onclick="getCapturedOverlay({{ meInd }})">Captures</button>
+                <button onclick="getTreasureOverlay({{ meInd }})">Récompenses</button>
+            </div>
+        </div>
+
+        <div id="buttons" class="flexContainer flexRow">
+            <div class="flex1"></div>
+            {% if me.isLock or game.getState != "legion" or (game.affectedPlayer != me.getId and game.getState != "legion") %}
+                <button id="valider" disabled onclick="validate()">Valider</button>
+            {% else %}
+                <button id="valider" onclick="validate()">Valider</button>
+            {% endif %}
+            <button id="annuler" onclick="location.reload()">Annuler</button>
+            <div class="flex1"></div>
+        </div>
+    </div>
+
+    <div class="flex1"></div>
+
+    <div id="tokenInfo" class="flexContainer flexColumn">
+        <img src="{{ asset('bundles/augustus/img/Token/TokenCount.jpg') }}" alt="TokenHelp" width="150">
+        <div class="flexContainer flexRow">
+            <p class="p">Jeton du tour : </p>
+            <img src="{{ asset('bundles/augustus/img/Token/Token' ~ game.getToken ~ '.jpg') }}"
+                 alt="{{ game.getToken }}" height="55">
+        </div>
+
+        <div class="flex1"></div>
+
+        <div class="action marble">
+            {% if (game.state == "aveCesar" or game.state == "oneCard")  and game.affectedPlayer() == me.getId() %}
+                <div>
+                    <p>Vous devez récuperer un des objectifs sur le terrain.</p>
+                    <p>Récuperer l'objectif sélectionné ?</p>
+                    <button onclick="takeObj()">Prendre</button>
+                </div>
+            {% elseif game.state == "takeLoot" and game.affectedPlayer == me.id %}
+                <div>
+                    <p>Vous pouvez prendre la récompense entourée en vert. Vous ne pouvez prendre qu'une seule
+                        récompense de ce type.</p>
+                    <p>Prendre la récompense.</p>
+                    <button onclick="takeLoot(1)">Oui</button>
+                    <button onclick="takeLoot(0)">Non</button>
+                    <br>
+                    <br>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+
+<!-- SCRIPTS -->
+<script>
+    {% if game.affectedPlayer == me.getId and (game.getState starts with "twoLegion" or game.getState starts with "oneLegion" or game.state == "moveLegion") %}
+     document.querySelector("#valider").disabled = false;
+    {% endif %}
+    checkValidate = function() {
+        if (gottaRemove > 0 || gottaRemoveAllTokenOnCard || gotToCompleteCard
+            {% if game.state == "moveLegion" %}
+            || legionMoving !== 0
+            {% else %}
+            || removeAction < addAction
+            {% endif %}
+                ) {
+            if (gottaRemove <= 0) {
+                {% if game.state == "moveLegion" %}
+                alert("Vous devez replacer " + legionMoving + " légion(s)");
+                {% else %}
+                alert("Il vous reste des choses a faire");
+                {% endif %}
+            }
+            document.querySelector("#valider").disabled = true;
+            return false;
+        }
+        else {
+            document.querySelector("#valider").disabled = false;
+            return true;
+        }
+    };
+
+    action = {
+        type: "",
+        removeToken: {
+            token: [],
+            card: []
+        },
+        addToken: {
+            card: [],
+            token: []
+        },
+        aveCesar : {
+            takeLoot: []
+        }
+    };
+    initialAction = {
+        type: "",
+        removeToken: {
+            token: [],
+            card: []
+        },
+        addToken: {
+            card: [],
+            token: []
+        },
+        aveCesar : {
+            takeLoot: []
+        }
+    };
+    gottaRemove = 0;
+    gottaRemoveAllTokenOnCard = false;
+    gotToCompleteCard = false;
+    {% if (game.state == "removeAllLegion" or game.state == "moveLegion") and me.legionMax == me.legion and game.affectedPlayer != me.id %}
+    {# Do nothing #}
+    {% elseif ((game.getState() == "removeOneLegion" and (me.legionMax - me.legion >= 1) and game.affectedPlayer() != me.getId()) or
+        (game.getState() == "removeTwoLegion" and me.legionMax - me.legion == 1 and game.affectedPlayer() != me.getId())) %}
+    gottaRemove = 1;
+    (function () {
+        document.querySelector("#valider").disabled = true;
+        document.querySelectorAll(".cardAction").forEach(function (ee) {
+            ee.lastElementChild.innerHTML = "<p></p>";
+        });
+        document.querySelector("#instructions").firstElementChild.innerHTML = "Vous devez retirer 1 légion";
+    })();
+    {% elseif game.getState() == "removeTwoLegion" and me.legionMax - me.legion >= 2 and game.affectedPlayer() != me.getId() %}
+    gottaRemove = 2;
+    (function () {
+        document.querySelector("#valider").disabled = true;
+        document.querySelectorAll(".cardAction").forEach(function (ee) {
+            ee.lastElementChild.innerHTML = "<p></p>";
+        });
+        document.querySelector("#instructions").firstElementChild.innerHTML = "Vous devez retirer 2 légions";
+    })();
+    {% elseif game.getState() == "removeAllLegion" and me.legionMax != me.legion and game.affectedPlayer() != me.getId() %}
+    gottaRemoveAllTokenOnCard = true;
+    (function () {
+        document.querySelector("#valider").disabled = true;
+    })();
+    {% elseif game.getState() == "completeCard" and game.affectedPlayer() == me.getId() %}
+    gotToCompleteCard = true;
+    (function () {
+        document.querySelector("#valider").disabled = true;
+        document.querySelector("#instructions").firstElementChild.innerHTML = "Vous devez choisir une carte. Cette carte sera complétée.";
+    })();
+    {% elseif (game.getState() == "removeAllLegion" and game.getAffectedPlayer() == me.getId()) or
+        ( game.getState() == "removeTwoLegion" and game.getAffectedPlayer() == me.getId()) or
+        (game.getState() == "removeOneLegion" and game.getAffectedPlayer() == me.getId()) or
+        (game.getState() == "completeCard" and game.getAffectedPlayer() != me.getId()) %}
+    (function () {
+        document.querySelector("#valider").disabled = true;
+        document.querySelector("#instructions").firstElementChild.innerHTML = "Vous devez attendre les autres joueurs.";
+    })();
+    {% endif %}
+
+    //get captured overlay
+    getCapturedOverlay = function (nbr) {
+        let p = "";
+        switch (nbr) {
+                {% for player in game.players %}
+            case {{ loop.index0 }}:
+            {% for card in player.ctrlCards %}
+                p += "<img src=\"{{ asset('bundles/augustus/img/Cards') }}/{{ card.number }}.jpg\" alt=card.id height='200' ondblclick='getOverlay(cardInfo({{ card.number }}))' />";
+            {% endfor %}
+                break;
+                {% endfor %}
+        }
+
+        document.querySelector(".overlayCaptured").classList.add("visible");
+        document.querySelector(".overlayCaptured").innerHTML = p;
+        document.querySelector(".overlay").classList.add("visible");
+    };
+
+    getTreasureOverlay = function (nbr) {
+        let p = "";
+        switch (nbr) {
+                {% for player in game.players %}
+            case {{ loop.index0 }}:
+                // advantage/number loot
+                //advantage = (count($player->getCtrlCards()) - 1) * 2;
+            {% if player.advantage != 0 %}
+                p += "<img src=\"{{ asset('bundles/augustus/img/Loot') }}/Loot{{ (player.advantage / 2) + 1 }}Cards.jpg\" alt=\"LootAdvantage\" height='100' ondblclick='getOverlay(lootInfo(\"{{ (player.advantage / 2) + 1 }}\"))' />";
+            {% endif %}
+
+                //color
+            {% for color, playerValue in game.colorLoot %}
+            {% if playerValue == player.id %}
+                p += "<img src=\"{{ asset('bundles/augustus/img/Loot') }}/Loot{{ color }}.jpg\" alt=\"LootColor\" height='100' ondblclick='getOverlay(lootInfo(\"{{ color }}\"))' />";
+            {% endif %}
+            {% endfor %}
+
+                // wheat/gold
+            {% if game.goldOwner == player.id %}
+                p += "<img src=\"{{ asset('bundles/augustus/img/Loot') }}/LootGold.jpg\" alt=\"LootGold\" height='100' ondblclick='getOverlay(lootInfo(\"gold\"))' />";
+            {% endif %}
+            {% if game.wheatOwner == player.id %}
+                p += "<img src=\"{{ asset('bundles/augustus/img/Loot') }}/LootWheat.jpg\" alt=\"LootWheat\" height='100' ondblclick='getOverlay(lootInfo(\"wheat\"))' />";
+            {% endif %}
+                break;
+                {% endfor %}
+        }
+
+        document.querySelector(".overlayCaptured").classList.add("visible");
+        document.querySelector(".overlayCaptured").innerHTML = p;
+        document.querySelector(".overlay").classList.add("visible");
+    };
+
+    //get infos string from nbr of a card
+    cardInfo = function (nbr) {
+        switch (nbr) {
+
+            //for player in players
+            //player.cards
+                {% for player in game.players %}
+                {% for card in player.cards %}
+            case {{ card.number }}:
+                return "<p>Cette carte {{ card.color }} rapporte {{ card.points }} points à celui qui la capture."
+                    + "<br>{{ card.power == 'noPower' ? "Cette carte ne possède pas de pouvoir." : "Elle a le pouvoir de " ~card.power~ "." }}"
+                    + "<br>{{ card.resource == 'noResource' ? "" : (card.resource == 'wheat' ? "Cette carte possède du blé." : (card.resource == 'gold' ? "Cette carte possède de l'or." : "Cette carte possède de l'or et du blé.") ) }}"
+                    + "<br>{{ card.player == null ? (card.playerCtrl == null ? "Personne ne possède cette carte." : card.playerCtrl.userName ~ " possède cette carte.") : card.player.userName ~ " possède cette carte." }}</p>"
+                    + "<img src=\"{{ asset('bundles/augustus/img/Cards') }}/{{ card.number }}.jpg\" alt=card.id height='100' />";
+                {% endfor %}
+
+                {% for card in player.ctrlCards %}
+            case {{ card.number }}:
+                return "<p>Cette carte {{ card.color }} rapporte {{ card.points }} points à celui qui la capture."
+                    + "<br>{{ card.power == 'noPower' ? "Cette carte ne possède pas de pouvoir." : "Elle a le pouvoir de " ~card.power~ "." }}"
+                    + "<br>{{ card.resource == 'noResource' ? "" : (card.resource == 'wheat' ? "Cette carte possède du blé." : (card.resource == 'gold' ? "Cette carte possède de l'or." : "Cette carte possède de l'or et du blé.") ) }}"
+                    + "<br>{{ card.player == null ? (card.playerCtrl == null ? "Personne ne possède cette carte." : card.playerCtrl.userName ~ " possède cette carte.") : card.player.userName ~ " possède cette carte." }}</p>"
+                    + "<img src=\"{{ asset('bundles/augustus/img/Cards') }}/{{ card.number }}.jpg\" alt=card.id height='100' />";
+                {% endfor %}
+                {% endfor %}
+
+            //board.objLine
+                {% for card in game.board.objLine %}
+            case {{ card.number }}:
+                return "<p>Cette carte {{ card.color }} rapporte {{ card.points }} points à celui qui la capture."
+                    + "<br>{{ card.power == 'noPower' ? "Cette carte ne possède pas de pouvoir." : "Elle a le pouvoir de " ~card.power~ "." }}"
+                    + "<br>{{ card.resource == 'noResource' ? "" : (card.resource == 'wheat' ? "Cette carte possède du blé." : (card.resource == 'gold' ? "Cette carte possède de l'or." : "Cette carte possède de l'or et du blé.") ) }}"
+                    + "<br>{{ card.player == null ? (card.playerCtrl == null ? "Personne ne possède cette carte." : card.playerCtrl.userName ~ " possède cette carte.") : card.player.userName ~ " possède cette carte." }}</p>"
+                    + "<img src=\"{{ asset('bundles/augustus/img/Cards') }}/{{ card.number }}.jpg\" alt=card.id height='100' />";
+                {% endfor %}
+            default:
+                return "could not find info for card n" + nbr;
+        }
+    };
+
+    //get the infos string from nbr of a loot
+    lootInfo = function (loot) {
+
+        {% for player in game.players %}
+        {% if player.id == game.getGoldOwner %}
+            if (goldOwnerName === "personne" ||  goldOwnerName !== "{{ player.getUserName}}") {
+                goldOwnerName = "{{ player.getUserName }}";
+            }
+        {% endif %}
+        {% if player.id == game.getColorLoot["green"] %}
+            if (greenOwnerName === "personne" || greenOwnerName !== "{{ player.getUserName}}") {
+                greenOwnerName = "{{ player.getUserName }}";
+            }
+        {% endif %}
+        {% if player.id == game.getColorLoot["orange"] %}
+            if (orangeOwnerName === "personne" || orangeOwnerName !== "{{ player.getUserName}}") {
+                orangeOwnerName = "{{ player.getUserName }}";
+            }
+        {% endif %}
+        {% if player.id == game.getColorLoot["pink"] %}
+            if (pinkOwnerName === "personne" || pinkOwnerName !== "{{ player.getUserName }}") {
+                pinkOwnerName = "{{ player.getUserName }}";
+            }
+        {% endif %}
+        {% if player.id == game.getColorLoot["all"] %}
+            if (allOwnerName === "personne" || allOwnerName !== "{{player.getUserName}}") {
+                allOwnerName = "{{ player.getUserName }}";
+            }
+        {% endif %}
+        {% if player.id == game.getColorLoot["senator"] %}
+          if (senatorOwnerName === "personne" || senatorOwnerName !== "{{player.getUserName}}") {
+              senatorOwnerName = "{{ player.getUserName }}";
+
+          }
+        {% endif %}
+        {% if player.advantage == 2 %}
+            if (twoOwnerName === "personne" || twoOwnerName !== "{{player.getUserName}}") {
+                twoOwnerName = "{{ player.getUserName }}";
+            }
+        {% endif %}
+        {% if player.advantage == 3 %}
+            if (threeOwnerName === "personne" || threeOwnerName !== "{{player.getUserName}}") {
+                threeOwnerName = "{{ player.getUserName }}";
+            }
+        {% endif %}
+        {% if player.advantage == 4 %}
+            if (fourOwnerName === "personne" || fourOwnerName !== "{{player.getUserName}}")
+            {
+                fourOwnerName = "{{ player.getUserName }}";
+            }
+        {% endif %}
+        {% if player.advantage == 5 %}
+            if (fiveOwnerName === "personne" || fiveOwnerName !== "{{player.getUserName}}")
+            {
+                fiveOwnerName = "{{ player.getUserName }}";
+            }
+        {% endif %}
+        {% if player.advantage == 6 %}
+            if (sixOwnerName === "personne" || sixOwnerName !== "{{player.getUserName}}")
+            {
+                sixOwnerName = "{{ player.getUserName }}";
+            }
+        {% endif %}
+        {% if player.id == game.getWheatOwner %}
+            if (wheatOwnerName === "personne" || wheatOwnerName !== "{{player.getUserName}}")
+            {
+                wheatOwnerName = "{{ player.getUserName }}";
+            }
+        {% endif %}
+
+        {% endfor %}
+        switch (loot) {
+            case '2':
+                return advantageInfo(2, 2, twoOwnerName);
+            case '3':
+                return advantageInfo(3, 4, threeOwnerName);
+            case '4':
+                return advantageInfo(4, 6, fourOwnerName);
+            case '5':
+                return advantageInfo(5, 8, fiveOwnerName);
+            case '6':
+                return advantageInfo(6, 10, sixOwnerName);
+            case 'gold':
+                return "<p>Cette carte revient au joueur qui possède le plus de cartes d'or.</p>" +
+                    "<p>Elle rapportera  5 poins lors du décompte final.</p>" +
+                    "<img src=\"{{ asset('bundles/augustus/img/Loot/LootGold.jpg') }}\" alt=\"LootGold\" height='100' />"
+                    +"<p>Elle appartient actuellement à " + goldOwnerName + "</p>";
+
+            case 'green':
+                return "<p>Cette carte revient automatiquement aux joueurs qui contrôlent 3 cartes objectifs vertes.</p>" +
+                    "<p>Elle rapportera  4 poins lors du décompte final.</p>" +
+                    "<img src=\"{{ asset('bundles/augustus/img/Loot/Lootgreen.jpg') }}\" alt=\"LootGreen\" height='100' />"
+                    +"<p>Elle appartient actuellement à " + greenOwnerName + "</p>";
+            case 'orange':
+                return "<p>Cette carte revient automatiquement aux joueurs qui contrôlent 3 cartes objectifs oranges.</p>" +
+                    "<p>Elle rapportera  10 poins lors du décompte final.</p>" +
+                    "<img src=\"{{ asset('bundles/augustus/img/Loot/Lootorange.jpg') }}\" alt=\"LootOrange\" height='100' />"
+                    +"<p>Elle appartient actuellement à " + orangeOwnerName + "</p>";
+            case 'all':
+                return "<p>Cette carte revient automatiquement aux joueurs qui contrôlent 3 cartes objectifs de couleurs différentes.</p>" +
+                    "<p>Elle rapportera  6 poins lors du décompte final.</p>" +
+                    "<img src=\"{{ asset('bundles/augustus/img/Loot/Lootall.jpg') }}\" alt=\"LootAll\" height='100' />"
+                    +"<p>Elle appartient actuellement à " + allOwnerName + "</p>";
+            case 'pink':
+                return "<p>Cette carte revient automatiquement aux joueurs qui contrôlent 3 cartes objectifs roses.</p>" +
+                    "<p>Elle rapportera  8 poins lors du décompte final.</p>" +
+                    "<img src=\"{{ asset('bundles/augustus/img/Loot/Lootpink.jpg') }}\" alt=\"LootPink\" height='100' />"
+                    +"<p>Elle appartient actuellement à " + pinkOwnerName +"</p>";
+
+            case 'senator':
+                return "<p>Cette carte revient automatiquement aux joueurs qui contrôlent 3 cartes sénateurs.</p>" +
+                    "<p>Elle rapportera  2 poins lors du décompte final.</p>" +
+                    "<img src=\"{{ asset('bundles/augustus/img/Loot/Lootsenator.jpg') }}\" alt=\"LootSenator\" height='100' />"
+                    +"<p>Elle appartient actuellement à " + senatorOwnerName +"</p>";
+
+            case 'wheat':
+                return "<p>Cette carte revient au joueur qui possède le plus de cartes d'blé.</p>" +
+                    "<p>Elle rapportera  5 poins lors du décompte final.</p>" +
+                    "<img src=\"{{ asset('bundles/augustus/img/Loot/LootWheat.jpg') }}\" alt=\"LootWheat\" height='100' />"
+                    +"<p>Elle appartient actuellement à " + wheatOwnerName +"</p>";
+
+            default:
+                return "could not find info for card n" + loot;
+        }
+    };
+
+    advantageInfo = function (obj, points, name) {
+        return "<p>Il vous faut contrôler " + obj + " objectifs pour saisir cette carte.</p>" +
+            "<p>Elle vous rapportera " + points + " points lors du décompte final.</p>" +
+            "<p>Vous ne pouvez saisir qu'une seule carte récompense lors de la partie.</p>" +
+            "<img src=\"{{ asset('bundles/augustus/img/Loot') }}/Loot" + obj + "Cards.jpg\" alt=\"Loot\"+obj height='100' />"+
+            "<p>Elle appartient actuellement à " + name  + "</p>";
+    };
+
+
+    getOverlay = function (infos) {
+        document.querySelector(".overlayContent").innerHTML = infos;
+        document.querySelector(".overlayContent").classList.add("visible");
+        document.querySelector(".overlay").classList.add("visible");
+
+    };
+
+    removeOverlay = function () {
+        document.querySelector(".overlay").classList.remove("visible");
+        document.querySelector(".overlayContent").innerHTML = "";
+        document.querySelector(".overlayContent").classList.remove("visible");
+        document.querySelector(".overlayCaptured").classList.remove("visible");
+        document.querySelector(".overlayCaptured").innerHTML = "";
+    };
+
+    validate = function () {
+        if (JSON.stringify(action) === JSON.stringify(initialAction)) {
+            {%if game.state == "moveLegion"  %}
+                action.type = "legion";
+                sendAction();
+                resetSelected();
+            {% else %}
+                if (confirm("Certain de ne rien vouloir jouer ?")) {
+                    action.type = "{{ game.getState }}";
+                    sendAction();
+                    resetSelected();
+                }
+            {% endif %}
+        } else {
+            {% if game.state starts with "twoLegion" or game.state starts with "oneLegion" or game.state starts with "moveLegion" or game.state starts with "removeOne" or game.state starts with "removeTwo"  %}
+                action.type = "legion";
+            {% elseif game.state == "oneCard" %}
+                action.type = "aveCesar";
+            {% else %}
+            action.type = "{{ game.getState }}";
+            {% endif %}
+            sendAction();
+            resetSelected();
+
+        }
+        let xhr = new XMLHttpRequest();
+        xhr.open('GET', '/game/augustus/body/{{ game.id }}/{{ me.id }}');
+        xhr.send();
+        xhr.onload = function () {
+            if (xhr.status !== 200) {
+                alert('erreur lors du rafraîchissement de l\'affichage');
+            } else {
+                document.body.innerHTML = xhr.response;
+                let scripts = document.body.getElementsByTagName('script')[0].innerHTML;
+                console.log(scripts);
+                eval(scripts);
+            }
+        };
+    };
+
+
+    {% set canRemove = false %}
+    {% for card in me.cards %}
+        {% if 0 in card.ctrlTokens and 1 in card.ctrlTokens %}
+            {% set canRemove = true %}
+        {% endif %}
+    {% endfor %}
+    {# Case "remove...Legion if no legion on board" #}
+    {% if game.state == "removeAllLegion" and game.affectedPlayer != me.id and not(canRemove) %}
+    validate = function () {
+        action.type = "{{ game.state }}";
+        sendAction();
+        resetSelected();
+
+        let xhr = new XMLHttpRequest();
+        xhr.open('GET', '/game/augustus/body/{{ game.id }}/{{ me.id }}');
+        xhr.send();
+        xhr.onload = function () {
+            if (xhr.status !== 200) {
+                alert('erreur lors du rafraîchissement de l\'affichage');
+            } else {
+                document.body.innerHTML = xhr.response;
+                let scripts = document.body.getElementsByTagName('script')[0].innerHTML;
+                console.log(scripts);
+                eval(scripts);
+            }
+        };
+    };
+    validate();
+    {# Case "remove/move" if no legion on board #}
+    {% elseif (((game.state == "removeOneLegion" or game.state == "removeTwoLegion") and game.affectedPlayer != me.id) or (game.state == "moveLegion" and game.affectedPlayer == me.id)) and not(canRemove) %}
+    validate = function () {
+        action.type = "legion";
+        sendAction();
+        resetSelected();
+
+        let xhr = new XMLHttpRequest();
+        xhr.open('GET', '/game/augustus/body/{{ game.id }}/{{ me.id }}');
+        xhr.send();
+        xhr.onload = function () {
+            if (xhr.status !== 200) {
+                alert('erreur lors du rafraîchissement de l\'affichage');
+            } else {
+                document.body.innerHTML = xhr.response;
+                let scripts = document.body.getElementsByTagName('script')[0].innerHTML;
+                console.log(scripts);
+                eval(scripts);
+            }
+        };
+    };
+    validate();
+    {% endif %}
+
+    doCompleteCard = function (indCard) {
+        {% if game.affectedPlayer() == me.getId() and game.getState() == "completeCard" %}
+        action.completeCard = indCard;
+        document.querySelector("#valider").disabled = false;
+        gotToCompleteCard = false;
+        document.querySelectorAll(".cardAction").forEach(function (ee) {
+            ee.lastElementChild.innerHTML = "<p>Vous avez choisi votre carte. Veuillez valider ou annuler vos actions</p>";
+        });
+        checkValidate();
+        {% endif %}
+    };
+
+
+    resetSelected = function () {
+        let board = document.querySelectorAll(".selectedBoard");
+        let hand = document.querySelectorAll(".selectedHand");
+
+        board.forEach(function (element) {
+            element.classList.remove("selectedBoard");
+        });
+        hand.forEach(function (element) {
+            element.classList.remove("selectedHand");
+        });
+    };
+
+    selectHand = function (e) {
+        resetSelected();
+        e.classList.add("selectedHand");
+
+        if (document.querySelector(".action").querySelectorAll("div").length !== 0) {
+            document.querySelector(".action").firstElementChild.style.visibility = "hidden";
+            document.querySelector("#myBar").querySelectorAll(".card")[parseInt(document.querySelector(".action").firstElementChild.classList[0].replace("cardAction", ""))].appendChild(document.querySelector(".action").firstElementChild);
+        }
+
+        e.querySelector(".cardAction").style.visibility = "visible";
+        document.querySelector(".action").appendChild(e.querySelector(".cardAction"));
+    };
+
+    //FONCTION POUR LE POUVOIR "Retirer toutes les légions d'une carte"
+    removeAllLegionOnCard = function (indCard) {
+        {% if game.affectedPlayer() != me.getId() %}
+        action.removeAllLegion = indCard;
+        document.querySelector("#valider").disabled = false;
+        gottaRemoveAllTokenOnCard = false;
+        document.querySelector(".action").firstElementChild.innerHTML = "<p>Vous avez choisi de retirer toutes les légion d'une carte</p><br><br>"
+        checkValidate();
+        {% endif %}
+    };
+
+    {% if game.state != "moveLegion" %}
+
+    {# Cas normal #}
+    //FONCTION DE SELECTION DE LA LEGION A RETIRER
+    {% if game.state starts with "two" and game.getAffectedPlayer() == me.getId() %}
+    addAction = 2;
+    removeAction = 2;
+    {% elseif game.state == "oneLegionOnAnything" and game.getAffectedPlayer() == me.getId() %}
+    addAction = 1;
+    removeAction = 1;
+    {% endif %}
+    legion = {{ me.legion ?? 0 }};
+    selectedToken = {};
+    selectedCard = {};
+
+    selectToken = function (e, indToken, indCard) {
+        document.querySelectorAll(".selectedToken").forEach(function (ee) {
+            ee.classList.remove("selectedToken");
+        });
+
+        e.classList.add("selectedToken");
+        selectedToken.ind = indToken;
+        selectedToken.elem = e;
+        selectedCard.ind = indCard;
+        document.querySelectorAll(".remove").forEach(element => {
+            element.disabled = false;
+        });
+    };
+
+    //FONCTION DE RETIRAGE DE LA LEGION SELECTIONNE
+    removeSelectedLegion = function () {
+        legion += 1;
+        if (selectedToken !== {} && selectedCard !== {}) {
+            if (typeof (action.removeToken) == 'undefined') {
+                action.removeToken = {};
+                action.removeToken.token = [];
+                action.removeToken.card = [];
+            }
+
+            if (typeof (removeAction) != 'undefined' && removeAction >= 2) {
+                action.removeToken.token.push(selectedToken.ind);
+                action.removeToken.card.push(selectedCard.ind);
+                selectedToken.elem.style.visibility = "hidden";
+                selectedToken.elem = null;
+                removeAction -= 1;
+                checkValidate();
+            } else {
+                action.removeToken.token.push(selectedToken.ind);
+                action.removeToken.card.push(selectedCard.ind);
+                selectedToken.elem.style.visibility = "hidden";
+                selectedToken.elem = null;
+                removeAction = 0;
+                checkValidate();
+            }
+
+            if (gottaRemove === 2) {
+                gottaRemove = 1;
+                document.querySelector("#instructions").firstElementChild.innerHTML = "Vous devez retirer encore 1 légion";
+            } else if (gottaRemove === 1) {
+                gottaRemove = 0;
+                document.querySelector("#instructions").firstElementChild.innerHTML = "Vous pouvez valider vos actions";
+                document.querySelectorAll(".cardAction").forEach(function (ee) {
+                    ee.firstElementChild.innerHTML = "<p>Vous avez déplacé vos légions ce tour, vous ne pouvez plus en retirer d'avantage.</p>";
+                });
+                checkValidate();
+            } else if (removeAction === 0) {
+                document.querySelectorAll(".cardAction").forEach(function (ee) {
+                    ee.firstElementChild.innerHTML = "<p>Vous avez déplacé vos légions ce tour, vous ne pouvez plus en retirer d'avantage.</p>";
+                });
+            }
+            document.querySelectorAll(".remove").forEach(element => {
+                element.disabled = true;
+            });
+        }
+    };
+
+    // FONCTION DE POSE D'UNE LEGION
+    //Vérifie si le joueur peut poser une légion sur la carte et si il le peut propose le token le plus rare
+    addBestToken = function (e, listToken, listControlled, indCard) {
+        if (legion > 0) {
+            console.log("{{ game.getToken }}");
+            let actualToken = "{{ game.getToken }}";
+            let actualTokens = [];
+            actualTokens.push(actualToken);
+            {% if game.getState() == "twoLegionOnDoubleSword" and game.getAffectedPlayer() == me.getId() %}
+            actualTokens = ["doublesword"];
+            {% elseif game.getState() == "twoLegionOnTeaches" and game.getAffectedPlayer() == me.getId() %}
+            actualTokens = ["teaches"];
+            {% elseif game.getState() == "twoLegionOnShield" and game.getAffectedPlayer() == me.getId() %}
+            actualTokens = ["shield"];
+            {% elseif game.getState() == "twoLegionOnKnife" and game.getAffectedPlayer() == me.getId() %}
+            actualTokens = ["knife"];
+            {% elseif  game.getState() == "oneLegionOnAnything" and game.getAffectedPlayer() == me.getId() %}
+            actualTokens = ["doublesword", "shield", "chariot", "catapult", "teaches", "knife"];
+            {% elseif game.getState() == "twoLegionOnChariot" and game.getAffectedPlayer() == me.getId() %}
+            actualTokens = ["chariot"];
+            {% elseif  game.getState() == "twoLegionOnCatapult" and game.getAffectedPlayer() ==  me.getId() %}
+            actualTokens = ["catapult"];
+            {% elseif  game.getState() == "twoLegionOnAnything" and game.getAffectedPlayer() == me.getId() %}
+            actualTokens = ["doublesword", "shield", "chariot", "catapult", "teaches", "knife"];
+            {% else %}
+            switch (actualToken) {
+                case "shield" :
+                {% if me.getEquivalences()["shield"] is not empty and "chariot" in me.getEquivalences()["shield"] %}
+                    actualTokens.push("chariot");
+                {% endif %}
+                {% if me.getEquivalences()["shield"] is not empty and "doublesword" in me.getEquivalences()["shield"] %}
+                    actualTokens.push("doublesword");
+                {% endif %}
+
+                    break;
+                case "knife" :
+                {% if me.getEquivalences()["knife"] is not empty and "teaches" in me.getEquivalences()["knife"] %}
+                    actualTokens.push("teaches");
+                {% endif %}
+                    break;
+                case "chariot" :
+                {% if me.getEquivalences()["chariot"] is not empty and "catapult" in me.getEquivalences()["chariot"] %}
+                    actualTokens.push("catapult");
+                {% endif %}
+                {% if me.getEquivalences()["chariot"] is not empty and "shield" in me.getEquivalences()["chariot"] %}
+                    actualTokens.push("shield");
+                {% endif %}
+                    break;
+                case "doublesword" :
+                {% if me.getEquivalences()["doublesword"] is not empty and "shield" in me.getEquivalences()["doublesword"] %}
+                    actualTokens.push("shield");
+                {% endif %}
+                    break;
+                case "catapult" :
+                {% if me.getEquivalences()["catapult"] is not empty and "chariot" in me.getEquivalences()["catapult"] %}
+                    actualTokens.push("chariot");
+                {% endif %}
+                {% if me.getEquivalences()["catapult"] is not empty and "teaches" in me.getEquivalences()["catapult"] %}
+                    actualTokens.push("teaches");
+                {% endif %}
+                    break;
+                case "joker" :
+                    actualTokens.push("doublesword");
+                    actualTokens.push("shield");
+                    actualTokens.push("chariot");
+                    actualTokens.push("catapult");
+                    actualTokens.push("teaches");
+                    actualTokens.push("knife");
+                    break;
+                case "teaches" :
+                {% if me.getEquivalences()["teaches"] is not empty and "catapult" in me.getEquivalences()["teaches"] %}
+                    actualTokens.push("catapult");
+                {% endif %}
+                {% if me.getEquivalences()["teaches"] is not empty and "knife" in me.getEquivalences()["teaches"] %}
+                    actualTokens.push("knife");
+                {% endif %}
+
+                    break;
+                default:
+                    console.log("Erreur, pas de token actuel détecté");
+                    break;
+            }
+            {% endif %}
+
+            //recherche sur la carte
+            let indToken = -1;
+            listToken.forEach(function (element, index) {
+                if (actualTokens.includes(element)) {
+                    if (listControlled[index] === '0' || listControlled[index] === '') {
+                        indToken = index;
+                    }
+                }
+            });
+
+            //si la recherche est ok
+            if (indToken !== -1) {
+                if (typeof (action.addToken) == 'undefined') {
+                    action.addToken = {};
+                    action.addToken.card = [];
+                    action.addToken.token = [];
+                }
+
+                if (typeof (addAction) != 'undefined' && addAction === 2) {
+                    action.addToken.card.push(indCard);
+                    action.addToken.token.push(indToken);
+                    addAction = 1;
+                    checkValidate();
+
+                    // on doit changer le tableau des tokens controlés
+                    listControlled[indToken] = "1";
+                    e.onclick = function () {
+                        addBestToken(this, listToken, listControlled, indCard);
+                    };
+                } else if (typeof (addAction) != 'undefined' && addAction === 1) {
+                    action.addToken.card.push(indCard);
+                    action.addToken.token.push(indToken);
+                    addAction = 0;
+                    checkValidate();
+                    document.querySelectorAll(".cardAction").forEach(function (ee) {
+                        ee.lastElementChild.innerHTML = "<p>Vous avez posé une légion ce tour, vous ne pouvez plus en poser d'avantage.</p>";
+                    });
+                } else {
+                    action.addToken.card.push(indCard);
+                    action.addToken.token.push(indToken);
+                    checkValidate();
+                    document.querySelectorAll(".cardAction").forEach(function (ee) {
+                        ee.lastElementChild.innerHTML = "<p>Vous avez posé une légion ce tour, vous ne pouvez plus en poser d'avantage.</p>";
+                    });
+                }
+                legion -= 1;
+            } else {
+                alert("On ne peut capturer aucun token de cette carte");
+            }
+        } else {
+            alert("Vous n'avez plus de légion à poser");
+        }
+    };
+
+    {% elseif game.state == "moveLegion" and game.affectedPlayer == me.id and me.legion != me.legionMax %}
+
+    {# Cas MOVE LEGION #}
+    //legionMoving = 0;
+    action = {};
+    selectedToken = {};
+    selectedCard = {};
+
+    //MOVE LEGION version
+    selectToken = function (e, indToken, indCard) {
+        document.querySelectorAll(".selectedToken").forEach(function (ee) {
+            ee.classList.remove("selectedToken");
+        });
+
+        e.classList.add("selectedToken");
+        selectedToken.ind = indToken;
+        selectedToken.elem = e;
+        selectedCard.ind = indCard;
+        document.querySelectorAll(".remove").forEach(element => {
+            element.disabled = false;
+        });
+    };
+
+    //MOVE LEGION version
+    removeSelectedLegion = function () {
+        if (selectedToken !== {} && selectedCard !== {}) {
+            if (typeof (action.removeToken) == 'undefined') {
+                action.removeToken = {};
+                action.removeToken.token = [];
+                action.removeToken.card = [];
+            }
+
+            if (typeof (removeAction) != 'undefined') {
+                action.removeToken.token.push(selectedToken.ind);
+                action.removeToken.card.push(selectedCard.ind);
+                selectedToken.elem.style.visibility = "hidden";
+                selectedToken.elem.remove();
+                selectedToken = {};
+                selectedCard = {};
+                legionMoving += 1;
+                checkValidate();
+
+                document.querySelectorAll(".remove").forEach(element => {
+                    element.disabled = true;
+                });
+                document.querySelectorAll(".cardAction").forEach(function (ee) {
+                    ee.lastElementChild.style.visibility = "inherit";
+                });
+                if (document.querySelectorAll(".token").length === 0) {
+                    document.querySelectorAll(".cardAction").forEach(function (ee) {
+                        ee.firstElementChild.innerHTML = "<p>Vous avez récupéré toutes vos légions. Veuillez les replacer puis valider.</p>";
+                    });
+                }
+            }
+        } else {
+            alert("Aucun emplacement selectionné");
+        }
+    };
+
+    //MOVE LEGION version
+    addBestToken = function (e, listToken, listControlled, indCard) {
+        if (legionMoving > 0) {
+
+            //recherche sur la carte
+            let indToken = -1;
+            listToken.forEach(function (e, i) {
+                if (listControlled[i] === "0") {
+                    indToken = i;
+                }
+            });
+
+            //si la recherche est ok
+            if (indToken !== -1) {
+                if (typeof (action.addToken) == 'undefined') {
+                    action.addToken = {};
+                    action.addToken.card = [];
+                    action.addToken.token = [];
+                }
+
+                if (typeof (addAction) != 'undefined') {
+                    action.addToken.card.push(indCard);
+                    action.addToken.token.push(indToken);
+                    legionMoving -= 1;
+
+                    // on doit changer le tableau des tokens controlés
+                    listControlled[indToken] = "1";
+                    e.onclick = function () {
+                        addBestToken(this, listToken, listControlled, indCard);
+                    };
+
+                    checkValidate();
+
+                    if (legionMoving === 0) {
+                        document.querySelectorAll(".cardAction").forEach(function (ee) {
+                            ee.lastElementChild.style.visibility = "hidden";
+                        });
+                    }
+                }
+            } else {
+                alert("On ne peut capturer aucun token de cette carte");
+            }
+        } else {
+            alert("Vous n'avez plus de légion à poser");
+        }
+    };
+    {% endif %}
+
+    selectBoard = function (e) {
+        if ("{{ game.getState }}" === "legion") return;
+        resetSelected();
+        e.classList.add("selectedBoard");
+    };
+
+    resetSelectedPlayer = function () {
+        let selected = document.querySelectorAll(".selectedPlayer")[0];
+        if (selected !== undefined) {
+            selected.classList.remove("selectedPlayer");
+        }
+
+        let e = document.querySelectorAll(".selectedPlayerInfo");
+
+        e.forEach(function (element) {
+            element.style.display = "none";
+        });
+    };
+
+    selectPlayer = function (elem, i) {
+        resetSelectedPlayer();
+        elem.classList.add("selectedPlayer");
+        document.querySelectorAll(".selectedPlayerInfo")[i].style.display = "flex";
+    };
+
+    //SELECTIONNER LE LOOT DISPO
+    takeLoot = function (choice) {
+        if (document.querySelectorAll(".chosenLoot").length !== 0) {
+            if (typeof (action.aveCesar) == 'undefined') {
+                action.aveCesar = {};
+            }
+            action.aveCesar.takeLoot = choice;
+            document.querySelector(".action").firstElementChild.innerHTML = "<p>Vous avez choisi de " + (choice === 1 ? "prendre" : "laisser") + " la récompense</p><br><br>"
+            checkValidate();
+        } else {
+            alert("Il n'y a pas de récompenses à récupérer sur le plateau.");
+        }
+    };
+
+    //SELECTIONNER UN OBJECTIF DE LA OBJLINE
+    selectedObj = -1;
+
+    selectObj = function (e, indObj) {
+        document.querySelectorAll(".selectedBoard").forEach(function (ee) {
+            ee.classList.remove("selectedBoard");
+        });
+
+        e.classList.add("selectedBoard");
+        selectedObj = indObj;
+    };
+
+    //PRENDRE L'OBJECTIF SELECTIONNE
+    takeObj = function () {
+        if (selectedObj !== -1) {
+            action.aveCesar.card = selectedObj;
+            document.querySelector("#valider").disabled = false;
+            document.querySelector(".action").lastElementChild.innerHTML = "<p>Vous avez choisi l'objectif à prendre.</p>"
+        } else {
+            alert("Vous n'avez pas selectionné d'objectif.");
+        }
+    };
+
+    //disable all drag effect on the images
+    document.querySelectorAll("img").forEach(function (imgElem) {
+        imgElem.draggable = false;
+    });
+
+</script>
+
+<button id="buttAcc" onclick="window.location.href = '{{ path('agora_platform_homepage') }}'">Accueil</button>

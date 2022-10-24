@@ -1,0 +1,116 @@
+<html>
+<h1>plateau commun</h1>
+<table>
+{% set tr = true %}
+{% for action in actions %}
+    
+    {% if tr %}
+    <tr>
+    {% endif %}
+    <td id="{{ action.getId() }}" name="action">{{action.getIdentification()}}</td>
+
+    {% if not tr %}
+    </tr>
+    {% endif %}
+    {% set tr = not tr %}
+{% endfor %}
+{#<tr>
+    <td id="black:2">construire 2 rail noir</td>
+    <td id="black:3">construire 3 rail noir</td>
+<tr>
+<tr>
+    <td id="grey:2">construire 2 rail gris</td>
+    <td id="grey:3">construire 3 rail gris</td>
+</tr>
+<tr>
+    <td id="brown:1">construire 1 rail marron</td>
+    <td id="brown:2">construire 2 rail marron</td>
+</tr>
+<tr>
+    <td id="beige:1">construire 1 rail beige</td>
+    <td id="beige:2">construire 2 rail beige</td>
+</tr>
+<tr>
+    <td id="white:1">construire 1 rail blanc</td>
+    <td id="white:2">construire 2 rail blanc</td>
+</tr>#}
+</table>
+
+<h1 id="stPeter">St Petersbourg</h1>
+<br/>
+<p>
+{% for i in range(0, spt.getLength) %}
+    <strong id="stPeter_{{ i }}">
+    {% if i == spt.getRailSlots.1 %}
+        N
+    {% elseif i == spt.getRailSlots.2 %}
+        G
+    {% elseif i == spt.getRailSlots.3 %}
+        M
+    {% elseif i == spt.getRailSlots.4 %}
+        b
+    {% elseif i == spt.getRailSlots.5 %}
+        B
+    {% else %}
+        =
+    {% endif %}
+    </strong>
+{% endfor %}
+</p>
+<br/>
+
+<h1 id="kiev">Kiev</h1>
+<br/>
+<p>
+{% for i in range(0, kiev.getLength) %}
+    <strong id="kiev_{{ i }}">
+    {% if i == kiev.getRailSlots.1 %}
+        N
+    {% elseif i == kiev.getRailSlots.2 %}
+        G
+    {% elseif i == kiev.getRailSlots.3 %}
+        M
+    {% elseif i == kiev.getRailSlots.4 %}
+        b
+    {% elseif i == kiev.getRailSlots.5 %}
+        B
+    {% else %}
+        =
+    {% endif %}
+    </strong>
+{% endfor %}
+</p>
+<br/>
+
+<h1 id="trans">Transsiberian</h1>
+<br/>
+<p>
+{% for i in range(0, trans.getLength) %}
+    <strong id="trans_{{ i }}">
+    {% if i == trans.getRailSlots.1 %}
+        N
+    {% elseif i == trans.getRailSlots.2 %}
+        G
+    {% elseif i == trans.getRailSlots.3 %}
+        M
+    {% elseif i == trans.getRailSlots.4 %}
+        b
+    {% elseif i == trans.getRailSlots.5 %}
+        B
+    {% else %}
+        =
+    {% endif %}
+    </strong>
+{% endfor %}
+</p>
+<br/>
+</html>
+<script>
+    var urlSock= "{{ app.request.getSchemeAndHttpHost() }}";
+    var data = {
+        'ready':false,
+        'action':'none',
+        'nb':0,
+    }
+</script>
+<script type="text/javascript" src="{{ asset('bundles/agoragamerr/script/rr.js') }}"></script>

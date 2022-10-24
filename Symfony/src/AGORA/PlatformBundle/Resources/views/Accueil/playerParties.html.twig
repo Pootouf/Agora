@@ -1,0 +1,124 @@
+{% extends "AGORAPlatformBundle::layout.html.twig" %}
+
+{% block title %}{{ parent() }} - Mes Parties{% endblock %}
+
+{% block header %}
+    <h1>Mes Parties</h1>
+{% endblock %}
+
+{% block content %}
+	<script src="{{ asset('bundles/agoragamesqp/script/vendor/modernizr-3.5.0.min.js') }}"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+	<script src="//cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+
+    <table id="joinGameTableAVC" class="display">
+        <thead>
+        <tr>
+			<th>Nom du jeu</th>
+            <th>Nom du lobby</th>
+            <th>Personnes présentes en jeu</th>
+            <th>Nombre de joueurs requis</th>
+            <th>Date de création</th>
+            <th>Lien</th>
+        </tr>
+        </thead>
+
+        {% for game in games %}
+			{% set gameCodeSet = game.gameInfoId.getGameCode() %}
+			<!-- on filtre les parties de l'utilisateur-->
+			{% for gameCode,pls in players %}
+				{% for key, pls2 in pls %}
+					{% if key == game.id and game.state == "started" %}
+						{% for pl in pls2 %}
+							{% if pl.userId.id  == userId %}
+								<tr>
+									<td>
+										{{ game.gameInfoId.getGameName() }}
+									</td>
+									<td>
+										{{ game.gameName }}
+									</td>
+									<td>
+										{% for gameCode,pls in players %}
+											{% if gameCode == gameCodeSet %}
+												{% for key, pls2 in pls %}
+													{% if key == game.id %}
+														{% for pl in pls2 %}
+															<!-- on affiche le joueur à qui c'est le tour pour les jeux dont les règles le permettent -->																
+															{% if game.getCurrentPlayer is not null %}
+																{% if game.getCurrentPlayer == pl.userId.id %}
+																	{% if game.hostId == pl.userId %}
+																		[<u>{{ pl.userId.username }}</u></strong>]
+																	{% else %}
+																		[{{ pl.userId.username }}]
+																	{% endif %}
+																{% elseif game.hostId == pl.userId %}
+																	<u>{{ pl.userId.username }}</u>
+																{% else %}
+																	{{ pl.userId.username }}
+																{% endif %}
+															{% else %}
+																{% if game.hostId == pl.userId %}
+																	[<u>{{ pl.userId.username }}</u>]
+																{% else %}
+																	[{{ pl.userId.username }}]
+																{% endif %}
+															{% endif %}
+														{% endfor %}
+													{% endif %}
+												{% endfor %}
+											{% endif %}
+										{% endfor %}
+									</td>
+									<td>
+										{{ game.playersNb }}
+									</td>
+									<td>
+										{{ game.creationDate|date('Y-m-d') }}
+									</td>
+									<td>
+										<a class="btn btn-warning btn-xs" href="{{ path('agora_game_homepage_' ~ gameCodeSet, {'gameId': game.gameId }) }}">Revenir</a>
+									</td>
+								</tr>
+							{% endif %}
+						{% endfor %}
+					{% endif %}
+				{% endfor %}
+			{% endfor %}
+		{% endfor %}
+	</table>
+	
+	<script>
+        $('#joinGameTableSQP').addClass("display");
+        $(document).ready( function () {
+            $('table.display').DataTable(
+                {"paging": false,
+
+                    //"scrollCollapse": true,
+                    "language" : {
+                        "sProcessing":     "Traitement en cours...",
+                        "sSearch":         "Rechercher&nbsp;:",
+                        "sLengthMenu":     "Afficher _MENU_ &eacute;l&eacute;ments",
+                        "sInfo":           "Affichage des _TOTAL_ parties",
+                        "sInfoEmpty":      "",
+                        "sInfoFiltered":   "(filtr&eacute; de _MAX_ &eacute;l&eacute;ments au total)",
+                        "sInfoPostFix":    "",
+                        "sLoadingRecords": "Chargement en cours...",
+                        "sZeroRecords":    "Aucun &eacute;l&eacute;ment &agrave; afficher",
+                        "sEmptyTable":     "Aucune partie en cours",
+                        "oPaginate": {
+                            "sFirst":      "Premier",
+                            "sPrevious":   "Pr&eacute;c&eacute;dent",
+                            "sNext":       "Suivant",
+                            "sLast":       "Dernier"
+                        },
+                        "oAria": {
+                            "sSortAscending":  ": activer pour trier la colonne par ordre croissant",
+                            "sSortDescending": ": activer pour trier la colonne par ordre d&eacute;croissant"
+                        }},
+                    //"scrollY": "50vh"//cause un bug avec datatable, seule la première table est transformée});
+            });});
+	</script>
+{% endblock %}
+{% block footer %}
+{% endblock %}

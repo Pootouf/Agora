@@ -1,0 +1,20 @@
+
+agora_game_create_mor:
+  path: /create
+  defaults: { _controller: AGORAGameMorpionBundle:Default:createGame }
+
+agora_game_join_mor:
+  path: /join/{gameId}
+  defaults: { _controller: AGORAGameMorpionBundle:Default:joinGame }
+
+agora_game_homepage_mor:
+  path: /play/{gameId}
+  defaults: { _controller: AGORAGameMorpionBundle:Default:play }
+
+agora_game_quit_mor:
+  path: /quit/{gameId}
+  defaults: { _controller: AGORAGameMorpionBundle:Default:quit }
+
+agora_game_delete_mor:
+  path: /delete/{gameId}
+  defaults: { _controller: AGORAGameMorpionBundle:Default:delete, gameId: "1" }

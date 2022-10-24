@@ -1,0 +1,31 @@
+#container {
+	margin-top: 5%;
+}
+
+.row {
+	display:block !important;
+	margin-right: 0px !important;
+	margin-left: 0px !important;
+}
+
+#addUser {
+	background-color: #337ab7;
+	border: #337ab7 solid 2px;
+	max-width: 25%;
+	margin-right: 15px;
+	margin-left: 15px;
+}
+
+#addUser a {
+	color: inherit !important;
+}
+
+
+/*footer {
+	display: block !important;
+	position: fixed;
+    bottom: 0;
+    width: 100%;
+    padding-bottom: 0px !important;
+}*/
+

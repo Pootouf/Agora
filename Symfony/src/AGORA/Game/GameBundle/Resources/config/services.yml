@@ -1,0 +1,7 @@
+services:
+    agora_game.game:
+        class: AGORA\Game\GameBundle\Service\GameService
+        arguments: ["@doctrine.orm.entity_manager"]
+#    agora_game_game.example:
+#        class: AGORA\SQPGame\GameBundle\Example
+#        arguments: ["@service_id", "plain_value", "%parameter%"]

@@ -1,0 +1,19 @@
+agora_game_create_avc:
+    path: /create
+    defaults: { _controller: AGORAGameAveCesarBundle:Game:createLobby }
+
+agora_game_homepage_avc:
+    path: /index/{gameId}
+    defaults: { _controller: AGORAGameAveCesarBundle:Game:index }
+
+agora_game_join_avc:
+    path: /join/{gameId}
+    defaults: { _controller: AGORAGameAveCesarBundle:Game:joinLobby, gameId: "1" }
+
+agora_game_quit_avc:
+  path: /quit/{gameId}
+  defaults: { _controller: AGORAGameAveCesarBundle:Game:quit }
+
+agora_game_delete_avc:
+    path: /delete/{gameId}
+    defaults: { _controller: AGORAGameAveCesarBundle:Game:delete, gameId: "1" }

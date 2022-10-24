@@ -1,0 +1,16 @@
+services:
+    agora_game.game:
+        class: AGORA\Game\GameBundle\Service\GameService
+        arguments: ["@doctrine.orm.entity_manager"]
+        public: true
+
+    agora_game.puissance4:
+        class: AGORA\Game\Puissance4Bundle\Service\Puissance4Service
+        arguments: ["@doctrine.orm.entity_manager", "@agora_game.game"]
+        public: true
+        
+    agora_game.puissance4Log:
+        class: AGORA\Game\Puissance4Bundle\Service\Puissance4LogService
+        arguments: ['@logger']
+        tags:
+            - { name: monolog.logger, channel: puissance4Socket }
