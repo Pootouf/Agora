@@ -1,0 +1,1 @@
+./Resources/config/routing.yml:15: path: /join/{gameId}

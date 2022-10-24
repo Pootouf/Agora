@@ -1,0 +1,63 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="../../public/css/game.css">
+        <meta charset="UTF-8">
+    </head>
+    <body>
+        <div class="overlay" onclick="removeOverlay(this)">
+            <div class="overlayContent" onclick="event.stopPropagation()"></div>
+            <div class="overlayCaptured" onclick="event.stopPropagation()"></div>
+        </div>
+
+        <div id="gameContent" class="flexContainer">
+            <div class="flex1"></div>
+
+            <div id="boardAndHand" class="flexContainer flexColumn">
+                <div id="augustusLogo">
+                    <img src="../../public/img/augustusLogo.jpeg" alt="augustusLogo">
+                </div>
+
+                <div class="marble" style="margin: 20px 0;"><p class="p scoreTitle">Tableau des scores</p></div>
+
+                <div id="scoreBoard" class="marble">
+
+                    <table style="width: 100%; font-size: 100%;">
+                        <thead>
+                        <tr class="playerScoreBar">
+                            <th>Place</th>
+                            <th>Nom du Joueur</th>
+                            <th>Nombre de cartes contrôlées</th>
+                            <th>Score</th>
+                        </tr>
+                        </thead>
+                        <tbody style="text-align: center;">
+                            <tr class="playerScoreBar">
+                                <td>1</td>
+                                <td>NDJ1</td>
+                                <td>7</td>
+                                <td>1024</td>
+                            </tr>
+                            <tr class="playerScoreBar">
+                                <td>2</td>
+                                <td>NDJ2</td>
+                                <td>0</td>
+                                <td>1</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+
+            <div class="flex1"></div>
+        </div>
+
+
+        <!-- SCRIPTS -->
+        <script>
+
+        </script>
+
+        <button id="buttAcc" onclick="window.location.href = ''">Accueil</button>
+    </body>
+</html>

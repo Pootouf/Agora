@@ -1,0 +1,85 @@
+imports:
+    - { resource: config.yml }
+
+framework:
+    router:
+        resource: '%kernel.project_dir%/app/config/routing_dev.yml'
+        strict_requirements: true
+    profiler: { only_exceptions: false }
+
+web_profiler:
+    toolbar: true
+    intercept_redirects: false
+
+monolog:
+    handlers:
+        main:
+            type: stream
+            path: '%kernel.logs_dir%/%kernel.environment%.log'
+            level: debug
+            channels: ['!event']
+        
+        morpion_socket_log:
+            type: stream
+            path: '%kernel.logs_dir%/MorpionSocket.log'
+            level: debug
+            channels: morpionSocket
+
+        rr_socket_log:
+            type: stream
+            path: '%kernel.logs_dir%/RRSocket.log'
+            level: debug
+            channels: rrSocket
+            
+        sqp_socket_log:
+            type: stream
+            path: '%kernel.logs_dir%/SQPSocket.log'
+            level: debug
+            channels: sqpSocket
+
+        augustus_socket_log:
+            type: stream
+            path: '%kernel.logs_dir%/AugustusSocket.log'
+            level: debug
+            channels: augustusSocket
+
+
+        aveCesar_socket_log:
+            type: stream
+            path: '%kernel.logs_dir%/AveCesarAndChatSocket.log'
+            level: debug
+            channels: aveCesarAndChatSocket
+
+        splendor_socket_log:
+            type: stream
+            path: '%kernel.logs_dir%/SplendorSocket.log'
+            level: debug
+            channels: splendorSocket
+
+        chat_socket_log:
+            type: stream
+            path: '%kernel.logs_dir%/chatSocket.log'
+            level: debug
+            channels: chatSocket
+
+        console:
+            type: console
+            process_psr_3_messages: false
+            channels: ['!event', '!doctrine', '!console']
+        # To follow logs in real time, execute the following command:
+        # `bin/console server:log -vv`
+        server_log:
+            type: server_log
+            process_psr_3_messages: false
+            host: 127.0.0.1:9911
+        # uncomment to get logging in your browser
+        # you may have to allow bigger header sizes in your Web server configuration
+        #firephp:
+        #    type: firephp
+        #    level: info
+        #chromephp:
+        #    type: chromephp
+        #    level: info
+
+#swiftmailer:
+#    delivery_addresses: ['me@example.com']

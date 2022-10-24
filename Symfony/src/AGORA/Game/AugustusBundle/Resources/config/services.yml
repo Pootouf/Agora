@@ -1,0 +1,20 @@
+services:
+    agora_game.game:
+        class: AGORA\Game\GameBundle\Service\GameService
+        arguments: ["@doctrine.orm.entity_manager"]
+        public: true
+
+    agora_game.augustus:
+        class: AGORA\Game\AugustusBundle\Service\AugustusService
+        arguments: ["@doctrine.orm.entity_manager", "@agora_game.game"]
+        public: true
+
+    agora_game.augustusController:
+        class: AGORA\Game\AugustusBundle\Controller\GameController
+        arguments: ['@agora_game.augustus']
+
+    agora_game.augustusLog:
+        class: AGORA\Game\AugustusBundle\Service\AugustusLogService
+        arguments: ['@logger']
+        tags:
+            - { name: monolog.logger, channel: augustusSocket }

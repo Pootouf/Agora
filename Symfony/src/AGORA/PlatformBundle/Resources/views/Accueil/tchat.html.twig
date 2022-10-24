@@ -1,0 +1,95 @@
+{% extends "AGORAPlatformBundle::layout.html.twig" %}
+
+{% block title %}AGORA - tchat général{% endblock %}
+
+{% block header %}
+<h1>Tchat général</h1>
+{% endblock %}
+
+{% block content %}
+<ul id="chat-list"></ul>
+<hr>
+<textarea id="form-message" placeholder="Ecrivez votre message ici"></textarea>
+<input type="button" id="form-submit" value="Envoyer"/>
+
+<script>
+    // This object will be sent everytime you submit a message in the sendMessage function.
+    var clientInformation = {
+        username: "{{ user.username }}"
+        // You can add more information in a static object
+    };
+    
+    // START SOCKET CONFIG
+    /**
+     * Note that you need to change the "sandbox" for the URL of your project. 
+     * According to the configuration in Sockets/Chat.php , change the port if you need to.
+     * @type WebSocket
+     */
+        //On retrouve l'url de base du serveur à la barbare
+    var urlSock = "{{ app.request.getSchemeAndHttpHost() }}";
+    //On enlève le http (ou https)
+    urlSock = urlSock.split("/");
+    urlSock = urlSock[2];
+    //On enlève le port
+    urlSock = urlSock.split(":");
+    urlSock = urlSock[0];
+    var conn = new WebSocket('ws://'+ urlSock +':8084');
+
+    conn.onopen = function(e) {
+        console.info("Connection established succesfully");
+    };
+
+    conn.onmessage = function(e) {
+        var data = JSON.parse(e.data);
+        Chat.appendMessage(data.username, data.message);
+        
+        console.log(data);
+    };
+    
+    conn.onerror = function(e){
+        alert("Error: something went wrong with the socket.");
+        console.error(e);
+    };
+    // END SOCKET CONFIG
+   
+    
+    /// Some code to add the messages to the list element and the message submit.
+    document.getElementById("form-submit").addEventListener("click",function(){
+        var msg = document.getElementById("form-message").value;
+        
+        if(!msg){
+            alert("Vous ne pouvez pas envoyer de message vide !");
+        }
+        
+        Chat.sendMessage(msg);
+        // Empty text area
+        document.getElementById("form-message").value = "";
+    }, false);
+    
+    // Mini API pour envoyer des messages par socket et les ajouter au DOM
+    var Chat = {
+        appendMessage: function(username,message){
+            var from;
+            
+            if(username == clientInformation.username){
+                from = "Moi";
+            }else{
+                from = username;
+            }
+            
+            // Append List Item
+            var ul = document.getElementById("chat-list");
+            var li = document.createElement("li");
+            li.appendChild(document.createTextNode(from + " : "+ message));
+            ul.appendChild(li);
+        },
+        sendMessage: function(text){
+            clientInformation.message = text;
+            // Send info as JSON
+            conn.send(JSON.stringify(clientInformation));
+            // Add my own message to the list
+            this.appendMessage(clientInformation.username, clientInformation.message);
+        }
+    };
+</script>
+{% endblock %}

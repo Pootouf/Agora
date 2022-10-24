@@ -1,0 +1,24 @@
+  #agora_game_azul:
+  #path: /
+  #defaults: { _controller: AGORAGameAzulBundle:Default:index }
+
+
+agora_game_homepage_azul:
+    path: /play/{gameId}
+    defaults: { _controller: AGORAGameAzulBundle:Default:play }
+
+agora_game_create_azul:
+    path: /create
+    defaults: { _controller: AGORAGameAzulBundle:Default:createGame }
+
+agora_game_join_azul:
+    path: /join/{gameId}
+    defaults: { _controller: AGORAGameAzulBundle:Default:joinGame }
+
+agora_game_quit_azul:
+  path: /quit/{gameId}
+  defaults: { _controller: AGORAGameAzulBundle:Default:quit }
+
+agora_game_delete_azul:
+    path: /delete/{gameId}
+    defaults: { _controller: AGORAGameAzulBundle:Default:delete, gameId: "1" }

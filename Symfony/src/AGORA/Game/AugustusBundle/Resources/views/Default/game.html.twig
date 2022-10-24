@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <title>Augustus</title>
+        <link rel="stylesheet" type="text/css" href="{{ asset('bundles/augustus/css/game.css') }}">
+        <script>
+            {#let logToken = null;#}
+            let getCapturedOverlay = null;
+            let getTreasureOverlay = null;
+            let cardInfo = null;
+            let lootInfo = null;
+            let advantageInfo = null;
+            let getOverlay = null;
+            let removeOverlay = null;
+            let validate = null;
+            let doCompleteCard = null;
+            let resetSelected = null;
+            let selectHand = null;
+            let removeAllLegionOnCard = null;
+            let selectToken = null;
+            let removeSelectedLegion = null;
+            let addBestToken = null;
+            let selectBoard = null;
+            let resetSelectedPlayer = null;
+            let takeLoot = null;
+            let selectPlayer = null;
+            let selectObj = null;
+            let takeObj = null;
+            let checkValidate = null;
+            let action = {};
+            let initialAction = {};
+            let gottaRemove = 0;
+            let gottaRemoveAllTokenOnCard = false;
+            let gotToCompleteCard = false;
+            let addAction = 0;
+            let removeAction = 0;
+            let legion = 0;
+            let legionMoving = 0;
+            let selectedToken = {};
+            let selectedCard = {};
+            let selectedObj = -1;
+            let goldOwnerName = "personne";
+            let greenOwnerName = "personne";
+            let orangeOwnerName = "personne";
+            let pinkOwnerName = "personne";
+            let allOwnerName = "personne";
+            let senatorOwnerName = "personne";
+            let wheatOwnerName = "personne";
+            let twoOwnerName = "personne";
+            let threeOwnerName = "personne";
+            let fourOwnerName = "personne";
+            let fiveOwnerName = "personne";
+            let sixOwnerName = "personne";
+        </script>
+    </head>
+
+    <body>
+    </body>
+    <script>
+
+        let augustusSocket = null;
+        function sendAction() {
+            let message = {
+                gameId: {{game.id}},
+                playerId: {{me.id}},
+                action: action
+            };
+            action = {};
+            augustusSocket.send(JSON.stringify(message));
+
+        }
+
+        
+        try {
+            //Connextion vers le serveur
+            let urlSock = "{{ app.request.getSchemeAndHttpHost() }}";
+            //On enlève le http (ou https)
+            urlSock = urlSock.split("/");
+            urlSock = urlSock[2];
+            //On enlève le port
+            urlSock = urlSock.split(":");
+            urlSock = urlSock[0];
+            console.log('ws://'+ urlSock +':8088');
+            augustusSocket = new WebSocket('ws://'+ urlSock +':8088');
+        } catch (e) {
+            console.error("error on opening wSocket :\n" + e);
+        }
+        //si il y a eu une error on la récupere ici
+        augustusSocket.onerror = function (error) {
+            console.error("error on wSocket :" + error);
+        };
+
+        //Quand la connnection est établie
+        //on envoie un object la socket avec le type connect
+        augustusSocket.onopen = function (event) {
+            console.info("Connexion étabie.");
+            action = {type: "connect"};
+            sendAction();
+
+
+             this.onclose = function (event) {
+                 console.log("Connnexion terminée.");
+             };
+             //recoit un message -> change body according to message
+             this.onmessage = function (event) {
+                let xhr = new XMLHttpRequest();
+                xhr.open('GET', '/game/augustus/body/{{ game.id }}/{{ me.id }}');
+                xhr.send();
+                xhr.onload = function() {
+                  if (xhr.status !== 200) {
+                    alert('erreur lors du rafraîchissement de l\'affichage');
+                  } else {
+                    document.body.innerHTML = xhr.response;
+
+                    let scripts = document.body.getElementsByTagName('script')[0].innerHTML;
+                    console.log(scripts);
+                    eval(scripts);
+                  }
+                };
+
+                /*
+                var lines = event.data.split('\n');
+                lines.splice(0,3);
+                var newBody = lines.join('\n');
+                console.log(newBody);
+                document.body.innerHTML = newBody;
+                */
+             };
+
+        };
+
+
+    </script>
+</html>
+
+

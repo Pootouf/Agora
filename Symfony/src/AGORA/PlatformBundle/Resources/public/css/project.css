@@ -1,0 +1,176 @@
+body, html {
+    height: 100% !important;
+    margin: 0 !important;
+    font-family: 'Montserrat',Helvetica, Arial, Lucida, sans-serif;
+
+
+}
+
+.bg {
+    /* Full height */
+    margin-top: 0px;
+    height: 683px;
+
+    /* The image used for background header : Accueil */
+    background: url("../image/headerAcc.png") no-repeat;
+    background-position: bottom;
+    background-size: cover;
+}
+
+#titleHeader {
+    padding-top: 150px;
+    color: #FFFFFF;
+    text-align: center;
+}
+
+#titleHeader h1 {
+    font-size: 60px;
+    font-weight: 700;
+}
+
+#titleHeader h3 {
+    font-size: 38px;
+    font-weight: 700;
+}
+
+.buttonInfo {
+    margin-top: 50px;
+    color: #ffffff!important;
+    border-width: 0px!important;
+    letter-spacing: 2px;
+    font-size: 16px;
+    font-family: 'Montserrat',Helvetica,Arial,Lucida,sans-serif!important;
+    text-transform: uppercase!important;
+    background-color: #cc0033 !important;
+    padding: 20px;
+}
+
+#page-container {
+    width: 80%;
+    max-width: 1080px;
+    margin: auto;
+
+}
+
+hr {
+    border-top: 4px solid #cc0033;
+    width: 10%;
+}
+
+.flexRow {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+
+}
+
+.blurb {
+    margin-top: 40px;
+}
+
+#objectifProject h2 {
+    text-align: center;
+}
+.textObjectif  {
+    padding-left: 15px;
+}
+
+.textObjectif h3 {
+    font-size: 24px;
+}
+
+.textObjectif p {
+    color: #b0b6ba;
+    font-size: 16px;
+}
+
+#objectifProject {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.widthButton {
+    margin-top: 30px !important;
+    margin-bottom: 30px !important;
+    width: 150px;
+}
+
+/* Overline From Left */
+.hvr-overline-from-left {
+    display: inline-block;
+    vertical-align: middle;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    box-shadow: 0 0 1px rgba(0, 0, 0, 0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    -moz-osx-font-smoothing: grayscale;
+    position: relative;
+    overflow: hidden;
+}
+.hvr-overline-from-left:before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    left: 0;
+    right: 100%;
+    top: 0;
+    background: black;
+    height: 4px;
+    -webkit-transition-property: right;
+    transition-property: right;
+    -webkit-transition-duration: 0.3s;
+    transition-duration: 0.3s;
+    -webkit-transition-timing-function: ease-out;
+    transition-timing-function: ease-out;
+}
+
+.hvr-overline-from-left:hover:before, .hvr-overline-from-left:focus:before, .hvr-overline-from-left:active:before {
+    right: 0;
+}
+
+#bg-plateforme {
+
+}
+
+#text-plateforme {
+    color: #FFFFFF;
+    background-color: #cc0033 !important;
+    padding: 170px 10% 170px 10%;
+    line-height: 1.8em;
+}
+
+#text-plateforme h3 {
+    font-size: 30px;
+}
+
+#text-plateforme hr {
+    border-top: 4px solid #FFFFFF;
+    margin-left: 0px;
+    width: 30px;
+    margin-bottom: 50px;
+}
+
+#text-plateforme p {
+    color:rgba(255,255,255,0.9);
+    font-size: 16px !important;
+    font-weight: 100;
+}
+
+#bg-plateforme {
+    background-image: linear-gradient(95deg,rgba(43,135,218,0) 80%,#cc0033 80%),url("../image/dice.jpg");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size:cover;
+}
+
+.row.goalsRow {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+/* ###### Project ###### */
+
+

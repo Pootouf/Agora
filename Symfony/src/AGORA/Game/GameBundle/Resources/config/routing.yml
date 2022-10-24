@@ -1,0 +1,3 @@
+agora_game_game_homepage:
+    path:     /
+    defaults: { _controller: AGORAGameGameBundle:Default:index }

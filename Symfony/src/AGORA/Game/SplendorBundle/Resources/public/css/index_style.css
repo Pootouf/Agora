@@ -1,0 +1,510 @@
+body {
+    background-image: url("../images/fondSplendor.jpg");
+    background-size: 100%;
+    overflow: hidden;
+}
+
+:root {
+    --emerald-color: #375133;
+    --saphire-color: #284386;
+    --ruby-color: #B5291C;
+    --diamond-color: #D3BEA8;
+    --onyx-color: #241916;
+    --gold-color: #BFA825;
+
+    --splendor-main-color: #F6E800;
+    --splendor-secondary-color: #3B3B43;
+}
+
+#logo {
+    height: 80px;
+    width: 300px;
+    margin-top: 0px;
+}
+
+#noblesAndTokenStack {
+    display: grid;
+    position: relative;
+    grid-template-columns: repeat(3, 350px);
+    top: -20px;
+    left: 320px;
+    width: 7px;
+}
+
+#tokenStack {
+    width: 190px;
+    padding: 10px 30px;
+    justify-content: center;
+}
+
+#tokenStack img {
+    width: 80px;
+    margin-left: -20px;
+}
+
+.nobles {
+    display: grid;
+    grid-gap: 10px;
+    grid-template-columns: repeat(3, 110px);
+    grid-template-rows: repeat(1, 110px);
+    width: 350px;
+}
+
+.noble {
+    width: 110px;
+    height: 110px;
+    border-radius: 10px;
+}
+
+.level {
+    position: relative;
+    /*left: 21%;*/
+    left: 320px;
+    top: -14px;
+    width: 110px;
+    display: grid;
+    grid-row-gap: 36px;
+    grid-template-columns: repeat(1, 110px);
+    grid-template-rows: repeat(3, 150px);
+}
+
+.players {
+    display: flex;
+    /* grid-gap: 5px;
+    grid-template-rows: repeat(2);
+    grid-template-columns: repeat(3);
+    grid-auto-flow: row; */
+
+    position: relative;
+    top: -1830px;
+    left: 1045px;
+    width: calc(662px*171/300);
+    height: 662px;
+}
+
+.player{
+    /* position: relative; */
+    background: url("../images/boxPlayer.jpg");
+    background-repeat: no-repeat;
+    background-size: 400px 670px;
+    /*Position relative, donc left indique le décalage vers la droite de l'objet*/
+    /*left: 88%;*/
+    /* width: 150px;  */
+    /* height: 200px; */
+    /* left: 1045px; */
+    /* top: -1830px; */
+
+    display: flex;
+    justify-content: left;
+    flex-direction: column;
+
+    width: calc(662px*171/300);
+    height: 100%;
+
+    padding-top: 5px;
+    padding-left: 5px;
+    padding-right: 5px;
+    border: solid black 1px;
+    border-radius: 10px;
+    color: black;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 90%;
+    font-weight: bold;
+    font-variant: small-caps;
+
+    /* display: none; */
+}
+
+
+.player.turn {
+    outline: solid 2px var(--splendor-main-color);
+}
+
+.player:not(.turn) {
+    outline: solid 2px var(--splendor-seconday-color);
+}
+
+#turn {
+    margin: 0px;
+    color: darkred;
+}
+
+.prestige {
+    margin: 0px;
+    color: #0000F0;
+}
+
+.nbTokens {
+    margin: 0px;
+    font-size: 150px;
+}
+
+
+.tokens_display {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+}
+
+.tokensImages {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    justify-content: center;
+    width: 20%;
+    height: 20%;
+}
+
+.tokensImages * {
+    margin: auto;
+    width: 100%;
+    height: 100%;
+}
+
+.cards {
+    position: relative;
+    /*left: 30%;*/
+    left: 441px;
+    top: -535px;
+    width: 470px;
+    display: grid;
+    grid-gap: 10px;
+    grid-row-gap: 36px;
+    grid-template-rows: repeat(3, 150px);
+    grid-template-columns: repeat(4, 110px);
+    /*grid-auto-flow: row;*/
+}
+
+.card {
+    width: 100%;
+    height: 100%;
+    border-radius: 5px;
+}
+
+.takable_card {
+    box-shadow: 0 0 10px 0 var(--splendor-main-color);
+    animation: shiny 3s infinite;
+}
+
+@keyframes shiny {
+    50% {box-shadow: 0 0 20px 0 var(--splendor-main-color);}
+}
+
+.cardLevel {
+    position: relative;
+    width: 110px;
+    height: 150px;
+    border-radius: 5px;
+}
+
+.tokens {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    position: relative;
+    top: -1173px;
+    /*left: 65%;*/
+    left: 927px;
+    width: 75px;
+}
+
+.tokens button {
+    margin: 2px;
+}
+
+.token {
+    height: 75px;
+    width: 75px;
+    border: solid 1px black;
+    background-color: #bbb;
+    border-radius: 50%;
+    margin-bottom: 25px;
+    position: relative;
+    font-size: 25px;
+    /*display: inline-block;*/
+}
+
+.token:not(#gold) {
+    cursor: pointer;
+}
+
+.tokens div {
+    color: white;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+input {
+    border-radius: 5px;
+    border: none;
+    background-color: black;
+    color: white;
+    font-size: medium;
+    margin-top: 0px;
+    margin-bottom: 10px;
+    width: 25px;
+}
+
+button {
+    font-size: 13px;
+    border-radius: 7px;
+    border: none;
+    color: var(--splendor-secondary-color);
+    background-color: var(--splendor-main-color);
+}
+
+button:not(:disabled):hover {
+    /* color: var(--splendor-main-color);
+    background-color: var(--splendor-secondary-color); */
+    box-shadow: 0 0 12px 0 var(--splendor-main-color);
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:disabled {
+    background-color: var(--splendor-secondary-color);
+    color: #888888 !important;
+}
+
+.reserveButton {
+    width: 65px;
+    height: 25px;
+    margin-right: 1px;
+}
+
+.buyButton {
+    width: 37px;
+    height: 25px;
+}
+
+.tokens button {
+    width: 70px;
+    height: 25px;
+    color: black;
+}
+
+#quitButton {
+    float:right;
+    font-size: 20px;
+    background-color: white;
+    color: #313131;
+    font-weight: bold;
+    width: 80px;
+    height: 30px;
+}
+
+#quitButton:hover {
+    background-color: #444444;
+    box-shadow: 2px 2px 12px 0;
+    color: white;
+    cursor: pointer;
+}
+
+.untakable_token {
+    -webkit-filter: grayscale(100%);
+    filter: grayscale(100%);
+
+
+    box-shadow: none;
+}
+
+.token_text {
+    font-weight: bolder;
+}
+
+#ruby {
+    background-image: url("../images/ruby.png");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 100%;
+}
+
+#ruby:hover {
+    box-shadow: 0 0px 30px 20px var(--ruby-color);
+}
+
+#ruby_text {
+    color: var(--ruby-color)
+}
+
+#onyx {
+    background-image: url("../images/onyx.png");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 100%;
+}
+
+#onyx:hover {
+    box-shadow: 0 0px 30px 20px var(--onyx-color);
+}
+
+#onyx_text {
+    color: var(--onyx-color)
+}
+
+
+#emerald {
+    background-image: url("../images/emerald.png");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 100%;
+}
+
+#emerald:hover {
+    box-shadow: 0 0px 30px 20px var(--emerald-color);
+}
+
+#emerald_text {
+    color: var(--emerald-color)
+}
+
+#saphire {
+    background-image: url("../images/saphire.png");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 100%;
+}
+
+#saphire:hover {
+    box-shadow: 0 0px 30px 20px var(--saphire-color);
+}
+
+#saphire_text {
+    color: var(--saphire-color)
+}
+
+#gold {
+    background-image: url("../images/gold.png");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 100%;
+}
+
+#gold:hover {
+    box-shadow: 0 0px 30px 20px var(--gold-color);
+}
+
+#gold_text {
+    color: var(--gold-color)
+}
+
+#diamond {
+    background-image: url("../images/diamond.png");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 100%;
+}
+
+#diamond:hover {
+    box-shadow: 0 0px 30px 20px var(--diamond-color);
+}
+
+#diamond_text {
+    color: var(--diamond-color)
+}
+
+/* .player:hover {
+    transform:scale(1.65);
+    z-index: 1;
+    left: 1000px;
+} */
+
+.divReservedCards {
+    overflow: auto;
+    display: grid;
+    grid-template-columns: repeat(3, 125px);
+    height: 400px;
+    vertical-align: middle;
+}
+
+.reservedCards {
+    width: 100px;
+    height: calc(100px * 732/513);
+    vertical-align: middle;
+    border-radius: 5px;
+}
+
+.reservedCardss {
+    width: 100px;
+    height: calc(100px * 732/513);
+    vertical-align: middle;
+    border-radius: 5px;
+}
+
+.buyedCardsImg {
+    width: 90%;
+    height: 90%;
+    /* position: relative; */
+    border-radius: 5px;
+    vertical-align: middle;
+}
+
+.divBuyedCards {
+    display: grid;
+    grid-template-columns: repeat(2, 190px);
+    grid-template-rows: repeat(3, calc(190px * 64/181));
+}
+
+/*.player:hover .reservedCards:hover {
+    /* width: 110px;
+    height: 150px;
+    position: fixed;
+    border-radius: 5px;
+    top: 155px;
+    z-index: 2;
+ } */
+
+.imgPlusBtn {
+    display: inline;
+    vertical-align: middle;
+}
+
+#buyPlayer {
+    vertical-align: middle;
+}
+
+.toks, .bonusToks {
+    display: inline-block;
+    width: 22px;
+    text-align: center;
+}
+
+.toks {
+    font-size: 25px;
+}
+
+.bonusToks {
+    font-size: 20px;
+}
+
+.username {
+    font-size: 20px;
+}
+
+.player_title {
+    font-size: 15px;
+}
+
+#player_card_selector {
+    margin: 0 1 0 0; padding: 0;
+}
+
+#player_card_selector li {
+    list-style-type: none;
+}
+
+#player_card_selector li button {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    outline: solid 1px var(--splendor-main-color);
+    margin: 0px 2px;
+    width: 70px;
+    height: 30px;
+    font-size: 20px;
+}
+
+
+#player_card_selector li button:not(.turn) {
+    color: var(--splendor-main-color);
+    background-color: var(--splendor-secondary-color);
+}

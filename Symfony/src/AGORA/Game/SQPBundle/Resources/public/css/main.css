@@ -1,0 +1,235 @@
+html {
+    color: #222;
+    font-size: 1em;
+    line-height: 1.4;
+    background: url("../image/bg.jpg") no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+}
+
+body {
+    min-width: 957px;
+}
+
+#buttAcc {
+	margin-left : 31%;
+    margin-top: 1em;
+	width : 9em;
+	color : red;
+}
+
+#game {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    list-style: none;
+
+}
+
+#plays {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+
+}
+
+.score {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    border: 5px dashed #FCD544;
+    border-radius:13px;
+    background-color: #E4B211;
+    padding: 6px;
+}
+
+.score:not(:last-child) {
+    margin-bottom: 10px;
+}
+
+.tracker, .trackerNoRotation {
+
+    display: inline-block;
+    width: 100px;
+    height: 153px;
+    background-size:100% auto;
+    background-image: url("../image/cartes/back.png");
+    background-repeat:no-repeat;
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome and Opera */
+
+}
+
+#hand {
+    margin: auto;
+    display: flex;
+    justify-content: center;
+    width: 340px;
+    margin-top: 51px !important;
+}
+
+#hand .tracker:nth-child(1)  { margin-left: 0; }
+
+#hand .tracker:not(:first-child) {
+    margin-left: -4.0em;
+}
+
+#hand .tracker:nth-child(1) {
+    -moz-transform: translate(1.9em, .9em) rotate(-42deg);
+    -webkit-transform: translate(1.9em, .9em) rotate(-42deg);
+    -o-transform: translate(1.9em, .9em) rotate(-42deg);
+    transform: translate(1.9em, .9em) rotate(-42deg);
+}
+#hand .tracker:nth-child(2) {
+    -moz-transform: translate(1.5em, .5em) rotate(-33deg);
+    -webkit-transform: translate(1.5em, .5em) rotate(-33deg);
+    -o-transform: translate(1.5em, .5em) rotate(-33deg);
+    transform: translate(1.5em, .5em) rotate(-33deg);
+}
+#hand .tracker:nth-child(3) {
+    -moz-transform: translate(1.1em, .3em) rotate(-24deg);
+    -webkit-transform: translate(1.1em, .3em) rotate(-24deg);
+    -o-transform: translate(1.1em, .3em) rotate(-24deg);
+    transform: translate(1.1em, .3em) rotate(-24deg);
+}
+#hand .tracker:nth-child(4) {
+    -moz-transform: translate(.7em, .2em) rotate(-15deg);
+    -webkit-transform: translate(.7em, .2em) rotate(-15deg);
+    -o-transform: translate(.7em, .2em) rotate(-15deg);
+    transform: translate(.7em, .2em) rotate(-15deg);
+}
+#hand .tracker:nth-child(5) {
+    -moz-transform: translate(.3em, .1em) rotate(-6deg);
+    -webkit-transform: translate(.3em, .1em) rotate(-6deg);
+    -o-transform: translate(.3em, .1em) rotate(-6deg);
+    transform: translate(.3em, .1em) rotate(-6deg);
+}
+#hand .tracker:nth-child(6) {
+    -moz-transform: translate(-.1em, .1em) rotate(3deg);
+    -webkit-transform: translate(-.1em, .1em) rotate(3deg);
+    -o-transform: translate(-.1em, .1em) rotate(3deg);
+    transform: translate(-.1em, .1em) rotate(3deg);
+}
+#hand .tracker:nth-child(7) {
+    -moz-transform: translate(-.5em, .2em) rotate(12deg);
+    -webkit-transform: translate(-.5em, .2em) rotate(12deg);
+    -o-transform: translate(-.5em, .2em) rotate(12deg);
+    transform: translate(-.5em, .2em) rotate(12deg);
+}
+#hand .tracker:nth-child(8) {
+    -moz-transform: translate(-.9em, .3em) rotate(21deg);
+    -webkit-transform: translate(-.9em, .3em) rotate(21deg);
+    -o-transform: translate(-.9em, .3em) rotate(21deg);
+    transform: translate(-.9em, .3em) rotate(21deg);
+}
+#hand .tracker:nth-child(9) {
+    -moz-transform: translate(-1.3em, .6em) rotate(30deg);
+    -webkit-transform: translate(-1.3em, .6em) rotate(30deg);
+    -o-transform: translate(-1.3em, .6em) rotate(30deg);
+    transform: translate(-1.3em, .6em) rotate(30deg);
+}
+#hand .tracker:nth-child(10) {
+    -moz-transform: translate(-1.7em, 1em) rotate(39deg);
+    -webkit-transform: translate(-1.7em, 1em) rotate(39deg);
+    -o-transform: translate(-1.7em, 1em) rotate(39deg);
+    transform: translate(-1.7em, 1em) rotate(39deg);
+}
+
+
+
+#hand .tracker:hover {
+    width:110px;
+    height: 160px;
+    background-size: 110px 160px;
+
+}
+
+.slot, .cell{
+    border-radius: 5px;
+    min-width: 100px;
+    max-width: 101px;
+    height: 153px;
+    background-color: rgba(255, 255, 255, 0.7);
+}
+
+#slots {
+    display: flex;
+    justify-content: space-around;
+
+
+}
+
+
+.cell {
+    margin: 5px;
+    background-color: rgba(255, 255, 255, 0.7);
+    display: inline-block;
+    width: 100px;
+    height: 153px;
+}
+
+
+#status {
+    position: absolute;
+    bottom: 10px;
+
+}
+
+.tchat {
+    border-radius: 10px;
+    opacity: 0.4;
+    height: 1em;
+    width: 7cm;
+    background-color: #cc9347;
+    position: fixed;
+    right: 3px;
+    bottom: 0px;
+}
+
+.tchat:hover {
+    opacity: 1;
+}
+
+.titleTchat {
+    font-size: 0.9em;
+    text-align: center;
+}
+
+#discussion {
+    font-size: 0.8em;
+    overflow-y: auto;
+    padding-left: 0.2cm;
+    padding-right: 0.2cm;
+    word-wrap: break-word;
+    height: 24.2em;
+}
+
+#UserMessage {
+    width: 7cm;
+    height: 3em;
+    resize: none;
+    overflow: auto;
+}
+
+.messageMy {
+    background-color: #f0e666;
+}
+
+.messageOther {
+    background-color: #f0b659;
+}
+
+#flecheTchat {
+    height: 1em;
+    width: 1em;
+    position: relative;
+    left:-3em;
+}

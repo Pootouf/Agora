@@ -1,0 +1,22 @@
+Commancer par installer composer sur la machine :
+mv composer.phar /usr/local/bin/composer
+depuis le projet symfony (cela permet d'utiliser les commandes composer n'importe ou sur la machine).
+
+Vérifier avec :
+composer --version
+
+Mettre à jour composer :
+composer self-update
+
+Installer PHPUnit Bridge :
+composer require --dev symfony/phpunit-bridge
+
+Pour lancer les tests de notre application :
+./vendor/bin/simple-phpunit tests/AGORAGameAugustusBundle
+
+Pour écrire des classes de tests supplémentaire vous pouvez vous baser sur la classe :
+tests/AGORAGameAugustusBundle/model/AugustusBoardModelTest.php
+
+Sources :
+https://symfony.com/doc/3.4/testing.html
+http://www.dynamic-mess.com/linux/installer-composer-sous-linux/

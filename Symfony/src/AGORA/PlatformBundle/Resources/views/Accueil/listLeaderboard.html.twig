@@ -1,0 +1,40 @@
+{% extends "AGORAPlatformBundle::layout.html.twig" %}
+
+{% block style %}
+    <link rel="stylesheet" href="{{ asset('bundles/agoraplatform/css/game.css') }}" type="text/css" />
+{% endblock %}
+
+{% block title %}{{ parent() }} - Classement{% endblock %}
+
+{% block header %}
+
+    <h1>Liste des classements</h1>
+
+{% endblock %}
+
+{% block content %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col"></th>
+                <th scope="col" id="colJeu">Jeu</th>
+                <th scope="col">Description</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+  	    {% for game in gameList %}
+            <tr>
+                <td class="align-middle">
+			<img class="logoGame" src="{{asset('bundles/agoraplatform/image/availableGame/' ~ game.image) }}" alt="Image du jeu indisponible"/>
+		</td>
+                <th class="align-middle">
+                    <h5>{{ game.gameName }}</h5>
+                </th>
+                <td class="align-middle">{{ game.description }}</td>
+                <td class="align-middle"><a class="btn btn-danger btn-md btn-block" href="leaderboard/{{ game.id }}">Voir le classement</a></td>
+            </tr>
+  	    {% endfor %}
+	</tbody>
+    </table>
+{% endblock %}

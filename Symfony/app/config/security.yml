@@ -1,0 +1,30 @@
+# app/config/security.yml
+
+security:
+  always_authenticate_before_granting: true
+  encoders:
+    AGORA\UserBundle\Entity\User: sha512
+
+  role_hierarchy:
+    ROLE_MODO:        ROLE_USER
+    ROLE_ADMIN:       ROLE_MODO
+    ROLE_SUPER_ADMIN: [ROLE_USER, ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH]
+
+  providers:
+    main:
+      id: fos_user.user_provider.username
+
+  firewalls:
+    main:
+      pattern: ^/
+      provider: main
+      form_login:
+        login_path: fos_user_security_login
+        check_path: fos_user_security_check
+        default_target_path: /
+      logout:       true
+      anonymous:    true
+  access_control:
+    #- { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY, requires_channel: https }
+    # require ROLE_ADMIN for /admin*
+    - { path: ^/admin, roles: [ROLE_ADMIN, ROLE_MODO] }
