@@ -1,7 +1,0 @@
-services:
-    agora_game.chatLog:
-        class: AGORA\PlatformBundle\Service\ChatLogService
-        arguments: ['@logger']
-        tags:
-            - { name: monolog.logger, channel: chatSocket }
-
