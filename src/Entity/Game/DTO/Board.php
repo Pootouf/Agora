@@ -1,6 +1,6 @@
 <?php
 
-class Board {
+abstract class Board {
 
     private int $BoardId;
 
