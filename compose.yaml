@@ -1,0 +1,50 @@
+version: '3'
+
+services:
+  agora:
+    container_name: agora
+    image: agora-boilerplate:latest
+    build:
+      dockerfile: Dockerfile
+    environment:
+      SERVER_NAME: ${SERVER_NAME:-localhost}
+
+###> doctrine/doctrine-bundle ###
+  database:
+    container_name: database
+    image: 'mariadb:10.11.2'
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: main
+    ports:
+      # To allow the host machine to access the ports below, modify the lines below.
+      # For example, to allow the host to connect to port 3306 on the container, you would change
+      # "3306" to "3306:3306". Where the first port is exposed to the host and the second is the container port.
+      # See https://docs.docker.com/compose/compose-file/compose-file-v3/#ports for more information.
+      - '3306'
+###< doctrine/doctrine-bundle ###
+
+###> symfony/mercure-bundle ###
+  mercure:
+    container_name: mercure
+    image: dunglas/mercure
+    restart: unless-stopped
+    environment:
+      SERVER_NAME: ':80'
+      MERCURE_PUBLISHER_JWT_KEY: '!ChangeThisMercureHubJWTSecretKey!'
+      MERCURE_SUBSCRIBER_JWT_KEY: '!ChangeThisMercureHubJWTSecretKey!'
+      # Set the URL of your Symfony project (without trailing slash!) as value of the cors_origins directive
+      MERCURE_EXTRA_DIRECTIVES: |
+        cors_origins http://127.0.0.1:8000
+    # Comment the following line to disable the development mode
+    command: /usr/bin/caddy run --config /etc/caddy/Caddyfile.dev
+    volumes:
+      - mercure_data:/data
+      - mercure_config:/config
+###< symfony/mercure-bundle ###
+
+volumes:
+###> symfony/mercure-bundle ###
+  mercure_data:
+  mercure_config:
+###< symfony/mercure-bundle ###

@@ -1,0 +1,29 @@
+version: '3'
+
+services:
+  agora:
+    command: bash -c "cd /app
+             && symfony server:ca:install 
+             && symfony server:start"
+    volumes:
+      - .:/app
+      - /app/vendor
+      - /app/var
+    ports:
+      - "8000:8000"
+
+###> doctrine/doctrine-bundle ###
+###< doctrine/doctrine-bundle ###
+
+###> symfony/mailer ###
+  mailer:
+    container_name: mailer
+    image: schickling/mailcatcher
+    ports: ["1025", "1080"]
+###< symfony/mailer ###
+
+###> symfony/mercure-bundle ###
+  mercure:
+    ports:
+      - "80"
+###< symfony/mercure-bundle ###
