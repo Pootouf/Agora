@@ -4,7 +4,7 @@ abstract class Component {
 
     // ATTRIBUTES
     private int $id;
-    private int $helpId;
+    private \App\Entity\Game\Help $help;
 
     public function __construct(int $id) {
         $this->id = $id;
@@ -12,12 +12,13 @@ abstract class Component {
 
     // GETTER
 
-    public function getHelpId():int {
-        return $this-> helpId;
-    }
-
     public function getId():int{
         return $this -> id;
+    }
+
+    public function getHelp(): \App\Entity\Game\Help
+    {
+        return $this->help;
     }
 
     // SETTER
@@ -26,7 +27,8 @@ abstract class Component {
         $this -> id = $id;
     }
 
-    public function setHelpId(int $helpId):void {
-        $this -> helpId = $helpId;
+    public function setHelp(\App\Entity\Game\Help $help): void
+    {
+        $this->help = $help;
     }
 }
