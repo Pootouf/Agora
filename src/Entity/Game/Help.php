@@ -4,6 +4,7 @@ namespace App\Entity\Game;
 
 use App\Repository\HelpRepository;
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\Game\DTO\Component;
 
 #[ORM\Entity(repositoryClass: HelpRepository::class)]
 class Help
@@ -24,6 +25,9 @@ class Help
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $image = null;
+
+    #[ORM\OneToOne(mappedBy: 'help', cascade: ['persist', 'remove'])]
+    private ?Component $component = null;
 
     public function getId(): ?int
     {
@@ -74,6 +78,28 @@ class Help
     public function setImage(?string $image): static
     {
         $this->image = $image;
+
+        return $this;
+    }
+
+    public function getComponent(): ?Component
+    {
+        return $this->component;
+    }
+
+    public function setComponent(?Component $component): static
+    {
+        // unset the owning side of the relation if necessary
+        if ($component === null && $this->component !== null) {
+            $this->component->setHelp(null);
+        }
+
+        // set the owning side of the relation if necessary
+        if ($component !== null && $component->getHelp() !== $this) {
+            $component->setHelp($this);
+        }
+
+        $this->component = $component;
 
         return $this;
     }

@@ -2,24 +2,40 @@
 
 namespace App\Entity\Game\DTO;
 
-use App\Repository\PersonalBoardRepository;
+use App\Repository\PawnRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\MappedSuperclass;
 
 #[MappedSuperclass]
-class PersonalBoard
+class Pawn
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     protected ?int $id = null;
 
-    #[ORM\OneToOne(mappedBy: 'personalBoard', cascade: ['persist', 'remove'])]
+    #[ORM\Column(length: 255)]
+    protected ?string $color = null;
+
+    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(nullable: false)]
     protected ?Player $player = null;
 
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getColor(): ?string
+    {
+        return $this->color;
+    }
+
+    public function setColor(string $color): static
+    {
+        $this->color = $color;
+
+        return $this;
     }
 
     public function getPlayer(): ?Player
@@ -29,11 +45,6 @@ class PersonalBoard
 
     public function setPlayer(Player $player): static
     {
-        // set the owning side of the relation if necessary
-        if ($player->getPersonalBoard() !== $this) {
-            $player->setPersonalBoard($this);
-        }
-
         $this->player = $player;
 
         return $this;
