@@ -2,9 +2,9 @@
 
 namespace App\Entity\Game;
 
-use App\Repository\HelpRepository;
-use Doctrine\ORM\Mapping as ORM;
 use App\Entity\Game\DTO\Component;
+use Doctrine\ORM\Mapping as ORM;
+use HelpRepository;
 
 #[ORM\Entity(repositoryClass: HelpRepository::class)]
 class Help

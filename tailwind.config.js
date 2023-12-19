@@ -12,6 +12,6 @@ module.exports = {
     require('@tailwindcss/forms')({
       strategy: 'class',
     }),
-    require('tw-elements/dist/plugin')
+    require('tw-elements/dist/plugin.cjs')
   ],
 }
