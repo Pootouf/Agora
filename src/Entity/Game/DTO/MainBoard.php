@@ -1,18 +1,41 @@
 <?php
 
-class MainBoard extends Board {
+namespace App\Entity\Game\DTO;
 
-    private int $gameId;
-    
+use App\Repository\MainBoardRepository;
+use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\MappedSuperclass;
 
-    public function __construct(int $gameId, int $boardId) {
-        parent::__construct($boardId);
-        $this->gameId = $gameId;
+#[MappedSuperclass]
+class MainBoard
+{
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
+    protected ?int $id = null;
+
+    #[ORM\OneToOne(mappedBy: 'mainBoard', cascade: ['persist', 'remove'])]
+    protected ?Game $game = null;
+
+    public function getId(): ?int
+    {
+        return $this->id;
     }
 
-    public function getGameId(): int {
-        return $this->gameId;
+    public function getGame(): ?Game
+    {
+        return $this->game;
+    }
+
+    public function setGame(Game $game): static
+    {
+        // set the owning side of the relation if necessary
+        if ($game->getMainBoard() !== $this) {
+            $game->setMainBoard($this);
+        }
+
+        $this->game = $game;
+
+        return $this;
     }
 }
-
-?>

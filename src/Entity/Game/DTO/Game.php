@@ -1,47 +1,77 @@
 <?php
 
-class Game {
+namespace App\Entity\Game\DTO;
 
-    private int $gameId;
+use App\Repository\GameRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\MappedSuperclass;
 
-    private Array $players;
+#[MappedSuperclass]
+class Game
+{
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
+    private ?int $id = null;
 
-    private MainBoard $mainBoard;
+    #[ORM\OneToMany(mappedBy: 'game', targetEntity: Player::class, orphanRemoval: true)]
+    private Collection $players;
 
-    public function __construct(int $gameId, Array $players, MainBoard $mainBoard) {
-        $this->gameId = $gameId;
-        $this->players = $players;
-        $this->mainBoard = $mainBoard;
-    }
+    #[ORM\OneToOne(inversedBy: 'game', cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?MainBoard $mainBoard = null;
 
-    public function getGameId(): int
+    public function __construct()
     {
-        return $this->gameId;
+        $this->players = new ArrayCollection();
     }
 
-    public function getPlayers(): array
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    /**
+     * @return Collection<int, Player>
+     */
+    public function getPlayers(): Collection
     {
         return $this->players;
     }
 
-    public function getMainBoard(): MainBoard
+    public function addPlayer(Player $player): static
+    {
+        if (!$this->players->contains($player)) {
+            $this->players->add($player);
+            $player->setGame($this);
+        }
+
+        return $this;
+    }
+
+    public function removePlayer(Player $player): static
+    {
+        if ($this->players->removeElement($player)) {
+            // set the owning side to null (unless already changed)
+            if ($player->getGame() === $this) {
+                $player->setGame(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getMainBoard(): ?MainBoard
     {
         return $this->mainBoard;
     }
 
-    public function setGameId(int $gameId): void
-    {
-        $this->gameId = $gameId;
-    }
-
-    public function setPlayers(array $players): void
-    {
-        $this->players = $players;
-    }
-
-    public function setMainBoard(MainBoard $mainBoard): void
+    public function setMainBoard(MainBoard $mainBoard): static
     {
         $this->mainBoard = $mainBoard;
-    }
 
+        return $this;
+    }
 }
