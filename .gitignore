@@ -3,7 +3,6 @@
 .vscode
 .idea
 .git
-composer.lock
 var
 vendor
 ###> symfony/webpack-encore-bundle ###
