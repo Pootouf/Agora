@@ -1,4 +1,3 @@
-
 /*
  * Welcome to your app's main JavaScript file!
  *
@@ -7,6 +6,6 @@
  */
 import './styles/app.css';
 
-import 'tw-elements';
+import './bootstrap.js';
 
 console.log('This log comes from assets/app.js - welcome to AssetMapper! 🎉')

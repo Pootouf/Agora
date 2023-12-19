@@ -3,14 +3,12 @@ version: '3'
 services:
   agora:
     command: bash -c "cd /app
-      && composer update
       && symfony server:stop
       && symfony server:start"
     volumes:
       - .:/app
       - /app/vendor
       - /app/var
-      - /app/node_modules
     ports:
       - "8000:8000"
 

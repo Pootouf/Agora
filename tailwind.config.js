@@ -2,16 +2,13 @@
 module.exports = {
   content: [
     "./assets/**/*.js",
-    "./templates/**/*.html.twig",
-    "./node_modules/tw-elements/dist/js/**/*.js"
+    "./templates/**/*.html.twig"
   ],
   theme: {
     extend: {},
   },
   plugins: [
-    require('@tailwindcss/forms')({
-      strategy: 'class',
-    }),
-    require('tw-elements/dist/plugin')
+    require('@tailwindcss/typography'),
+    require('@tailwindcss/forms')
   ],
 }
