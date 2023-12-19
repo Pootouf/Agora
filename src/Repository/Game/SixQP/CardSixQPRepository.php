@@ -1,28 +1,28 @@
 <?php
 
-namespace App\Repository;
+namespace App\Repository\Game\SixQP;
 
-use App\Entity\Component;
+use App\Entity\Game\SixQP\CardSixQP;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<Component>
+ * @extends ServiceEntityRepository<CardSixQP>
  *
- * @method Component|null find($id, $lockMode = null, $lockVersion = null)
- * @method Component|null findOneBy(array $criteria, array $orderBy = null)
- * @method Component[]    findAll()
- * @method Component[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method CardSixQP|null find($id, $lockMode = null, $lockVersion = null)
+ * @method CardSixQP|null findOneBy(array $criteria, array $orderBy = null)
+ * @method CardSixQP[]    findAll()
+ * @method CardSixQP[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class ComponentRepository extends ServiceEntityRepository
+class CardSixQPRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, Component::class);
+        parent::__construct($registry, CardSixQP::class);
     }
 
 //    /**
-//     * @return Component[] Returns an array of Component objects
+//     * @return CardSixQP[] Returns an array of CardSixQP objects
 //     */
 //    public function findByExampleField($value): array
 //    {
@@ -36,7 +36,7 @@ class ComponentRepository extends ServiceEntityRepository
 //        ;
 //    }
 
-//    public function findOneBySomeField($value): ?Component
+//    public function findOneBySomeField($value): ?CardSixQP
 //    {
 //        return $this->createQueryBuilder('c')
 //            ->andWhere('c.exampleField = :val')

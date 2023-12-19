@@ -1,28 +1,28 @@
 <?php
 
-namespace App\Repository;
+namespace App\Repository\Game\DTO;
 
-use App\Entity\PersonalBoard;
+use App\Entity\Game\DTO\Pawn;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<PersonalBoard>
+ * @extends ServiceEntityRepository<Pawn>
  *
- * @method PersonalBoard|null find($id, $lockMode = null, $lockVersion = null)
- * @method PersonalBoard|null findOneBy(array $criteria, array $orderBy = null)
- * @method PersonalBoard[]    findAll()
- * @method PersonalBoard[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method Pawn|null find($id, $lockMode = null, $lockVersion = null)
+ * @method Pawn|null findOneBy(array $criteria, array $orderBy = null)
+ * @method Pawn[]    findAll()
+ * @method Pawn[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class PersonalBoardRepository extends ServiceEntityRepository
+class PawnRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, PersonalBoard::class);
+        parent::__construct($registry, Pawn::class);
     }
 
 //    /**
-//     * @return PersonalBoard[] Returns an array of PersonalBoard objects
+//     * @return Pawn[] Returns an array of Pawn objects
 //     */
 //    public function findByExampleField($value): array
 //    {
@@ -36,7 +36,7 @@ class PersonalBoardRepository extends ServiceEntityRepository
 //        ;
 //    }
 
-//    public function findOneBySomeField($value): ?PersonalBoard
+//    public function findOneBySomeField($value): ?Pawn
 //    {
 //        return $this->createQueryBuilder('p')
 //            ->andWhere('p.exampleField = :val')
