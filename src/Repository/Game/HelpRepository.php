@@ -1,6 +1,5 @@
 <?php
 
-namespace App\Repository;
 
 use App\Entity\Game\Help;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;

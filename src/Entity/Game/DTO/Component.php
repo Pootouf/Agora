@@ -2,10 +2,9 @@
 
 namespace App\Entity\Game\DTO;
 
-use App\Repository\ComponentRepository;
+use App\Entity\Game\Help;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\MappedSuperclass;
-use App\Entity\Game\Help;
 
 #[MappedSuperclass]
 class Component
