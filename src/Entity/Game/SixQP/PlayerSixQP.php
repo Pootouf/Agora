@@ -2,13 +2,14 @@
 
 namespace App\Entity\Game\SixQP;
 
+use App\Entity\Game\DTO\Player;
 use App\Repository\Game\SixQP\PlayerSixQPRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PlayerSixQPRepository::class)]
-class PlayerSixQP
+class PlayerSixQP extends Player
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
