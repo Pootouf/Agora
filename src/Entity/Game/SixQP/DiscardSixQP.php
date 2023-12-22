@@ -2,13 +2,14 @@
 
 namespace App\Entity\Game\SixQP;
 
+use App\Entity\Game\DTO\ListOfCards;
 use App\Repository\Game\SixQP\DiscardSixQPRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: DiscardSixQPRepository::class)]
-class DiscardSixQP
+class DiscardSixQP extends ListOfCards
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]

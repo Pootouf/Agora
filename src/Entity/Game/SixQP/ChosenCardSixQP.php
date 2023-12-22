@@ -2,11 +2,12 @@
 
 namespace App\Entity\Game\SixQP;
 
+use App\Entity\Game\DTO\Card;
 use App\Repository\Game\SixQP\ChosenCardSixQPRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ChosenCardSixQPRepository::class)]
-class ChosenCardSixQP
+class ChosenCardSixQP extends Card
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
