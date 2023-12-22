@@ -2,20 +2,15 @@
 
 namespace App\Entity\Game\SixQP;
 
-use App\Entity\Game\DTO\MainBoard;
+use App\Entity\Game\DTO\Component;
 use App\Repository\Game\SixQP\RowSixQPRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: RowSixQPRepository::class)]
-class RowSixQP extends MainBoard
+class RowSixQP extends Component
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
-
     #[ORM\Column]
     private ?int $position = null;
 
@@ -29,11 +24,6 @@ class RowSixQP extends MainBoard
     public function __construct()
     {
         $this->cards = new ArrayCollection();
-    }
-
-    public function getId(): ?int
-    {
-        return $this->id;
     }
 
     public function getPosition(): ?int

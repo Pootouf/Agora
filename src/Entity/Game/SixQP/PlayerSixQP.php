@@ -2,14 +2,13 @@
 
 namespace App\Entity\Game\SixQP;
 
-use App\Entity\Game\DTO\Player;
 use App\Repository\Game\SixQP\PlayerSixQPRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PlayerSixQPRepository::class)]
-class PlayerSixQP extends Player
+class PlayerSixQP
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -28,6 +27,9 @@ class PlayerSixQP extends Player
 
     #[ORM\OneToOne(mappedBy: 'player', cascade: ['persist', 'remove'])]
     private ?DiscardSixQP $discardSixQP = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $username = null;
 
     public function __construct()
     {
@@ -105,6 +107,18 @@ class PlayerSixQP extends Player
         }
 
         $this->discardSixQP = $discardSixQP;
+
+        return $this;
+    }
+
+    public function getUsername(): ?string
+    {
+        return $this->username;
+    }
+
+    public function setUsername(string $username): static
+    {
+        $this->username = $username;
 
         return $this;
     }

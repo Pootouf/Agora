@@ -3,16 +3,14 @@
 namespace App\Entity\Game\SixQP;
 
 use App\Entity\Game\DTO\Card;
+use App\Entity\Game\DTO\Component;
+
 use App\Repository\Game\SixQP\ChosenCardSixQPRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ChosenCardSixQPRepository::class)]
-class ChosenCardSixQP extends Card
+class ChosenCardSixQP extends Component
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
 
     #[ORM\OneToOne(inversedBy: 'chosenCardSixQP', cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
@@ -28,11 +26,6 @@ class ChosenCardSixQP extends Card
 
     #[ORM\Column]
     private ?bool $state = null;
-
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
 
     public function getPlayer(): ?PlayerSixQP
     {

@@ -6,23 +6,10 @@ use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\MappedSuperclass;
 
 #[MappedSuperclass]
-class Card
+class Card extends Component
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    protected ?int $id = null;
-
     #[ORM\Column]
     protected ?int $value = null;
-
-    #[ORM\ManyToOne(inversedBy: 'cards')]
-    protected ?ListOfCards $listOfCards = null;
-
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
 
     public function getValue(): ?int
     {
@@ -36,15 +23,4 @@ class Card
         return $this;
     }
 
-    public function getListOfCards(): ?ListOfCards
-    {
-        return $this->listOfCards;
-    }
-
-    public function setListOfCards(?ListOfCards $listOfCards): static
-    {
-        $this->listOfCards = $listOfCards;
-
-        return $this;
-    }
 }

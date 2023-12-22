@@ -2,19 +2,15 @@
 
 namespace App\Entity\Game\SixQP;
 
-use App\Entity\Game\DTO\ListOfCards;
+use App\Entity\Game\DTO\Component;
 use App\Repository\Game\SixQP\DiscardSixQPRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: DiscardSixQPRepository::class)]
-class DiscardSixQP extends ListOfCards
+class DiscardSixQP extends Component
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
 
     #[ORM\OneToOne(inversedBy: 'discardSixQP', cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
@@ -33,11 +29,6 @@ class DiscardSixQP extends ListOfCards
     public function __construct()
     {
         $this->cards = new ArrayCollection();
-    }
-
-    public function getId(): ?int
-    {
-        return $this->id;
     }
 
     public function getPlayer(): ?PlayerSixQP
