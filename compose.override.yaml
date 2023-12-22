@@ -3,6 +3,7 @@ version: '3'
 services:
   agora:
     command: bash -c "cd /app
+      && symfony console doctrine:migrations:migrate
       && composer update
       && symfony server:stop
       && symfony server:start"
@@ -28,3 +29,14 @@ services:
     ports:
       - "80"
 ###< symfony/mercure-bundle ###
+
+  phpmyadmin:
+    container_name: phpmyadmin
+    image: phpmyadmin:apache
+    links:
+      - database
+    environment:
+      PMA_HOST: database
+      PMA_PORT: 3306
+    ports:
+      - "8081:80"
