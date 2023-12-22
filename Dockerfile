@@ -12,7 +12,8 @@ RUN docker-php-ext-install pdo_mysql opcache \
     && echo ServerName 0.0.0.0 >> /etc/apache2/apache2.conf
 WORKDIR /app
 COPY . /app
-RUN bash -c "cd /app && mv composer.phar /usr/local/bin/composer  \
+RUN bash -c "chmod u+x composer.phar  \
+    && mv composer.phar /usr/local/bin/composer  \
     && composer update  \
     && symfony console tailwind:init \
     && symfony server:ca:install"
