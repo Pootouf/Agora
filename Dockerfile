@@ -13,6 +13,7 @@ RUN docker-php-ext-install pdo_mysql opcache \
 WORKDIR /app
 COPY . /app
 RUN bash -c "chmod u+x composer.phar  \
+    && rm -f composer.lock \
     && mv composer.phar /usr/local/bin/composer  \
     && composer update  \
     && symfony console tailwind:init \
