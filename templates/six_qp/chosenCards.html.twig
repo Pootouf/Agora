@@ -1,5 +1,16 @@
 {% block chosenCards %}
-        <div class="bg-gray-500 rounded flow float-left w-1/4 h-full">
-            <h1 class="text-4xl font-bold text-blue-700 mb-4">Chosen Cards</h1>
+        <div class="bg-gray-500 rounded flow float-left w-1/4 h-full overflow-hidden">
+                {% set ind = 0 %}
+            <div class="grid grid-cols-2 grid-rows-5 w-full h-full">
+                {% for card in chosenCards %}
+                    <div class="overflow-hidden hover:z-10 hover:overflow-visible z-0">
+                        {% if chosenCards|length == playersNumber %}
+                            <img class="rounded shadow-lg  shadow-black aspect-auto mx-3" src="{{ asset('resourcesGames/6QP/cardsImages/' ~ card) }}" alt="card">
+                        {% else %}
+                            <img class="rounded aspect-auto m-3" src="{{ asset('resourcesGames/6QP/cardsImages' ~ "/back.png") }}" alt="back">
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
         </div>
 {% endblock %}

@@ -14,9 +14,9 @@ class SixQPController extends AbstractController
         return $this->render('six_qp/index.html.twig', [
             'controller_name' => 'SixQPController',
             //chosenCards is a list of the cards path that need to be displayed in the chosen cards zone
-            'chosenCards' => ['1.png', '2.png'],
+            'chosenCards' => ['1.png', '2.png', '3.png', '4.png', '5.png', '6.png', '7.png', '8.png', '9.png', '10.png'],
             //playersNumber is an integer that indicates the number of actual players
-            'playersNumber' => 5,
+            'playersNumber' => 10,
         ]);
     }
 }
