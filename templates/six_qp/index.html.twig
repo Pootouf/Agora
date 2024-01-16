@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Agora - 6 qui prend{% endblock %}
+
+{% block body %}
+    <div class="h-screen w-screen">
+        <div class="h-full w-full bg-black">
+        {% block chosenCards %}
+            {{ include('/six_qp/chosenCards.html.twig') }}
+        {% endblock %}
+        {% block mainBoard %}
+            {{ include('/six_qp/mainBoard.html.twig') }}
+        {% endblock %}
+        {% block personalBoard %}
+            {{ include('/six_qp/personalBoard.html.twig') }}
+        {% endblock %}
+        {% block ranking %}
+            {{ include('/six_qp/ranking.html.twig') }}
+        {% endblock %}
+        </div>
+    </div>
+{% endblock %}
