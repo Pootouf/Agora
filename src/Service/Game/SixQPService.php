@@ -2,7 +2,9 @@
 
 namespace App\Service\Game;
 
+use App\Entity\Game\SixQP\PlayerSixQP;
 use App\Entity\Game\SixQP\ChosenCardSixQP;
+use App\Entity\Game\SixQP\CardSixQP;
 use App\Entity\Game\SixQP\RowSixQP;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
@@ -10,8 +12,22 @@ use function PHPUnit\Framework\isNull;
 
 class SixQPService
 {
+    private EntityManagerInterface $entityManager;
 
-    public function placeCard(EntityManagerInterface $entityManager, ChosenCardSixQP $chosenCardSixQP) : int {
+    public function __construct(EntityManagerInterface $entityManager) {
+        $this -> entityManager = $entityManager;
+    } 
+
+    public function chooseCard(PlayerSixQP $player, CardSixQP $cardSixQP) : void {
+        $chosenCardSixQP = new ChosenCardSixQP($player, $player -> getGame(), $cardSixQP, false);
+        $player -> remove($cardSixQP);
+
+        $entityManager -> persist($chosenCardSixQP);
+        $entityManager -> persist($player);
+        $entityManager -> flush();
+    }
+
+    public function placeCard(ChosenCardSixQP $chosenCardSixQP) : int {
         $game = $chosenCardSixQP->getGame();
         $rows = $game->getRowSixQPs();
         $player = $chosenCardSixQP->getPlayer();

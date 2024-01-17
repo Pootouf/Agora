@@ -5,6 +5,10 @@ namespace App\Entity\Game\SixQP;
 use App\Entity\Game\DTO\Card;
 use App\Entity\Game\DTO\Component;
 
+use App\Entity\Game\SixQP\CardSixQP;
+use App\Entity\Game\SixQP\PlayerSixQP;
+use App\Entity\Game\SixQP\GameSixQP;
+
 use App\Repository\Game\SixQP\ChosenCardSixQPRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -26,6 +30,13 @@ class ChosenCardSixQP extends Component
 
     #[ORM\Column]
     private ?bool $state = null;
+
+    public function __construct(PlayerSixQP $player, GameSixQP $game, CardSixQP $card, bool $state) {
+        $this -> player = $player;
+        $this -> game = $game;
+        $this -> card = $card;
+        $this -> state = $state;
+    }
 
     public function getPlayer(): ?PlayerSixQP
     {
