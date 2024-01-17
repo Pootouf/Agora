@@ -9,6 +9,7 @@ use App\Entity\Game\SixQP\CardSixQP;
 use App\Entity\Game\SixQP\RowSixQP;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use function PHPUnit\Framework\isNull;
 
 class SixQPService
@@ -20,9 +21,17 @@ class SixQPService
     } 
 
     public function chooseCard(PlayerSixQP $player, CardSixQP $cardSixQP) : void {
+        if (!$this->playerOwnsCard($player, $cardSixQP)) {
+            throw new Exception("Player doesn't own this card");
+        }
+
+        if ($player -> getChosenCardSixQP() != null) {
+            throw new Exception("Player has already chosen a card");
+        }
+
         $chosenCardSixQP = new ChosenCardSixQP($player, $player -> getGame(), $cardSixQP, false);
         $player -> removeCard($cardSixQP);
-
+        $player -> setChosenCardSixQP($chosenCardSixQP);
         $this->entityManager -> persist($chosenCardSixQP);
         $this->entityManager -> persist($player);
         $this->entityManager -> flush();
@@ -83,4 +92,8 @@ class SixQPService
         return $rowResult;
     }
 
+    private function playerOwnsCard(PlayerSixQP $player, CardSixQP $card) : bool {
+        $cards = $player -> getCards();
+        return $cards -> contains($card);
+    }
 }
