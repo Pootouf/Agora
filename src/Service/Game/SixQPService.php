@@ -2,6 +2,7 @@
 
 namespace App\Service\Game;
 
+use App\Entity\Game\SixQP\DiscardSixQP;
 use App\Entity\Game\SixQP\PlayerSixQP;
 use App\Entity\Game\SixQP\ChosenCardSixQP;
 use App\Entity\Game\SixQP\CardSixQP;
@@ -52,6 +53,17 @@ class SixQPService
         $this->entityManager->remove($chosenCardSixQP);
         $this->entityManager->flush();
         return 0;
+    }
+
+    public function calculatePoints(DiscardSixQP $discardSixQP) : void {
+        $cards = $discardSixQP -> getCards();
+        $totalPoints = 0;
+        foreach($cards as $card) {
+            $totalPoints += $card -> getPoints();
+        }
+        $discardSixQP -> setTotalPoints($totalPoints);
+        $this -> entityManager -> persist($discardSixQP);
+        $this -> entityManager -> flush();
     }
 
     private function getValidRowForCard(ChosenCardSixQP $chosenCardSixQP, Collection $rows) : RowSixQP {
