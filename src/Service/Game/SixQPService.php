@@ -20,11 +20,11 @@ class SixQPService
 
     public function chooseCard(PlayerSixQP $player, CardSixQP $cardSixQP) : void {
         $chosenCardSixQP = new ChosenCardSixQP($player, $player -> getGame(), $cardSixQP, false);
-        $player -> remove($cardSixQP);
+        $player -> removeCard($cardSixQP);
 
-        $entityManager -> persist($chosenCardSixQP);
-        $entityManager -> persist($player);
-        $entityManager -> flush();
+        $this->entityManager -> persist($chosenCardSixQP);
+        $this->entityManager -> persist($player);
+        $this->entityManager -> flush();
     }
 
     public function placeCard(ChosenCardSixQP $chosenCardSixQP) : int {
@@ -45,12 +45,12 @@ class SixQPService
                 $row->getCards()->remove(0); //On supprime la position 0 pour supprimer les 5 premières cartes
                 $player->getDiscardSixQP()->addCard($card);
             }
-            $entityManager->persist($player->getDiscardSixQP());
+            $this->entityManager->persist($player->getDiscardSixQP());
         }
 
-        $entityManager->persist($row);
-        $entityManager->remove($chosenCardSixQP);
-        $entityManager->flush();
+        $this->entityManager->persist($row);
+        $this->entityManager->remove($chosenCardSixQP);
+        $this->entityManager->flush();
         return 0;
     }
 
