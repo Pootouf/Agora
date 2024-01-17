@@ -3,6 +3,7 @@
 .vscode
 .idea
 .git
+.env.local
 var
 vendor
 package-lock.json
