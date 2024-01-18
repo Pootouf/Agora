@@ -98,7 +98,8 @@ class SixQPService
         return $rowResult;
     }
 
-    private function addRowToDiscardOfPlayer(PlayerSixQP $player, RowSixQP $row) {
+    private function addRowToDiscardOfPlayer(PlayerSixQP $player, RowSixQP $row): void
+    {
         for ($i = 0; $i < 5; $i++) {
             $card = $row->getCards()->get(0);
             $row->getCards()->remove(0); //On supprime la position 0 pour supprimer les 5 premières cartes
