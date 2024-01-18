@@ -65,6 +65,13 @@ class PlayerSixQP extends Player
         return $this;
     }
 
+    public function clearCards(): static
+    {
+        $this->cards = new ArrayCollection();
+
+        return $this;
+    }
+
     public function getChosenCardSixQP(): ?ChosenCardSixQP
     {
         return $this->chosenCardSixQP;

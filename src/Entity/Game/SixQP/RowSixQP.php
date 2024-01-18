@@ -73,4 +73,11 @@ class RowSixQP extends Component
 
         return $this;
     }
+
+    public function clearCards(): static
+    {
+        $this->cards = new ArrayCollection();
+
+        return $this;
+    }
 }
