@@ -22,7 +22,7 @@ class GameService
      * @param array $players players to add in the game
      * @throws Exception if invalid number of player
      */
-    public function createSixQPGame(array $players): void
+    public function createSixQPGame(array $players): GameSixQP
     {
         $numberOfPlayer = count($players);
         if (2 > $numberOfPlayer || $numberOfPlayer > 10) {
@@ -39,6 +39,8 @@ class GameService
         $this->entityManager->flush();
 
         //TODO: initialize the round with SixQPService
+
+        return $game;
     }
 
     private function createPlayer(string $playerName, GameSixQP $game): void
