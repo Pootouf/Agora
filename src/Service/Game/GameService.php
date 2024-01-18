@@ -37,6 +37,8 @@ class GameService
         }
 
         $this->entityManager->flush();
+
+        //TODO: initialize the round with SixQPService
     }
 
     private function createPlayer(string $playerName, GameSixQP $game): void
