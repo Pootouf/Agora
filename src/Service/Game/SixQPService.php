@@ -39,6 +39,11 @@ class SixQPService
         $this->entityManager->flush();
     }
 
+    /**
+     * placeCard : place the chosen card into the right row, and update player's discard if necessary
+     * @param ChosenCardSixQP $chosenCardSixQP
+     * @return int 0 if the card has been placed, -1 otherwise
+     */
     public function placeCard(ChosenCardSixQP $chosenCardSixQP): int
     {
         $game = $chosenCardSixQP->getGame();
@@ -51,14 +56,8 @@ class SixQPService
         }
 
         $row->getCards()->add($chosenCardSixQP->getCard());
-
         if ($row->getCards()->count() == 6) {
-            for ($i = 0; $i < 5; $i++) {
-                $card = $row->getCards()->get(0);
-                $row->getCards()->remove(0); //On supprime la position 0 pour supprimer les 5 premières cartes
-                $player->getDiscardSixQP()->addCard($card);
-            }
-            $this->entityManager->persist($player->getDiscardSixQP());
+            $this->addRowToDiscardOfPlayer($player, $row);
         }
 
         $this->entityManager->persist($row);
@@ -97,6 +96,15 @@ class SixQPService
             }
         }
         return $rowResult;
+    }
+
+    private function addRowToDiscardOfPlayer(PlayerSixQP $player, RowSixQP $row) {
+        for ($i = 0; $i < 5; $i++) {
+            $card = $row->getCards()->get(0);
+            $row->getCards()->remove(0); //On supprime la position 0 pour supprimer les 5 premières cartes
+            $player->getDiscardSixQP()->addCard($card);
+        }
+        $this->entityManager->persist($player->getDiscardSixQP());
     }
 
     private function playerOwnsCard(PlayerSixQP $player, CardSixQP $card): bool
