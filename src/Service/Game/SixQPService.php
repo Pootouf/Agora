@@ -16,28 +16,31 @@ class SixQPService
 {
     private EntityManagerInterface $entityManager;
 
-    public function __construct(EntityManagerInterface $entityManager) {
-        $this -> entityManager = $entityManager;
-    } 
+    public function __construct(EntityManagerInterface $entityManager)
+    {
+        $this->entityManager = $entityManager;
+    }
 
-    public function chooseCard(PlayerSixQP $player, CardSixQP $cardSixQP) : void {
+    public function chooseCard(PlayerSixQP $player, CardSixQP $cardSixQP): void
+    {
         if (!$this->playerOwnsCard($player, $cardSixQP)) {
             throw new Exception("Player doesn't own this card");
         }
 
-        if ($player -> getChosenCardSixQP() != null) {
+        if ($player->getChosenCardSixQP() != null) {
             throw new Exception("Player has already chosen a card");
         }
 
-        $chosenCardSixQP = new ChosenCardSixQP($player, $player -> getGame(), $cardSixQP, false);
-        $player -> removeCard($cardSixQP);
-        $player -> setChosenCardSixQP($chosenCardSixQP);
-        $this->entityManager -> persist($chosenCardSixQP);
-        $this->entityManager -> persist($player);
-        $this->entityManager -> flush();
+        $chosenCardSixQP = new ChosenCardSixQP($player, $player->getGame(), $cardSixQP, false);
+        $player->removeCard($cardSixQP);
+        $player->setChosenCardSixQP($chosenCardSixQP);
+        $this->entityManager->persist($chosenCardSixQP);
+        $this->entityManager->persist($player);
+        $this->entityManager->flush();
     }
 
-    public function placeCard(ChosenCardSixQP $chosenCardSixQP) : int {
+    public function placeCard(ChosenCardSixQP $chosenCardSixQP): int
+    {
         $game = $chosenCardSixQP->getGame();
         $rows = $game->getRowSixQPs();
         $player = $chosenCardSixQP->getPlayer();
@@ -50,7 +53,7 @@ class SixQPService
         $row->getCards()->add($chosenCardSixQP->getCard());
 
         if ($row->getCards()->count() == 6) {
-            for($i = 0; $i < 5; $i++) {
+            for ($i = 0; $i < 5; $i++) {
                 $card = $row->getCards()->get(0);
                 $row->getCards()->remove(0); //On supprime la position 0 pour supprimer les 5 premières cartes
                 $player->getDiscardSixQP()->addCard($card);
@@ -64,18 +67,20 @@ class SixQPService
         return 0;
     }
 
-    public function calculatePoints(DiscardSixQP $discardSixQP) : void {
-        $cards = $discardSixQP -> getCards();
+    public function calculatePoints(DiscardSixQP $discardSixQP): void
+    {
+        $cards = $discardSixQP->getCards();
         $totalPoints = 0;
-        foreach($cards as $card) {
-            $totalPoints += $card -> getPoints();
+        foreach ($cards as $card) {
+            $totalPoints += $card->getPoints();
         }
-        $discardSixQP -> setTotalPoints($totalPoints);
-        $this -> entityManager -> persist($discardSixQP);
-        $this -> entityManager -> flush();
+        $discardSixQP->setTotalPoints($totalPoints);
+        $this->entityManager->persist($discardSixQP);
+        $this->entityManager->flush();
     }
 
-    private function getValidRowForCard(ChosenCardSixQP $chosenCardSixQP, Collection $rows) : RowSixQP {
+    private function getValidRowForCard(ChosenCardSixQP $chosenCardSixQP, Collection $rows): RowSixQP
+    {
         $rowResult = null;
         $lastSmallestDistance = INF;
         foreach ($rows as $row) {
@@ -83,8 +88,10 @@ class SixQPService
 
             $chosenCardValue = $chosenCardSixQP->getCard()->getValue();
             $rowValue = $cards->get($cards->count() - 1)->getValue();
-            if($rowValue < $chosenCardValue
-                && ($chosenCardValue - $rowValue) < $lastSmallestDistance) {
+            if (
+                $rowValue < $chosenCardValue
+                && ($chosenCardValue - $rowValue) < $lastSmallestDistance
+            ) {
                 $rowResult = $row;
                 $lastSmallestDistance = $chosenCardValue - $rowValue;
             }
@@ -92,8 +99,9 @@ class SixQPService
         return $rowResult;
     }
 
-    private function playerOwnsCard(PlayerSixQP $player, CardSixQP $card) : bool {
-        $cards = $player -> getCards();
-        return $cards -> contains($card);
+    private function playerOwnsCard(PlayerSixQP $player, CardSixQP $card): bool
+    {
+        $cards = $player->getCards();
+        return $cards->contains($card);
     }
 }
