@@ -3,10 +3,12 @@
 namespace App\Service\Game;
 
 use App\Entity\Game\SixQP\DiscardSixQP;
+use App\Entity\Game\SixQP\GameSixQP;
 use App\Entity\Game\SixQP\PlayerSixQP;
 use App\Entity\Game\SixQP\ChosenCardSixQP;
 use App\Entity\Game\SixQP\CardSixQP;
 use App\Entity\Game\SixQP\RowSixQP;
+use App\Repository\Game\SixQP\CardSixQPRepository;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
@@ -14,11 +16,38 @@ use function PHPUnit\Framework\isNull;
 
 class SixQPService
 {
+    public static int $NUMBER_OF_CARDS_BY_PLAYER = 10;
+
     private EntityManagerInterface $entityManager;
 
     public function __construct(EntityManagerInterface $entityManager)
     {
         $this->entityManager = $entityManager;
+    }
+
+    /**
+     * initializeNewRound : initialize a new round with random cards for central board and players
+     * @param CardSixQPRepository $cardSixQPRepository
+     * @param GameSixQP $gameSixQP
+     * @return void
+     */
+    public function initializeNewRound(CardSixQPRepository $cardSixQPRepository, GameSixQP $gameSixQP): void
+    {
+        $cards = $cardSixQPRepository->findAll();
+        shuffle($cards);
+        $players = $gameSixQP->getPlayerSixQPs();
+        $cardIndex = 0;
+        foreach ($gameSixQP->getRowSixQPs() as $row) {
+            $row->clearCards();
+            $row->addCard($cards[$cardIndex++]);
+        }
+
+        foreach ($players as $player) {
+            $player->clearCards();
+            for ($i = 0; $i < SixQPService::$NUMBER_OF_CARDS_BY_PLAYER; $i++) {
+                $player->addCard($cards[$cardIndex++]);
+            }
+        }
     }
 
     public function chooseCard(PlayerSixQP $player, CardSixQP $cardSixQP): void
