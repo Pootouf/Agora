@@ -5,11 +5,15 @@ namespace App\Service\Game;
 use App\Entity\Game\SixQP\DiscardSixQP;
 use App\Entity\Game\SixQP\GameSixQP;
 use App\Entity\Game\SixQP\PlayerSixQP;
+use App\Entity\Game\SixQP\RowSixQP;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 
 class GameService
 {
+    public static int $NUMBER_OF_ROWS_BY_GAME = 4;
+
     private EntityManagerInterface $entityManager;
 
     public function __construct(EntityManagerInterface $entityManager)
@@ -30,12 +34,18 @@ class GameService
         }
 
         $game = new GameSixQP();
-        $this->entityManager->persist($game);
+        for($i = 0; $i < GameService::$NUMBER_OF_ROWS_BY_GAME; $i++) {
+            $row = new RowSixQP();
+            $row->setPosition($i);
+            $game->addRowSixQP($row);
+            $this->entityManager->persist($row);
+        }
 
         for ($i = 0; $i < $numberOfPlayer; $i ++) {
             $this->createPlayer("Player".($i+1), $game);
         }
 
+        $this->entityManager->persist($game);
         $this->entityManager->flush();
 
         //TODO: initialize the round with SixQPService
@@ -48,6 +58,7 @@ class GameService
         $player = new PlayerSixQP($playerName, $game);
         $discard = new DiscardSixQP($player, $game);
         $player->setDiscardSixQP($discard);
+        $game->addPlayerSixQP($player);
         $this->entityManager->persist($player);
         $this->entityManager->persist($discard);
     }

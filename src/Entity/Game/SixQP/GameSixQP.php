@@ -12,8 +12,6 @@ use Doctrine\ORM\Mapping as ORM;
 class GameSixQP extends Component
 {
 
-    public static int $NUMBER_OF_ROWS_BY_GAME = 4;
-
     #[ORM\OneToMany(mappedBy: 'game', targetEntity: RowSixQP::class, orphanRemoval: true)]
     private Collection $rowSixQPs;
 
@@ -23,10 +21,6 @@ class GameSixQP extends Component
     public function __construct()
     {
         $this->rowSixQPs = new ArrayCollection();
-        for($i = 0; $i < GameSixQP::$NUMBER_OF_ROWS_BY_GAME; $i++) {
-            $row = new RowSixQP();
-            $this->addRowSixQP($row);
-        }
         $this->playerSixQPs = new ArrayCollection();
     }
 
