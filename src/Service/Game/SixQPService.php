@@ -78,6 +78,13 @@ class SixQPService
         $this->entityManager->flush();
     }
 
+    public function revealCard(ChosenCardSixQP $chosenCardSixQP) : void
+    {
+        $chosenCardSixQP->setState(true);
+        $this->entityManager->persist($chosenCardSixQP);
+        $this->entityManager->flush();
+    }
+
     private function getValidRowForCard(ChosenCardSixQP $chosenCardSixQP, Collection $rows): RowSixQP
     {
         $rowResult = null;
