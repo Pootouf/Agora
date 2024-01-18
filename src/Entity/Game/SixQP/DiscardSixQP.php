@@ -14,20 +14,22 @@ class DiscardSixQP extends Component
 
     #[ORM\OneToOne(inversedBy: 'discardSixQP', cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
-    private ?PlayerSixQP $player = null;
+    private ?PlayerSixQP $player;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    private ?GameSixQP $game = null;
+    private ?GameSixQP $game;
 
     #[ORM\ManyToMany(targetEntity: CardSixQP::class)]
     private Collection $cards;
 
     #[ORM\Column]
-    private ?int $totalPoints = null;
+    private ?int $totalPoints = 0;
 
-    public function __construct()
+    public function __construct(PlayerSixQP $player, GameSixQP $game)
     {
+        $this->player = $player;
+        $this->game = $game;
         $this->cards = new ArrayCollection();
     }
 
