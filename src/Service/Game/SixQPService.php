@@ -50,6 +50,12 @@ class SixQPService
         }
     }
 
+    /**
+     * chooseCard : players chooses a card which is now in state "chosen"
+     * @param PlayerSixQP $player
+     * @param CardSixQP $cardSixQP
+     * @return void
+     */
     public function chooseCard(PlayerSixQP $player, CardSixQP $cardSixQP): void
     {
         if (!$this->playerOwnsCard($player, $cardSixQP)) {
@@ -144,6 +150,12 @@ class SixQPService
         $this->entityManager->persist($player->getDiscardSixQP());
     }
 
+    /**
+     * playerOwnsCard : check if player really owns the asked card
+     * @param PlayerSixQP $player
+     * @param CardSixQP $card
+     * @return bool
+     */
     private function playerOwnsCard(PlayerSixQP $player, CardSixQP $card): bool
     {
         $cards = $player->getCards();
