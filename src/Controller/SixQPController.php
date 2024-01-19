@@ -15,6 +15,7 @@ class SixQPController extends AbstractController
             'controller_name' => 'SixQPController',
             //chosenCards is a list of the cards path that need to be displayed in the chosen cards zone
             'chosenCards' => ['1.png', '2.png', '3.png', '4.png', '5.png', '6.png', '7.png', '8.png', '9.png', '10.png'],
+            'placeholderPlayerCards' => ['37.png','60.png','80.png','34.png','65.png','59.png','79.png','1.png','11.png','45.png'],
             //playersNumber is an integer that indicates the number of actual players
             'playersNumber' => 10,
         ]);

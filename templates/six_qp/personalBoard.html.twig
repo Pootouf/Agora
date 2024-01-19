@@ -1,3 +1,14 @@
 {% block personalBoard %}
-    <h1>Personal Board</h1>
+    <div class="flex bg-green-500 h-1/4 w-7/12 float-bottom-0 ">
+        <div class="flex mt-2 mx-2 justify-center align-center w-full">
+            {% for i in 0..(placeholderPlayerCards|length - 1) %}
+                <div class="overflow-hidden hover:z-10 hover:-translate-y-14">
+                    <img class="z-0"
+                         src="{{ asset('resourcesGames/6QP/cardsImages/' ~ placeholderPlayerCards[i]) }}"
+                         alt="{{ placeholderPlayerCards[i]|split('.')[0] }}"
+                    >
+                </div>
+            {% endfor %}
+        </div>
+    </div>
 {% endblock %}
