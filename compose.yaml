@@ -39,6 +39,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: password
       MYSQL_TCP_PORT: 3307
+      MYSQL_DATABASE: main_test
     ports:
       - '3307'
     healthcheck:
