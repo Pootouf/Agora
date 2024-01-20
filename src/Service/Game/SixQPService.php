@@ -40,13 +40,14 @@ class SixQPService
         foreach ($gameSixQP->getRowSixQPs() as $row) {
             $row->clearCards();
             $row->addCard($cards[$cardIndex++]);
+            $this->entityManager->persist($row);
         }
-
         foreach ($players as $player) {
             $player->clearCards();
             for ($i = 0; $i < SixQPService::$NUMBER_OF_CARDS_BY_PLAYER; $i++) {
                 $player->addCard($cards[$cardIndex++]);
             }
+            $this->entityManager->persist($player);
         }
     }
 
