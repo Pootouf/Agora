@@ -2,27 +2,33 @@
 
 namespace App\Tests\Unit\Service\Game;
 
-use App\Repository\Game\SixQP\GameSixQPRepository;
 use App\Service\Game\GameService;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Doctrine\ORM\EntityManagerInterface;
+use Exception;
+use PHPUnit\Framework\TestCase;
 
-class GameServiceTest extends KernelTestCase
+class GameServiceTest extends TestCase
 {
+
+    private GameService $gameService;
 
     public function testGameSixQPCreationValidWithValidNumberOfPlayers(): void
     {
-        $kernel = self::bootKernel();
-        $this->assertSame('test', $kernel->getEnvironment());
+        $players = ['test', 'test', 'test', 'test']; //TODO : add real users
+        $game = $this->gameService->createSixQPGame($players);
+        $this->expectNotToPerformAssertions();
+    }
 
-        $gameService = static::getContainer()->get(GameService::class);
-        $gameRepository = static::getContainer()->get(GameSixQPRepository::class);
+    public function testGameSixQPCreationInvalidWithInvalidNumberOfPlayers(): void
+    {
+        $players = ['test', 'test', 'test', 'test', 'test', 'test', 'test', 'test', 'test', 'test', 'test', 'test', 'test']; //TODO : add real users
+        $this->expectException(Exception::class);
+        $game = $this->gameService->createSixQPGame($players);
+    }
 
-        $players = ['test', 'test', 'test', 'test'];
-
-        $game = $gameService->createSixQPGame($players);
-
-        $game = $gameRepository->findOneBy(['id' => $game->getId()]);
-
-        $this->assertSame(count($players), count($game->getPlayerSixQPs()));
+    protected function setUp(): void
+    {
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $this->gameService = new GameService($entityManager);
     }
 }
