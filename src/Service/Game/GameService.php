@@ -42,7 +42,7 @@ class GameService
         }
 
         for ($i = 0; $i < $numberOfPlayer; $i ++) {
-            $this->createPlayer("Player".($i+1), $game);
+            $this->createPlayer("Player".($i+1), $game); //TODO: set the name of the player
         }
 
         $this->entityManager->persist($game);
