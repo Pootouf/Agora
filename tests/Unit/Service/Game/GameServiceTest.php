@@ -21,7 +21,8 @@ class GameServiceTest extends TestCase
 
     public function testUserCreationInvalidWithTooManyPlayers(): void
     {
-        $players = ['test', 'test', 'test', 'test', 'test', 'test', 'test', 'test', 'test', 'test', 'test', 'test', 'test']; //TODO : add real users
+        $players = ['test', 'test', 'test', 'test', 'test', 'test', 'test'
+                    , 'test', 'test', 'test', 'test', 'test', 'test']; //TODO : add real users
         $this->expectException(Exception::class);
         $game = $this->gameService->createSixQPGame($players);
     }
