@@ -20,20 +20,22 @@ class SixQPService
 
     private EntityManagerInterface $entityManager;
 
-    public function __construct(EntityManagerInterface $entityManager)
+    private CardSixQPRepository $cardSixQPRepository;
+
+    public function __construct(EntityManagerInterface $entityManager, CardSixQPRepository $cardSixQPRepository)
     {
         $this->entityManager = $entityManager;
+        $this->cardSixQPRepository = $cardSixQPRepository;
     }
 
     /**
      * initializeNewRound : initialize a new round with random cards for central board and players
-     * @param CardSixQPRepository $cardSixQPRepository
      * @param GameSixQP $gameSixQP
      * @return void
      */
-    public function initializeNewRound(CardSixQPRepository $cardSixQPRepository, GameSixQP $gameSixQP): void
+    public function initializeNewRound( GameSixQP $gameSixQP): void
     {
-        $cards = $cardSixQPRepository->findAll();
+        $cards = $this->cardSixQPRepository->findAll();
         shuffle($cards);
         $players = $gameSixQP->getPlayerSixQPs();
         $cardIndex = 0;

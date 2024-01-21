@@ -5,6 +5,7 @@ namespace App\Tests\Service\Game;
 use App\Entity\Game\SixQP\CardSixQP;
 use App\Entity\Game\SixQP\GameSixQP;
 use App\Entity\Game\SixQP\PlayerSixQP;
+use App\Repository\Game\SixQP\CardSixQPRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use PHPUnit\Framework\TestCase;
@@ -57,9 +58,13 @@ class SixQPServiceTest extends TestCase
 
     }
 
+
+
+
     protected function setUp(): void
     {
         $entityManager = $this->createMock(EntityManagerInterface::class);
-        $this->sixQPService = new SixQPService($entityManager);
+        $cardSixQPRepository = $this->createMock(CardSixQPRepository::class);
+        $this->sixQPService = new SixQPService($entityManager, $cardSixQPRepository);
     }
 }
