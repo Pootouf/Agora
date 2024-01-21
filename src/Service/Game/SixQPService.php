@@ -173,7 +173,7 @@ class SixQPService
     {
         for ($i = 0; $i < 5; $i++) {
             $card = $row->getCards()->get(0);
-            $row->getCards()->remove(0); //On supprime la position 0 pour supprimer les 5 premières cartes
+            $row->getCards()->remove(0); //We delete the first 5 positions to delete all the cards
             $player->getDiscardSixQP()->addCard($card);
         }
         $this->entityManager->persist($player->getDiscardSixQP());
