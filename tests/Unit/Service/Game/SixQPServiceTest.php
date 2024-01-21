@@ -96,14 +96,14 @@ class SixQPServiceTest extends TestCase
         }
     }
 
-    public function testInitializeNewRoundInvalidWithNotEnoughPlayer(): void
+    public function testInitializeNewRoundInvalidWithNotEnoughPlayers(): void
     {
         $game = $this->createGame(1, 4);
         $this->expectException(Exception::class);
         $this->sixQPService->initializeNewRound($game);
     }
 
-    public function testInitializeNewRoundInvalidWithTooManyPlayer(): void
+    public function testInitializeNewRoundInvalidWithTooManyPlayers(): void
     {
         $game = $this->createGame(15, 4);
         $this->expectException(Exception::class);
