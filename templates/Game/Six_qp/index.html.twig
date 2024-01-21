@@ -5,17 +5,20 @@
 {% block body %}
     <div class="h-screen w-screen">
         <div class="h-full w-full">
+            {% block nav %}
+                {{ include('/Game/Utils/navigation.html.twig') }}
+            {% endblock %}
             {% block chosenCards %}
-                {{ include('/Six_qp/chosenCards.html.twig') }}
+                {{ include('/Game/Six_qp/chosenCards.html.twig') }}
             {% endblock %}
             {% block ranking %}
-                {{ include('/Six_qp/ranking.html.twig') }}
+                {{ include('/Game/Six_qp/ranking.html.twig') }}
             {% endblock %}
             {% block mainBoard %}
-                {{ include('/Six_qp/mainBoard.html.twig') }}
+                {{ include('/Game/Six_qp/mainBoard.html.twig') }}
             {% endblock %}
             {% block personalBoard %}
-                {{ include('/Six_qp/personalBoard.html.twig') }}
+                {{ include('/Game/Six_qp/personalBoard.html.twig') }}
             {% endblock %}
         </div>
     </div>

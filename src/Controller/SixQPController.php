@@ -11,7 +11,7 @@ class SixQPController extends AbstractController
     #[Route('/six/q/p', name: 'app_six_q_p')]
     public function index(): Response
     {
-        return $this->render('Six_qp/index.html.twig', [
+        return $this->render('/Game/Six_qp/index.html.twig', [
             'controller_name' => 'SixQPController',
             //chosenCards is a list of the cards path that need to be displayed in the chosen cards zone
             'chosenCards' => ['1.png', '2.png', '3.png', '4.png', '5.png', '6.png', '7.png', '8.png', '9.png', '10.png'],
