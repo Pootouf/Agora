@@ -69,7 +69,7 @@ class SixQPService
      */
     public function chooseCard(PlayerSixQP $player, CardSixQP $cardSixQP): void
     {
-        if (!$this->playerOwnsCard($player, $cardSixQP)) {
+        if (!$this->doesPlayerOwnsCard($player, $cardSixQP)) {
             throw new Exception("Player doesn't own this card");
         }
 
@@ -180,12 +180,12 @@ class SixQPService
     }
 
     /**
-     * playerOwnsCard : check if player really owns the asked card
+     * doesPlayerOwnsCard : check if player really owns the asked card
      * @param PlayerSixQP $player
      * @param CardSixQP $card
      * @return bool
      */
-    private function playerOwnsCard(PlayerSixQP $player, CardSixQP $card): bool
+    private function doesPlayerOwnsCard(PlayerSixQP $player, CardSixQP $card): bool
     {
         $cards = $player->getCards();
         return $cards->contains($card);
