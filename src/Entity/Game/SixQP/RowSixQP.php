@@ -11,6 +11,9 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: RowSixQPRepository::class)]
 class RowSixQP extends Component
 {
+
+    public static int $NUMBER_OF_ROWS_BY_GAME = 4;
+
     #[ORM\Column]
     private ?int $position = null;
 

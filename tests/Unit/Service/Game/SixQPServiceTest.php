@@ -2,9 +2,11 @@
 
 namespace App\Tests\Service\Game;
 
+use App\DataFixtures\SixQPFixtures;
 use App\Entity\Game\SixQP\CardSixQP;
 use App\Entity\Game\SixQP\GameSixQP;
 use App\Entity\Game\SixQP\PlayerSixQP;
+use App\Entity\Game\SixQP\RowSixQP;
 use App\Repository\Game\SixQP\CardSixQPRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;

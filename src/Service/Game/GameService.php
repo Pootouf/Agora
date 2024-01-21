@@ -12,8 +12,6 @@ use Exception;
 
 class GameService
 {
-    public static int $NUMBER_OF_ROWS_BY_GAME = 4;
-
     private EntityManagerInterface $entityManager;
 
     public function __construct(EntityManagerInterface $entityManager)
@@ -34,7 +32,7 @@ class GameService
         }
 
         $game = new GameSixQP();
-        for($i = 0; $i < GameService::$NUMBER_OF_ROWS_BY_GAME; $i++) {
+        for($i = 0; $i < RowSixQP::$NUMBER_OF_ROWS_BY_GAME; $i++) {
             $row = new RowSixQP();
             $row->setPosition($i);
             $game->addRowSixQP($row);

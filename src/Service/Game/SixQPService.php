@@ -16,8 +16,6 @@ use function PHPUnit\Framework\isNull;
 
 class SixQPService
 {
-    public static int $NUMBER_OF_CARDS_BY_PLAYER = 10;
-
     private EntityManagerInterface $entityManager;
 
     private CardSixQPRepository $cardSixQPRepository;
@@ -46,7 +44,7 @@ class SixQPService
         }
         foreach ($players as $player) {
             $player->clearCards();
-            for ($i = 0; $i < SixQPService::$NUMBER_OF_CARDS_BY_PLAYER; $i++) {
+            for ($i = 0; $i < PlayerSixQP::$NUMBER_OF_CARDS_BY_PLAYER; $i++) {
                 $player->addCard($cards[$cardIndex++]);
             }
             $this->entityManager->persist($player);
