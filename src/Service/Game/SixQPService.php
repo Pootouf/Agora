@@ -136,6 +136,13 @@ class SixQPService
         $this->entityManager->flush();
     }
 
+    /**
+     * getValidRowForCard : calculate the row with the nearest value to the chosen card,
+     *                      with the chosen card value greater than the value of the row
+     * @param ChosenCardSixQP $chosenCardSixQP the chosen card
+     * @param Collection $rows the rows of the game
+     * @return RowSixQP the valid row, null if no valid row in the game
+     */
     private function getValidRowForCard(ChosenCardSixQP $chosenCardSixQP, Collection $rows): RowSixQP
     {
         $rowResult = null;
@@ -156,6 +163,12 @@ class SixQPService
         return $rowResult;
     }
 
+    /**
+     * addRowToDiscardOfPlayer : add all the cards of the row to the discard of the player
+     * @param PlayerSixQP $player the player who will get the cards
+     * @param RowSixQP $row the row with the cards to add to the discard
+     * @return void
+     */
     private function addRowToDiscardOfPlayer(PlayerSixQP $player, RowSixQP $row): void
     {
         for ($i = 0; $i < 5; $i++) {
