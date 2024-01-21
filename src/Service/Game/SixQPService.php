@@ -30,9 +30,18 @@ class SixQPService
      * initializeNewRound : initialize a new round with random cards for central board and players
      * @param GameSixQP $gameSixQP
      * @return void
+     * @throws Exception if not valid number of players or rows
      */
     public function initializeNewRound(GameSixQP $gameSixQP): void
     {
+        if(count($gameSixQP->getRowSixQPs()) != RowSixQP::$NUMBER_OF_ROWS_BY_GAME) {
+            throw new Exception('Invalid number of rows');
+        }
+        $numberOfPlayers = count($gameSixQP->getPlayerSixQPs());
+        if($numberOfPlayers > 10 || $numberOfPlayers < 2) {
+            throw new Exception('Invalid number of players');
+        }
+
         $cards = $this->cardSixQPRepository->findAll();
         shuffle($cards);
         $players = $gameSixQP->getPlayerSixQPs();
