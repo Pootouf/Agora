@@ -33,8 +33,6 @@ class SixQPServiceTest extends TestCase
         $this->sixQPService = new SixQPService($entityManager, $cardSixQPRepository);
     }
 
-
-    // Unit Tests for chooseCard
     public function testChooseCardWhenCardNotOwned(): void
     {
         $game = new GameSixQP();
@@ -50,8 +48,10 @@ class SixQPServiceTest extends TestCase
         $player = new PlayerSixQP('test', $game);
         $oldCard = new CardSixQP();
         $newCard = new CardSixQP();
-        $this->expectException(Exception::class);
+        $player -> addCard($oldCard);
+        $player -> addCard($newCard);
         $this->sixQPService->chooseCard($player, $oldCard);
+        $this->expectException(Exception::class);
         $this->sixQPService->chooseCard($player, $newCard);
     }
 
