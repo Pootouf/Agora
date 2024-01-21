@@ -19,6 +19,8 @@ class SixQPController extends AbstractController
             'placeholderPlayerCards' => ['37.png','60.png','80.png','34.png','65.png','59.png','79.png','1.png','11.png','45.png'],
             //playersNumber is an integer that indicates the number of actual players
             'playersNumber' => 10,
+            'users' => [['user1', 100], ['user2', 20], ['user2', 5], ['user3', 00000] ],
+            'createdAt' => time(),
         ]);
     }
 }
