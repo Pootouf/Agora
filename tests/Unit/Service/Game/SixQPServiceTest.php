@@ -17,7 +17,8 @@ class SixQPServiceTest extends TestCase
     // Unit Tests for chooseCard
     public function testChooseCardWhenCardNotOwned(): void
     {
-        $player = new PlayerSixQP();
+        $game = new GameSixQP();
+        $player = new PlayerSixQP('test', $game);
         $card = new CardSixQP();
         $this->expectException(Exception::class);
         $this->sixQPService->chooseCard($player, $card);
@@ -25,7 +26,8 @@ class SixQPServiceTest extends TestCase
 
     public function testChooseCardWhenPlayerAlreadyChose(): void
     {
-        $player = new PlayerSixQP();
+        $game = new GameSixQP();
+        $player = new PlayerSixQP('test', $game);
         $oldCard = new CardSixQP();
         $newCard = new CardSixQP();
         $this->expectException(Exception::class);
@@ -42,7 +44,7 @@ class SixQPServiceTest extends TestCase
 
         $game = new GameSixQP();
 
-        $player = new PlayerSixQP();
+        $player = new PlayerSixQP('test', $game);
         $player->addCard($card);
         $player->setGame($game);
         $player->setUsername("test");
