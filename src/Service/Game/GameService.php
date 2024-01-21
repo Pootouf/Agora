@@ -65,6 +65,7 @@ class GameService
         $game->addPlayerSixQP($player);
         $this->entityManager->persist($player);
         $this->entityManager->persist($discard);
+        $this->entityManager->flush();
     }
 
 }
