@@ -2,6 +2,7 @@
 
 namespace Integration\Service\Game;
 
+use App\Entity\Game\SixQP\CardSixQP;
 use App\Entity\Game\SixQP\GameSixQP;
 use App\Entity\Game\SixQP\PlayerSixQP;
 use App\Entity\Game\SixQP\RowSixQP;
@@ -62,7 +63,70 @@ class SixQPServiceIntegrationTest extends KernelTestCase
         $sixQPService->initializeNewRound($game);
     }
 
+    public function testChooseCardWhenCardNotOwned(): void
+    {
+        $sixQPService = static::getContainer()->get(SixQPService::class);
+        $game = new GameSixQP();
+        $player = new PlayerSixQP('test', $game);
+        $card = new CardSixQP();
+        $this->expectException(Exception::class);
+        $sixQPService->chooseCard($player, $card);
+    }
 
+    public function testChooseCardWhenPlayerAlreadyChose(): void
+    {
+        $sixQPService = static::getContainer()->get(SixQPService::class);
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $game = new GameSixQP();
+        $player = new PlayerSixQP('test', $game);
+        $oldCard = new CardSixQP();
+        $newCard = new CardSixQP();
+        $oldCard->setValue(1);
+        $oldCard->setPoints(1);
+        $newCard->setValue(2);
+        $newCard->setPoints(1);
+        $player->addCard($oldCard);
+        $player->addCard($newCard);
+        $entityManager->persist($oldCard);
+        $entityManager->persist($newCard);
+        $entityManager->persist($game);
+        $entityManager->persist($player);
+        $sixQPService->chooseCard($player, $oldCard);
+        $this->expectException(Exception::class);
+        $sixQPService->chooseCard($player, $newCard);
+    }
+
+    public function testChooseCardWhenValid(): void
+    {
+        $sixQPService = static::getContainer()->get(SixQPService::class);
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+
+        $card = new CardSixQP();
+        $card->setValue(1);
+        $card->setPoints(1);
+
+        $game = new GameSixQP();
+
+        $player = new PlayerSixQP('test', $game);
+        $player->addCard($card);
+        $player->setGame($game);
+        $player->setUsername("test");
+        $cards = $player->getCards();
+
+        $entityManager->persist($card);
+        $entityManager->persist($game);
+        $entityManager->persist($player);
+        $entityManager->flush();
+
+        $this->assertTrue($cards->contains($card));
+        $this->assertNull($player->getChosenCardSixQP());
+        $sixQPService->chooseCard($player, $card);
+        $cards = $player->getCards();
+        $this->assertNotNull($cards);
+        $this->assertFalse($cards->contains($card));
+        $this->assertNotNull($player->getChosenCardSixQP());
+        $this->assertFalse($player->getChosenCardSixQP()->isVisible());
+    }
 
     private function createGame(int $numberOfPlayer, int $numberOfRow): GameSixQP
     {
