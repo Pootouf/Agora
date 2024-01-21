@@ -33,7 +33,7 @@ class SixQPService
      * @param GameSixQP $gameSixQP
      * @return void
      */
-    public function initializeNewRound( GameSixQP $gameSixQP): void
+    public function initializeNewRound(GameSixQP $gameSixQP): void
     {
         $cards = $this->cardSixQPRepository->findAll();
         shuffle($cards);
