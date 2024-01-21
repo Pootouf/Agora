@@ -51,6 +51,12 @@ class GameService
         return $game;
     }
 
+    /**
+     * createPlayer : create a player and save him in the database
+     * @param string $playerName the name of the player to create
+     * @param GameSixQP $game the game of the player
+     * @return void
+     */
     private function createPlayer(string $playerName, GameSixQP $game): void
     {
         $player = new PlayerSixQP($playerName, $game);
