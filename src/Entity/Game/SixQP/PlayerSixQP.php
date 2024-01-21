@@ -13,7 +13,7 @@ class PlayerSixQP extends Player
 {
     #[ORM\ManyToOne(inversedBy: 'playerSixQPs')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?GameSixQP $game = null;
+    private ?GameSixQP $game;
 
     #[ORM\ManyToMany(targetEntity: CardSixQP::class)]
     private Collection $cards;
@@ -24,9 +24,11 @@ class PlayerSixQP extends Player
     #[ORM\OneToOne(mappedBy: 'player', cascade: ['persist', 'remove'])]
     private ?DiscardSixQP $discardSixQP = null;
 
-    public function __construct()
+    public function __construct(string $username, GameSixQP $gameSixQP)
     {
         $this->cards = new ArrayCollection();
+        $this->username = $username;
+        $this->game = $gameSixQP;
     }
 
     public function getGame(): ?GameSixQP
