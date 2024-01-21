@@ -124,6 +124,11 @@ class SixQPService
         $this->entityManager->flush();
     }
 
+    /**
+     * revealCard : reveal the chosen card
+     * @param ChosenCardSixQP $chosenCardSixQP the card to reveal
+     * @return void
+     */
     public function revealCard(ChosenCardSixQP $chosenCardSixQP) : void
     {
         $chosenCardSixQP->setState(true);
