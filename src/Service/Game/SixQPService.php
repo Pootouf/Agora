@@ -66,6 +66,8 @@ class SixQPService
      * @param PlayerSixQP $player
      * @param CardSixQP $cardSixQP
      * @return void
+     * @throws Exception if player doesn't own the card
+     * @throws Exception if player has already chosen another card
      */
     public function chooseCard(PlayerSixQP $player, CardSixQP $cardSixQP): void
     {
