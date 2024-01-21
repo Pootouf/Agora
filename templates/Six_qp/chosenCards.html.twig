@@ -1,3 +1,11 @@
+{#
+    This section displays the cards who have been chosen for the round by players
+    @param : chosenCards -> A list of pictures chosen by players
+             playersNumer -> An integer of the number of current players in this game
+    @return : chosenCards|length == playersNumber => display a grid of the visible chosen cards
+              chosenCards|length != playersNumber => display a grid of hidden face of the chosen cards
+                                                     (the back)
+#}
 {% block chosenCards %}
         <div class="bg-gray-500 rounded flow float-left w-1/5 h-3/4 overflow-hidden shadow-black shadow-lg">
             <div class="grid grid-cols-2 grid-rows-5 w-full h-full p-3">
