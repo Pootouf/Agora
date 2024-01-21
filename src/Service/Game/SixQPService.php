@@ -131,7 +131,7 @@ class SixQPService
      */
     public function revealCard(ChosenCardSixQP $chosenCardSixQP) : void
     {
-        $chosenCardSixQP->setState(true);
+        $chosenCardSixQP->setVisible(true);
         $this->entityManager->persist($chosenCardSixQP);
         $this->entityManager->flush();
     }

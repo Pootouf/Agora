@@ -74,7 +74,7 @@ class SixQPServiceTest extends TestCase
         $this->assertNull($player->getChosenCardSixQP());
         $this->sixQPService->chooseCard($player, $card);
         $this->assertNotNull($player->getChosenCardSixQP());
-        $this->assertFalse($player->getChosenCardSixQP()->isState());
+        $this->assertFalse($player->getChosenCardSixQP()->isVisible());
         $cards = $player->getCards();
         $this->assertFalse($cards->contains($card));
 
