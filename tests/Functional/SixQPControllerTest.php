@@ -6,10 +6,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class SixQPControllerTest extends WebTestCase
 {
-    /**
-     * Test if all enclosures are shown and none send an error
-     */
-    public function testEnclosuresAreShownOnPageValid()
+    public function testEnclosuresAreShownOnPageValid(): void
     {
         $player = $this->createClient();
         $crawler = $player->request('GET', '/six/q/p');
