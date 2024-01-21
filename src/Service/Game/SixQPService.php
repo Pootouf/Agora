@@ -51,6 +51,7 @@ class SixQPService
             }
             $this->entityManager->persist($player);
         }
+        $this->entityManager->flush();
     }
 
     /**
