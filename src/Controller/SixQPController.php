@@ -21,6 +21,16 @@ class SixQPController extends AbstractController
             'playersNumber' => 10,
             'users' => [['user1', 100], ['user2', 20], ['user2', 5], ['user3', 00000] ],
             'createdAt' => time(),
+            //rowStartCard is an array that display the first card in each row
+            'rowStartCard' => ['25.png', '29.png', '40.png', '55.png'],
+            //rowOne is an array that display the cards in the first row
+            'rowOne' => ['26.png', '27.png', '28.png'],
+            //rowTwo is an array that display the cards in the second row
+            'rowTwo' => ['30.png', '31.png', '32.png', '33.png'],
+            //rowThree is an array that display the cards in the third row
+            'rowThree' => ['47.png', '49.png'],
+            //rowFour is an array that display the cards in the fourth row
+            'rowFour' => [],
         ]);
     }
 }

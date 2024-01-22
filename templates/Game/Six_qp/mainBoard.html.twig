@@ -1,5 +1,84 @@
+{#
+This section displays the main board of the game
+@param : rowStartCard -> An array to display the first card of a row
+         rowOne -> An array to display the cards in the first row
+         rowTwo -> An array to display the cards in the second row
+         rowThree -> An array to display the cards in the third row
+         rowFour -> An array to display the cards in the fourth row
+@return : if rowX == null => display a box to an empty row else display the cards
+                             associated to the row X
+          if rowStartCard|length == 4 => display the first card of each rows
+#}
 {% block mainBoard %}
-    <div class="flex w-7/12 h-3/4">
-        <h1>Main Board</h1>
-    </div>
+    {% if rowStartCard|length == 4 %}
+        <div class="bg-gray-500 flow float-start w-[63.3%] h-3/4 overflow-hidden
+                    shadow-black shadow-[10px_10px_15px_-3px_rgba(0,0,0,0.1)] -z-1">
+            <div class="h-full w-full m-2 ml-4">
+                <div class="h-[22%] mb-3">
+                    <img class="h-full mr-6 float float-left"
+                         src="{{ asset('resourcesGames/6QP/cardsImages/' ~ rowStartCard[0]) }}"
+                         alt="card">
+                    {% if rowOne == null %}
+                        <div class="h-full rounded shadow-yellow-800 shadow-inner float float-left w-[8%]">
+
+                        </div>
+                    {% else %}
+                        {% for card in 0..(rowOne|length - 1) %}
+                            <img class="h-full mr-6 float float-left"
+                                 src="{{ asset('resourcesGames/6QP/cardsImages/' ~ rowOne[card]) }}"
+                                 alt="card">
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                <div class="h-[22%] mb-3">
+                    <img class="h-full mr-6 float float-left"
+                         src="{{ asset('resourcesGames/6QP/cardsImages/' ~ rowStartCard[1]) }}"
+                         alt="card">
+                    {% if rowTwo == null %}
+                        <div class="h-full rounded shadow-yellow-800 shadow-inner float float-left w-[8%]">
+
+                        </div>
+                    {% else %}
+                        {% for card in 0..(rowTwo|length - 1) %}
+                            <img class="h-full mr-6 float float-left"
+                                 src="{{ asset('resourcesGames/6QP/cardsImages/' ~ rowTwo[card]) }}"
+                                 alt="card">
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                <div class="h-[22%] mb-3">
+                    <img class="h-full mr-6 float float-left"
+                         src="{{ asset('resourcesGames/6QP/cardsImages/' ~ rowStartCard[2]) }}"
+                         alt="card">
+                    {% if rowThree == null %}
+                        <div class="h-full rounded shadow-yellow-800 shadow-inner float float-left w-[8%]">
+
+                        </div>
+                    {% else %}
+                        {% for card in 0..(rowThree|length - 1) %}
+                            <img class="h-full mr-6 float float-left"
+                                 src="{{ asset('resourcesGames/6QP/cardsImages/' ~ rowThree[card]) }}"
+                                 alt="card">
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                <div class="h-[22%]">
+                    <img class="h-full mr-6 float float-left"
+                         src="{{ asset('resourcesGames/6QP/cardsImages/' ~ rowStartCard[3]) }}"
+                         alt="card">
+                    {% if rowFour == null %}
+                        <div class="h-full rounded shadow-yellow-800 shadow-inner float float-left w-[8%]">
+
+                        </div>
+                    {% else %}
+                        {% for card in 0..(rowFour|length - 1) %}
+                            <img class="h-full mr-6 float float-left"
+                                 src="{{ asset('resourcesGames/6QP/cardsImages/' ~ rowFour[card]) }}"
+                                 alt="card">
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
 {% endblock %}
