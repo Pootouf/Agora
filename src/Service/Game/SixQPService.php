@@ -114,6 +114,11 @@ class SixQPService
         return 0;
     }
 
+    /**
+     * calculatePoints : update player points from his discard
+     * @param DiscardSixQP $discardSixQP
+     * @return void
+     */
     public function calculatePoints(DiscardSixQP $discardSixQP): void
     {
         $cards = $discardSixQP->getCards();
