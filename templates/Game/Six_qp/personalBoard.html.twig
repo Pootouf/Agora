@@ -1,8 +1,10 @@
 {% block personalBoard %}
-    <div class="flex bg-green-500 h-1/4 w-7/12 float-bottom-0 ">
-        <div class="flex mt-2 mx-2 justify-center align-center w-full">
+    <div class="flex bg-green-500 h-1/4 w-5/6 float-bottom-0 ">
+        <div class="grid grid-rows-2 grid-cols-5 w-full mx-2 mt-5
+                    landscape:md:flex landscape:md:mt-2 landscape:md-justify-center landscape:md:align-center
+                    lg:flex lg:mt-2 lg:justify-center lg:align-center">
             {% for i in 0..(placeholderPlayerCards|length - 1) %}
-                <div class="overflow-hidden hover:z-10 hover:-translate-y-14">
+                <div class="hover:z-10 hover:-translate-y-14 w-fit overflow-hidden">
                     <img class="z-0"
                          src="{{ asset('resourcesGames/6QP/cardsImages/' ~ placeholderPlayerCards[i]) }}"
                          alt="{{ placeholderPlayerCards[i]|split('.')[0] }}"
