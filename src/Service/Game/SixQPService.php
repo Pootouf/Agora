@@ -182,6 +182,7 @@ class SixQPService
             $card = $row->getCards()->get(0);
             $row->getCards()->remove(0); //We delete the first 5 positions to delete all the cards
             $player->getDiscardSixQP()->addCard($card);
+            $player->getDiscardSixQP()->addPoints($card->getPoints());
         }
         $this->entityManager->persist($player->getDiscardSixQP());
     }

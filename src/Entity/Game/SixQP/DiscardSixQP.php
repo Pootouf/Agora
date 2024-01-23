@@ -92,4 +92,11 @@ class DiscardSixQP extends Component
 
         return $this;
     }
+
+    public function addPoints(int $points): static
+    {
+        $this->totalPoints += $points;
+
+        return $this;
+    }
 }
