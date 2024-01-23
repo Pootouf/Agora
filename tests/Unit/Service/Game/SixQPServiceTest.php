@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\Service\Game;
+namespace Unit\Service\Game;
 
 use App\DataFixtures\SixQPFixtures;
 use App\Entity\Game\SixQP\CardSixQP;
