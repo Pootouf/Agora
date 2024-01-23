@@ -4,6 +4,7 @@ namespace App\Tests\Service\Game;
 
 use App\DataFixtures\SixQPFixtures;
 use App\Entity\Game\SixQP\CardSixQP;
+use App\Entity\Game\SixQP\DiscardSixQP;
 use App\Entity\Game\SixQP\GameSixQP;
 use App\Entity\Game\SixQP\PlayerSixQP;
 use App\Entity\Game\SixQP\RowSixQP;
@@ -115,6 +116,26 @@ class SixQPServiceTest extends TestCase
         $game = $this->createGame(8, 2);
         $this->expectException(Exception::class);
         $this->sixQPService->initializeNewRound($game);
+    }
+
+    public function testcalculatePoints() : void
+    {
+        $game = new GameSixQP();
+        $player = new PlayerSixQP('test', $game);
+        $discard = new DiscardSixQP($player, $game);
+        $card = new CardSixQP();
+        $player->setDiscardSixQP($discard);
+        $card->setValue(5);
+        $card->setPoints(3);
+        $player->getDiscardSixQP()->addCard($card);
+        $this->sixQPService->calculatePoints($discard);
+        $this->assertTrue($player->getDiscardSixQP()->getTotalPoints() == 3);
+        $card2 = new CardSixQP();
+        $card2->setValue(104);
+        $card2->setPoints(1);
+        $player->getDiscardSixQP()->addCard($card2);
+        $this->sixQPService->calculatePoints($discard);
+        $this->assertTrue($player->getDiscardSixQP()->getTotalPoints() == 4);
     }
 
 
