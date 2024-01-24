@@ -1,16 +1,40 @@
 {
+    "dama/doctrine-test-bundle": {
+        "version": "8.0",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "main",
+            "version": "4.0",
+            "ref": "2c920f73a217f30bd4a37833c91071f4d3dc1ecd"
+        },
+        "files": [
+            "config/packages/test/dama_doctrine_test_bundle.yaml"
+        ]
+    },
     "doctrine/doctrine-bundle": {
         "version": "2.11",
         "recipe": {
             "repo": "github.com/symfony/recipes",
             "branch": "main",
             "version": "2.10",
-            "ref": "0db4b12b5df45f5122213b4ecd18733ab7fa7d53"
+            "ref": "310a02a22033e35640468f48ff6bf31a25891537"
         },
         "files": [
             "config/packages/doctrine.yaml",
             "src/Entity/.gitignore",
             "src/Repository/.gitignore"
+        ]
+    },
+    "doctrine/doctrine-fixtures-bundle": {
+        "version": "3.5",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "3.0",
+            "ref": "1f5514cfa15b947298df4d771e694e578d4c204d"
+        },
+        "files": [
+            "src/DataFixtures/AppFixtures.php"
         ]
     },
     "doctrine/doctrine-migrations-bundle": {
@@ -25,6 +49,9 @@
             "config/packages/doctrine_migrations.yaml",
             "migrations/.gitignore"
         ]
+    },
+    "liip/test-fixtures-bundle": {
+        "version": "2.7.2"
     },
     "phpunit/phpunit": {
         "version": "9.6",
@@ -46,7 +73,7 @@
             "repo": "github.com/symfony/recipes",
             "branch": "main",
             "version": "6.4",
-            "ref": "8a0d17c04c791b3d7bdd083e1e2b2a53439dc3b0"
+            "ref": "7824128ef0da56f09a376539d00a17e23e9b5054"
         },
         "files": [
             "assets/app.js",
@@ -116,14 +143,14 @@
             "repo": "github.com/symfony/recipes",
             "branch": "main",
             "version": "4.3",
-            "ref": "2bf89438209656b85b9a49238c4467bff1b1f939"
+            "ref": "df66ee1f226c46f01e85c29c2f7acce0596ba35a"
         },
         "files": [
             "config/packages/mailer.yaml"
         ]
     },
     "symfony/maker-bundle": {
-        "version": "1.51",
+        "version": "1.52",
         "recipe": {
             "repo": "github.com/symfony/recipes",
             "branch": "main",
@@ -161,7 +188,7 @@
             "repo": "github.com/symfony/recipes",
             "branch": "main",
             "version": "3.7",
-            "ref": "213676c4ec929f046dfde5ea8e97625b81bc0578"
+            "ref": "aff23899c4440dd995907613c1dd709b6f59503f"
         },
         "files": [
             "config/packages/monolog.yaml"
@@ -180,7 +207,7 @@
         ]
     },
     "symfony/phpunit-bridge": {
-        "version": "6.3",
+        "version": "6.4",
         "recipe": {
             "repo": "github.com/symfony/recipes",
             "branch": "main",
@@ -225,8 +252,8 @@
         "recipe": {
             "repo": "github.com/symfony/recipes",
             "branch": "main",
-            "version": "2.9",
-            "ref": "05c45071c7ecacc1e48f94bc43c1f8d4405fb2b2"
+            "version": "2.13",
+            "ref": "6acd9ff4f7fd5626d2962109bd4ebab351d43c43"
         },
         "files": [
             "assets/bootstrap.js",
@@ -240,7 +267,7 @@
             "repo": "github.com/symfony/recipes",
             "branch": "main",
             "version": "6.3",
-            "ref": "64fe617084223633e1dedf9112935d8c95410d3e"
+            "ref": "e28e27f53663cc34f0be2837aba18e3a1bef8e7b"
         },
         "files": [
             "config/packages/translation.yaml",
@@ -252,8 +279,8 @@
         "recipe": {
             "repo": "github.com/symfony/recipes",
             "branch": "main",
-            "version": "6.3",
-            "ref": "b7772eb20e92f3fb4d4fe756e7505b4ba2ca1a2c"
+            "version": "6.4",
+            "ref": "cab5fd2a13a45c266d45a7d9337e28dee6272877"
         },
         "files": [
             "config/packages/twig.yaml",
