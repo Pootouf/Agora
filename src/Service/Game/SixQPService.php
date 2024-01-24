@@ -117,6 +117,39 @@ class SixQPService
     }
 
     /**
+     * getRanking : get the ranking by player points (ascending)
+     * @param GameSixQP $gameSixQP
+     * @return array
+     */
+    public function getRanking(GameSixQP $gameSixQP): array
+    {
+        if (is_null($gameSixQP))
+        {
+            throw new Exception('Invalid game');
+        }
+
+        $numberOfPlayers = count($gameSixQP->getPlayerSixQPs());
+        if ($numberOfPlayers > 10 || $numberOfPlayers < 2)
+        {
+            throw new Exception('Invalid number of players');
+        }
+
+        $ranking = array();
+
+        foreach ($gameSixQP->getPlayerSixQPs() as $player)
+        {
+            $discard = $player->getDiscardSixQP();
+            $ranking[$player->getId()] =
+                is_null($discard) ?
+                0 :$discard->getTotalPoints();
+        }
+
+        asort($ranking);
+        
+        return $ranking;
+    }
+
+    /**
      * calculatePoints : update player points from his discard
      * @param DiscardSixQP $discardSixQP
      * @return void
