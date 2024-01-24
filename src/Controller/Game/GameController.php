@@ -24,7 +24,7 @@ class GameController extends AbstractController
             $player = SixQPController::getPlayerFromUser($this->getUser(),
                 $game->getId(),
                 $playerSixQPRepository);
-            $chosenCards = array_map('getChosenCardFromPlayer', $game->getPlayerSixQPs()->toArray());
+            $chosenCards = array_map(function (PlayerSixQP $player) {return $player->getChosenCardSixQP();}, $game->getPlayerSixQPs()->toArray());
             return $this->render('/Game/Six_qp/index.html.twig', [
                 'chosenCards' => $chosenCards,
                 'playerCards' => $player->getCards(),
@@ -48,10 +48,5 @@ class GameController extends AbstractController
         $hub->publish($update);
 
         return new Response('published!');
-    }
-
-    private function getChosenCardFromPlayer(PlayerSixQP $playerSixQP): ?ChosenCardSixQP
-    {
-        return $playerSixQP->getChosenCardSixQP();
     }
 }
