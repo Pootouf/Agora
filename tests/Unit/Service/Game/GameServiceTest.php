@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\Unit\Service\Game;
+namespace Unit\Service\Game;
 
 use App\Service\Game\GameService;
 use Doctrine\ORM\EntityManagerInterface;

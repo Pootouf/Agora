@@ -11,6 +11,9 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: RowSixQPRepository::class)]
 class RowSixQP extends Component
 {
+
+    public static int $NUMBER_OF_ROWS_BY_GAME = 4;
+
     #[ORM\Column]
     private ?int $position = null;
 
@@ -70,6 +73,13 @@ class RowSixQP extends Component
     public function removeCard(CardSixQP $card): static
     {
         $this->cards->removeElement($card);
+
+        return $this;
+    }
+
+    public function clearCards(): static
+    {
+        $this->cards = new ArrayCollection();
 
         return $this;
     }
