@@ -2,6 +2,10 @@
 
 namespace App\Controller\Game;
 
+use App\Entity\Game\SixQP\ChosenCardSixQP;
+use App\Entity\Game\SixQP\PlayerSixQP;
+use App\Repository\Game\SixQP\GameSixQPRepository;
+use App\Repository\Game\SixQP\PlayerSixQPRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mercure\HubInterface;
@@ -10,6 +14,31 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class GameController extends AbstractController
 {
+    #[Route('/game/{id}', name: 'app_game_show')]
+    public final function showGame(GameSixQPRepository $gameSixQPRepository,
+        PlayerSixQPRepository $playerSixQPRepository,
+        int $id): Response
+    {
+        $game = $gameSixQPRepository->findOneBy(['id' => $id]);
+        if ($game != null) {
+            $player = SixQPController::getPlayerFromUser($this->getUser(),
+                $game->getId(),
+                $playerSixQPRepository);
+            $chosenCards = array_map('getChosenCardFromPlayer', $game->getPlayerSixQPs()->toArray());
+            return $this->render('/Game/Six_qp/index.html.twig', [
+                'chosenCards' => $chosenCards,
+                'playerCards' => $player->getCards(),
+                'playerNumbers' => count($game->getPlayerSixQPs()),
+                'player' => $player,
+                'createdAt' => time(),
+                'rows' => $game->getRowSixQPs()
+            ]);
+        }
+
+        return $this->redirectToRoute('/');
+
+    }
+
     public function publish(HubInterface $hub, string $route, Response $data): Response
     {
         $update = new Update(
@@ -19,5 +48,10 @@ class GameController extends AbstractController
         $hub->publish($update);
 
         return new Response('published!');
+    }
+
+    private function getChosenCardFromPlayer(PlayerSixQP $playerSixQP): ?ChosenCardSixQP
+    {
+        return $playerSixQP->getChosenCardSixQP();
     }
 }
