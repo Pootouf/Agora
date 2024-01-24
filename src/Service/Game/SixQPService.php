@@ -16,6 +16,8 @@ use function PHPUnit\Framework\isNull;
 
 class SixQPService
 {
+    public static int $MAX_POINTS = 66;
+
     private EntityManagerInterface $entityManager;
 
     private CardSixQPRepository $cardSixQPRepository;
@@ -34,11 +36,11 @@ class SixQPService
      */
     public function initializeNewRound(GameSixQP $gameSixQP): void
     {
-        if(count($gameSixQP->getRowSixQPs()) != RowSixQP::$NUMBER_OF_ROWS_BY_GAME) {
+        if (count($gameSixQP->getRowSixQPs()) != RowSixQP::$NUMBER_OF_ROWS_BY_GAME) {
             throw new Exception('Invalid number of rows');
         }
         $numberOfPlayers = count($gameSixQP->getPlayerSixQPs());
-        if($numberOfPlayers > 10 || $numberOfPlayers < 2) {
+        if ($numberOfPlayers > 10 || $numberOfPlayers < 2) {
             throw new Exception('Invalid number of players');
         }
 
@@ -136,11 +138,25 @@ class SixQPService
      * @param ChosenCardSixQP $chosenCardSixQP the card to reveal
      * @return void
      */
-    public function revealCard(ChosenCardSixQP $chosenCardSixQP) : void
+    public function revealCard(ChosenCardSixQP $chosenCardSixQP): void
     {
         $chosenCardSixQP->setVisible(true);
         $this->entityManager->persist($chosenCardSixQP);
         $this->entityManager->flush();
+    }
+
+    /**
+     * isGameEnded : checks if game has ended
+     * @param GameSixQP $gameSixQP 
+     * @return bool
+     */
+    public function isGameEnded(GameSixQP $gameSixQP): bool
+    {
+        $players = $gameSixQP->getPlayerSixQPs();
+        if ($this->hasCardLeft($players)) {
+            return false;
+        }
+        return $this->hasPlayerLost($players);
     }
 
     /**
@@ -197,5 +213,33 @@ class SixQPService
     {
         $cards = $player->getCards();
         return $cards->contains($card);
+    }
+
+    /**
+     * hasCardLeft : checks if at least one player still has a card
+     * @param Collection $players : a collection of 6QP players
+     */
+    private function hasCardLeft(Collection $players): bool
+    {
+        foreach ($players as $player) {
+            if (count($player->getCards()) != 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+     /**
+     * hasPlayerLost : checks if at least one player has reached limit of points
+     * @param Collection $players : a collection of 6QP players
+     */
+    private function hasPlayerLost(Collection $players): bool
+    {
+        foreach($players as $player) {
+            if ($player -> getDiscardSixQP() -> getTotalPoints() >= SixQPService::$MAX_POINTS) {
+                return true;
+            }
+        }
+        return false;
     }
 }
