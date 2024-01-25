@@ -6,14 +6,16 @@ use App\Entity\Game\SixQP\CardSixQP;
 use App\Entity\Game\SixQP\ChosenCardSixQP;
 use App\Entity\Game\SixQP\GameSixQP;
 use App\Entity\Game\SixQP\PlayerSixQP;
+use App\Entity\Game\SixQP\RowSixQP;
 use App\Repository\Game\SixQP\ChosenCardSixQPRepository;
 use App\Repository\Game\SixQP\PlayerSixQPRepository;
+use App\Service\Game\GameService;
 use App\Service\Game\SixQPService;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mercure\HubInterface;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\User\UserInterface;
 
 class SixQPController extends GameController
 {
@@ -28,42 +30,35 @@ class SixQPController extends GameController
 
     private SixQPService $service;
 
+    private GameService $gameService;
+
     public function __construct(HubInterface $hub, EntityManagerInterface $entityManager,
                                 ChosenCardSixQPRepository $chosenCardSixQPRepository,
                                 PlayerSixQPRepository $playerSixQPRepository,
+                                GameService $gameService,
                                 SixQPService $service)
     {
+        parent::__construct($gameService);
         $this->hub = $hub;
         $this->entityManager = $entityManager;
         $this->chosenCardSixQPRepository = $chosenCardSixQPRepository;
         $this->playerSixQPRepository = $playerSixQPRepository;
         $this->service = $service;
-    }
-
-    public static function getPlayerFromUser(?UserInterface $user,
-                                             int $gameId,
-                                             PlayerSixQPRepository $playerSixQPRepository): ?PlayerSixQP
-    {
-        if ($user == null) {
-            return null;
-        }
-        $id = $user->getId(); //TODO : add platform user
-
-        return $playerSixQPRepository->findOneBy(['id' => $id, 'game' => $gameId]);
+        $this->gameService = $gameService;
     }
 
 
-    #[Route('/game/{id}/sixqp/select/{id}', name: 'app_game_sixqp_select')]
-    public function selectCard(GameSixQP $game, CardSixQP $card): Response
+    #[Route('/game/{idGame}/sixqp/select/{idCard}', name: 'app_game_sixqp_select')]
+    public function selectCard(#[MapEntity(id: 'idGame')] GameSixQP $game, #[MapEntity(id: 'idCard')] CardSixQP $card): Response
     {
-        $player = SixQPController::getPlayerFromUser($this->getUser(),
+        $player = $this->gameService->getPlayerFromUser($this->getUser(),
             $game->getId(),
             $this->playerSixQPRepository);
         if ($player == null) {
            return $this->redirectToRoute('/');
         }
 
-        if ($this->doesPlayerAlreadyHasPlayed($player)) {
+        if ($this->service->doesPlayerAlreadyHasPlayed($player)) {
             return $this->redirectToRoute('app_game_show', ['id'=>$game->getId()]);
         }
 
@@ -76,7 +71,7 @@ class SixQPController extends GameController
         $this->publish($this->hub, $this->generateUrl('app_game_sixqp_select'), $response);
 
         $chosenCards = $this->chosenCardSixQPRepository->findBy(['game' => $game->getId()]);
-        if (!$this->isEndOfRoundReached($chosenCards, $game)) {
+        if (!$this->service->doesAllPlayersHaveChosen($game)) {
             return $this->redirectToRoute('app_game_show', ['id'=>$game->getId()]);
         }
 
@@ -90,21 +85,34 @@ class SixQPController extends GameController
         return $this->redirectToRoute('app_game_show', ['id'=>$game->getId()]);
     }
 
-    private function doesPlayerAlreadyHasPlayed(PlayerSixQP $player): bool
-    {
-        $chosenCard = $this->chosenCardSixQPRepository->findOneBy(['player'=>$player->getId()]);
-        return $chosenCard != null;
+    #[Route('//game/{idGame}/sixqp/place/card/{idCard}/row/{idRow}')]
+    public function placeCardOnRow(#[MapEntity(id: 'idGame')] GameSixQP $game,
+        #[MapEntity(id: 'idCard')] ChosenCardSixQP $card,
+        #[MapEntity(id: 'idRow')] RowSixQP $row) {
+        $player = $this->gameService->getPlayerFromUser($this->getUser(),
+            $game->getId(),
+            $this->playerSixQPRepository);
+        if ($player == null) {
+            return $this->redirectToRoute('/');
+        }
+        $chosenCard = $player->getChosenCardSixQP();
+        if ($chosenCard == null) {
+            return $this->redirectToRoute('app_game_show', ['id'=>$game->getId()]);
+        }
+        if ($this->service->placeCard($chosenCard) != 0) {
+            return $this->redirectToRoute('app_game_show', ['id'=>$game->getId()]);
+        }
+        $row->addCard($chosenCard->getCard());
+        $this->entityManager->persist($row);
     }
 
-    private function isEndOfRoundReached(array $chosenCards, GameSixQP $game): bool {
-        return count($chosenCards) == count($game->getPlayerSixQPs());
-    }
+    private function placeCardAutomatically(GameSixQP $game,
+        PlayerSixQP $player): ?Response {
 
-    private function placeCardAutomatically(GameSixQP $game, PlayerSixQP $player, array $chosenCards): ?Response {
+        $chosenCards = $this->service->getNotPlacedCard($game);
+
         usort($chosenCards, function (ChosenCardSixQP $a, ChosenCardSixQP $b) {
             return $a->getCard()->getValue() > $b->getCard()->getValue();});
-
-        $chosenCards = $this->removeAlreadyPlacedCard($chosenCards, $game);
 
         foreach ($chosenCards as $chosenCard) {
             $returnValue = $this->service->placeCard($chosenCard);
@@ -121,17 +129,6 @@ class SixQPController extends GameController
         }
 
         return null;
-    }
-
-    private function removeAlreadyPlacedCard(array $chosenCards, GameSixQP $game): array {
-        for ($i = 0; $i < count($chosenCards); $i++) {
-            foreach ($game->getRowSixQPs() as $row) {
-                if ($row->isCardInRow($chosenCards[$i]->getCard())) {
-                    array_splice($chosenCards, $i, 1);
-                }
-            }
-        }
-        return $chosenCards;
     }
 
     private function renderChosenCards(GameSixQP $gameSixQP): Response

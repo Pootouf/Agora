@@ -6,9 +6,10 @@ use App\Entity\Game\SixQP\DiscardSixQP;
 use App\Entity\Game\SixQP\GameSixQP;
 use App\Entity\Game\SixQP\PlayerSixQP;
 use App\Entity\Game\SixQP\RowSixQP;
-use Doctrine\Common\Collections\ArrayCollection;
+use App\Repository\Game\PlayerRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 class GameService
 {
@@ -51,6 +52,18 @@ class GameService
         //TODO: initialize the round with SixQPService
 
         return $game;
+    }
+
+    public function getPlayerFromUser(?UserInterface $user,
+        int $gameId,
+        PlayerRepository $playerRepository): ?PlayerSixQP
+    {
+        if ($user == null) {
+            return null;
+        }
+        $id = $user->getId(); //TODO : add platform user
+
+        return $playerRepository->findOneBy(['id' => $id, 'game' => $gameId]);
     }
 
     /**
