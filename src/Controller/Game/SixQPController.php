@@ -63,7 +63,7 @@ class SixQPController extends GameController
            return $this->redirectToRoute('/');
         }
 
-        if ($this->doesPlayerAlreadyHavePlay($player)) {
+        if ($this->doesPlayerAlreadyHasPlayed($player)) {
             return $this->redirectToRoute('app_game_show', ['id'=>$game->getId()]);
         }
 
@@ -90,7 +90,8 @@ class SixQPController extends GameController
         return $this->redirectToRoute('app_game_show', ['id'=>$game->getId()]);
     }
 
-    private function doesPlayerAlreadyHavePlay(PlayerSixQP $player) {
+    private function doesPlayerAlreadyHasPlayed(PlayerSixQP $player): bool
+    {
         $chosenCard = $this->chosenCardSixQPRepository->findOneBy(['player'=>$player->getId()]);
         return $chosenCard != null;
     }
