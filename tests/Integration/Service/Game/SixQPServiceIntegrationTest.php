@@ -164,6 +164,32 @@ class SixQPServiceIntegrationTest extends KernelTestCase
         $this->assertTrue($sixQPService->isGameEnded($game));
     }
 
+    public function testcalculatePoints() : void
+    {
+        $sixQPService = static::getContainer()->get(SixQPService::class);
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $game = new GameSixQP();
+        $player = new PlayerSixQP("test", $game);
+        $discard = new DiscardSixQP($player, $game);
+        $card = new CardSixQP();
+        $card -> setValue(1);
+        $card -> setPoints(1);
+        $player->setDiscardSixQP($discard);
+        $player->getDiscardSixQP()->addCard($card);
+        $card2 = new CardSixQP();
+        $card2 -> setValue(5);
+        $card2 -> setPoints(13);
+        $player->getDiscardSixQP()->addCard($card2);
+        $entityManager->persist($card);
+        $entityManager->persist($card2);
+        $entityManager->persist($player);
+        $entityManager->persist($game);
+        $entityManager->persist($discard);
+        $entityManager->flush();
+        $sixQPService->calculatePoints($discard);
+        $this->assertTrue($player->getDiscardSixQP()->getTotalPoints() == 14);
+    }
+
     private function createGame(int $numberOfPlayer, int $numberOfRow): GameSixQP
     {
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);
