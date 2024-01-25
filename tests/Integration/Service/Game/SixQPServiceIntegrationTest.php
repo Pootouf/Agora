@@ -3,6 +3,7 @@
 namespace Integration\Service\Game;
 
 use App\Entity\Game\SixQP\CardSixQP;
+use App\Entity\Game\SixQP\DiscardSixQP;
 use App\Entity\Game\SixQP\GameSixQP;
 use App\Entity\Game\SixQP\PlayerSixQP;
 use App\Entity\Game\SixQP\RowSixQP;
@@ -126,6 +127,41 @@ class SixQPServiceIntegrationTest extends KernelTestCase
         $this->assertFalse($cards->contains($card));
         $this->assertNotNull($player->getChosenCardSixQP());
         $this->assertFalse($player->getChosenCardSixQP()->isVisible());
+    }
+
+    public function testIsGameEnded() : void {
+        $sixQPService = static::getContainer()->get(SixQPService::class);
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $game = new GameSixQP();
+        $player = new PlayerSixQP("test", $game);
+        $player2 = new PlayerSixQP("test", $game);
+        $game->addPlayerSixQP($player);
+        $game->addPlayerSixQP($player2);
+        $card = new CardSixQP();
+        $card -> setValue(1);
+        $card -> setPoints(1);
+        $card2 = new CardSixQP();
+        $card2 -> setValue(2);
+        $card2 -> setPoints(2);
+        $discard = new DiscardSixQP($player, $game);
+        $discard2 = new DiscardSixQP($player2, $game);
+        $player->setDiscardSixQP($discard);
+        $player2->setDiscardSixQP($discard2);
+        $player->getDiscardSixQP()->addCard($card);
+        $player2->getDiscardSixQP()->addCard($card2);
+        $entityManager->persist($card);
+        $entityManager->persist($card2);
+        $entityManager->persist($player);
+        $entityManager->persist($player2);
+        $entityManager->persist($game);
+        $entityManager->persist($discard);
+        $entityManager->persist($discard2);
+        $entityManager->flush();
+        $sixQPService->calculatePoints($discard);
+        $sixQPService->calculatePoints($discard2);
+        $this->assertFalse($sixQPService->isGameEnded($game));
+        $player -> getDiscardSixQP() -> addPoints(65);
+        $this->assertTrue($sixQPService->isGameEnded($game));
     }
 
     private function createGame(int $numberOfPlayer, int $numberOfRow): GameSixQP
