@@ -2,31 +2,24 @@
 
 namespace App\Service\Game;
 
+use AbstractGameService;
 use App\Entity\Game\DTO\Game;
 use App\Entity\Game\DTO\Player;
 use App\Entity\Game\GameUser;
-use App\Entity\Game\SixQP\DiscardSixQP;
-use App\Entity\Game\SixQP\GameSixQP;
-use App\Entity\Game\SixQP\PlayerSixQP;
-use App\Entity\Game\SixQP\RowSixQP;
 use App\Repository\Game\PlayerRepository;
 use App\Repository\Game\SixQP\GameSixQPRepository;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 class GameService
 {
-    private EntityManagerInterface $entityManager;
     private GameSixQPRepository $gameSixQPRepository;
-    private SixQPService $sixQPService;
+    private array $services;
 
-    public function __construct(EntityManagerInterface $entityManager,
-                                GameSixQPRepository $gameSixQPRepository,
+    public function __construct(GameSixQPRepository $gameSixQPRepository,
                                 SixQPService $sixQPService)
     {
-        $this->entityManager = $entityManager;
         $this->gameSixQPRepository = $gameSixQPRepository;
-        $this->sixQPService = $sixQPService;
+        $this->services[AbstractGameService::$SIXQP_LABEL] = $sixQPService;
     }
 
     public function getPlayerFromUser(?UserInterface $user,
@@ -42,12 +35,7 @@ class GameService
     }
 
     public function createGame(string $gameName): int {
-        $gameId = -1;
-        switch ($gameName) {
-            case "6QP":
-                $gameId = $this->sixQPService->createSixQPGame();
-        }
-        return $gameId;
+        return $this->services[$gameName]->createGame();
     }
 
     public function joinGame(int $gameId, GameUser $user): int {
@@ -55,12 +43,7 @@ class GameService
         if ($game == null) {
             return -2;
         }
-        switch ($game->getGameName()) {
-            case '6QP':
-                /** @var GameSixQP $game */
-                return $this->sixQPService->createSixQPPlayer($user->getUsername(), $game);
-        }
-        return -5;
+        return $this->services[$game->getGameName()]->createPlayer($user->getUsername(), $game);
     }
 
     public function quitGame(int $gameId, GameUser $user): int
@@ -72,12 +55,7 @@ class GameService
         if ($game->isLaunched()) {
             return -3;
         }
-        switch ($game->getGameName()) {
-            case '6QP':
-                /** @var GameSixQP $game */
-                return $this->sixQPService->deleteSixQPPlayer($user->getUsername(), $game);
-        }
-        return -5;
+        return $this->services[$game->getGameName()]->deletePlayer($user->getUsername(), $game);
     }
 
     public function deleteGame(int $gameId): int
@@ -86,13 +64,7 @@ class GameService
         if ($game == null) {
             return -2;
         }
-        switch ($game->getGameName()) {
-            case '6QP':
-                /** @var GameSixQP $game */
-                $this->sixQPService->deleteGame($game);
-                return 1;
-        }
-        return -5;
+        return $this->services[$game->getGameName()]->deleteGame($game);
     }
 
     public function launchGame(int $gameId): int
@@ -101,12 +73,7 @@ class GameService
         if ($game == null) {
             return -2;
         }
-        switch ($game->getGameName()) {
-            case '6QP':
-                /** @var GameSixQP $game */
-                return $this->sixQPService->launchGame($game);
-        }
-        return -5;
+        return $this->services[$game->getGameName()]->launchGame($game);
     }
 
 

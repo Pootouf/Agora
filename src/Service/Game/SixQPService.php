@@ -2,6 +2,8 @@
 
 namespace App\Service\Game;
 
+use AbstractGameService;
+use App\Entity\Game\DTO\Game;
 use App\Entity\Game\SixQP\DiscardSixQP;
 use App\Entity\Game\SixQP\GameSixQP;
 use App\Entity\Game\SixQP\PlayerSixQP;
@@ -16,7 +18,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use function PHPUnit\Framework\isNull;
 
-class SixQPService
+class SixQPService extends AbstractGameService
 {
     public static int $MAX_POINTS = 66;
 
@@ -36,6 +38,119 @@ class SixQPService
         $this->chosenCardSixQPRepository = $chosenCardSixQPRepository;
         $this->playerSixQPRepository = $playerSixQPRepository;
     }
+
+    /**
+     * createGame : create a six q p game
+     * @return int the id of the game
+     */
+    public function createGame(): int
+    {
+
+        $game = new GameSixQP();
+        $game->setGameName('6QP');
+        for($i = 0; $i < RowSixQP::$NUMBER_OF_ROWS_BY_GAME; $i++) {
+            $row = new RowSixQP();
+            $row->setPosition($i);
+            $game->addRowSixQP($row);
+            $this->entityManager->persist($row);
+        }
+
+        $this->entityManager->persist($game);
+        $this->entityManager->flush();
+        return $game->getId();
+    }
+
+    /**
+     * createPlayer : create a sixqp player and save him in the database
+     * @param string $playerName the name of the player to create
+     * @param Game $game the game of the player
+     * @return int -4 if too many player, 1 success
+     */
+    public function createPlayer(string $playerName, Game $game): int
+    {
+        $game = $this->getGameSixQPFromGame($game);
+        if ($game == null) {
+            return -6;
+        }
+        if (count($game->getPlayerSixQPs()) >= 10) {
+            return -4;
+        }
+        $player = new PlayerSixQP($playerName, $game);
+        $discard = new DiscardSixQP($player, $game);
+        $player->setDiscardSixQP($discard);
+        $game->addPlayerSixQP($player);
+        $this->entityManager->persist($player);
+        $this->entityManager->persist($discard);
+        $this->entityManager->flush();
+        return 1;
+    }
+
+    /**
+     * deletePlayer : delete a sixqp player
+     * @param string $playerName the name of the player to delete
+     * @param GameSixQP $game the game of the player
+     * @return int 1 success, -1 no player
+     */
+    public function deletePlayer(string $playerName, Game $game): int
+    {
+        $game = $this->getGameSixQPFromGame($game);
+        if ($game == null) {
+            return -6;
+        }
+        $player = $this->playerSixQPRepository->findOneBy(['game' => $game->getId(), 'username' => $playerName]);
+        if ($player == null) {
+            return -1;
+        }
+        $this->entityManager->remove($player);
+        $this->entityManager->flush();
+        return 1;
+    }
+
+    /**
+     * deleteGame : delete a game
+     * @param GameSixQP $game the game to delete
+     * @return int
+     */
+    public function deleteGame(Game $game): int
+    {
+        $game = $this->getGameSixQPFromGame($game);
+        if ($game == null) {
+            return -6;
+        }
+        foreach ($game->getPlayerSixQPs() as $playerSixQP) {
+            $this->entityManager->remove($playerSixQP);
+        }
+        foreach ($game->getRowSixQPs() as $rowSixQP) {
+            $this->entityManager->remove($rowSixQP);
+        }
+        $this->entityManager->remove($game);
+        $this->entityManager->flush();
+        return 1;
+    }
+
+    /**
+     * launchGame : launch a game
+     * @param GameSixQP $game the game to launch
+     * @return int -4 not a valid number of player, 1 success
+     */
+    public function launchGame(Game $game): int
+    {
+        $game = $this->getGameSixQPFromGame($game);
+        if ($game == null) {
+            return -6;
+        }
+        $numberOfPlayers = count($game->getPlayerSixQPs());
+        if ($numberOfPlayers > 10 || $numberOfPlayers < 2) {
+            return -4;
+        }
+        $game->setLaunched(true);
+        $this->entityManager->persist($game);
+        $this->entityManager->flush();
+        return 1;
+    }
+
+
+
 
     /**
      * initializeNewRound : initialize a new round with random cards for central board and players
@@ -224,98 +339,6 @@ class SixQPService
         return $this->hasPlayerLost($players);
     }
 
-    /**
-     * createSixQPGame : create a six q p game
-     * @return int the id of the game
-     */
-    public function createSixQPGame(): int
-    {
-
-        $game = new GameSixQP();
-        $game->setGameName('6QP');
-        for($i = 0; $i < RowSixQP::$NUMBER_OF_ROWS_BY_GAME; $i++) {
-            $row = new RowSixQP();
-            $row->setPosition($i);
-            $game->addRowSixQP($row);
-            $this->entityManager->persist($row);
-        }
-
-        $this->entityManager->persist($game);
-        $this->entityManager->flush();
-        return $game->getId();
-    }
-
-    /**
-     * createSixQPPlayer : create a sixqp player and save him in the database
-     * @param string $playerName the name of the player to create
-     * @param GameSixQP $game the game of the player
-     * @return int -4 if too many player, 1 success
-     */
-    public function createSixQPPlayer(string $playerName, GameSixQP $game): int
-    {
-        if (count($game->getPlayerSixQPs()) >= 10) {
-            return -4;
-        }
-        $player = new PlayerSixQP($playerName, $game);
-        $discard = new DiscardSixQP($player, $game);
-        $player->setDiscardSixQP($discard);
-        $game->addPlayerSixQP($player);
-        $this->entityManager->persist($player);
-        $this->entityManager->persist($discard);
-        $this->entityManager->flush();
-        return 1;
-    }
-
-    /**
-     * deleteSixQPPlayer : delete a sixqp player
-     * @param string $playerName the name of the player to delete
-     * @param GameSixQP $game the game of the player
-     * @return int 1 success, -1 no player
-     */
-    public function deleteSixQPPlayer(string $playerName, GameSixQP $game): int
-    {
-        $player = $this->playerSixQPRepository->findOneBy(['game' => $game->getId(), 'username' => $playerName]);
-        if ($player == null) {
-            return -1;
-        }
-        $this->entityManager->remove($player);
-        $this->entityManager->flush();
-        return 1;
-    }
-
-    /**
-     * deleteGame : delete a game
-     * @param GameSixQP $game the game to delete
-     * @return void
-     */
-    public function deleteGame(GameSixQP $game): void
-    {
-        foreach ($game->getPlayerSixQPs() as $playerSixQP) {
-            $this->entityManager->remove($playerSixQP);
-        }
-        foreach ($game->getRowSixQPs() as $rowSixQP) {
-            $this->entityManager->remove($rowSixQP);
-        }
-        $this->entityManager->remove($game);
-        $this->entityManager->flush();
-    }
-
-    /**
-     * launchGame : launch a game
-     * @param GameSixQP $game the game to launch
-     * @return int -4 not a valid number of player, 1 success
-     */
-    public function launchGame(GameSixQP $game): int
-    {
-        $numberOfPlayers = count($game->getPlayerSixQPs());
-        if ($numberOfPlayers > 10 || $numberOfPlayers < 2) {
-            return -4;
-        }
-        $game->setLaunched(true);
-        $this->entityManager->persist($game);
-        $this->entityManager->flush();
-        return 1;
-    }
 
     /**
      * getValidRowForCard : calculate the row with the nearest value to the chosen card,
@@ -399,5 +422,10 @@ class SixQPService
             }
         }
         return false;
+    }
+
+    private function getGameSixQPFromGame(Game $game): ?GameSixQP {
+        /** @var GameSixQP $game */
+        return $game->getGameName() == AbstractGameService::$SIXQP_LABEL ? $game : null;
     }
 }
