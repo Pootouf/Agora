@@ -75,8 +75,8 @@ class SixQPController extends GameController
             return $this->redirectToRoute('app_game_show', ['id'=>$game->getId()]);
         }
 
-        $response = $this->placeCardAutomatically($game, $player, $chosenCards);
-        if ($response == null) {
+        $response = $this->placeCardAutomatically($game, $player);
+        if ($response != null) {
             return $response;
         }
 
@@ -85,7 +85,7 @@ class SixQPController extends GameController
         return $this->redirectToRoute('app_game_show', ['id'=>$game->getId()]);
     }
 
-    #[Route('//game/{idGame}/sixqp/place/card/{idCard}/row/{idRow}')]
+    #[Route('/game/{idGame}/sixqp/place/card/{idCard}/row/{idRow}')]
     public function placeCardOnRow(#[MapEntity(id: 'idGame')] GameSixQP $game,
         #[MapEntity(id: 'idCard')] ChosenCardSixQP $card,
         #[MapEntity(id: 'idRow')] RowSixQP $row) {
@@ -104,6 +104,15 @@ class SixQPController extends GameController
         }
         $row->addCard($chosenCard->getCard());
         $this->entityManager->persist($row);
+
+        $response = $this->placeCardAutomatically($game, $player);
+        if ($response != null) {
+            return $response;
+        }
+
+        $chosenCards = $this->chosenCardSixQPRepository->findBy(['game' => $game->getId()]);
+        $this->clearCards($chosenCards);
+        return $this->redirectToRoute('app_game_show', ['id'=>$game->getId()]);
     }
 
     private function placeCardAutomatically(GameSixQP $game,
