@@ -12,8 +12,6 @@ use Exception;
 
 class GameService
 {
-    public static int $NUMBER_OF_ROWS_BY_GAME = 4;
-
     private EntityManagerInterface $entityManager;
 
     public function __construct(EntityManagerInterface $entityManager)
@@ -34,12 +32,14 @@ class GameService
         }
 
         $game = new GameSixQP();
-        for($i = 0; $i < GameService::$NUMBER_OF_ROWS_BY_GAME; $i++) {
+        for($i = 0; $i < RowSixQP::$NUMBER_OF_ROWS_BY_GAME; $i++) {
             $row = new RowSixQP();
             $row->setPosition($i);
             $game->addRowSixQP($row);
             $this->entityManager->persist($row);
         }
+
+        $this->entityManager->persist($game);
 
         for ($i = 0; $i < $numberOfPlayer; $i ++) {
             $this->createPlayer("Player".($i+1), $game); //TODO: set the name of the player
@@ -53,6 +53,12 @@ class GameService
         return $game;
     }
 
+    /**
+     * createPlayer : create a player and save him in the database
+     * @param string $playerName the name of the player to create
+     * @param GameSixQP $game the game of the player
+     * @return void
+     */
     private function createPlayer(string $playerName, GameSixQP $game): void
     {
         $player = new PlayerSixQP($playerName, $game);
@@ -61,6 +67,7 @@ class GameService
         $game->addPlayerSixQP($player);
         $this->entityManager->persist($player);
         $this->entityManager->persist($discard);
+        $this->entityManager->flush();
     }
 
 }
