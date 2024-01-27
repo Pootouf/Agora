@@ -85,9 +85,8 @@ class SixQPController extends GameController
         return $this->redirectToRoute('app_game_show', ['id'=>$game->getId()]);
     }
 
-    #[Route('/game/{idGame}/sixqp/place/card/{idCard}/row/{idRow}')]
+    #[Route('/game/{idGame}/sixqp/place/row/{idRow}')]
     public function placeCardOnRow(#[MapEntity(id: 'idGame')] GameSixQP $game,
-        #[MapEntity(id: 'idCard')] ChosenCardSixQP $card,
         #[MapEntity(id: 'idRow')] RowSixQP $row) {
         $player = $this->gameService->getPlayerFromUser($this->getUser(),
             $game->getId(),
