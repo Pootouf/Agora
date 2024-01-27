@@ -1,0 +1,24 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des parties du 6 qui prend{% endblock %}
+
+{% block body %}
+    <h1>6 Qui prend</h1>
+    {% for game in games  %}
+        <div>
+            <h2>Partie {{ game.id }}</h2>
+            <div>
+                {% for player in players %}
+                    <p>player.username</p>
+                {% endfor %}
+            </div>
+            {% if game.launched %}
+                <a>Rejoindre la partie</a>
+            {% else %}
+                <a>S'inscrire</a>
+                <a>Lancer</a>
+            {% endif %}
+            <a>Supprimer</a>
+        </div>
+    {% endfor %}
+{% endblock %}
