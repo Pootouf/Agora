@@ -164,6 +164,75 @@ class SixQPServiceIntegrationTest extends KernelTestCase
         $this->assertTrue($sixQPService->isGameEnded($game));
     }
 
+    public function testcalculatePoints() : void
+    {
+        $sixQPService = static::getContainer()->get(SixQPService::class);
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $game = new GameSixQP();
+        $player = new PlayerSixQP("test", $game);
+        $discard = new DiscardSixQP($player, $game);
+        $card = new CardSixQP();
+        $card -> setValue(1);
+        $card -> setPoints(1);
+        $player->setDiscardSixQP($discard);
+        $player->getDiscardSixQP()->addCard($card);
+        $card2 = new CardSixQP();
+        $card2 -> setValue(5);
+        $card2 -> setPoints(13);
+        $player->getDiscardSixQP()->addCard($card2);
+        $entityManager->persist($card);
+        $entityManager->persist($card2);
+        $entityManager->persist($player);
+        $entityManager->persist($game);
+        $entityManager->persist($discard);
+        $entityManager->flush();
+        $sixQPService->calculatePoints($discard);
+        $this->assertTrue($player->getDiscardSixQP()->getTotalPoints() == 14);
+    }
+
+    public function testGetRanking() : void {
+        $sixQPService = static::getContainer()->get(SixQPService::class);
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $game = new GameSixQP();
+        $player = new PlayerSixQP("test1", $game);
+        $player2 = new PlayerSixQP("test2", $game);
+        $player3 = new PlayerSixQP("test3", $game);
+        $player4 = new PlayerSixQP("test4", $game);
+        $game->addPlayerSixQP($player);
+        $game->addPlayerSixQP($player2);
+        $game->addPlayerSixQP($player3);
+        $game->addPlayerSixQP($player4);
+        $discard = new DiscardSixQP($player, $game);
+        $discard2 = new DiscardSixQP($player2, $game);
+        $discard3 = new DiscardSixQP($player3, $game);
+        $discard4 = new DiscardSixQP($player4, $game);
+        $player->setDiscardSixQP($discard);
+        $player2->setDiscardSixQP($discard2);
+        $player3->setDiscardSixQP($discard3);
+        $player4->setDiscardSixQP($discard4);
+        $discard->addPoints(12);
+        $discard2->addPoints(10);
+        $discard3->addPoints(6);
+        $discard4->addPoints(47);
+        $entityManager->persist($player);
+        $entityManager->persist($player2);
+        $entityManager->persist($player3);
+        $entityManager->persist($player4);
+        $entityManager->persist($game);
+        $entityManager->persist($discard);
+        $entityManager->persist($discard2);
+        $entityManager->persist($discard3);
+        $entityManager->persist($discard4);
+        $entityManager->flush();
+        $expectedResult = [$player3, $player2, $player, $player4];
+        $actualResult = $sixQPService->getRanking($game);
+        $i = 0;
+        foreach($actualResult as $actualPlayer) {
+            $expectedPlayer = $expectedResult[$i];
+            $this->assertEquals($expectedPlayer->getDiscardSixQP()->getTotalPoints(), $actualPlayer);
+            ++$i;
+        }
+    }
     private function createGame(int $numberOfPlayer, int $numberOfRow): GameSixQP
     {
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);
