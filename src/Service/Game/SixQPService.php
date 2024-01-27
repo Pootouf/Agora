@@ -10,6 +10,7 @@ use App\Entity\Game\SixQP\CardSixQP;
 use App\Entity\Game\SixQP\RowSixQP;
 use App\Repository\Game\SixQP\CardSixQPRepository;
 use App\Repository\Game\SixQP\ChosenCardSixQPRepository;
+use App\Repository\Game\SixQP\PlayerSixQPRepository;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
@@ -23,13 +24,17 @@ class SixQPService
     private CardSixQPRepository $cardSixQPRepository;
     private ChosenCardSixQPRepository $chosenCardSixQPRepository;
 
+    private PlayerSixQPRepository $playerSixQPRepository;
+
     public function __construct(EntityManagerInterface $entityManager,
         CardSixQPRepository $cardSixQPRepository,
-        ChosenCardSixQPRepository $chosenCardSixQPRepository)
+        ChosenCardSixQPRepository $chosenCardSixQPRepository,
+        PlayerSixQPRepository $playerSixQPRepository)
     {
         $this->entityManager = $entityManager;
         $this->cardSixQPRepository = $cardSixQPRepository;
         $this->chosenCardSixQPRepository = $chosenCardSixQPRepository;
+        $this->playerSixQPRepository = $playerSixQPRepository;
     }
 
     /**
@@ -217,6 +222,99 @@ class SixQPService
             return false;
         }
         return $this->hasPlayerLost($players);
+    }
+
+    /**
+     * createSixQPGame : create a six q p game
+     * @return int the id of the game
+     */
+    public function createSixQPGame(): int
+    {
+
+        $game = new GameSixQP();
+        $game->setGameName('6QP');
+        for($i = 0; $i < RowSixQP::$NUMBER_OF_ROWS_BY_GAME; $i++) {
+            $row = new RowSixQP();
+            $row->setPosition($i);
+            $game->addRowSixQP($row);
+            $this->entityManager->persist($row);
+        }
+
+        $this->entityManager->persist($game);
+        $this->entityManager->flush();
+        return $game->getId();
+    }
+
+    /**
+     * createSixQPPlayer : create a sixqp player and save him in the database
+     * @param string $playerName the name of the player to create
+     * @param GameSixQP $game the game of the player
+     * @return int -4 if too many player, 1 success
+     */
+    public function createSixQPPlayer(string $playerName, GameSixQP $game): int
+    {
+        if (count($game->getPlayerSixQPs()) >= 10) {
+            return -4;
+        }
+        $player = new PlayerSixQP($playerName, $game);
+        $discard = new DiscardSixQP($player, $game);
+        $player->setDiscardSixQP($discard);
+        $game->addPlayerSixQP($player);
+        $this->entityManager->persist($player);
+        $this->entityManager->persist($discard);
+        $this->entityManager->flush();
+        return 1;
+    }
+
+    /**
+     * deleteSixQPPlayer : delete a sixqp player
+     * @param string $playerName the name of the player to delete
+     * @param GameSixQP $game the game of the player
+     * @return int 1 success, -1 no player
+     */
+    public function deleteSixQPPlayer(string $playerName, GameSixQP $game): int
+    {
+        $player = $this->playerSixQPRepository->findOneBy(['game' => $game->getId(), 'username' => $playerName]);
+        if ($player == null) {
+            return -1;
+        }
+        $this->entityManager->remove($player);
+        $this->entityManager->flush();
+        return 1;
+    }
+
+    /**
+     * deleteGame : delete a game
+     * @param GameSixQP $game the game to delete
+     * @return void
+     */
+    public function deleteGame(GameSixQP $game): void
+    {
+        foreach ($game->getPlayerSixQPs() as $playerSixQP) {
+            $this->entityManager->remove($playerSixQP);
+        }
+        foreach ($game->getRowSixQPs() as $rowSixQP) {
+            $this->entityManager->remove($rowSixQP);
+        }
+        $this->entityManager->remove($game);
+        $this->entityManager->flush();
+    }
+
+    /**
+     * launchGame : launch a game
+     * @param GameSixQP $game the game to launch
+     * @return int -4 not a valid number of player, 1 success
+     */
+    public function launchGame(GameSixQP $game): int
+    {
+        $numberOfPlayers = count($game->getPlayerSixQPs());
+        if ($numberOfPlayers > 10 || $numberOfPlayers < 2) {
+            return -4;
+        }
+        $game->setLaunched(true);
+        $this->entityManager->persist($game);
+        $this->entityManager->flush();
+        return 1;
     }
 
     /**
