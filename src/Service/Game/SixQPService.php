@@ -9,6 +9,7 @@ use App\Entity\Game\SixQP\ChosenCardSixQP;
 use App\Entity\Game\SixQP\CardSixQP;
 use App\Entity\Game\SixQP\RowSixQP;
 use App\Repository\Game\SixQP\CardSixQPRepository;
+use App\Repository\Game\SixQP\ChosenCardSixQPRepository;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
@@ -19,13 +20,16 @@ class SixQPService
     public static int $MAX_POINTS = 66;
 
     private EntityManagerInterface $entityManager;
-
     private CardSixQPRepository $cardSixQPRepository;
+    private ChosenCardSixQPRepository $chosenCardSixQPRepository;
 
-    public function __construct(EntityManagerInterface $entityManager, CardSixQPRepository $cardSixQPRepository)
+    public function __construct(EntityManagerInterface $entityManager,
+        CardSixQPRepository $cardSixQPRepository,
+        ChosenCardSixQPRepository $chosenCardSixQPRepository)
     {
         $this->entityManager = $entityManager;
         $this->cardSixQPRepository = $cardSixQPRepository;
+        $this->chosenCardSixQPRepository = $chosenCardSixQPRepository;
     }
 
     /**
@@ -176,6 +180,29 @@ class SixQPService
         $chosenCardSixQP->setVisible(true);
         $this->entityManager->persist($chosenCardSixQP);
         $this->entityManager->flush();
+    }
+
+    public function doesAllPlayersHaveChosen(GameSixQP $game): bool {
+        $chosenCards = $this->chosenCardSixQPRepository->findBy(['game' => $game->getId()]);
+        return count($chosenCards) == count($game->getPlayerSixQPs());
+    }
+
+    public function doesPlayerAlreadyHasPlayed(PlayerSixQP $player): bool
+    {
+        $chosenCard = $this->chosenCardSixQPRepository->findOneBy(['player'=>$player->getId()]);
+        return $chosenCard != null;
+    }
+
+    public function getNotPlacedCard(GameSixQP $game): array {
+        $chosenCards = $this->chosenCardSixQPRepository->findBy(['game' => $game->getId()]);
+        for ($i = 0; $i < count($chosenCards); $i++) {
+            foreach ($game->getRowSixQPs() as $row) {
+                if ($row->isCardInRow($chosenCards[$i]->getCard())) {
+                    array_splice($chosenCards, $i, 1);
+                }
+            }
+        }
+        return $chosenCards;
     }
 
     /**

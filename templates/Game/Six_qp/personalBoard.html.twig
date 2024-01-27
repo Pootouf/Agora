@@ -1,0 +1,23 @@
+{% block personalBoard %}
+    <div class="flex bg-green-500 h-1/4 w-5/6 float-bottom-0 ">
+        <div class="grid grid-rows-2 grid-cols-5 w-full mx-2 mt-5
+                    landscape:md:flex landscape:md:mt-2 landscape:md-justify-center landscape:md:align-center
+                    lg:flex lg:mt-2 lg:justify-center lg:align-center">
+            {% set pathElements = path(app.request.attributes.get('_route'),
+                app.request.attributes.get('_route_params'))|split('/') %}
+            {% set gameId = pathElements[pathElements|length - 1] %}
+            {% for i in 0..(playerCards|length - 1) %}
+                <div class="hover:z-10 hover:-translate-y-14 w-fit overflow-hidden">
+                    {% set cardNumber = playerCards[i]|split('.')[0] %}
+                    {% set selectCardRoute = "/game/" ~ gameId ~ "/sixqp/select/" ~ cardNumber %}
+                    <a href="{{ selectCardRoute }}">
+                        <img class="z-0"
+                             src="{{ asset('resourcesGames/6QP/cardsImages/' ~ playerCards[i]) }}"
+                             alt="{{ cardNumber }}"
+                        >
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

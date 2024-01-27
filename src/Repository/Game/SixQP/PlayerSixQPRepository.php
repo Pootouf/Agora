@@ -3,6 +3,7 @@
 namespace App\Repository\Game\SixQP;
 
 use App\Entity\Game\SixQP\PlayerSixQP;
+use App\Repository\Game\PlayerRepository;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -14,7 +15,7 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method PlayerSixQP[]    findAll()
  * @method PlayerSixQP[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class PlayerSixQPRepository extends ServiceEntityRepository
+class PlayerSixQPRepository extends PlayerRepository
 {
     public function __construct(ManagerRegistry $registry)
     {

@@ -2,14 +2,14 @@
 
 namespace App\Entity\Game\SixQP;
 
-use App\Entity\Game\DTO\Component;
+use App\Entity\Game\DTO\Game;
 use App\Repository\Game\SixQP\GameSixQPRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: GameSixQPRepository::class)]
-class GameSixQP extends Component
+class GameSixQP extends Game
 {
 
     #[ORM\OneToMany(mappedBy: 'game', targetEntity: RowSixQP::class, orphanRemoval: true)]

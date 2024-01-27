@@ -61,6 +61,11 @@ class RowSixQP extends Component
         return $this->cards;
     }
 
+    public function isCardInRow(CardSixQP $card): bool
+    {
+        return $this->cards->contains($card);
+    }
+
     public function addCard(CardSixQP $card): static
     {
         if (!$this->cards->contains($card)) {
