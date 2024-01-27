@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Repository;
+namespace App\Repository\Game;
 
 use App\Entity\Game\GameUser;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
