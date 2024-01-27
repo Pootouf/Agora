@@ -38,7 +38,7 @@ class SixQPController extends GameController
                                 GameService $gameService,
                                 SixQPService $service)
     {
-        parent::__construct($gameService);
+        parent::__construct($gameService, $service);
         $this->hub = $hub;
         $this->entityManager = $entityManager;
         $this->chosenCardSixQPRepository = $chosenCardSixQPRepository;

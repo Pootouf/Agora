@@ -2,7 +2,7 @@
 
 namespace App\Service\Game;
 
-use AbstractGameService;
+
 use App\Entity\Game\DTO\Game;
 use App\Entity\Game\SixQP\DiscardSixQP;
 use App\Entity\Game\SixQP\GameSixQP;
@@ -64,7 +64,7 @@ class SixQPService extends AbstractGameService
      * createPlayer : create a sixqp player and save him in the database
      * @param string $playerName the name of the player to create
      * @param Game $game the game of the player
-     * @return int -4 if too many player, 1 success
+     * @return int -4 if too many player, 1 success, -7 already in the party
      */
     public function createPlayer(string $playerName, Game $game): int
     {
@@ -74,6 +74,9 @@ class SixQPService extends AbstractGameService
         }
         if (count($game->getPlayerSixQPs()) >= 10) {
             return -4;
+        }
+        if ($this->playerSixQPRepository->findOneBy(['username' => $playerName]) != null) {
+            return -7;
         }
         $player = new PlayerSixQP($playerName, $game);
         $discard = new DiscardSixQP($player, $game);
@@ -244,14 +247,10 @@ class SixQPService extends AbstractGameService
      * getRanking : get the ranking by player points (ascending)
      * @param GameSixQP $gameSixQP
      * @return array
+     * @throws Exception
      */
     public function getRanking(GameSixQP $gameSixQP): array
     {
-        if (is_null($gameSixQP))
-        {
-            throw new Exception('Invalid game');
-        }
-
         $numberOfPlayers = count($gameSixQP->getPlayerSixQPs());
         if ($numberOfPlayers > 10 || $numberOfPlayers < 2)
         {
@@ -268,7 +267,6 @@ class SixQPService extends AbstractGameService
                 0 :$discard->getTotalPoints();
         }
 
-        asort($ranking);
         
         return $ranking;
     }

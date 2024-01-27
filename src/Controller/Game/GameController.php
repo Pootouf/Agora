@@ -7,6 +7,7 @@ use App\Entity\Game\SixQP\PlayerSixQP;
 use App\Repository\Game\SixQP\GameSixQPRepository;
 use App\Repository\Game\SixQP\PlayerSixQPRepository;
 use App\Service\Game\GameService;
+use App\Service\Game\SixQPService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mercure\HubInterface;
@@ -18,10 +19,12 @@ class GameController extends AbstractController
 {
 
     private GameService $gameService;
+    private SixQPService $sixQPService;
 
-    public function __construct(GameService $gameService)
+    public function __construct(GameService $gameService, SixQPService $sixQPService)
     {
         $this->gameService = $gameService;
+        $this->sixQPService = $sixQPService;
     }
 
     #[Route('/game/{id}', name: 'app_game_show')]
@@ -39,7 +42,8 @@ class GameController extends AbstractController
             return $this->render('/Game/Six_qp/index.html.twig', [
                 'chosenCards' => $chosenCards,
                 'playerCards' => $player->getCards(),
-                'playerNumbers' => count($game->getPlayerSixQPs()),
+                'playersNumber' => count($game->getPlayerSixQPs()),
+                'ranking' => $this->sixQPService->getRanking($game),
                 'player' => $player,
                 'createdAt' => time(),
                 'rows' => $game->getRowSixQPs(),
