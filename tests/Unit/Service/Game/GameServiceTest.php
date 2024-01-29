@@ -2,6 +2,7 @@
 
 namespace Unit\Service\Game;
 
+use App\Entity\Game\SixQP\GameSixQP;
 use App\Repository\Game\SixQP\GameSixQPRepository;
 use App\Service\Game\GameService;
 use App\Service\Game\SixQPService;
@@ -19,5 +20,12 @@ class GameServiceTest extends TestCase
         $gameSixQPRepository = $this->createMock(GameSixQPRepository::class);
         $sixQPService = $this->createMock(SixQPService::class);
         $this->gameService = new GameService($gameSixQPRepository, $sixQPService);
+    }
+
+    public function testDeleteGame() : void
+    {
+        $game = new GameSixQP();
+        $id = $game->getId();
+        $this->assertTrue($this->gameService->deleteGame($id));
     }
 }
