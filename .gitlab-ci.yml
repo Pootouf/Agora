@@ -1,0 +1,17 @@
+image: jakzal/phpqa:php8.3
+
+before_script:
+  - composer install
+
+cache:
+  paths:
+    - vendor/
+
+stages:
+  - UnitTests
+
+phpunit:
+  stage: UnitTests
+  script:
+    - php bin/phpunit
+  allow_failure: false
