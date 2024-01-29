@@ -2,6 +2,7 @@
 
 namespace Unit\Service\Game;
 
+use App\Entity\Game\GameUser;
 use App\Entity\Game\SixQP\GameSixQP;
 use App\Repository\Game\SixQP\GameSixQPRepository;
 use App\Service\Game\GameService;
@@ -24,8 +25,19 @@ class GameServiceTest extends TestCase
 
     public function testDeleteGame() : void
     {
+        $this->setUp();
         $game = new GameSixQP();
         $id = $game->getId();
         $this->assertTrue($this->gameService->deleteGame($id));
+    }
+
+    public function testQuitGame() : void
+    {
+        $this->setUp();
+        $game = new GameSixQP();
+        $gameId = $game->getId();
+        $user = new GameUser();
+        $userId = $user->getId();
+        $this->assertTrue($this->gameService->quitGame($gameId, $userId));
     }
 }
