@@ -37,3 +37,24 @@ when@test:
                 cost: 4 # Lowest possible value for bcrypt
                 time_cost: 3 # Lowest possible value for argon
                 memory_cost: 10 # Lowest possible value for argon
+
+when@gametest:
+    security:
+        providers:
+            # used to reload user from session & other features (e.g. switch_user)
+            app_user_provider:
+                entity:
+                    class: App\Entity\Game\GameUser
+                    property: username
+        firewalls:
+            main:
+                lazy: true
+                provider: app_user_provider
+                form_login:
+                    login_path: app_login
+                    check_path: app_login
+                    enable_csrf: true
+                logout:
+                    path: app_logout
+                    # where to redirect after logout
+                    # target: app_any_route
