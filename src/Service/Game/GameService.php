@@ -2,7 +2,7 @@
 
 namespace App\Service\Game;
 
-use AbstractGameService;
+
 use App\Entity\Game\DTO\Game;
 use App\Entity\Game\DTO\Player;
 use App\Entity\Game\GameUser;
@@ -29,9 +29,8 @@ class GameService
         if ($user == null) {
             return null;
         }
-        $id = $user->getId(); //TODO : add platform user
 
-        return $playerRepository->findOneBy(['id' => $id, 'game' => $gameId]);
+        return $playerRepository->findOneBy(['username' => $user->getUsername(), 'game' => $gameId]);
     }
 
     public function createGame(string $gameName): int {

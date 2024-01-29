@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Service\Game;
+
 use App\Entity\Game\DTO\Game;
 
 abstract class AbstractGameService {
@@ -16,7 +18,7 @@ abstract class AbstractGameService {
      * createPlayer : create a player of the game and save him in the database
      * @param string $playerName the name of the player to create
      * @param Game $game the game of the player
-     * @return int -4 if too many player, 1 success, -6 invalid game
+     * @return int -4 if too many player, 1 success, -6 invalid game, -7 already in the party
      */
     public abstract function createPlayer(string $playerName, Game $game): int;
 

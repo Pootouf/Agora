@@ -9,6 +9,8 @@ use App\Entity\Game\SixQP\GameSixQP;
 use App\Entity\Game\SixQP\PlayerSixQP;
 use App\Entity\Game\SixQP\RowSixQP;
 use App\Repository\Game\SixQP\CardSixQPRepository;
+use App\Repository\Game\SixQP\ChosenCardSixQPRepository;
+use App\Repository\Game\SixQP\PlayerSixQPRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use PHPUnit\Framework\TestCase;
@@ -23,6 +25,8 @@ class SixQPServiceTest extends TestCase
     {
         $entityManager = $this->createMock(EntityManagerInterface::class);
         $cardSixQPRepository = $this->createMock(CardSixQPRepository::class);
+        $chosenCardSixQPRepository = $this->createMock(ChosenCardSixQPRepository::class);
+        $playerSixQPRepository = $this->createMock(PlayerSixQPRepository::class);
         $cards = [];
         for($i = 0; $i < 104; $i++) {
             $cards[] = new CardSixQP();
@@ -31,7 +35,8 @@ class SixQPServiceTest extends TestCase
             ->method('findAll')
             ->willReturn($cards);
 
-        $this->sixQPService = new SixQPService($entityManager, $cardSixQPRepository);
+        $this->sixQPService = new SixQPService($entityManager, $cardSixQPRepository,
+            $chosenCardSixQPRepository, $playerSixQPRepository);
     }
 
     public function testChooseCardWhenCardNotOwned(): void
