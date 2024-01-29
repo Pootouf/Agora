@@ -68,7 +68,9 @@ class SixQPController extends GameController
             return $this->redirectToRoute('app_game_show', ['id'=>$game->getId()]);
         }
         $response = $this->renderChosenCards($game);
-        $this->publish($this->hub, $this->generateUrl('app_game_sixqp_select'), $response);
+        $this->publish($this->hub,
+            $this->generateUrl('app_game_show', ['id' => $game->getId()]).'chosenCards',
+            $response);
 
         $chosenCards = $this->chosenCardSixQPRepository->findBy(['game' => $game->getId()]);
         if (!$this->service->doesAllPlayersHaveChosen($game)) {
@@ -126,12 +128,13 @@ class SixQPController extends GameController
             $returnValue = $this->service->placeCard($chosenCard);
             if ($returnValue == -1) {
                 $this->publish($this->hub,
-                    $this->generateUrl('app_game_show', ['id' => $game->getId()]).($player->getId()),
+                    $this->generateUrl('app_game_show',
+                        ['id' => $game->getId()]).'notifyPlayer'.($player->getId()),
                     new Response());
                 return $this->redirectToRoute('app_game_show', ['id'=>$game->getId()]);
             } else {
                 $this->publish($this->hub,
-                    $this->generateUrl('app_game_show', ['id' => $game->getId()]),
+                    $this->generateUrl('app_game_show', ['id' => $game->getId()]).'mainBoard',
                     $this->renderMainBoard($game));
             }
         }

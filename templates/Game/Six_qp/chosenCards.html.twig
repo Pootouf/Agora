@@ -32,4 +32,12 @@
                 {% endfor %}
             </div>
         </div>
+        <script>
+            const eventSource = new EventSource("{{ mercure(path('app_game_show',
+                ['id' => game.id]) ~ 'mainBoard' )|escape('js') }}");
+            eventSource.onmessage = event => {
+                let chosenCards = document.getElementById('chosenCards');
+                chosenCards.innerHTML = event.data;
+            }
+        </script>
 {% endblock %}
