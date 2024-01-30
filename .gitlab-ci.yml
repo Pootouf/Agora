@@ -13,5 +13,5 @@ stages:
 phpunit:
   stage: UnitTests
   script:
-    - php bin/phpunit
+    - php bin/phpunit tests/Unit
   allow_failure: false
