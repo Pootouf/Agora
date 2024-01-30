@@ -3,6 +3,7 @@
 namespace App\Tests\Integration\Service\Game;
 
 use App\Entity\Game\DTO\Player;
+use App\Entity\Game\GameUser;
 use App\Entity\Game\SixQP\GameSixQP;
 use App\Entity\Game\SixQP\PlayerSixQP;
 use App\Repository\Game\SixQP\PlayerSixQPRepository;
@@ -14,7 +15,23 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 class GameServiceIntegrationTest extends KernelTestCase
 {
 
-    
+    public function testDeleteGameWhenGameIsInvalid() : void
+    {
+        $gameService = static::getContainer()->get(GameService::class);
+        
+        $this->assertEquals(-6, $gameService->deleteGame(-1));
+    }
+
+    public function testDeleteGameWhenGameIsValid() : void
+    {
+        $gameService = static::getContainer()->get(GameService::class);
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+
+        $invalidGame = new GameSixQP();
+        $entityManager->persist($invalidGame);
+        $entityManager->flush();
+        $this->assertEquals(1, $gameService->deleteGame($invalidGame->getId()));
+    }
 
     public function testLaunchGame6QPFailWhenNotEnoughPlayers() : void
     {
@@ -39,12 +56,13 @@ class GameServiceIntegrationTest extends KernelTestCase
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);
 
         $validGame = new GameSixQP();
-        $gameId = $validGame->getId();
+        $entityManager->persist($validGame);
         $entityManager->flush();
-        $gameService->joinGame($gameId, new PlayerSixQP("player1", $validGame));
-        $gameService->joinGame($gameId, new PlayerSixQP("player2", $validGame));
-        $gameService->joinGame($gameId, new PlayerSixQP("player3", $validGame));
-        $gameService->joinGame($gameId, new PlayerSixQP("player4", $validGame));
+        $gameId = $validGame->getId();
+        $gameService->joinGame($gameId, new GameUser());
+        $gameService->joinGame($gameId, new GameUser());
+        $gameService->joinGame($gameId, new GameUser());
+        $gameService->joinGame($gameId, new GameUser());
         
         $this->assertEquals(1, $gameService->launchGame($gameId));
     }
