@@ -16,8 +16,8 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class SixQPServiceIntegrationTest extends KernelTestCase
 {
-
-   /* public function testInitializeNewRoundValidWithValidGame(): void
+/*
+    public function testInitializeNewRoundValidWithValidGame(): void
     {
         $sixQPService = static::getContainer()->get(SixQPService::class);
 
@@ -39,7 +39,7 @@ class SixQPServiceIntegrationTest extends KernelTestCase
             $this->assertSame(1, count($row->getCards()));
             $this->assertSame(count($game->getRowSixQPs()), count($rows));
         }
-    }*/
+    }
 
     public function testInitializeNewRoundInvalidWithNotEnoughPlayers(): void
     {
@@ -244,5 +244,5 @@ class SixQPServiceIntegrationTest extends KernelTestCase
         $entityManager->flush();
         return $game;
     }
-
+*/
 }
