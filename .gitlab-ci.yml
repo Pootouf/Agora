@@ -9,9 +9,18 @@ cache:
 
 stages:
   - UnitTests
+  - IntegrationTests
 
-phpunit:
+local:
   stage: UnitTests
   script:
     - php bin/phpunit tests/Unit
+  allow_failure: false
+
+develop:
+  stage: IntegrationTests
+  only:
+    - develop
+  script:
+    -php bin/phpunit tests/Integration
   allow_failure: false
