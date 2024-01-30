@@ -20,7 +20,7 @@ local:
 develop:
   stage: IntegrationTests
   only:
-    - develop
+    - feature/Game/6QP/Tests/GameService/CreateGame
   script:
     -php bin/phpunit tests/Integration
   allow_failure: false
