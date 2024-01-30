@@ -16,7 +16,7 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class SixQPServiceIntegrationTest extends KernelTestCase
 {
-/*
+
     public function testInitializeNewRoundValidWithValidGame(): void
     {
         $sixQPService = static::getContainer()->get(SixQPService::class);
@@ -244,5 +244,5 @@ class SixQPServiceIntegrationTest extends KernelTestCase
         $entityManager->flush();
         return $game;
     }
-*/
+
 }
