@@ -22,5 +22,5 @@ develop:
   only:
     - feature/Game/6QP/Tests/GameService/CreateGame
   script:
-    -php bin/phpunit tests/Integration
+    - php bin/phpunit tests/Integration
   allow_failure: false
