@@ -1,5 +1,4 @@
 {% extends 'base.html.twig' %}
-
 {% block title %}Agora - 6 qui prend{% endblock %}
 
 {% block body %}
@@ -11,15 +10,15 @@
             {% block chosenCards %}
                 {{ include('/Game/Six_qp/chosenCards.html.twig') }}
             {% endblock %}
-            {% block ranking %}
+            {# {% block ranking %}
                 {{ include('/Game/Six_qp/ranking.html.twig') }}
-            {% endblock %}
+            {% endblock %}#}
             {% block mainBoard %}
                 {{ include('/Game/Six_qp/mainBoard.html.twig') }}
             {% endblock %}
-            {% block personalBoard %}
+            {# {% block personalBoard %}
                 {{ include('/Game/Six_qp/personalBoard.html.twig') }}
-            {% endblock %}
+            {% endblock %} #}
         </div>
     </div>
 {% endblock %}
