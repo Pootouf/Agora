@@ -2,7 +2,6 @@
 image: jakzal/phpqa:php8.3
 
 before_script:
-  - composer install
   - docker-php-ext-install pdo_mysql
 
 cache:
