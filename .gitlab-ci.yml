@@ -25,6 +25,7 @@ develop:
   services:
     - name: mariadb:10.11.2
       alias: db
+  image: 'mariadb:10.11.2'
   variables:
     MYSQL_ROOT_PASSWORD: password
     MYSQL_DATABASE: main_test
