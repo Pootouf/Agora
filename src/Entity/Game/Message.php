@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Entity;
+namespace App\Entity\Game;
 
 use App\Repository\MessageRepository;
 use Doctrine\DBAL\Types\Types;
