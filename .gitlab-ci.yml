@@ -20,8 +20,6 @@ local:
 
 develop:
   stage: IntegrationTests
-  only:
-    - develop
   services:
     - name: mariadb:10.3.11
       alias: db
