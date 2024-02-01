@@ -55,14 +55,8 @@ class GameController extends AbstractController
 
     }
 
-    public function publish(HubInterface $hub, string $route, Response $data): Response
+    protected function getURLFromRoute(string $route, array $parameters): string
     {
-        $update = new Update(
-            $this->generateUrl($route),
-            html_entity_decode($data->getContent())
-        );
-        $hub->publish($update);
-
-        return new Response('published!');
+        return $this->generateUrl($route, $parameters);
     }
 }
