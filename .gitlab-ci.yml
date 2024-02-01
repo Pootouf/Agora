@@ -23,14 +23,14 @@ local:
 develop:
   stage: IntegrationTests
   services:
-    - name: mariadb:10.3.11
+    - name: mariadb:10.11.2
       alias: db
   variables:
     MYSQL_ROOT_PASSWORD: password
     MYSQL_DATABASE: main_test
     MYSQL_USER: root
     MYSQL_PASSWORD: password
-    MYSQL_URL: mysql://root:password@database:3306/main?serverVersion=10.11.2-MariaDB&charset=utf8mb4
+    MYSQL_URL: mysql://root:password@database:3307/main_test?serverVersion=10.11.2-MariaDB&charset=utf8mb4
   script:
     - php bin/phpunit tests/Integration
   allow_failure: false
