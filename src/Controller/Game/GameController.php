@@ -2,26 +2,24 @@
 
 namespace App\Controller\Game;
 
-use App\Entity\Game\SixQP\ChosenCardSixQP;
 use App\Entity\Game\SixQP\PlayerSixQP;
 use App\Repository\Game\SixQP\GameSixQPRepository;
 use App\Repository\Game\SixQP\PlayerSixQPRepository;
-use App\Service\Game\GameService;
-use App\Service\Game\SixQPService;
+use App\Service\Game\GameManagerService;
+use App\Service\Game\SixQP\SixQPService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mercure\HubInterface;
 use Symfony\Component\Mercure\Update;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\User\UserInterface;
 
 class GameController extends AbstractController
 {
 
-    private GameService $gameService;
+    private GameManagerService $gameService;
     private SixQPService $sixQPService;
 
-    public function __construct(GameService $gameService, SixQPService $sixQPService)
+    public function __construct(GameManagerService $gameService, SixQPService $sixQPService)
     {
         $this->gameService = $gameService;
         $this->sixQPService = $sixQPService;

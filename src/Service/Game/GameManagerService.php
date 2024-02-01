@@ -4,37 +4,24 @@ namespace App\Service\Game;
 
 
 use App\Entity\Game\DTO\Game;
-use App\Entity\Game\DTO\Player;
 use App\Entity\Game\GameUser;
-use App\Repository\Game\PlayerRepository;
 use App\Repository\Game\SixQP\GameSixQPRepository;
-use Symfony\Component\Security\Core\User\UserInterface;
+use App\Service\Game\SixQP\SixQPGameManagerService;
 
-class GameService
+class GameManagerService
 {
     private GameSixQPRepository $gameSixQPRepository;
-    private array $services;
+    private array $gameManagerServices;
 
     public function __construct(GameSixQPRepository $gameSixQPRepository,
-                                SixQPService $sixQPService)
+                                SixQPGameManagerService $sixQPGameManagerService)
     {
         $this->gameSixQPRepository = $gameSixQPRepository;
-        $this->services[AbstractGameService::$SIXQP_LABEL] = $sixQPService;
-    }
-
-    public function getPlayerFromUser(?UserInterface $user,
-                                      int $gameId,
-                                      PlayerRepository $playerRepository): ?Player
-    {
-        if ($user == null) {
-            return null;
-        }
-
-        return $playerRepository->findOneBy(['username' => $user->getUsername(), 'game' => $gameId]);
+        $this->gameManagerServices[AbstractGameManagerService::$SIXQP_LABEL] = $sixQPGameManagerService;
     }
 
     public function createGame(string $gameName): int {
-        return $this->services[$gameName]->createGame();
+        return $this->gameManagerServices[$gameName]->createGame();
     }
 
     public function joinGame(int $gameId, GameUser $user): int {
@@ -42,7 +29,7 @@ class GameService
         if ($game == null) {
             return -2;
         }
-        return $this->services[$game->getGameName()]->createPlayer($user->getUsername(), $game);
+        return $this->gameManagerServices[$game->getGameName()]->createPlayer($user->getUsername(), $game);
     }
 
     public function quitGame(int $gameId, GameUser $user): int
@@ -54,7 +41,7 @@ class GameService
         if ($game->isLaunched()) {
             return -3;
         }
-        return $this->services[$game->getGameName()]->deletePlayer($user->getUsername(), $game);
+        return $this->gameManagerServices[$game->getGameName()]->deletePlayer($user->getUsername(), $game);
     }
 
     public function deleteGame(int $gameId): int
@@ -63,7 +50,7 @@ class GameService
         if ($game == null) {
             return -2;
         }
-        return $this->services[$game->getGameName()]->deleteGame($game);
+        return $this->gameManagerServices[$game->getGameName()]->deleteGame($game);
     }
 
     public function launchGame(int $gameId): int
@@ -72,7 +59,7 @@ class GameService
         if ($game == null) {
             return -2;
         }
-        return $this->services[$game->getGameName()]->launchGame($game);
+        return $this->gameManagerServices[$game->getGameName()]->launchGame($game);
     }
 
 
