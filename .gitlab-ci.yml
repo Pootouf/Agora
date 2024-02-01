@@ -15,8 +15,6 @@ stages:
 
 local:
   stage: UnitTests
-  only:
-    - develop
   script:
     - php bin/phpunit tests/Unit
   allow_failure: false
@@ -24,6 +22,7 @@ local:
 develop:
   stage: IntegrationTests
   image: mariadb:10.11.2
+
   variables:
     MYSQL_ROOT_PASSWORD: password
     MYSQL_DATABASE: main_test
