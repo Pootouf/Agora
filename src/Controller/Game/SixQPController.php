@@ -10,6 +10,7 @@ use App\Entity\Game\SixQP\RowSixQP;
 use App\Repository\Game\SixQP\ChosenCardSixQPRepository;
 use App\Repository\Game\SixQP\PlayerSixQPRepository;
 use App\Service\Game\GameService;
+use App\Service\Game\LogService;
 use App\Service\Game\SixQPService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
@@ -32,10 +33,13 @@ class SixQPController extends GameController
 
     private GameService $gameService;
 
+    private LogService $logService;
+
     public function __construct(HubInterface $hub, EntityManagerInterface $entityManager,
                                 ChosenCardSixQPRepository $chosenCardSixQPRepository,
                                 PlayerSixQPRepository $playerSixQPRepository,
                                 GameService $gameService,
+                                LogService $logService,
                                 SixQPService $service)
     {
         parent::__construct($gameService, $service);
@@ -44,6 +48,7 @@ class SixQPController extends GameController
         $this->chosenCardSixQPRepository = $chosenCardSixQPRepository;
         $this->playerSixQPRepository = $playerSixQPRepository;
         $this->service = $service;
+        $this->logService = $logService;
         $this->gameService = $gameService;
     }
 
@@ -82,6 +87,9 @@ class SixQPController extends GameController
 
 
         $this->clearCards($chosenCards);
+        $message = $player->getUsername() . " a choisi la carte " . $card->getValue()
+            . "durant la partie " . $game->getId();
+        $this->logService->sendLog($game, $player, $message);
         return $this->redirectToRoute('app_game_show', ['id'=>$game->getId()]);
     }
 
@@ -101,6 +109,9 @@ class SixQPController extends GameController
         if ($this->service->placeCard($chosenCard) != 0) {
             return $this->redirectToRoute('app_game_show', ['id'=>$game->getId()]);
         }
+        $message = $player->getUsername() . " a placé la carte " . $chosenCard->getValue()
+            . "durant la partie " . $game->getId() . "sur la ligne " . $row->getPosition();
+        $this->logService->sendLog($game, $player, $message);
         $row->addCard($chosenCard->getCard());
         $this->entityManager->persist($row);
 
@@ -125,11 +136,15 @@ class SixQPController extends GameController
         foreach ($chosenCards as $chosenCard) {
             $returnValue = $this->service->placeCard($chosenCard);
             if ($returnValue == -1) {
+
                 $this->publish($this->hub,
                     $this->generateUrl('app_game_show', ['id' => $game->getId()]).($player->getId()),
                     new Response());
                 return $this->redirectToRoute('app_game_show', ['id'=>$game->getId()]);
             } else {
+                $message = "Le système a placé la carte " . $chosenCard->getValue()
+                    . "durant la partie " . $game->getId();
+                $this->logService->sendLog($game, $player, $message);
                 $this->publish($this->hub,
                     $this->generateUrl('app_game_show', ['id' => $game->getId()]),
                     $this->renderMainBoard($game));
