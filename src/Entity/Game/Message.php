@@ -23,6 +23,9 @@ class Message
     #[ORM\Column]
     private ?int $authorId = null;
 
+    #[ORM\Column]
+    private ?int $gameId = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -60,6 +63,18 @@ class Message
     public function setAuthorId(int $authorId): static
     {
         $this->authorId = $authorId;
+
+        return $this;
+    }
+
+    public function getGameId(): ?int
+    {
+        return $this->gameId;
+    }
+
+    public function setGameId(int $gameId): static
+    {
+        $this->gameId = $gameId;
 
         return $this;
     }
