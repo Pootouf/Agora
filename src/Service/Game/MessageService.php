@@ -24,9 +24,10 @@ class MessageService
      */
     public function sendMessage(int $playerId, int $gameId, string $content): int
     {
-        if($content == null || $content == ""){
+        if ($content == null || $content == "") {
             return -1;
         }
+
         $message = new Message();
         $message->setDate(new \DateTimeImmutable());
         $message->setContent($content);
@@ -36,6 +37,16 @@ class MessageService
         $this->entityManager->persist($message);
         $this->entityManager->flush();
         return 1;
+    }
+
+    /**
+     * sendMessage : create a message and save it in the database
+     * @param int $gameId the id of the game
+     * @return array of message from game
+     */
+    public function receiveMessage(int $gameId): array
+    {
+        $this->messageRepository->findByGame($gameId);
     }
 
 }

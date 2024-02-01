@@ -23,13 +23,14 @@ class MessageController extends AbstractController
         $this->messageService = $messageService;
         $this->gameService = $gameService;
     }
+
     public function sendMessage(int $playerId, int $gameId, string $message)
     {
         $this->messageService->sendMessage($playerId, $gameId, $message);
     }
 
-    public  function receiveMessage(int $gameId)
+    public function receiveMessage(int $gameId)
     {
-
+        $this->messageService->receiveMessage($gameId);
     }
 }
