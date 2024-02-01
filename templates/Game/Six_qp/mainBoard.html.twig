@@ -16,4 +16,12 @@ This section displays the main board of the game
             {% endfor %}
         </div>
     </div>
+    <script>
+        {% set path = path('app_game_show', {'id': game.id}) ~ 'mainBoard' ~ player.id %}
+        const eventSource = new EventSource("{{ mercure(path)|escape('js') }}");
+        eventSource.onmessage = event => {
+            let mainBoard = document.getElementById('mainBoard');
+            mainBoard.innerHTML = event.data;
+        }
+    </script>
 {% endblock %}
