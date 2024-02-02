@@ -2,42 +2,42 @@
     This section displays the cards who have been chosen for the round by players
     @param : chosenCards -> A list of pictures chosen by players
              playersNumer -> An integer of the number of current players in this game
-    @return : chosenCards|length == playersNumber => display a grid of the visible chosen cards
-              chosenCards|length != playersNumber => display a grid of hidden face of the chosen cards
+    @return : chosenCards.length == playersNumber => display a grid of the visible chosen cards
+              chosenCards.length != playersNumber => display a grid of hidden face of the chosen cards
                                                      (the back)
 #}
-{% block chosenCards %}
-        <div class="bg-gray-500 rounded flow float-left w-1/5 h-3/4 overflow-hidden shadow-black shadow-lg">
+        <div class="bg-gray-500 rounded flow float-left w-full h-full overflow-hidden shadow-black shadow-lg">
             <div class="grid grid-cols-2 grid-rows-5 w-full h-full pt-10 p-3">
                 {% set ind = 0 %}
                 {% for card in chosenCards %}
-                    <div class=" hover:z-10 hover:overflow-visible z-0 p-2">
-                        {% set hovering = "" %}
-                        {% if ind != 0 and ind != 1 %}
-                            {% set hovering = "transform hover:-translate-y-10" %}
-                        {% else %}
+                        <div class=" hover:z-10 hover:overflow-visible z-0 p-2">
+                        {% if card is not null %}
                             {% set hovering = "" %}
+                            {% if ind != 0 and ind != 1 %}
+                                {% set hovering = "transform hover:-translate-y-10" %}
+                            {% else %}
+                                {% set hovering = "" %}
+                            {% endif %}
+                            {% if chosenCards.length == playersNumber %}
+                                <img class="{{'rounded shadow-lg shadow-black aspect-auto hover:md:p-0' ~ hovering}}"
+                                     src="{{ asset('resourcesGames/6QP/cardsImages/' ~ card.value ~ '.png') }}"
+                                     alt="card">
+                            {% else %}
+                                <img class="{{'rounded shadow-lg shadow-black aspect-auto hover:md:p-0' ~ hovering}}"
+                                     src="{{ asset('resourcesGames/6QP/cardsImages' ~ "/back.png") }}"
+                                     alt="back">
+                            {% endif %}
+                        {% set ind = ind + 1 %}
                         {% endif %}
-                        {% if chosenCards|length == playersNumber %}
-                            <img class="{{'rounded shadow-lg shadow-black aspect-auto hover:md:p-0' ~ hovering}}"
-                                 src="{{ asset('resourcesGames/6QP/cardsImages/' ~ card) }}"
-                                 alt="card">
-                        {% else %}
-                            <img class="{{'rounded shadow-lg shadow-black aspect-auto hover:md:p-0' ~ hovering}}"
-                                 src="{{ asset('resourcesGames/6QP/cardsImages' ~ "/back.png") }}"
-                                 alt="back">
-                        {% endif %}
-                    </div>
-                    {% set ind = ind + 1 %}
+                        </div>
                 {% endfor %}
             </div>
         </div>
         <script>
-            const eventSource = new EventSource("{{ mercure(path('app_game_show',
-                ['id' => game.id]) ~ 'mainBoard' )|escape('js') }}");
+            {% set path = path('app_game_show', {'id': game.id}) ~ 'chosenCards' ~ player.id %}
+            const eventSource = new EventSource("{{ mercure(path)|escape('js') }}");
             eventSource.onmessage = event => {
                 let chosenCards = document.getElementById('chosenCards');
                 chosenCards.innerHTML = event.data;
             }
         </script>
-{% endblock %}
