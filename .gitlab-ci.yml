@@ -22,7 +22,7 @@ before_script:
 
 services:
   - name: mariadb:10.11.2
-    alias: database-test
+    alias: database_test
 
 variables:
   MYSQL_ROOT_PASSWORD: password
