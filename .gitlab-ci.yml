@@ -2,7 +2,7 @@ image: etiennebinginot/agora:1.0
 
 cache:
   policy: pull-push
-  unprotect: false
+  unprotect: true
   untracked: true
   when: on_success
 
