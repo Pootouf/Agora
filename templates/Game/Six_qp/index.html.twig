@@ -1,4 +1,5 @@
 {% extends 'base.html.twig' %}
+
 {% block title %}Agora - 6 qui prend{% endblock %}
 
 {% block body %}
@@ -7,18 +8,25 @@
             {% block nav %}
                 {{ include('/Game/Utils/navigation.html.twig') }}
             {% endblock %}
-            {% block chosenCards %}
+                <div id="chosenCards" class="flow float-left w-1/5 h-3/4">
                 {{ include('/Game/Six_qp/chosenCards.html.twig') }}
-            {% endblock %}
-            {# {% block ranking %}
-                {{ include('/Game/Six_qp/ranking.html.twig') }}
-            {% endblock %}#}
-            {% block mainBoard %}
-                {{ include('/Game/Six_qp/mainBoard.html.twig') }}
-            {% endblock %}
+                </div>
+            {#  { % block ranking %}
+            {{ include('/Game/Six_qp/ranking.html.twig') }}
+            {% endblock % }#}
+                <div id="mainBoard" class="flow float-start w-[63.3%] h-3/4">
+                    {{ include('/Game/Six_qp/mainBoard.html.twig') }}
+                </div>
             {% block personalBoard %}
-                {{ include('/Game/Six_qp/personalBoard.html.twig') }}
+            {{ include('/Game/Six_qp/personalBoard.html.twig') }}
             {% endblock %}
         </div>
     </div>
+    <script>
+        {% set path = path('app_game_show', {'id': game.id}) ~ 'notifyPlayer' ~ player.id %}
+        const eventSource = new EventSource("{{ mercure(path)|escape('js') }}");
+        eventSource.onmessage = event => {
+            //Notify player
+        }
+    </script>
 {% endblock %}

@@ -147,6 +147,7 @@ class SixQPService extends AbstractGameService
             return -4;
         }
         $game->setLaunched(true);
+        $this->initializeNewRound($game);
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         return 1;

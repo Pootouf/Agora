@@ -5,7 +5,7 @@
                     lg:flex lg:mt-2 lg:justify-center lg:align-center">
             {% set pathElements = path(app.request.attributes.get('_route'),
                 app.request.attributes.get('_route_params'))|split('/') %}
-            {% set gameId = pathElements[pathElements|length - 1] %}
+            {% set gameId = game.id %}
             {% for card in playerCards %}
                 <div class="hover:z-10 hover:-translate-y-14 w-fit overflow-hidden">
                     {% set cardNumber = card.value %}
