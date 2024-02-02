@@ -65,7 +65,7 @@ class SixQPController extends GameController
         } catch (\Exception) {
             return $this->redirectToRoute('app_game_show', ['id'=>$game->getId()]);
         }
-        $response = $this->renderChosenCards($game);
+        $response = $this->renderChosenCards($game, $player);
         $this->publishService->publish(
             $this->generateUrl('app_game_show',
                 ['id' => $game->getId()]).'chosenCards',
@@ -150,11 +150,13 @@ class SixQPController extends GameController
         return null;
     }
 
-    private function renderChosenCards(GameSixQP $gameSixQP): Response
+    private function renderChosenCards(GameSixQP $gameSixQP, PlayerSixQP $playerSixQP): Response
     {
         $cards = $this->chosenCardSixQPRepository->findBy(['game' => $gameSixQP->getId()]);
         return $this->render('Game/Six_qp/chosenCards.html.twig',
-            ['chosenCards' => $cards]
+            ['chosenCards' => $cards,
+             'game' => $gameSixQP,
+             'player' => $playerSixQP]
         );
     }
 
