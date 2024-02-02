@@ -2,7 +2,6 @@
 
 namespace Unit\Service\Game;
 
-use App\DataFixtures\SixQPFixtures;
 use App\Entity\Game\SixQP\CardSixQP;
 use App\Entity\Game\SixQP\DiscardSixQP;
 use App\Entity\Game\SixQP\GameSixQP;
@@ -11,10 +10,10 @@ use App\Entity\Game\SixQP\RowSixQP;
 use App\Repository\Game\SixQP\CardSixQPRepository;
 use App\Repository\Game\SixQP\ChosenCardSixQPRepository;
 use App\Repository\Game\SixQP\PlayerSixQPRepository;
+use App\Service\Game\SixQP\SixQPService;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use PHPUnit\Framework\TestCase;
-use App\Service\Game\SixQPService;
 
 class SixQPServiceTest extends TestCase
 {

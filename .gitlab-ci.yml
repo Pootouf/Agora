@@ -1,0 +1,37 @@
+image: etiennebinginot/agora:1.0
+
+cache:
+  policy: pull-push
+  unprotect: false
+  untracked: true
+  when: on_success
+
+services:
+  - name: mariadb:10.11.2
+    alias: database_test
+
+variables:
+  MYSQL_ROOT_PASSWORD: password
+  MYSQL_TCP_PORT: 3307
+  MYSQL_DATABASE: main_test
+
+
+unit:
+  stage: test
+  script:
+    - php bin/phpunit tests/Unit --coverage-text
+  allow_failure: false
+  environment: test
+
+integration:
+  stage: test
+  only:
+    - develop
+    - preprod
+    - main
+  script:
+    - symfony console --env=test doctrine:migrations:migrate
+    - symfony console doctrine:fixtures:load --env=test -n
+    - php bin/phpunit tests/Integration --coverage-text
+  allow_failure: false
+  environment: test
