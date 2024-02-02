@@ -3,17 +3,25 @@ This section displays the main board of the game
 @param : rows -> A collection of the existing rows
 @return : display a grid of the cards on the main board
 #}
-{% block mainBoard %}
-    <div class="bg-red-500 flow float-start w-[63.3%] h-3/4 overflow-hidden
+    <div class="p-2 bg-red-500 flow float-start w-full h-full overflow-hidden
                 shadow-black shadow-[10px_10px_15px_-3px_rgba(0,0,0,0.1)] -z-1">
-        <div class="grid grid-cols-5 grid-rows-4 h-full w-full m-2 ml-4">
+        <div class="flex flex-col h-full w-full ml-4">
             {% for row in rows.values %}
+                <div class="h-1/4">
                 {% for card in row.cards %}
-                    <img class="h-full mr-6 float float-left"
-                         src="{{ asset('resourcesGames/6QP/cardsImages/' ~ card ~ ".png")}}"
+                    <img class="h-full float float-left"
+                         src="{{ asset('resourcesGames/6QP/cardsImages/' ~ card.value ~ ".png")}}"
                          alt="card">
                 {% endfor %}
+                </div>
             {% endfor %}
         </div>
     </div>
-{% endblock %}
+    <script>
+        {% set path = path('app_game_show', {'id': game.id}) ~ 'mainBoard' ~ player.id %}
+        const eventSource = new EventSource("{{ mercure(path)|escape('js') }}");
+        eventSource.onmessage = event => {
+            let mainBoard = document.getElementById('mainBoard');
+            mainBoard.innerHTML = event.data;
+        }
+    </script>

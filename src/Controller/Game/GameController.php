@@ -40,6 +40,7 @@ class GameController extends AbstractController
             $chosenCards = array_map(function (PlayerSixQP $player) {
                 return $player->getChosenCardSixQP();}, $game->getPlayerSixQPs()->toArray());
             return $this->render('/Game/Six_qp/index.html.twig', [
+                'game' => $game,
                 'chosenCards' => $chosenCards,
                 'playerCards' => $player->getCards(),
                 'playersNumber' => count($game->getPlayerSixQPs()),
