@@ -1,6 +1,11 @@
 
 image: php:8.3-apache
 
+cache:
+  policy: pull-push
+  unprotect: false
+  untracked: true
+  when: on_success
 
 services:
   - name: mariadb:10.11.2
@@ -19,6 +24,7 @@ before_script:
   - docker-php-ext-enable xdebug
   - docker-php-ext-install pdo_mysql opcache
   - docker-php-ext-enable pdo_mysql opcache
+  - php composer.phar install
 
 variables:
   MYSQL_ROOT_PASSWORD: password
@@ -26,24 +32,8 @@ variables:
   MYSQL_DATABASE: main_test
 
 
-build:
-  stage: build
-  cache:
-    key: dependance
-    paths:
-      - vendor/
-    policy: push
-  script:
-    - php composer.phar install
-
-
 unit:
   stage: test
-  cache:
-    key: dependance
-    paths:
-      - vendor/
-    policy: pull
   script:
     - php bin/phpunit tests/Unit --coverage-text
   allow_failure: false
@@ -51,11 +41,6 @@ unit:
 
 integration:
   stage: test
-  cache:
-    key: dependance
-    paths:
-      - vendor/
-    policy: pull
   script:
     - symfony console doctrine:migrations:migrate
     - symfony console --env=test doctrine:migrations:migrate
