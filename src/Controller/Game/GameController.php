@@ -16,12 +16,10 @@ use Symfony\Component\Routing\Annotation\Route;
 class GameController extends AbstractController
 {
 
-    private GameManagerService $gameService;
     private SixQPService $sixQPService;
 
-    public function __construct(GameManagerService $gameService, SixQPService $sixQPService)
+    public function __construct(SixQPService $sixQPService)
     {
-        $this->gameService = $gameService;
         $this->sixQPService = $sixQPService;
     }
 
@@ -32,7 +30,7 @@ class GameController extends AbstractController
     {
         $game = $gameSixQPRepository->findOneBy(['id' => $id]);
         if ($game != null) {
-            $player = $this->gameService->getPlayerFromUser($this->getUser(),
+            $player = $this->sixQPService->getPlayerFromUser($this->getUser(),
                 $game->getId(),
                 $playerSixQPRepository);
             $chosenCards = array_map(function (PlayerSixQP $player) {

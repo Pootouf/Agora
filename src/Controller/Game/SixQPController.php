@@ -29,11 +29,10 @@ class SixQPController extends GameController
     public function __construct(EntityManagerInterface $entityManager,
                                 ChosenCardSixQPRepository $chosenCardSixQPRepository,
                                 PlayerSixQPRepository $playerSixQPRepository,
-                                GameManagerService $gameService,
                                 SixQPService $service,
                                 PublishService $publishService)
     {
-        parent::__construct($gameService, $service);
+        parent::__construct($service);
         $this->publishService = $publishService;
         $this->entityManager = $entityManager;
         $this->chosenCardSixQPRepository = $chosenCardSixQPRepository;

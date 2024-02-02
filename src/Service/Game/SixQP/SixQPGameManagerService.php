@@ -10,18 +10,21 @@ use App\Entity\Game\SixQP\RowSixQP;
 use App\Repository\Game\SixQP\PlayerSixQPRepository;
 use App\Service\Game\AbstractGameManagerService;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 
 class SixQPGameManagerService extends AbstractGameManagerService
 {
     private EntityManagerInterface $entityManager;
-
     private PlayerSixQPRepository $playerSixQPRepository;
+    private SixQPService $sixQPService;
 
     public function __construct(EntityManagerInterface $entityManager,
-        PlayerSixQPRepository $playerSixQPRepository)
+        PlayerSixQPRepository $playerSixQPRepository,
+        SixQPService $sixQPService)
     {
         $this->entityManager = $entityManager;
         $this->playerSixQPRepository = $playerSixQPRepository;
+        $this->sixQPService = $sixQPService;
     }
 
 
@@ -116,6 +119,7 @@ class SixQPGameManagerService extends AbstractGameManagerService
 
     /**
      * launchGame : launch a sixqpgame
+     * @throws Exception if game invalid
      */
     public function launchGame(Game $game): int
     {
@@ -130,6 +134,7 @@ class SixQPGameManagerService extends AbstractGameManagerService
         $game->setLaunched(true);
         $this->entityManager->persist($game);
         $this->entityManager->flush();
+        $this->sixQPService->initializeNewRound($game);
         return SixQPGameManagerService::$SUCCESS;
     }
 
