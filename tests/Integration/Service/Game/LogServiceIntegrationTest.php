@@ -4,6 +4,7 @@ namespace Integration\Service\Game;
 
 
 use App\Repository\Game\SixQP\GameSixQPRepository;
+use App\Service\Game\AbstractGameManagerService;
 use App\Service\Game\AbstractGameService;
 use App\Service\Game\LogService;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -20,7 +21,7 @@ class LogServiceIntegrationTest extends KernelTestCase {
         $logService = static::getContainer()->get(LogService::class);
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);
         $game = new GameSixQP();
-        $game->setGameName(AbstractGameService::$SIXQP_LABEL);
+        $game->setGameName(AbstractGameManagerService::$SIXQP_LABEL);
         $player = new PlayerSixQP('test', $game);
         $game->addPlayerSixQP($player);
         $entityManager->persist($player);
