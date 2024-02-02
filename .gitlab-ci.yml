@@ -26,7 +26,6 @@ unit:
 integration:
   stage: test
   script:
-    - symfony console doctrine:migrations:migrate
     - symfony console --env=test doctrine:migrations:migrate
     - php bin/phpunit tests/Integration --coverage-text
   allow_failure: false
