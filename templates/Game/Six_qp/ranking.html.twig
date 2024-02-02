@@ -1,55 +1,86 @@
-{% block ranking %}
-    <div class="absolute bg-violet-100 w-1/6 h-full right-0">
-        <div class="">
-            <img src="{{ asset('resourcesGames/6QP/logo.png') }}" alt="logo" class="rounded-full mr-2">
-            <p class="mr-1 text-center ">{{ playersNumber }} joueurs</p>
-            <p class="mr-1 text-center ">Créée le {{ createdAt|date('d/m/Y H:i') }}</p>
-            <p id="elapsedTime" class="mr-1 text-center ">Temps écoulé : 00:00:00</p>
-        </div>
-        <div class="dark:bg-slate-400">
-            <p class="text-center py-2 my-2 font-bold dark:bg-gray-700 dark:text-white text-xl border-y-4 border-violet-600 ">Classement</p>
-            <ul class="size-full  text-sm font-medium space-y-1 dark:text-white  ">
-                {% for user in users %}
-                    {% if loop.first %}
-                        <li class="flex justify-between px-2 py-2 rounded-lg dark:bg-gray-700 border-y-4 border-red-600">
-                    {% elseif loop.last %}
-                        <li class="flex justify-between px-2 py-2 rounded-lg dark:bg-gray-700 border-y-4 border-yellow-400">
-                    {% else%}
-                        <li class="flex justify-between px-2 py-2 rounded-lg dark:bg-gray-700 border-y-2 border-white">
-                    {% endif %}
-                    <div class="flex items-center">
-                        <img src="{{ asset('resourcesGames/6QP/teteDeBoeuf.svg') }}" alt="logo" class="w-8 h-8  mr-1">
-                        <span class="mr-1 text-xl font-bold ">{{ user[1] }}</span>
-                        <span class="mr-2 text-xs font-thin  ">{% if user[1] > 1 %}points{% else %}point{% endif %}</span>
-                    </div>
-                    <div class="flex items-center ">
-                        {{ user[0] }}
-                    </div>
-                    </li>
-                {% endfor %}
-            </ul>
-        </div>
+{#
+This section displays the game's name, and the current game's timer and leaderboard
 
-    </div>
+@param :    users       -> Player entities who play in this game
+		    currentUser -> the Player entity of the session's user
+		    createdAt   -> The number of seconds since the Unix Epoch when the game started
 
-{% endblock %}
+@return :   display game's informations and leaderboard
+#}
 
-{% block javascripts %}
-    <script>
-        function updateElapsedTime() {
-            const currentTime = Math.floor(Date.now() / 1000);
-            const elapsedTime = currentTime - {{ createdAt }};
+<div class="flex flex-col absolute bg-violet-100 w-1/6 right-0 max-h-screen">
+	<div>
+		<img src="{{ asset('resourcesGames/6QP/logo.png') }}" alt="logo" class="rounded-full mr-2">
+		<p id="elapsedTime" class="mr-1 text-center md:text-base portrait:text-xl md:text-xl">
+			00:00:00
+		</p>
+		{#
+		<span class="mr-1 text-center text-sm md:text-xs lg:text-lg xl:text-xl">{{ playersNumber }} joueurs</span>
+		<span class="mr-1 text-center text-sm md:text-xs lg:text-lg xl:text-xl">
+			Créée le {{ createdAt|date('d/m/Y H:i') }}
+		</span>
+		#}
+	</div>
+	<p class="text-center py-2 font-bold dark:bg-gray-700 text-white text-xl border-y-4 border-violet-600">
+		Classement
+	</p>
+	<div class="dark:bg-slate-400 overflow-y-auto">
+		<div id="leaderboard" class="text-sm font-medium space-y-1 text-white">
+			{% for user in users %}
+				<div id="{{ user[0] }}" class="score-white">
+					<div id="l_{{ user[0] }}_points" class="portrait:hidden flex w-full items-center overflow-hidden"
+					     data-score="{{ user[1] }}">
+						<img src="{{ asset('resourcesGames/6QP/teteDeBoeuf.svg') }}" alt="logo"
+						     class="lg:size-8 md:size-4 mr-1">
+						<p class="mr-1 lg:text-xl font-bold">
+							{{ user[1] }}
+						</p>
+						<p class="mr-2 text-sm font-thin">
+							{{ user[1] > 1 ? 'points' : 'point' }}
+						</p>
+						{% if currentUser == user[0] %}
+							<p class="flex-grow text-clip text-right sm:text-xs text-violet-300">{{ user[0] }}</p>
+						{% else %}
+							<p class="flex-grow text-clip text-right sm:text-xs">{{ user[0] }}</p>
+						{% endif %}
+					</div>
 
-            const hours = Math.floor(elapsedTime / 3600);
-            const minutes = Math.floor((elapsedTime % 3600) / 60);
-            const seconds = elapsedTime % 60;
+					<div class="landscape:hidden w-full items-center overflow-hidden">
+						{% if currentUser == user[0] %}
+							<p class=" flex items-center text-clip text-right mb-2 text-xl text-violet-300">{{ user[0] }}</p>
+						{% else %}
+							<p class="flex items-center text-clip text-right mb-2 text-xl">{{ user[0] }}</p>
+						{% endif %}
 
-            const formattedTime = hours.toString().padStart(2, '0') + ':' +
-                    minutes.toString().padStart(2, '0') + ':' +
-                    seconds.toString().padStart(2, '0');
+						<div id="p_{{ user[0] }}_points" class="flex">
+							<img src="{{ asset('resourcesGames/6QP/teteDeBoeuf.svg') }}" alt="logo"
+							     class="size-8  mr-1">
+							<p class="mr-1 text-xl font-bold">
+								{{ user[1] }}
+							</p>
+							<p class="mr-2 font-thin text-sm">
+								{{ user[1] > 1 ? 'points' : 'point' }}
+							</p>
+						</div>
+					</div>
+				</div>
+			{% endfor %}
+		</div>
+	</div>
+</div>
+<script>
+    function updateElapsedTime() {
+        const currentTime = Math.floor(Date.now() / 1000);
+        const elapsedTime = currentTime - {{ createdAt }};
 
-            document.getElementById('elapsedTime').innerText = 'Temps écoulé : ' + formattedTime;
-        }
-        setInterval(updateElapsedTime, 1000);
-    </script>
-{% endblock %}
+        const hours = Math.floor(elapsedTime / 3600);
+        const minutes = Math.floor((elapsedTime % 3600) / 60);
+        const seconds = elapsedTime % 60;
+
+        document.getElementById('elapsedTime').innerText = hours.toString().padStart(2, '0') + ':' +
+            minutes.toString().padStart(2, '0') + ':' +
+            seconds.toString().padStart(2, '0');
+    }
+
+    setInterval(updateElapsedTime, 1000);
+</script>
