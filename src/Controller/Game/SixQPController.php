@@ -9,9 +9,9 @@ use App\Entity\Game\SixQP\PlayerSixQP;
 use App\Entity\Game\SixQP\RowSixQP;
 use App\Repository\Game\SixQP\ChosenCardSixQPRepository;
 use App\Repository\Game\SixQP\PlayerSixQPRepository;
-use App\Service\Game\GameService;
+use App\Service\Game\GameManagerService;
+use App\Service\Game\SixQP\SixQPService;
 use App\Service\Game\PublishService;
-use App\Service\Game\SixQPService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Component\HttpFoundation\Response;
@@ -24,13 +24,12 @@ class SixQPController extends GameController
     private ChosenCardSixQPRepository $chosenCardSixQPRepository;
     private PlayerSixQPRepository $playerSixQPRepository;
     private SixQPService $service;
-    private GameService $gameService;
     private PublishService $publishService;
 
-    public function __construct(HubInterface $hub, EntityManagerInterface $entityManager,
+    public function __construct(EntityManagerInterface $entityManager,
                                 ChosenCardSixQPRepository $chosenCardSixQPRepository,
                                 PlayerSixQPRepository $playerSixQPRepository,
-                                GameService $gameService,
+                                GameManagerService $gameService,
                                 SixQPService $service,
                                 PublishService $publishService)
     {
@@ -40,7 +39,6 @@ class SixQPController extends GameController
         $this->chosenCardSixQPRepository = $chosenCardSixQPRepository;
         $this->playerSixQPRepository = $playerSixQPRepository;
         $this->service = $service;
-        $this->gameService = $gameService;
     }
 
 
@@ -48,7 +46,7 @@ class SixQPController extends GameController
     public function selectCard(#[MapEntity(id: 'idGame')] GameSixQP $game, #[MapEntity(id: 'idCard')] CardSixQP $card): Response
     {
         /** @var PlayerSixQP $player */
-        $player = $this->gameService->getPlayerFromUser($this->getUser(),
+        $player = $this->service->getPlayerFromUser($this->getUser(),
             $game->getId(),
             $this->playerSixQPRepository);
         if ($player == null) {
@@ -89,7 +87,7 @@ class SixQPController extends GameController
     public function placeCardOnRow(#[MapEntity(id: 'idGame')] GameSixQP $game,
         #[MapEntity(id: 'idRow')] RowSixQP $row) : Response{
         /** @var PlayerSixQP $player */
-        $player = $this->gameService->getPlayerFromUser($this->getUser(),
+        $player = $this->service->getPlayerFromUser($this->getUser(),
             $game->getId(),
             $this->playerSixQPRepository);
         if ($player == null) {

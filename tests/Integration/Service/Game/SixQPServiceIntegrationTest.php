@@ -8,8 +8,8 @@ use App\Entity\Game\SixQP\GameSixQP;
 use App\Entity\Game\SixQP\PlayerSixQP;
 use App\Entity\Game\SixQP\RowSixQP;
 use App\Repository\Game\SixQP\GameSixQPRepository;
-use App\Service\Game\AbstractGameService;
-use App\Service\Game\SixQPService;
+use App\Service\Game\AbstractGameManagerService;
+use App\Service\Game\SixQP\SixQPService;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -228,7 +228,7 @@ class SixQPServiceIntegrationTest extends KernelTestCase
     {
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);
         $game = new GameSixQP();
-        $game->setGameName(AbstractGameService::$SIXQP_LABEL);
+        $game->setGameName(AbstractGameManagerService::$SIXQP_LABEL);
         for ($i = 0; $i < $numberOfPlayer; $i++) {
             $player = new PlayerSixQP('test', $game);
             $game->addPlayerSixQP($player);

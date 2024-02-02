@@ -4,8 +4,8 @@ namespace App\Controller\Game;
 
 use App\Entity\Game\SixQP\GameSixQP;
 use App\Repository\Game\SixQP\GameSixQPRepository;
-use App\Service\Game\AbstractGameService;
-use App\Service\Game\GameService;
+use App\Service\Game\AbstractGameManagerService;
+use App\Service\Game\GameManagerService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -15,9 +15,9 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class GameTestController extends AbstractController
 {
 
-    private GameService $gameService;
+    private GameManagerService $gameService;
 
-    public function __construct(GameService $gameService) {
+    public function __construct(GameManagerService $gameService) {
         $this->gameService = $gameService;
     }
 
@@ -34,7 +34,7 @@ class GameTestController extends AbstractController
     #[Route('/game/sixqp/create', name: 'app_game_sixqp_create')]
     public function createSixQPGame(): Response
     {
-        $this->gameService->createGame(AbstractGameService::$SIXQP_LABEL);
+        $this->gameService->createGame(AbstractGameManagerService::$SIXQP_LABEL);
         return $this->redirectToRoute('app_game_sixqp_list');
     }
 
