@@ -23,7 +23,7 @@
                                      src="{{
                                             asset('resourcesGames/6QP/cardsImages/' ~ chosenCard.card.value ~ '.png')
                                         }}"
-                                     alt="card">
+                                     alt="{{ chosenCard.card.value ~ 'card' }}">
                             {% else %}
                                 <img class="{{'rounded shadow-lg shadow-black aspect-auto hover:md:p-0' ~ hovering}}"
                                      src="{{ asset('resourcesGames/6QP/cardsImages' ~ "/back.png") }}"
