@@ -21,7 +21,8 @@ before_script:
   - php composer.phar install
 
 services:
-  - mariadb:10.11.2
+  - name: mariadb:10.11.2
+    alias: database-test
 
 variables:
   MYSQL_ROOT_PASSWORD: password
@@ -40,9 +41,11 @@ local:
   script:
     - php bin/phpunit tests/Unit --coverage-text
   allow_failure: false
+  environment: test
 
 develop:
   stage: IntegrationTests
   script:
     - php bin/phpunit tests/Integration --coverage-text
   allow_failure: false
+  environment: test
