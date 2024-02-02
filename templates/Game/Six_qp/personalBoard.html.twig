@@ -5,7 +5,7 @@
                     lg:flex lg:mt-2 lg:justify-center lg:align-center">
             {% set gameId = game.id %}
             {% for card in playerCards %}
-                <div class="hover:z-10 hover:-translate-y-14 w-fit overflow-hidden">
+                <div class="hover:z-10 hover:overflow-visible hover:-translate-y-14 w-fit overflow-hidden">
                     {% set cardNumber = card.value %}
                     {% set selectCardRoute = "/game/" ~ gameId ~ "/sixqp/select/" ~ cardNumber %}
                     <a href="{{ selectCardRoute }}">
