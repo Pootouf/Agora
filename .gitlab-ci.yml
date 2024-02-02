@@ -1,5 +1,4 @@
-
-image: etiennebinginot/agora
+image: etiennebinginot/agora:1.0
 
 cache:
   policy: pull-push
