@@ -81,4 +81,12 @@ This section displays the main board of the game
             </div>
         </div>
     {% endif %}
+    <script>
+        const eventSource = new EventSource("{{ mercure(path('app_game_show',
+            ['id' => game.id]) ~ 'chosenCards' )|escape('js') }}");
+        eventSource.onmessage = event => {
+            let mainBoard = document.getElementById('mainBoard');
+            mainBoard.innerHTML = event.data;
+        }
+    </script>
 {% endblock %}

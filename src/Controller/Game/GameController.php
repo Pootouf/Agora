@@ -40,6 +40,7 @@ class GameController extends AbstractController
             $chosenCards = array_map(function (PlayerSixQP $player) {
                 return $player->getChosenCardSixQP();}, $game->getPlayerSixQPs()->toArray());
             return $this->render('/Game/Six_qp/index.html.twig', [
+                'game' => $game,
                 'chosenCards' => $chosenCards,
                 'playerCards' => $player->getCards(),
                 'playersNumber' => count($game->getPlayerSixQPs()),
@@ -54,14 +55,8 @@ class GameController extends AbstractController
 
     }
 
-    public function publish(HubInterface $hub, string $route, Response $data): Response
+    protected function getURLFromRoute(string $route, array $parameters): string
     {
-        $update = new Update(
-            $this->generateUrl($route),
-            html_entity_decode($data->getContent())
-        );
-        $hub->publish($update);
-
-        return new Response('published!');
+        return $this->generateUrl($route, $parameters);
     }
 }

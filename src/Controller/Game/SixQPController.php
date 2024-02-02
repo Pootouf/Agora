@@ -10,6 +10,7 @@ use App\Entity\Game\SixQP\RowSixQP;
 use App\Repository\Game\SixQP\ChosenCardSixQPRepository;
 use App\Repository\Game\SixQP\PlayerSixQPRepository;
 use App\Service\Game\GameService;
+use App\Service\Game\PublishService;
 use App\Service\Game\SixQPService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
@@ -19,27 +20,22 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class SixQPController extends GameController
 {
-
-    private HubInterface $hub;
-
     private EntityManagerInterface $entityManager;
-
     private ChosenCardSixQPRepository $chosenCardSixQPRepository;
-
     private PlayerSixQPRepository $playerSixQPRepository;
-
     private SixQPService $service;
-
     private GameService $gameService;
+    private PublishService $publishService;
 
     public function __construct(HubInterface $hub, EntityManagerInterface $entityManager,
                                 ChosenCardSixQPRepository $chosenCardSixQPRepository,
                                 PlayerSixQPRepository $playerSixQPRepository,
                                 GameService $gameService,
-                                SixQPService $service)
+                                SixQPService $service,
+                                PublishService $publishService)
     {
         parent::__construct($gameService, $service);
-        $this->hub = $hub;
+        $this->publishService = $publishService;
         $this->entityManager = $entityManager;
         $this->chosenCardSixQPRepository = $chosenCardSixQPRepository;
         $this->playerSixQPRepository = $playerSixQPRepository;
@@ -51,6 +47,7 @@ class SixQPController extends GameController
     #[Route('/game/{idGame}/sixqp/select/{idCard}', name: 'app_game_sixqp_select')]
     public function selectCard(#[MapEntity(id: 'idGame')] GameSixQP $game, #[MapEntity(id: 'idCard')] CardSixQP $card): Response
     {
+        /** @var PlayerSixQP $player */
         $player = $this->gameService->getPlayerFromUser($this->getUser(),
             $game->getId(),
             $this->playerSixQPRepository);
@@ -68,7 +65,10 @@ class SixQPController extends GameController
             return $this->redirectToRoute('app_game_show', ['id'=>$game->getId()]);
         }
         $response = $this->renderChosenCards($game);
-        $this->publish($this->hub, $this->generateUrl('app_game_sixqp_select'), $response);
+        $this->publishService->publish(
+            $this->generateUrl('app_game_show',
+                ['id' => $game->getId()]).'chosenCards',
+            $response);
 
         $chosenCards = $this->chosenCardSixQPRepository->findBy(['game' => $game->getId()]);
         if (!$this->service->doesAllPlayersHaveChosen($game)) {
@@ -88,6 +88,7 @@ class SixQPController extends GameController
     #[Route('/game/{idGame}/sixqp/place/row/{idRow}')]
     public function placeCardOnRow(#[MapEntity(id: 'idGame')] GameSixQP $game,
         #[MapEntity(id: 'idRow')] RowSixQP $row) : Response{
+        /** @var PlayerSixQP $player */
         $player = $this->gameService->getPlayerFromUser($this->getUser(),
             $game->getId(),
             $this->playerSixQPRepository);
@@ -125,13 +126,13 @@ class SixQPController extends GameController
         foreach ($chosenCards as $chosenCard) {
             $returnValue = $this->service->placeCard($chosenCard);
             if ($returnValue == -1) {
-                $this->publish($this->hub,
-                    $this->generateUrl('app_game_show', ['id' => $game->getId()]).($player->getId()),
+                $this->publishService->publish($this->generateUrl('app_game_show',
+                        ['id' => $game->getId()]).'notifyPlayer'.($player->getId()),
                     new Response());
                 return $this->redirectToRoute('app_game_show', ['id'=>$game->getId()]);
             } else {
-                $this->publish($this->hub,
-                    $this->generateUrl('app_game_show', ['id' => $game->getId()]),
+                $this->publishService->publish(
+                    $this->generateUrl('app_game_show', ['id' => $game->getId()]).'mainBoard',
                     $this->renderMainBoard($game));
             }
         }
