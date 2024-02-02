@@ -84,6 +84,30 @@ This section displays the game's name, and the current game's timer and leaderbo
 
     setInterval(updateElapsedTime, 1000);
 
+    function updateUserScore(user) {
+        let scoreElement = document.getElementById(user[0]);
+        if (scoreElement) {
+            let landscapeScore = document.getElementById('l_' + user[0] + '_points');
+            landscapeScore.dataset.score = user[1];
+            if (landscapeScore) {
+                landscapeScore.getElementsByTagName('p').item(0).innerText = user[1];
+                if (user[1] > 1) {
+                    landscapeScore.getElementsByTagName('p').item(1).innerText = "points";
+                }
+            }
+
+
+            let portraitScore = document.getElementById('p_' + user[0] + '_points');
+            if (portraitScore) {
+                portraitScore.getElementsByTagName('p').item(0).innerText = user[1];
+                if (user[1] > 1) {
+                    portraitScore.getElementsByTagName('p').item(1).innerText = 'points';
+                }
+            }
+        }
+        updateLeaderboard();
+    }
+
     function updateLeaderboard() {
         let leaderboardContainer = document.getElementById('leaderboard');
         if (leaderboardContainer) {
@@ -119,4 +143,12 @@ This section displays the game's name, and the current game's timer and leaderbo
     }
 
     updateLeaderboard();
+    /*
+    setTimeout(() => {
+        updateUserScore(['user2', '100']);
+    }, 5000);
+    setTimeout(() => {
+        updateUserScore(['user4', '5']);
+    }, 10000);
+     */
 </script>
