@@ -27,7 +27,7 @@ integration:
   stage: test
   script:
     - symfony console --env=test doctrine:migrations:migrate
-    - symfony console doctrine:fixtures:load --env=test
+    - symfony console doctrine:fixtures:load --env=test -n
     - php bin/phpunit tests/Integration --coverage-text
   allow_failure: false
   environment: test
