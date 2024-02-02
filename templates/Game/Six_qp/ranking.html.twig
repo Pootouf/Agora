@@ -83,4 +83,40 @@ This section displays the game's name, and the current game's timer and leaderbo
     }
 
     setInterval(updateElapsedTime, 1000);
+
+    function updateLeaderboard() {
+        let leaderboardContainer = document.getElementById('leaderboard');
+        if (leaderboardContainer) {
+            let leaderboardItems = Array.from(leaderboardContainer.children);
+
+            leaderboardItems.sort(function (a, b) {
+                let scoreA = parseInt(document.getElementById('l_' + a.id + '_points').dataset.score);
+                let scoreB = parseInt(document.getElementById('l_' + b.id + '_points').dataset.score);
+                return scoreA - scoreB;
+            });
+
+            let first = document.getElementById(
+                'l_' + leaderboardItems[0].id + '_points').dataset.score;
+            let last = document.getElementById('l_' +
+                leaderboardItems[leaderboardItems.length - 1].id + '_points').dataset.score;
+
+            leaderboardItems.forEach((item) => {
+                if (document.getElementById('l_' + item.id + '_points').dataset.score === last) {
+                    item.classList.remove('score-white', 'score-gold');
+                    item.classList.add('score-red');
+                } else if (document.getElementById('l_' + item.id + '_points').dataset.score === first) {
+                    item.classList.remove('score-red', 'score-white');
+                    item.classList.add('score-gold');
+                } else {
+                    item.classList.remove('score-red', 'score-gold');
+                    item.classList.add('score-white');
+                }
+            });
+
+            leaderboardItems.forEach(item => leaderboardContainer.removeChild(item));
+            leaderboardItems.forEach(item => leaderboardContainer.appendChild(item));
+        }
+    }
+
+    updateLeaderboard();
 </script>
