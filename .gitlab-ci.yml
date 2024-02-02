@@ -1,12 +1,34 @@
 
-image: jakzal/phpqa:php8.3
-
-before_script:
-  - docker-php-ext-install pdo_mysql
+image: php:8.3-apache
 
 cache:
   paths:
     - vendor/
+
+before_script:
+  - apt-get -y update && apt-get -y install \
+    git \
+    zip \
+    unzip \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get -y autoremove
+  - curl -1sLf 'https://dl.cloudsmith.io/public/symfony/stable/setup.deb.sh' | bash \
+    && apt install symfony-cli
+  - pecl install xdebug
+  - docker-php-ext-enable xdebug
+  - docker-php-ext-install pdo_mysql opcache
+  - docker-php-ext-enable pdo_mysql opcache
+  - php composer.phar install
+
+services:
+  - mariadb:10.11.2
+
+variables:
+  MYSQL_ROOT_PASSWORD: password
+  MYSQL_TCP_PORT: 3307
+  MYSQL_DATABASE: main_test
+
+
 
 
 stages:
@@ -16,19 +38,11 @@ stages:
 local:
   stage: UnitTests
   script:
-    - php bin/phpunit tests/Unit
+    - php bin/phpunit tests/Unit --coverage-text
   allow_failure: false
 
 develop:
   stage: IntegrationTests
-  image: mariadb:10.11.2
-
-  variables:
-    MYSQL_ROOT_PASSWORD: password
-    MYSQL_DATABASE: main_test
-    MYSQL_USER: root
-    MYSQL_PASSWORD: password
-    MYSQL_URL: mysql://root:password@database_test:3307/main?serverVersion=10.11.2-MariaDB&charset=utf8mb4
   script:
-    - php bin/phpunit tests/Integration
+    - php bin/phpunit tests/Integration --coverage-text
   allow_failure: false
