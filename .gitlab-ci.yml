@@ -1,9 +1,10 @@
 
 image: php:8.3-apache
 
-cache:
-  paths:
-    - vendor/
+
+services:
+  - name: mariadb:10.11.2
+    alias: database_test
 
 before_script:
   - apt-get -y update && apt-get -y install \
@@ -18,11 +19,6 @@ before_script:
   - docker-php-ext-enable xdebug
   - docker-php-ext-install pdo_mysql opcache
   - docker-php-ext-enable pdo_mysql opcache
-  - php composer.phar install
-
-services:
-  - name: mariadb:10.11.2
-    alias: database_test
 
 variables:
   MYSQL_ROOT_PASSWORD: password
@@ -30,22 +26,39 @@ variables:
   MYSQL_DATABASE: main_test
 
 
+build:
+  stage: build
+  cache:
+    key: dependance
+    paths:
+      - vendor/
+    policy: push
+  script:
+    - php composer.phar install
 
 
-stages:
-  - UnitTests
-  - IntegrationTests
-
-local:
-  stage: UnitTests
+unit:
+  stage: test
+  cache:
+    key: dependance
+    paths:
+      - vendor/
+    policy: pull
   script:
     - php bin/phpunit tests/Unit --coverage-text
   allow_failure: false
   environment: test
 
-develop:
-  stage: IntegrationTests
+integration:
+  stage: test
+  cache:
+    key: dependance
+    paths:
+      - vendor/
+    policy: pull
   script:
+    - symfony console doctrine:migrations:migrate
+    - symfony console --env=test doctrine:migrations:migrate
     - php bin/phpunit tests/Integration --coverage-text
   allow_failure: false
   environment: test
