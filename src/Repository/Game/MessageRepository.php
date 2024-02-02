@@ -2,7 +2,7 @@
 
 namespace App\Repository\Game;
 
-use App\Entity\Message;
+use App\Entity\Game\Message;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -42,7 +42,6 @@ class MessageRepository extends ServiceEntityRepository
            ->andWhere('m.gameId = :game')
            ->setParameter('game', $gameId)
            ->orderBy('m.date', 'ASC')
-        //    ->setMaxResults(10)
            ->getQuery()
            ->getResult()
        ;

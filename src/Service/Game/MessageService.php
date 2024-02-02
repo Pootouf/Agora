@@ -3,16 +3,18 @@
 namespace App\Service\Game;
 
 use App\Entity\Game\Message;
-use App\Repository\MessageRepository;
+use App\Repository\Game\MessageRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 class MessageService
 {
     private MessageRepository $messageRepository;
     private EntityManagerInterface $entityManager;
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(EntityManagerInterface $entityManager,
+                                MessageRepository $messageRepository)
     {
         $this->entityManager = $entityManager;
+        $this->messageRepository = $messageRepository;
     }
 
     /**
@@ -46,7 +48,7 @@ class MessageService
      */
     public function receiveMessage(int $gameId): array
     {
-        $this->messageRepository->findByGame($gameId);
+        return $this->messageRepository->findByGame($gameId);
     }
 
 }
