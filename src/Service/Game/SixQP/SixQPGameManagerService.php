@@ -59,7 +59,8 @@ class SixQPGameManagerService extends AbstractGameManagerService
         if (count($game->getPlayerSixQPs()) >= 10) {
             return SixQPGameManagerService::$ERROR_INVALID_NUMBER_OF_PLAYER;
         }
-        if ($this->playerSixQPRepository->findOneBy(['username' => $playerName]) != null) {
+        if ($this->playerSixQPRepository->findOneBy(
+            ['username' => $playerName, 'game' => $game->getId()]) != null) {
             return SixQPGameManagerService::$ERROR_ALREADY_IN_PARTY;
         }
         $player = new PlayerSixQP($playerName, $game);
