@@ -88,7 +88,7 @@ class SixQPGameManagerService extends AbstractGameManagerService
         if ($game->isLaunched()) {
             return SixQPGameManagerService::$ERROR_GAME_ALREADY_LAUNCHED;
         }
-        $player = $this->playerSixQPRepository->findOneBy(['game' => $game->getId(), 'username' => $playerName]);
+        $player = $this->sixQPService->getPlayerFromNameAndGame($game, $playerName);
         if ($player == null) {
             return SixQPGameManagerService::$ERROR_PLAYER_NOT_FOUND;
         }
