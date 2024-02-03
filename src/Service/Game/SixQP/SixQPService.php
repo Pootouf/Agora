@@ -12,6 +12,7 @@ use App\Entity\Game\SixQP\PlayerSixQP;
 use App\Entity\Game\SixQP\RowSixQP;
 use App\Repository\Game\SixQP\CardSixQPRepository;
 use App\Repository\Game\SixQP\ChosenCardSixQPRepository;
+use App\Repository\Game\SixQP\PlayerSixQPRepository;
 use App\Service\Game\AbstractGameManagerService;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
@@ -25,14 +26,17 @@ class SixQPService
     private EntityManagerInterface $entityManager;
     private CardSixQPRepository $cardSixQPRepository;
     private ChosenCardSixQPRepository $chosenCardSixQPRepository;
+    private PlayerSixQPRepository $playerSixQPRepository;
 
     public function __construct(EntityManagerInterface $entityManager,
         CardSixQPRepository $cardSixQPRepository,
-        ChosenCardSixQPRepository $chosenCardSixQPRepository)
+        ChosenCardSixQPRepository $chosenCardSixQPRepository,
+        PlayerSixQPRepository $playerSixQPRepository)
     {
         $this->entityManager = $entityManager;
         $this->cardSixQPRepository = $cardSixQPRepository;
         $this->chosenCardSixQPRepository = $chosenCardSixQPRepository;
+        $this->playerSixQPRepository = $playerSixQPRepository;
     }
 
 
@@ -218,6 +222,11 @@ class SixQPService
             return false;
         }
         return $this->hasPlayerLost($players);
+    }
+
+    public function getPlayerFromNameAndGame(GameSixQP $game, string $name)
+    {
+        return $this->playerSixQPRepository->findOneBy(['game' => $game->getId(), 'username' => $name]);
     }
 
 

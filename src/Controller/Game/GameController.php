@@ -30,9 +30,7 @@ class GameController extends AbstractController
     {
         $game = $gameSixQPRepository->findOneBy(['id' => $id]);
         if ($game != null) {
-            $player = $this->sixQPService->getPlayerFromUser($this->getUser(),
-                $game->getId(),
-                $playerSixQPRepository);
+            $player = $this->sixQPService->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
             $chosenCards = array_map(function (PlayerSixQP $player) {
                 return $player->getChosenCardSixQP();}, $game->getPlayerSixQPs()->toArray());
             return $this->render('/Game/Six_qp/index.html.twig', [
