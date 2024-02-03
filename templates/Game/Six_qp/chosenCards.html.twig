@@ -34,7 +34,7 @@
             </div>
         </div>
         <script>
-            {% set path = path('app_game_show', {'id': game.id}) ~ 'chosenCards' ~ player.id %}
+            {% set path = path('app_game_show', {'id': game.id}) ~ 'chosenCards'%}
             const eventSource = new EventSource("{{ mercure(path)|escape('js') }}");
             eventSource.onmessage = event => {
                 let chosenCards = document.getElementById('chosenCards');
