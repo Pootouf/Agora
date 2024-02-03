@@ -37,7 +37,7 @@ class SixQPController extends GameController
                                 LogService $logService,
                                 PublishService $publishService)
     {
-        parent::__construct($service);
+        parent::__construct($service, $chosenCardSixQPRepository);
         $this->publishService = $publishService;
         $this->entityManager = $entityManager;
         $this->chosenCardSixQPRepository = $chosenCardSixQPRepository;
@@ -53,9 +53,7 @@ class SixQPController extends GameController
         #[MapEntity(id: 'idCard')] CardSixQP $card): Response
     {
         /** @var PlayerSixQP $player */
-        $player = $this->service->getPlayerFromUser($this->getUser(),
-            $game->getId(),
-            $this->playerSixQPRepository);
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
            return $this->redirectToRoute('/');
         }
@@ -66,40 +64,37 @@ class SixQPController extends GameController
 
         try {
             $this->service->chooseCard($player, $card);
-
         } catch (Exception) {
             return $this->redirectToRoute('app_game_show', ['id'=>$game->getId()]);
         }
+
+        $message = $player->getUsername() . " a choisi la carte " . $card->getValue()
+            . "durant la partie " . $game->getId();
+        $this->logService->sendLog($game, $player, $message);
+
         $response = $this->renderChosenCards($game, $player);
         $this->publishService->publish(
             $this->generateUrl('app_game_show',
                 ['id' => $game->getId()]).'chosenCards',
             $response);
-        $chosenCards = $this->chosenCardSixQPRepository->findBy(['game' => $game->getId()]);
         if (!$this->service->doesAllPlayersHaveChosen($game)) {
             return $this->redirectToRoute('app_game_show', ['id'=>$game->getId()]);
         }
-
         $response = $this->placeCardAutomatically($game, $player);
         if ($response != null) {
             return $response;
         }
 
-
+        $chosenCards = $this->chosenCardSixQPRepository->findBy(['game' => $game->getId()]);
         $this->clearCards($chosenCards);
-        $message = $player->getUsername() . " a choisi la carte " . $card->getValue()
-            . "durant la partie " . $game->getId();
-        $this->logService->sendLog($game, $player, $message);
         return $this->redirectToRoute('app_game_show', ['id'=>$game->getId()]);
     }
 
-    #[Route('/game/{idGame}/sixqp/place/row/{idRow}')]
+    #[Route('/game/{idGame}/sixqp/place/row/{idRow}', name: 'app_game_sixqp_placecardonrow')]
     public function placeCardOnRow(#[MapEntity(id: 'idGame')] GameSixQP $game,
         #[MapEntity(id: 'idRow')] RowSixQP $row) : Response{
         /** @var PlayerSixQP $player */
-        $player = $this->service->getPlayerFromUser($this->getUser(),
-            $game->getId(),
-            $this->playerSixQPRepository);
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return $this->redirectToRoute('/');
         }
@@ -132,8 +127,7 @@ class SixQPController extends GameController
         $chosenCards = $this->service->getNotPlacedCard($game);
 
         usort($chosenCards, function (ChosenCardSixQP $a, ChosenCardSixQP $b) {
-            return $a->getCard()->getValue() > $b->getCard()->getValue();});
-
+            return $a->getCard()->getValue() - $b->getCard()->getValue();});
         foreach ($chosenCards as $chosenCard) {
             $returnValue = $this->service->placeCard($chosenCard);
             if ($returnValue == -1) {
@@ -142,7 +136,7 @@ class SixQPController extends GameController
                     new Response());
                 return $this->redirectToRoute('app_game_show', ['id'=>$game->getId()]);
             } else {
-                $message = "Le système a placé la carte " . $chosenCard->getValue()
+                $message = "Le système a placé la carte " . $chosenCard->getCard()->getValue()
                     . "durant la partie " . $game->getId();
                 $this->logService->sendLog($game, $player, $message);
                 $this->publishService->publish(
@@ -169,7 +163,8 @@ class SixQPController extends GameController
         return $this->render('Game/Six_qp/mainBoard.html.twig',
             ['rows' => $gameSixQP->getRowSixQPs(),
              'game' => $gameSixQP,
-             'player' => $playerSixQP]);
+             'player' => $playerSixQP]
+        );
     }
 
     private function clearCards(array $chosenCards): void

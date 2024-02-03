@@ -115,7 +115,7 @@ class SixQPService
         $player = $chosenCardSixQP->getPlayer();
 
         $row = $this->getValidRowForCard($chosenCardSixQP, $rows);
-        if (isNull($row)) {
+        if ($row == null) {
             return -1;
         }
 
@@ -235,9 +235,9 @@ class SixQPService
      *                      with the chosen card value greater than the value of the row
      * @param ChosenCardSixQP $chosenCardSixQP the chosen card
      * @param Collection $rows the rows of the game
-     * @return RowSixQP the valid row, null if no valid row in the game
+     * @return ?RowSixQP the valid row, null if no valid row in the game
      */
-    private function getValidRowForCard(ChosenCardSixQP $chosenCardSixQP, Collection $rows): RowSixQP
+    private function getValidRowForCard(ChosenCardSixQP $chosenCardSixQP, Collection $rows): ?RowSixQP
     {
         $rowResult = null;
         $lastSmallestDistance = INF;
