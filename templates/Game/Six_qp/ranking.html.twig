@@ -9,7 +9,7 @@
         <div class="dark:bg-slate-400">
             <p class="text-center py-2 my-2 font-bold dark:bg-gray-700 dark:text-white text-xl border-y-4 border-violet-600 ">Classement</p>
             <ul class="size-full  text-sm font-medium space-y-1 dark:text-white  ">
-                {% for user in users %}
+                {% for player in ranking %}
                     {% if loop.first %}
                         <li class="flex justify-between px-2 py-2 rounded-lg dark:bg-gray-700 border-y-4 border-red-600">
                     {% elseif loop.last %}
@@ -19,11 +19,11 @@
                     {% endif %}
                     <div class="flex items-center">
                         <img src="{{ asset('resourcesGames/6QP/teteDeBoeuf.svg') }}" alt="logo" class="w-8 h-8  mr-1">
-                        <span class="mr-1 text-xl font-bold ">{{ user[1] }}</span>
-                        <span class="mr-2 text-xs font-thin  ">{% if user[1] > 1 %}points{% else %}point{% endif %}</span>
+                        <span class="mr-1 text-xl font-bold ">{{ player.discardSIxQP.totalPoints }}</span>
+                        <span class="mr-2 text-xs font-thin  ">{% if player.discardSIxQP.totalPoints > 1 %}points{% else %}point{% endif %}</span>
                     </div>
                     <div class="flex items-center ">
-                        {{ user[0] }}
+                        {{ player.username }}
                     </div>
                     </li>
                 {% endfor %}
