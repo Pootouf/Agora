@@ -70,7 +70,7 @@ class SixQPController extends GameController
         } catch (Exception) {
             return $this->redirectToRoute('app_game_show', ['id'=>$game->getId()]);
         }
-        $response = $this->renderChosenCards($game);
+        $response = $this->renderChosenCards($game, $player);
         $this->publishService->publish(
             $this->generateUrl('app_game_show',
                 ['id' => $game->getId()]).'chosenCards',
@@ -147,25 +147,29 @@ class SixQPController extends GameController
                 $this->logService->sendLog($game, $player, $message);
                 $this->publishService->publish(
                     $this->generateUrl('app_game_show', ['id' => $game->getId()]).'mainBoard',
-                    $this->renderMainBoard($game));
+                    $this->renderMainBoard($game, $player));
             }
         }
 
         return null;
     }
 
-    private function renderChosenCards(GameSixQP $gameSixQP): Response
+    private function renderChosenCards(GameSixQP $gameSixQP, PlayerSixQP $playerSixQP): Response
     {
         $cards = $this->chosenCardSixQPRepository->findBy(['game' => $gameSixQP->getId()]);
         return $this->render('Game/Six_qp/chosenCards.html.twig',
-            ['chosenCards' => $cards]
+            ['chosenCards' => $cards,
+             'game' => $gameSixQP,
+             'player' => $playerSixQP]
         );
     }
 
-    private function renderMainBoard(GameSixQP $gameSixQP): Response
+    private function renderMainBoard(GameSixQP $gameSixQP, PlayerSixQP $playerSixQP): Response
     {
         return $this->render('Game/Six_qp/mainBoard.html.twig',
-            ['rows' => $gameSixQP->getRowSixQPs()]);
+            ['rows' => $gameSixQP->getRowSixQPs(),
+             'game' => $gameSixQP,
+             'player' => $playerSixQP]);
     }
 
     private function clearCards(array $chosenCards): void
