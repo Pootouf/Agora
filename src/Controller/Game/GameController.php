@@ -3,6 +3,7 @@
 namespace App\Controller\Game;
 
 use App\Entity\Game\SixQP\PlayerSixQP;
+use App\Repository\Game\SixQP\ChosenCardSixQPRepository;
 use App\Repository\Game\SixQP\GameSixQPRepository;
 use App\Repository\Game\SixQP\PlayerSixQPRepository;
 use App\Service\Game\GameManagerService;
@@ -17,10 +18,12 @@ class GameController extends AbstractController
 {
 
     private SixQPService $sixQPService;
+    private ChosenCardSixQPRepository $chosenCardSixQPRepository;
 
-    public function __construct(SixQPService $sixQPService)
+    public function __construct(SixQPService $sixQPService, ChosenCardSixQPRepository $chosenCardSixQPRepository)
     {
         $this->sixQPService = $sixQPService;
+        $this->chosenCardSixQPRepository = $chosenCardSixQPRepository;
     }
 
     #[Route('/game/{id}', name: 'app_game_show')]
@@ -31,8 +34,7 @@ class GameController extends AbstractController
         $game = $gameSixQPRepository->findOneBy(['id' => $id]);
         if ($game != null) {
             $player = $this->sixQPService->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
-            $chosenCards = array_map(function (PlayerSixQP $player) {
-                return $player->getChosenCardSixQP();}, $game->getPlayerSixQPs()->toArray());
+            $chosenCards = $this->chosenCardSixQPRepository->findBy(['game' => $game->getId()]);
             return $this->render('/Game/Six_qp/index.html.twig', [
                 'game' => $game,
                 'chosenCards' => $chosenCards,
