@@ -13,13 +13,12 @@ use App\Entity\Game\SixQP\RowSixQP;
 use App\Repository\Game\SixQP\CardSixQPRepository;
 use App\Repository\Game\SixQP\ChosenCardSixQPRepository;
 use App\Service\Game\AbstractGameManagerService;
-use App\Service\Game\AbstractGameService;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use function PHPUnit\Framework\isNull;
 
-class SixQPService extends AbstractGameService
+class SixQPService
 {
     public static int $MAX_POINTS = 66;
 
