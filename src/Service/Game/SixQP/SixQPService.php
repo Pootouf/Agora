@@ -119,13 +119,13 @@ class SixQPService
             return -1;
         }
 
-        $row->getCards()->add($chosenCardSixQP->getCard());
-        if ($row->getCards()->count() == 6) {
+        if ($row->getCards()->count() == 5) {
             $this->addRowToDiscardOfPlayer($player, $row);
         }
+        $row->getCards()->add($chosenCardSixQP->getCard());
+
 
         $this->entityManager->persist($row);
-        $this->entityManager->remove($chosenCardSixQP);
         $this->entityManager->flush();
         return 0;
     }
@@ -245,7 +245,7 @@ class SixQPService
             $cards = $row->getCards();
 
             $chosenCardValue = $chosenCardSixQP->getCard()->getValue();
-            $rowValue = $cards->get($cards->count() - 1)->getValue();
+            $rowValue = $cards->last()->getValue();
             if (
                 $rowValue < $chosenCardValue
                 && ($chosenCardValue - $rowValue) < $lastSmallestDistance
@@ -263,15 +263,16 @@ class SixQPService
      * @param RowSixQP $row the row with the cards to add to the discard
      * @return void
      */
-    private function addRowToDiscardOfPlayer(PlayerSixQP $player, RowSixQP $row): void
+    public function addRowToDiscardOfPlayer(PlayerSixQP $player, RowSixQP $row): void
     {
-        for ($i = 0; $i < 5; $i++) {
-            $card = $row->getCards()->get(0);
-            $row->getCards()->remove(0); //We delete the first 5 positions to delete all the cards
+        foreach ($row->getCards() as $card) {
             $player->getDiscardSixQP()->addCard($card);
             $player->getDiscardSixQP()->addPoints($card->getPoints());
+            $row->removeCard($card);
         }
+        $this->entityManager->persist($row);
         $this->entityManager->persist($player->getDiscardSixQP());
+        $this->entityManager->flush();
     }
 
     /**

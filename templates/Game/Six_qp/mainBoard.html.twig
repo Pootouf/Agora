@@ -9,9 +9,8 @@ This section displays the main board of the game
             {% for row in rows.values %}
                 <div class="h-1/4">
                     <button disabled class="rows button h-full"
-                            formaction="{{
-                                path('app_game_sixqp_placecardonrow', {'idGame' : game.id,'idRow' : row.id})
-                            }}">
+                    {{ stimulus_action('sixqp', 'selectRow', 'click',
+                        {url: path('app_game_sixqp_placecardonrow', {idRow: row.id, idGame: game.id})}) }}>
                     {% for card in row.cards %}
                         <img class="h-full float float-left"
                              src="{{ asset('resourcesGames/6QP/cardsImages/' ~ card.value ~ ".png")}}"
