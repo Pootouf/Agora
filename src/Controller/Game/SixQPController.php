@@ -14,6 +14,8 @@ use App\Service\Game\LogService;
 use App\Service\Game\SixQP\SixQPService;
 use App\Service\Game\PublishService;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
+use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mercure\HubInterface;
@@ -46,7 +48,9 @@ class SixQPController extends GameController
 
 
     #[Route('/game/{idGame}/sixqp/select/{idCard}', name: 'app_game_sixqp_select')]
-    public function selectCard(#[MapEntity(id: 'idGame')] GameSixQP $game, #[MapEntity(id: 'idCard')] CardSixQP $card): Response
+    public function selectCard(
+        #[MapEntity(id: 'idGame')] GameSixQP $game,
+        #[MapEntity(id: 'idCard')] CardSixQP $card): Response
     {
         /** @var PlayerSixQP $player */
         $player = $this->service->getPlayerFromUser($this->getUser(),
@@ -62,7 +66,8 @@ class SixQPController extends GameController
 
         try {
             $this->service->chooseCard($player, $card);
-        } catch (\Exception) {
+
+        } catch (Exception) {
             return $this->redirectToRoute('app_game_show', ['id'=>$game->getId()]);
         }
         $response = $this->renderChosenCards($game);
@@ -70,7 +75,6 @@ class SixQPController extends GameController
             $this->generateUrl('app_game_show',
                 ['id' => $game->getId()]).'chosenCards',
             $response);
-
         $chosenCards = $this->chosenCardSixQPRepository->findBy(['game' => $game->getId()]);
         if (!$this->service->doesAllPlayersHaveChosen($game)) {
             return $this->redirectToRoute('app_game_show', ['id'=>$game->getId()]);
