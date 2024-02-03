@@ -115,7 +115,7 @@ class SixQPService
         $player = $chosenCardSixQP->getPlayer();
 
         $row = $this->getValidRowForCard($chosenCardSixQP, $rows);
-        if (isNull($row)) {
+        if ($row == null) {
             return -1;
         }
 

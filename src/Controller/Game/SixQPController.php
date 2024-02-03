@@ -64,30 +64,29 @@ class SixQPController extends GameController
 
         try {
             $this->service->chooseCard($player, $card);
-
         } catch (Exception) {
             return $this->redirectToRoute('app_game_show', ['id'=>$game->getId()]);
         }
+
+        $message = $player->getUsername() . " a choisi la carte " . $card->getValue()
+            . "durant la partie " . $game->getId();
+        $this->logService->sendLog($game, $player, $message);
+
         $response = $this->renderChosenCards($game, $player);
         $this->publishService->publish(
             $this->generateUrl('app_game_show',
                 ['id' => $game->getId()]).'chosenCards',
             $response);
-        $chosenCards = $this->chosenCardSixQPRepository->findBy(['game' => $game->getId()]);
         if (!$this->service->doesAllPlayersHaveChosen($game)) {
             return $this->redirectToRoute('app_game_show', ['id'=>$game->getId()]);
         }
-
         $response = $this->placeCardAutomatically($game, $player);
         if ($response != null) {
             return $response;
         }
 
-
+        $chosenCards = $this->chosenCardSixQPRepository->findBy(['game' => $game->getId()]);
         $this->clearCards($chosenCards);
-        $message = $player->getUsername() . " a choisi la carte " . $card->getValue()
-            . "durant la partie " . $game->getId();
-        $this->logService->sendLog($game, $player, $message);
         return $this->redirectToRoute('app_game_show', ['id'=>$game->getId()]);
     }
 
@@ -128,8 +127,7 @@ class SixQPController extends GameController
         $chosenCards = $this->service->getNotPlacedCard($game);
 
         usort($chosenCards, function (ChosenCardSixQP $a, ChosenCardSixQP $b) {
-            return $a->getCard()->getValue() > $b->getCard()->getValue();});
-
+            return $a->getCard()->getValue() - $b->getCard()->getValue();});
         foreach ($chosenCards as $chosenCard) {
             $returnValue = $this->service->placeCard($chosenCard);
             if ($returnValue == -1) {
@@ -138,7 +136,7 @@ class SixQPController extends GameController
                     new Response());
                 return $this->redirectToRoute('app_game_show', ['id'=>$game->getId()]);
             } else {
-                $message = "Le système a placé la carte " . $chosenCard->getValue()
+                $message = "Le système a placé la carte " . $chosenCard->getCard()->getValue()
                     . "durant la partie " . $game->getId();
                 $this->logService->sendLog($game, $player, $message);
                 $this->publishService->publish(
