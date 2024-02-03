@@ -84,6 +84,12 @@ class SixQPController extends GameController
                 ['id' => $game->getId()]).'personalBoard'.($player->getId()),
             $response);
 
+        $response = $this->renderRanking($game, $player);
+        $this->publishService->publish(
+            $this->generateUrl('app_game_show',
+                ['id' => $game->getId()]).'ranking',
+            $response);
+
         if ($this->service->doesAllPlayersHaveChosen($game)) {
             $response = $this->placeCards($game, $player);
             if ($response != null) {
@@ -118,6 +124,12 @@ class SixQPController extends GameController
         $this->entityManager->persist($game);
         $this->entityManager->persist($row);
         $this->entityManager->flush();
+
+        $response = $this->renderRanking($game, $player);
+        $this->publishService->publish(
+            $this->generateUrl('app_game_show',
+                ['id' => $game->getId()]).'ranking',
+            $response);
 
         $response = $this->placeCards($game, $player);
         if ($response != null) {
@@ -163,6 +175,11 @@ class SixQPController extends GameController
                 $this->publishService->publish(
                     $this->generateUrl('app_game_show', ['id' => $game->getId()]).'mainBoard',
                     $this->renderMainBoard($game, $player));
+                $response = $this->renderRanking($game, $player);
+                $this->publishService->publish(
+                    $this->generateUrl('app_game_show',
+                        ['id' => $game->getId()]).'ranking',
+                    $response);
             }
         }
         return 0;
@@ -184,6 +201,18 @@ class SixQPController extends GameController
             ['playerCards' => $playerSixQP->getCards(),
                 'game' => $gameSixQP,
                 'player' => $playerSixQP,
+            ]
+        );
+    }
+
+    private function renderRanking(GameSixQP $gameSixQP, PlayerSixQP $playerSixQP): Response
+    {
+        return $this->render('Game/Six_qp/ranking.html.twig',
+            ['playersNumber' => $gameSixQP->getPlayerSixQPs()->count(),
+                'game' => $gameSixQP,
+                'player' => $playerSixQP,
+                'ranking' => $this->service->getRanking($gameSixQP),
+                'createdAt' => time(),
             ]
         );
     }

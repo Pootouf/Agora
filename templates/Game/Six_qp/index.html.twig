@@ -12,7 +12,9 @@
                 {{ include('/Game/Six_qp/chosenCards.html.twig') }}
                 </div>
             {% block ranking %}
-            {{ include('/Game/Six_qp/ranking.html.twig') }}
+            <div id="ranking" class="absolute bg-violet-100 w-1/6 h-full right-0">
+                {{ include('/Game/Six_qp/ranking.html.twig') }}
+            </div>
             {% endblock %}
                 <div id="mainBoard" class="flow float-start w-[63.3%] h-3/4">
                     {{ include('/Game/Six_qp/mainBoard.html.twig') }}
