@@ -7,24 +7,23 @@ use PHPUnit\Framework\TestCase;
 
 class MessageTest extends TestCase
 {
-    public function shouldCreateMessage() {
+    public function testCreateMessage() {
         
         // GIVEN
-        $message;
 
         // WHEN
         $message = new Message();
 
         // THEN
         
-        $this->assertEquals(null, $message->getContent());
-        $this->assertEquals(null, $message->getDate());
-        $this->assertEquals(null, $message->getAuthorId());
-        $this->assertEquals(null, $message->getGameId());
-        $this->assertNotEquals(null, $message->getId());
+        $this->assertNull($message->getContent());
+        $this->assertNull($message->getDate());
+        $this->assertNull($message->getAuthorId());
+        $this->assertNull($message->getGameId());
+        $this->assertNotNull($message->getId());
     }
 
-    public function shouldSetContent() {
+    public function testSetContent() {
         // GIVEN
         $message = new Message();
 
@@ -35,7 +34,7 @@ class MessageTest extends TestCase
         $this->assertEquals("Bonjour à tous", $message->getContent());
     }
 
-    public function shouldSetAuthorId() {
+    public function testSetAuthorId() {
         // GIVEN
         $message = new Message();
 
@@ -46,7 +45,7 @@ class MessageTest extends TestCase
         $this->assertEquals(1, $message->getAuthorId());
     }
 
-    public function shouldSetGameId() {
+    public function testSetGameId() {
         // GIVEN
         $message = new Message();
 
@@ -57,7 +56,7 @@ class MessageTest extends TestCase
         $this->assertEquals(1, $message->getGameId());
     }
 
-    public function shouldSetDate() {
+    public function testSetDate() {
         // GIVEN
         $message = new Message();
         $date = new DateTime();
