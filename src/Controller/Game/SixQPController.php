@@ -37,7 +37,7 @@ class SixQPController extends GameController
                                 LogService $logService,
                                 PublishService $publishService)
     {
-        parent::__construct($service);
+        parent::__construct($service, $chosenCardSixQPRepository);
         $this->publishService = $publishService;
         $this->entityManager = $entityManager;
         $this->chosenCardSixQPRepository = $chosenCardSixQPRepository;
@@ -53,9 +53,7 @@ class SixQPController extends GameController
         #[MapEntity(id: 'idCard')] CardSixQP $card): Response
     {
         /** @var PlayerSixQP $player */
-        $player = $this->service->getPlayerFromUser($this->getUser(),
-            $game->getId(),
-            $this->playerSixQPRepository);
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
            return $this->redirectToRoute('/');
         }
@@ -93,13 +91,11 @@ class SixQPController extends GameController
         return $this->redirectToRoute('app_game_show', ['id'=>$game->getId()]);
     }
 
-    #[Route('/game/{idGame}/sixqp/place/row/{idRow}')]
+    #[Route('/game/{idGame}/sixqp/place/row/{idRow}', name: 'app_game_sixqp_placecardonrow')]
     public function placeCardOnRow(#[MapEntity(id: 'idGame')] GameSixQP $game,
         #[MapEntity(id: 'idRow')] RowSixQP $row) : Response{
         /** @var PlayerSixQP $player */
-        $player = $this->service->getPlayerFromUser($this->getUser(),
-            $game->getId(),
-            $this->playerSixQPRepository);
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return $this->redirectToRoute('/');
         }
@@ -169,7 +165,8 @@ class SixQPController extends GameController
         return $this->render('Game/Six_qp/mainBoard.html.twig',
             ['rows' => $gameSixQP->getRowSixQPs(),
              'game' => $gameSixQP,
-             'player' => $playerSixQP]);
+             'player' => $playerSixQP]
+        );
     }
 
     private function clearCards(array $chosenCards): void

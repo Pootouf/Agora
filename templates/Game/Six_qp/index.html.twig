@@ -26,7 +26,11 @@
         {% set path = path('app_game_show', {'id': game.id}) ~ 'notifyPlayer' ~ player.id %}
         const eventSource = new EventSource("{{ mercure(path)|escape('js') }}");
         eventSource.onmessage = event => {
+            for(let row of document.getElementsByClassName('rows')) {
+                row.disabled = false;
+            }
             //Notify player
+            alert("Please choose a row")
         }
     </script>
 {% endblock %}

@@ -8,11 +8,16 @@ This section displays the main board of the game
         <div class="flex flex-col h-full w-full ml-4">
             {% for row in rows.values %}
                 <div class="h-1/4">
-                {% for card in row.cards %}
-                    <img class="h-full float float-left"
-                         src="{{ asset('resourcesGames/6QP/cardsImages/' ~ card.value ~ ".png")}}"
-                         alt="card">
-                {% endfor %}
+                    <button disabled class="rows button h-full"
+                            formaction="{{
+                                path('app_game_sixqp_placecardonrow', {'idGame' : game.id,'idRow' : row.id})
+                            }}">
+                    {% for card in row.cards %}
+                        <img class="h-full float float-left"
+                             src="{{ asset('resourcesGames/6QP/cardsImages/' ~ card.value ~ ".png")}}"
+                             alt="card">
+                    {% endfor %}
+                    </button>
                 </div>
             {% endfor %}
         </div>
