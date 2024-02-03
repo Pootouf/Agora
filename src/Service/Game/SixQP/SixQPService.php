@@ -144,18 +144,13 @@ class SixQPService
             throw new Exception('Invalid number of players');
         }
 
-        $ranking = array();
 
-        foreach ($gameSixQP->getPlayerSixQPs() as $player)
-        {
-            $discard = $player->getDiscardSixQP();
-            $ranking[$player->getId()] =
-                is_null($discard) ?
-                0 :$discard->getTotalPoints();
-        }
-
-        
-        return $ranking;
+        $array = $gameSixQP->getPlayerSixQPs()->toArray();
+        usort($array,
+            function (PlayerSixQP $player1, PlayerSixQP $player2) {
+                return $player1->getDiscardSixQP()->getTotalPoints() - $player2->getDiscardSixQP()->getTotalPoints();
+            });
+        return $array;
     }
 
     /**
