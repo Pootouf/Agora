@@ -26,7 +26,12 @@ class Game
     private ?string $label = null;
 
     #[ORM\Column]
-    private ?bool $isActive = null;
+    private ?bool $isActive = false; // Valeur par défaut définie à false
+
+    public function __construct()
+    {
+        $this->isActive = false; // Initialisation dans le constructeur
+    }
 
     public function getId(): ?int
     {
