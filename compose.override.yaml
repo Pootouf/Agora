@@ -22,7 +22,7 @@ services:
   mailer:
     container_name: mailer
     image: schickling/mailcatcher
-    ports: ["1025", "1080"]
+    ports: ["1025:1025", "1080:1080"]
 ###< symfony/mailer ###
 
 ###> symfony/mercure-bundle ###
