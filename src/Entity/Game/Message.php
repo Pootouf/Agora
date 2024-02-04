@@ -26,6 +26,10 @@ class Message
     #[ORM\Column]
     private ?int $gameId = null;
 
+    public function __construct()
+    {
+
+    }
     public function getId(): ?int
     {
         return $this->id;

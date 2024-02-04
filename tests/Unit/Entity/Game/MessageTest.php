@@ -1,6 +1,6 @@
 <?php
 
-namespace Unit\Entity\Game;
+namespace App\Tests\Unit\Entity\Game;
 
 use App\Entity\Game\Message;
 use PHPUnit\Framework\TestCase;
@@ -20,7 +20,6 @@ class MessageTest extends TestCase
         $this->assertNull($message->getDate());
         $this->assertNull($message->getAuthorId());
         $this->assertNull($message->getGameId());
-        $this->assertNotNull($message->getId());
     }
 
     public function testSetContent() {
