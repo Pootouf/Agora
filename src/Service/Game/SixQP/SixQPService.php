@@ -12,28 +12,31 @@ use App\Entity\Game\SixQP\PlayerSixQP;
 use App\Entity\Game\SixQP\RowSixQP;
 use App\Repository\Game\SixQP\CardSixQPRepository;
 use App\Repository\Game\SixQP\ChosenCardSixQPRepository;
+use App\Repository\Game\SixQP\PlayerSixQPRepository;
 use App\Service\Game\AbstractGameManagerService;
-use App\Service\Game\AbstractGameService;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use function PHPUnit\Framework\isNull;
 
-class SixQPService extends AbstractGameService
+class SixQPService
 {
     public static int $MAX_POINTS = 66;
 
     private EntityManagerInterface $entityManager;
     private CardSixQPRepository $cardSixQPRepository;
     private ChosenCardSixQPRepository $chosenCardSixQPRepository;
+    private PlayerSixQPRepository $playerSixQPRepository;
 
     public function __construct(EntityManagerInterface $entityManager,
         CardSixQPRepository $cardSixQPRepository,
-        ChosenCardSixQPRepository $chosenCardSixQPRepository)
+        ChosenCardSixQPRepository $chosenCardSixQPRepository,
+        PlayerSixQPRepository $playerSixQPRepository)
     {
         $this->entityManager = $entityManager;
         $this->cardSixQPRepository = $cardSixQPRepository;
         $this->chosenCardSixQPRepository = $chosenCardSixQPRepository;
+        $this->playerSixQPRepository = $playerSixQPRepository;
     }
 
 
@@ -112,17 +115,17 @@ class SixQPService extends AbstractGameService
         $player = $chosenCardSixQP->getPlayer();
 
         $row = $this->getValidRowForCard($chosenCardSixQP, $rows);
-        if (isNull($row)) {
+        if ($row == null) {
             return -1;
         }
 
-        $row->getCards()->add($chosenCardSixQP->getCard());
-        if ($row->getCards()->count() == 6) {
+        if ($row->getCards()->count() == 5) {
             $this->addRowToDiscardOfPlayer($player, $row);
         }
+        $row->getCards()->add($chosenCardSixQP->getCard());
+
 
         $this->entityManager->persist($row);
-        $this->entityManager->remove($chosenCardSixQP);
         $this->entityManager->flush();
         return 0;
     }
@@ -141,18 +144,13 @@ class SixQPService extends AbstractGameService
             throw new Exception('Invalid number of players');
         }
 
-        $ranking = array();
 
-        foreach ($gameSixQP->getPlayerSixQPs() as $player)
-        {
-            $discard = $player->getDiscardSixQP();
-            $ranking[$player->getId()] =
-                is_null($discard) ?
-                0 :$discard->getTotalPoints();
-        }
-
-        
-        return $ranking;
+        $array = $gameSixQP->getPlayerSixQPs()->toArray();
+        usort($array,
+            function (PlayerSixQP $player1, PlayerSixQP $player2) {
+                return $player1->getDiscardSixQP()->getTotalPoints() - $player2->getDiscardSixQP()->getTotalPoints();
+            });
+        return $array;
     }
 
     /**
@@ -221,15 +219,20 @@ class SixQPService extends AbstractGameService
         return $this->hasPlayerLost($players);
     }
 
+    public function getPlayerFromNameAndGame(GameSixQP $game, string $name)
+    {
+        return $this->playerSixQPRepository->findOneBy(['game' => $game->getId(), 'username' => $name]);
+    }
+
 
     /**
      * getValidRowForCard : calculate the row with the nearest value to the chosen card,
      *                      with the chosen card value greater than the value of the row
      * @param ChosenCardSixQP $chosenCardSixQP the chosen card
      * @param Collection $rows the rows of the game
-     * @return RowSixQP the valid row, null if no valid row in the game
+     * @return ?RowSixQP the valid row, null if no valid row in the game
      */
-    private function getValidRowForCard(ChosenCardSixQP $chosenCardSixQP, Collection $rows): RowSixQP
+    private function getValidRowForCard(ChosenCardSixQP $chosenCardSixQP, Collection $rows): ?RowSixQP
     {
         $rowResult = null;
         $lastSmallestDistance = INF;
@@ -237,7 +240,7 @@ class SixQPService extends AbstractGameService
             $cards = $row->getCards();
 
             $chosenCardValue = $chosenCardSixQP->getCard()->getValue();
-            $rowValue = $cards->get($cards->count() - 1)->getValue();
+            $rowValue = $cards->last()->getValue();
             if (
                 $rowValue < $chosenCardValue
                 && ($chosenCardValue - $rowValue) < $lastSmallestDistance
@@ -255,15 +258,16 @@ class SixQPService extends AbstractGameService
      * @param RowSixQP $row the row with the cards to add to the discard
      * @return void
      */
-    private function addRowToDiscardOfPlayer(PlayerSixQP $player, RowSixQP $row): void
+    public function addRowToDiscardOfPlayer(PlayerSixQP $player, RowSixQP $row): void
     {
-        for ($i = 0; $i < 5; $i++) {
-            $card = $row->getCards()->get(0);
-            $row->getCards()->remove(0); //We delete the first 5 positions to delete all the cards
+        foreach ($row->getCards() as $card) {
             $player->getDiscardSixQP()->addCard($card);
             $player->getDiscardSixQP()->addPoints($card->getPoints());
+            $row->removeCard($card);
         }
+        $this->entityManager->persist($row);
         $this->entityManager->persist($player->getDiscardSixQP());
+        $this->entityManager->flush();
     }
 
     /**

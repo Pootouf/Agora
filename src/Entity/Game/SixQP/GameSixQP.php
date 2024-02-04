@@ -4,6 +4,7 @@ namespace App\Entity\Game\SixQP;
 
 use App\Entity\Game\DTO\Game;
 use App\Repository\Game\SixQP\GameSixQPRepository;
+use App\Service\Game\AbstractGameManagerService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -18,8 +19,9 @@ class GameSixQP extends Game
     #[ORM\OneToMany(mappedBy: 'game', targetEntity: PlayerSixQP::class, orphanRemoval: true)]
     private Collection $playerSixQPs;
 
-    public function __construct()
+    public function __construct() 
     {
+        $this->setGameName(AbstractGameManagerService::$SIXQP_LABEL);
         $this->rowSixQPs = new ArrayCollection();
         $this->playerSixQPs = new ArrayCollection();
     }
