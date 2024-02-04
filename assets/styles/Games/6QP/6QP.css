@@ -1,0 +1,11 @@
+.score-red {
+    @apply flex justify-between p-2 rounded-1g dark:bg-gray-700 border-y-2 border-red-600;
+}
+
+.score-white {
+    @apply flex justify-between p-2 rounded-1g dark:bg-gray-700 border-y-2 border-white;
+}
+
+.score-gold {
+    @apply flex justify-between p-2 rounded-1g dark:bg-gray-700 border-y-2 border-yellow-400;
+}
