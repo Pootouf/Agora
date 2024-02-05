@@ -199,6 +199,7 @@ class SixQPService
             foreach ($game->getRowSixQPs() as $row) {
                 if ($row->isCardInRow($chosenCards[$i]->getCard())) {
                     array_splice($chosenCards, $i, 1);
+                    break;
                 }
             }
         }

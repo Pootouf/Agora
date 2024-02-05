@@ -30,7 +30,7 @@
         </div>
     </div>
     <script>
-        {% set path = path('app_game_show', {'id': game.id}) ~ 'notifyPlayer' ~ player.id %}
+        {% set path = path('app_game_show_sixqp', {'id': game.id}) ~ 'notifyPlayer' ~ player.id %}
         const eventSourceNotification = new EventSource("{{ mercure(path)|escape('js') }}");
         eventSourceNotification.onmessage = event => {
             for(let row of document.getElementsByClassName('rows')) {
