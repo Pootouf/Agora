@@ -9,41 +9,54 @@ use App\Entity\Game\SixQP\PlayerSixQP;
 use App\Entity\Game\SixQP\RowSixQP;
 use App\Repository\Game\SixQP\ChosenCardSixQPRepository;
 use App\Repository\Game\SixQP\PlayerSixQPRepository;
-use App\Service\Game\GameManagerService;
 use App\Service\Game\LogService;
 use App\Service\Game\SixQP\SixQPService;
 use App\Service\Game\PublishService;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
-use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Mercure\HubInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
-class SixQPController extends GameController
+class SixQPController extends AbstractController
 {
     private EntityManagerInterface $entityManager;
     private ChosenCardSixQPRepository $chosenCardSixQPRepository;
-    private PlayerSixQPRepository $playerSixQPRepository;
     private SixQPService $service;
     private PublishService $publishService;
     private LogService $logService;
 
     public function __construct(EntityManagerInterface $entityManager,
                                 ChosenCardSixQPRepository $chosenCardSixQPRepository,
-                                PlayerSixQPRepository $playerSixQPRepository,
                                 SixQPService $service,
                                 LogService $logService,
                                 PublishService $publishService)
     {
-        parent::__construct($service, $chosenCardSixQPRepository);
         $this->publishService = $publishService;
         $this->entityManager = $entityManager;
         $this->chosenCardSixQPRepository = $chosenCardSixQPRepository;
-        $this->playerSixQPRepository = $playerSixQPRepository;
         $this->logService = $logService;
         $this->service = $service;
+    }
+
+    #[Route('/game/sixqp/{id}', name: 'app_game_show_sixqp')]
+    public function showGame(GameSixQP $game): Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        $chosenCards = $this->chosenCardSixQPRepository->findBy(['game' => $game->getId()]);
+        return $this->render('/Game/Six_qp/index.html.twig', [
+            'game' => $game,
+            'chosenCards' => $chosenCards,
+            'playerCards' => $player->getCards(),
+            'playersNumber' => count($game->getPlayerSixQPs()),
+            'ranking' => $this->service->getRanking($game),
+            'player' => $player,
+            'createdAt' => time(),
+            'rows' => $game->getRowSixQPs(),
+            'isGameFinished' => $this->service->isGameEnded($game)
+        ]);
+
     }
 
 
@@ -74,19 +87,19 @@ class SixQPController extends GameController
 
         $response = $this->renderChosenCards($game, $player);
         $this->publishService->publish(
-            $this->generateUrl('app_game_show',
+            $this->generateUrl('app_game_show_sixqp',
                 ['id' => $game->getId()]).'chosenCards',
             $response);
 
         $response = $this->renderPersonalBoard($game, $player);
         $this->publishService->publish(
-            $this->generateUrl('app_game_show',
+            $this->generateUrl('app_game_show_sixqp',
                 ['id' => $game->getId()]).'personalBoard'.($player->getId()),
             $response);
 
         $response = $this->renderRanking($game, $player);
         $this->publishService->publish(
-            $this->generateUrl('app_game_show',
+            $this->generateUrl('app_game_show_sixqp',
                 ['id' => $game->getId()]).'ranking',
             $response);
 
@@ -127,7 +140,7 @@ class SixQPController extends GameController
 
         $response = $this->renderRanking($game, $player);
         $this->publishService->publish(
-            $this->generateUrl('app_game_show',
+            $this->generateUrl('app_game_show_sixqp',
                 ['id' => $game->getId()]).'ranking',
             $response);
 
@@ -148,7 +161,7 @@ class SixQPController extends GameController
         $this->clearCards($chosenCards);
         $response = $this->renderChosenCards($game, $player);
         $this->publishService->publish(
-            $this->generateUrl('app_game_show',
+            $this->generateUrl('app_game_show_sixqp',
                 ['id' => $game->getId()]).'chosenCards',
             $response);
         return null;
@@ -164,7 +177,7 @@ class SixQPController extends GameController
         foreach ($chosenCards as $chosenCard) {
             $returnValue = $this->service->placeCard($chosenCard);
             if ($returnValue == -1) {
-                $this->publishService->publish($this->generateUrl('app_game_show',
+                $this->publishService->publish($this->generateUrl('app_game_show_sixqp',
                         ['id' => $game->getId()]).'notifyPlayer'.($chosenCard->getPlayer()->getId()),
                     new Response());
                 return -1;
@@ -173,11 +186,11 @@ class SixQPController extends GameController
                     . "durant la partie " . $game->getId();
                 $this->logService->sendLog($game, $player, $message);
                 $this->publishService->publish(
-                    $this->generateUrl('app_game_show', ['id' => $game->getId()]).'mainBoard',
+                    $this->generateUrl('app_game_show_sixqp', ['id' => $game->getId()]).'mainBoard',
                     $this->renderMainBoard($game, $player));
                 $response = $this->renderRanking($game, $player);
                 $this->publishService->publish(
-                    $this->generateUrl('app_game_show',
+                    $this->generateUrl('app_game_show_sixqp',
                         ['id' => $game->getId()]).'ranking',
                     $response);
             }
