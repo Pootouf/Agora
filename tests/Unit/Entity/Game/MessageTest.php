@@ -3,6 +3,7 @@
 namespace App\Tests\Unit\Entity\Game;
 
 use App\Entity\Game\Message;
+use DateTime;
 use PHPUnit\Framework\TestCase;
 
 class MessageTest extends TestCase
@@ -58,7 +59,7 @@ class MessageTest extends TestCase
     public function testSetDate() {
         // GIVEN
         $message = new Message();
-        $date = new DateTime();
+        $date = new DateTime("now");
         $date->setDate(2024, 6, 16);
 
         // WHEN
