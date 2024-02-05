@@ -213,6 +213,7 @@ class SixQPController extends GameController
                 'player' => $playerSixQP,
                 'ranking' => $this->service->getRanking($gameSixQP),
                 'createdAt' => time(),
+                'isGameFinished' => $this->service->isGameEnded($gameSixQP)
             ]
         );
     }
