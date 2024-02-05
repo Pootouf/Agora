@@ -44,6 +44,7 @@ class GameController extends AbstractController
                 'player' => $player,
                 'createdAt' => time(),
                 'rows' => $game->getRowSixQPs(),
+                'isGameFinished' => $this->sixQPService->isGameEnded($game)
             ]);
         }
 
