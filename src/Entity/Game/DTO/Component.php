@@ -14,7 +14,7 @@ class Component
     #[ORM\Column]
     protected ?int $id = null;
 
-    #[ORM\OneToOne(inversedBy: 'component', cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne]
     protected ?Help $help = null;
 
     public function getId(): ?int
