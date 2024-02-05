@@ -40,7 +40,10 @@ Comes with a button to the homepage and another one to the game's homepage
     function gameFinished(winner) {
         clearInterval(clockID);
         document.getElementById('endGameScreen').classList.remove('hidden');
-        if (winner.username === '{{ player.username }}') {
+        if (!winner) {
+            document.getElementById('winner').innerHTML = 'Match nul ! 🤝';
+        }
+        else if (winner.username === '{{ player.username }}') {
             document.getElementById('winner').innerHTML = 'Bravo ! 👏 Vous avez gagné la partie';
         } else {
             document.getElementById('winner').innerHTML = 'Dommage ! 😖 ' + winner + ' a gagné la partie';
