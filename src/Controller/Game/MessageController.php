@@ -2,7 +2,7 @@
 
 namespace App\Controller\Game;
 
-use App\Service\Game\GameService;
+use App\Service\Game\GameManagerService;
 use App\Service\Game\MessageService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -13,10 +13,10 @@ class MessageController extends AbstractController
     private HubInterface $hub;
     private EntityManagerInterface $entityManager;
     private MessageService $messageService;
-    private GameService $gameService;
+    private GameManagerService $gameService;
 
     public function __construct(HubInterface $hub, EntityManagerInterface $entityManager,
-                                GameService$gameService, MessageService $messageService)
+                                GameManagerService$gameService, MessageService $messageService)
     {
         $this->hub = $hub;
         $this->entityManager = $entityManager;

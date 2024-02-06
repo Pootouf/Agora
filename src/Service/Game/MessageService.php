@@ -4,6 +4,7 @@ namespace App\Service\Game;
 
 use App\Entity\Game\Message;
 use App\Repository\Game\MessageRepository;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 
 class MessageService
@@ -31,7 +32,7 @@ class MessageService
         }
 
         $message = new Message();
-        $message->setDate(new \DateTimeImmutable());
+        $message->setDate(new DateTime("now"));
         $message->setContent($content);
         $message->setAuthorId($playerId);
         $message->setGameId($gameId);
@@ -42,7 +43,7 @@ class MessageService
     }
 
     /**
-     * sendMessage : create a message and save it in the database
+     * receiveMessage : return an array of message from a game
      * @param int $gameId the id of the game
      * @return array of message from game
      */
