@@ -2,7 +2,7 @@
 
 namespace App\Repository\Platform\DTO;
 
-use App\Repository\Platform\DTO;
+use App\Entity\Platform\DTO;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
