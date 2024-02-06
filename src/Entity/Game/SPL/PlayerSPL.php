@@ -3,7 +3,9 @@
 namespace App\Entity\Game\SPL;
 
 use App\Entity\Game\DTO\Player;
+use App\Entity\Game\SixQP\GameSixQP;
 use App\Repository\Game\SPL\PlayerSPLRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PlayerSPLRepository::class)]
@@ -16,6 +18,12 @@ class PlayerSPL extends Player
     #[ORM\ManyToOne(inversedBy: 'players')]
     #[ORM\JoinColumn(nullable: false)]
     private ?GameSPL $gameSPL = null;
+
+    public function __construct(string $username, GameSPL $gameSPL)
+    {
+        $this->username = $username;
+        $this->gameSPL = $gameSPL;
+    }
 
     public function getId(): ?int
     {
