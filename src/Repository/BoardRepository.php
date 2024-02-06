@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Repository\Platform\DTO;
+namespace App\Repository;
 
-use App\Entity\Platform\DTO\Board;
+use App\Entity\Board;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 

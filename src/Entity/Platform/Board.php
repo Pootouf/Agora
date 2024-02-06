@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Entity\Platform\DTO;
+namespace App\Entity\Platform;
 
-use App\Repository\Platform\DTO\BoardRepository;
+use App\Repository\Platform\BoardRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -15,13 +15,18 @@ class Board
     private ?int $id = null;
 
     #[ORM\Column]
-    private ?int $nbUserMax = null;
+    private ?int $nbUser = null;
 
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
+
+
+    #[ORM\Column(type: Types::DATE_MUTABLE, options :['default' => 'CURRENT_TIMESTAMP'])]
     private ?\DateTimeInterface $creationDate = null;
 
     #[ORM\Column(type: Types::TIME_MUTABLE)]
     private ?\DateTimeInterface $invitationTimer = null;
+
+    #[ORM\Column]
+    private ?int $hoursBeforeExclusion = null;
 
     #[ORM\Column(type: Types::TIME_MUTABLE)]
     private ?\DateTimeInterface $inactivityTimer = null;
@@ -34,16 +39,26 @@ class Board
         return $this->id;
     }
 
-    public function getNbUserMax(): ?int
+    public function getNbUser(): ?int
     {
-        return $this->nbUserMax;
+        return $this->nbUser;
     }
 
-    public function setNbUserMax(int $nbUserMax): static
+    public function setNbUser(int $nbUserMax): static
     {
-        $this->nbUserMax = $nbUserMax;
+        $this->nbUser = $nbUserMax;
 
         return $this;
+    }
+
+    public function getHoursBeforeExclusion(): ?int
+    {
+        return $this->hoursBeforeExclusion;
+    }
+
+    public function setHoursBeforeExclusion(?int $hoursBeforeExclusion): void
+    {
+        $this->hoursBeforeExclusion = $hoursBeforeExclusion;
     }
 
     public function getCreationDate(): ?\DateTimeInterface
