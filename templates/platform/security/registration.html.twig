@@ -5,11 +5,12 @@
 {% endblock %}
 
 {% block body %}
-	<div class="w-full max-w-xs mx-auto">
-		<form class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 mt-16">
+	<div class="w-full max-w-xs mx-auto mt-32">
+		<form class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+			<h2 class="text-gray-700 text-xl font-bold mb-4">Formulaire d'inscription :</h2>
 			<div class="mb-4">
 				<label class="block text-gray-700 text-sm font-bold mb-2" for="username">
-					Nom d'utilisateur
+					Nom de l'utilisateur
 				</label>
 				<input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="username" type="text" placeholder="Nom d'utilisateur">
 			</div>
@@ -31,11 +32,18 @@
 				</label>
 				<input class="shadow appearance-none border border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline" id="confirmPassword" type="password" placeholder="******************">
 			</div>
-			<div class="flex items-center justify-between">
-				<button class="bg-primary hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="button">
+			<div class="flex items-center justify-center">
+				<button class="bg-primary hover:bg-blue-400 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="button">
 					Inscription
 				</button>
 			</div>
+			<p class="text-center text-xs text-gray-700 mt-2">
+				déjà inscrit ?
+				<a class="text-blue-500 hover:text-blue-800" href="#">
+					Se connecter.
+				</a>
+			</p>
+
 		</form>
 	</div>
 {% endblock %}
