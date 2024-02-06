@@ -1,5 +1,12 @@
 image: etiennebinginot/agora:1.0
 
+variables:
+  TAG_LATEST: $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_NAME:latest
+  TAG_COMMIT: $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_NAME:$CI_COMMIT_SHORT_SHA
+  MYSQL_ROOT_PASSWORD: password
+  MYSQL_TCP_PORT: 3307
+  MYSQL_DATABASE: main_test
+
 cache:
   policy: pull-push
   unprotect: true
@@ -10,11 +17,42 @@ services:
   - name: mariadb:10.11.2
     alias: database_test
 
-variables:
-  MYSQL_ROOT_PASSWORD: password
-  MYSQL_TCP_PORT: 3307
-  MYSQL_DATABASE: main_test
+stages:
+  - test
+  - publish
+  - deploy
+  
 
+publish:
+  image: docker:latest
+  stage: publish
+  services:
+    - docker:dind
+  script:
+    - docker build -t $TAG_COMMIT -t $TAG_LATEST .
+    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
+    - docker push $TAG_COMMIT
+    - docker push $TAG_LATEST
+  only:
+    - develop-game
+
+deploy_dev_game:
+  image: alpine:latest
+  stage: deploy
+  tags:
+    - deployment
+  script:
+    - chmod og= $ID_RSA
+    - apk update && apk add openssh-client
+    - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY"
+    - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker pull $TAG_COMMIT"
+    - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker container rm -f my-app || true"
+    - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker run -d -p 80:80 --name my-app $TAG_COMMIT"
+  environment:
+    name: develop_game
+    url: http://srv-dpi-agora-dev-jeux.univ-rouen.fr/
+  only:
+    - develop-game
 
 unit:
   stage: test
@@ -26,7 +64,7 @@ unit:
 integration:
   stage: test
   only:
-    - develop
+    - develop-game
     - preprod
     - main
   script:
