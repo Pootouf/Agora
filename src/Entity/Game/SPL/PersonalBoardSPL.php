@@ -25,10 +25,14 @@ class PersonalBoardSPL extends Component
     #[ORM\JoinColumn(nullable: false)]
     private ?GameSPL $game = null;
 
+    #[ORM\OneToMany(targetEntity: TokenSPL::class, mappedBy: 'tempPersonalBoardSPL')]
+    private Collection $selectedTokens;
+
     public function __construct()
     {
         $this->tokens = new ArrayCollection();
         $this->nobleTiles = new ArrayCollection();
+        $this->selectedTokens = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -121,6 +125,36 @@ class PersonalBoardSPL extends Component
     public function setGame(?GameSPL $game): static
     {
         $this->game = $game;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, TokenSPL>
+     */
+    public function getSelectedTokens(): Collection
+    {
+        return $this->selectedTokens;
+    }
+
+    public function addSelectedToken(TokenSPL $selectedToken): static
+    {
+        if (!$this->selectedTokens->contains($selectedToken)) {
+            $this->selectedTokens->add($selectedToken);
+            $selectedToken->setTempPersonalBoardSPL($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSelectedToken(TokenSPL $selectedToken): static
+    {
+        if ($this->selectedTokens->removeElement($selectedToken)) {
+            // set the owning side to null (unless already changed)
+            if ($selectedToken->getTempPersonalBoardSPL() === $this) {
+                $selectedToken->setTempPersonalBoardSPL(null);
+            }
+        }
 
         return $this;
     }

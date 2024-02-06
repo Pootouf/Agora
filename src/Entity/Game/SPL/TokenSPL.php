@@ -18,6 +18,9 @@ class TokenSPL extends Token
     #[ORM\ManyToOne(inversedBy: 'tokens')]
     private ?MainBoardSPL $mainBoardSPL = null;
 
+    #[ORM\ManyToOne(inversedBy: 'selectedTokens')]
+    private ?PersonalBoardSPL $tempPersonalBoardSPL = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -55,6 +58,18 @@ class TokenSPL extends Token
     public function setMainBoardSPL(?MainBoardSPL $mainBoardSPL): static
     {
         $this->mainBoardSPL = $mainBoardSPL;
+
+        return $this;
+    }
+
+    public function getTempPersonalBoardSPL(): ?PersonalBoardSPL
+    {
+        return $this->tempPersonalBoardSPL;
+    }
+
+    public function setTempPersonalBoardSPL(?PersonalBoardSPL $tempPersonalBoardSPL): static
+    {
+        $this->tempPersonalBoardSPL = $tempPersonalBoardSPL;
 
         return $this;
     }
