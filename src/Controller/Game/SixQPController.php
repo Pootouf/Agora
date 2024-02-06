@@ -18,7 +18,9 @@ use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
+#[IsGranted('ROLE_USER')]
 class SixQPController extends AbstractController
 {
     private EntityManagerInterface $entityManager;
@@ -45,6 +47,12 @@ class SixQPController extends AbstractController
     {
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         $chosenCards = $this->chosenCardSixQPRepository->findBy(['game' => $game->getId()]);
+        $isSpectator = false;
+        if ($player == null) {
+            $player = $game->getPlayerSixQPs()->get(0);
+            $isSpectator = true;
+        }
+
         return $this->render('/Game/Six_qp/index.html.twig', [
             'game' => $game,
             'chosenCards' => $chosenCards,
@@ -54,9 +62,25 @@ class SixQPController extends AbstractController
             'player' => $player,
             'createdAt' => time(),
             'rows' => $game->getRowSixQPs(),
-            'isGameFinished' => $this->service->isGameEnded($game)
+            'isGameFinished' => $this->service->isGameEnded($game),
+            'isSpectator' => $isSpectator
         ]);
 
+    }
+
+    #[Route('/game/{idGame}/sixqp/spectator/get/{idPlayer}', name: 'app_game_sixqp_spectator_board')]
+    public function getPersonalBoardOfPlayer(#[MapEntity(id: 'idGame')] GameSixQP $game,
+                                             #[MapEntity(id: 'idPlayer')] PlayerSixQP $playerToDisplay): Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        if ($player != null) {
+            return new Response('Not a spectator', Response::HTTP_FORBIDDEN);
+        }
+        return $this->render('Game/Six_qp/Spectator/spectatorBoard.html.twig',
+            ['playerCards' => $playerToDisplay->getCards(),
+            'game' => $game,
+            'player' => $playerToDisplay,
+        ]);
     }
 
 

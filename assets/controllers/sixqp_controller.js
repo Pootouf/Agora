@@ -20,4 +20,12 @@ export default class extends Controller {
         let url = row.params.url;
         const response = await fetch(url);
     }
+
+    async getBoardToDisplay(button) {
+        let url = button.params.url;
+        const response = await fetch(url);
+        if (response.ok) {
+            document.getElementById('personalBoard').innerHTML = await response.text();
+        }
+    }
 }
