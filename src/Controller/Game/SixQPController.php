@@ -206,6 +206,11 @@ class SixQPController extends AbstractController
                     new Response());
                 return -1;
             } else {
+                if ($returnValue == 1) {
+                    $this->publishService->publish(
+                        $this->generateUrl('app_game_show_sixqp', ['id' => $game->getId()]).'endOfGame',
+                        new Response());
+                }
                 $message = "Le système a placé la carte " . $chosenCard->getCard()->getValue()
                     . "durant la partie " . $game->getId();
                 $this->logService->sendLog($game, $player, $message);

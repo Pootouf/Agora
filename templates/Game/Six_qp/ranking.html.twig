@@ -80,6 +80,13 @@ This section displays the game's name, and the current game's timer and leaderbo
             ranking.innerHTML = event.data;
         }
 	</script>
+	<script>
+		{% set path = path('app_game_show_sixqp', {'id': game.id}) ~ 'endOfGame' %}
+		const eventSourceEndOfGame = new EventSource("{{ mercure(path)|escape('js') }}");
+		eventSourceEndOfGame.onmessage = event => {
+			//
+		}
+	</script>
 
 {% endblock %}
 
