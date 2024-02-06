@@ -2,17 +2,13 @@
 
 namespace App\Entity\Game\SPL;
 
+use App\Entity\Game\DTO\Token;
 use App\Repository\Game\SPL\TokenSPLRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: TokenSPLRepository::class)]
-class TokenSPL
+class TokenSPL extends Token
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
-
     #[ORM\Column(length: 255)]
     private ?string $color = null;
 

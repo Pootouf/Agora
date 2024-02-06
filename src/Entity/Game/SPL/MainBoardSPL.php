@@ -2,19 +2,15 @@
 
 namespace App\Entity\Game\SPL;
 
+use App\Entity\Game\DTO\Component;
 use App\Repository\Game\SPL\MainBoardSPLRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: MainBoardSPLRepository::class)]
-class MainBoardSPL
+class MainBoardSPL extends Component
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
-
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?GameSPL $game = null;

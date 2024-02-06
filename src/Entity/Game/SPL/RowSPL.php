@@ -2,19 +2,15 @@
 
 namespace App\Entity\Game\SPL;
 
+use App\Entity\Game\DTO\Component;
 use App\Repository\Game\SPL\RowSPLRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: RowSPLRepository::class)]
-class RowSPL
+class RowSPL extends Component
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
-
     #[ORM\Column]
     private ?int $cardLevel = null;
 

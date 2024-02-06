@@ -2,18 +2,15 @@
 
 namespace App\Entity\Game\SPL;
 
+use App\Entity\Game\DTO\Component;
 use App\Repository\Game\SPL\PersonalBoardSPLRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PersonalBoardSPLRepository::class)]
-class PersonalBoardSPL
+class PersonalBoardSPL extends Component
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
 
     #[ORM\OneToMany(targetEntity: TokenSPL::class, mappedBy: 'personalBoardSPL')]
     private Collection $tokens;

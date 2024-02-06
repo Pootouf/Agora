@@ -2,19 +2,15 @@
 
 namespace App\Entity\Game\SPL;
 
+use App\Entity\Game\DTO\Game;
 use App\Repository\Game\SPL\GameSPLRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: GameSPLRepository::class)]
-class GameSPL
+class GameSPL extends Game
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
-
     #[ORM\OneToMany(targetEntity: PlayerSPL::class, mappedBy: 'gameSPL', orphanRemoval: true)]
     private Collection $players;
 

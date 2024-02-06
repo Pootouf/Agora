@@ -2,17 +2,13 @@
 
 namespace App\Entity\Game\SPL;
 
+use App\Entity\Game\DTO\Player;
 use App\Repository\Game\SPL\PlayerSPLRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PlayerSPLRepository::class)]
-class PlayerSPL
+class PlayerSPL extends Player
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
-
     #[ORM\OneToOne(inversedBy: 'playerSPL', cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?PersonalBoardSPL $personalBoard = null;

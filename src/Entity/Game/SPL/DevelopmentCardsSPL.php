@@ -2,18 +2,14 @@
 
 namespace App\Entity\Game\SPL;
 
+use App\Entity\Game\DTO\Card;
 use App\Repository\Game\SPL\DevelopmentCardsSPLRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: DevelopmentCardsSPLRepository::class)]
-class DevelopmentCardsSPL
+class DevelopmentCardsSPL extends Card
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
-
     #[ORM\Column]
     private ?int $prestigePoints = null;
 
