@@ -26,6 +26,12 @@ class DevelopmentCardsSPL
     #[ORM\Column(type: Types::ARRAY)]
     private array $countCostTokensColor = [];
 
+    #[ORM\ManyToOne(inversedBy: 'developmentCards')]
+    private ?DrawCardsSPL $drawCardsSPL = null;
+
+    #[ORM\ManyToOne(inversedBy: 'developmentCards')]
+    private ?RowSPL $rowSPL = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -75,6 +81,30 @@ class DevelopmentCardsSPL
     public function setCountCostTokensColor(array $countCostTokensColor): static
     {
         $this->countCostTokensColor = $countCostTokensColor;
+
+        return $this;
+    }
+
+    public function getDrawCardsSPL(): ?DrawCardsSPL
+    {
+        return $this->drawCardsSPL;
+    }
+
+    public function setDrawCardsSPL(?DrawCardsSPL $drawCardsSPL): static
+    {
+        $this->drawCardsSPL = $drawCardsSPL;
+
+        return $this;
+    }
+
+    public function getRowSPL(): ?RowSPL
+    {
+        return $this->rowSPL;
+    }
+
+    public function setRowSPL(?RowSPL $rowSPL): static
+    {
+        $this->rowSPL = $rowSPL;
 
         return $this;
     }

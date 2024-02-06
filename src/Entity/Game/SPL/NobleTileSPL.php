@@ -23,6 +23,12 @@ class NobleTileSPL
     #[ORM\Column(type: Types::ARRAY)]
     private array $countCostCardsColor = [];
 
+    #[ORM\ManyToOne(inversedBy: 'nobleTiles')]
+    private ?PersonalBoardSPL $personalBoardSPL = null;
+
+    #[ORM\ManyToOne(inversedBy: 'nobleTiles')]
+    private ?MainBoardSPL $mainBoardSPL = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -60,6 +66,30 @@ class NobleTileSPL
     public function setCountCostCardsColor(array $countCostCardsColor): static
     {
         $this->countCostCardsColor = $countCostCardsColor;
+
+        return $this;
+    }
+
+    public function getPersonalBoardSPL(): ?PersonalBoardSPL
+    {
+        return $this->personalBoardSPL;
+    }
+
+    public function setPersonalBoardSPL(?PersonalBoardSPL $personalBoardSPL): static
+    {
+        $this->personalBoardSPL = $personalBoardSPL;
+
+        return $this;
+    }
+
+    public function getMainBoardSPL(): ?MainBoardSPL
+    {
+        return $this->mainBoardSPL;
+    }
+
+    public function setMainBoardSPL(?MainBoardSPL $mainBoardSPL): static
+    {
+        $this->mainBoardSPL = $mainBoardSPL;
 
         return $this;
     }

@@ -16,6 +16,12 @@ class TokenSPL
     #[ORM\Column(length: 255)]
     private ?string $color = null;
 
+    #[ORM\ManyToOne(inversedBy: 'tokens')]
+    private ?PersonalBoardSPL $personalBoardSPL = null;
+
+    #[ORM\ManyToOne(inversedBy: 'tokens')]
+    private ?MainBoardSPL $mainBoardSPL = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -29,6 +35,30 @@ class TokenSPL
     public function setColor(string $color): static
     {
         $this->color = $color;
+
+        return $this;
+    }
+
+    public function getPersonalBoardSPL(): ?PersonalBoardSPL
+    {
+        return $this->personalBoardSPL;
+    }
+
+    public function setPersonalBoardSPL(?PersonalBoardSPL $personalBoardSPL): static
+    {
+        $this->personalBoardSPL = $personalBoardSPL;
+
+        return $this;
+    }
+
+    public function getMainBoardSPL(): ?MainBoardSPL
+    {
+        return $this->mainBoardSPL;
+    }
+
+    public function setMainBoardSPL(?MainBoardSPL $mainBoardSPL): static
+    {
+        $this->mainBoardSPL = $mainBoardSPL;
 
         return $this;
     }
