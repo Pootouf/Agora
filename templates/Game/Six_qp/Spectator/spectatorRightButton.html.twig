@@ -1,0 +1,22 @@
+{#
+This section displays the possibility of navigation for the next player in the list of the current game
+
+@param :    game       -> the game that is displayed
+		    player -> the Player entity of the selected user
+		    playerCards   -> The cards of the current player
+
+@return :   display the right oriented button for navigation for the spectator
+#}
+
+{% set nextId = (actualId + 1) % game.playerSixQPs.count %}
+
+<div class="flex float-bottom-0 float-left-0 h-full items-center justify-center">
+    <button type="button" {{ stimulus_action('sixqp', 'getBoardToDisplay', 'click',
+        {url: path('app_game_sixqp_spectator_board', {idGame: game.id, idPlayer: game.playerSixQPs.get(nextId).id})}) }}>
+        <svg class="!fill-red" xmlns="http://www.w3.org/2000/svg" width="24" height="24">
+            <path d="M12 2a10 10 0 1 0 10 10A10.011 10.011 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8.009 8.009 0 0 1-8 8z"></path>
+            <path d="M8.707 7.293 7.293 8.707 10.586 12l-3.293 3.293 1.414 1.414L13.414 12 8.707 7.293z"></path>
+            <path d="M11.293 8.707 14.586 12l-3.293 3.293 1.414 1.414L17.414 12l-4.707-4.707-1.414 1.414z"></path>
+        </svg>
+    </button>
+</div>
