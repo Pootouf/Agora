@@ -16,7 +16,7 @@ use Doctrine\ORM\Mapping as ORM;
 class ChosenCardSixQP extends Component
 {
 
-    #[ORM\OneToOne(inversedBy: 'chosenCardSixQP', cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(inversedBy: 'chosenCardSixQP')]
     #[ORM\JoinColumn(nullable: false)]
     private ?PlayerSixQP $player = null;
 
