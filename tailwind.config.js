@@ -5,7 +5,17 @@ module.exports = {
     "./templates/**/*.html.twig",
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        primary: '#3498DB',
+        success: '#4CAF50',
+        danger: '#E74C3C',
+        warning: '#F39C12',
+      },
+      fontFamily: {
+        lato: ["Lato", "Arial", "sans-serif"]
+      }
+    },
   },
   plugins: [
     require('@tailwindcss/typography'),

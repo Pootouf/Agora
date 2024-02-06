@@ -220,8 +220,11 @@ class SixQPServiceIntegrationTest extends KernelTestCase
         $entityManager->persist($discard4);
         $entityManager->flush();
         $result = $sixQPService->getRanking($game);
-        foreach($game->getPlayerSixQPs() as $player) {
-            $this->assertEquals($player->getDiscardSixQP()->getTotalPoints(), $result[$player->getId()]);
+        $expectedResult = [$player3, $player2, $player, $player4];
+        $i = 0;
+        foreach($expectedResult as $player) {
+            $this->assertEquals($player, $result[$i]);
+            ++$i;
         }
     }
     private function createGame(int $numberOfPlayer, int $numberOfRow): GameSixQP

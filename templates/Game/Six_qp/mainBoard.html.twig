@@ -8,19 +8,23 @@ This section displays the main board of the game
         <div class="flex flex-col h-full w-full ml-4">
             {% for row in rows.values %}
                 <div class="h-1/4">
-                {% for card in row.cards %}
-                    <img class="h-full float float-left"
-                         src="{{ asset('resourcesGames/6QP/cardsImages/' ~ card.value ~ ".png")}}"
-                         alt="card">
-                {% endfor %}
+                    <button disabled class="rows button h-full"
+                    {{ stimulus_action('sixqp', 'selectRow', 'click',
+                        {url: path('app_game_sixqp_placecardonrow', {idRow: row.id, idGame: game.id})}) }}>
+                    {% for card in row.cards %}
+                        <img class="h-full float float-left"
+                             src="{{ asset('resourcesGames/6QP/cardsImages/' ~ card.value ~ ".png")}}"
+                             alt="card">
+                    {% endfor %}
+                    </button>
                 </div>
             {% endfor %}
         </div>
     </div>
     <script>
-        {% set path = path('app_game_show', {'id': game.id}) ~ 'mainBoard' %}
-        const eventSource = new EventSource("{{ mercure(path)|escape('js') }}");
-        eventSource.onmessage = event => {
+        {% set path = path('app_game_show_sixqp', {'id': game.id}) ~ 'mainBoard' %}
+        const eventSourceMainBoard = new EventSource("{{ mercure(path)|escape('js') }}");
+        eventSourceMainBoard.onmessage = event => {
             let mainBoard = document.getElementById('mainBoard');
             mainBoard.innerHTML = event.data;
         }

@@ -6,6 +6,7 @@ use App\Entity\Game\GameUser;
 use App\Form\RegistrationFormType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -13,8 +14,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class RegistrationController extends AbstractController
 {
-    #[Route('/register', name: 'app_register')]
-    public function register(Request $request, UserPasswordHasherInterface $userPasswordHasher, EntityManagerInterface $entityManager): Response
+    #[Route('/game/register', name: 'app_game_register')]
+    public function register(Request $request, UserPasswordHasherInterface $userPasswordHasher, EntityManagerInterface $entityManager, Security $security): Response
     {
         $user = new GameUser();
         $form = $this->createForm(RegistrationFormType::class, $user);
@@ -33,10 +34,12 @@ class RegistrationController extends AbstractController
             $entityManager->flush();
             // do anything else you need here, like send an email
 
-            return $this->redirectToRoute('_profiler_home');
+            $security->login($user);
+
+            return $this->redirectToRoute('app_game_sixqp_list');
         }
 
-        return $this->render('registration/register.html.twig', [
+        return $this->render('Game/registration/register.html.twig', [
             'registrationForm' => $form->createView(),
         ]);
     }

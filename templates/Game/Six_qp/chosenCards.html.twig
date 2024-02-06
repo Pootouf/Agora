@@ -9,7 +9,7 @@
         <div class="bg-gray-500 rounded flow float-left w-full h-full overflow-hidden shadow-black shadow-lg">
             <div class="grid grid-cols-2 grid-rows-5 w-full h-full pt-10 p-3">
                 {% set ind = 0 %}
-                {% for chosenCard in chosenCards %}
+                {% for chosenCard in chosenCards%}
                         <div class=" hover:z-10 hover:overflow-visible z-0 p-2">
                         {% if chosenCard is not null %}
                             {% set hovering = "" %}
@@ -19,7 +19,10 @@
                                 {% set hovering = "" %}
                             {% endif %}
                             {% if chosenCards|length == game.playerSixQPs.count %}
-                                <img class="{{'rounded shadow-lg shadow-black aspect-auto hover:md:p-0' ~ hovering}}"
+                                <img class="{{
+                                                'rounded float float-left shadow-lg shadow-black aspect-auto
+                                                hover:md:p-0' ~ hovering
+                                        }}"
                                      src="{{
                                             asset('resourcesGames/6QP/cardsImages/' ~ chosenCard.card.value ~ '.png')
                                         }}"
@@ -29,16 +32,16 @@
                                      src="{{ asset('resourcesGames/6QP/cardsImages' ~ "/back.png") }}"
                                      alt="back">
                             {% endif %}
-                        {% set ind = ind + 1 %}
+                            {% set ind = ind + 1 %}
                         {% endif %}
                         </div>
                 {% endfor %}
             </div>
         </div>
         <script>
-            {% set path = path('app_game_show', {'id': game.id}) ~ 'chosenCards'%}
-            const eventSource = new EventSource("{{ mercure(path)|escape('js') }}");
-            eventSource.onmessage = event => {
+            {% set path = path('app_game_show_sixqp', {'id': game.id}) ~ 'chosenCards' %}
+            const eventSourceChosenCards = new EventSource("{{ mercure(path)|escape('js') }}");
+            eventSourceChosenCards.onmessage = event => {
                 let chosenCards = document.getElementById('chosenCards');
                 chosenCards.innerHTML = event.data;
             }

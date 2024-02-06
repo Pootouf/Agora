@@ -1,7 +1,26 @@
 @import "tailwindcss/base";
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
+@import "./Games/6QP/6QP.css";
 
-body {
-    background-color: skyblue;
-}
+@font-face {
+    font-family: "Lato";
+    src: url("../fonts/Lato-Bold.ttf");
+    font-weight: 700;
+  }
+
+@font-face {
+    font-family: "Lato";
+    src: url("../fonts/Lato-Regular.ttf");
+    font-weight: 400;
+  }
+
+@font-face {
+    font-family: "Lato";
+    src: url("../fonts/Lato-Light.ttf");
+    font-weight: 300;
+  }
+
+  * {
+    font-family: 'Lato', Arial, sans-serif;
+  }
