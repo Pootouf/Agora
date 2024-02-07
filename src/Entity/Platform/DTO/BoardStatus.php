@@ -1,5 +1,5 @@
 <?php
-namespace App\Entity\Platform\DTO;
+namespace App\Entity\Platform\DTO; 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
