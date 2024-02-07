@@ -19,8 +19,8 @@ class Board
     #[ORM\Column]
     private ?int $nbUserMax = null;
 
-    #[ORM\Column(length: 20)]
-    private ?BoardStatus $status = null;
+    #[ORM\Column(type: BoardStatus::class)]
+    private ?BoardStatus $status;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $creationDate = null;
@@ -38,7 +38,6 @@ class Board
     {
         $this->status = BoardStatus::WAITING;
     }
-
 
     public function getId(): ?int
     {
