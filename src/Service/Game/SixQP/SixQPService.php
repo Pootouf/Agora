@@ -106,7 +106,7 @@ class SixQPService
     /**
      * placeCard : place the chosen card into the right row, and update player's discard if necessary
      * @param ChosenCardSixQP $chosenCardSixQP
-     * @return int 0 if the card has been placed, 1 if the score of the player has changed, -1 otherwise
+     * @return int 0 if the card has been placed, position of the row if the score of the player has changed, -1 otherwise
      */
     public function placeCard(ChosenCardSixQP $chosenCardSixQP): int
     {
@@ -122,7 +122,7 @@ class SixQPService
         $returnValue = 0;
         if ($row->getCards()->count() == 5) {
             $this->addRowToDiscardOfPlayer($player, $row);
-            $returnValue = 1;
+            $returnValue = $row->getPosition();
         }
         $row->getCards()->add($chosenCardSixQP->getCard());
 
@@ -235,7 +235,7 @@ class SixQPService
      * @param Collection $rows the rows of the game
      * @return ?RowSixQP the valid row, null if no valid row in the game
      */
-    private function getValidRowForCard(ChosenCardSixQP $chosenCardSixQP, Collection $rows): ?RowSixQP
+    public function getValidRowForCard(ChosenCardSixQP $chosenCardSixQP, Collection $rows): ?RowSixQP
     {
         $rowResult = null;
         $lastSmallestDistance = INF;
