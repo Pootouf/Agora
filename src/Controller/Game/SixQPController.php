@@ -134,12 +134,6 @@ class SixQPController extends AbstractController
                 ['id' => $game->getId()]).'personalBoard'.($player->getId()),
             $response);
 
-        $response = $this->renderRanking($game, $player);
-        $this->publishService->publish(
-            $this->generateUrl('app_game_show_sixqp',
-                ['id' => $game->getId()]).'ranking',
-            $response);
-
         if ($this->service->doesAllPlayersHaveChosen($game)) {
             $response = $this->placeCards($game, $player);
             if ($response != null) {
@@ -175,11 +169,10 @@ class SixQPController extends AbstractController
         $this->entityManager->persist($row);
         $this->entityManager->flush();
 
-        $response = $this->renderRanking($game, $player);
         $this->publishService->publish(
             $this->generateUrl('app_game_show_sixqp',
                 ['id' => $game->getId()]).'ranking',
-            $response);
+            new Response(''.$player->getUsername().' '.$player->getDiscardSixQP()->getTotalPoints()));
 
         $response = $this->placeCards($game, $player);
         if ($response != null) {
@@ -222,15 +215,12 @@ class SixQPController extends AbstractController
                 $this->publishService->publish(
                     $this->generateUrl('app_game_show_sixqp', ['id' => $game->getId()]).'mainBoard',
                     $this->renderMainBoard($game, $player));
-
-                if ($returnValue != 0) {
-                    $this->publishService->publish(
-                        $this->generateUrl('app_game_show_sixqp', ['id' => $game->getId()]).'ranking',
-                        new Response());
-                    $this->publishService->publish(
-                        $this->generateUrl('app_game_show_sixqp', ['id' => $game->getId()]).'animRow'.$returnValue,
-                        new Response());
-                }
+                $this->publishService->publish(
+                    $this->generateUrl('app_game_show_sixqp', ['id' => $game->getId()]).'ranking',
+                    new Response(''.$player->getUsername().' '.$player->getDiscardSixQP()->getTotalPoints()));
+                $this->publishService->publish(
+                    $this->generateUrl('app_game_show_sixqp', ['id' => $game->getId()]).'animRow'.$returnValue,
+                    new Response($chosenCard->getCard()->getValue()));
                 $message = "Le système a placé la carte " . $chosenCard->getCard()->getValue()
                     . "durant la partie " . $game->getId();
                 $this->logService->sendLog($game, $player, $message);
@@ -256,7 +246,7 @@ class SixQPController extends AbstractController
 
     private function renderPersonalBoard(GameSixQP $gameSixQP, PlayerSixQP $playerSixQP): Response
     {
-        return $this->render('Game/Six_qp/personalBoard.html.twig',
+        return $this->render('Game/Six_qp/PersonalBoard/personalBoard.html.twig',
             ['playerCards' => $playerSixQP->getCards(),
                 'game' => $gameSixQP,
                 'player' => $playerSixQP,
@@ -282,7 +272,9 @@ class SixQPController extends AbstractController
         return $this->render('Game/Six_qp/mainBoard.html.twig',
             ['rows' => $gameSixQP->getRowSixQPs(),
              'game' => $gameSixQP,
-             'player' => $playerSixQP]
+             'player' => $playerSixQP,
+             'needToChoose' => false
+                ]
         );
     }
 

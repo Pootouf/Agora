@@ -106,7 +106,7 @@ class SixQPService
     /**
      * placeCard : place the chosen card into the right row, and update player's discard if necessary
      * @param ChosenCardSixQP $chosenCardSixQP
-     * @return int 0 if the card has been placed, position of the row if the score of the player has changed, -1 otherwise
+     * @return int position of the row if the card has been placed, -1 otherwise
      */
     public function placeCard(ChosenCardSixQP $chosenCardSixQP): int
     {
@@ -119,10 +119,9 @@ class SixQPService
             return -1;
         }
 
-        $returnValue = 0;
+        $returnValue = $row->getPosition();
         if ($row->getCards()->count() == 5) {
             $this->addRowToDiscardOfPlayer($player, $row);
-            $returnValue = $row->getPosition();
         }
         $row->getCards()->add($chosenCardSixQP->getCard());
 
