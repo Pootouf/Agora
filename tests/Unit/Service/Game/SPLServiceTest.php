@@ -19,6 +19,7 @@ class SPLServiceTest extends TestCase
     protected function setUp(): void
     {
         $entityManager = $this->createMock(EntityManagerInterface::class);
+        $this->SPLService = new SPLService($entityManager);
     }
     public function testTakeTokenWhenAlreadyFull() : void
     {
@@ -33,7 +34,7 @@ class SPLServiceTest extends TestCase
         $this->assertSame(10, $personalBoard->getTokens()->count());
         $token = new TokenSPL();
         $this->expectException(\Exception::class);
-        $personalBoard->addToken($token);
+        $this->SPLService->takeToken($player, $token);
     }
 
     public function testTakeThreeIdenticalTokens() : void
@@ -52,7 +53,7 @@ class SPLServiceTest extends TestCase
         $personalBoard->addToken($token1);
         $personalBoard->addToken($token2);
         $this->expectException(\Exception::class);
-        $personalBoard->addToken($token3);
+        $this->SPLService->takeToken($player, $token3);
     }
 
     public function testTakeThreeTokensButWithTwiceSameColor() : void
@@ -71,7 +72,7 @@ class SPLServiceTest extends TestCase
         $personalBoard->addToken($token1);
         $personalBoard->addToken($token2);
         $this->expectException(\Exception::class);
-        $personalBoard->addToken($token3);
+        $this->SPLService->takeToken($player, $token3);
     }
 
     public function testTakeFourTokens() : void
@@ -93,7 +94,7 @@ class SPLServiceTest extends TestCase
         $personalBoard->addToken($token2);
         $personalBoard->addToken($token3);
         $this->expectException(\Exception::class);
-        $personalBoard->addToken($token4);
+        $this->SPLService->takeToken($player, $token4);
     }
 
 
