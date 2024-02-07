@@ -29,6 +29,9 @@ class PersonalBoardSPL extends Component
     #[ORM\OneToMany(targetEntity: TokenSPL::class, mappedBy: 'tempPersonalBoardSPL')]
     private Collection $selectedTokens;
 
+    #[ORM\OneToOne(mappedBy: 'personalBoard', cascade: ['persist', 'remove'])]
+    private ?PlayerCardSPL $playerCardSPL = null;
+
     public function __construct()
     {
         $this->tokens = new ArrayCollection();
@@ -156,6 +159,23 @@ class PersonalBoardSPL extends Component
                 $selectedToken->setTempPersonalBoardSPL(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getPlayerCardSPL(): ?PlayerCardSPL
+    {
+        return $this->playerCardSPL;
+    }
+
+    public function setPlayerCardSPL(PlayerCardSPL $playerCardSPL): static
+    {
+        // set the owning side of the relation if necessary
+        if ($playerCardSPL->getPersonalBoard() !== $this) {
+            $playerCardSPL->setPersonalBoard($this);
+        }
+
+        $this->playerCardSPL = $playerCardSPL;
 
         return $this;
     }
