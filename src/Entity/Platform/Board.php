@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Entity\Platform\DTO;
+namespace App\Entity\Platform;
 
-use App\Repository\Platform\DTO\BoardRepository;
+use App\Repository\Platform\BoardRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use App\Entity\Platform\DTO\BoardStatus;
+use App\Entity\Platform\BoardStatus;
 
 
 #[ORM\Entity(repositoryClass: BoardRepository::class)]
