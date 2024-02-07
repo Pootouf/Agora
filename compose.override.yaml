@@ -28,6 +28,5 @@ services:
 ###> symfony/mercure-bundle ###
   mercure:
     ports:
-      - "9091:443"
       - "9090:80"
 ###< symfony/mercure-bundle ###

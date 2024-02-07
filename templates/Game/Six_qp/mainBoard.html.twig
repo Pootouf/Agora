@@ -8,7 +8,7 @@ This section displays the main board of the game
         <div class="flex flex-col h-full w-full ml-4">
             {% for row in rows.values %}
                 <div class="h-1/4">
-                    <button disabled class="rows button h-full"
+                    <button {% if needToChoose %}{% else %}disabled{% endif%} class="rows button h-full"
                     {{ stimulus_action('sixqp', 'selectRow', 'click',
                         {url: path('app_game_sixqp_placecardonrow', {idRow: row.id, idGame: game.id})}) }}>
                     {% for card in row.cards %}
@@ -28,4 +28,7 @@ This section displays the main board of the game
             let mainBoard = document.getElementById('mainBoard');
             mainBoard.innerHTML = event.data;
         }
+        {% if needToChoose %}
+            alert('Please choose a row');
+        {% endif %}
     </script>
