@@ -2,17 +2,13 @@
 
 namespace App\Entity\Game\SPL;
 
+use App\Entity\Game\DTO\Component;
 use App\Repository\Game\SPL\PlayerCardSPLRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PlayerCardSPLRepository::class)]
-class PlayerCardSPL
+class PlayerCardSPL extends Component
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
-
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
     private ?DevelopmentCardsSPL $developmentCard = null;
 
