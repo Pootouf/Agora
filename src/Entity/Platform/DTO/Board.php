@@ -5,6 +5,8 @@ namespace App\Entity\Platform\DTO;
 use App\Repository\Platform\DTO\BoardRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\Platform\DTO\BoardStatus;
+
 
 #[ORM\Entity(repositoryClass: BoardRepository::class)]
 class Board
@@ -17,6 +19,9 @@ class Board
     #[ORM\Column]
     private ?int $nbUserMax = null;
 
+    #[ORM\Column(length: 20)]
+    private ?BoardStatus $status = null;
+
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $creationDate = null;
 
@@ -28,6 +33,12 @@ class Board
 
     #[ORM\Column(length: 255)]
     private ?string $invitationHash = null;
+
+    public function __construct()
+    {
+        $this->status = BoardStatus::WAITING;
+    }
+
 
     public function getId(): ?int
     {
@@ -42,6 +53,18 @@ class Board
     public function setNbUserMax(int $nbUserMax): static
     {
         $this->nbUserMax = $nbUserMax;
+
+        return $this;
+    }
+
+    public function getStatus(): ?BoardStatus
+    {
+        return $this->status;
+    }
+
+    public function setStatus(BoardStatus $status): self
+    {
+        $this->status = $status;
 
         return $this;
     }
