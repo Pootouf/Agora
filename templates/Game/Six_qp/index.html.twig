@@ -4,7 +4,7 @@
 
 {% block body %}
     <div class="h-screen w-screen" {{ stimulus_controller('sixqp') }}>
-        <div class="h-full w-full">
+        <div class="h-full w-full overflow-hidden">
             {% block nav %}
                 {{ include('/Game/Utils/navigation.html.twig') }}
             {% endblock %}
@@ -27,7 +27,7 @@
                 {% if isSpectator %}
                     {{ include('/Game/Six_qp/Spectator/spectatorBoard.html.twig') }}
                 {% else %}
-                    {{ include('/Game/Six_qp/personalBoard.html.twig') }}
+                    {{ include('/Game/Six_qp/PersonalBoard/personalBoard.html.twig') }}
                 {% endif %}
             </div>
             {% endblock %}
