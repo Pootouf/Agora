@@ -2,10 +2,7 @@
 This section displays if the current user is the winner and if not, the name of the winner is displayed.
 Comes with a button to the homepage and another one to the game's homepage
 
-@param :    winner      -> the Player entity who winned the game
-		    currentUser -> the Player entity of the session's user
-
-@return :   display the winner and a button to the game and platform's homepage
+@return :   display the winner and buttons to the game and platform's homepage
 #}
 
 <div id="endGameScreen"
@@ -37,17 +34,32 @@ Comes with a button to the homepage and another one to the game's homepage
 </div>
 
 <script>
-    function gameFinished(winner) {
-        clearInterval(clockID);
+
+	{% set path = path('app_game_show_sixqp', {'id': game.id}) ~ 'endOfGame' %}
+    const eventSourceEndOfGame = new EventSource("{{ mercure(path)|escape('js') }}");
+    eventSourceEndOfGame.onmessage = event => {
+        gameFinished();
+    }
+
+
+    function gameFinished() {
+        //clearInterval(clockID);
         document.getElementById('endGameScreen').classList.remove('hidden');
-        if (!winner) {
+        if (document.getElementsByClassName('score-gold').length === {{ ranking|length }} ||
+            document.getElementsByClassName('score-white').length === {{ ranking|length }} ||
+            document.getElementsByClassName('score-red').length === {{ ranking|length }} ) {
             document.getElementById('winner').innerHTML = 'Match nul ! 🤝';
         }
-        else if (winner.username === '{{ player.username }}') {
+        else if (document.getElementsByClassName('score-gold').namedItem({{ player.username }})) {
             document.getElementById('winner').innerHTML = 'Bravo ! 👏 Vous avez gagné la partie';
         } else {
-            document.getElementById('winner').innerHTML = 'Dommage ! 😖 ' + winner + ' a gagné la partie';
+            document.getElementById('winner').innerHTML = 'Dommage ! 😖 Vous avez perdu la partie';
         }
         document.body.style.overflow = 'hidden';
     }
+
+    {% if isGameFinished %}
+		gameFinished();
+    {% endif %}
+
 </script>
