@@ -5,7 +5,6 @@ namespace App\Entity\Platform;
 use App\Repository\Platform\BoardRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use App\Entity\Platform\BoardStatus;
 
 
 #[ORM\Entity(repositoryClass: BoardRepository::class)]
@@ -19,8 +18,8 @@ class Board
     #[ORM\Column]
     private ?int $nbUserMax = null;
 
-    #[ORM\Column(type: BoardStatus::class)]
-    private ?BoardStatus $status;
+    #[ORM\Column(length: 20)]
+    private ?string $status = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $creationDate = null;
@@ -36,7 +35,7 @@ class Board
 
     public function __construct()
     {
-        $this->status = BoardStatus::WAITING;
+        $this->status = "WAITING";
     }
 
     public function getId(): ?int
@@ -56,15 +55,15 @@ class Board
         return $this;
     }
 
-    public function getStatus(): ?BoardStatus
+    public function getStatus(): ?string
     {
         return $this->status;
     }
-
-    public function setStatus(BoardStatus $status): self
+    
+    public function setStatus(?string $status): static
     {
         $this->status = $status;
-
+    
         return $this;
     }
 
