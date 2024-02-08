@@ -20,11 +20,15 @@ class GameSPL extends Game
     #[ORM\OneToMany(targetEntity: DrawCardsSPL::class, mappedBy: 'game', orphanRemoval: true)]
     private Collection $drawCardsSPL;
 
+    #[ORM\OneToMany(targetEntity: PlayerCardSPL::class, mappedBy: 'game', orphanRemoval: true)]
+    private Collection $playerCardsSPL;
+
     public function __construct()
     {
         $this->players = new ArrayCollection();
         $this->personalBoardsSPL = new ArrayCollection();
         $this->drawCardsSPL = new ArrayCollection();
+        $this->playerCardsSPL = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -116,6 +120,36 @@ class GameSPL extends Game
             // set the owning side to null (unless already changed)
             if ($drawCardsSPL->getGame() === $this) {
                 $drawCardsSPL->setGame(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PlayerCardSPL>
+     */
+    public function getPlayerCardsSPL(): Collection
+    {
+        return $this->playerCardsSPL;
+    }
+
+    public function addPlayerCardsSPL(PlayerCardSPL $playerCardsSPL): static
+    {
+        if (!$this->playerCardsSPL->contains($playerCardsSPL)) {
+            $this->playerCardsSPL->add($playerCardsSPL);
+            $playerCardsSPL->setGame($this);
+        }
+
+        return $this;
+    }
+
+    public function removePlayerCardsSPL(PlayerCardSPL $playerCardsSPL): static
+    {
+        if ($this->playerCardsSPL->removeElement($playerCardsSPL)) {
+            // set the owning side to null (unless already changed)
+            if ($playerCardsSPL->getGame() === $this) {
+                $playerCardsSPL->setGame(null);
             }
         }
 
