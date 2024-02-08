@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Entity\Platform\DTO;
+namespace App\Entity\Platform;
 
-use App\Repository\Platorm\DTO\GameRepository;
+use App\Repository\Platorm\GameRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: GameRepository::class)]
