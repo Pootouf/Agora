@@ -288,7 +288,7 @@ class SixQPService
      * hasCardLeft : checks if at least one player still has a card
      * @param Collection $players : a collection of 6QP players
      */
-    private function hasCardLeft(Collection $players): bool
+    public function hasCardLeft(Collection $players): bool
     {
         foreach ($players as $player) {
             if (count($player->getCards()) != 0) {
@@ -296,6 +296,37 @@ class SixQPService
             }
         }
         return false;
+    }
+
+    /**
+     * getWinner : return the winner of the game
+     * @param GameSixQP $game
+     * @return ?PlayerSixQP if there is a winner, null otherwise
+     */
+    public function getWinner(GameSixQP $game): ?PlayerSixQP
+    {
+        $winner = null;
+        $winnerScore = INF;
+        foreach ($game->getPlayerSixQPs() as $player) {
+            if ($player->getDiscardSixQP()->getTotalPoints() < $winnerScore) {
+                $winner = $player;
+                $winnerScore = $player->getDiscardSixQP()->getTotalPoints();
+            } elseif ($player->getDiscardSixQP()->getTotalPoints() == $winnerScore) {
+                $winner = null;
+            }
+        }
+        return $winner;
+    }
+
+    public function clearCards(array $chosenCards): void
+    {
+        foreach ($chosenCards as $chosenCard) {
+            $player = $chosenCard->getPlayer();
+            $this->entityManager->remove($chosenCard);
+            $player->setChosenCardSixQP(null);
+            $this->entityManager->persist($player);
+        }
+        $this->entityManager->flush();
     }
 
      /**
