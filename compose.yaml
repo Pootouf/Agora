@@ -5,7 +5,6 @@ services:
     container_name: agora
     image: agora-boilerplate:latest
     build:
-      context: .
       dockerfile: Dockerfile
     depends_on:
       database:
