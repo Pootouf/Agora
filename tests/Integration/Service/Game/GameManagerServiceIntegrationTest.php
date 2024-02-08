@@ -75,6 +75,60 @@ class GameManagerServiceIntegrationTest extends KernelTestCase
         $this->assertEquals(AbstractGameManagerService::$SUCCESS, $gameService->launchGame($gameId));
     }
 
+    public function testQuitGameWhenGameIsNull()
+    {
+        // GIVEN
+        $gameService = static::getContainer()->get(GameManagerService::class);
+        $gameId = -1;
+        $user = new GameUser();
+        // WHEN
+        $result = $gameService->quitGame($gameId, $user);
+        // THEN
+        $this->assertEquals(-2, $result);
+    }
+
+    public function testQuitGameWhenGameIsLaunched()
+    {
+        // GIVEN
+        $gameService = static::getContainer()->get(GameManagerService::class);
+        $game = $this->createSixQPGame(3, 4);
+        $gameId = $game->getId();
+        $gameService->launchGame($gameId);
+        $user = new GameUser();
+        // WHEN
+        $result = $gameService->quitGame($gameId, $user);
+        // THEN
+        $this->assertEquals(-3, $result);
+    }
+
+    public function testQuitGameWhenPlayerIsInvalid()
+    {
+        // GIVEN
+        $gameService = static::getContainer()->get(GameManagerService::class);
+        $game = $this->createSixQPGame(3, 4);
+        $gameId = $game->getId();
+        $user = new GameUser();
+        $user->setUsername("vrgyuvgryugerzygvzyegfyzefgbyezgfy");
+        // WHEN
+        $result = $gameService->quitGame($gameId, $user);
+        // THEN
+        $this->assertEquals(AbstractGameManagerService::$ERROR_PLAYER_NOT_FOUND, $result);
+    }
+    public function testQuitGameOnSuccess()
+    {
+        // GIVEN
+        $gameService = static::getContainer()->get(GameManagerService::class);
+        $game = $this->createSixQPGame(3, 4);
+        $gameId = $game->getId();
+        $userName = $game->getPlayerSixQPs()[0]->getUsername();
+        $user = new GameUser();
+        $user->setUsername($userName);
+        // WHEN
+        $result = $gameService->quitGame($gameId, $user);
+        // THEN
+        $this->assertEquals(AbstractGameManagerService::$SUCCESS, $result);
+    }
+
     private function createSixQPGame(int $numberOfPlayer, int $numberOfRow): GameSixQP
     {
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);
