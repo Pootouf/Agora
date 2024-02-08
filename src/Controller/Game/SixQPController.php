@@ -48,20 +48,20 @@ class SixQPController extends AbstractController
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         $chosenCards = $this->chosenCardSixQPRepository->findBy(['game' => $game->getId()]);
         $isSpectator = false;
+        $needToChoose = false;
         if ($player == null) {
             $player = $game->getPlayerSixQPs()->get(0);
             $isSpectator = true;
-        }
-
-        $needToChoose = false;
-        if ($this->service->doesAllPlayersHaveChosen($game)) {
-            $cards = $this->service->getNotPlacedCard($game);
-            usort($cards, function (ChosenCardSixQP $c1, ChosenCardSixQP $c2){
-                return $c1->getCard()->getValue() - $c2->getCard()->getValue();
-            });
-            $card = $cards[0];
-            if ($this->service->getValidRowForCard($card, $game->getRowSixQPs()) == null) {
-                $needToChoose = $card->getPlayer()->getId() == $player->getId();
+        } else {
+            if ($this->service->doesAllPlayersHaveChosen($game)) {
+                $cards = $this->service->getNotPlacedCard($game);
+                usort($cards, function (ChosenCardSixQP $c1, ChosenCardSixQP $c2) {
+                    return $c1->getCard()->getValue() - $c2->getCard()->getValue();
+                });
+                $card = $cards[0];
+                if ($this->service->getValidRowForCard($card, $game->getRowSixQPs()) == null) {
+                    $needToChoose = $card->getPlayer()->getId() == $player->getId();
+                }
             }
         }
 
@@ -79,21 +79,6 @@ class SixQPController extends AbstractController
             'needToChoose' => $needToChoose
         ]);
 
-    }
-
-    #[Route('/game/{idGame}/sixqp/spectator/get/{idPlayer}', name: 'app_game_sixqp_spectator_board')]
-    public function getPersonalBoardOfPlayer(#[MapEntity(id: 'idGame')] GameSixQP $game,
-                                             #[MapEntity(id: 'idPlayer')] PlayerSixQP $playerToDisplay): Response
-    {
-        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
-        if ($player != null) {
-            return new Response('Not a spectator', Response::HTTP_FORBIDDEN);
-        }
-        return $this->render('Game/Six_qp/Spectator/spectatorBoard.html.twig',
-            ['playerCards' => $playerToDisplay->getCards(),
-            'game' => $game,
-            'player' => $playerToDisplay,
-        ]);
     }
 
 

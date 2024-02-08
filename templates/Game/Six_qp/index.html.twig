@@ -24,11 +24,7 @@
                 </div>
             {% block personalBoard %}
             <div class="flex bg-green-500 h-1/4 w-5/6 float-bottom-0" id="personalBoard">
-                {% if isSpectator %}
-                    {{ include('/Game/Six_qp/Spectator/spectatorBoard.html.twig') }}
-                {% else %}
-                    {{ include('/Game/Six_qp/PersonalBoard/personalBoard.html.twig') }}
-                {% endif %}
+                {{ include('/Game/Six_qp/PersonalBoard/personalBoard.html.twig') }}
             </div>
             {% endblock %}
         </div>
