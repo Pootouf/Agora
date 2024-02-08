@@ -81,10 +81,10 @@ class PlayerSixQP extends Player
         return $this->chosenCardSixQP;
     }
 
-    public function setChosenCardSixQP(ChosenCardSixQP $chosenCardSixQP): static
+    public function setChosenCardSixQP(?ChosenCardSixQP $chosenCardSixQP): static
     {
         // set the owning side of the relation if necessary
-        if ($chosenCardSixQP->getPlayer() !== $this) {
+        if ($chosenCardSixQP != null &&  $chosenCardSixQP->getPlayer() !== $this) {
             $chosenCardSixQP->setPlayer($this);
         }
 
