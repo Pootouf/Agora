@@ -269,16 +269,21 @@ class SixQPController extends AbstractController
 
     private function publishPersonalBoard(GameSixQP $game, PlayerSixQP $player): void
     {
-        $response =  $this->render('Game/Six_qp/PersonalBoard/personalBoard.html.twig',
-            ['playerCards' => $player->getCards(),
-                'game' => $game,
-                'player' => $player,
-            ]
-        );
-        $this->publishService->publish(
-            $this->generateUrl('app_game_show_sixqp',
-                ['id' => $game->getId()]).'personalBoard'.($player->getId()),
-            $response);
+        foreach (['player', 'spectator'] as $role) {
+            $isSpectator = $role == 'spectator';
+            $response = $this->render('Game/Six_qp/PersonalBoard/personalBoard.html.twig',
+                ['playerCards' => $player->getCards(),
+                    'game' => $game,
+                    'player' => $player,
+                    'isSpectator' => $isSpectator
+                ]
+            );
+            $route = $isSpectator ? $role : ($player->getId()).$role;
+            $this->publishService->publish(
+                $this->generateUrl('app_game_show_sixqp',
+                    ['id' => $game->getId()]) . 'personalBoard' . $route,
+                $response);
+        }
     }
 
     private function publishMainBoard(GameSixQP $game): void
