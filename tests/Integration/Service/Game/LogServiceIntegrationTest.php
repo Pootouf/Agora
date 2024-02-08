@@ -15,7 +15,7 @@ use App\Repository\Game\LogRepository;
 
 class LogServiceIntegrationTest extends KernelTestCase {
 
-    public function testSendLog() : void
+    public function testSendPlayerLog() : void
     {
         $logRepository = static::getContainer()->get(LogRepository::class);
         $logService = static::getContainer()->get(LogService::class);
@@ -29,10 +29,25 @@ class LogServiceIntegrationTest extends KernelTestCase {
         $entityManager->persist($game);
         $entityManager->flush();
         $message = "test";
-        $logService->sendLog($game, $player, $message);
+        $logService->sendPlayerLog($game, $player, $message);
         $expectedGame = $logRepository->findOneBy(['gameId' => $game->getId()]);
         $expectedMessage = $expectedGame->getMessage();
         $this->assertSame($message, $expectedMessage);
     }
 
+    public function testSendSystemLog() : void
+    {
+        $logRepository = static::getContainer()->get(LogRepository::class);
+        $logService = static::getContainer()->get(LogService::class);
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $game = new GameSixQP();
+        $game->setGameName(AbstractGameManagerService::$SIXQP_LABEL);
+        $entityManager->persist($game);
+        $entityManager->flush();
+        $message = "test";
+        $logService->sendSystemLog($game, $message);
+        $expectedGame = $logRepository->findOneBy(['gameId' => $game->getId()]);
+        $expectedMessage = $expectedGame->getMessage();
+        $this->assertSame($message, $expectedMessage);
+    }
 }
