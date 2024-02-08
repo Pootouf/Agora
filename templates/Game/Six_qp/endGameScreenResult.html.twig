@@ -38,19 +38,17 @@ Comes with a button to the homepage and another one to the game's homepage
 	{% set path = path('app_game_show_sixqp', {'id': game.id}) ~ 'endOfGame' %}
     const eventSourceEndOfGame = new EventSource("{{ mercure(path)|escape('js') }}");
     eventSourceEndOfGame.onmessage = event => {
-        gameFinished();
+        gameFinished(event.data);
     }
 
 
-    function gameFinished() {
+    function gameFinished(username) {
         //clearInterval(clockID);
         document.getElementById('endGameScreen').classList.remove('hidden');
-        if (document.getElementsByClassName('score-gold').length === {{ ranking|length }} ||
-            document.getElementsByClassName('score-white').length === {{ ranking|length }} ||
-            document.getElementsByClassName('score-red').length === {{ ranking|length }} ) {
+        if (username === null) {
             document.getElementById('winner').innerHTML = 'Match nul ! 🤝';
         }
-        else if (document.getElementsByClassName('score-gold').namedItem({{ player.username }})) {
+        else if (username === "{{ player.username }}") {
             document.getElementById('winner').innerHTML = 'Bravo ! 👏 Vous avez gagné la partie';
         } else {
             document.getElementById('winner').innerHTML = 'Dommage ! 😖 Vous avez perdu la partie';
@@ -59,7 +57,19 @@ Comes with a button to the homepage and another one to the game's homepage
     }
 
     {% if isGameFinished %}
-		gameFinished();
+		{% set winner = null %}
+		{# Arbitrary value impossible to reach  #}
+		{% set winnerScore = 9999 %}
+		{% for player in game.playerSixQPs %}
+			{% if player.discardSixQP.totalPoints < winnerScore %}
+				{% set winnerScore = player.discardSixQP.totalPoints %}
+				{% set winner = player.username %}
+			{% elseif player.discardSixQP.totalPoints == winnerScore %}
+				{% set winner = null %}
+			{% endif %}
+		{% endfor %}
+
+		gameFinished("{{ winner }}");
     {% endif %}
 
 </script>
