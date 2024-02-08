@@ -27,7 +27,7 @@ class GameManagerService
     public function joinGame(int $gameId, GameUser $user): int {
         $game = $this->getGameFromId($gameId);
         if ($game == null) {
-            return -2;
+            return AbstractGameManagerService::$ERROR_INVALID_GAME;
         }
         return $this->gameManagerServices[$game->getGameName()]->createPlayer($user->getUsername(), $game);
     }
@@ -36,10 +36,10 @@ class GameManagerService
     {
         $game = $this->getGameFromId($gameId);
         if ($game == null) {
-            return -2;
+            return AbstractGameManagerService::$ERROR_INVALID_GAME;
         }
         if ($game->isLaunched()) {
-            return -3;
+            return AbstractGameManagerService::$ERROR_GAME_ALREADY_LAUNCHED;
         }
         return $this->gameManagerServices[$game->getGameName()]->deletePlayer($user->getUsername(), $game);
     }
@@ -48,7 +48,7 @@ class GameManagerService
     {
         $game = $this->getGameFromId($gameId);
         if ($game == null) {
-            return -2;
+            return AbstractGameManagerService::$ERROR_INVALID_GAME;
         }
         return $this->gameManagerServices[$game->getGameName()]->deleteGame($game);
     }
@@ -57,7 +57,7 @@ class GameManagerService
     {
         $game = $this->getGameFromId($gameId);
         if ($game == null) {
-            return -2;
+            return AbstractGameManagerService::$ERROR_INVALID_GAME;
         }
         return $this->gameManagerServices[$game->getGameName()]->launchGame($game);
     }
