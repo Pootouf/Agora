@@ -29,6 +29,7 @@
             {% endblock %}
         </div>
     </div>
+    {% if not isSpectator %}
     <script>
         {% set path = path('app_game_show_sixqp', {'id': game.id}) ~ 'notifyPlayer' ~ player.id %}
         const eventSourceNotification = new EventSource("{{ mercure(path)|escape('js') }}");
@@ -40,4 +41,5 @@
             alert("Please choose a row")
         }
     </script>
+    {% endif %}
 {% endblock %}
