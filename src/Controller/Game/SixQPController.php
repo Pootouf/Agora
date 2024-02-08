@@ -218,6 +218,7 @@ class SixQPController extends AbstractController
             return $a->getCard()->getValue() - $b->getCard()->getValue();});
         foreach ($chosenCards as $chosenCard) {
             $returnValue = $this->service->placeCard($chosenCard);
+            $player = $chosenCard->getPlayer();
             if ($returnValue == -1) {
                 $this->publishNotificationForPlayer($game, $player);
                 throw new Exception("Can't place automatically the card");
