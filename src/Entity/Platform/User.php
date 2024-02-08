@@ -43,6 +43,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'boolean')]
     private $isVerified = false;
 
+
+    /**
+     * @ORM\OneToMany(targetEntity=Game::class, mappedBy="user")
+     */
+     private Collection $favoriteGames;
+
+    public function __construct()
+    {
+        $this->favoriteGames = new ArrayCollection();
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -136,5 +147,34 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
+
+    
+    public function getGames(): Collection
+    {
+        return $this->favoriteGames;
+    }
+
+    public function addGame(Game $game): self
+    {
+        if (!$this->favoriteGames->contains($game)) {
+            $this->favoriteGames[] = $game;
+            $game->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeGame(Game $game): self
+    {
+        if ($this->favoriteGames->removeElement($game)) {
+            // Définit le côté propriétaire à null (sauf si la relation est propriétaire)
+            if ($game->getUser() === $this) {
+                $game->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
 
 }

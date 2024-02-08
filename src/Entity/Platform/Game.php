@@ -28,6 +28,14 @@ class Game
     #[ORM\Column]
     private ?bool $isActive = false; // Valeur par défaut définie à false
 
+
+    /**
+     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="games")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $user;
+
+
     public function __construct()
     {
         $this->isActive = false; // Initialisation dans le constructeur
@@ -94,6 +102,18 @@ class Game
     public function setIsActive(bool $isActive): static
     {
         $this->isActive = $isActive;
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): self
+    {
+        $this->user = $user;
 
         return $this;
     }
