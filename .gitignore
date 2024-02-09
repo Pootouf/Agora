@@ -9,6 +9,7 @@ vendor
 package-lock.json
 composer.lock
 .phpunit.result.cache
+mercure_data/caddy/pki/authorities/local
 ###> symfony/webpack-encore-bundle ###
 /node_modules/
 /public/build/
