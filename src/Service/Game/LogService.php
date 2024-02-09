@@ -5,6 +5,7 @@ namespace App\Service\Game;
 use App\Entity\Game\DTO\Game;
 use App\Entity\Game\DTO\Player;
 use App\Entity\Game\Log;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 
 class LogService
@@ -27,7 +28,7 @@ class LogService
         $log->setGameId($game->getId());
         $log->setPlayerId($player->getId());
         $log->setMessage($message);
-        $log->setDate(new \DateTimeImmutable());
+        $log->setDate(new DateTime());
         $this->entityManager->persist($log);
         $this->entityManager->flush();
     }

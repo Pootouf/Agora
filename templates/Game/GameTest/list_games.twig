@@ -14,7 +14,7 @@
                 {% endfor %}
             </div>
             {% if game.launched %}
-                <a href="{{ path('app_game_show', {'id': game.id}) }}">Rejoindre la partie</a>
+                <a href="{{ path('app_game_show_sixqp', {'id': game.id}) }}">Rejoindre la partie</a>
             {% else %}
                 <a href="{{ path('app_game_sixqp_join', {'id': game.id}) }}">S'inscrire</a>
                 <a href="{{ path('app_game_sixqp_launch', {'id': game.id}) }}">Lancer</a>
