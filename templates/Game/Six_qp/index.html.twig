@@ -27,6 +27,9 @@
                 {{ include('/Game/Six_qp/PersonalBoard/personalBoard.html.twig') }}
             </div>
             {% endblock %}
+            {% block chat %}
+                    {{ include('/Game/Six_qp/chat.html.twig') }}
+            {% endblock %}
         </div>
     </div>
     {% if not isSpectator %}
