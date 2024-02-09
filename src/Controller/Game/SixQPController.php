@@ -100,6 +100,8 @@ class SixQPController extends AbstractController
         try {
             $this->service->chooseCard($player, $card);
         } catch (Exception) {
+            $this->logService->sendPlayerLog($game, $player,
+            $player->getUsername() . " failed to choose card " . $card->getValue());
             return new Response('Impossible to choose', Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
@@ -183,7 +185,8 @@ class SixQPController extends AbstractController
                 $this->logService->sendSystemLog($game,
                 "a new round started in game " . $game->getId());
             } catch (Exception $e) {
-                //TODO: log error
+                $this->logService->sendSystemLog($game,
+                "could not initialize round for game " . $game->getId());
             }
             foreach ($game->getPlayerSixQPs() as $player) {
                 $this->publishPersonalBoard($game, $player);
