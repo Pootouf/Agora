@@ -1,9 +1,6 @@
 <?php
 
-namespace Unit\Service\Game;
 
-use App\Entity\Game\GameUser;
-use App\Entity\Game\SixQP\GameSixQP;
 use App\Repository\Game\SixQP\GameSixQPRepository;
 use App\Service\Game\GameManagerService;
 use App\Service\Game\SixQP\SixQPGameManagerService;

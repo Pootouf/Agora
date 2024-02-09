@@ -1,18 +1,13 @@
 <?php
 
-namespace App\Tests\Integration\Service\Game;
 
-use App\Entity\Game\Message;
 use App\Entity\Game\SixQP\GameSixQP;
 use App\Entity\Game\SixQP\PlayerSixQP;
 use App\Repository\Game\MessageRepository;
 use App\Service\Game\AbstractGameManagerService;
 use App\Service\Game\MessageService;
-use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use function PHPUnit\Framework\assertNotNull;
-use function PHPUnit\Framework\assertNull;
 use function PHPUnit\Framework\assertSame;
 
 class MessageServiceIntegrationTest extends KernelTestCase

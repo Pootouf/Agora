@@ -1,6 +1,5 @@
 <?php
 
-namespace Integration\Service\Game;
 
 use App\Entity\Game\SixQP\CardSixQP;
 use App\Entity\Game\SixQP\DiscardSixQP;
@@ -11,7 +10,6 @@ use App\Repository\Game\SixQP\GameSixQPRepository;
 use App\Service\Game\AbstractGameManagerService;
 use App\Service\Game\SixQP\SixQPService;
 use Doctrine\ORM\EntityManagerInterface;
-use Exception;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class SixQPServiceIntegrationTest extends KernelTestCase

@@ -38,7 +38,7 @@ deploy_dev_game:
 unit:
   stage: test
   script:
-    - php bin/phpunit tests/Unit --coverage-text
+    - php bin/phpunit tests/Game/6QP/Unit --coverage-text
   allow_failure: false
   environment: test
 
@@ -51,6 +51,6 @@ integration:
   script:
     - symfony console --env=test doctrine:migrations:migrate
     - symfony console doctrine:fixtures:load --env=test -n
-    - php bin/phpunit tests/Integration --coverage-text
+    - php bin/phpunit tests/Game/6QP/Integration --coverage-text
   allow_failure: false
   environment: test

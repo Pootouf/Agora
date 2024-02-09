@@ -1,10 +1,8 @@
 <?php
 
-namespace App\Tests\Integration\Service\Game;
 
-use App\Entity\Game\SixQP\GameSixQP;
-use App\Entity\Game\SixQP\PlayerSixQP;
-use App\Entity\Game\SixQP\RowSixQP;
+namespace App\Tests\Game\SPL\Integration\Service;
+
 use App\Entity\Game\SPL\GameSPL;
 use App\Entity\Game\SPL\PersonalBoardSPL;
 use App\Entity\Game\SPL\PlayerSPL;
@@ -16,7 +14,7 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class SPLServiceIntegrationTest extends KernelTestCase
 {
-    public function testTakeTokenWhenAlreadyFull() : void
+    public function testTakeTokenWhenAlreadyFull(): void
     {
         $splendorService = static::getContainer()->get(SPLService::class);
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);
@@ -40,7 +38,7 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $splendorService->takeToken($player, $token);
     }
 
-    public function testTakeThreeIdenticalTokens() : void
+    public function testTakeThreeIdenticalTokens(): void
     {
         $splendorService = static::getContainer()->get(SPLService::class);
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);
@@ -63,7 +61,7 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $splendorService->takeToken($player, $token);
     }
 
-    public function testTakeThreeTokensButWithTwiceSameColor() : void
+    public function testTakeThreeTokensButWithTwiceSameColor(): void
     {
         $splendorService = static::getContainer()->get(SPLService::class);
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);
@@ -91,7 +89,7 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $splendorService->takeToken($player, $token);
     }
 
-    public function testTakeFourTokens() : void
+    public function testTakeFourTokens(): void
     {
         $splendorService = static::getContainer()->get(SPLService::class);
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);

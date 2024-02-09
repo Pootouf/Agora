@@ -1,17 +1,14 @@
 <?php
 
-namespace Integration\Service\Game;
 
-
-use App\Repository\Game\SixQP\GameSixQPRepository;
-use App\Service\Game\AbstractGameManagerService;
-use App\Service\Game\AbstractGameService;
-use App\Service\Game\LogService;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\Game\SixQP\GameSixQP;
 use App\Entity\Game\SixQP\PlayerSixQP;
 use App\Repository\Game\LogRepository;
+use App\Service\Game\AbstractGameManagerService;
+use App\Service\Game\AbstractGameService;
+use App\Service\Game\LogService;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class LogServiceIntegrationTest extends KernelTestCase {
 
