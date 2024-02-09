@@ -1,6 +1,5 @@
 <?php
 
-namespace Integration\Service\Game;
 
 use App\Entity\Game\GameUser;
 use App\Entity\Game\SixQP\GameSixQP;
@@ -9,11 +8,61 @@ use App\Entity\Game\SixQP\RowSixQP;
 use App\Service\Game\AbstractGameManagerService;
 use App\Service\Game\GameManagerService;
 use Doctrine\ORM\EntityManagerInterface;
-use Exception;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class GameManagerServiceIntegrationTest extends KernelTestCase
 {
+
+    public function testJoinGameWhenGameIsNull() : void
+    {
+        $gameService = static::getContainer()->get(GameManagerService::class);
+        $gameId = -1;
+        $result = $gameService->joinGame($gameId, new GameUser());
+        $this->assertEquals(AbstractGameManagerService::$ERROR_INVALID_GAME, $result);
+    }
+
+    public function testJoinGameWhenGameIsLaunched() : void
+    {
+        $gameService = static::getContainer()->get(GameManagerService::class);
+        $game = $this->createSixQPGame(3, 4);
+        $user = new GameUser();
+        $user->setUsername("toto");
+        $game->setLaunched(true);
+        $result = $gameService->joinGame($game->getId(), $user);
+        $this->assertEquals(AbstractGameManagerService::$ERROR_GAME_ALREADY_LAUNCHED, $result);
+    }
+
+    public function testJoinGameWhenGameIsFull() : void
+    {
+        $gameService = static::getContainer()->get(GameManagerService::class);
+        $game = $this->createSixQPGame(10, 4);
+        $user = new GameUser();
+        $user->setUsername("toto");
+        $result = $gameService->joinGame($game->getId(), $user);
+        $this->assertEquals(AbstractGameManagerService::$ERROR_INVALID_NUMBER_OF_PLAYER, $result);
+    }
+
+    public function testJoinGameWhenPlayerAlreadyInGame() : void
+    {
+        $gameService = static::getContainer()->get(GameManagerService::class);
+        $game = $this->createSixQPGame(3, 4);
+        $user = new GameUser();
+        $user->setUsername("toto");
+        $gameService->joinGame($game->getId(), $user);
+        $result = $gameService->joinGame($game->getId(), $user);
+        $this->assertEquals(AbstractGameManagerService::$ERROR_ALREADY_IN_PARTY, $result);
+    }
+
+    public function testJoinGameSuccessfully() : void
+    {
+        $gameService = static::getContainer()->get(GameManagerService::class);
+        $game = $this->createSixQPGame(3, 4);
+        $user = new GameUser();
+        $user->setUsername("toto");
+        $result = $gameService->joinGame($game->getId(), $user);
+        $this->assertEquals(AbstractGameManagerService::$SUCCESS, $result);
+    }
+
     public function testDeleteGameWhenGameIsInvalid() : void
     {
         $gameService = static::getContainer()->get(GameManagerService::class);

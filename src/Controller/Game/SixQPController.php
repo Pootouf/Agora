@@ -48,20 +48,20 @@ class SixQPController extends AbstractController
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         $chosenCards = $this->chosenCardSixQPRepository->findBy(['game' => $game->getId()]);
         $isSpectator = false;
+        $needToChoose = false;
         if ($player == null) {
             $player = $game->getPlayerSixQPs()->get(0);
             $isSpectator = true;
-        }
-
-        $needToChoose = false;
-        if ($this->service->doesAllPlayersHaveChosen($game)) {
-            $cards = $this->service->getNotPlacedCard($game);
-            usort($cards, function (ChosenCardSixQP $c1, ChosenCardSixQP $c2){
-                return $c1->getCard()->getValue() - $c2->getCard()->getValue();
-            });
-            $card = $cards[0];
-            if ($this->service->getValidRowForCard($game, $card) == null) {
-                $needToChoose = $card->getPlayer()->getId() == $player->getId();
+        } else {
+            if ($this->service->doesAllPlayersHaveChosen($game)) {
+                $cards = $this->service->getNotPlacedCard($game);
+                usort($cards, function (ChosenCardSixQP $c1, ChosenCardSixQP $c2) {
+                    return $c1->getCard()->getValue() - $c2->getCard()->getValue();
+                });
+                $card = $cards[0];
+                if ($this->service->getValidRowForCard($game, $card) == null) {
+                    $needToChoose = $card->getPlayer()->getId() == $player->getId();
+                }
             }
         }
 
@@ -79,21 +79,6 @@ class SixQPController extends AbstractController
             'needToChoose' => $needToChoose,
         ]);
 
-    }
-
-    #[Route('/game/{idGame}/sixqp/spectator/get/{idPlayer}', name: 'app_game_sixqp_spectator_board')]
-    public function getPersonalBoardOfPlayer(#[MapEntity(id: 'idGame')] GameSixQP $game,
-                                             #[MapEntity(id: 'idPlayer')] PlayerSixQP $playerToDisplay): Response
-    {
-        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
-        if ($player != null) {
-            return new Response('Not a spectator', Response::HTTP_FORBIDDEN);
-        }
-        return $this->render('Game/Six_qp/Spectator/spectatorBoard.html.twig',
-            ['playerCards' => $playerToDisplay->getCards(),
-            'game' => $game,
-            'player' => $playerToDisplay,
-        ]);
     }
 
 
@@ -115,12 +100,14 @@ class SixQPController extends AbstractController
         try {
             $this->service->chooseCard($player, $card);
         } catch (Exception) {
+            $this->logService->sendPlayerLog($game, $player,
+            $player->getUsername() . " failed to choose card " . $card->getValue());
             return new Response('Impossible to choose', Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
-        $message = $player->getUsername() . " a choisi la carte " . $card->getValue()
-            . "durant la partie " . $game->getId();
-        $this->logService->sendLog($game, $player, $message);
+        $message = $player->getUsername() . " chose the card " . $card->getValue()
+            . " during game " . $game->getId();
+        $this->logService->sendPlayerLog($game, $player, $message);
 
         $this->publishChosenCards($game);
         $this->publishMainBoard($game);
@@ -151,9 +138,9 @@ class SixQPController extends AbstractController
         if ($this->service->getValidRowForCard($game, $chosenCard) != null) {
             return new Response("Can't place the card here", Response::HTTP_METHOD_NOT_ALLOWED);
         }
-        $message = $player->getUsername() . " a placé la carte " . $chosenCard->getCard()->getValue()
-            . "durant la partie " . $game->getId() . "sur la ligne " . $row->getPosition();
-        $this->logService->sendLog($game, $player, $message);
+        $message = $player->getUsername() . " placed the card " . $chosenCard->getCard()->getValue()
+            . " during game " . $game->getId() . " on row " . $row->getPosition();
+        $this->logService->sendPlayerLog($game, $player, $message);
 
         $this->service->addRowToDiscardOfPlayer($player, $row);
         $row = $game->getRowSixQPs()->get($game->getRowSixQPs()->indexOf($row));
@@ -195,8 +182,11 @@ class SixQPController extends AbstractController
         } else if (!$this->service->hasCardLeft($game->getPlayerSixQPs())){
             try {
                 $this->service->initializeNewRound($game);
+                $this->logService->sendSystemLog($game,
+                "a new round started in game " . $game->getId());
             } catch (Exception $e) {
-                //TODO: log error
+                $this->logService->sendSystemLog($game,
+                "could not initialize round for game " . $game->getId());
             }
             foreach ($game->getPlayerSixQPs() as $player) {
                 $this->publishPersonalBoard($game, $player);
@@ -229,9 +219,9 @@ class SixQPController extends AbstractController
                 if ($returnValue != 0) {
                     $this->publishAnimRowClear($game, $row->getPosition());
                 }
-                $message = "Le système a placé la carte " . $chosenCard->getCard()->getValue()
-                    . "durant la partie " . $game->getId();
-                $this->logService->sendLog($game, $player, $message);
+                $message = "System placed the card " . $chosenCard->getCard()->getValue()
+                    . " during game " . $game->getId() . " on row " . $returnValue;
+                $this->logService->sendSystemLog($game, $player, $message);
             }
         }
         $chosenCards = $this->chosenCardSixQPRepository->findBy(['game' => $game->getId()]);
@@ -242,6 +232,9 @@ class SixQPController extends AbstractController
     private function publishEndOfGame(GameSixQP $game): void
     {
         $winner = $this->service->getWinner($game);
+        $this->logService->sendPlayerLog($game, $winner,
+            $winner->getUsername() . " won game " . $game->getId());
+        $this->logService->sendSystemLog($game, "game " . $game->getId() . " ended");
         $this->publishService->publish(
             $this->generateUrl('app_game_show_sixqp', ['id' => $game->getId()]).'endOfGame',
             new Response($winner?->getUsername()));
@@ -287,20 +280,25 @@ class SixQPController extends AbstractController
 
     private function publishPersonalBoard(GameSixQP $game, PlayerSixQP $player): void
     {
-        $cards = $player->getCards()->toArray();
-        usort($cards, function (CardSixQP $c1, CardSixQP $c2) {
-           return $c1->getValue() > $c2->getValue();
-        });
-        $response =  $this->render('Game/Six_qp/PersonalBoard/personalBoard.html.twig',
-            ['playerCards' => $cards,
-                'game' => $game,
-                'player' => $player,
-            ]
-        );
-        $this->publishService->publish(
-            $this->generateUrl('app_game_show_sixqp',
-                ['id' => $game->getId()]).'personalBoard'.($player->getId()),
-            $response);
+        foreach (['player', 'spectator'] as $role) {
+            $cards = $player->getCards()->toArray();
+            usort($cards, function (CardSixQP $c1, CardSixQP $c2) {
+                return $c1->getValue() > $c2->getValue();
+            });
+            $isSpectator = $role == 'spectator';
+            $response = $this->render('Game/Six_qp/PersonalBoard/personalBoard.html.twig',
+                ['playerCards' => $cards,
+                    'game' => $game,
+                    'player' => $player,
+                    'isSpectator' => $isSpectator
+                ]
+            );
+            $route = $isSpectator ? $role : ($player->getId()).$role;
+            $this->publishService->publish(
+                $this->generateUrl('app_game_show_sixqp',
+                    ['id' => $game->getId()]) . 'personalBoard' . $route,
+                $response);
+        }
     }
 
     private function publishMainBoard(GameSixQP $game): void

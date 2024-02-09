@@ -14,6 +14,7 @@ use App\Repository\Game\SixQP\CardSixQPRepository;
 use App\Repository\Game\SixQP\ChosenCardSixQPRepository;
 use App\Repository\Game\SixQP\PlayerSixQPRepository;
 use App\Service\Game\AbstractGameManagerService;
+use App\Service\Game\LogService;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
@@ -257,11 +258,18 @@ class SixQPService
      */
     public function addRowToDiscardOfPlayer(PlayerSixQP $player, RowSixQP $row): void
     {
+        $logService = new LogService($this->entityManager);
+        $total = 0;
         foreach ($row->getCards() as $card) {
             $player->getDiscardSixQP()->addCard($card);
             $player->getDiscardSixQP()->addPoints($card->getPoints());
+            $total += $card->getPoints();
             $row->removeCard($card);
         }
+        $game = $player->getGame();
+        $logService->sendPlayerLog($game, $player, $player->getUsername()
+            . " picked up row " . $game->getRowSixQPs()->indexOf($row)
+             . " and got " . $total . " points");
         $this->entityManager->persist($row);
         $this->entityManager->persist($player->getDiscardSixQP());
         $this->entityManager->flush();
