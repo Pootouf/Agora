@@ -29,9 +29,9 @@ deploy_dev_game:
   stage: deploy
   environment:
     name: staging
-    url: https://srv-dpi-agora-dev-jeux.univ-rouen.fr/
+    url: http://srv-dpi-agora-dev-jeux.univ-rouen.fr/
   script:
-    - ssh $SERVER_GAME_USER@$SERVER_GAME_IP "cd var/www/agora && git checkout develop-game && git pull origin develop-game && docker-compose up --build && exit"
+    - ssh $SERVER_GAME_USER@$SERVER_GAME_IP "cd /var/www/agora && git checkout develop-game && git pull origin develop-game && docker-compose up --build && exit"
   only:
     - develop-game
 
