@@ -218,7 +218,7 @@ class SixQPController extends AbstractController
                 $this->publishAnimRowWithCard($game, $chosenCard->getCard(), $returnValue);
                 $message = "System placed the card " . $chosenCard->getCard()->getValue()
                     . " during game " . $game->getId() . " on row " . $returnValue;
-                $this->logService->sendSystemLog($game, $player, $message);
+                $this->logService->sendSystemLog($game, $message);
             }
         }
         $chosenCards = $this->chosenCardSixQPRepository->findBy(['game' => $game->getId()]);
