@@ -3,6 +3,8 @@
 namespace App\Entity\Platform;
 
 use App\Repository\Platform\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -42,6 +44,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(type: 'boolean')]
     private $isVerified = false;
+
+    #[ORM\ManyToMany(targetEntity: Board::class, mappedBy: 'listUsers')]
+    private Collection $boards;
+
+    public function __construct()
+    {
+        $this->boards = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -133,6 +143,38 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setIsVerified(bool $isVerified): static
     {
         $this->isVerified = $isVerified;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Board>
+     */
+    public function getBoards(): Collection
+    {
+        return $this->boards;
+    }
+
+    //Add Board to the User's board list
+    //Pre : $board->isAvaible()
+    //      $this not in $board
+    //Post : $board in $this->boards
+    //       $boards->count() = OLD:$boards->count() + 1
+    public function addBoard(Board $board): static
+    {
+        if (!$this->boards->contains($board) && $board->isAvailble()) {
+            $this->boards->add($board);
+            $board->addListUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeBoard(Board $board): static
+    {
+        if ($this->boards->removeElement($board)) {
+            $board->removeListUser($this);
+        }
 
         return $this;
     }

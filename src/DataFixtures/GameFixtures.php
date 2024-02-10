@@ -15,11 +15,11 @@ class GameFixtures extends Fixture
             $game = new Game();
             $game->setName("gameN°". $i);
             $game->setDescrRule("Les règles du jeu blablabla");
-            $game->setDescrRule("No image now");
             $game->setLabel("G".$i);
             $game->setMinPlayers(rand(2,4));
             $game->setMaxPlayers(rand(5,10));
             $game->setIsActive(true);
+            $game->setImgURL("NoImgNow");
             $manager->persist($game);
         }
         $manager->flush();

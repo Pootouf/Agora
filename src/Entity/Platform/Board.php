@@ -3,6 +3,8 @@
 namespace App\Entity\Platform;
 
 use App\Repository\Platform\BoardRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -36,12 +38,17 @@ class Board
     #[ORM\Column]
     private ?int $nbInvitations = null;
 
+    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'boards')]
+    private Collection $listUsers;
+
+
     public function __construct(int $invitationDays)
     {
         $this->status = "WAITING";
         $this->invitationHash = sha1(random_bytes(10));
-        $this->creationDate= new \DateTime();
-        $this->invitationTimer = $this->creationDate->modify('+'.$invitationDays.' days');
+        $this->creationDate = new \DateTime();
+        $this->invitationTimer = $this->creationDate->modify('+' . $invitationDays . ' days');
+        $this->listUsers = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -65,11 +72,11 @@ class Board
     {
         return $this->status;
     }
-    
+
     public function setStatus(?string $status): static
     {
         $this->status = $status;
-    
+
         return $this;
     }
 
@@ -133,7 +140,42 @@ class Board
         return $this;
     }
 
-    public function addUser(){
-
+    /**
+     * @return Collection<int, User>
+     */
+    public function getListUsers(): Collection
+    {
+        return $this->listUsers;
     }
+
+    //Add user to the Board
+    //Pre : $user not in $this->listUsers
+    //      $this->listUsers->count < $this->nbMaxUser
+    //Post : $user in $this->listUsers
+    //       $this->listUser->count += 1
+    public function addListUser(User $user): static
+    {
+        if (!$this->listUsers->contains($user) && $this->isAvailble() ) {
+            $this->listUsers->add($user);
+        }
+
+        return $this;
+    }
+
+    //Remove user of the list of player
+    public function removeListUser(User $user): static
+    {
+        if ($this->listUsers->contains($user)) {
+            $this->listUsers->remove($user);
+        }
+
+        return $this;
+    }
+
+    //Return true if the board is availble for a player to join
+    public function isAvailble(){
+        return $this->status!="IN_GAME" && $this->listUsers->count() + $this->nbInvitations < $this->nbUserMax;
+    }
+
 }
+
