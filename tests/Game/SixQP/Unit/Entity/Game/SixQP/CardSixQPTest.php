@@ -1,6 +1,6 @@
 <?php
 
-namespace Unit\Entity\Game\SixQP;
+namespace App\Tests\Game\SixQP\Unit\Entity\Game\SixQP;
 
 use App\Entity\Game\SixQP\CardSixQP;
 use PHPUnit\Framework\TestCase;
