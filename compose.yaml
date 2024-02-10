@@ -52,6 +52,7 @@ services:
     container_name: mercure
     image: dunglas/mercure
     environment:
+      SERVER_NAME: http://mercure, ${SERVER_NAME:-localhost}
       MERCURE_PUBLISHER_JWT_KEY: '!ChangeThisMercureHubJWTSecretKey!'
       MERCURE_SUBSCRIBER_JWT_KEY: '!ChangeThisMercureHubJWTSecretKey!'
       # Set the URL of your Symfony project (without trailing slash!) as value of the cors_origins directive
