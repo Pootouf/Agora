@@ -10,7 +10,7 @@ class BoardFixtures extends Fixture
 {
 
     public function load(ObjectManager $manager){
-        $board = new Board();
+        $board = new Board(rand(1,5));
         $board->setNbUserMax(rand(5,10));
         $board->setInactivityTimer(new \DateTimeImmutable());
     }
