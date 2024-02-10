@@ -41,9 +41,11 @@ This section displays the main board of the game
     </script>
 {% block javascripts %}
     <script>
-        function translateRow(rowId) {
-            console.log('Translating row:', rowId);
-            document.getElementById(rowId).animate(
+
+        function translateRow(rowid) {
+            let row = document.getElementById(rowid);
+            console.log('Translating row:', row );
+            row.animate(
                 [
                     {transform: "translateX(0px)", opacity: 1},
                     {transform: "translateX(700px)", opacity: 0},
@@ -52,7 +54,11 @@ This section displays the main board of the game
                     duration: 1500,
                     iterations: 1,
                 },
-            );
+            ).addEventListener("finish", ev => {
+                console.log('l anim est finito')
+                fetch("{{path('app_game_sixqp_retrievemainboard', {idGame: game.id})}}");
+                console.log('fetch fait')
+            });
         }
     </script>
 {% endblock %}

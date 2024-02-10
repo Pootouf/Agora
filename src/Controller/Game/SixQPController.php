@@ -159,6 +159,17 @@ class SixQPController extends AbstractController
         return new Response('Card placed', Response::HTTP_OK);
     }
 
+    #[Route('/game/{idGame}/sixqp/retrieveMainBoard', name: 'app_game_sixqp_retrievemainboard')]
+    public function retrieveMainBoard(GameSixQP $game): Response
+    {
+        return $this->render('Game/Six_qp/mainBoard.html.twig',
+            ['rows' => $game->getRowSixQPs(),
+                'game' => $game,
+                'needToChoose' => false,
+            ]
+        );
+    }
+
     /**
      * managePlacementOfCards: place automatically the card and manage the endOfRound
      * @param GameSixQP $game the game to manage
@@ -214,10 +225,11 @@ class SixQPController extends AbstractController
                 throw new Exception("Can't place automatically the card");
             } else {
                 $returnValue = $this->service->placeCardIntoRow($chosenCard, $row);
-                $this->publishMainBoard($game);
                 $this->publishNewScoreForPlayer($game, $player);
                 if ($returnValue != 0) {
-                    $this->publishAnimRowClear($game, $row->getPosition());
+                    $this->publishAnimRowClear($game, $row->getId());
+                } else {
+                    $this->publishMainBoard($game);
                 }
                 $message = "System placed the card " . $chosenCard->getCard()->getValue()
                     . " during game " . $game->getId() . " on row " . $returnValue;
@@ -247,11 +259,11 @@ class SixQPController extends AbstractController
             new Response());
     }
 
-    private function publishAnimRowClear(GameSixQP $game, int $rowPosition): void
+    private function publishAnimRowClear(GameSixQP $game, int $rowId): void
     {
         $this->publishService->publish(
             $this->generateUrl('app_game_show_sixqp', ['id' => $game->getId()]).'animRow',
-            new Response($rowPosition));
+            new Response($rowId));
     }
 
     private function publishNewScoreForPlayer(GameSixQP $game, PlayerSixQP $player): void
