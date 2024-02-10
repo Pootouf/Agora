@@ -2,7 +2,13 @@
 	<a href="/" class="-m-1.5 p-1.5 text-xl font-bold">
 		AGORA
 	</a>
-	<a href="#" class="text-sm font-semibold leading-6 text-gray-900">Log in
-		<span aria-hidden="true">&rarr;</span>
-	</a>
+	{% if app.user %}
+		<a href="/logout" class="text-sm font-semibold leading-6 text-gray-900">Log out
+		</a>
+	{% else %}
+		<a href="/login" class="text-sm font-semibold leading-6 text-gray-900">Log in
+			<span aria-hidden="true">&rarr;</span>
+		</a>
+	{% endif %}
+
 </nav>

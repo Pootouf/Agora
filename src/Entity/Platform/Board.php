@@ -33,6 +33,9 @@ class Board
     #[ORM\Column(length: 255)]
     private ?string $invitationHash = null;
 
+    #[ORM\Column]
+    private ?int $nbInvitations = null;
+
     public function __construct()
     {
         $this->status = "WAITING";
@@ -111,6 +114,18 @@ class Board
     public function setInvitationHash(string $invitationHash): static
     {
         $this->invitationHash = $invitationHash;
+
+        return $this;
+    }
+
+    public function getNbInvitations(): ?int
+    {
+        return $this->nbInvitations;
+    }
+
+    public function setNbInvitations(int $nbInvitations): static
+    {
+        $this->nbInvitations = $nbInvitations;
 
         return $this;
     }
