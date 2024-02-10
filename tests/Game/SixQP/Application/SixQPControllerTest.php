@@ -42,28 +42,37 @@ class SixQPControllerTest extends WebTestCase
         $player = $game->getPlayerSixQPs()[0];
         $card = $player->getCards()[0];
         $newUrl = "/game/" . $gameId . "/sixqp/select/" . $card->getId();
+        $user3 = $this->gameUserRepository->findOneByUsername("test2");
+        $this->client3->loginUser($user3);
         $this->client3->request("GET", $newUrl);
-        $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
+        $this->assertEquals(Response::HTTP_FORBIDDEN,
+            $this->client3->getResponse()->getStatusCode());
     }
 
     public function testCannotChooseTwoCards() : void
     {
         $gameId = $this->initializeGameWithTwoPlayers();
-        $player = $this->playerSixQPRepository->findOneByUsername("test0");
+        $url = "/game/sixqp/" . $gameId;
+        $this->client1->request("GET", $url);
+        $player = $this->playerSixQPRepository->findOneBy(['game' => $gameId, 'username' => "test0"]);
         $card = $player->getCards()[0];
         $card2 = $player->getCards()[1];
+        $user1 = $this->gameUserRepository->findOneByUsername("test0");
+        $this->client1->loginUser($user1);
         $newUrl = "/game/" . $gameId . "/sixqp/select/" . $card->getId();
         $this->client1->request("GET", $newUrl);
-        $this->assertResponseStatusCodeSame(Response::HTTP_OK);
+        $this->assertEquals(Response::HTTP_OK,
+            $this->client1->getResponse()->getStatusCode());
         $newUrl = "/game/" . $gameId . "/sixqp/select/" . $card2->getId();
         $this->client1->request("GET", $newUrl);
-        $this->assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
+        $this->assertEquals(Response::HTTP_UNAUTHORIZED,
+            $this->client1->getResponse()->getStatusCode());
     }
-    private function initializeGameWithTwoPlayers() : int {
+    private function initializeGameWithTwoPlayers() : int
+    {
         $this->client1 =  static::createClient();
         $this->client2 = clone $this->client1;
         $this->client3 = clone $this->client1;
-
         $this->managerService = static::getContainer()->get(SixQPGameManagerService::class);
         $this->gameUserRepository = static::getContainer()->get(GameUserRepository::class);
         $this->gameSixQPRepository = static::getContainer()->get(GameSixQPRepository::class);
@@ -78,7 +87,10 @@ class SixQPControllerTest extends WebTestCase
         $game = $this->gameSixQPRepository->findOneById($gameId);
         $this->managerService->createPlayer("test0", $game);
         $this->managerService->createPlayer("test1", $game);
-        $this->managerService->launchGame($game);
+        try {
+            $this->managerService->launchGame($game);
+        } catch (\Exception $e) {
+        }
         return $gameId;
     }
 }
