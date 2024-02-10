@@ -11,7 +11,9 @@ class BoardFixtures extends Fixture
 
     public function load(ObjectManager $manager){
         $board = new Board(rand(1,5));
-        $board->setNbUserMax(rand(5,10));
+        $i = rand(5,10);
+        $board->setNbUserMax($i);
         $board->setInactivityTimer(new \DateTimeImmutable());
+        $board->setNbInvitations($i - 3);
     }
 }

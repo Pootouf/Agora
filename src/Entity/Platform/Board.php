@@ -36,7 +36,7 @@ class Board
     #[ORM\Column]
     private ?int $nbInvitations = null;
 
-    public function __construct(int $invitationDays )
+    public function __construct(int $invitationDays)
     {
         $this->status = "WAITING";
         $this->invitationHash = sha1(random_bytes(10));
@@ -131,5 +131,9 @@ class Board
         $this->nbInvitations = $nbInvitations;
 
         return $this;
+    }
+
+    public function addUser(){
+
     }
 }
