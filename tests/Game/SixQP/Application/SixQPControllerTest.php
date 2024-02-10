@@ -68,6 +68,47 @@ class SixQPControllerTest extends WebTestCase
         $this->assertEquals(Response::HTTP_UNAUTHORIZED,
             $this->client1->getResponse()->getStatusCode());
     }
+
+    public function testCannotChooseCardIfNotOwned() : void
+    {
+        $gameId = $this->initializeGameWithTwoPlayers();
+        $url = "/game/sixqp/" . $gameId;
+        $this->client1->request("GET", $url);
+        $player2 = $this->playerSixQPRepository->findOneBy(['game' => $gameId, 'username' => "test1"]);
+        $card = $player2->getCards()[0];
+        $user1 = $this->gameUserRepository->findOneByUsername("test0");
+        $this->client1->loginUser($user1);
+        $newUrl = "/game/" . $gameId . "/sixqp/select/" . $card->getId();
+        $this->client1->request("GET", $newUrl);
+        $this->assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR,
+            $this->client1->getResponse()->getStatusCode());
+    }
+
+    public function testPlaceWithInvalidPlayer() : void
+    {
+        $gameId = $this->initializeGameWithTwoPlayers();
+        $game = $this->gameSixQPRepository->findOneById($gameId);
+        $row = $game->getRowSixQPs()[0];
+        $newUrl = "/game/" . $gameId . "/sixqp/place/row/" . $row->getId();
+        $user3 = $this->gameUserRepository->findOneByUsername("test2");
+        $this->client3->loginUser($user3);
+        $this->client3->request("GET", $newUrl);
+        $this->assertEquals(Response::HTTP_FORBIDDEN,
+            $this->client3->getResponse()->getStatusCode());
+    }
+
+    public function testPlaceWithInvalidCard() : void
+    {
+        $gameId = $this->initializeGameWithTwoPlayers();
+        $game = $this->gameSixQPRepository->findOneById($gameId);
+        $row = $game->getRowSixQPs()[0];
+        $user1 = $this->gameUserRepository->findOneByUsername("test0");
+        $this->client1->loginUser($user1);
+        $newUrl = "/game/" . $gameId . "/sixqp/place/row/" . $row->getId();
+        $this->client1->request("GET", $newUrl);
+        $this->assertEquals(Response::HTTP_UNAUTHORIZED,
+            $this->client1->getResponse()->getStatusCode());
+    }
     private function initializeGameWithTwoPlayers() : int
     {
         $this->client1 =  static::createClient();
