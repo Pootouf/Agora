@@ -11,6 +11,6 @@ class BoardController extends AbstractController
     #[Route('/newBoard')]
     public function index(): Response
     {
-        return $this->render('platform/board/newBoard.html.twig');
+        return $this->render('platform/game/boardForm.html.twig');
     }
 }
