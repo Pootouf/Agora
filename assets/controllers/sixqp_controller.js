@@ -21,17 +21,8 @@ export default class extends Controller {
         const response = await fetch(url);
     }
 
-    async getBoardToDisplay(button) {
-        let url = button.params.url;
-        const response = await fetch(url);
-        if (response.ok) {
-            document.getElementById('personalBoard').innerHTML = await response.text();
-        }
-    }
-
     toggleChat(isOpening) {
         const open = isOpening.params.open;
-        console.log("jaaj " + open + " " + open.className);
         const openedChat = document.getElementById("openedChat");
         const closedChat = document.getElementById("closedChat");
         if (open) {
