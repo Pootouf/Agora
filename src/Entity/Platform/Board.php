@@ -36,9 +36,12 @@ class Board
     #[ORM\Column]
     private ?int $nbInvitations = null;
 
-    public function __construct()
+    public function __construct(int $invitationDays )
     {
         $this->status = "WAITING";
+        $this->invitationHash = sha1(random_bytes(10));
+        $this->creationDate= new \DateTime();
+        $this->invitationTimer = $this->creationDate->modify('+'.$invitationDays.' days');
     }
 
     public function getId(): ?int
