@@ -2,7 +2,7 @@
 
 namespace App\Entity\Platform;
 
-use App\Repository\Platorm\GameRepository;
+use App\Repository\Platform\GameRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: GameRepository::class)]
@@ -26,15 +26,19 @@ class Game
     private ?string $label = null;
 
     #[ORM\Column]
-    private ?bool $isActive = false; // Valeur par défaut définie à false
+    private ?bool $isActive = false;
 
+    #[ORM\Column]
+    private ?int $minPlayers = null;
 
-    /**
+   /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="games")
      * @ORM\JoinColumn(nullable=false)
      */
     private $user;
 
+    #[ORM\Column]
+    private ?int $maxPlayers = null; // Valeur par défaut définie à false
 
     public function __construct()
     {
@@ -105,15 +109,37 @@ class Game
 
         return $this;
     }
-
     public function getUser(): ?User
     {
         return $this->user;
     }
-
     public function setUser(?User $user): self
     {
         $this->user = $user;
+
+        return $this;
+    }
+
+    public function getMinPlayers(): ?int
+    {
+        return $this->minPlayers;
+    }
+
+    public function setMinPlayers(int $minPlayers): static
+    {
+        $this->minPlayers = $minPlayers;
+
+        return $this;
+    }
+
+    public function getMaxPlayers(): ?int
+    {
+        return $this->maxPlayers;
+    }
+
+    public function setMaxPlayers(int $maxPlayers): static
+    {
+        $this->maxPlayers = $maxPlayers;
 
         return $this;
     }
