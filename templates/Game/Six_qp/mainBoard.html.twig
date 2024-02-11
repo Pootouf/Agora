@@ -55,7 +55,8 @@ This section displays the main board of the game
                 },
             ).addEventListener("finish", async ev => {
                 const response = await fetch("{{path('app_game_sixqp_retrievemainboard', {id: game.id})}}");
-                row.innerHTML = response.data
+                let mainBoard = document.getElementById('mainBoard');
+                mainBoard.innerHTML = await response.text();
             });
         }
     </script>
