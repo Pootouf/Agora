@@ -1,18 +1,15 @@
 <?php
 
-namespace App\Tests\Unit\Service\Game;
 
-use App\Entity\Game\DTO\Token;
 use App\Entity\Game\SPL\GameSPL;
 use App\Entity\Game\SPL\PersonalBoardSPL;
 use App\Entity\Game\SPL\PlayerSPL;
 use App\Entity\Game\SPL\TokenSPL;
 use App\Service\Game\SPL\SPLService;
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 
-class SPLServiceTest extends TestCase
+class PLServiceTest extends TestCase
 {
     private SPLService $SPLService;
 

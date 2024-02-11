@@ -1,6 +1,5 @@
 <?php
 
-namespace Unit\Service\Game;
 
 use App\Entity\Game\SixQP\CardSixQP;
 use App\Entity\Game\SixQP\DiscardSixQP;
@@ -12,7 +11,6 @@ use App\Repository\Game\SixQP\ChosenCardSixQPRepository;
 use App\Repository\Game\SixQP\PlayerSixQPRepository;
 use App\Service\Game\SixQP\SixQPService;
 use Doctrine\ORM\EntityManagerInterface;
-use Exception;
 use PHPUnit\Framework\TestCase;
 
 class SixQPServiceTest extends TestCase

@@ -9,12 +9,13 @@ This section displays the game's name, and the current game's timer and leaderbo
 #}
 
 {% block ranking %}
-	<div>
-		<img src="{{ asset('resourcesGames/6QP/logo.png') }}" alt="logo" class="rounded-full mr-2">
+	<div class="my-2 mx-2">
+		<img src="{{ asset('resourcesGames/6QP/logo.png') }}" alt="logo">
+		{#
 		<p id="elapsedTime" class="mr-1 text-center md:text-base portrait:text-xl md:text-xl">
 			00:00:00
 		</p>
-		{#
+
 	    <p class="mr-1 text-center ">{{ playersNumber }} joueurs</p>
 	    <p class="mr-1 text-center ">Créée le {{ createdAt|date('d/m/Y H:i') }}</p>
 	    <p id="elapsedTime" class="mr-1 text-center ">Temps écoulé : 00:00:00</p>
@@ -27,15 +28,13 @@ This section displays the game's name, and the current game's timer and leaderbo
 		<div id="leaderboard" class="text-sm font-medium space-y-1 text-white">
 			{% for user in ranking %}
 				<div id="{{ user.username }}" class="score-white">
-					<{% if isSpectator %}button{% else%}div{% endif%}
+					<div
 							id="l_{{ user.username }}_points"
 							class="portrait:hidden flex w-full items-center overflow-hidden"
 					     	data-score="{{ user.discardSIxQP.totalPoints }}"
-							{{ stimulus_action('sixqp', 'getBoardToDisplay', 'click',
-						{url: path('app_game_sixqp_spectator_board', {idGame: game.id, idPlayer: user.id}) }) }}
 					>
 						<img src="{{ asset('resourcesGames/6QP/teteDeBoeuf.svg') }}" alt="logo"
-						     class="lg:size-8 md:size-4 mr-1">
+						     class="lg:size-8 size-4 mr-1">
 						<p class="mr-1 lg:text-xl font-bold">
 							{{ user.discardSIxQP.totalPoints }}
 						</p>
@@ -47,7 +46,7 @@ This section displays the game's name, and the current game's timer and leaderbo
 						{% else %}
 							<p class="flex-grow text-clip text-right sm:text-xs">{{ user.username }}</p>
 						{% endif %}
-					</{% if isSpectator %}button{% else%}div{% endif%}>
+					</div>
 
 					<div class="landscape:hidden w-full items-center overflow-hidden">
 						{% if player == user.username %}
@@ -72,26 +71,21 @@ This section displays the game's name, and the current game's timer and leaderbo
 		</div>
 	</div>
 
+
 	<script>
 		{% set path = path('app_game_show_sixqp', {'id': game.id}) ~ 'ranking' %}
         const eventSourceRanking = new EventSource("{{ mercure(path)|escape('js') }}");
         eventSourceRanking.onmessage = event => {
-            let ranking = document.getElementById('ranking');
-            ranking.innerHTML = event.data;
+			updateUserScore(event.data.split(' '));
+            updateLeaderboard();
         }
-	</script>
-	<script>
-		{% set path = path('app_game_show_sixqp', {'id': game.id}) ~ 'endOfGame' %}
-		const eventSourceEndOfGame = new EventSource("{{ mercure(path)|escape('js') }}");
-		eventSourceEndOfGame.onmessage = event => {
-			//
-		}
 	</script>
 
 {% endblock %}
 
 {% block javascripts %}
     <script>
+        {#
         function updateElapsedTime() {
             const currentTime = Math.floor(Date.now() / 1000);
             const elapsedTime = currentTime - {{ createdAt }};
@@ -106,29 +100,28 @@ This section displays the game's name, and the current game's timer and leaderbo
 	    }
 
 	    const clockID = setInterval(updateElapsedTime, 1000);
-
+        #}
 	    function updateUserScore(player) {
-	        let scoreElement = document.getElementById(player.username);
+	        let scoreElement = document.getElementById(player[0]);
 	        if (scoreElement) {
-	            let landscapeScore = document.getElementById('l_' + player.username + '_points');
-	            landscapeScore.dataset.score = player.discardSIxQP.totalPoints;
+	            let landscapeScore = document.getElementById('l_' + player[0] + '_points');
+	            landscapeScore.dataset.score = player[1];
 	            if (landscapeScore) {
-	                landscapeScore.getElementsByTagName('p').item(0).innerText = player.discardSIxQP.totalPoints;
-	                if (player.discardSIxQP.totalPoints > 1) {
+	                landscapeScore.getElementsByTagName('p').item(0).innerText = player[1];
+	                if (player[1] > 1) {
 	                    landscapeScore.getElementsByTagName('p').item(1).innerText = "points";
 	                }
 	            }
 
 
-	            let portraitScore = document.getElementById('p_' + player.username + '_points');
+	            let portraitScore = document.getElementById('p_' + player[0] + '_points');
 	            if (portraitScore) {
-	                portraitScore.getElementsByTagName('p').item(0).innerText = player.discardSIxQP.totalPoints;
-	                if (player.discardSIxQP.totalPoints > 1) {
+	                portraitScore.getElementsByTagName('p').item(0).innerText = player[1];
+	                if (player[1] > 1) {
 	                    portraitScore.getElementsByTagName('p').item(1).innerText = 'points';
 	                }
 	            }
 	        }
-	        updateLeaderboard();
 	    }
 
 	    function updateLeaderboard() {

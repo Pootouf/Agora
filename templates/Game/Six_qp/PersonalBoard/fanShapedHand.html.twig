@@ -37,10 +37,13 @@ This section displays the personal board that contains the card that the player 
                 lg:{% if angle < 0 %}-{% endif %}rotate-[{{angle|abs}}deg] z-{{ i }}"
             >
                 {% set cardNumber = card.value %}
+                {% if isSpectator %}
+                    {% set cardNumber = "back" %}
+                {% endif %}
                 <button type="button" {{ stimulus_action('sixqp', 'selectCard', 'click',
                     {url: path('app_game_sixqp_select', {idCard: card.id, idGame: game.id})}) }}>
                     <img
-                            src="{{ asset('resourcesGames/6QP/cardsImages/' ~ card.value ~ ".png") }}"
+                            src="{{ asset('resourcesGames/6QP/cardsImages/' ~ cardNumber ~ ".png") }}"
                             alt="{{ cardNumber }}"
                     >
                 </button>
