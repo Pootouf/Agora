@@ -38,10 +38,10 @@ class GameEntityTest extends TestCase
         // GIVEN
         $game = new Game();
 
-        // Test de la méthode setImgURL
+        // WHEN
         $game->setImgURL('https://example.com/image.jpg');
 
-        // Test de la méthode setImgURL avec une nouvelle URL
+        //THEN
         $this->assertEquals('https://example.com/image.jpg', $entity->getImgURL());
     }
 
