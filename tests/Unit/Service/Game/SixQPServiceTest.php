@@ -233,29 +233,41 @@ class SixQPServiceTest extends TestCase
         $this->assertTrue($player->getDiscardSixQP()->getTotalPoints() == $expectedPoint);
     }
 
-    public function testIsGameEnded() : void {
-        $game = new GameSixQP();
-        $player = new PlayerSixQP("test", $game);
-        $player2 = new PlayerSixQP("test", $game);
-        $game->addPlayerSixQP($player);
-        $game->addPlayerSixQP($player2);
+
+    public function testIsGameEndedWhenAPlayerStillHasACardShouldReturnFalse() : void {
+        //GIVEN
+        $game = $this->createGame(2, 4);
+        $player = $game->getPlayerSixQPs()->first();
         $card = new CardSixQP();
         $card -> setValue(1);
         $card -> setPoints(1);
-        $card2 = new CardSixQP();
-        $card2 -> setValue(2);
-        $card2 -> setPoints(2);
-        $discard = new DiscardSixQP($player, $game);
-        $discard2 = new DiscardSixQP($player2, $game);
-        $player->setDiscardSixQP($discard);
-        $player2->setDiscardSixQP($discard2);
-        $player->getDiscardSixQP()->addCard($card);
-        $player2->getDiscardSixQP()->addCard($card2);
-        $this->sixQPService->calculatePoints($discard);
-        $this->sixQPService->calculatePoints($discard2);
-        $this->assertFalse($this->sixQPService->isGameEnded($game));
-        $player -> getDiscardSixQP() -> addPoints(65);
-        $this->assertTrue($this->sixQPService->isGameEnded($game));
+        $player->addCard($card);
+        //WHEN
+        $result = $this->sixQPService->isGameEnded($game);
+        //THEN
+        $this->assertFalse($result);
+    }
+
+    public function testIsGameEndedWhenNoPlayerReachedLimitShouldReturnFalse() : void {
+        //GIVEN
+        $game = $this->createGame(2, 4);
+        $player = $game->getPlayerSixQPs()->first();
+        $player->getDiscardSixQP()->addPoints($this->sixQPService::$MAX_POINTS - 1);
+        //WHEN
+        $result = $this->sixQPService->isGameEnded($game);
+        //THEN
+        $this->assertFalse($result);
+    }
+
+    public function testIsGameEndedWhenPlayerReachedLimitShouldReturnTrue() : void {
+        //GIVEN
+        $game = $this->createGame(2, 4);
+        $player = $game->getPlayerSixQPs()->first();
+        $player->getDiscardSixQP()->addPoints($this->sixQPService::$MAX_POINTS);
+        //WHEN
+        $result = $this->sixQPService->isGameEnded($game);
+        //THEN
+        $this->assertTrue($result);
     }
     private function createGame(int $numberOfPlayer, int $numberOfRow): GameSixQP
     {

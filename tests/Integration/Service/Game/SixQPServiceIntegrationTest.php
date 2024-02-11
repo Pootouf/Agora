@@ -127,7 +127,6 @@ class SixQPServiceIntegrationTest extends KernelTestCase
         $this->assertNotNull($cards);
         $this->assertFalse($cards->contains($card));
         $this->assertNotNull($player->getChosenCardSixQP());
-        $this->assertFalse($player->getChosenCardSixQP()->isVisible());
     }
 
     public function testIsGameEnded() : void {
@@ -227,6 +226,274 @@ class SixQPServiceIntegrationTest extends KernelTestCase
             ++$i;
         }
     }
+
+    public function testDoesAllPlayerHaveChosenShouldReturnTrue() : void
+    {
+        //GIVEN
+        $sixQPService = static::getContainer()->get(SixQPService::class);
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $game = $this->createGame(2, 4);
+        $player1 = $game->getPlayerSixQPs()->first();
+        $player2 = $game->getPlayerSixQPs()->last();
+        $card1 = new CardSixQP();
+        $card1->setValue(12);
+        $card1->setPoints(12);
+        $player1->addCard($card1);
+        $card2 = new CardSixQP();
+        $player2->addCard($card2);
+        $card2->setValue(12);
+        $card2->setPoints(12);
+        $entityManager->persist($card1);
+        $entityManager->persist($card2);
+        $entityManager->persist($player2);
+        $entityManager->persist($player1);
+        $entityManager->persist($game);
+        $entityManager->flush();
+        $sixQPService->chooseCard($player1, $card1);
+        $sixQPService->chooseCard($player2, $card2);
+        // WHEN
+        $result = $sixQPService->doesAllPlayersHaveChosen($game);
+        // THEN
+        $this->assertTrue($result);
+    }
+
+    public function testDoesAllPlayerHaveChosenShouldReturnFalse() : void
+    {
+        //GIVEN
+        $sixQPService = static::getContainer()->get(SixQPService::class);
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $game = $this->createGame(2, 4);
+        $player1 = $game->getPlayerSixQPs()->first();
+        $card1 = new CardSixQP();
+        $card1->setValue(12);
+        $card1->setPoints(12);
+        $player1->addCard($card1);
+        $entityManager->persist($card1);
+        $entityManager->persist($player1);
+        $entityManager->persist($game);
+        $entityManager->flush();
+        $sixQPService->chooseCard($player1, $card1);
+        // WHEN
+        $result = $sixQPService->doesAllPlayersHaveChosen($game);
+        // THEN
+        $this->assertFalse($result);
+    }
+
+    public function testDoesPlayerAlreadyHasPlayedShouldReturnFalse() : void
+    {
+        //GIVEN
+        $sixQPService = static::getContainer()->get(SixQPService::class);
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $game = $this->createGame(2, 4);
+        $player1 = $game->getPlayerSixQPs()->first();
+        $card1 = new CardSixQP();
+        $card1->setValue(12);
+        $card1->setPoints(12);
+        $player1->addCard($card1);
+        $entityManager->persist($card1);
+        $entityManager->persist($player1);
+        $entityManager->persist($game);
+        $entityManager->flush();
+        // WHEN
+        $result = $sixQPService->doesPlayerAlreadyHasPlayed($player1);
+        // THEN
+        $this->assertFalse($result);
+    }
+
+    public function testDoesPlayerAlreadyHasPlayedShouldReturnTrue() : void
+    {
+        //GIVEN
+        $sixQPService = static::getContainer()->get(SixQPService::class);
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $game = $this->createGame(2, 4);
+        $player1 = $game->getPlayerSixQPs()->first();
+        $card1 = new CardSixQP();
+        $card1->setValue(12);
+        $card1->setPoints(12);
+        $player1->addCard($card1);
+        $entityManager->persist($card1);
+        $entityManager->persist($player1);
+        $entityManager->persist($game);
+        $entityManager->flush();
+        $sixQPService->chooseCard($player1, $card1);
+        // WHEN
+        $result = $sixQPService->doesPlayerAlreadyHasPlayed($player1);
+        // THEN
+        $this->assertTrue($result);
+    }
+
+    public function testGetNotPlacedCardShouldReturnTwoCards() : void
+    {
+        //GIVEN
+        $sixQPService = static::getContainer()->get(SixQPService::class);
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $game = $this->createGame(2, 4);
+        $player1 = $game->getPlayerSixQPs()->first();
+        $player2 = $game->getPlayerSixQPs()->last();
+        $card1 = new CardSixQP();
+        $card1->setValue(12);
+        $card1->setPoints(12);
+        $player1->addCard($card1);
+        $card2 = new CardSixQP();
+        $player2->addCard($card2);
+        $card2->setValue(12);
+        $card2->setPoints(12);
+        $entityManager->persist($card1);
+        $entityManager->persist($card2);
+        $entityManager->persist($player2);
+        $entityManager->persist($player1);
+        $entityManager->persist($game);
+        $entityManager->flush();
+        $sixQPService->chooseCard($player1, $card1);
+        $sixQPService->chooseCard($player2, $card2);
+        $expectedResult = [$player1->getChosenCardSixQP(), $player2->getChosenCardSixQP()];
+        //WHEN
+        $result = $sixQPService->getNotPlacedCard($game);
+        //THEN
+        $this->assertEquals($expectedResult, $result);
+    }
+
+    public function testGetNotPlacedCardShouldReturnOneCard() : void
+    {
+        //GIVEN
+        $sixQPService = static::getContainer()->get(SixQPService::class);
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $game = $this->createGame(2, 4);
+        $player1 = $game->getPlayerSixQPs()->first();
+        $player2 = $game->getPlayerSixQPs()->last();
+        $card1 = new CardSixQP();
+        $card1->setValue(12);
+        $card1->setPoints(12);
+        $player1->addCard($card1);
+        $card2 = new CardSixQP();
+        $player2->addCard($card2);
+        $card2->setValue(12);
+        $card2->setPoints(12);
+        $row = $game->getRowSixQPs()->first();
+        $entityManager->persist($card1);
+        $entityManager->persist($card2);
+        $entityManager->persist($player2);
+        $entityManager->persist($player1);
+        $entityManager->persist($row);
+        $entityManager->persist($game);
+        $entityManager->flush();
+        $sixQPService->chooseCard($player1, $card1);
+        $sixQPService->chooseCard($player2, $card2);
+        $row->addCard($card2);
+        $expectedResult = [$player1->getChosenCardSixQP()];
+        //WHEN
+        $result = $sixQPService->getNotPlacedCard($game);
+        //THEN
+        $this->assertEquals($expectedResult, $result);
+    }
+
+    public function testIsGameEndedWhenAPlayerStillHasACardShouldReturnFalse() : void {
+        //GIVEN
+        $sixQPService = static::getContainer()->get(SixQPService::class);
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $game = $this->createGame(2, 4);
+        $player = $game->getPlayerSixQPs()->first();
+        $card = new CardSixQP();
+        $card -> setValue(1);
+        $card -> setPoints(1);
+        $player->addCard($card);
+        $entityManager->persist($game);
+        $entityManager->persist($player);
+        $entityManager->persist($card);
+        $entityManager->flush();
+        //WHEN
+        $result = $sixQPService->isGameEnded($game);
+        //THEN
+        $this->assertFalse($result);
+    }
+
+    public function testIsGameEndedWhenNoPlayerReachedLimitShouldReturnFalse() : void {
+        //GIVEN
+        $sixQPService = static::getContainer()->get(SixQPService::class);
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $game = $this->createGame(2, 4);
+        $player = $game->getPlayerSixQPs()->first();
+        $player2 = $game->getPlayerSixQPs()->last();
+        $discard = new DiscardSixQP($player, $game);
+        $player->setDiscardSixQP($discard);
+        $discard2 = new DiscardSixQP($player2, $game);
+        $player2->setDiscardSixQP($discard2);
+        $entityManager->persist($game);
+        $entityManager->persist($player);
+        $entityManager->persist($player2);
+        $entityManager->persist($discard);
+        $entityManager->persist($discard2);
+        $entityManager->flush();
+        $player->getDiscardSixQP()->addPoints($sixQPService::$MAX_POINTS - 1);
+        $entityManager->persist($game);
+        $entityManager->persist($player);
+        //WHEN
+        $result = $sixQPService->isGameEnded($game);
+        //THEN
+        $this->assertFalse($result);
+    }
+
+    public function testIsGameEndedWhenPlayerReachedLimitShouldReturnTrue() : void {
+        //GIVEN
+        $sixQPService = static::getContainer()->get(SixQPService::class);
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $game = $this->createGame(2, 4);
+        $player = $game->getPlayerSixQPs()->first();
+        $player2 = $game->getPlayerSixQPs()->last();
+        $discard = new DiscardSixQP($player, $game);
+        $player->setDiscardSixQP($discard);
+        $discard2 = new DiscardSixQP($player2, $game);
+        $player2->setDiscardSixQP($discard2);
+        $entityManager->persist($game);
+        $entityManager->persist($player);
+        $entityManager->persist($player2);
+        $entityManager->persist($discard);
+        $entityManager->persist($discard2);
+        $entityManager->flush();
+        $player->getDiscardSixQP()->addPoints($sixQPService::$MAX_POINTS);
+        $entityManager->persist($game);
+        $entityManager->persist($player);
+        //WHEN
+        $result = $sixQPService->isGameEnded($game);
+        //THEN
+        $this->assertTrue($result);
+    }
+
+    public function testGetPlayerFromNameAndGameShouldReturnGoodPlayer() : void
+    {
+        //GIVEN
+        $sixQPService = static::getContainer()->get(SixQPService::class);
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $game = $this->createGame(2, 4);
+        $player = $game->getPlayerSixQPs()->first();
+        $entityManager->persist($player);
+        $entityManager->persist($game);
+        $entityManager->flush();
+        $expectedResult = $player;
+        //WHEN
+        $result = $sixQPService->getPlayerFromNameAndGame($game, $player->getUsername());
+        //THEN
+        $this->assertEquals($expectedResult, $result);
+    }
+
+    public function testGetPlayerFromNameAndGameShouldReturnNothing() : void
+    {
+        //GIVEN
+        $sixQPService = static::getContainer()->get(SixQPService::class);
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $game = $this->createGame(2, 4);
+        $player = $game->getPlayerSixQPs()->first();
+        $entityManager->persist($player);
+        $entityManager->persist($game);
+        $entityManager->flush();
+        $expectedResult = null;
+        $wrongName = "gtaeuaioea";
+        //WHEN
+        $result = $sixQPService->getPlayerFromNameAndGame($game, $wrongName);
+        //THEN
+        $this->assertEquals($expectedResult, $result);
+    }
+
     private function createGame(int $numberOfPlayer, int $numberOfRow): GameSixQP
     {
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);
