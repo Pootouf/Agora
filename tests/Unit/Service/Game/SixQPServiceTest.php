@@ -269,6 +269,102 @@ class SixQPServiceTest extends TestCase
         //THEN
         $this->assertTrue($result);
     }
+
+    public function testHasCardLeftShouldReturnFalse() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2, 4);
+        $players = $game->getPlayerSixQPs();
+        //WHEN
+        $result = $this->sixQPService->hasCardLeft($players);
+        //THEN
+        $this->assertFalse($result);
+    }
+
+    public function testHasCardLeftShouldReturnTrue() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2, 4);
+        $players = $game->getPlayerSixQPs();
+        $player2 = $game->getPlayerSixQPs()->last();
+        $player2->addCard(new CardSixQP());
+        //WHEN
+        $result = $this->sixQPService->hasCardLeft($players);
+        //THEN
+        $this->assertTrue($result);
+    }
+
+    public function testGetWinnerShouldReturnNull() : void
+    {
+        //GIVEN
+        $game = $this->createGame(3, 4);
+        $players = $game->getPlayerSixQPs();
+        $player1 = $players->first();
+        $player2 = $players[1];
+        $player3 = $players->last();
+        $discard1 = new DiscardSixQP($player1, $game);
+        $player1->setDiscardSixQP($discard1);
+        $discard1->addPoints(10);
+        $discard2 = new DiscardSixQP($player2, $game);
+        $player2->setDiscardSixQP($discard2);
+        $discard2->addPoints(10);
+        $discard3 = new DiscardSixQP($player3, $game);
+        $player3->setDiscardSixQP($discard3);
+        $discard3->addPoints(SixQPService::$MAX_POINTS);
+        //WHEN
+        $result = $this->sixQPService->getWinner($game);
+        //THEN
+        $this->assertNull($result);
+    }
+
+    public function testGetWinnerShouldReturnPlayer2() : void
+    {
+        //GIVEN
+        $game = $this->createGame(3, 4);
+        $players = $game->getPlayerSixQPs();
+        $player1 = $players->first();
+        $player2 = $players[1];
+        $player3 = $players->last();
+        $discard1 = new DiscardSixQP($player1, $game);
+        $player1->setDiscardSixQP($discard1);
+        $discard1->addPoints(11);
+        $discard2 = new DiscardSixQP($player2, $game);
+        $player2->setDiscardSixQP($discard2);
+        $discard2->addPoints(10);
+        $discard3 = new DiscardSixQP($player3, $game);
+        $player3->setDiscardSixQP($discard3);
+        $discard3->addPoints(SixQPService::$MAX_POINTS);
+        //WHEN
+        $result = $this->sixQPService->getWinner($game);
+        //THEN
+        $this->assertSame($player2, $result);
+    }
+
+    public function testClearCardsShouldSucceed() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2, 4);
+        $player = $game->getPlayerSixQPs()->first();
+        $discard = new DiscardSixQP($player, $game);
+        $player->setDiscardSixQP($discard);
+        $card = new CardSixQP();
+        $player->addCard($card);
+        $this->sixQPService->chooseCard($player, $card);
+        $player2 = $game->getPlayerSixQPs()->last();
+        $discard2 = new DiscardSixQP($player2, $game);
+        $player2->setDiscardSixQP($discard2);
+        $card2 = new CardSixQP();
+        $player2->addCard($card2);
+        $this->sixQPService->chooseCard($player2, $card2);
+        $array = [$player->getChosenCardSixQP(), $player2->getChosenCardSixQP()];
+        $expectedResult = [null, null];
+        //WHEN
+        $this->sixQPService->clearCards($array);
+        //THEN
+        $this->assertSame($expectedResult,
+            [$player->getChosenCardSixQP(), $player2->getChosenCardSixQP()]);
+
+    }
     private function createGame(int $numberOfPlayer, int $numberOfRow): GameSixQP
     {
         $game = new GameSixQP();
