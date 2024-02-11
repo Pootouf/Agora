@@ -41,7 +41,6 @@ This section displays the main board of the game
     </script>
 {% block javascripts %}
     <script>
-
         function translateRow(rowid) {
             let row = document.getElementById(rowid);
             console.log('Translating row:', row );
@@ -51,23 +50,12 @@ This section displays the main board of the game
                     {transform: "translateX(700px)", opacity: 0},
                 ],
                 {
-                    duration: 1500,
+                    duration: 1100,
                     iterations: 1,
                 },
-            ).addEventListener("finish", ev => {
-                let maRequete = new Request("{{path('app_game_sixqp_retrievemainboard', {id: game.id})}}");
-                console.log('l anim est finito')
-                fetch(maRequete).then(function (response) {
-                    if (!response.ok) {
-                        throw new Error(`erreur HTTP! statut: ${response.status}`);
-                    }
-                    return response.blob();
-                })
-                    .then(function (response) {
-                        let URLobjet = URL.createObjectURL(response);
-                        row.src = URLobjet;
-                    });
-                console.log('fetch fait')
+            ).addEventListener("finish", async ev => {
+                const response = await fetch("{{path('app_game_sixqp_retrievemainboard', {id: game.id})}}");
+                row.innerHTML = response.data
             });
         }
     </script>
