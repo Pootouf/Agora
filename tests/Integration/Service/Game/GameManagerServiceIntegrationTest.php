@@ -8,12 +8,35 @@ use App\Entity\Game\SixQP\PlayerSixQP;
 use App\Entity\Game\SixQP\RowSixQP;
 use App\Service\Game\AbstractGameManagerService;
 use App\Service\Game\GameManagerService;
+use Doctrine\DBAL\Schema\Exception\IndexDoesNotExist;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class GameManagerServiceIntegrationTest extends KernelTestCase
 {
+
+    public function testCreateValidGame() : void
+    {
+        $gameService = static::getContainer()->get(GameManagerService::class);
+
+        $labelGames = array(AbstractGameManagerService::$SIXQP_LABEL);
+
+        foreach ($labelGames as $labelGame)
+        {
+            $game = $gameService->createGame($labelGame);
+            $this->assertTrue($game > 0);
+        }
+    }
+
+    public function testCreateInvalidGame() : void
+    {
+        $gameService = static::getContainer()->get(GameManagerService::class);
+        //$this->expectException(IndexDoesNotExist::class);
+        $game = $gameService->createGame("Inexistant");
+        error_reporting(2);
+    }
+
     public function testDeleteGameWhenGameIsInvalid() : void
     {
         $gameService = static::getContainer()->get(GameManagerService::class);
