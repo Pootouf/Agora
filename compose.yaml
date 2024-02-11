@@ -1,6 +1,22 @@
 version: '3'
 
 services:
+  reverse-proxy:
+    # The official v2 Traefik image
+    image: traefik:v2.10
+    command:
+      - --api.insecure=true
+      - --providers.docker
+    ports:
+      - '80:80'
+      - '443:443'
+      # The Web UI (enabled by --api.insecure=true)
+      - '8080:8080'
+    volumes:
+      # So that Traefik can listen to the Docker events
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./traefik/:/etc/traefik
+
   agora:
     container_name: agora
     image: agora-boilerplate:latest
@@ -13,6 +29,8 @@ services:
         condition: service_healthy
     environment:
       SERVER_NAME: ${SERVER_NAME:-localhost}
+    labels:
+      - "traefik.http.routers.agora.rule=Host(`agora.docker.localhost`)"
 
 ###> doctrine/doctrine-bundle ###
   database:
@@ -52,7 +70,7 @@ services:
     container_name: mercure
     image: dunglas/mercure
     environment:
-      SERVER_NAME: http://mercure, ${SERVER_NAME:-localhost}
+      SERVER_NAME: ':80'
       MERCURE_PUBLISHER_JWT_KEY: '!ChangeThisMercureHubJWTSecretKey!'
       MERCURE_SUBSCRIBER_JWT_KEY: '!ChangeThisMercureHubJWTSecretKey!'
       # Set the URL of your Symfony project (without trailing slash!) as value of the cors_origins directive
@@ -60,5 +78,7 @@ services:
         cors_origins *
         anonymous
         ui
+    labels:
+      - "traefik.http.routers.mercure.rule=Host(`mercure.docker.localhost`)"
 ###< symfony/mercure-bundle ###
 
