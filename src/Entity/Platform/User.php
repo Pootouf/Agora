@@ -46,9 +46,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private $isVerified = false;
 
 
-
-     #[ORM\ManyToMany(targetEntity: Game::class)]
-     private Collection $favoriteGames;
+    #[ORM\ManyToMany(targetEntity: Game::class)]
+    private Collection $favoriteGames;
 
 
     #[ORM\ManyToMany(targetEntity: Board::class, mappedBy: 'listUsers')]
@@ -84,7 +83,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     public function getUserIdentifier(): string
     {
-        return (string) $this->email;
+        return (string)$this->email;
     }
 
     /**
@@ -203,7 +202,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
-    
+
 
     public function removeFavoriteGame(Game $favoriteGames): static
     {
@@ -211,3 +210,4 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
+}
