@@ -51,7 +51,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function __construct()
     {
-        $this->favoriteGame = new ArrayCollection();
         $this->favoriteGames = new ArrayCollection();
     }
 
@@ -158,18 +157,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->favoriteGames;
     }
 
-    public function addFavoriteGame(Game $favoriteGame): static
+    public function addFavoriteGame(Game $favoriteGames): static
     {
-        if (!$this->favoriteGames->contains($favoriteGame)) {
-            $this->favoriteGames->add($favoriteGame);
+        if (!$this->favoriteGames->contains($favoriteGames)) {
+            $this->favoriteGames->add($favoriteGames);
         }
 
         return $this;
     }
 
-    public function removeFavoriteGame(Game $favoriteGame): static
+    public function removeFavoriteGame(Game $favoriteGames): static
     {
-        $this->favoriteGames->removeElement($favoriteGame);
+        $this->favoriteGames->removeElement($favoriteGames);
 
         return $this;
     }
