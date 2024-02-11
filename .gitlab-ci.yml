@@ -39,6 +39,7 @@ unit:
   stage: test
   script:
     - php bin/phpunit tests/Game/SixQP/Unit --coverage-text
+    - php bin/phpunit tests/Game/Factory/Unit --coverage-text
   allow_failure: false
   environment: test
 
@@ -52,5 +53,6 @@ integration:
     - symfony console --env=test doctrine:migrations:migrate
     - symfony console doctrine:fixtures:load --env=test -n
     - php bin/phpunit tests/Game/SixQP/Integration --coverage-text
+    - php bin/phpunit tests/Game/Factory/Integration --coverage-text
   allow_failure: false
   environment: test

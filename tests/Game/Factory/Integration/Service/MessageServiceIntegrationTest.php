@@ -1,6 +1,8 @@
 <?php
 
 
+namespace App\Tests\Game\Factory\Integration\Service;
+
 use App\Entity\Game\SixQP\GameSixQP;
 use App\Entity\Game\SixQP\PlayerSixQP;
 use App\Repository\Game\MessageRepository;
