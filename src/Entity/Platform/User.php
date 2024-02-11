@@ -46,16 +46,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private $isVerified = false;
 
 
+
      #[ORM\ManyToMany(targetEntity: Game::class)]
      private Collection $favoriteGames;
 
 
-
-
+    #[ORM\ManyToMany(targetEntity: Board::class, mappedBy: 'listUsers')]
+    private Collection $boards;
 
     public function __construct()
     {
-
+        $this->boards = new ArrayCollection();
         $this->favoriteGames = new ArrayCollection();
     }
 
@@ -153,6 +154,38 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    /**
+     * @return Collection<int, Board>
+     */
+    public function getBoards(): Collection
+    {
+        return $this->boards;
+    }
+
+    //Add Board to the User's board list
+    //Pre : $board->isAvaible()
+    //      $this not in $board
+    //Post : $board in $this->boards
+    //       $boards->count() = OLD:$boards->count() + 1
+    public function addBoard(Board $board): static
+    {
+        if (!$this->boards->contains($board) && $board->isAvailble()) {
+            $this->boards->add($board);
+            $board->addListUser($this);
+        }
+
+        return $this;
+
+    }
+
+    public function removeBoard(Board $board): static
+    {
+        if ($this->boards->removeElement($board)) {
+            $board->removeListUser($this);
+        }
+        return $this;
+    }
+
 
     /**
      * @return Collection<int, Game>
@@ -170,6 +203,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
+    
 
     public function removeFavoriteGame(Game $favoriteGames): static
     {
@@ -177,6 +211,3 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
-
-
-}
