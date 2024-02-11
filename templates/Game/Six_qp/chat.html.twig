@@ -1,15 +1,21 @@
-<div id="closedChat" class=" bg-purple-800 w-1/12 h-fit absolute bottom-0 z-10">
-    <div class="flex justify-center w-full h-full">
-        <img src="/assets/resourcesGames/utils/arrow_up.svg" alt="arrow up">
-        <button {{ stimulus_action('sixqp', 'toggleChat', 'click', { 'open': true}) }}>
-            chat</button>
+{#
+    This section displays chat whether is it opened or not.
+
+    @return :  displays chat in a opened or closed form.
+#}
+<div id="closedChat" class=" bg-purple-800 w-1/12 h-fit absolute bottom-0 z-10 rounded-tr-2xl">
+    <div class="flex justify-center align-center w-full h-full cursor-pointer"
+            {{ stimulus_action('sixqp', 'toggleChat', 'click', { 'open': true}) }}>
+        <img src="{{ asset('resourcesGames/utils/arrow_up.svg') }}" alt="arrow up" class="h-4 mt-1 mr-2">
+        <p>chat</p>
     </div>
 </div>
 
 <div id="openedChat" class="bg-purple-800 w-1/5 h-2/3 absolute bottom-0 z-5 rounded-tr-2xl z-10" hidden>
-    <div class="h-1/30 w-full flex justify-center">
-        <button {{ stimulus_action('sixqp', 'toggleChat', 'click', { 'open': false}) }}
-        >close chat</button>
+    <div class="h-1/30 w-full flex justify-center cursor-pointer"
+            {{ stimulus_action('sixqp', 'toggleChat', 'click', { 'open': false}) }}>
+        <img src="{{ asset('resourcesGames/utils/arrow_up.svg') }}" alt="arrow up" class="h-4 rotate-180 mt-1 mr-2">
+        <p>close chat</p>
     </div>
     <div class="flex justify-center pt-7 pb-6 w-full h-4/5">
         <div id="chat" class="w-5/6 h-full bg-purple-500 rounded-2xl p-3 overflow-scroll ">
@@ -25,7 +31,9 @@
     </div>
     <div class="flex justify-center h-1/7 w-full py-2 ">
         <div class="bg-purple-400 h-full w-5/6 flex justify-around py-5 rounded-2xl">
-            <label for="inputMessage"></label><input id="inputMessage" type="text" class="bg-gray-300 border-none rounded-2xl">
+            <label for="inputMessage"></label><input id="inputMessage" type="text"
+                                                     placeholder="Votre message"
+                                                     class="bg-gray-300 border-none rounded-2xl">
             <button>Envoyer</button>
         </div>
     </div>
