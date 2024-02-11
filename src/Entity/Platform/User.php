@@ -3,6 +3,8 @@
 namespace App\Entity\Platform;
 
 use App\Repository\Platform\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -42,6 +44,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(type: 'boolean')]
     private $isVerified = false;
+
+
+     #[ORM\ManyToMany(targetEntity: Game::class)]
+     private Collection $favoriteGames;
+
+    public function __construct()
+    {
+        $this->favoriteGames = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -136,5 +147,31 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
+
+
+    /**
+     * @return Collection<int, Game>
+     */
+    public function getFavoriteGames(): Collection
+    {
+        return $this->favoriteGames;
+    }
+
+    public function addFavoriteGame(Game $favoriteGames): static
+    {
+        if (!$this->favoriteGames->contains($favoriteGames)) {
+            $this->favoriteGames->add($favoriteGames);
+        }
+
+        return $this;
+    }
+
+    public function removeFavoriteGame(Game $favoriteGames): static
+    {
+        $this->favoriteGames->removeElement($favoriteGames);
+
+        return $this;
+    }
+
 
 }
