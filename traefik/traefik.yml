@@ -25,3 +25,10 @@ providers:
     filename: /etc/traefik/dynamic_conf.yml
   docker:
     endpoint: "unix:///var/run/docker.sock"
+
+tracing:
+  jaeger:
+    samplingServerURL: http://jaeger:5778/sampling
+    localAgentHostPort: jaeger:6831
+    collector:
+      endpoint: http://jaeger:14268/api/traces?format=jaeger.thrift
