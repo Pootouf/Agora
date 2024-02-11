@@ -105,24 +105,19 @@ class SixQPService
     }
 
     /**
-     * placeCard : place the chosen card into the right row, and update player's discard if necessary
+     * placeCard : place the chosen card into the selected row, and update player's discard if necessary
      * @param ChosenCardSixQP $chosenCardSixQP
-     * @return int position of the row if the card has been placed, -1 otherwise
+     * @param RowSixQP $row
+     * @return int 0 if the card has been placed, position of the row +1 if line retrieve, -1 otherwise
      */
-    public function placeCard(ChosenCardSixQP $chosenCardSixQP): int
+    public function placeCardIntoRow(ChosenCardSixQP $chosenCardSixQP, RowSixQP $row): int
     {
-        $game = $chosenCardSixQP->getGame();
-        $rows = $game->getRowSixQPs();
         $player = $chosenCardSixQP->getPlayer();
 
-        $row = $this->getValidRowForCard($chosenCardSixQP, $rows);
-        if ($row == null) {
-            return -1;
-        }
-
-        $returnValue = $row->getPosition();
+        $returnValue = 0;
         if ($row->getCards()->count() == 5) {
             $this->addRowToDiscardOfPlayer($player, $row);
+            $returnValue = -1;
         }
         $row->getCards()->add($chosenCardSixQP->getCard());
 
@@ -232,14 +227,14 @@ class SixQPService
      * getValidRowForCard : calculate the row with the nearest value to the chosen card,
      *                      with the chosen card value greater than the value of the row
      * @param ChosenCardSixQP $chosenCardSixQP the chosen card
-     * @param Collection $rows the rows of the game
+     * @param GameSixQP $game the game
      * @return ?RowSixQP the valid row, null if no valid row in the game
      */
-    public function getValidRowForCard(ChosenCardSixQP $chosenCardSixQP, Collection $rows): ?RowSixQP
+    public function getValidRowForCard(GameSixQP $game, ChosenCardSixQP $chosenCardSixQP): ?RowSixQP
     {
         $rowResult = null;
         $lastSmallestDistance = INF;
-        foreach ($rows as $row) {
+        foreach ($game->getRowSixQPs() as $row) {
             $cards = $row->getCards();
 
             $chosenCardValue = $chosenCardSixQP->getCard()->getValue();
