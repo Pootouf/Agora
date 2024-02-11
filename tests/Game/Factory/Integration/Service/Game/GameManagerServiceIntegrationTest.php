@@ -1,6 +1,6 @@
 <?php
 
-namespace Integration\Service\Game;
+namespace Game\Factory\Integration\Service\Game;
 
 use App\Entity\Game\GameUser;
 use App\Entity\Game\SixQP\GameSixQP;
@@ -8,9 +8,7 @@ use App\Entity\Game\SixQP\PlayerSixQP;
 use App\Entity\Game\SixQP\RowSixQP;
 use App\Service\Game\AbstractGameManagerService;
 use App\Service\Game\GameManagerService;
-use Doctrine\DBAL\Schema\Exception\IndexDoesNotExist;
 use Doctrine\ORM\EntityManagerInterface;
-use Exception;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class GameManagerServiceIntegrationTest extends KernelTestCase
