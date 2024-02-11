@@ -3,6 +3,8 @@
 namespace App\Entity\Platform;
 
 use App\Repository\Platform\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -44,13 +46,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private $isVerified = false;
 
 
-    /**
-     * @ORM\OneToMany(targetEntity=Game::class, mappedBy="user")
-     */
+     #[ORM\ManyToMany(targetEntity: Game::class)]
      private Collection $favoriteGames;
 
     public function __construct()
     {
+        $this->favoriteGame = new ArrayCollection();
         $this->favoriteGames = new ArrayCollection();
     }
 
@@ -148,30 +149,27 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    
-    public function getGames(): Collection
+
+    /**
+     * @return Collection<int, Game>
+     */
+    public function getFavoriteGames(): Collection
     {
         return $this->favoriteGames;
     }
 
-    public function addGame(Game $game): self
+    public function addFavoriteGame(Game $favoriteGame): static
     {
-        if (!$this->favoriteGames->contains($game)) {
-            $this->favoriteGames[] = $game;
-            $game->setUser($this);
+        if (!$this->favoriteGames->contains($favoriteGame)) {
+            $this->favoriteGames->add($favoriteGame);
         }
 
         return $this;
     }
 
-    public function removeGame(Game $game): self
+    public function removeFavoriteGame(Game $favoriteGame): static
     {
-        if ($this->favoriteGames->removeElement($game)) {
-            // Définit le côté propriétaire à null (sauf si la relation est propriétaire)
-            if ($game->getUser() === $this) {
-                $game->setUser(null);
-            }
-        }
+        $this->favoriteGames->removeElement($favoriteGame);
 
         return $this;
     }

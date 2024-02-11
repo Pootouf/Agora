@@ -76,5 +76,27 @@ class GameEntityTest extends TestCase
 
     }
 
+    public function testSetMinPlayer()
+    {
+        // GIVEN
+        $game = new Game();
 
+        // WHEN
+        $game->setMinPlayers(2);
+
+        //THEN
+        $this->assertEquals(2, $game->getMinPlayers());
+    }
+
+    public function testSetMaxPlayer()
+    {
+        // GIVEN
+        $game = new Game();
+
+        // WHEN
+        $game->setMaxPlayers(8);
+
+        //THEN
+        $this->assertEquals(8, $game->getMaxPlayers());
+    }
 }

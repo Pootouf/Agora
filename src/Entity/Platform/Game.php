@@ -31,11 +31,6 @@ class Game
     #[ORM\Column]
     private ?int $minPlayers = null;
 
-   /**
-     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="games")
-     * @ORM\JoinColumn(nullable=false)
-     */
-    private $user;
 
     #[ORM\Column]
     private ?int $maxPlayers = null; // Valeur par défaut définie à false
@@ -106,18 +101,6 @@ class Game
     public function setIsActive(bool $isActive): static
     {
         $this->isActive = $isActive;
-
-        return $this;
-    }
-
-    public function getUser(): ?User
-    {
-        return $this->user;
-    }
-
-    public function setUser(?User $user): self
-    {
-        $this->user = $user;
 
         return $this;
     }
