@@ -159,7 +159,7 @@ class SixQPController extends AbstractController
         return new Response('Card placed', Response::HTTP_OK);
     }
 
-    #[Route('/game/{idGame}/sixqp/retrieveMainBoard', name: 'app_game_sixqp_retrievemainboard')]
+    #[Route('/game/{id}/sixqp/retrieveMainBoard', name: 'app_game_sixqp_retrievemainboard')]
     public function retrieveMainBoard(GameSixQP $game): Response
     {
         return $this->render('Game/Six_qp/mainBoard.html.twig',

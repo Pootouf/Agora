@@ -55,8 +55,18 @@ This section displays the main board of the game
                     iterations: 1,
                 },
             ).addEventListener("finish", ev => {
+                let maRequete = new Request("{{path('app_game_sixqp_retrievemainboard', {id: game.id})}}");
                 console.log('l anim est finito')
-                fetch("{{path('app_game_sixqp_retrievemainboard', {idGame: game.id})}}");
+                fetch(maRequete).then(function (response) {
+                    if (!response.ok) {
+                        throw new Error(`erreur HTTP! statut: ${response.status}`);
+                    }
+                    return response.blob();
+                })
+                    .then(function (response) {
+                        let URLobjet = URL.createObjectURL(response);
+                        row.src = URLobjet;
+                    });
                 console.log('fetch fait')
             });
         }
