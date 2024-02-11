@@ -13,9 +13,11 @@
 			<div class="text-center">
 				<h1 class="text-4xl tracking-tight text-gray-900 sm:text-6xl">Games to enrich your online experience</h1>
 				<p class="mt-6 text-lg leading-8 text-gray-600">Anim aute id magna aliqua ad ad non deserunt sunt. Qui irure qui lorem cupidatat commodo. Elit sunt amet fugiat veniam occaecat fugiat aliqua.</p>
-				<div class="mt-10 flex items-center justify-center gap-x-6">
-					<a href="#" class="rounded-md bg-primary px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Create an account</a>
-				</div>
+				{% if not app.user %}
+					<div class="mt-10 flex items-center justify-center gap-x-6">
+						<a href="/register" class="rounded-md bg-primary px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Create an account</a>
+					</div>
+				{% endif %}
 			</div>
 		</div>
 		<div class="absolute inset-x-0 top-[calc(100%-13rem)] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[calc(100%-30rem)]" aria-hidden="true">

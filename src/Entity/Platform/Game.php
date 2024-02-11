@@ -3,6 +3,7 @@
 namespace App\Entity\Platform;
 
 use App\Repository\Platform\GameRepository;
+use App\Repository\Platform\GameRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: GameRepository::class)]
