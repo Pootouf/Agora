@@ -3,6 +3,7 @@
 namespace App\Controller\Platform;
 
 use App\Entity\Platform\User;
+use App\Form\Platform\EditUserType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,6 +15,7 @@ class UserController extends AbstractController
     public function sendUserInfo(int $id, EntityManagerInterface $entityManager): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED');
+
         $user = $entityManager->getRepository(User::class)->find($id);
 
         if(!$user){
@@ -27,12 +29,16 @@ class UserController extends AbstractController
 
     #[Route('/user/edit/{id}', name:'app_editUser')]
     public function editUser(int $id, EntityManagerInterface $entityManager) :Response {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED');
+
         $user = $entityManager->getRepository(User::class)->find($id);
 
         if(!$user){
             throw $this->createNotFoundException(
-                "user not found".$id);
+                "user not found ".$id);
         }
+
+        $form = $this->createForm(EditUserType::class, User::class);
 
         return new Response();
     }
