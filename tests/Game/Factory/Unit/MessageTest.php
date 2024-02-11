@@ -1,6 +1,6 @@
 <?php
 
-namespace Unit\Entity\Game;
+namespace App\Tests\Game\Factory\Unit;
 
 use App\Entity\Game\Message;
 use DateTime;

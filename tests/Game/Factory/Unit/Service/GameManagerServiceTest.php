@@ -1,6 +1,8 @@
 <?php
 
 
+namespace App\Tests\Game\Factory\Unit\Service;
+
 use App\Entity\Game\GameUser;
 use App\Entity\Game\SixQP\GameSixQP;
 use App\Repository\Game\SixQP\GameSixQPRepository;
@@ -55,7 +57,7 @@ class GameManagerServiceTest extends TestCase
         $gameSixQPRepository->method('findOneBy')->willReturn(new GameSixQP());
         $sixQPService = $this->createMock(SixQPGameManagerService::class);
         $sixQPService->method('createPlayer')->
-            willReturn(AbstractGameManagerService::$ERROR_GAME_ALREADY_LAUNCHED);
+        willReturn(AbstractGameManagerService::$ERROR_GAME_ALREADY_LAUNCHED);
         $gameService = new GameManagerService($gameSixQPRepository, $sixQPService);
         $user = new GameUser();
         $user->setUsername("testUser");
