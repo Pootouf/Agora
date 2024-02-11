@@ -49,8 +49,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      #[ORM\ManyToMany(targetEntity: Game::class)]
      private Collection $favoriteGames;
 
+
+
+
+
     public function __construct()
     {
+
         $this->favoriteGames = new ArrayCollection();
     }
 
