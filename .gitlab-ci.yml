@@ -29,16 +29,16 @@ deploy_dev_game:
   stage: deploy
   environment:
     name: staging
-    url: https://srv-dpi-agora-dev-jeux.univ-rouen.fr/
+    url: http://srv-dpi-agora-dev-jeux.univ-rouen.fr/
   script:
-    - ssh $SERVER_GAME_USER@$SERVER_GAME_IP "cd var/www/agora && git checkout develop-game && git pull origin develop-game && docker-compose up --build && exit"
+    - ssh $SERVER_GAME_USER@$SERVER_GAME_IP "cd /var/www/agora && git checkout develop-game && git pull origin develop-game && docker compose up --build -d && exit"
   only:
     - develop-game
 
 unit:
   stage: test
   script:
-    - php bin/phpunit tests/Game/6QP/Unit --coverage-text
+    - php bin/phpunit tests/Game/SixQP/Unit --coverage-text
   allow_failure: false
   environment: test
 
@@ -51,6 +51,6 @@ integration:
   script:
     - symfony console --env=test doctrine:migrations:migrate
     - symfony console doctrine:fixtures:load --env=test -n
-    - php bin/phpunit tests/Game/6QP/Integration --coverage-text
+    - php bin/phpunit tests/Game/SixQP/Integration --coverage-text
   allow_failure: false
   environment: test
