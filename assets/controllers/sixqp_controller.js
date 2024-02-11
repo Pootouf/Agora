@@ -25,14 +25,28 @@ export default class extends Controller {
         const open = isOpening.params.open;
         const openedChat = document.getElementById("openedChat");
         const closedChat = document.getElementById("closedChat");
+        const Timing = {
+            duration: 600,
+            iterations: 1,
+        }
         if (open) {
             const hidden = document.createAttribute("hidden");
             closedChat.setAttributeNode(hidden);
             openedChat.removeAttribute("hidden");
+            const openingSliding = [
+                { transform: "translateY(40rem)"},
+                { transform: "translateY(0rem)"}
+            ]
+            openedChat.animate(openingSliding,Timing);
         } else {
             const hidden = document.createAttribute("hidden");
             closedChat.removeAttribute("hidden");
-            openedChat.setAttributeNode(hidden);
+            const closingSliding = [
+                { transform: "translateY(0rem)"},
+                { transform: "translateY(40rem)"}
+            ]
+            openedChat.animate(closingSliding,Timing);
+            setTimeout(() => openedChat.setAttributeNode(hidden),600);
         }
     }
 }
