@@ -1,18 +1,20 @@
 <?php
 
 
+namespace App\Tests\Game\Factory\Integration\Service;
+
 use App\Entity\Game\SixQP\GameSixQP;
 use App\Entity\Game\SixQP\PlayerSixQP;
 use App\Repository\Game\LogRepository;
 use App\Service\Game\AbstractGameManagerService;
-use App\Service\Game\AbstractGameService;
 use App\Service\Game\LogService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class LogServiceIntegrationTest extends KernelTestCase {
+class LogServiceIntegrationTest extends KernelTestCase
+{
 
-    public function testSendPlayerLog() : void
+    public function testSendPlayerLog(): void
     {
         $logRepository = static::getContainer()->get(LogRepository::class);
         $logService = static::getContainer()->get(LogService::class);
@@ -32,7 +34,7 @@ class LogServiceIntegrationTest extends KernelTestCase {
         $this->assertSame($message, $expectedMessage);
     }
 
-    public function testSendSystemLog() : void
+    public function testSendSystemLog(): void
     {
         $logRepository = static::getContainer()->get(LogRepository::class);
         $logService = static::getContainer()->get(LogService::class);
