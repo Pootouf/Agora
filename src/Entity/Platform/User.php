@@ -45,6 +45,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'boolean')]
     private $isVerified = false;
 
+
+
+
+
+
     #[ORM\ManyToMany(targetEntity: Board::class, mappedBy: 'listUsers')]
     private Collection $boards;
 
