@@ -31,6 +31,7 @@ class Game
     #[ORM\Column]
     private ?int $minPlayers = null;
 
+
     #[ORM\Column]
     private ?int $maxPlayers = null; // Valeur par défaut définie à false
 
