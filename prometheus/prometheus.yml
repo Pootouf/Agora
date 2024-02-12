@@ -1,0 +1,10 @@
+global:
+  # Temps que prendra prometheus pour réinterroger les urls définies
+  scrape_interval:     15s
+  # Temps pour recalculer les règles au sein de Prometheus
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'traefik'
+    static_configs:
+      - targets: ['reverse_proxy:8080']

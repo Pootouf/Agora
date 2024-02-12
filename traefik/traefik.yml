@@ -25,6 +25,7 @@ providers:
     filename: /etc/traefik/dynamic_conf.yml
   docker:
     endpoint: "unix:///var/run/docker.sock"
+    watch: true
 
 tracing:
   jaeger:
@@ -32,3 +33,15 @@ tracing:
     localAgentHostPort: jaeger:6831
     collector:
       endpoint: http://jaeger:14268/api/traces?format=jaeger.thrift
+
+metrics:
+  prometheus:
+    buckets:
+      - 0.1
+      - 0.3
+      - 1.2
+      - 5.0
+    # Ajout des métriques sur les points d'entrée
+    addEntryPointsLabels: true
+    # Ajout des services
+    addServicesLabels: true
