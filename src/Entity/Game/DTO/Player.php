@@ -5,6 +5,7 @@ namespace App\Entity\Game\DTO;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\MappedSuperclass;
 use phpDocumentor\Reflection\Types\Nullable;
+use function PHPUnit\Framework\isNull;
 
 #[MappedSuperclass]
 class Player
