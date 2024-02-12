@@ -4,6 +4,7 @@ services:
   reverse-proxy:
     # The official v2 Traefik image
     image: traefik:v2.10
+    container_name: reverse_proxy
     command:
       - --api.insecure=true
       - --providers.docker
@@ -88,7 +89,7 @@ services:
     container_name: jaeger
     image: jaegertracing/all-in-one:1.54
     ports:
-      - "5775:5775/udp"
+      - "5575:5775/udp"
       - "6831:6831/udp"
       - "6832:6832/udp"
       - "5778:5778"
@@ -102,3 +103,35 @@ services:
       traefik.http.routers.jaeger.entrypoints: web
       traefik.http.routers.jaeger.service: jaeger
       traefik.http.services.jaeger.loadbalancer.server.port: 16686
+
+  prometheus:
+    image: prom/prometheus:v2.49.1
+    container_name: prometheus
+    volumes:
+      - ./prometheus/:/etc/prometheus/
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    ports:
+      - "9090:9090"
+    labels:
+      traefik.http.routers.prometheus.rule: Host(`prometheus.localhost`)
+      traefik.http.routers.prometheus.service: prometheus
+      traefik.http.services.prometheus.loadbalancer.server.port: 9090
+
+  grafana:
+    image: grafana/grafana
+    depends_on:
+      - prometheus
+    environment:
+      GF_INSTALL_PLUGINS: grafana-piechart-panel
+    labels:
+      traefik.http.routers.grafana.rule: Host(`grafana.localhost`)
+      traefik.http.routers.grafana.service: grafana
+      traefik.http.services.grafana.loadbalancer.server.port: 3000
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./grafana/datasources:/etc/grafana/provisioning/datasources
+      - ./grafana/dashboards/dashboard.yaml:/etc/grafana/provisioning/dashboards/main.yaml
+      - ./grafana/dashboards/json:/var/lib/grafana/dashboards
