@@ -13,6 +13,7 @@ class PersonalBoardSPL extends Component
 {
 
     public static int $MAX_TOKEN = 10;
+
     #[ORM\OneToMany(targetEntity: TokenSPL::class, mappedBy: 'personalBoardSPL')]
     private Collection $tokens;
 

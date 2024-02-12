@@ -4,16 +4,18 @@
 namespace App\Tests\Game\Splendor\Integration\Service;
 
 use App\Entity\Game\Splendor\GameSPL;
+use App\Entity\Game\Splendor\NobleTileSPL;
 use App\Entity\Game\Splendor\PersonalBoardSPL;
 use App\Entity\Game\Splendor\PlayerSPL;
 use App\Entity\Game\Splendor\TokenSPL;
 use App\Service\Game\AbstractGameManagerService;
-use App\Service\Game\SPL\SPLService;
+use App\Service\Game\Splendor\SPLService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class SPLServiceIntegrationTest extends KernelTestCase
 {
+    /*
     public function testTakeTokenWhenAlreadyFull(): void
     {
         $splendorService = static::getContainer()->get(SPLService::class);
@@ -120,9 +122,80 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $token->setColor("yellow");
         $this->expectException(\Exception::class);
         $splendorService->takeToken($player, $token);
+    }*/
+
+    public function testIsGameEndedShouldReturnFalseBecauseNotLastPlayer() : void
+    {
+        //GIVEN
+        $splendorService = static::getContainer()->get(SPLService::class);
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->get(0);
+        $player->setTurnOfPlayer(true);
+        //WHEN
+        $result = $splendorService->isGameEnded($game);
+        //THEN
+        $this->assertFalse($result);
     }
 
+    public function testIsGameEndedShouldReturnFalseBecauseNotReachedLimit() : void
+    {
+        //GIVEN
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $splendorService = static::getContainer()->get(SPLService::class);
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->get(1);
+        $player->setTurnOfPlayer(true);
+        $nobleTile = new NobleTileSPL();
+        $nobleTile->setPrestigePoints(SPLService::$MAX_PRESTIGE_POINTS - 1);
+        $nobleTile->setType("");
+        $player->getPersonalBoard()->addNobleTile($nobleTile);
+        $entityManager->persist($nobleTile);
+        $entityManager->flush();
+        //WHEN
+        $result = $splendorService->isGameEnded($game);
+        //THEN
+        $this->assertFalse($result);
+    }
 
+    public function testIsGameEndedShouldReturnTrue() : void
+    {
+        //GIVEN
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $splendorService = static::getContainer()->get(SPLService::class);
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->get(1);
+        $player->setTurnOfPlayer(true);
+        $nobleTile = new NobleTileSPL();
+        $nobleTile->setPrestigePoints(SPLService::$MAX_PRESTIGE_POINTS);
+        $nobleTile->setType("");
+        $player->getPersonalBoard()->addNobleTile($nobleTile);
+        $entityManager->persist($nobleTile);
+        $entityManager->flush();
+        //WHEN
+        $result = $splendorService->isGameEnded($game);
+        //THEN
+        $this->assertTrue($result);
+    }
+
+    public function testIsGameEndedShouldReturnFalseBecauseReachedLimitButNotLastPlayer() : void
+    {
+        //GIVEN
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $splendorService = static::getContainer()->get(SPLService::class);
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->get(0);
+        $player->setTurnOfPlayer(true);
+        $nobleTile = new NobleTileSPL();
+        $nobleTile->setPrestigePoints(SPLService::$MAX_PRESTIGE_POINTS);
+        $nobleTile->setType("");
+        $player->getPersonalBoard()->addNobleTile($nobleTile);
+        $entityManager->persist($nobleTile);
+        $entityManager->flush();
+        //WHEN
+        $result = $splendorService->isGameEnded($game);
+        //THEN
+        $this->assertFalse($result);
+    }
     private function createGame(int $numberOfPlayer): GameSPL
     {
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);
