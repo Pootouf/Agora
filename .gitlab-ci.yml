@@ -1,9 +1,16 @@
-image: etiennebinginot/agora:1.0
+image: etiennebinginot/agora:1.1
 
 stages:
   - factory
   - sixqp
   - deploy
+
+cache:
+  policy: pull-push
+  unprotect: true
+  untracked: true
+  when: on_success
+
 
 variables:
   MYSQL_ROOT_PASSWORD: password
