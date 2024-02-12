@@ -21,10 +21,10 @@ This section displays the game's name, and the current game's timer and leaderbo
 	    <p id="elapsedTime" class="mr-1 text-center ">Temps écoulé : 00:00:00</p>
 	    #}
     </div>
-	<p class="text-center py-2 font-bold dark:bg-gray-700 text-white text-xl border-y-4 border-violet-600">
+	<p class="text-center py-2 font-bold bg-gray-700 text-white text-xl border-y-4 border-violet-600">
 		Classement
 	</p>
-	<div class="dark:bg-slate-400 overflow-y-auto">
+	<div class="bg-slate-400 overflow-y-auto">
 		<div id="leaderboard" class="text-sm font-medium space-y-1 text-white">
 			{% for user in ranking %}
 				<div id="{{ user.username }}" class="score-white">
