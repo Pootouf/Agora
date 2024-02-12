@@ -136,3 +136,9 @@ window.addEventListener('load', function () {
         applyScoresStyle(Array.from(leaderboardContainer.children));
     }
 });
+
+let timerForReset;
+window.onresize = function(){
+    clearTimeout(timerForReset);
+    timerForReset = setTimeout(resetRankingOrder, 100);
+};
