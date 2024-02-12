@@ -4,6 +4,7 @@ namespace App\Entity\Game\Splendor;
 
 use App\Entity\Game\DTO\Card;
 use App\Repository\Game\Splendor\DevelopmentCardsSPLRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -16,21 +17,18 @@ class DevelopmentCardsSPL extends Card
     #[ORM\Column(length: 255)]
     private ?string $color = null;
 
-    /**
-     * @type Collection<CardCostSPL>
-     */
-    #[ORM\Column]
-    private Collection $cardCost;
-
     #[ORM\ManyToOne(inversedBy: 'developmentCards')]
-    private ?DrawCardsSPL $drawCardsSPL = null;
+    private ?DrawCardsSPL $drawCardsSPL = null; 
 
     #[ORM\ManyToOne(inversedBy: 'developmentCards')]
     private ?RowSPL $rowSPL = null;
 
-    public function __construct(Collection $cardCost)
+    #[ORM\ManyToMany(targetEntity: CardCostSPL::class)]
+    private Collection $cardCost;
+
+    public function __construct()
     {
-        $this->cardCost = $cardCost;
+        $this->cardCost = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -62,11 +60,6 @@ class DevelopmentCardsSPL extends Card
         return $this;
     }
 
-    public function getCardCost(): Collection
-    {
-        return $this->cardCost;
-    }
-
     public function getDrawCardsSPL(): ?DrawCardsSPL
     {
         return $this->drawCardsSPL;
@@ -87,6 +80,30 @@ class DevelopmentCardsSPL extends Card
     public function setRowSPL(?RowSPL $rowSPL): static
     {
         $this->rowSPL = $rowSPL;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CardCostSPL>
+     */
+    public function getCardCost(): Collection
+    {
+        return $this->cardCost;
+    }
+
+    private function addCardCost(CardCostSPL $cardCost): static
+    {
+        if (!$this->cardCost->contains($cardCost)) {
+            $this->cardCost->add($cardCost);
+        }
+
+        return $this;
+    }
+
+    private function removeCardCost(CardCostSPL $cardCost): static
+    {
+        $this->cardCost->removeElement($cardCost);
 
         return $this;
     }

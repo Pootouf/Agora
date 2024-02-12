@@ -29,18 +29,16 @@ class PersonalBoardSPL extends Component
     #[ORM\OneToMany(targetEntity: TokenSPL::class, mappedBy: 'tempPersonalBoardSPL')]
     private Collection $selectedTokens;
 
-    /**
-     * @type Collection<int, PlayerCardSPL>
-     */
-    #[ORM\OneToOne(mappedBy: 'personalBoard', cascade: ['persist', 'remove'])]
-    private Collection $playerCardsSPL;
+    #[ORM\OneToMany(targetEntity: PlayerCardSPL::class, mappedBy: 'personalBoardSPL', orphanRemoval: true)]
+    private Collection $playerCards;
+
 
     public function __construct()
     {
         $this->tokens = new ArrayCollection();
         $this->nobleTiles = new ArrayCollection();
         $this->selectedTokens = new ArrayCollection();
-        $this->playerCardsSPL = new ArrayCollection();
+        $this->playerCards = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -167,17 +165,33 @@ class PersonalBoardSPL extends Component
         return $this;
     }
 
-    public function getPlayerCardSPL(): Collection
+    /**
+     * @return Collection<int, PlayerCardSPL>
+     */
+    public function getPlayerCards(): Collection
     {
-        return $this->playerCardsSPL;
+        return $this->playerCards;
     }
 
-    public function addPlayerCardSPL(PlayerCardSPL $playerCardsSPL): static
+    public function addPlayerCard(PlayerCardSPL $playerCard): static
     {
-        if (!$this->playerCardsSPL->contains($playerCardsSPL)) {
-            $this->playerCardsSPL->add($playerCardsSPL);
-            $playerCardsSPL->setPersonalBoard($this);
+        if (!$this->playerCards->contains($playerCard)) {
+            $this->playerCards->add($playerCard);
+            $playerCard->setPersonalBoardSPL($this);
         }
+
+        return $this;
+    }
+
+    public function removePlayerCard(PlayerCardSPL $playerCard): static
+    {
+        if ($this->playerCards->removeElement($playerCard)) {
+            // set the owning side to null (unless already changed)
+            if ($playerCard->getPersonalBoardSPL() === $this) {
+                $playerCard->setPersonalBoardSPL(null);
+            }
+        }
+
         return $this;
     }
 }

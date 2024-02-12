@@ -23,6 +23,10 @@ class PlayerCardSPL extends Component
     #[ORM\Column]
     private ?bool $reserved = null;
 
+    #[ORM\ManyToOne(inversedBy: 'playerCards')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?PersonalBoardSPL $personalBoardSPL = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -72,6 +76,18 @@ class PlayerCardSPL extends Component
     public function setReserved(bool $reserved): static
     {
         $this->reserved = $reserved;
+
+        return $this;
+    }
+
+    public function getPersonalBoardSPL(): ?PersonalBoardSPL
+    {
+        return $this->personalBoardSPL;
+    }
+
+    public function setPersonalBoardSPL(?PersonalBoardSPL $personalBoardSPL): static
+    {
+        $this->personalBoardSPL = $personalBoardSPL;
 
         return $this;
     }
