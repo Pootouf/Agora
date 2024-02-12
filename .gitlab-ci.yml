@@ -35,16 +35,35 @@ deploy_dev_game:
   only:
     - develop-game
 
-unit:
-  stage: test
+unitFactory:
+  stage: Factory
   script:
-    - php bin/phpunit tests/Game/SixQP/Unit --coverage-text
     - php bin/phpunit tests/Game/Factory/Unit --coverage-text
   allow_failure: false
   environment: test
 
-integration:
-  stage: test
+integrationFactory:
+  stage: Factory
+  only:
+    - develop-game
+    - preprod
+    - main
+  script:
+    - symfony console --env=test doctrine:migrations:migrate
+    - symfony console doctrine:fixtures:load --env=test -n
+    - php bin/phpunit tests/Game/Factory/Integration --coverage-text
+  allow_failure: false
+  environment: test
+
+unit6QP:
+  stage: 6QP
+  script:
+    - php bin/phpunit tests/Game/SixQP/Unit --coverage-text
+  allow_failure: false
+  environment: test
+
+integration6QP:
+  stage: 6QP
   only:
     - develop-game
     - preprod
@@ -53,6 +72,5 @@ integration:
     - symfony console --env=test doctrine:migrations:migrate
     - symfony console doctrine:fixtures:load --env=test -n
     - php bin/phpunit tests/Game/SixQP/Integration --coverage-text
-    - php bin/phpunit tests/Game/Factory/Integration --coverage-text
   allow_failure: false
   environment: test
