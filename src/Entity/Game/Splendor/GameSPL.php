@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Entity\Game\SPL;
+namespace App\Entity\Game\Splendor;
 
 use App\Entity\Game\DTO\Game;
-use App\Repository\Game\SPL\GameSPLRepository;
+use App\Repository\Game\Splendor\GameSPLRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;

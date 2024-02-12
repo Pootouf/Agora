@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Entity\Game\SPL;
+namespace App\Entity\Game\Splendor;
 
 use App\Entity\Game\DTO\Player;
 use App\Entity\Game\SixQP\GameSixQP;
-use App\Repository\Game\SPL\PlayerSPLRepository;
+use App\Repository\Game\Splendor\PlayerSPLRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 

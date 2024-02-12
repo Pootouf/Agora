@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Entity\Game\SPL;
+namespace App\Entity\Game\Splendor;
 
 use App\Entity\Game\DTO\Tile;
-use App\Repository\Game\SPL\NobleTileSPLRepository;
+use App\Repository\Game\Splendor\NobleTileSPLRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 

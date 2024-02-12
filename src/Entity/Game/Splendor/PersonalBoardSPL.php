@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Entity\Game\SPL;
+namespace App\Entity\Game\Splendor;
 
 use App\Entity\Game\DTO\Component;
-use App\Repository\Game\SPL\PersonalBoardSPLRepository;
+use App\Repository\Game\Splendor\PersonalBoardSPLRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -29,14 +29,18 @@ class PersonalBoardSPL extends Component
     #[ORM\OneToMany(targetEntity: TokenSPL::class, mappedBy: 'tempPersonalBoardSPL')]
     private Collection $selectedTokens;
 
+    /**
+     * @type Collection<int, PlayerCardSPL>
+     */
     #[ORM\OneToOne(mappedBy: 'personalBoard', cascade: ['persist', 'remove'])]
-    private ?PlayerCardSPL $playerCardSPL = null;
+    private Collection $playerCardsSPL;
 
     public function __construct()
     {
         $this->tokens = new ArrayCollection();
         $this->nobleTiles = new ArrayCollection();
         $this->selectedTokens = new ArrayCollection();
+        $this->playerCardsSPL = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -163,20 +167,17 @@ class PersonalBoardSPL extends Component
         return $this;
     }
 
-    public function getPlayerCardSPL(): ?PlayerCardSPL
+    public function getPlayerCardSPL(): Collection
     {
-        return $this->playerCardSPL;
+        return $this->playerCardsSPL;
     }
 
-    public function setPlayerCardSPL(PlayerCardSPL $playerCardSPL): static
+    public function addPlayerCardSPL(PlayerCardSPL $playerCardsSPL): static
     {
-        // set the owning side of the relation if necessary
-        if ($playerCardSPL->getPersonalBoard() !== $this) {
-            $playerCardSPL->setPersonalBoard($this);
+        if (!$this->playerCardsSPL->contains($playerCardsSPL)) {
+            $this->playerCardsSPL->add($playerCardsSPL);
+            $playerCardsSPL->setPersonalBoard($this);
         }
-
-        $this->playerCardSPL = $playerCardSPL;
-
         return $this;
     }
 }

@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Repository\Game\SPL;
+namespace App\Repository\Game\Splendor;
 
-use App\Entity\Game\SPL\TokenSPL;
+use App\Entity\Game\Splendor\TokenSPL;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 

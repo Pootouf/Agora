@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Entity\Game\SPL;
+namespace App\Entity\Game\Splendor;
 
 use App\Entity\Game\DTO\Token;
-use App\Repository\Game\SPL\TokenSPLRepository;
+use App\Repository\Game\Splendor\TokenSPLRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: TokenSPLRepository::class)]

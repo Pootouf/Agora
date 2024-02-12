@@ -1,22 +1,25 @@
 <?php
 
+namespace App\Tests\Game\Splendor\Unit\Service;
 
-use App\Entity\Game\SPL\GameSPL;
-use App\Entity\Game\SPL\PersonalBoardSPL;
-use App\Entity\Game\SPL\PlayerSPL;
-use App\Entity\Game\SPL\TokenSPL;
+use App\Entity\Game\Splendor\GameSPL;
+use App\Entity\Game\Splendor\PersonalBoardSPL;
+use App\Entity\Game\Splendor\PlayerSPL;
+use App\Entity\Game\Splendor\TokenSPL;
 use App\Service\Game\SPL\SPLService;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
+use App\Repository\Game\Splendor\PlayerSPLRepository;
 
-class PLServiceTest extends TestCase
+class SPLServiceTest extends TestCase
 {
     private SPLService $SPLService;
 
     protected function setUp(): void
     {
         $entityManager = $this->createMock(EntityManagerInterface::class);
-        $this->SPLService = new SPLService($entityManager);
+        $playerRepository = $this->createMock(PlayerSPLRepository::class);
+        $this->SPLService = new SPLService($entityManager, $playerRepository);
     }
     public function testTakeTokenWhenAlreadyFull() : void
     {

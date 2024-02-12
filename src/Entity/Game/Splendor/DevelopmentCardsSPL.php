@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Entity\Game\SPL;
+namespace App\Entity\Game\Splendor;
 
 use App\Entity\Game\DTO\Card;
-use App\Repository\Game\SPL\DevelopmentCardsSPLRepository;
-use Doctrine\DBAL\Types\Types;
+use App\Repository\Game\Splendor\DevelopmentCardsSPLRepository;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: DevelopmentCardsSPLRepository::class)]
@@ -16,17 +16,22 @@ class DevelopmentCardsSPL extends Card
     #[ORM\Column(length: 255)]
     private ?string $color = null;
 
-    #[ORM\Column(type: Types::ARRAY)]
-    private array $costTokensColor = [];
-
-    #[ORM\Column(type: Types::ARRAY)]
-    private array $countCostTokensColor = [];
+    /**
+     * @type Collection<CardCostSPL>
+     */
+    #[ORM\Column]
+    private Collection $cardCost;
 
     #[ORM\ManyToOne(inversedBy: 'developmentCards')]
     private ?DrawCardsSPL $drawCardsSPL = null;
 
     #[ORM\ManyToOne(inversedBy: 'developmentCards')]
     private ?RowSPL $rowSPL = null;
+
+    public function __construct(Collection $cardCost)
+    {
+        $this->cardCost = $cardCost;
+    }
 
     public function getId(): ?int
     {
@@ -57,28 +62,9 @@ class DevelopmentCardsSPL extends Card
         return $this;
     }
 
-    public function getCostTokensColor(): array
+    public function getCardCost(): Collection
     {
-        return $this->costTokensColor;
-    }
-
-    public function setCostTokensColor(array $costTokensColor): static
-    {
-        $this->costTokensColor = $costTokensColor;
-
-        return $this;
-    }
-
-    public function getCountCostTokensColor(): array
-    {
-        return $this->countCostTokensColor;
-    }
-
-    public function setCountCostTokensColor(array $countCostTokensColor): static
-    {
-        $this->countCostTokensColor = $countCostTokensColor;
-
-        return $this;
+        return $this->cardCost;
     }
 
     public function getDrawCardsSPL(): ?DrawCardsSPL

@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Entity\Game\SPL;
+namespace App\Entity\Game\Splendor;
 
 use App\Entity\Game\DTO\Component;
-use App\Repository\Game\SPL\PlayerCardSPLRepository;
+use App\Repository\Game\Splendor\PlayerCardSPLRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PlayerCardSPLRepository::class)]

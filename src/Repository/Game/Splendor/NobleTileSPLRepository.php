@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Repository\Game\SPL;
+namespace App\Repository\Game\Splendor;
 
-use App\Entity\Game\SPL\NobleTileSPL;
+use App\Entity\Game\Splendor\NobleTileSPL;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 

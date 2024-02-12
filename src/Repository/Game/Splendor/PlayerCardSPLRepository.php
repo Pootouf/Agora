@@ -1,28 +1,28 @@
 <?php
 
-namespace App\Repository\Game\SPL;
+namespace App\Repository\Game\Splendor;
 
-use App\Entity\Game\SPL\PersonalBoardSPL;
+use App\Entity\Game\Splendor\PlayerCardSPL;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<PersonalBoardSPL>
+ * @extends ServiceEntityRepository<PlayerCardSPL>
  *
- * @method PersonalBoardSPL|null find($id, $lockMode = null, $lockVersion = null)
- * @method PersonalBoardSPL|null findOneBy(array $criteria, array $orderBy = null)
- * @method PersonalBoardSPL[]    findAll()
- * @method PersonalBoardSPL[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method PlayerCardSPL|null find($id, $lockMode = null, $lockVersion = null)
+ * @method PlayerCardSPL|null findOneBy(array $criteria, array $orderBy = null)
+ * @method PlayerCardSPL[]    findAll()
+ * @method PlayerCardSPL[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class PersonalBoardSPLRepository extends ServiceEntityRepository
+class PlayerCardSPLRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, PersonalBoardSPL::class);
+        parent::__construct($registry, PlayerCardSPL::class);
     }
 
 //    /**
-//     * @return PersonalBoardSPL[] Returns an array of PersonalBoardSPL objects
+//     * @return PlayerCardSPL[] Returns an array of PlayerCardSPL objects
 //     */
 //    public function findByExampleField($value): array
 //    {
@@ -36,7 +36,7 @@ class PersonalBoardSPLRepository extends ServiceEntityRepository
 //        ;
 //    }
 
-//    public function findOneBySomeField($value): ?PersonalBoardSPL
+//    public function findOneBySomeField($value): ?PlayerCardSPL
 //    {
 //        return $this->createQueryBuilder('p')
 //            ->andWhere('p.exampleField = :val')

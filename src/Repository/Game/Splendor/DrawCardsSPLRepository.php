@@ -1,28 +1,28 @@
 <?php
 
-namespace App\Repository\Game\SPL;
+namespace App\Repository\Game\Splendor;
 
-use App\Entity\Game\SPL\DevelopmentCardsSPL;
+use App\Entity\Game\Splendor\DrawCardsSPL;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<DevelopmentCardsSPL>
+ * @extends ServiceEntityRepository<DrawCardsSPL>
  *
- * @method DevelopmentCardsSPL|null find($id, $lockMode = null, $lockVersion = null)
- * @method DevelopmentCardsSPL|null findOneBy(array $criteria, array $orderBy = null)
- * @method DevelopmentCardsSPL[]    findAll()
- * @method DevelopmentCardsSPL[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method DrawCardsSPL|null find($id, $lockMode = null, $lockVersion = null)
+ * @method DrawCardsSPL|null findOneBy(array $criteria, array $orderBy = null)
+ * @method DrawCardsSPL[]    findAll()
+ * @method DrawCardsSPL[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class DevelopmentCardsSPLRepository extends ServiceEntityRepository
+class DrawCardsSPLRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, DevelopmentCardsSPL::class);
+        parent::__construct($registry, DrawCardsSPL::class);
     }
 
 //    /**
-//     * @return DevelopmentCardsSPL[] Returns an array of DevelopmentCardsSPL objects
+//     * @return DrawCardsSPL[] Returns an array of DrawCardsSPL objects
 //     */
 //    public function findByExampleField($value): array
 //    {
@@ -36,7 +36,7 @@ class DevelopmentCardsSPLRepository extends ServiceEntityRepository
 //        ;
 //    }
 
-//    public function findOneBySomeField($value): ?DevelopmentCardsSPL
+//    public function findOneBySomeField($value): ?DrawCardsSPL
 //    {
 //        return $this->createQueryBuilder('d')
 //            ->andWhere('d.exampleField = :val')

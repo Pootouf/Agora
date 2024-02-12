@@ -1,12 +1,12 @@
 <?php
 
 
-namespace App\Tests\Game\SPL\Integration\Service;
+namespace App\Tests\Game\Splendor\Integration\Service;
 
-use App\Entity\Game\SPL\GameSPL;
-use App\Entity\Game\SPL\PersonalBoardSPL;
-use App\Entity\Game\SPL\PlayerSPL;
-use App\Entity\Game\SPL\TokenSPL;
+use App\Entity\Game\Splendor\GameSPL;
+use App\Entity\Game\Splendor\PersonalBoardSPL;
+use App\Entity\Game\Splendor\PlayerSPL;
+use App\Entity\Game\Splendor\TokenSPL;
 use App\Service\Game\AbstractGameManagerService;
 use App\Service\Game\SPL\SPLService;
 use Doctrine\ORM\EntityManagerInterface;
