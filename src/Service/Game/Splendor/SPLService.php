@@ -105,6 +105,21 @@ class SPLService
     }
 
     /**
+     * getRanking : returns a sorted array of player
+     * @param GameSPL $gameSPL
+     * @return array
+     */
+    public function getRanking(GameSPL $gameSPL): array
+    {
+        $array = $gameSPL->getPlayers()->toArray();
+        usort($array,
+            function (PlayerSPL $player1, PlayerSPL $player2) {
+                return $this->getPrestigePoints($player2) - $this->getPrestigePoints($player1);
+            });
+        return $array;
+    }
+
+    /**
      * getPrestigePoints : returns total prestige points of a player
      * @param PlayerSPL $player
      * @return int

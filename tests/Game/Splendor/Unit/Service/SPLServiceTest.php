@@ -190,4 +190,33 @@ class SPLServiceTest extends TestCase
         //THEN
         $this->assertFalse($result);
     }
+
+    public function testGetRanking(): void
+    {
+        // GIVEN
+        $game = new GameSPL();
+        $player = new PlayerSPL('test', $game);
+        $personalBoard = new PersonalBoardSPL();
+        $player->setPersonalBoard($personalBoard);
+        $player->setTurnOfPlayer(true);
+        $game->addPlayer($player);
+        $personalBoard->setPlayerSPL($player);
+        $player2 = new PlayerSPL('test1', $game);
+        $personalBoard2 = new PersonalBoardSPL();
+        $player2->setPersonalBoard($personalBoard2);
+        $player2->setTurnOfPlayer(false);
+        $personalBoard2->setPlayerSPL($player2);
+        $game->addPlayer($player2);
+        $nobleTile1 = new NobleTileSPL();
+        $nobleTile1->setPrestigePoints(2);
+        $player->getPersonalBoard()->addNobleTile($nobleTile1);
+        $nobleTile2 = new NobleTileSPL();
+        $nobleTile2->setPrestigePoints(3);
+        $player2->getPersonalBoard()->addNobleTile($nobleTile2);
+        $expectedRanking = array($player2, $player);
+        // WHEN
+        $result = $this->SPLService->getRanking($game);
+        // THEN
+        $this->assertEquals($expectedRanking, $result);
+    }
 }

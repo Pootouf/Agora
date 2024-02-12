@@ -215,4 +215,30 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $entityManager->flush();
         return $game;
     }
+
+    public function testGetRanking(): void
+    {
+        // GIVEN
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $splendorService = static::getContainer()->get(SPLService::class);
+        $game = $this->createGame(2);
+        $player1 = $game->getPlayers()[0];
+        $player2 = $game->getPlayers()[1];
+        $nobleTile1 = new NobleTileSPL();
+        $nobleTile1->setPrestigePoints(2);
+        $nobleTile1->setType("test");
+        $nobleTile2 = new NobleTileSPL();
+        $nobleTile2->setPrestigePoints(3);
+        $nobleTile2->setType("test2");
+        $entityManager->persist($nobleTile1);
+        $entityManager->persist($nobleTile2);
+        $player1->getPersonalBoard()->addNobleTile($nobleTile1);
+        $player2->getPersonalBoard()->addNobleTile($nobleTile2);
+        $entityManager->flush();
+        $expectedRanking = array($player2, $player1);
+        // WHEN
+        $result = $splendorService->getRanking($game);
+        // THEN
+        $this->assertEquals($expectedRanking, $result);
+    }
 }
