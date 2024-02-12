@@ -4,6 +4,8 @@ namespace App\Entity\Game\Splendor;
 
 use App\Entity\Game\DTO\Tile;
 use App\Repository\Game\Splendor\NobleTileSPLRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -13,17 +15,19 @@ class NobleTileSPL extends Tile
     #[ORM\Column]
     private ?int $prestigePoints = null;
 
-    #[ORM\Column(type: Types::ARRAY)]
-    private array $costCardsColor = [];
-
-    #[ORM\Column(type: Types::ARRAY)]
-    private array $countCostCardsColor = [];
-
     #[ORM\ManyToOne(inversedBy: 'nobleTiles')]
     private ?PersonalBoardSPL $personalBoardSPL = null;
 
     #[ORM\ManyToOne(inversedBy: 'nobleTiles')]
     private ?MainBoardSPL $mainBoardSPL = null;
+
+    #[ORM\ManyToMany(targetEntity: CardCostSPL::class)]
+    private Collection $cardCost;
+
+    public function __construct()
+    {
+        $this->cardCost = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -41,31 +45,7 @@ class NobleTileSPL extends Tile
 
         return $this;
     }
-
-    public function getCostCardsColor(): array
-    {
-        return $this->costCardsColor;
-    }
-
-    public function setCostCardsColor(array $costCardsColor): static
-    {
-        $this->costCardsColor = $costCardsColor;
-
-        return $this;
-    }
-
-    public function getCountCostCardsColor(): array
-    {
-        return $this->countCostCardsColor;
-    }
-
-    public function setCountCostCardsColor(array $countCostCardsColor): static
-    {
-        $this->countCostCardsColor = $countCostCardsColor;
-
-        return $this;
-    }
-
+    
     public function getPersonalBoardSPL(): ?PersonalBoardSPL
     {
         return $this->personalBoardSPL;
@@ -86,6 +66,30 @@ class NobleTileSPL extends Tile
     public function setMainBoardSPL(?MainBoardSPL $mainBoardSPL): static
     {
         $this->mainBoardSPL = $mainBoardSPL;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CardCostSPL>
+     */
+    public function getCardCost(): Collection
+    {
+        return $this->cardCost;
+    }
+
+    public function addCardCost(CardCostSPL $cardCost): static
+    {
+        if (!$this->cardCost->contains($cardCost)) {
+            $this->cardCost->add($cardCost);
+        }
+
+        return $this;
+    }
+
+    public function removeCardCost(CardCostSPL $cardCost): static
+    {
+        $this->cardCost->removeElement($cardCost);
 
         return $this;
     }
