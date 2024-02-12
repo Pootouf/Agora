@@ -79,3 +79,16 @@ integration6QP:
     - php bin/phpunit tests/Game/SixQP/Integration --coverage-text
   allow_failure: false
   environment: test
+
+application6QP:
+  stage: sixqp
+  only:
+    - develop-game
+    - preprod
+    - main
+  script:
+    - symfony console --env=test doctrine:migrations:migrate
+    - symfony console doctrine:fixtures:load --env=test -n
+    - php bin/phpunit tests/Game/SixQP/Application --coverage-text
+  allow_failure: false
+  environment: test
