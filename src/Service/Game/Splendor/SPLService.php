@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\Game\SPL;
+namespace App\Service\Game\Splendor;
 
 use App\Entity\Game\DTO\Game;
 use App\Entity\Game\Splendor\GameSPL;
@@ -36,6 +36,11 @@ class SPLService
         // Method to check if player can take this token (3 different tokens method)
 
         // player can take and action is performed
+    }
+
+    public function isGameEnded(GameSPL $game, PlayerSPL $playerSPL) : bool
+    {
+        return true;
     }
 
     /**

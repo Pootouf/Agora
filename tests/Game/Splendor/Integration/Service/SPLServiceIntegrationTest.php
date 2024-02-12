@@ -8,7 +8,7 @@ use App\Entity\Game\Splendor\PersonalBoardSPL;
 use App\Entity\Game\Splendor\PlayerSPL;
 use App\Entity\Game\Splendor\TokenSPL;
 use App\Service\Game\AbstractGameManagerService;
-use App\Service\Game\SPL\SPLService;
+use App\Service\Game\Splendor\SPLService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 

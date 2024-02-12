@@ -6,7 +6,7 @@ use App\Entity\Game\Splendor\GameSPL;
 use App\Entity\Game\Splendor\PersonalBoardSPL;
 use App\Entity\Game\Splendor\PlayerSPL;
 use App\Entity\Game\Splendor\TokenSPL;
-use App\Service\Game\SPL\SPLService;
+use App\Service\Game\Splendor\SPLService;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 use App\Repository\Game\Splendor\PlayerSPLRepository;

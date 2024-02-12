@@ -4,6 +4,7 @@ namespace App\Entity\Game\DTO;
 
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\MappedSuperclass;
+use phpDocumentor\Reflection\Types\Nullable;
 
 #[MappedSuperclass]
 class Player
@@ -16,6 +17,8 @@ class Player
     #[ORM\Column(length: 255)]
     protected ?string $username = null;
 
+    #[ORM\Column(nullable: true)]
+    protected ?bool $turnOfPlayer = null;
     public function getId(): ?int
     {
         return $this->id;
@@ -33,4 +36,15 @@ class Player
         return $this;
     }
 
+    public function isTurnOfPlayer() : ?bool
+    {
+        return $this->turnOfPlayer;
+    }
+
+    public function setTurnOfPlayer(bool $turnOfPlayer) : static
+    {
+        $this->turnOfPlayer = $turnOfPlayer;
+
+        return $this;
+    }
 }

@@ -13,7 +13,7 @@ use App\Repository\Game\SixQP\PlayerSixQPRepository;
 use App\Service\Game\LogService;
 use App\Service\Game\SixQP\SixQPService;
 use App\Service\Game\PublishService;
-use App\Service\Game\SPL\SPLService;
+use App\Service\Game\Splendor\SPLService;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
