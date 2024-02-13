@@ -5,6 +5,10 @@ stages:
   - sixqp
   - deploy
 
+cache:
+  paths:
+    - /app/vendor/
+
 
 variables:
   MYSQL_ROOT_PASSWORD: password
@@ -24,6 +28,9 @@ before_script:
   - mkdir -p ~/.ssh
   - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
   - cd /app
+  - composer update
+  - symfony console --env=test doctrine:migrations:migrate
+  - symfony console doctrine:fixtures:load --env=test -n
   
 
 deploy_dev_game:
@@ -50,8 +57,6 @@ integrationFactory:
     - preprod
     - main
   script:
-    - symfony console --env=test doctrine:migrations:migrate
-    - symfony console doctrine:fixtures:load --env=test -n
     - php bin/phpunit tests/Game/Factory/Integration --coverage-text
   allow_failure: false
   environment: test
@@ -70,8 +75,6 @@ integration6QP:
     - preprod
     - main
   script:
-    - symfony console --env=test doctrine:migrations:migrate
-    - symfony console doctrine:fixtures:load --env=test -n
     - php bin/phpunit tests/Game/SixQP/Integration --coverage-text
   allow_failure: false
   environment: test
@@ -83,8 +86,7 @@ application6QP:
     - preprod
     - main
   script:
-    - symfony console --env=test doctrine:migrations:migrate
-    - symfony console doctrine:fixtures:load --env=test -n
+    - symfony console tailwind:build
     - php bin/phpunit tests/Game/SixQP/Application --coverage-text
   allow_failure: false
   environment: test
