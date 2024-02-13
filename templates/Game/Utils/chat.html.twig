@@ -33,12 +33,12 @@
         </div>
     </div>
     <div class="flex justify-center h-1/6 lg:h-1/7 w-full py-2 ">
-        <div class="bg-[#f5ebe0] h-full w-5/6 flex justify-around py-5 rounded-2xl text-5xl landscape:text-base">
+        <div class="bg-[#f5ebe0] h-full w-5/6 flex justify-evenly py-5 rounded-2xl text-5xl landscape:text-base">
             <label for="inputMessage">
                 <input id="inputMessage" type="text"
                        placeholder="Votre message"
                        name="message"
-                       class="bg-[#edede9] border-none rounded-2xl w-4/6 max-lg:text-2xl"
+                       class="bg-[#edede9] border-none rounded-2xl h-full text-5xl landscape:text-base"
                 >
             </label>
             <button {{ stimulus_action('message', 'sendMessage', 'click',
