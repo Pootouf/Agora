@@ -48,14 +48,14 @@ class SPLGameManagerService extends AbstractGameManagerService
         $game = new GameSPL();
         $game->setGameName(AbstractGameManagerService::$SPL_LABEL);
         $mainBoard = new MainBoardSPL();
-        $mainBoard->setGameSPL($game);
+        $game->setMainBoard($mainBoard);
         for ($i = 1; $i <= MainBoardSPL::$NUMBER_OF_ROWS_BY_GAME; $i++) {
             $row = new RowSPL();
-            $row->setCardLevel($i);
+            $row->setLevel($i);
             $mainBoard->addRowsSPL($row);
             $this->entityManager->persist($row);
             $drawCard = new DrawCardsSPL();
-            $drawCard->setCardLevel($i);
+            $drawCard->setLevel($i);
             $mainBoard->addDrawCard($drawCard);
             $this->entityManager->persist($drawCard);
         }
@@ -82,15 +82,17 @@ class SPLGameManagerService extends AbstractGameManagerService
             return SPLGameManagerService::$ERROR_INVALID_NUMBER_OF_PLAYER;
         }
         if ($this->playerSPLRepository->findOneBy(
-            ['username' => $playerName, 'game' => $game->getId()]) != null) {
+            ['username' => $playerName, 'gameSPL' => $game->getId()]) != null) {
             return SPLGameManagerService::$ERROR_ALREADY_IN_PARTY;
         }
-        $player = new PlayerSPL($playerName, $game);
+        $player = new PlayerSPL();
+        $player->setUsername($playerName);
+        $player->setGameSPL($game);
         $personalBoard = new PersonalBoardSPL();
         $player->setGameSPL($game);
         $player->setPersonalBoard($personalBoard);
-        $personalBoard->setGame($game);
         $personalBoard->setPlayerSPL($player);
+        $player->setPersonalBoard($personalBoard);
 
         $this->entityManager->persist($player);
         $this->entityManager->persist($personalBoard);

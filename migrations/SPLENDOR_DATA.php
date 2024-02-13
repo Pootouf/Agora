@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20240213200631 extends AbstractMigration
+final class SPLENDOR_DATA extends AbstractMigration
 {
     public function getDescription(): string
     {

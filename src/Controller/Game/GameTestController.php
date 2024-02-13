@@ -5,6 +5,7 @@ namespace App\Controller\Game;
 use App\Entity\Game\SixQP\GameSixQP;
 use App\Entity\Game\Splendor\GameSPL;
 use App\Repository\Game\SixQP\GameSixQPRepository;
+use App\Repository\Game\Splendor\GameSPLRepository;
 use App\Service\Game\AbstractGameManagerService;
 use App\Service\Game\GameManagerService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -76,9 +77,9 @@ class GameTestController extends AbstractController
 
 
     #[Route('/game/splendor/list', name: 'app_game_splendor_list')]
-    public function listSPLGames(GameSixQPRepository $gameSixQPRepository): Response
+    public function listSPLGames(GameSPLRepository $gameSPLRepository): Response
     {
-        $games = $gameSixQPRepository->findAll();
+        $games = $gameSPLRepository->findAll();
 
         return $this->render('Game/Splendor/GameTest/list_games.twig', [
             'games' => $games

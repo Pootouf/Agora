@@ -2,25 +2,28 @@
 
 namespace App\Entity\Game\Splendor;
 
-use App\Entity\Game\DTO\Component;
 use App\Repository\Game\Splendor\MainBoardSPLRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: MainBoardSPLRepository::class)]
-class MainBoardSPL extends Component
+class MainBoardSPL
 {
-
     public static int $NUMBER_OF_ROWS_BY_GAME = 3;
+
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
+    private ?int $id = null;
 
     #[ORM\OneToMany(targetEntity: RowSPL::class, mappedBy: 'mainBoardSPL', orphanRemoval: true)]
     private Collection $rowsSPL;
 
-    #[ORM\OneToMany(targetEntity: TokenSPL::class, mappedBy: 'mainBoardSPL')]
+    #[ORM\ManyToMany(targetEntity: TokenSPL::class)]
     private Collection $tokens;
 
-    #[ORM\OneToMany(targetEntity: NobleTileSPL::class, mappedBy: 'mainBoardSPL')]
+    #[ORM\ManyToMany(targetEntity: NobleTileSPL::class)]
     private Collection $nobleTiles;
 
     #[ORM\OneToMany(targetEntity: DrawCardsSPL::class, mappedBy: 'mainBoardSPL', orphanRemoval: true)]
@@ -84,7 +87,6 @@ class MainBoardSPL extends Component
     {
         if (!$this->tokens->contains($token)) {
             $this->tokens->add($token);
-            $token->setMainBoardSPL($this);
         }
 
         return $this;
@@ -92,12 +94,7 @@ class MainBoardSPL extends Component
 
     public function removeToken(TokenSPL $token): static
     {
-        if ($this->tokens->removeElement($token)) {
-            // set the owning side to null (unless already changed)
-            if ($token->getMainBoardSPL() === $this) {
-                $token->setMainBoardSPL(null);
-            }
-        }
+        $this->tokens->removeElement($token);
 
         return $this;
     }
@@ -114,20 +111,14 @@ class MainBoardSPL extends Component
     {
         if (!$this->nobleTiles->contains($nobleTile)) {
             $this->nobleTiles->add($nobleTile);
-            $nobleTile->setMainBoardSPL($this);
         }
 
         return $this;
     }
 
-    public function removeNobleTile(NobleTileSPL $nobleTile): static 
+    public function removeNobleTile(NobleTileSPL $nobleTile): static
     {
-        if ($this->nobleTiles->removeElement($nobleTile)) {
-            // set the owning side to null (unless already changed)
-            if ($nobleTile->getMainBoardSPL() === $this) {
-                $nobleTile->setMainBoardSPL(null);
-            }
-        }
+        $this->nobleTiles->removeElement($nobleTile);
 
         return $this;
     }

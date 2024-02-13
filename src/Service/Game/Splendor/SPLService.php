@@ -117,9 +117,9 @@ class SPLService
         if($tokensPickable == -1){
             throw new Exception("An error as occurred");
         }
-        $playerSPL->getPersonalBoard()->addSelectedToken($tokenSPL);
+        $playerSPL->getPersonalBoard()->addToken($tokenSPL);
         if($tokensPickable == 1){
-            $selectedTokens = $playerSPL->getPersonalBoard()->getSelectedTokens();
+            $selectedTokens = $playerSPL->getPersonalBoard()->getTokens();
             foreach ($selectedTokens as $selectedToken){
                 $playerSPL->getPersonalBoard()->addToken($selectedToken);
             }
@@ -263,7 +263,7 @@ class SPLService
      */
     private function canChooseTwoTokens(PlayerSPL $playerSPL, TokenSPL $tokenSPL): int
     {
-        $selectedTokens = $playerSPL->getPersonalBoard()->getSelectedTokens();
+        $selectedTokens = $playerSPL->getPersonalBoard()->getTokens();
         if($selectedTokens->count() == 0){
             return 0;
         }
@@ -285,7 +285,7 @@ class SPLService
      */
     private function canChooseThreeTokens(PlayerSPL $playerSPL, TokenSPL $tokenSPL): int
     {
-        $selectedTokens = $playerSPL->getPersonalBoard()->getSelectedTokens();
+        $selectedTokens = $playerSPL->getPersonalBoard()->getTokens();
         if($selectedTokens->count() == 0){
             return 0;
         }

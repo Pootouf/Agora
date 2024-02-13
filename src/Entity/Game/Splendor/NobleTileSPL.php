@@ -2,31 +2,28 @@
 
 namespace App\Entity\Game\Splendor;
 
-use App\Entity\Game\DTO\Tile;
 use App\Repository\Game\Splendor\NobleTileSPLRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: NobleTileSPLRepository::class)]
-class NobleTileSPL extends Tile
+class NobleTileSPL
 {
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
+    private ?int $id = null;
+
     #[ORM\Column]
     private ?int $prestigePoints = null;
 
-    #[ORM\ManyToOne(inversedBy: 'nobleTiles')]
-    private ?PersonalBoardSPL $personalBoardSPL = null;
-
-    #[ORM\ManyToOne(inversedBy: 'nobleTiles')]
-    private ?MainBoardSPL $mainBoardSPL = null;
-
     #[ORM\ManyToMany(targetEntity: CardCostSPL::class)]
-    private Collection $cardCost;
+    private Collection $cardsCost;
 
     public function __construct()
     {
-        $this->cardCost = new ArrayCollection();
+        $this->cardsCost = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -45,51 +42,27 @@ class NobleTileSPL extends Tile
 
         return $this;
     }
-    
-    public function getPersonalBoardSPL(): ?PersonalBoardSPL
-    {
-        return $this->personalBoardSPL;
-    }
-
-    public function setPersonalBoardSPL(?PersonalBoardSPL $personalBoardSPL): static
-    {
-        $this->personalBoardSPL = $personalBoardSPL;
-
-        return $this;
-    }
-
-    public function getMainBoardSPL(): ?MainBoardSPL
-    {
-        return $this->mainBoardSPL;
-    }
-
-    public function setMainBoardSPL(?MainBoardSPL $mainBoardSPL): static
-    {
-        $this->mainBoardSPL = $mainBoardSPL;
-
-        return $this;
-    }
 
     /**
      * @return Collection<int, CardCostSPL>
      */
-    public function getCardCost(): Collection
+    public function getCardsCost(): Collection
     {
-        return $this->cardCost;
+        return $this->cardsCost;
     }
 
-    public function addCardCost(CardCostSPL $cardCost): static
+    public function addCardsCost(CardCostSPL $cardsCost): static
     {
-        if (!$this->cardCost->contains($cardCost)) {
-            $this->cardCost->add($cardCost);
+        if (!$this->cardsCost->contains($cardsCost)) {
+            $this->cardsCost->add($cardsCost);
         }
 
         return $this;
     }
 
-    public function removeCardCost(CardCostSPL $cardCost): static
+    public function removeCardsCost(CardCostSPL $cardsCost): static
     {
-        $this->cardCost->removeElement($cardCost);
+        $this->cardsCost->removeElement($cardsCost);
 
         return $this;
     }

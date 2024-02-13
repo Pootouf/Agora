@@ -11,6 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: GameSPLRepository::class)]
 class GameSPL extends Game
 {
+
     #[ORM\OneToMany(targetEntity: PlayerSPL::class, mappedBy: 'gameSPL', orphanRemoval: true)]
     private Collection $players;
 
@@ -21,11 +22,6 @@ class GameSPL extends Game
     public function __construct()
     {
         $this->players = new ArrayCollection();
-    }
-
-    public function getId(): ?int
-    {
-        return $this->id;
     }
 
     /**
