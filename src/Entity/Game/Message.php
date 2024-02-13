@@ -26,6 +26,9 @@ class Message
     #[ORM\Column]
     private ?int $gameId = null;
 
+    #[ORM\Column(length: 255)]
+    private ?string $authorUsername = null;
+
     public function __construct()
     {
 
@@ -79,6 +82,18 @@ class Message
     public function setGameId(int $gameId): static
     {
         $this->gameId = $gameId;
+
+        return $this;
+    }
+
+    public function getAuthorUsername(): ?string
+    {
+        return $this->authorUsername;
+    }
+
+    public function setAuthorUsername(string $authorUsername): static
+    {
+        $this->authorUsername = $authorUsername;
 
         return $this;
     }
