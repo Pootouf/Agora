@@ -5,6 +5,7 @@
 {% block body %}
     <div class="h-screen w-screen" {{ stimulus_controller('sixqp') }}>
         <div class="h-full w-full overflow-hidden">
+            <div id="animationContainer" class="absolute top-0 left-0 w-full h-full bg-black bg-opacity-70 z-50"></div>
             {% block nav %}
                 {{ include('/Game/Utils/navigation.html.twig') }}
             {% endblock %}

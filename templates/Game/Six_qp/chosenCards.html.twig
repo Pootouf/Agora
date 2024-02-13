@@ -10,7 +10,7 @@
             <div class="grid grid-cols-2 grid-rows-5 w-full h-full pt-10 p-3">
                 {% set ind = 0 %}
                 {% for chosenCard in chosenCards%}
-                        <div class=" hover:z-10 hover:overflow-visible z-0 p-2">
+                        <div id="{{ chosenCard.id }}" class=" hover:z-10 hover:overflow-visible z-0 p-2">
                         {% if chosenCard is not null %}
                             {% set hovering = "" %}
                             {% if ind != 0 and ind != 1 %}
@@ -45,4 +45,23 @@
                 let chosenCards = document.getElementById('chosenCards');
                 chosenCards.innerHTML = event.data;
             }
+
         </script>
+{% block javascripts %}
+    <script>
+        function translateCard(cardid) {
+            let card = document.getElementById(cardid);
+            console.log('Translating card:', card );
+            card.animate(
+                [
+                    {transform: "translateY(0px)", opacity: 1},
+                    {transform: "translateY(-700px) scale(0.5)", opacity: 0},
+                ],
+                {
+                    duration: 1100,
+                    iterations: 1,
+                },
+            );
+        }
+    </script>
+{% endblock %}

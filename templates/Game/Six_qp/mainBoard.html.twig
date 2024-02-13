@@ -5,15 +5,15 @@ This section displays the main board of the game
 #}
 
     <div class="p-2 bg-red-500 flow float-start w-full h-full overflow-hidden
-                shadow-black shadow-[10px_10px_15px_-3px_rgba(0,0,0,0.1)] -z-1">
+                shadow-black shadow-[10px_10px_15px_-3px_rgba(0,0,0,0.1)]">
         <div class="flex flex-col h-full w-full ml-4">
             {% for row in rows.values %}
-                <div id="row_{{ row.id }}" class="h-1/4">
+                <div id="row_{{ row.id }}" class="h-1/4 portrait:h-[12%] portrait:mb-52">
                     <button {% if needToChoose %}{% else %}disabled{% endif%} class="rows button h-full"
                     {{ stimulus_action('sixqp', 'selectRow', 'click',
                         {url: path('app_game_sixqp_placecardonrow', {idRow: row.id, idGame: game.id})}) }}>
                     {% for card in row.cards %}
-                        <img id="image" class="lg:h-28 h-36 float float-left"
+                        <img id="image" class="h-full float float-left"
                              src="{{ asset('resourcesGames/6QP/cardsImages/' ~ card.value ~ ".png")}}"
                              alt="card">
                     {% endfor %}
@@ -31,6 +31,7 @@ This section displays the main board of the game
             let mainBoard = document.getElementById('mainBoard');
             mainBoard.innerHTML = event.data;
         }
+
         eventSourceAnimRow.onmessage = event => {
             console.log("Event data:", event.data);
             translateRow("row_" + event.data);
@@ -47,7 +48,7 @@ This section displays the main board of the game
             row.animate(
                 [
                     {transform: "translateX(0px)", opacity: 1},
-                    {transform: "translateX(700px)", opacity: 0},
+                    {transform: "translateX(700px) scale(0.5)", opacity: 0},
                 ],
                 {
                     duration: 1100,
@@ -58,6 +59,9 @@ This section displays the main board of the game
                 let mainBoard = document.getElementById('mainBoard');
                 mainBoard.innerHTML = await response.text();
             });
+        }
+        function arrivedCard(rowid) {
+
         }
     </script>
 {% endblock %}
