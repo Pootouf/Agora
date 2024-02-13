@@ -32,9 +32,11 @@ class SixQPControllerTest extends WebTestCase
         $gameId = $this->initializeGameWithTwoPlayers();
         $url = "/game/sixqp/" . $gameId;
         $this->client1->request("GET", $url);
-        $this->assertResponseIsSuccessful();
+        $this->assertResponseStatusCodeSame(Response::HTTP_OK,
+            $this->client1->getResponse());
         $this->client2->request("GET", $url);
-        $this->assertResponseIsSuccessful();
+        $this->assertResponseStatusCodeSame(Response::HTTP_OK,
+            $this->client2->getResponse());
     }
     public function testIsSpectator() : void
     {
@@ -53,14 +55,14 @@ class SixQPControllerTest extends WebTestCase
     public function testCannotChooseTwoCards() : void
     {
         $gameId = $this->initializeGameWithTwoPlayers();
+        $user1 = $this->gameUserRepository->findOneByUsername("test0");
+        $this->client1->loginUser($user1);
         $url = "/game/sixqp/" . $gameId;
         $this->client1->request("GET", $url);
         $game = $this->gameSixQPRepository->findOneBy(["id" => $gameId]);
         $player = $this->sixQPService->getPlayerFromNameAndGame($game, "test0");
         $card = $player->getCards()[0];
         $card2 = $player->getCards()[1];
-        $user1 = $this->gameUserRepository->findOneByUsername("test0");
-        $this->client1->loginUser($user1);
         $newUrl = "/game/" . $gameId . "/sixqp/select/" . $card->getId();
         $this->client1->request("GET", $newUrl);
         $this->assertTrue($player->getCards()->contains($card));
