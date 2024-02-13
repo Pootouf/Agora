@@ -27,6 +27,13 @@ class PlayerCardSPL extends Component
     #[ORM\JoinColumn(nullable: false)]
     private ?PersonalBoardSPL $personalBoardSPL = null;
 
+    public function __construct(PlayerSPL $player, DevelopmentCardsSPL $card, bool $reserved) {
+        $this->developmentCard = $card;
+        $this->game = $player->getGameSPL();
+        $this->personalBoard = $player->getPersonalBoard();
+        $this->reserved = $reserved;
+    }
+
     public function getId(): ?int
     {
         return $this->id;

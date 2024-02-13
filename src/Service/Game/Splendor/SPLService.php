@@ -3,24 +3,42 @@
 namespace App\Service\Game\Splendor;
 
 use App\Entity\Game\DTO\Game;
+use App\Entity\Game\Splendor\DevelopmentCardsSPL;
 use App\Entity\Game\Splendor\GameSPL;
-use App\Entity\Game\Splendor\PersonalBoardSPL;
+use App\Entity\Game\Splendor\MainBoardSPL;
+use App\Entity\Game\Splendor\PlayerCardSPL;
 use App\Entity\Game\Splendor\PlayerSPL;
 use App\Entity\Game\Splendor\TokenSPL;
+use App\Repository\Game\Splendor\MainBoardSPLRepository;
 use App\Repository\Game\Splendor\PlayerSPLRepository;
 use App\Service\Game\AbstractGameManagerService;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Common\Collections\Collection;
+use phpDocumentor\Reflection\Types\Boolean;
+use phpDocumentor\Reflection\Types\Nullable;
+use function PHPUnit\Framework\throwException;
 
 class SPLService
 {
+    public static string $LABEL_JOKER = "yellow";
+    public static int $MAX_POSSIBLE_COUNT_TOKENS = 9;
+    public static int $MIN_COUNT_PLAYER = 2;
+    public static int $MAX_COUNT_PLAYER = 4;
+    public static int $MAX_COUNT_RESERVED_CARDS = 3;
     public static int $MAX_PRESTIGE_POINTS = 15;
     private EntityManagerInterface $entityManager;
     private PlayerSPLRepository $playerSPLRepository;
 
-    public function __construct(EntityManagerInterface $entityManager, PlayerSPLRepository $playerSPLRepository)
+    private MainBoardSPLRepository $mainBoardSPLRepository;
+
+    public function __construct(EntityManagerInterface $entityManager,
+        PlayerSPLRepository $playerSPLRepository,
+        MainBoardSPLRepository $mainBoardSPLRepository)
     {
         $this->entityManager = $entityManager;
         $this->playerSPLRepository =  $playerSPLRepository;
+        $this->mainBoardSPLRepository = $mainBoardSPLRepository;
     }
 
     /**
@@ -41,6 +59,44 @@ class SPLService
     }
 
     /**
+     * reserveCards : a player reserve a development card
+     * @param PlayerSPL $player
+     * @param DevelopmentCardsSPL $card
+     * @return void
+     */
+    public function reserveCards(PlayerSPL $player, DevelopmentCardsSPL $card) : void
+    {
+        // Check can reserve
+        if (!$this->canReserveCards($player, $card))
+        {
+            throwException(new \Exception("You can't reserve cards"));
+        }
+
+        // Boards
+        $game = $player->getGameSPL();
+        $mainBoard = $this->mainBoardSPLRepository->findOneBy(
+            ["game" => $game->getId()]);
+        $personalBoard = $player->getPersonalBoard();
+
+        // Reserve now => Manage cards
+        $playerCard = new PlayerCardSPL($player, $card, true);
+        $personalBoard->addPlayerCard($playerCard);
+
+        // Manage cards
+        // => I know that my card is in main board; so i remove this card from row or draw card
+       if ($card->getDrawCardsSPL() != null)
+       {
+           $this->manageDiscard($card);
+       } else
+       {
+            $this->manageRow($mainBoard, $card);
+       }
+
+       // Manage token
+       $this->manageJokerToken($player);
+    }
+
+    /**
      * isGameEnded : checks if a game must end or not
      * @param GameSPL $game
      * @return bool
@@ -50,6 +106,28 @@ class SPLService
 
        return $this->hasOnePlayerReachedLimit($game)
            && $this->hasLastPlayerPlayed($game);
+    }
+
+    /**
+     * getReserveCards : get development cards reserved by player
+     * @param PlayerSPL $player
+     * @return Collection<int, DevelopmentCardsSPL>
+     */
+    public function getReserveCards(PlayerSPL $player) : Collection
+    {
+        $personalBoard = $player->getPersonalBoard();
+        $cardsOfPlayer = $personalBoard->getPlayerCards();
+
+        $reservedCards = new ArrayCollection();
+        for ($i = 0; $i < $cardsOfPlayer->count(); $i++)
+        {
+            $card = $cardsOfPlayer->get($i);
+            if ($card->isReserved())
+            {
+                $reservedCards->add($card);
+            }
+        }
+        return $reservedCards;
     }
 
     //TODO : METHOD TO SET TURN TO NEXT PLAYER AND ENSURE EVERY OTHER TURN IS FALSE
@@ -124,7 +202,7 @@ class SPLService
      * @param PlayerSPL $player
      * @return int
      */
-    private function getPrestigePoints(PlayerSPL $player) : int
+    public function getPrestigePoints(PlayerSPL $player) : int
     {
         $total = 0;
         $nobleTiles = $player->getPersonalBoard()->getNobleTiles();
@@ -136,5 +214,112 @@ class SPLService
             $total += $card->getDevelopmentCard()->getPrestigePoints();
         }
         return $total;
+    }
+
+    private function canReserveCards(PlayerSPL $player, DevelopmentCardsSPL $card): Boolean
+    {
+        if (!$this->checkCardSidesPlayer($player, $card) ||
+            !$this->checkCanReserveSideMainBoard($card) )
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    private function checkCardSidesPlayer(PlayerSPL $player, DevelopmentCardsSPL $card): Boolean
+    {
+        // Method that checks the number of reserved cards
+
+
+        $reservedCardsOfPlayer = $this->getReserveCards($player);
+        if ($reservedCardsOfPlayer->count()
+            == SPLService::$MAX_COUNT_RESERVED_CARDS)
+        {
+            return false;
+        }
+
+        // Method that check this card doesn't already at player
+
+        if ($reservedCardsOfPlayer->contains($card))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    private function checkCanReserveSideMainBoard(DevelopmentCardsSPL $card): Boolean
+    {
+        // check if exist in main board
+
+        return $card->getDrawCardsSPL() != null
+            || $card->getRowSPL() != null;
+    }
+
+    private function manageRow(MainBoardSPL $mainBoard, DevelopmentCardsSPL $card): void
+    {
+        $row = $card->getRowSPL();
+        $row->removeDevelopmentCard($card);
+
+        // get first cards of discards associate at level
+        $level = $row->getCardLevel();
+        $discardsOfLevel = $mainBoard->getDrawCards()->get($level);
+        $discard = $discardsOfLevel->getDevelopmentCards()->get(0);
+        $row->addDevelopmentCard($discard);
+        $discardsOfLevel->removeDevelopmentCard($card);
+    }
+
+    private function manageDiscard(DevelopmentCardsSPL $card): void
+    {
+        $discards = $card->getDrawCardsSPL();
+        $discards->removeDevelopmentCard($card);
+    }
+
+    private function manageJokerToken(PlayerSPL $player): void
+    {
+        $personalBoard = $player->getPersonalBoard();
+        $tokens = $personalBoard->getTokens();
+        if ($tokens->count() <= SPLService::$MAX_POSSIBLE_COUNT_TOKENS)
+        {
+            $game = $player->getGameSPL();
+            $mainBoard = $this->mainBoardSPLRepository->findOneBy(
+                ["game" => $game->getId()]);
+            if ($this->getNumberOfJokerToken($mainBoard) > 0)
+            {
+                $joker = $this->getJokerToken($mainBoard);
+                $personalBoard->addToken($joker);
+            }
+        }
+    }
+
+    private function getNumberOfJokerToken(MainBoardSPL $mainBoard) : int
+    {
+        $count = 0;
+        $tokens = $mainBoard->getTokens();
+        for ($i = 0; $i < $tokens->count(); $i++)
+        {
+            $token = $tokens->get($i);
+            if ($token->getColor() === SPLService::$LABEL_JOKER)
+            {
+                $count += 1;
+            }
+        }
+        return $count;
+    }
+
+    private function getJokerToken(MainBoardSPL $mainBoard) : TokenSPL
+    {
+        $token = null;
+        $tokens = $mainBoard->getTokens();
+        for ($i = 0; $i < $tokens->count(); $i++)
+        {
+            $token = $tokens->get($i);
+            if ($token->getColor() === SPLService::$LABEL_JOKER)
+            {
+                break;
+            }
+        }
+        return $token;
     }
 }
