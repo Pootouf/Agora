@@ -85,6 +85,7 @@ application6QP:
     - develop-game
     - preprod
     - main
+    - feature/Game/ApplicationTests
   script:
     - symfony console tailwind:build
     - php bin/phpunit tests/Game/SixQP/Application --coverage-text
