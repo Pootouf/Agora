@@ -61,6 +61,7 @@ class SixQPControllerTest extends WebTestCase
         $this->client1->loginUser($user1);
         $newUrl = "/game/" . $gameId . "/sixqp/select/" . $card->getId();
         $this->client1->request("GET", $newUrl);
+        $this->assertTrue($player->getCards()->contains($card));
         $this->assertEquals(Response::HTTP_OK,
             $this->client1->getResponse()->getStatusCode());
         $newUrl = "/game/" . $gameId . "/sixqp/select/" . $card2->getId();
