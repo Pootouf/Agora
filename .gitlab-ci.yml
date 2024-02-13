@@ -5,12 +5,6 @@ stages:
   - sixqp
   - deploy
 
-cache:
-  policy: pull-push
-  unprotect: true
-  untracked: true
-  when: on_success
-
 
 variables:
   MYSQL_ROOT_PASSWORD: password
@@ -29,6 +23,7 @@ before_script:
   - ssh-add <(echo $ID_RSA_GAME | base64 -d)
   - mkdir -p ~/.ssh
   - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+  - cd /app
   
 
 deploy_dev_game:
