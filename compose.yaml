@@ -32,6 +32,7 @@ services:
         condition: service_healthy
     environment:
       SERVER_NAME: ${SERVER_NAME:-localhost}
+      XDEBUG_MODE: coverage
     labels:
       - "traefik.http.routers.agora.rule=Host(`agora.docker.localhost`)"
 
