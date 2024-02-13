@@ -295,7 +295,7 @@ class SixQPController extends AbstractController
         foreach (['player', 'spectator'] as $role) {
             $cards = $player->getCards()->toArray();
             usort($cards, function (CardSixQP $c1, CardSixQP $c2) {
-                return $c1->getValue() > $c2->getValue();
+                return $c1->getValue() - $c2->getValue();
             });
             $isSpectator = $role == 'spectator';
             $response = $this->render('Game/Six_qp/PersonalBoard/personalBoard.html.twig',
