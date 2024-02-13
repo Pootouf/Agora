@@ -5,9 +5,7 @@ stages:
   - sixqp
   - deploy
 
-cache:
-  paths:
-    - /app/vendor/
+
 
 
 variables:
