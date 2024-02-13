@@ -27,7 +27,7 @@ class PersonalBoardSPL extends Component
     #[ORM\JoinColumn(nullable: false)]
     private ?GameSPL $game = null;
 
-    #[ORM\OneToMany(targetEntity: TokenSPL::class, mappedBy: 'tempPersonalBoardSPL')]
+    #[ORM\OneToMany(targetEntity: TokenSPL::class)]
     private Collection $selectedTokens;
 
     #[ORM\OneToMany(targetEntity: PlayerCardSPL::class, mappedBy: 'personalBoardSPL', orphanRemoval: true)]
@@ -59,7 +59,6 @@ class PersonalBoardSPL extends Component
     {
         if (!$this->tokens->contains($token)) {
             $this->tokens->add($token);
-            $token->setPersonalBoardSPL($this);
         }
 
         return $this;
@@ -67,12 +66,7 @@ class PersonalBoardSPL extends Component
 
     public function removeToken(TokenSPL $token): static
     {
-        if ($this->tokens->removeElement($token)) {
-            // set the owning side to null (unless already changed)
-            if ($token->getPersonalBoardSPL() === $this) {
-                $token->setPersonalBoardSPL(null);
-            }
-        }
+        $this->tokens->removeElement($token);
 
         return $this;
     }
@@ -148,7 +142,6 @@ class PersonalBoardSPL extends Component
     {
         if (!$this->selectedTokens->contains($selectedToken)) {
             $this->selectedTokens->add($selectedToken);
-            $selectedToken->setTempPersonalBoardSPL($this);
         }
 
         return $this;
@@ -156,12 +149,7 @@ class PersonalBoardSPL extends Component
 
     public function removeSelectedToken(TokenSPL $selectedToken): static
     {
-        if ($this->selectedTokens->removeElement($selectedToken)) {
-            // set the owning side to null (unless already changed)
-            if ($selectedToken->getTempPersonalBoardSPL() === $this) {
-                $selectedToken->setTempPersonalBoardSPL(null);
-            }
-        }
+        $this->selectedTokens->removeElement($selectedToken);
 
         return $this;
     }

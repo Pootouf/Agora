@@ -16,10 +16,6 @@ class PlayerCardSPL extends Component
     #[ORM\JoinColumn(nullable: false)]
     private ?GameSPL $game = null;
 
-    #[ORM\OneToOne(inversedBy: 'playerCardSPL', cascade: ['persist', 'remove'])]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?PersonalBoardSPL $personalBoard = null;
-
     #[ORM\Column]
     private ?bool $reserved = null;
 
@@ -52,18 +48,6 @@ class PlayerCardSPL extends Component
     public function setGame(?GameSPL $game): static
     {
         $this->game = $game;
-
-        return $this;
-    }
-
-    public function getPersonalBoard(): ?PersonalBoardSPL
-    {
-        return $this->personalBoard;
-    }
-
-    public function setPersonalBoard(PersonalBoardSPL $personalBoard): static
-    {
-        $this->personalBoard = $personalBoard;
 
         return $this;
     }
