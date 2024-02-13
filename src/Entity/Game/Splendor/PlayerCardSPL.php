@@ -2,26 +2,23 @@
 
 namespace App\Entity\Game\Splendor;
 
-use App\Entity\Game\DTO\Component;
 use App\Repository\Game\Splendor\PlayerCardSPLRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PlayerCardSPLRepository::class)]
-class PlayerCardSPL extends Component
+class PlayerCardSPL
 {
-    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
+    private ?int $id = null;
+
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
     private ?DevelopmentCardsSPL $developmentCard = null;
 
-    #[ORM\ManyToOne(inversedBy: 'playerCardsSPL')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?GameSPL $game = null;
-
-    #[ORM\OneToOne(inversedBy: 'playerCardSPL', cascade: ['persist', 'remove'])]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?PersonalBoardSPL $personalBoard = null;
-
     #[ORM\Column]
-    private ?bool $reserved = null;
+    private ?bool $isReserved = null;
 
     #[ORM\ManyToOne(inversedBy: 'playerCards')]
     #[ORM\JoinColumn(nullable: false)]
@@ -44,38 +41,14 @@ class PlayerCardSPL extends Component
         return $this;
     }
 
-    public function getGame(): ?GameSPL
+    public function isIsReserved(): ?bool
     {
-        return $this->game;
+        return $this->isReserved;
     }
 
-    public function setGame(?GameSPL $game): static
+    public function setIsReserved(bool $isReserved): static
     {
-        $this->game = $game;
-
-        return $this;
-    }
-
-    public function getPersonalBoard(): ?PersonalBoardSPL
-    {
-        return $this->personalBoard;
-    }
-
-    public function setPersonalBoard(PersonalBoardSPL $personalBoard): static
-    {
-        $this->personalBoard = $personalBoard;
-
-        return $this;
-    }
-
-    public function isReserved(): ?bool
-    {
-        return $this->reserved;
-    }
-
-    public function setReserved(bool $reserved): static
-    {
-        $this->reserved = $reserved;
+        $this->isReserved = $isReserved;
 
         return $this;
     }

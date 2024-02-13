@@ -37,7 +37,7 @@ class SixQPGameManagerService extends AbstractGameManagerService
     public function createGame(): int
     {
         $game = new GameSixQP();
-        $game->setGameName('6QP');
+        $game->setGameName(AbstractGameManagerService::$SIXQP_LABEL);
         for($i = 0; $i < RowSixQP::$NUMBER_OF_ROWS_BY_GAME; $i++) {
             $row = new RowSixQP();
             $row->setPosition($i);
