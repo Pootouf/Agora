@@ -30,7 +30,7 @@ class MessageServiceIntegrationTest extends KernelTestCase
         $player->setGame($game);
         $entityManager->persist($game);
         $entityManager->flush();
-        $messageService->sendMessage($player->getId(), $game->getId(), "Bonjour à tous");
+        $messageService->sendMessage($player->getId(), $game->getId(), "Bonjour à tous", $player->getUsername());
         $message = $messageService->receiveMessage($game->getId())[0]->getContent();
         // THEN
         assertSame($expectedMessage, $message);
