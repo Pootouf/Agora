@@ -1,11 +1,13 @@
-image: etiennebinginot/agora:1.1
+image: etiennebinginot/agora:1.2
 
 stages:
   - factory
   - sixqp
   - deploy
 
-
+cache:
+  paths:
+    - /app/vendor/
 
 
 variables:
@@ -19,16 +21,16 @@ services:
 
 
 before_script:
-  # Setup SSH deploy keys
-  - 'which ssh-agent || ( apt-get install -qq openssh-client )'
-  - eval $(ssh-agent -s)
-  - ssh-add <(echo $ID_RSA_GAME | base64 -d)
-  - mkdir -p ~/.ssh
-  - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
   - cd /app
   - composer update
   - symfony console --env=test doctrine:migrations:migrate
   - symfony console doctrine:fixtures:load --env=test -n
+  - chmod u+x composer.phar  
+  - rm -f composer.lock 
+  - mv composer.phar /usr/local/bin/composer  
+  - composer update  
+  - symfony console tailwind:init
+
   
 
 deploy_dev_game:
@@ -37,6 +39,12 @@ deploy_dev_game:
     name: staging
     url: http://srv-dpi-agora-dev-jeux.univ-rouen.fr/
   script:
+    # Setup SSH deploy keys
+    - 'which ssh-agent || ( apt-get install -qq openssh-client )'
+    - eval $(ssh-agent -s)
+    - ssh-add <(echo $ID_RSA_GAME | base64 -d)
+    - mkdir -p ~/.ssh
+    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
     - ssh $SERVER_GAME_USER@$SERVER_GAME_IP "cd /var/www/agora && git checkout develop-game && git pull origin develop-game && docker compose up --build -d && exit"
   only:
     - develop-game
