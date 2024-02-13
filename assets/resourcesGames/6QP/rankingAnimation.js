@@ -45,10 +45,8 @@ function updateLeaderboard() {
         let positionMap = new Map();
         let newPositionMap = new Map();
 
-        leaderboardItems.forEach((item) => {
-            positionMap.set(item.dataset.origin, item.getBoundingClientRect());
-            console.log(item.dataset.origin + ' ' + item.id);
-        });
+        leaderboardItems.forEach((item) =>
+            positionMap.set(item.dataset.origin, item.getBoundingClientRect()));
 
         leaderboardItems.sort(function (a, b) {
             let scoreA = parseInt(document.getElementById('l_' + a.id + '_points').dataset.score);
@@ -76,6 +74,7 @@ function animateLeaderboard(leaderboardItems, positionMap, newPositionMap) {
         let finalPosition = positionMap.get(newPositionMap.get(item).toString());
 
         let dy = finalPosition.y - initialPosition.y + parseInt(item.dataset.origingap);
+        item.dataset.origingap = dy.toString()
 
         // Applique du CSS pour translater l'élément sur l'axe Y
         item.style.transition = 'transform 1s ease-out';
