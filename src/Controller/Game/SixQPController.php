@@ -102,7 +102,7 @@ class SixQPController extends AbstractController
         } catch (Exception) {
             $this->logService->sendPlayerLog($game, $player,
             $player->getUsername() . " failed to choose card " . $card->getValue());
-            return new Response('Impossible to choose', Response::HTTP_INTERNAL_SERVER_ERROR);
+            return new Response('Impossible to choose', Response::HTTP_SERVICE_UNAVAILABLE);
         }
 
         $message = $player->getUsername() . " chose the card " . $card->getValue()
