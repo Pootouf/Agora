@@ -3,6 +3,7 @@
 namespace App\Controller\Game;
 
 use App\Entity\Game\SixQP\GameSixQP;
+use App\Entity\Game\Splendor\GameSPL;
 use App\Repository\Game\SixQP\GameSixQPRepository;
 use App\Service\Game\AbstractGameManagerService;
 use App\Service\Game\GameManagerService;
@@ -26,7 +27,7 @@ class GameTestController extends AbstractController
     {
         $games = $gameSixQPRepository->findAll();
 
-        return $this->render('Game/GameTest/list_games.twig', [
+        return $this->render('Game/Six_qp/GameTest/list_games.twig', [
             'games' => $games
         ]);
     }
@@ -66,5 +67,58 @@ class GameTestController extends AbstractController
     {
         $this->gameService->launchGame($gameSixQP->getId());
         return $this->redirectToRoute('app_game_sixqp_list');
+    }
+
+
+
+
+
+
+
+    #[Route('/game/splendor/list', name: 'app_game_splendor_list')]
+    public function listSPLGames(GameSixQPRepository $gameSixQPRepository): Response
+    {
+        $games = $gameSixQPRepository->findAll();
+
+        return $this->render('Game/Splendor/GameTest/list_games.twig', [
+            'games' => $games
+        ]);
+    }
+
+    #[Route('/game/splendor/create', name: 'app_game_splendor_create')]
+    public function createSplendorGame(): Response
+    {
+        $this->gameService->createGame(AbstractGameManagerService::$SPL_LABEL);
+        return $this->redirectToRoute('app_game_splendor_list');
+    }
+
+    #[Route('/game/splendor/join/{id}', name: 'app_game_splendor_join')]
+    public function joinSplendorGame(GameSPL $gameSPL): Response
+    {
+        $user = $this->getUser();
+        $this->gameService->joinGame($gameSPL->getId(), $user);
+        return $this->redirectToRoute('app_game_splendor_list');
+    }
+
+    #[Route('/game/splendor/leave/{id}', name: 'app_game_splendor_quit')]
+    public function quitSplendorGame(GameSPL $gameSPL): Response
+    {
+        $user = $this->getUser();
+        $this->gameService->quitGame($gameSPL->getId(), $user);
+        return $this->redirectToRoute('app_game_splendor_list');
+    }
+
+    #[Route('/game/splendor/delete/{id}', name: 'app_game_splendor_delete')]
+    public function deleteSplendorGame(GameSPL $gameSPL): Response
+    {
+        $this->gameService->deleteGame($gameSPL->getId());
+        return $this->redirectToRoute('app_game_splendor_list');
+    }
+
+    #[Route('/game/splendor/launch/{id}', name: 'app_game_splendor_launch')]
+    public function launchSplendorGame(GameSPL $gameSPL): Response
+    {
+        $this->gameService->launchGame($gameSPL->getId());
+        return $this->redirectToRoute('app_game_splendor_list');
     }
 }
