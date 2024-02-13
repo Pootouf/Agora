@@ -3,7 +3,7 @@
 {% block title %}Agora - 6 qui prend{% endblock %}
 
 {% block body %}
-    <div class="h-screen w-screen" {{ stimulus_controller('sixqp') }}>
+    <div class="h-screen w-screen overflow-hidden absolute" {{ stimulus_controller('sixqp') }}>
         <div class="h-full w-full overflow-hidden">
             {% block nav %}
                 {{ include('/Game/Utils/navigation.html.twig') }}

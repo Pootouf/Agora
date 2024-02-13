@@ -40,8 +40,8 @@ export default class extends Controller {
                 { transform: "translateY(0rem)"},
                 { transform: "translateY(40rem)"}
             ]
-            openedChat.animate(closingSliding,Timing);
-            setTimeout(() => openedChat.setAttributeNode(hidden),600);
+            openedChat.animate(closingSliding,Timing).addEventListener("finish",
+                () => openedChat.setAttributeNode(hidden));
         }
     }
 
