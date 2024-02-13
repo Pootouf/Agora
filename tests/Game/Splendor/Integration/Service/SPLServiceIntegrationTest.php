@@ -15,7 +15,7 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class SPLServiceIntegrationTest extends KernelTestCase
 {
-    /*
+
     public function testTakeTokenWhenAlreadyFull(): void
     {
         $splendorService = static::getContainer()->get(SPLService::class);
@@ -52,7 +52,7 @@ class SPLServiceIntegrationTest extends KernelTestCase
             $token->setType("joyau");
             $token->setColor("blue");
             $entityManager->persist($token);
-            $personalBoard->addToken($token);
+            $personalBoard->addSelectedToken($token);
         }
         $entityManager->persist($player);
         $entityManager->persist($game);
@@ -74,12 +74,12 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $token->setType("joyau");
         $token->setColor("blue");
         $entityManager->persist($token);
-        $personalBoard->addToken($token);
+        $personalBoard->addSelectedToken($token);
         $token = new TokenSPL();
         $token->setType("joyau");
         $token->setColor("red");
         $entityManager->persist($token);
-        $personalBoard->addToken($token);
+        $personalBoard->addSelectedToken($token);
         $entityManager->persist($player);
         $entityManager->persist($game);
         $entityManager->persist($personalBoard);
@@ -102,17 +102,17 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $token->setType("joyau");
         $token->setColor("blue");
         $entityManager->persist($token);
-        $personalBoard->addToken($token);
+        $personalBoard->addSelectedToken($token);
         $token = new TokenSPL();
         $token->setType("joyau");
         $token->setColor("red");
         $entityManager->persist($token);
-        $personalBoard->addToken($token);
+        $personalBoard->addSelectedToken($token);
         $token = new TokenSPL();
         $token->setType("joyau");
         $token->setColor("green");
         $entityManager->persist($token);
-        $personalBoard->addToken($token);
+        $personalBoard->addSelectedToken($token);
         $entityManager->persist($player);
         $entityManager->persist($game);
         $entityManager->persist($personalBoard);
@@ -122,7 +122,7 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $token->setColor("yellow");
         $this->expectException(\Exception::class);
         $splendorService->takeToken($player, $token);
-    }*/
+    }
 
     public function testIsGameEndedShouldReturnFalseBecauseNotLastPlayer() : void
     {
