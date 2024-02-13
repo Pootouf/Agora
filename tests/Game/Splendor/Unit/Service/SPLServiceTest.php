@@ -7,7 +7,9 @@ use App\Entity\Game\Splendor\NobleTileSPL;
 use App\Entity\Game\Splendor\PersonalBoardSPL;
 use App\Entity\Game\Splendor\PlayerSPL;
 use App\Entity\Game\Splendor\TokenSPL;
+use App\Repository\Game\Splendor\GameSPLRepository;
 use App\Service\Game\Splendor\SPLService;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 use App\Repository\Game\Splendor\PlayerSPLRepository;
@@ -218,5 +220,59 @@ class SPLServiceTest extends TestCase
         $result = $this->SPLService->getRanking($game);
         // THEN
         $this->assertEquals($expectedRanking, $result);
+    }
+
+    public function testEndRoundOfPlayerWhenNotLastPlayer() : void
+    {
+        // GIVEN
+        $game = new GameSPL();
+        $player = new PlayerSPL('test', $game);
+        $personalBoard = new PersonalBoardSPL();
+        $player->setPersonalBoard($personalBoard);
+        $player->setTurnOfPlayer(true);
+        $game->addPlayer($player);
+        $personalBoard->setPlayerSPL($player);
+        $player2 = new PlayerSPL('test1', $game);
+        $personalBoard2 = new PersonalBoardSPL();
+        $player2->setPersonalBoard($personalBoard2);
+        $player2->setTurnOfPlayer(false);
+        $personalBoard2->setPlayerSPL($player2);
+        $game->addPlayer($player2);
+        $expectedResult = [false, true];
+        // WHEN
+        $this->SPLService->endRoundOfPlayer($game, $player);
+        // THEN
+        $result = Array();
+        foreach ($game->getPlayers() as $tmp) {
+            array_push($result, $tmp->isTurnOfPlayer());
+        }
+        $this->assertSame($expectedResult, $result);
+    }
+
+    public function testEndRoundOfPlayerWhenLastPlayer() : void
+    {
+        // GIVEN
+        $game = new GameSPL();
+        $player = new PlayerSPL('test', $game);
+        $personalBoard = new PersonalBoardSPL();
+        $player->setPersonalBoard($personalBoard);
+        $player->setTurnOfPlayer(false);
+        $game->addPlayer($player);
+        $personalBoard->setPlayerSPL($player);
+        $player2 = new PlayerSPL('test1', $game);
+        $personalBoard2 = new PersonalBoardSPL();
+        $player2->setPersonalBoard($personalBoard2);
+        $player2->setTurnOfPlayer(true);
+        $personalBoard2->setPlayerSPL($player2);
+        $game->addPlayer($player2);
+        $expectedResult = [true, false];
+        // WHEN
+        $this->SPLService->endRoundOfPlayer($game, $player2);
+        // THEN
+        $result = Array();
+        foreach ($game->getPlayers() as $tmp) {
+            array_push($result, $tmp->isTurnOfPlayer());
+        }
+        $this->assertSame($expectedResult, $result);
     }
 }

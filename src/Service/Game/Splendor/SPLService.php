@@ -7,6 +7,7 @@ use App\Entity\Game\Splendor\GameSPL;
 use App\Entity\Game\Splendor\PersonalBoardSPL;
 use App\Entity\Game\Splendor\PlayerSPL;
 use App\Entity\Game\Splendor\TokenSPL;
+use App\Repository\Game\Splendor\GameSPLRepository;
 use App\Repository\Game\Splendor\PlayerSPLRepository;
 use App\Service\Game\AbstractGameManagerService;
 use Doctrine\DBAL\Exception;
@@ -19,7 +20,8 @@ class SPLService
     private EntityManagerInterface $entityManager;
     private PlayerSPLRepository $playerSPLRepository;
 
-    public function __construct(EntityManagerInterface $entityManager, PlayerSPLRepository $playerSPLRepository)
+    public function __construct(EntityManagerInterface $entityManager,
+                                PlayerSPLRepository $playerSPLRepository)
     {
         $this->entityManager = $entityManager;
         $this->playerSPLRepository =  $playerSPLRepository;
@@ -46,7 +48,8 @@ class SPLService
             foreach ($selectedTokens as $selectedToken){
                 $playerSPL->getPersonalBoard()->addToken($selectedToken);
             }
-            // TODO : END PLAYER TURN
+            $game = $playerSPL->getGameSPL();
+            $this->endRoundOfPlayer($game, $playerSPL);
         }
     }
 
@@ -61,8 +64,6 @@ class SPLService
        return $this->hasOnePlayerReachedLimit($game)
            && $this->hasLastPlayerPlayed($game);
     }
-
-    //TODO : METHOD TO SET TURN TO NEXT PLAYER AND ENSURE EVERY OTHER TURN IS FALSE
 
     /**
      * @param GameSPL $game
@@ -129,6 +130,33 @@ class SPLService
         return $array;
     }
 
+    /**
+     * endRoundOfPlayer : ends player's round and gives it to next player
+     * @param PlayerSPL $playerSPL
+     * @return void
+     */
+    public function endRoundOfPlayer(GameSPL $gameSPL, PlayerSPL $playerSPL) : void
+    {
+        $players = $gameSPL->getPlayers();
+        $nbOfPlayers = $players->count();
+        $index = $players->indexOf($playerSPL);
+        $nextPlayer = $players->get(($index + 1) % $nbOfPlayers);
+        foreach ($players as $player) {
+            $player->setTurnOfPlayer(false);
+        }
+        $nextPlayer->setTurnOfPlayer(true);
+    }
+
+    /**
+     * getActivePlayer : returns the player who has to play
+     * @param GameSPL $gameSPL
+     * @return PlayerSPL
+     */
+    public function getActivePlayer(GameSPL $gameSPL) : PlayerSPL
+    {
+        return $this->playerSPLRepository->findOneBy(["gameSPL" => $gameSPL->getId(),
+        "turnOfPlayer" => true]);
+    }
     /**
      * getPrestigePoints : returns total prestige points of a player
      * @param PlayerSPL $player
