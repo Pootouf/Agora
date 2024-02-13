@@ -200,6 +200,8 @@ class SixQPService
                 }
             }
         }
+        usort($chosenCards, function (ChosenCardSixQP $a, ChosenCardSixQP $b) {
+            return $a->getCard()->getValue() - $b->getCard()->getValue();});
         return $chosenCards;
     }
 
