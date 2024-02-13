@@ -21,7 +21,6 @@ services:
 
 
 before_script:
-  - cd /app
   - composer update
   - symfony console --env=test doctrine:migrations:migrate
   - symfony console doctrine:fixtures:load --env=test -n
