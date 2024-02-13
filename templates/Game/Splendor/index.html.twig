@@ -9,22 +9,19 @@
                 {{ include('/Game/Utils/navigation.html.twig') }}
             {% endblock %}
             {% block endGame %}
-                {{ include('/Game/Six_qp/endGameScreenResult.html.twig') }}
+                {{ include('/Game/Splendor/endGameScreenResult.html.twig') }}
             {% endblock %}
-                <div id="chosenCards" class="flow float-left w-1/5 h-3/4">
-                {{ include('/Game/Six_qp/chosenCards.html.twig') }}
-                </div>
             {% block ranking %}
-            <div id="ranking" class="flex flex-col absolute bg-violet-100 w-1/6 h-full right-0">
-                {{ include('/Game/Six_qp/ranking.html.twig') }}
+            <div id="ranking" class="absolute bg-violet-100 w-1/6 h-full right-0">
+                {{  include('/Game/Splendor/Ranking/ranking.html.twig') }}
             </div>
             {% endblock %}
                 <div id="mainBoard" class="flow float-start w-[63.3%] h-3/4">
-                    {{ include('/Game/Six_qp/mainBoard.html.twig') }}
+                    {{ include('/Game/Splendor/MainBoard/mainBoard.html.twig') }}
                 </div>
             {% block personalBoard %}
             <div class="flex bg-green-500 h-1/4 w-5/6 float-bottom-0" id="personalBoard">
-                {{ include('/Game/Six_qp/PersonalBoard/personalBoard.html.twig') }}
+                {{ include('/Game/Splendor/PersonalBoard/personalBoard.html.twig') }}
             </div>
             {% endblock %}
         </div>
