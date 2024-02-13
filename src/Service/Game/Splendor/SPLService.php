@@ -3,12 +3,17 @@
 namespace App\Service\Game\Splendor;
 
 use App\Entity\Game\DTO\Game;
+use App\Entity\Game\Splendor\DevelopmentCardsSPL;
+use App\Entity\Game\Splendor\DrawCardsSPL;
 use App\Entity\Game\Splendor\GameSPL;
 use App\Entity\Game\Splendor\PersonalBoardSPL;
 use App\Entity\Game\Splendor\PlayerSPL;
 use App\Entity\Game\Splendor\TokenSPL;
+use App\Repository\Game\Splendor\DevelopmentCardsSPLRepository;
 use App\Repository\Game\Splendor\GameSPLRepository;
+use App\Repository\Game\Splendor\NobleTileSPLRepository;
 use App\Repository\Game\Splendor\PlayerSPLRepository;
+use App\Repository\Game\Splendor\TokenSPLRepository;
 use App\Service\Game\AbstractGameManagerService;
 use Doctrine\DBAL\Exception;
 use Doctrine\ORM\EntityManagerInterface;
@@ -19,12 +24,82 @@ class SPLService
     public static int $MAX_PRESTIGE_POINTS = 15;
     private EntityManagerInterface $entityManager;
     private PlayerSPLRepository $playerSPLRepository;
+    private TokenSPLRepository $tokenSPLRepository;
+    private NobleTileSPLRepository $nobleTileSPLRepository;
+    private DevelopmentCardsSPLRepository $developmentCardsSPLRepository;
 
     public function __construct(EntityManagerInterface $entityManager,
-                                PlayerSPLRepository $playerSPLRepository)
+                                PlayerSPLRepository $playerSPLRepository,
+                                TokenSPLRepository $tokenSPLRepository,
+                                NobleTileSPLRepository $nobleTileSPLRepository,
+                                DevelopmentCardsSPLRepository $developmentCardsSPLRepository)
     {
         $this->entityManager = $entityManager;
         $this->playerSPLRepository =  $playerSPLRepository;
+        $this->tokenSPLRepository = $tokenSPLRepository;
+        $this->nobleTileSPLRepository = $nobleTileSPLRepository;
+        $this->developmentCardsSPLRepository = $developmentCardsSPLRepository;
+    }
+
+    /**
+     * initializeNewGame: initialize a new Splendor game
+     * @param GameSPL $game
+     * @return void
+     */
+    public function initializeNewGame(GameSPL $game): void
+    {
+        $mainBoard = $game->getMainBoard();
+        $tokens = $this->tokenSPLRepository->findAll();
+        foreach ($tokens as $token) {
+            $mainBoard->addToken($token);
+        }
+        $nobleTiles = $this->nobleTileSPLRepository->findAll();
+        shuffle($nobleTiles);
+        for ($i = 0; $i < $game->getPlayers()->count() + 1; $i++) {
+            $mainBoard->addNobleTile($nobleTiles[$i]);
+        }
+        $levelOneCards = $this->developmentCardsSPLRepository->findBy(
+            ['color' => DevelopmentCardsSPL::$LEVEL_ONE_COLOR]
+        );
+        $levelTwoCards = $this->developmentCardsSPLRepository->findBy(
+            ['color' => DevelopmentCardsSPL::$LEVEL_TWO_COLOR]
+        );
+        $levelThreeCards = $this->developmentCardsSPLRepository->findBy(
+            ['color' => DevelopmentCardsSPL::$LEVEL_THREE_COLOR]
+        );
+        shuffle($levelOneCards);
+        shuffle($levelTwoCards);
+        shuffle($levelThreeCards);
+        $rows = $mainBoard->getRowsSPL();
+        for ($i = 0; $i < 4; $i++) {
+            $rows[DrawCardsSPL::$LEVEL_ONE]->addDevelopmentCard($levelOneCards[$i]);
+            $rows[DrawCardsSPL::$LEVEL_TWO]->addDevelopmentCard($levelTwoCards[$i]);
+            $rows[DrawCardsSPL::$LEVEL_THREE]->addDevelopmentCard($levelThreeCards[$i]);
+        }
+        array_splice($levelOneCards, 0, 4);
+        array_splice($levelTwoCards, 0, 4);
+        array_splice($levelThreeCards, 0, 4);
+        $this->entityManager->persist($rows[DrawCardsSPL::$LEVEL_ONE]);
+        $this->entityManager->persist($rows[DrawCardsSPL::$LEVEL_TWO]);
+        $this->entityManager->persist($rows[DrawCardsSPL::$LEVEL_THREE]);
+        $drawCardLevelOne = $mainBoard->getDrawCards()->get(DrawCardsSPL::$LEVEL_ONE);
+        $drawCardLevelTwo = $mainBoard->getDrawCards()->get(DrawCardsSPL::$LEVEL_TWO);
+        $drawCardLevelThree = $mainBoard->getDrawCards()->get(DrawCardsSPL::$LEVEL_THREE);
+        foreach ($levelOneCards as $card) {
+            $drawCardLevelOne->addDevelopmentCard($card);
+        }
+        foreach ($levelTwoCards as $card) {
+            $drawCardLevelTwo->addDevelopmentCard($card);
+        }
+        foreach ($levelThreeCards as $card) {
+            $drawCardLevelThree->addDevelopmentCard($card);
+        }
+        $this->entityManager->persist($drawCardLevelOne);
+        $this->entityManager->persist($drawCardLevelTwo);
+        $this->entityManager->persist($drawCardLevelThree);
+        $this->entityManager->persist($mainBoard);
+        $this->entityManager->persist($game);
+        $this->entityManager->flush();
     }
 
     /**

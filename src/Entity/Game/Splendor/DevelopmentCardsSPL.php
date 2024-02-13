@@ -11,17 +11,15 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: DevelopmentCardsSPLRepository::class)]
 class DevelopmentCardsSPL extends Card
 {
+    public static string $LEVEL_ONE_COLOR = "green";
+    public static string $LEVEL_TWO_COLOR = "yellow";
+    public static string $LEVEL_THREE_COLOR = "blue";
+
     #[ORM\Column]
     private ?int $prestigePoints = null;
 
     #[ORM\Column(length: 255)]
     private ?string $color = null;
-
-    #[ORM\ManyToOne(inversedBy: 'developmentCards')]
-    private ?DrawCardsSPL $drawCardsSPL = null; 
-
-    #[ORM\ManyToOne(inversedBy: 'developmentCards')]
-    private ?RowSPL $rowSPL = null;
 
     #[ORM\ManyToMany(targetEntity: CardCostSPL::class)]
     private Collection $cardCost;
@@ -56,30 +54,6 @@ class DevelopmentCardsSPL extends Card
     public function setColor(string $color): static
     {
         $this->color = $color;
-
-        return $this;
-    }
-
-    public function getDrawCardsSPL(): ?DrawCardsSPL
-    {
-        return $this->drawCardsSPL;
-    }
-
-    public function setDrawCardsSPL(?DrawCardsSPL $drawCardsSPL): static
-    {
-        $this->drawCardsSPL = $drawCardsSPL;
-
-        return $this;
-    }
-
-    public function getRowSPL(): ?RowSPL
-    {
-        return $this->rowSPL;
-    }
-
-    public function setRowSPL(?RowSPL $rowSPL): static
-    {
-        $this->rowSPL = $rowSPL;
 
         return $this;
     }

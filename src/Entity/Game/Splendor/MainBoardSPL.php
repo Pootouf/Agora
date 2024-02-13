@@ -11,9 +11,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: MainBoardSPLRepository::class)]
 class MainBoardSPL extends Component
 {
-    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?GameSPL $game = null;
+
+    public static int $NUMBER_OF_ROWS_BY_GAME = 3;
 
     #[ORM\OneToMany(targetEntity: RowSPL::class, mappedBy: 'mainBoardSPL', orphanRemoval: true)]
     private Collection $rowsSPL;
@@ -27,6 +26,9 @@ class MainBoardSPL extends Component
     #[ORM\OneToMany(targetEntity: DrawCardsSPL::class, mappedBy: 'mainBoardSPL', orphanRemoval: true)]
     private Collection $drawCards;
 
+    #[ORM\OneToOne(mappedBy: 'mainBoard', cascade: ['persist', 'remove'])]
+    private ?GameSPL $gameSPL = null;
+
     public function __construct()
     {
         $this->rowsSPL = new ArrayCollection();
@@ -38,18 +40,6 @@ class MainBoardSPL extends Component
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getGame(): ?GameSPL
-    {
-        return $this->game;
-    }
-
-    public function setGame(GameSPL $game): static
-    {
-        $this->game = $game;
-
-        return $this;
     }
 
     /**
@@ -130,7 +120,7 @@ class MainBoardSPL extends Component
         return $this;
     }
 
-    public function removeNobleTile(NobleTileSPL $nobleTile): static
+    public function removeNobleTile(NobleTileSPL $nobleTile): static 
     {
         if ($this->nobleTiles->removeElement($nobleTile)) {
             // set the owning side to null (unless already changed)
@@ -168,6 +158,23 @@ class MainBoardSPL extends Component
                 $drawCard->setMainBoardSPL(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getGameSPL(): ?GameSPL
+    {
+        return $this->gameSPL;
+    }
+
+    public function setGameSPL(GameSPL $gameSPL): static
+    {
+        // set the owning side of the relation if necessary
+        if ($gameSPL->getMainBoard() !== $this) {
+            $gameSPL->setMainBoard($this);
+        }
+
+        $this->gameSPL = $gameSPL;
 
         return $this;
     }

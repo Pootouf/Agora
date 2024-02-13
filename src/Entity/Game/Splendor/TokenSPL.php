@@ -12,15 +12,6 @@ class TokenSPL extends Token
     #[ORM\Column(length: 255)]
     private ?string $color = null;
 
-    #[ORM\ManyToOne(inversedBy: 'tokens')]
-    private ?PersonalBoardSPL $personalBoardSPL = null;
-
-    #[ORM\ManyToOne(inversedBy: 'tokens')]
-    private ?MainBoardSPL $mainBoardSPL = null;
-
-    #[ORM\ManyToOne(inversedBy: 'selectedTokens')]
-    private ?PersonalBoardSPL $tempPersonalBoardSPL = null;
-
     public function getId(): ?int
     {
         return $this->id;
@@ -34,42 +25,6 @@ class TokenSPL extends Token
     public function setColor(string $color): static
     {
         $this->color = $color;
-
-        return $this;
-    }
-
-    public function getPersonalBoardSPL(): ?PersonalBoardSPL
-    {
-        return $this->personalBoardSPL;
-    }
-
-    public function setPersonalBoardSPL(?PersonalBoardSPL $personalBoardSPL): static
-    {
-        $this->personalBoardSPL = $personalBoardSPL;
-
-        return $this;
-    }
-
-    public function getMainBoardSPL(): ?MainBoardSPL
-    {
-        return $this->mainBoardSPL;
-    }
-
-    public function setMainBoardSPL(?MainBoardSPL $mainBoardSPL): static
-    {
-        $this->mainBoardSPL = $mainBoardSPL;
-
-        return $this;
-    }
-
-    public function getTempPersonalBoardSPL(): ?PersonalBoardSPL
-    {
-        return $this->tempPersonalBoardSPL;
-    }
-
-    public function setTempPersonalBoardSPL(?PersonalBoardSPL $tempPersonalBoardSPL): static
-    {
-        $this->tempPersonalBoardSPL = $tempPersonalBoardSPL;
 
         return $this;
     }

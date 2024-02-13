@@ -11,6 +11,10 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: DrawCardsSPLRepository::class)]
 class DrawCardsSPL extends Component
 {
+    public static int $LEVEL_ONE = 0;
+    public static int $LEVEL_TWO = 1;
+    public static int $LEVEL_THREE = 2;
+
     #[ORM\ManyToOne(inversedBy: 'drawCardsSPL')]
     #[ORM\JoinColumn(nullable: false)]
     private ?GameSPL $game = null;
@@ -20,10 +24,6 @@ class DrawCardsSPL extends Component
 
     #[ORM\OneToMany(targetEntity: DevelopmentCardsSPL::class, mappedBy: 'drawCardsSPL')]
     private Collection $developmentCards;
-
-    #[ORM\ManyToOne(inversedBy: 'drawCards')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?MainBoardSPL $mainBoardSPL = null;
 
     public function __construct()
     {
@@ -71,7 +71,6 @@ class DrawCardsSPL extends Component
     {
         if (!$this->developmentCards->contains($developmentCard)) {
             $this->developmentCards->add($developmentCard);
-            $developmentCard->setDrawCardsSPL($this);
         }
 
         return $this;
@@ -79,25 +78,9 @@ class DrawCardsSPL extends Component
 
     public function removeDevelopmentCard(DevelopmentCardsSPL $developmentCard): static
     {
-        if ($this->developmentCards->removeElement($developmentCard)) {
-            // set the owning side to null (unless already changed)
-            if ($developmentCard->getDrawCardsSPL() === $this) {
-                $developmentCard->setDrawCardsSPL(null);
-            }
-        }
+        $this->developmentCards->removeElement($developmentCard);
 
         return $this;
     }
 
-    public function getMainBoardSPL(): ?MainBoardSPL
-    {
-        return $this->mainBoardSPL;
-    }
-
-    public function setMainBoardSPL(?MainBoardSPL $mainBoardSPL): static
-    {
-        $this->mainBoardSPL = $mainBoardSPL;
-
-        return $this;
-    }
 }
