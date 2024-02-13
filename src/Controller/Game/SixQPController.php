@@ -10,6 +10,7 @@ use App\Entity\Game\SixQP\RowSixQP;
 use App\Repository\Game\SixQP\ChosenCardSixQPRepository;
 use App\Repository\Game\SixQP\PlayerSixQPRepository;
 use App\Service\Game\LogService;
+use App\Service\Game\MessageService;
 use App\Service\Game\SixQP\SixQPService;
 use App\Service\Game\PublishService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -28,18 +29,21 @@ class SixQPController extends AbstractController
     private SixQPService $service;
     private PublishService $publishService;
     private LogService $logService;
+    private MessageService $messageService;
 
     public function __construct(EntityManagerInterface $entityManager,
                                 ChosenCardSixQPRepository $chosenCardSixQPRepository,
                                 SixQPService $service,
                                 LogService $logService,
-                                PublishService $publishService)
+                                PublishService $publishService,
+                                MessageService $messageService)
     {
         $this->publishService = $publishService;
         $this->entityManager = $entityManager;
         $this->chosenCardSixQPRepository = $chosenCardSixQPRepository;
         $this->logService = $logService;
         $this->service = $service;
+        $this->messageService = $messageService;
     }
 
     #[Route('/game/sixqp/{id}', name: 'app_game_show_sixqp')]
@@ -65,6 +69,8 @@ class SixQPController extends AbstractController
             }
         }
 
+        $messages = $this->messageService->receiveMessage($game->getId());
+
         return $this->render('/Game/Six_qp/index.html.twig', [
             'game' => $game,
             'chosenCards' => $chosenCards,
@@ -77,6 +83,7 @@ class SixQPController extends AbstractController
             'isGameFinished' => $this->service->isGameEnded($game),
             'isSpectator' => $isSpectator,
             'needToChoose' => $needToChoose,
+            'messages' => $messages
         ]);
 
     }
