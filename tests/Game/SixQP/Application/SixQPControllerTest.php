@@ -135,6 +135,7 @@ class SixQPControllerTest extends WebTestCase
         try {
             $this->managerService->launchGame($game);
         } catch (\Exception $e) {
+            $this->hasFailed();
         }
         return $gameId;
     }
