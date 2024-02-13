@@ -9,7 +9,9 @@ use App\Entity\Game\Splendor\PlayerSPL;
 use App\Entity\Game\Splendor\TokenSPL;
 use App\Repository\Game\Splendor\PlayerSPLRepository;
 use App\Service\Game\AbstractGameManagerService;
+use Doctrine\DBAL\Exception;
 use Doctrine\ORM\EntityManagerInterface;
+use function PHPUnit\Framework\throwException;
 
 class SPLService
 {
@@ -31,13 +33,21 @@ class SPLService
      */
     public function takeToken(PlayerSPL $playerSPL, TokenSPL $tokenSPL) : void
     {
-        // Method to check player's tokens count
-
-        // Method to check if player can take this token (2 same tokens method)
-
-        // Method to check if player can take this token (3 different tokens method)
-
-        // player can take and action is performed
+        if($playerSPL->getPersonalBoard()->getTokens()->count() >= 10){
+            throw new Exception("Can't pick up more tokens");
+        }
+        $tokensPickable = $this->canChooseTwoTokens($playerSPL, $tokenSPL);
+        if($tokensPickable == -1){
+            throw new Exception("An error as occurred");
+        }
+        $playerSPL->getPersonalBoard()->addSelectedToken($tokenSPL);
+        if($tokensPickable == 1){
+            $selectedTokens = $playerSPL->getPersonalBoard()->getSelectedTokens();
+            foreach ($selectedTokens as $selectedToken){
+                $playerSPL->getPersonalBoard()->addToken($selectedToken);
+            }
+            // TODO : END PLAYER TURN
+        }
     }
 
     /**
@@ -136,5 +146,54 @@ class SPLService
             $total += $card->getDevelopmentCard()->getPrestigePoints();
         }
         return $total;
+    }
+
+    /**
+     * canChooseTwoTokens : permet de vérifier si un joueur peut prendre le jeton $tokenSPL
+     * @param PlayerSPL $playerSPL
+     * @param TokenSPL $tokenSPL
+     * @return int
+     *          0 Si la pile est vide
+     *          1 Si on prends un jeton de même couleur que
+     *              celui dans notre pile
+     *          -1 Si on ne peut pas prendre le jeton
+     */
+    private function canChooseTwoTokens(PlayerSPL $playerSPL, TokenSPL $tokenSPL): int
+    {
+        $selectedTokens = $playerSPL->getPersonalBoard()->getSelectedTokens();
+        if($selectedTokens->count() == 0){
+            return 0;
+        }
+        if($selectedTokens->count() == 1 && $selectedTokens->first()->getColor() != $tokenSPL->getColor()){
+            return 1;
+        }
+        return $this->canChooseThreeTokens($playerSPL, $tokenSPL);
+    }
+
+    /**
+     * @param PlayerSPL $playerSPL
+     * @param TokenSPL $tokenSPL
+     * @return int
+     *          0 Si la pile est vide ou que la pile est de taille 1 et que
+     *              le jeton dedans est de couleur différente
+     *          1 Si on prends un jeton de couleur différente de
+     *              ceux déjà présent dans la pile
+     *          -1 Si on ne peut pas prendre le jeton
+     */
+    private function canChooseThreeTokens(PlayerSPL $playerSPL, TokenSPL $tokenSPL): int
+    {
+        $selectedTokens = $playerSPL->getPersonalBoard()->getSelectedTokens();
+        if($selectedTokens->count() == 0){
+            return 0;
+        }
+        if($selectedTokens->count() == 1 && $selectedTokens->first()->getColor() != $tokenSPL->getColor()){
+            return 0;
+        }
+        if($selectedTokens->count() == 2 && $selectedTokens->first()->getColor() != $tokenSPL->getColor()
+          && $selectedTokens[1]->getColor() != $tokenSPL->getColor()
+          && $selectedTokens->first()->getColor() != $selectedTokens[1]->getColor()){
+            return 1;
+        }
+        return -1;
     }
 }

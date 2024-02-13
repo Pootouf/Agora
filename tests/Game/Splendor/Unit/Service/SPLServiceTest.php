@@ -22,7 +22,7 @@ class SPLServiceTest extends TestCase
         $playerRepository = $this->createMock(PlayerSPLRepository::class);
         $this->SPLService = new SPLService($entityManager, $playerRepository);
     }
-    /*public function testTakeTokenWhenAlreadyFull() : void
+    public function testTakeTokenWhenAlreadyFull() : void
     {
         $game = new GameSPL();
         $player = new PlayerSPL('test', $game);
@@ -51,8 +51,8 @@ class SPLServiceTest extends TestCase
         $token2->setColor("blue");
         $token3 = new TokenSPL();
         $token3->setColor("blue");
-        $personalBoard->addToken($token1);
-        $personalBoard->addToken($token2);
+        $personalBoard->addSelectedToken($token1);
+        $personalBoard->addSelectedToken($token2);
         $this->expectException(\Exception::class);
         $this->SPLService->takeToken($player, $token3);
     }
@@ -70,8 +70,8 @@ class SPLServiceTest extends TestCase
         $token2->setColor("red");
         $token3 = new TokenSPL();
         $token3->setColor("blue");
-        $personalBoard->addToken($token1);
-        $personalBoard->addToken($token2);
+        $personalBoard->addSelectedToken($token1);
+        $personalBoard->addSelectedToken($token2);
         $this->expectException(\Exception::class);
         $this->SPLService->takeToken($player, $token3);
     }
@@ -91,12 +91,12 @@ class SPLServiceTest extends TestCase
         $token3->setColor("green");
         $token4 = new TokenSPL();
         $token4->setColor("yellow");
-        $personalBoard->addToken($token1);
-        $personalBoard->addToken($token2);
-        $personalBoard->addToken($token3);
+        $personalBoard->addSelectedToken($token1);
+        $personalBoard->addSelectedToken($token2);
+        $personalBoard->addSelectedToken($token3);
         $this->expectException(\Exception::class);
         $this->SPLService->takeToken($player, $token4);
-    }*/
+    }
 
     public function testIsGameEndedShouldReturnFalseBecauseNotLastPlayer() : void
     {
