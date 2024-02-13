@@ -34,11 +34,11 @@ class SPLService
     public function takeToken(PlayerSPL $playerSPL, TokenSPL $tokenSPL) : void
     {
         if($playerSPL->getPersonalBoard()->getTokens()->count() >= 10){
-            throwException(new Exception("Can't pick up more tokens"));
+            throw new Exception("Can't pick up more tokens");
         }
         $tokensPickable = $this->canChooseTwoTokens($playerSPL, $tokenSPL);
         if($tokensPickable == -1){
-            throwException(new Exception("An error as occurred"));
+            throw new Exception("An error as occurred");
         }
         $playerSPL->getPersonalBoard()->addSelectedToken($tokenSPL);
         if($tokensPickable == 1){
@@ -46,7 +46,7 @@ class SPLService
             foreach ($selectedTokens as $selectedToken){
                 $playerSPL->getPersonalBoard()->addToken($selectedToken);
             }
-            // TODO : SET PLAYER TURN TO FALSE
+            // TODO : END PLAYER TURN
         }
     }
 
@@ -190,7 +190,8 @@ class SPLService
             return 0;
         }
         if($selectedTokens->count() == 2 && $selectedTokens->first()->getColor() != $tokenSPL->getColor()
-          && $selectedTokens[1]->getColor() != $tokenSPL->getColor()){
+          && $selectedTokens[1]->getColor() != $tokenSPL->getColor()
+          && $selectedTokens->first()->getColor() != $selectedTokens[1]->getColor()){
             return 1;
         }
         return -1;
