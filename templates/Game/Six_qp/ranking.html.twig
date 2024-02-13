@@ -49,7 +49,7 @@ This section displays the game's name, and the current game's timer and leaderbo
 					</div>
 
 					<div class="landscape:hidden w-full items-center overflow-hidden">
-						{% if player == user.username %}
+						{% if player.username == user.username %}
 							<p class=" flex items-center text-clip text-right mb-2 text-xl text-violet-300">{{ user.username }}</p>
 						{% else %}
 							<p class="flex items-center text-clip text-right mb-2 text-xl">{{ user.username }}</p>
