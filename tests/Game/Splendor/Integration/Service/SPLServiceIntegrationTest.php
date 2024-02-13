@@ -196,26 +196,6 @@ class SPLServiceIntegrationTest extends KernelTestCase
         //THEN
         $this->assertFalse($result);
     }
-    private function createGame(int $numberOfPlayer): GameSPL
-    {
-        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
-        $game = new GameSPL();
-        $game->setGameName(AbstractGameManagerService::$SPL_LABEL);
-        for ($i = 0; $i < $numberOfPlayer; $i++) {
-            $player = new PlayerSPL('test', $game);
-            $game->addPlayer($player);
-            $personalBoard = new PersonalBoardSPL();
-            $personalBoard->setGame($game);
-            $player->setPersonalBoard($personalBoard);
-            $personalBoard->setPlayerSPL($player);
-            $entityManager->persist($personalBoard);
-            $entityManager->persist($player);
-        }
-        $entityManager->persist($game);
-        $entityManager->flush();
-        return $game;
-    }
-
     public function testGetRanking(): void
     {
         // GIVEN
@@ -241,4 +221,82 @@ class SPLServiceIntegrationTest extends KernelTestCase
         // THEN
         $this->assertEquals($expectedRanking, $result);
     }
+
+    public function testGetActivePlayer() : void
+    {
+        // GIVEN
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $splendorService = static::getContainer()->get(SPLService::class);
+        $game = $this->createGame(2);
+        $player2 = $game->getPlayers()[1];
+        $player2->setTurnOfPlayer(true);
+        $entityManager->persist($player2);
+        $entityManager->flush();
+        // WHEN
+        $result = $splendorService->getActivePlayer($game);
+        // THEN
+        $this->assertSame($player2, $result);
+    }
+
+    public function testEndRoundOfPlayerWhenNotLastPlayer() : void
+    {
+        // GIVEN
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $splendorService = static::getContainer()->get(SPLService::class);
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()[0];
+        $player->setTurnOfPlayer(true);
+        $entityManager->persist($player);
+        $entityManager->flush();
+        $expectedResult = [false, true];
+        // WHEN
+        $splendorService->endRoundOfPlayer($game, $splendorService->getActivePlayer($game));
+        // THEN
+        $result = Array();
+        foreach ($game->getPlayers() as $tmp) {
+            array_push($result, $tmp->isTurnOfPlayer());
+        }
+        $this->assertSame($expectedResult, $result);
+    }
+    public function testEndRoundOfPlayerWhenLastPlayer() : void
+    {
+        // GIVEN
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $splendorService = static::getContainer()->get(SPLService::class);
+        $game = $this->createGame(2);
+        $player2 = $game->getPlayers()[1];
+        $player2->setTurnOfPlayer(true);
+        $entityManager->persist($player2);
+        $entityManager->flush();
+        $expectedResult = [true, false];
+        // WHEN
+        $splendorService->endRoundOfPlayer($game, $splendorService->getActivePlayer($game));
+        // THEN
+        $result = Array();
+        foreach ($game->getPlayers() as $tmp) {
+            array_push($result, $tmp->isTurnOfPlayer());
+        }
+        $this->assertSame($expectedResult, $result);
+    }
+
+    private function createGame(int $numberOfPlayer): GameSPL
+    {
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $game = new GameSPL();
+        $game->setGameName(AbstractGameManagerService::$SPL_LABEL);
+        for ($i = 0; $i < $numberOfPlayer; $i++) {
+            $player = new PlayerSPL('test', $game);
+            $game->addPlayer($player);
+            $personalBoard = new PersonalBoardSPL();
+            $personalBoard->setGame($game);
+            $player->setPersonalBoard($personalBoard);
+            $personalBoard->setPlayerSPL($player);
+            $entityManager->persist($personalBoard);
+            $entityManager->persist($player);
+        }
+        $entityManager->persist($game);
+        $entityManager->flush();
+        return $game;
+    }
+
 }
