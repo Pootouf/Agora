@@ -14,6 +14,7 @@ use App\Service\Game\SixQP\SixQPService;
 use App\Service\Game\PublishService;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
+use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -85,7 +86,8 @@ class SixQPController extends AbstractController
     #[Route('/game/{idGame}/sixqp/select/{idCard}', name: 'app_game_sixqp_select')]
     public function selectCard(
         #[MapEntity(id: 'idGame')] GameSixQP $game,
-        #[MapEntity(id: 'idCard')] CardSixQP $card): Response
+        #[MapEntity(id: 'idCard')] CardSixQP $card,
+    LoggerInterface $li): Response
     {
         /** @var PlayerSixQP $player */
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
@@ -99,10 +101,11 @@ class SixQPController extends AbstractController
 
         try {
             $this->service->chooseCard($player, $card);
-        } catch (Exception) {
+        } catch (Exception $e) {
+            $li->critical($e->getMessage());
             $this->logService->sendPlayerLog($game, $player,
             $player->getUsername() . " failed to choose card " . $card->getValue());
-            return new Response('Impossible to choose', Response::HTTP_SERVICE_UNAVAILABLE);
+            return new Response('Impossible to choose', Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
         $message = $player->getUsername() . " chose the card " . $card->getValue()
