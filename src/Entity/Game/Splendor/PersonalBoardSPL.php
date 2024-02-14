@@ -27,11 +27,15 @@ class PersonalBoardSPL
     #[ORM\OneToOne(mappedBy: 'personalBoard', cascade: ['persist', 'remove'])]
     private ?PlayerSPL $playerSPL = null;
 
+    #[ORM\OneToMany(targetEntity: SelectedTokenSPL::class, mappedBy: 'personalBoardSPL', orphanRemoval: true)]
+    private Collection $selectedTokens;
+
     public function __construct()
     {
         $this->tokens = new ArrayCollection();
         $this->nobleTiles = new ArrayCollection();
         $this->playerCards = new ArrayCollection();
+        $this->selectedTokens = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -130,6 +134,36 @@ class PersonalBoardSPL
         }
 
         $this->playerSPL = $playerSPL;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, SelectedTokenSPL>
+     */
+    public function getSelectedTokens(): Collection
+    {
+        return $this->selectedTokens;
+    }
+
+    public function addSelectedToken(SelectedTokenSPL $selectedToken): static
+    {
+        if (!$this->selectedTokens->contains($selectedToken)) {
+            $this->selectedTokens->add($selectedToken);
+            $selectedToken->setPersonalBoardSPL($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSelectedToken(SelectedTokenSPL $selectedToken): static
+    {
+        if ($this->selectedTokens->removeElement($selectedToken)) {
+            // set the owning side to null (unless already changed)
+            if ($selectedToken->getPersonalBoardSPL() === $this) {
+                $selectedToken->setPersonalBoardSPL(null);
+            }
+        }
 
         return $this;
     }
