@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping\MappedSuperclass;
 #[MappedSuperclass]
 class Card extends Component
 {
-    #[ORM\Column]
+    #[ORM\Column(nullable: true)]
     protected ?int $value = null;
 
     public function getValue(): ?int
