@@ -14,12 +14,13 @@ RUN pecl install xdebug \
     && echo "xdebug.mode=debug" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
     && echo "xdebug.client_host=host.docker.internal" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 WORKDIR /app
-COPY . /app
+COPY composer.json composer.phar /app/
 RUN bash -c "chmod u+x composer.phar  \
     && rm -f composer.lock \
     && mv composer.phar /usr/local/bin/composer  \
     && composer update  \
-    && symfony console tailwind:init"
+    && symfony console tailwind:init" \
+COPY . /app
 ###> recipes ###
 ###< recipes ###
 EXPOSE 8000

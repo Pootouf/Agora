@@ -23,11 +23,6 @@ services:
 
 
 before_script:
-  - chmod u+x composer.phar  
-  - rm -f composer.lock 
-  - mv composer.phar /usr/local/bin/composer  
-  - composer update  
-  - symfony console tailwind:init
   - symfony console --env=test doctrine:migrations:migrate
   - symfony console doctrine:fixtures:load --env=test -n
 
