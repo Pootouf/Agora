@@ -6,10 +6,6 @@ stages:
   - splendor
   - deploy
 
-cache:
-  paths:
-    - /vendor/
-
 
 variables:
   MYSQL_ROOT_PASSWORD: password
