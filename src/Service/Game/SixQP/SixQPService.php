@@ -29,15 +29,19 @@ class SixQPService
     private ChosenCardSixQPRepository $chosenCardSixQPRepository;
     private PlayerSixQPRepository $playerSixQPRepository;
 
+    private LogService $logService;
+
     public function __construct(EntityManagerInterface $entityManager,
         CardSixQPRepository $cardSixQPRepository,
         ChosenCardSixQPRepository $chosenCardSixQPRepository,
-        PlayerSixQPRepository $playerSixQPRepository)
+        PlayerSixQPRepository $playerSixQPRepository,
+        LogService $logService)
     {
         $this->entityManager = $entityManager;
         $this->cardSixQPRepository = $cardSixQPRepository;
         $this->chosenCardSixQPRepository = $chosenCardSixQPRepository;
         $this->playerSixQPRepository = $playerSixQPRepository;
+        $this->logService = $logService;
     }
 
 
@@ -168,18 +172,6 @@ class SixQPService
     }
 
     /**
-     * revealCard : reveal the chosen card
-     * @param ChosenCardSixQP $chosenCardSixQP the card to reveal
-     * @return void
-     */
-    public function revealCard(ChosenCardSixQP $chosenCardSixQP): void
-    {
-        $chosenCardSixQP->setVisible(true);
-        $this->entityManager->persist($chosenCardSixQP);
-        $this->entityManager->flush();
-    }
-
-    /**
      * doesAllPlayersHaveChosen: return true if all players have chosen
      * @param GameSixQP $game
      * @return bool
@@ -279,7 +271,6 @@ class SixQPService
      */
     public function addRowToDiscardOfPlayer(PlayerSixQP $player, RowSixQP $row): void
     {
-        $logService = new LogService($this->entityManager);
         $total = 0;
         foreach ($row->getCards() as $card) {
             $player->getDiscardSixQP()->addCard($card);
@@ -288,7 +279,7 @@ class SixQPService
             $row->removeCard($card);
         }
         $game = $player->getGame();
-        $logService->sendPlayerLog($game, $player, $player->getUsername()
+        $this->logService->sendPlayerLog($game, $player, $player->getUsername()
             . " picked up row " . $game->getRowSixQPs()->indexOf($row)
              . " and got " . $total . " points");
         $this->entityManager->persist($row);

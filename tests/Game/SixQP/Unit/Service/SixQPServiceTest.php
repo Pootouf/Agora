@@ -1,5 +1,6 @@
 <?php
 
+namespace App\Tests\Game\SixQP\Unit\Service;
 
 use App\Entity\Game\SixQP\CardSixQP;
 use App\Entity\Game\SixQP\ChosenCardSixQP;
@@ -7,11 +8,13 @@ use App\Entity\Game\SixQP\DiscardSixQP;
 use App\Entity\Game\SixQP\GameSixQP;
 use App\Entity\Game\SixQP\PlayerSixQP;
 use App\Entity\Game\SixQP\RowSixQP;
+use \App\Service\Game\LogService;
 use App\Repository\Game\SixQP\CardSixQPRepository;
 use App\Repository\Game\SixQP\ChosenCardSixQPRepository;
 use App\Repository\Game\SixQP\PlayerSixQPRepository;
 use App\Service\Game\SixQP\SixQPService;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use PHPUnit\Framework\TestCase;
 
 class SixQPServiceTest extends TestCase
@@ -25,6 +28,7 @@ class SixQPServiceTest extends TestCase
         $cardSixQPRepository = $this->createMock(CardSixQPRepository::class);
         $chosenCardSixQPRepository = $this->createMock(ChosenCardSixQPRepository::class);
         $playerSixQPRepository = $this->createMock(PlayerSixQPRepository::class);
+        $logService = $this->createMock(LogService::class);
         $cards = [];
         for($i = 0; $i < 104; $i++) {
             $cards[] = new CardSixQP();
@@ -34,7 +38,7 @@ class SixQPServiceTest extends TestCase
             ->willReturn($cards);
 
         $this->sixQPService = new SixQPService($entityManager, $cardSixQPRepository,
-            $chosenCardSixQPRepository, $playerSixQPRepository);
+            $chosenCardSixQPRepository, $playerSixQPRepository, $logService);
     }
 
     public function testInitializeNewRoundValidWithValidGameExpectSuccess(): void
@@ -167,7 +171,7 @@ class SixQPServiceTest extends TestCase
         $player = $game->getPlayerSixQPs()->first();
         $card = new CardSixQP();
         $card->setValue(12);
-        $chosenCard = new ChosenCardSixQP($player, $game, $card, true);
+        $chosenCard = new ChosenCardSixQP($player, $game, $card);
         $row = $game->getRowSixQPs()->first();
         for ($i = 0; $i < 5; $i++) {
             $c = new CardSixQP();
