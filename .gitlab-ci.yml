@@ -52,7 +52,7 @@ deploy_dev_game:
 unitFactory:
   stage: factory
   script:
-    - php bin/phpunit tests/Game/Factory/Unit --coverage-text
+    - php bin/phpunit tests/Game/Factory/Unit
   allow_failure: false
   environment: test
 
@@ -63,14 +63,14 @@ integrationFactory:
     - preprod
     - main
   script:
-    - php bin/phpunit tests/Game/Factory/Integration --coverage-text
+    - php bin/phpunit tests/Game/Factory/Integration
   allow_failure: false
   environment: test
 
 unit6QP:
   stage: sixqp
   script:
-    - php bin/phpunit tests/Game/SixQP/Unit --coverage-text
+    - php bin/phpunit tests/Game/SixQP/Unit
   allow_failure: false
   environment: test
 
@@ -81,7 +81,7 @@ integration6QP:
     - preprod
     - main
   script:
-    - php bin/phpunit tests/Game/SixQP/Integration --coverage-text
+    - php bin/phpunit tests/Game/SixQP/Integration
   allow_failure: false
   environment: test
 
@@ -93,14 +93,14 @@ application6QP:
     - main
   script:
     - symfony console tailwind:build
-    - php bin/phpunit tests/Game/SixQP/Application --coverage-text
+    - php bin/phpunit tests/Game/SixQP/Application
   allow_failure: false
   environment: test
 
 unitSplendor:
   stage: splendor
   script:
-    - php bin/phpunit tests/Game/Splendor/Unit --coverage-text
+    - php bin/phpunit tests/Game/Splendor/Unit
   allow_failure: false
   environment: test
 
@@ -111,7 +111,7 @@ integrationSplendor:
     - preprod
     - main
   script:
-    - php bin/phpunit tests/Game/Splendor/Integration --coverage-text
+    - php bin/phpunit tests/Game/Splendor/Integration
   allow_failure: false
   environment: test
 
