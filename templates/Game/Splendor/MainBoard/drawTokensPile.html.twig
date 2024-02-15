@@ -1,8 +1,31 @@
 {#
     This section displays the color tokens that can be taken by players
-    @param :
+    @param : 
     @return :
 #}
-<div class="flex float-top-0 w-fit h-1/6 bg-purple-600">
+<div class="px-10 flex float-top-0 w-full h-1/5 bg-purple-600">
+    <div class="grid grid-rows-2 grid-cols-5 w-full mx-2 mt-5 h-max-height
+            landscape:md:flex landscape:md:mt-2 landscape:md-justify-center landscape:md:align-center
+            lg:justify-center lg:align-center ">
+        {% for token in ['diamond', 'emerald', 'ruby', 'sapphire', 'onyx'] %}
+            <div class="overflow-hidden  w-auto origin-bottom">
+                <img
+                    class=" object-cover w-7/12 aspect-auto rounded-2xl "
+                    src="{{ asset('resourcesGames/Splendor/Images/Tokens/' ~ token ~'Token.png') }}"
+                    alt='{{ token }}'
+                >
+            </div>
 
+        {% endfor %}
+        <div class="xl:lg:ml-5 overflow-hidden  w-auto origin-bottom">
+            <img
+                    class=" object-cover w-7/12 aspect-auto rounded-2xl"
+                    src="{{ asset('resourcesGames/Splendor/Images/Tokens/goldToken.png') }}"
+                    alt="goldToken"
+            >
+        </div>
+    </div>
+    <div class="">
+
+    </div>
 </div>
