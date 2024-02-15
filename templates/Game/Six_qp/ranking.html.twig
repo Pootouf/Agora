@@ -21,17 +21,17 @@ This section displays the game's name, and the current game's timer and leaderbo
 	    <p id="elapsedTime" class="mr-1 text-center ">Temps écoulé : 00:00:00</p>
 	    #}
     </div>
-	<p class="text-center py-2 font-bold dark:bg-gray-700 text-white text-xl border-y-4 border-violet-600">
+	<p class="text-center py-2 font-bold bg-gray-700 text-white text-xl border-y-4 border-violet-600">
 		Classement
 	</p>
-	<div class="dark:bg-slate-400 overflow-y-auto">
+	<div class="bg-slate-400 overflow-y-auto">
 		<div id="leaderboard" class="text-sm font-medium space-y-1 text-white">
 			{% for user in ranking %}
-				<div id="{{ user.username }}" class="score-white">
+				<div id="{{ user.username }}" class="score-white" data-origingap="0" data-origin="{{ loop.index0 }}">
 					<div
-							id="l_{{ user.username }}_points"
-							class="portrait:hidden flex w-full items-center overflow-hidden"
-					     	data-score="{{ user.discardSIxQP.totalPoints }}"
+						id="l_{{ user.username }}_points"
+						class="portrait:hidden flex w-full items-center overflow-hidden"
+				        data-score="{{ user.discardSIxQP.totalPoints }}"
 					>
 						<img src="{{ asset('resourcesGames/6QP/teteDeBoeuf.svg') }}" alt="logo"
 						     class="lg:size-8 size-4 mr-1">
@@ -49,7 +49,7 @@ This section displays the game's name, and the current game's timer and leaderbo
 					</div>
 
 					<div class="landscape:hidden w-full items-center overflow-hidden">
-						{% if player == user.username %}
+						{% if player.username == user.username %}
 							<p class=" flex items-center text-clip text-right mb-2 text-xl text-violet-300">{{ user.username }}</p>
 						{% else %}
 							<p class="flex items-center text-clip text-right mb-2 text-xl">{{ user.username }}</p>
@@ -71,93 +71,13 @@ This section displays the game's name, and the current game's timer and leaderbo
 		</div>
 	</div>
 
-
+	<script type="text/javascript" src="{{ asset('resourcesGames/6QP/rankingAnimation.js') }}"></script>
 	<script>
 		{% set path = path('app_game_show_sixqp', {'id': game.id}) ~ 'ranking' %}
         const eventSourceRanking = new EventSource("{{ mercure(path)|escape('js') }}");
         eventSourceRanking.onmessage = event => {
 			updateUserScore(event.data.split(' '));
-            updateLeaderboard();
         }
 	</script>
 
-{% endblock %}
-
-{% block javascripts %}
-    <script>
-        {#
-        function updateElapsedTime() {
-            const currentTime = Math.floor(Date.now() / 1000);
-            const elapsedTime = currentTime - {{ createdAt }};
-
-            const hours = Math.floor(elapsedTime / 3600);
-            const minutes = Math.floor((elapsedTime % 3600) / 60);
-            const seconds = elapsedTime % 60;
-
-	        document.getElementById('elapsedTime').innerText = hours.toString().padStart(2, '0') + ':' +
-	            minutes.toString().padStart(2, '0') + ':' +
-	            seconds.toString().padStart(2, '0');
-	    }
-
-	    const clockID = setInterval(updateElapsedTime, 1000);
-        #}
-	    function updateUserScore(player) {
-	        let scoreElement = document.getElementById(player[0]);
-	        if (scoreElement) {
-	            let landscapeScore = document.getElementById('l_' + player[0] + '_points');
-	            landscapeScore.dataset.score = player[1];
-	            if (landscapeScore) {
-	                landscapeScore.getElementsByTagName('p').item(0).innerText = player[1];
-	                if (player[1] > 1) {
-	                    landscapeScore.getElementsByTagName('p').item(1).innerText = "points";
-	                }
-	            }
-
-
-	            let portraitScore = document.getElementById('p_' + player[0] + '_points');
-	            if (portraitScore) {
-	                portraitScore.getElementsByTagName('p').item(0).innerText = player[1];
-	                if (player[1] > 1) {
-	                    portraitScore.getElementsByTagName('p').item(1).innerText = 'points';
-	                }
-	            }
-	        }
-	    }
-
-	    function updateLeaderboard() {
-	        let leaderboardContainer = document.getElementById('leaderboard');
-	        if (leaderboardContainer) {
-	            let leaderboardItems = Array.from(leaderboardContainer.children);
-
-	            leaderboardItems.sort(function (a, b) {
-	                let scoreA = parseInt(document.getElementById('l_' + a.id + '_points').dataset.score);
-	                let scoreB = parseInt(document.getElementById('l_' + b.id + '_points').dataset.score);
-	                return scoreA - scoreB;
-	            });
-
-	            let first = document.getElementById(
-	                'l_' + leaderboardItems[0].id + '_points').dataset.score;
-	            let last = document.getElementById('l_' +
-	                leaderboardItems[leaderboardItems.length - 1].id + '_points').dataset.score;
-
-	            leaderboardItems.forEach((item) => {
-	                if (document.getElementById('l_' + item.id + '_points').dataset.score === last) {
-	                    item.classList.remove('score-white', 'score-gold');
-	                    item.classList.add('score-red');
-	                } else if (document.getElementById('l_' + item.id + '_points').dataset.score === first) {
-	                    item.classList.remove('score-red', 'score-white');
-	                    item.classList.add('score-gold');
-	                } else {
-	                    item.classList.remove('score-red', 'score-gold');
-	                    item.classList.add('score-white');
-	                }
-	            });
-
-	            leaderboardItems.forEach(item => leaderboardContainer.removeChild(item));
-	            leaderboardItems.forEach(item => leaderboardContainer.appendChild(item));
-	        }
-	    }
-
-	    updateLeaderboard();
-	</script>
 {% endblock %}

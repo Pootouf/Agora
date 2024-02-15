@@ -27,6 +27,12 @@ security:
 
 when@test:
     security:
+        providers:
+            # used to reload user from session & other features (e.g. switch_user)
+            app_user_provider:
+                entity:
+                    class: App\Entity\Game\GameUser
+                    property: username
         password_hashers:
             # By default, password hashers are resource intensive and take time. This is
             # important to generate secure password hashes. In tests however, secure hashes

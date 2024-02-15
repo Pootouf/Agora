@@ -14,6 +14,7 @@ use App\Repository\Game\SixQP\CardSixQPRepository;
 use App\Repository\Game\SixQP\ChosenCardSixQPRepository;
 use App\Repository\Game\SixQP\PlayerSixQPRepository;
 use App\Service\Game\AbstractGameManagerService;
+use App\Service\Game\LogService;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
@@ -107,7 +108,7 @@ class SixQPService
      * placeCard : place the chosen card into the selected row, and update player's discard if necessary
      * @param ChosenCardSixQP $chosenCardSixQP
      * @param RowSixQP $row
-     * @return int 0 if the card has been placed, -1 otherwise
+     * @return int 0 if the card has been placed, position of the row +1 if line retrieve, -1 otherwise
      */
     public function placeCardIntoRow(ChosenCardSixQP $chosenCardSixQP, RowSixQP $row): int
     {
@@ -118,7 +119,7 @@ class SixQPService
             $this->addRowToDiscardOfPlayer($player, $row);
             $returnValue = -1;
         }
-        $row->addCard($chosenCardSixQP->getCard());
+        $row->getCards()->add($chosenCardSixQP->getCard());
 
 
         $this->entityManager->persist($row);
@@ -129,8 +130,8 @@ class SixQPService
     /**
      * getRanking : get the ranking by player points (ascending)
      * @param GameSixQP $gameSixQP
-     * @return array<PlayerSixQP> of players, sorted by score (smaller to greater)
-     * @throws Exception if invalid game
+     * @return array
+     * @throws Exception
      */
     public function getRanking(GameSixQP $gameSixQP): array
     {
@@ -163,6 +164,18 @@ class SixQPService
         }
         $discardSixQP->setTotalPoints($totalPoints);
         $this->entityManager->persist($discardSixQP);
+        $this->entityManager->flush();
+    }
+
+    /**
+     * revealCard : reveal the chosen card
+     * @param ChosenCardSixQP $chosenCardSixQP the card to reveal
+     * @return void
+     */
+    public function revealCard(ChosenCardSixQP $chosenCardSixQP): void
+    {
+        $chosenCardSixQP->setVisible(true);
+        $this->entityManager->persist($chosenCardSixQP);
         $this->entityManager->flush();
     }
 
@@ -266,11 +279,18 @@ class SixQPService
      */
     public function addRowToDiscardOfPlayer(PlayerSixQP $player, RowSixQP $row): void
     {
+        $logService = new LogService($this->entityManager);
+        $total = 0;
         foreach ($row->getCards() as $card) {
             $player->getDiscardSixQP()->addCard($card);
             $player->getDiscardSixQP()->addPoints($card->getPoints());
+            $total += $card->getPoints();
             $row->removeCard($card);
         }
+        $game = $player->getGame();
+        $logService->sendPlayerLog($game, $player, $player->getUsername()
+            . " picked up row " . $game->getRowSixQPs()->indexOf($row)
+             . " and got " . $total . " points");
         $this->entityManager->persist($row);
         $this->entityManager->persist($player->getDiscardSixQP());
         $this->entityManager->flush();
@@ -352,5 +372,10 @@ class SixQPService
             }
         }
         return false;
+    }
+
+    private function getGameSixQPFromGame(Game $game): ?GameSixQP {
+        /** @var GameSixQP $game */
+        return $game->getGameName() == AbstractGameManagerService::$SIXQP_LABEL ? $game : null;
     }
 }

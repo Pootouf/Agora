@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Agora - Splendor{% endblock %}
+
+{% block body %}
+    <div class="h-screen w-screen overflow-hidden absolute" {{ stimulus_controller('splendor') }}>
+        <div class="h-full w-full overflow-hidden">
+            {% block nav %}
+                {{ include('/Game/Utils/navigation.html.twig') }}
+            {% endblock %}
+            {% block endGame %}
+                {{ include('/Game/Splendor/endGameScreenResult.html.twig') }}
+            {% endblock %}
+            {% block ranking %}
+            <div id="ranking" class="absolute bg-violet-100 w-1/6 h-full right-0">
+                {{  include('/Game/Splendor/Ranking/ranking.html.twig') }}
+            </div>
+            {% endblock %}
+                <div id="mainBoard" class="flow float-start w-[63.3%] h-3/4">
+                    {{ include('/Game/Splendor/MainBoard/mainBoard.html.twig') }}
+                </div>
+            {% block personalBoard %}
+            <div class="flex bg-green-500 h-1/4 w-5/6 float-bottom-0" id="personalBoard">
+                {{ include('/Game/Splendor/PersonalBoard/personalBoard.html.twig') }}
+            </div>
+            {% endblock %}
+        </div>
+    </div>
+    {% if not isSpectator %}
+    <script>
+        {% set path = path('app_game_show_sixqp', {'id': game.id}) ~ 'notifyPlayer' ~ player.id %}
+        const eventSourceNotification = new EventSource("{{ mercure(path)|escape('js') }}");
+        eventSourceNotification.onmessage = event => {
+            for(let row of document.getElementsByClassName('rows')) {
+                row.disabled = false;
+            }
+            //Notify player
+            alert("Please choose a row")
+        }
+    </script>
+    {% endif %}
+{% endblock %}

@@ -20,5 +20,4 @@ export default class extends Controller {
         let url = row.params.url;
         const response = await fetch(url);
     }
-
 }
