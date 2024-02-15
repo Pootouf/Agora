@@ -2,7 +2,7 @@
 
 namespace App\Repository\Platform;
 
-use App\Entity\Platform;
+use App\Entity\Platform\Game;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 

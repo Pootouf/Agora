@@ -14,7 +14,7 @@ class GameFixtures extends Fixture
         for ($i=1; $i <= 50; $i++) {
             $game = new Game();
             $game->setName("gameN°". $i);
-            $game->setDescrRule("Les règles du jeu blablabla");
+            $game->setDescrRule("Les règles du jeu blabla");
             $game->setLabel("G".$i);
             $game->setMinPlayers(rand(2,4));
             $game->setMaxPlayers(rand(5,10));
