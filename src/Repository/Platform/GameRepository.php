@@ -5,6 +5,13 @@ namespace App\Repository\Platform;
 use App\Entity\Platform;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use App\Entity\Platform\Game;
+
+
+
+
+
+
 
 /**
  * @extends ServiceEntityRepository<Game>
