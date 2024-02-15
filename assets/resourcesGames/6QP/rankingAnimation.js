@@ -129,7 +129,79 @@ function resetRankingOrder() {
 }
 
 
+
+let waitingAnimationList = [];
+
+function actionAnimation(anim) {
+    return new Promise(resolve => {
+        if(anim) {
+            waitingAnimationList.push(anim);
+        }
+        else {
+            waitingAnimationList.shift();
+        }
+        resolve();
+    })
+}
+
+
+
+async function placeChosenCardsAnim(cards) {
+    animationContainer.classList.remove('hidden');
+    console.log(cards);
+    for (const card of cards.split(' ')) {
+        console.log(card);
+        await moveChosenCard(card.id);
+    }
+    animationContainer.classList.add('hidden');
+}
+
+function moveChosenCard(cardId) {
+    return new Promise(resolve => {
+        let cardFinalPositionElement = document.getElementById('image_' + cardId);
+        let cardElementInChosenCard = document.getElementById(cardId).firstElementChild;
+
+        let chosenCardShape = cardElementInChosenCard.getBoundingClientRect();
+        let cardFinalPositionShape = cardFinalPositionElement.getBoundingClientRect();
+        console.log(chosenCardShape)
+        console.log(cardFinalPositionShape)
+
+        let movingCardElement = cardElementInChosenCard.cloneNode(true);
+        movingCardElement.id = 'movingcard_' + cardId;
+
+        movingCardElement.classList.add('absolute');
+        animationContainer.appendChild(movingCardElement);
+        movingCardElement.height = chosenCardShape.height;
+        movingCardElement.width = chosenCardShape.width;
+        movingCardElement.animate(
+            [
+                {
+                    transform: "translate(" + chosenCardShape.x + "px, " + chosenCardShape.y + "px)",
+                    width: chosenCardShape.width + "px",
+                    height: chosenCardShape.height + "px",
+                },
+                {width: chosenCardShape.width * 1.5 + "px", height: chosenCardShape.height * 1.5 + "px"},
+                {
+                    transform: "translate(" + cardFinalPositionShape.x + "px, " + cardFinalPositionShape.y + "px)",
+                    width: cardFinalPositionShape.width + "px",
+                    height: cardFinalPositionShape.height + "px"
+                },
+            ],
+            {
+                duration: 1700,
+                iterations: 1,
+                fill: "forwards" // Reste a la positon final
+            }
+        ).addEventListener("finish", () => {
+            movingCardElement.remove();
+            resolve();
+        });
+    })
+}
+
+let animationContainer;
 window.addEventListener('load', function () {
+    animationContainer = document.getElementById('animationContainer');
     let leaderboardContainer = document.getElementById('leaderboard');
     if (leaderboardContainer) {
         applyScoresStyle(Array.from(leaderboardContainer.children));

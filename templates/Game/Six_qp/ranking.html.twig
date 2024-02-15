@@ -41,7 +41,7 @@ This section displays the game's name, and the current game's timer and leaderbo
 						<p class="mr-2 text-sm font-thin">
 							{{ user.discardSIxQP.totalPoints > 1 ? 'points' : 'point' }}
 						</p>
-						{% if player == user.username %}
+						{% if player.username == user.username %}
 							<p class="flex-grow text-clip text-right sm:text-xs text-violet-300">{{ user.username }}</p>
 						{% else %}
 							<p class="flex-grow text-clip text-right sm:text-xs">{{ user.username }}</p>

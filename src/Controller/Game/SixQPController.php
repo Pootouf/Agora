@@ -167,6 +167,7 @@ class SixQPController extends AbstractController
             ['rows' => $game->getRowSixQPs(),
                 'game' => $game,
                 'needToChoose' => false,
+                'processedCards' => []
             ]
         );
     }
@@ -263,6 +264,7 @@ class SixQPController extends AbstractController
      */
     private function clearRowsAndRefreshBoard(array $rowToClear, array $processedCards, GameSixQP $game): void
     {
+        $this->publishMainBoard($game, $processedCards);
         foreach ($rowToClear as $row) {
             $this->publishAnimRowClear($game, $row);
             foreach ($processedCards as $processedCard) {
@@ -271,7 +273,6 @@ class SixQPController extends AbstractController
                 }
             }
         }
-        $this->publishMainBoard($game, $processedCards);
     }
 
     private function publishEndOfGame(GameSixQP $game): void

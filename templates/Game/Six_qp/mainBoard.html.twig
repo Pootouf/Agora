@@ -13,9 +13,15 @@ This section displays the main board of the game
                     {{ stimulus_action('sixqp', 'selectRow', 'click',
                         {url: path('app_game_sixqp_placecardonrow', {idRow: row.id, idGame: game.id})}) }}>
                     {% for card in row.cards %}
-                        <img id="image" class="h-full float float-left"
-                             src="{{ asset('resourcesGames/6QP/cardsImages/' ~ card.value ~ ".png")}}"
-                             alt="card">
+                        <img
+                            {% if card in processedCards %}
+                                id="image_{{ card.id }}"
+                                class="hidden h-full float float-left"
+                            {% else %}
+                                class="h-full float float-left"
+                            {% endif %}
+                            src="{{ asset('resourcesGames/6QP/cardsImages/' ~ card.value ~ ".png")}}"
+                            alt="card">
                     {% endfor %}
                     </button>
                 </div>
@@ -27,10 +33,19 @@ This section displays the main board of the game
         {% set pathAnimRow = path('app_game_show_sixqp', {'id': game.id}) ~ 'animRow' %}
         const eventSourceMainBoard = new EventSource("{{ mercure(path)|escape('js') }}");
         const eventSourceAnimRow = new EventSource("{{ mercure(pathAnimRow)|escape('js') }}");
-        eventSourceMainBoard.onmessage = event => {
+        eventSourceMainBoard.onmessage = async event => {
             let mainBoard = document.getElementById('mainBoard');
             mainBoard.innerHTML = event.data;
+            console.log('remplacer')
+            console.log({{ processedCards | json_encode }})
+            {% if processedCards is not empty %}
+                console.log('g des cartes a process')
+                const response = fetch("{{path('app_game_sixqp_retrieveChosenCards', {id: game.id})}}");
+                let chosenCards = document.getElementById('chosenCards');
+                chosenCards.innerHTML = await response.text();
+            {% endif %}
         }
+
 
         eventSourceAnimRow.onmessage = event => {
             console.log("Event data:", event.data);
@@ -55,13 +70,11 @@ This section displays the main board of the game
                     iterations: 1,
                 },
             ).addEventListener("finish", async ev => {
+                console.log('fetch')
                 const response = await fetch("{{path('app_game_sixqp_retrievemainboard', {id: game.id})}}");
                 let mainBoard = document.getElementById('mainBoard');
                 mainBoard.innerHTML = await response.text();
             });
-        }
-        function arrivedCard(rowid) {
-
         }
     </script>
 {% endblock %}
