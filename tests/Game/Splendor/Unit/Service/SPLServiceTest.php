@@ -6,8 +6,12 @@ use App\Entity\Game\Splendor\GameSPL;
 use App\Entity\Game\Splendor\NobleTileSPL;
 use App\Entity\Game\Splendor\PersonalBoardSPL;
 use App\Entity\Game\Splendor\PlayerSPL;
+use App\Entity\Game\Splendor\SelectedTokenSPL;
 use App\Entity\Game\Splendor\TokenSPL;
+use App\Repository\Game\Splendor\DevelopmentCardsSPLRepository;
 use App\Repository\Game\Splendor\GameSPLRepository;
+use App\Repository\Game\Splendor\NobleTileSPLRepository;
+use App\Repository\Game\Splendor\TokenSPLRepository;
 use App\Service\Game\Splendor\SPLService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
@@ -22,12 +26,18 @@ class SPLServiceTest extends TestCase
     {
         $entityManager = $this->createMock(EntityManagerInterface::class);
         $playerRepository = $this->createMock(PlayerSPLRepository::class);
-        $this->SPLService = new SPLService($entityManager, $playerRepository);
+        $tokenRepository = $this->createMock(TokenSPLRepository::class);
+        $nobleTileRepository = $this->createMock(NobleTileSPLRepository::class);
+        $developmentCardRepository = $this->createMock(DevelopmentCardsSPLRepository::class);
+        $this->SPLService = new SPLService($entityManager, $playerRepository, $tokenRepository,
+            $nobleTileRepository, $developmentCardRepository);
     }
     public function testTakeTokenWhenAlreadyFull() : void
     {
         $game = new GameSPL();
-        $player = new PlayerSPL('test', $game);
+        $player = new PlayerSPL();
+        $player->setGameSPL($game);
+        $player->setUsername('test');
         $personalBoard = new PersonalBoardSPL();
         $player->setPersonalBoard($personalBoard);
         $personalBoard->setPlayerSPL($player);
@@ -43,18 +53,24 @@ class SPLServiceTest extends TestCase
     public function testTakeThreeIdenticalTokens() : void
     {
         $game = new GameSPL();
-        $player = new PlayerSPL('test', $game);
+        $player = new PlayerSPL();
+        $player->setGameSPL($game);
+        $player->setUsername('test');
         $personalBoard = new PersonalBoardSPL();
         $player->setPersonalBoard($personalBoard);
         $personalBoard->setPlayerSPL($player);
         $token1 = new TokenSPL();
         $token1->setColor("blue");
+        $selectedToken1 = new SelectedTokenSPL();
+        $selectedToken1->setToken($token1);
         $token2 = new TokenSPL();
         $token2->setColor("blue");
+        $selectedToken2 = new SelectedTokenSPL();
+        $selectedToken2->setToken($token2);
         $token3 = new TokenSPL();
         $token3->setColor("blue");
-        $personalBoard->addSelectedToken($token1);
-        $personalBoard->addSelectedToken($token2);
+        $personalBoard->addSelectedToken($selectedToken1);
+        $personalBoard->addSelectedToken($selectedToken2);
         $this->expectException(\Exception::class);
         $this->SPLService->takeToken($player, $token3);
     }
@@ -62,18 +78,24 @@ class SPLServiceTest extends TestCase
     public function testTakeThreeTokensButWithTwiceSameColor() : void
     {
         $game = new GameSPL();
-        $player = new PlayerSPL('test', $game);
+        $player = new PlayerSPL();
+        $player->setGameSPL($game);
+        $player->setUsername('test');
         $personalBoard = new PersonalBoardSPL();
         $player->setPersonalBoard($personalBoard);
         $personalBoard->setPlayerSPL($player);
         $token1 = new TokenSPL();
         $token1->setColor("blue");
+        $selectedToken1 = new SelectedTokenSPL();
+        $selectedToken1->setToken($token1);
         $token2 = new TokenSPL();
         $token2->setColor("red");
+        $selectedToken2 = new SelectedTokenSPL();
+        $selectedToken2->setToken($token2);
         $token3 = new TokenSPL();
         $token3->setColor("blue");
-        $personalBoard->addSelectedToken($token1);
-        $personalBoard->addSelectedToken($token2);
+        $personalBoard->addSelectedToken($selectedToken1);
+        $personalBoard->addSelectedToken($selectedToken2);
         $this->expectException(\Exception::class);
         $this->SPLService->takeToken($player, $token3);
     }
@@ -81,21 +103,29 @@ class SPLServiceTest extends TestCase
     public function testTakeFourTokens() : void
     {
         $game = new GameSPL();
-        $player = new PlayerSPL('test', $game);
+        $player = new PlayerSPL();
+        $player->setGameSPL($game);
+        $player->setUsername('test');
         $personalBoard = new PersonalBoardSPL();
         $player->setPersonalBoard($personalBoard);
         $personalBoard->setPlayerSPL($player);
         $token1 = new TokenSPL();
         $token1->setColor("blue");
+        $selectedToken1 = new SelectedTokenSPL();
+        $selectedToken1->setToken($token1);
         $token2 = new TokenSPL();
         $token2->setColor("red");
+        $selectedToken2 = new SelectedTokenSPL();
+        $selectedToken2->setToken($token2);
         $token3 = new TokenSPL();
         $token3->setColor("green");
+        $selectedToken3 = new SelectedTokenSPL();
+        $selectedToken3->setToken($token3);
         $token4 = new TokenSPL();
         $token4->setColor("yellow");
-        $personalBoard->addSelectedToken($token1);
-        $personalBoard->addSelectedToken($token2);
-        $personalBoard->addSelectedToken($token3);
+        $personalBoard->addSelectedToken($selectedToken1);
+        $personalBoard->addSelectedToken($selectedToken2);
+        $personalBoard->addSelectedToken($selectedToken3);
         $this->expectException(\Exception::class);
         $this->SPLService->takeToken($player, $token4);
     }
@@ -104,12 +134,16 @@ class SPLServiceTest extends TestCase
     {
         //GIVEN
         $game = new GameSPL();
-        $player = new PlayerSPL('test', $game);
+        $player = new PlayerSPL();
+        $player->setGameSPL($game);
+        $player->setUsername('test');
         $personalBoard = new PersonalBoardSPL();
         $player->setPersonalBoard($personalBoard);
         $game->addPlayer($player);
         $personalBoard->setPlayerSPL($player);
-        $player2 = new PlayerSPL('test1', $game);
+        $player2 = new PlayerSPL();
+        $player2->setGameSPL($game);
+        $player2->setUsername('test1');
         $personalBoard2 = new PersonalBoardSPL();
         $player2->setPersonalBoard($personalBoard2);
         $personalBoard2->setPlayerSPL($player2);
@@ -124,13 +158,17 @@ class SPLServiceTest extends TestCase
     {
         //GIVEN
         $game = new GameSPL();
-        $player = new PlayerSPL('test', $game);
+        $player = new PlayerSPL();
+        $player->setGameSPL($game);
+        $player->setUsername('test');
         $personalBoard = new PersonalBoardSPL();
         $player->setPersonalBoard($personalBoard);
         $player->setTurnOfPlayer(false);
         $game->addPlayer($player);
         $personalBoard->setPlayerSPL($player);
-        $player2 = new PlayerSPL('test1', $game);
+        $player2 = new PlayerSPL();
+        $player2->setGameSPL($game);
+        $player2->setUsername('test1');
         $personalBoard2 = new PersonalBoardSPL();
         $player2->setPersonalBoard($personalBoard2);
         $personalBoard2->setPlayerSPL($player2);
@@ -149,12 +187,16 @@ class SPLServiceTest extends TestCase
     {
         //GIVEN
         $game = new GameSPL();
-        $player = new PlayerSPL('test', $game);
+        $player = new PlayerSPL();
+        $player->setGameSPL($game);
+        $player->setUsername('test');
         $personalBoard = new PersonalBoardSPL();
         $player->setPersonalBoard($personalBoard);
         $game->addPlayer($player);
         $personalBoard->setPlayerSPL($player);
-        $player2 = new PlayerSPL('test1', $game);
+        $player2 = new PlayerSPL();
+        $player2->setGameSPL($game);
+        $player2->setUsername('test1');
         $personalBoard2 = new PersonalBoardSPL();
         $player2->setPersonalBoard($personalBoard2);
         $personalBoard2->setPlayerSPL($player2);
@@ -173,12 +215,16 @@ class SPLServiceTest extends TestCase
     {
         //GIVEN
         $game = new GameSPL();
-        $player = new PlayerSPL('test', $game);
+        $player = new PlayerSPL();
+        $player->setGameSPL($game);
+        $player->setUsername('test');
         $personalBoard = new PersonalBoardSPL();
         $player->setPersonalBoard($personalBoard);
         $game->addPlayer($player);
         $personalBoard->setPlayerSPL($player);
-        $player2 = new PlayerSPL('test1', $game);
+        $player2 = new PlayerSPL();
+        $player2->setGameSPL($game);
+        $player2->setUsername('test1');
         $personalBoard2 = new PersonalBoardSPL();
         $player2->setPersonalBoard($personalBoard2);
         $personalBoard2->setPlayerSPL($player2);
@@ -197,13 +243,17 @@ class SPLServiceTest extends TestCase
     {
         // GIVEN
         $game = new GameSPL();
-        $player = new PlayerSPL('test', $game);
+        $player = new PlayerSPL();
+        $player->setGameSPL($game);
+        $player->setUsername('test');
         $personalBoard = new PersonalBoardSPL();
         $player->setPersonalBoard($personalBoard);
         $player->setTurnOfPlayer(true);
         $game->addPlayer($player);
         $personalBoard->setPlayerSPL($player);
-        $player2 = new PlayerSPL('test1', $game);
+        $player2 = new PlayerSPL();
+        $player2->setGameSPL($game);
+        $player2->setUsername('test1');
         $personalBoard2 = new PersonalBoardSPL();
         $player2->setPersonalBoard($personalBoard2);
         $player2->setTurnOfPlayer(false);
@@ -226,13 +276,17 @@ class SPLServiceTest extends TestCase
     {
         // GIVEN
         $game = new GameSPL();
-        $player = new PlayerSPL('test', $game);
+        $player = new PlayerSPL();
+        $player->setGameSPL($game);
+        $player->setUsername('test');
         $personalBoard = new PersonalBoardSPL();
         $player->setPersonalBoard($personalBoard);
         $player->setTurnOfPlayer(true);
         $game->addPlayer($player);
         $personalBoard->setPlayerSPL($player);
-        $player2 = new PlayerSPL('test1', $game);
+        $player2 = new PlayerSPL();
+        $player2->setGameSPL($game);
+        $player2->setUsername('test1');
         $personalBoard2 = new PersonalBoardSPL();
         $player2->setPersonalBoard($personalBoard2);
         $player2->setTurnOfPlayer(false);
@@ -253,13 +307,17 @@ class SPLServiceTest extends TestCase
     {
         // GIVEN
         $game = new GameSPL();
-        $player = new PlayerSPL('test', $game);
+        $player = new PlayerSPL();
+        $player->setGameSPL($game);
+        $player->setUsername('test');
         $personalBoard = new PersonalBoardSPL();
         $player->setPersonalBoard($personalBoard);
         $player->setTurnOfPlayer(false);
         $game->addPlayer($player);
         $personalBoard->setPlayerSPL($player);
-        $player2 = new PlayerSPL('test1', $game);
+        $player2 = new PlayerSPL();
+        $player2->setGameSPL($game);
+        $player2->setUsername('test1');
         $personalBoard2 = new PersonalBoardSPL();
         $player2->setPersonalBoard($personalBoard2);
         $player2->setTurnOfPlayer(true);
