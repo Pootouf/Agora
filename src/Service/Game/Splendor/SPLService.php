@@ -30,6 +30,8 @@ class SPLService
     public static int $MAX_POSSIBLE_COUNT_TOKENS = 10;
     public static int $MIN_COUNT_PLAYER = 2;
     public static int $MAX_COUNT_PLAYER = 4;
+    public static int $COMES_OF_THE_DISCARDS = 1;
+    public static int $COMES_OF_THE_ROWS = 2;
     public static int $MAX_COUNT_RESERVED_CARDS = 3;
     public static int $MAX_PRESTIGE_POINTS = 15;
     private EntityManagerInterface $entityManager;
@@ -37,7 +39,6 @@ class SPLService
     private TokenSPLRepository $tokenSPLRepository;
     private NobleTileSPLRepository $nobleTileSPLRepository;
     private DevelopmentCardsSPLRepository $developmentCardsSPLRepository;
-
     private MainBoardSPLRepository $mainBoardSPLRepository;
 
     public function __construct(EntityManagerInterface $entityManager,
@@ -95,11 +96,18 @@ class SPLService
             throwException(new \Exception("You can't reserve cards"));
         }
 
-        // Boards
         $game = $player->getGameSPL();
-        $mainBoard = $this->mainBoardSPLRepository->findOneBy(
-            ["game" => $game->getId()]);
+
+        // Boards
+        $mainBoard = $game->getMainBoard();
         $personalBoard = $player->getPersonalBoard();
+
+        // From ?
+        $from = $this->whereIsThisCard($mainBoard, $card);
+        if ($from == -1)
+        {
+            throwException(new \Exception("An error has been received"));
+        }
 
         // Reserve now => Manage cards
         $playerCard = new PlayerCardSPL($player, $card, true);
@@ -107,13 +115,12 @@ class SPLService
 
         // Manage cards
         // => I know that my card is in main board; so i remove this card from row or draw card
-       if ($card->getDrawCardsSPL() != null)
-       {
-           $this->manageDiscard($card);
-       } else
-       {
+        if ($from === SPLService::$COMES_OF_THE_DISCARDS)
+        {
+           $this->manageDiscard($mainBoard, $card);
+        } else {
             $this->manageRow($mainBoard, $card);
-       }
+        }
 
        // Manage token
        $this->manageJokerToken($player);
@@ -268,8 +275,8 @@ class SPLService
 
     private function canReserveCards(PlayerSPL $player, DevelopmentCardsSPL $card): Boolean
     {
-        if (!$this->checkCardSidesPlayer($player, $card) ||
-            !$this->checkCanReserveSideMainBoard($card) )
+        if (!$this->checkCanReserveSidesPlayer($player, $card) ||
+            !$this->checkCanReserveSideMainBoard($player, $card) )
         {
             return false;
         }
@@ -277,10 +284,9 @@ class SPLService
         return true;
     }
 
-    private function checkCardSidesPlayer(PlayerSPL $player, DevelopmentCardsSPL $card): Boolean
+    private function checkCanReserveSidesPlayer(PlayerSPL $player, DevelopmentCardsSPL $card): Boolean
     {
         // Method that checks the number of reserved cards
-
 
         $reservedCardsOfPlayer = $this->getReserveCards($player);
         if ($reservedCardsOfPlayer->count()
@@ -299,63 +305,118 @@ class SPLService
         return true;
     }
 
-    private function checkCanReserveSideMainBoard(DevelopmentCardsSPL $card): Boolean
+    private function checkCanReserveSideMainBoard(PlayerSPL $player, DevelopmentCardsSPL $card): Boolean
     {
         // check if exist in main board
 
-        return $card->getDrawCardsSPL() != null
-            || $card->getRowSPL() != null;
+        $mainBoard = $player->getGameSPL()->getMainBoard();
+
+        return $this->checkInRowAtLevel($mainBoard, $card)
+            || $this->checkInDiscardAtLevel($mainBoard, $card);
+    }
+
+    private function checkInRowAtLevel(MainBoardSPL $mainBoard
+        , DevelopmentCardsSPL $card) : Boolean
+    {
+        $level = $card->getLevel();
+        $rowAtLevel = $mainBoard->getRowsSPL()->get($level - 1);
+        return $rowAtLevel->getDevelopmentCards()->contains($card);
+    }
+
+    private function checkInDiscardAtLevel(MainBoardSPL $mainBoard
+        , DevelopmentCardsSPL $card) : Boolean
+    {
+        $level = $card->getLevel();
+        $discardsAtLevel = $mainBoard->getDrawCards()->get( $level - 1);
+        return $discardsAtLevel->getDevelopmentCards()->contains($card);
     }
 
     private function manageRow(MainBoardSPL $mainBoard, DevelopmentCardsSPL $card): void
     {
-        $row = $card->getRowSPL();
+        $level = $card->getLevel();
+        $row = $mainBoard->getRowsSPL()->get($level - 1);
         $row->removeDevelopmentCard($card);
 
         // get first cards of discards associate at level
-        $level = $row->getCardLevel();
-        $discardsOfLevel = $mainBoard->getDrawCards()->get($level);
-        $discard = $discardsOfLevel->getDevelopmentCards()->get(0);
-        $row->addDevelopmentCard($discard);
-        $discardsOfLevel->removeDevelopmentCard($card);
+        $discardsOfLevel = $mainBoard->getDrawCards()->get($level - 1);
+        $cardsInDiscard = $discardsOfLevel->getDevelopmentCards();
+        $lastCard = $cardsInDiscard->count();
+        if ($lastCard > 0)
+        {
+            $discard = $cardsInDiscard->get($lastCard - 1);
+            $row->addDevelopmentCard($discard);
+            $discardsOfLevel->removeDevelopmentCard($discard);
+        }
     }
 
-    private function manageDiscard(DevelopmentCardsSPL $card): void
+    private function manageDiscard(MainBoardSPL $mainBoard, DevelopmentCardsSPL $card): void
     {
-        $discards = $card->getDrawCardsSPL();
-        $discards->removeDevelopmentCard($card);
+        $level = $card->getLevel();
+        $discardsAtLevel = $mainBoard->getDrawCards()->get($level - 1);
+        $discardsAtLevel->removeDevelopmentCard($card);
     }
 
     private function manageJokerToken(PlayerSPL $player): void
     {
         $personalBoard = $player->getPersonalBoard();
         $tokens = $personalBoard->getTokens();
-        if ($tokens->count() <= SPLService::$MAX_POSSIBLE_COUNT_TOKENS)
+        if ($tokens->count() < SPLService::$MAX_POSSIBLE_COUNT_TOKENS)
         {
             $game = $player->getGameSPL();
-            $mainBoard = $this->mainBoardSPLRepository->findOneBy(
-                ["game" => $game->getId()]);
-            if ($this->getNumberOfJokerToken($mainBoard) > 0)
+            $mainBoard = $game->getMainBoard();
+            if ($this->getNumberOfTokenAtColorAtMainBoard($mainBoard,
+                SPLService::$LABEL_JOKER) > 0)
             {
                 $joker = $this->getJokerToken($mainBoard);
                 $personalBoard->addToken($joker);
+                $mainBoard->removeToken($joker);
             }
         }
     }
 
-    private function getNumberOfJokerToken(MainBoardSPL $mainBoard) : int
+    private function getNumberOfTokenAtColorAtMainBoard(MainBoardSPL $mainBoard, string $color) : int
+    {
+        $tokens = $mainBoard->getTokens();
+        return $this->getNumberOfTokenAtColor($tokens, $color);
+    }
+
+    private function getNumberOfTokenAtColor(Collection $tokens, string $color) : int
     {
         $count = 0;
-        $tokens = $mainBoard->getTokens();
         for ($i = 0; $i < $tokens->count(); $i++)
         {
             $token = $tokens->get($i);
-            if ($token->getColor() === SPLService::$LABEL_JOKER)
+            if ($token->getColor() === $color)
             {
                 $count += 1;
             }
         }
         return $count;
+    }
+
+    private function getNumberOfTokenAtColorAtPlayer(PlayerSPL $player, string $color) : int
+    {
+        $personalBoard = $player->getPersonalBoard();
+        $tokens = $personalBoard->getTokens();
+        return $this->getNumberOfTokenAtColor($tokens, $color);
+    }
+
+    private function whereIsThisCard(MainBoardSPL $mainBoard, DevelopmentCardsSPL $card) : int
+    {
+        $level = $card->getLevel();
+        $row = $mainBoard->getRowsSPL()->get($level - 1);
+        if ($row->getDevelopmentCards()->contains($card))
+        {
+            return SPLService::$COMES_OF_THE_ROWS;
+        }
+
+        $discards = $mainBoard->getDrawCards()->get($level - 1);
+        if ($discards->getDevelopmentCards()->contains($card))
+        {
+            return SPLService::$COMES_OF_THE_DISCARDS;
+        }
+
+        return -1;
     }
 
     private function getJokerToken(MainBoardSPL $mainBoard) : TokenSPL
