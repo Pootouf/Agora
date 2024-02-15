@@ -25,7 +25,6 @@ services:
 
 before_script:
   - chmod u+x composer.phar
-  - rm -f composer.lock
   - mv composer.phar /usr/local/bin/composer
   - composer install
   - symfony console tailwind:build
