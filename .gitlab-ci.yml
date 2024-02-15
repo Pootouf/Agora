@@ -3,6 +3,7 @@ image: etiennebinginot/agora:1.2
 stages:
   - factory
   - sixqp
+  - splendor
   - deploy
 
 cache:
@@ -95,3 +96,23 @@ application6QP:
     - php bin/phpunit tests/Game/SixQP/Application --coverage-text
   allow_failure: false
   environment: test
+
+unitSplendor:
+  stage: splendor
+  script:
+    - php bin/phpunit tests/Game/Splendor/Unit --coverage-text
+  allow_failure: false
+  environment: test
+
+integrationSplendor:
+  stage: splendor
+  only:
+    - develop-game
+    - preprod
+    - main
+  script:
+    - php bin/phpunit tests/Game/Splendor/Integration --coverage-text
+  allow_failure: false
+  environment: test
+
+

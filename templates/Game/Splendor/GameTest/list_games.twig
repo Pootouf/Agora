@@ -18,6 +18,7 @@
             {% else %}
                 <a href="{{ path('app_game_splendor_join', {'id': game.id}) }}">S'inscrire</a>
                 <a href="{{ path('app_game_splendor_launch', {'id': game.id}) }}">Lancer</a>
+                <a href="{{ path('app_game_splendor_launchFakeParty', {'id': game.id}) }}">Lancer fake party</a>
             {% endif %}
             <a href="{{ path('app_game_splendor_delete', {'id': game.id}) }}">Supprimer</a>
         </div>
