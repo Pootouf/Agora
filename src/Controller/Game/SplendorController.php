@@ -62,6 +62,11 @@ class SplendorController extends AbstractController
             'drawCardsLevelOneCount' => $game->getMainBoard()->getDrawCards()->get(DrawCardsSPL::$LEVEL_ONE),
             'drawCardsLevelTwoCount' => $game->getMainBoard()->getDrawCards()->get(DrawCardsSPL::$LEVEL_TWO),
             'drawCardsLevelThreeCount' => $game->getMainBoard()->getDrawCards()->get(DrawCardsSPL::$LEVEL_THREE),
+            //'redTokensPile' =>
+            //'blueTokensPile' =>
+            //'greenTokensPile' =>
+            //'blackTokensPile' =>
+            //'yellowTokensPile' =>
             'rows' => $game->getMainBoard()->getRowsSPL(),
             'playersNumber' => count($game->getPlayers()),
             'ranking' => $this->service->getRanking($game),
