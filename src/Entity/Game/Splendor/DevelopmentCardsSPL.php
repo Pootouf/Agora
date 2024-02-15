@@ -24,6 +24,9 @@ class DevelopmentCardsSPL extends Card
     #[ORM\ManyToMany(targetEntity: CardCostSPL::class)]
     private Collection $cardCost;
 
+    #[ORM\Column]
+    private ?int $level = null;
+
     public function __construct()
     {
         $this->cardCost = new ArrayCollection();
@@ -78,6 +81,18 @@ class DevelopmentCardsSPL extends Card
     private function removeCardCost(CardCostSPL $cardCost): static
     {
         $this->cardCost->removeElement($cardCost);
+
+        return $this;
+    }
+
+    public function getLevel(): ?int
+    {
+        return $this->level;
+    }
+
+    public function setLevel(int $level): static
+    {
+        $this->level = $level;
 
         return $this;
     }
