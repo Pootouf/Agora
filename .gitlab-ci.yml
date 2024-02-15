@@ -10,6 +10,7 @@ cache:
   key: ${CI_COMMIT_REF_SLUG}
   paths:
     - vendor/
+    - var/
 
 
 variables:
