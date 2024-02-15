@@ -7,6 +7,7 @@ use App\Entity\Game\SixQP\ChosenCardSixQP;
 use App\Entity\Game\SixQP\GameSixQP;
 use App\Entity\Game\SixQP\PlayerSixQP;
 use App\Entity\Game\SixQP\RowSixQP;
+use App\Entity\Game\Splendor\DrawCardsSPL;
 use App\Entity\Game\Splendor\GameSPL;
 use App\Repository\Game\SixQP\ChosenCardSixQPRepository;
 use App\Repository\Game\SixQP\PlayerSixQPRepository;
@@ -53,18 +54,22 @@ class SplendorController extends AbstractController
         } else {
             //TODO : display the game
         }
-
-        return $this->render('/Game/Six_qp/index.html.twig', [
+        return $this->render('/Game/Splendor/index.html.twig', [
             'game' => $game,
-            'playerBoughtCards' => $player->getCards(),
-            //'playerReservedCards' =>
+            'playerBoughtCards' => $player->getPersonalBoard()->getPlayerCards(), //TODO: separate reserved and bought cards
+            //'playerReservedCards' => $this->service->getReservedCards($player),
+            'playerTokens' => $player->getPersonalBoard()->getTokens(),
+            'drawCardsLevelOneCount' => $game->getMainBoard()->getDrawCards()->get(DrawCardsSPL::$LEVEL_ONE),
+            'drawCardsLevelTwoCount' => $game->getMainBoard()->getDrawCards()->get(DrawCardsSPL::$LEVEL_TWO),
+            'drawCardsLevelThreeCount' => $game->getMainBoard()->getDrawCards()->get(DrawCardsSPL::$LEVEL_THREE),
+            'rows' => $game->getMainBoard()->getRowsSPL(),
             'playersNumber' => count($game->getPlayers()),
-            //'ranking' => $this->service->getRanking($game),
+            'ranking' => $this->service->getRanking($game),
             'player' => $player,
-            //'rows' => $game->getRows(),
-            //'isGameFinished' => $this->service->isGameEnded($game),
-            //''
+            'isGameFinished' => $this->service->isGameEnded($game),
+            'nobleTiles' => $game->getMainBoard()->getNobleTiles(),
             'isSpectator' => $isSpectator,
+            //find a way to have development cards' jewels count, tokens count per color and per player for ranking
         ]);
 
     }

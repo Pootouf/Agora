@@ -9,17 +9,16 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: TokenSPLRepository::class)]
 class TokenSPL extends Token
 {
+
+    public static string $COLOR_BLUE = 'blue';
+    public static string $COLOR_RED = 'red';
+    public static string $COLOR_YELLOW = 'yellow';
+    public static string $COLOR_GREEN = 'green';
+    public static string $COLOR_WHITE = 'white';
+    public static string $COLOR_BLACK = 'black';
+
     #[ORM\Column(length: 255)]
     private ?string $color = null;
-
-    #[ORM\ManyToOne(inversedBy: 'tokens')]
-    private ?PersonalBoardSPL $personalBoardSPL = null;
-
-    #[ORM\ManyToOne(inversedBy: 'tokens')]
-    private ?MainBoardSPL $mainBoardSPL = null;
-
-    #[ORM\ManyToOne(inversedBy: 'selectedTokens')]
-    private ?PersonalBoardSPL $tempPersonalBoardSPL = null;
 
     public function getId(): ?int
     {
@@ -34,42 +33,6 @@ class TokenSPL extends Token
     public function setColor(string $color): static
     {
         $this->color = $color;
-
-        return $this;
-    }
-
-    public function getPersonalBoardSPL(): ?PersonalBoardSPL
-    {
-        return $this->personalBoardSPL;
-    }
-
-    public function setPersonalBoardSPL(?PersonalBoardSPL $personalBoardSPL): static
-    {
-        $this->personalBoardSPL = $personalBoardSPL;
-
-        return $this;
-    }
-
-    public function getMainBoardSPL(): ?MainBoardSPL
-    {
-        return $this->mainBoardSPL;
-    }
-
-    public function setMainBoardSPL(?MainBoardSPL $mainBoardSPL): static
-    {
-        $this->mainBoardSPL = $mainBoardSPL;
-
-        return $this;
-    }
-
-    public function getTempPersonalBoardSPL(): ?PersonalBoardSPL
-    {
-        return $this->tempPersonalBoardSPL;
-    }
-
-    public function setTempPersonalBoardSPL(?PersonalBoardSPL $tempPersonalBoardSPL): static
-    {
-        $this->tempPersonalBoardSPL = $tempPersonalBoardSPL;
 
         return $this;
     }

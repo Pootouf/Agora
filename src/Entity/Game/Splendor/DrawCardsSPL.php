@@ -2,23 +2,27 @@
 
 namespace App\Entity\Game\Splendor;
 
-use App\Entity\Game\DTO\Component;
 use App\Repository\Game\Splendor\DrawCardsSPLRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: DrawCardsSPLRepository::class)]
-class DrawCardsSPL extends Component
+class DrawCardsSPL
 {
-    #[ORM\ManyToOne(inversedBy: 'drawCardsSPL')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?GameSPL $game = null;
+    public static int $LEVEL_ONE = 0;
+    public static int $LEVEL_TWO = 1;
+    public static int $LEVEL_THREE = 2;
+
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
+    private ?int $id = null;
 
     #[ORM\Column]
-    private ?int $cardLevel = null;
+    private ?int $level = null;
 
-    #[ORM\OneToMany(targetEntity: DevelopmentCardsSPL::class, mappedBy: 'drawCardsSPL')]
+    #[ORM\ManyToMany(targetEntity: DevelopmentCardsSPL::class)]
     private Collection $developmentCards;
 
     #[ORM\ManyToOne(inversedBy: 'drawCards')]
@@ -35,26 +39,14 @@ class DrawCardsSPL extends Component
         return $this->id;
     }
 
-    public function getGame(): ?GameSPL
+    public function getLevel(): ?int
     {
-        return $this->game;
+        return $this->level;
     }
 
-    public function setGame(?GameSPL $game): static
+    public function setLevel(int $level): static
     {
-        $this->game = $game;
-
-        return $this;
-    }
-
-    public function getCardLevel(): ?int
-    {
-        return $this->cardLevel;
-    }
-
-    public function setCardLevel(int $cardLevel): static
-    {
-        $this->cardLevel = $cardLevel;
+        $this->level = $level;
 
         return $this;
     }
@@ -71,7 +63,6 @@ class DrawCardsSPL extends Component
     {
         if (!$this->developmentCards->contains($developmentCard)) {
             $this->developmentCards->add($developmentCard);
-            $developmentCard->setDrawCardsSPL($this);
         }
 
         return $this;
@@ -79,12 +70,7 @@ class DrawCardsSPL extends Component
 
     public function removeDevelopmentCard(DevelopmentCardsSPL $developmentCard): static
     {
-        if ($this->developmentCards->removeElement($developmentCard)) {
-            // set the owning side to null (unless already changed)
-            if ($developmentCard->getDrawCardsSPL() === $this) {
-                $developmentCard->setDrawCardsSPL(null);
-            }
-        }
+        $this->developmentCards->removeElement($developmentCard);
 
         return $this;
     }

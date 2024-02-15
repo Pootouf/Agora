@@ -21,13 +21,11 @@ final class Version20240212163216 extends AbstractMigration
     {
         // this up() migration is auto-generated, please modify it to your needs
         $this->addSql('ALTER TABLE player_six_qp CHANGE turn_of_player turn_of_player TINYINT(1) DEFAULT NULL');
-        $this->addSql('ALTER TABLE player_spl CHANGE turn_of_player turn_of_player TINYINT(1) DEFAULT NULL');
     }
 
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->addSql('ALTER TABLE player_spl CHANGE turn_of_player turn_of_player TINYINT(1) NOT NULL');
         $this->addSql('ALTER TABLE player_six_qp CHANGE turn_of_player turn_of_player TINYINT(1) NOT NULL');
     }
 }
