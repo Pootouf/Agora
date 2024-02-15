@@ -4,7 +4,7 @@ RUN apt-get -y update && apt-get -y install \
     zip \
     unzip \
     && rm -rf /var/lib/apt/lists/* \
-    && apt-get -y autoremove \
+    && apt-get -y autoremove
 ENV COMPOSER_ALLOW_SUPERUSER=1
 RUN curl -1sLf 'https://dl.cloudsmith.io/public/symfony/stable/setup.deb.sh' | bash \
     && apt install symfony-cli
@@ -18,8 +18,7 @@ WORKDIR /app
 COPY composer.json composer.phar /app/
 RUN bash -c "chmod u+x composer.phar  \
     && mv composer.phar /usr/local/bin/composer  \
-    && composer update  \
-    && symfony console tailwind:init"
+    && composer install"
 COPY . /app
 ###> recipes ###
 ###< recipes ###

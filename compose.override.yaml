@@ -5,7 +5,7 @@ services:
     command: bash -c "cd /app
       && symfony console doctrine:migrations:migrate
       && symfony console --env=test doctrine:migrations:migrate
-      && composer update
+      && composer install
       && symfony server:stop
       && symfony server:start --no-tls"
     volumes:
