@@ -11,29 +11,17 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: GameSPLRepository::class)]
 class GameSPL extends Game
 {
+
     #[ORM\OneToMany(targetEntity: PlayerSPL::class, mappedBy: 'gameSPL', orphanRemoval: true)]
     private Collection $players;
 
-    #[ORM\OneToMany(targetEntity: PersonalBoardSPL::class, mappedBy: 'game', orphanRemoval: true)]
-    private Collection $personalBoardsSPL;
-
-    #[ORM\OneToMany(targetEntity: DrawCardsSPL::class, mappedBy: 'game', orphanRemoval: true)]
-    private Collection $drawCardsSPL;
-
-    #[ORM\OneToMany(targetEntity: PlayerCardSPL::class, mappedBy: 'game', orphanRemoval: true)]
-    private Collection $playerCardsSPL;
+    #[ORM\OneToOne(inversedBy: 'gameSPL', cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?MainBoardSPL $mainBoard = null;
 
     public function __construct()
     {
         $this->players = new ArrayCollection();
-        $this->personalBoardsSPL = new ArrayCollection();
-        $this->drawCardsSPL = new ArrayCollection();
-        $this->playerCardsSPL = new ArrayCollection();
-    }
-
-    public function getId(): ?int
-    {
-        return $this->id;
     }
 
     /**
@@ -66,92 +54,14 @@ class GameSPL extends Game
         return $this;
     }
 
-    /**
-     * @return Collection<int, PersonalBoardSPL>
-     */
-    public function getPersonalBoardsSPL(): Collection
+    public function getMainBoard(): ?MainBoardSPL
     {
-        return $this->personalBoardsSPL;
+        return $this->mainBoard;
     }
 
-    public function addPersonalBoardsSPL(PersonalBoardSPL $personalBoardsSPL): static
+    public function setMainBoard(MainBoardSPL $mainBoard): static
     {
-        if (!$this->personalBoardsSPL->contains($personalBoardsSPL)) {
-            $this->personalBoardsSPL->add($personalBoardsSPL);
-            $personalBoardsSPL->setGame($this);
-        }
-
-        return $this;
-    }
-
-    public function removePersonalBoardsSPL(PersonalBoardSPL $personalBoardsSPL): static
-    {
-        if ($this->personalBoardsSPL->removeElement($personalBoardsSPL)) {
-            // set the owning side to null (unless already changed)
-            if ($personalBoardsSPL->getGame() === $this) {
-                $personalBoardsSPL->setGame(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, DrawCardsSPL>
-     */
-    public function getDrawCardsSPL(): Collection
-    {
-        return $this->drawCardsSPL;
-    }
-
-    public function addDrawCardsSPL(DrawCardsSPL $drawCardsSPL): static
-    {
-        if (!$this->drawCardsSPL->contains($drawCardsSPL)) {
-            $this->drawCardsSPL->add($drawCardsSPL);
-            $drawCardsSPL->setGame($this);
-        }
-
-        return $this;
-    }
-
-    public function removeDrawCardsSPL(DrawCardsSPL $drawCardsSPL): static
-    {
-        if ($this->drawCardsSPL->removeElement($drawCardsSPL)) {
-            // set the owning side to null (unless already changed)
-            if ($drawCardsSPL->getGame() === $this) {
-                $drawCardsSPL->setGame(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, PlayerCardSPL>
-     */
-    public function getPlayerCardsSPL(): Collection
-    {
-        return $this->playerCardsSPL;
-    }
-
-    public function addPlayerCardsSPL(PlayerCardSPL $playerCardsSPL): static
-    {
-        if (!$this->playerCardsSPL->contains($playerCardsSPL)) {
-            $this->playerCardsSPL->add($playerCardsSPL);
-            $playerCardsSPL->setGame($this);
-        }
-
-        return $this;
-    }
-
-    public function removePlayerCardsSPL(PlayerCardSPL $playerCardsSPL): static
-    {
-        if ($this->playerCardsSPL->removeElement($playerCardsSPL)) {
-            // set the owning side to null (unless already changed)
-            if ($playerCardsSPL->getGame() === $this) {
-                $playerCardsSPL->setGame(null);
-            }
-        }
+        $this->mainBoard = $mainBoard;
 
         return $this;
     }

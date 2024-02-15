@@ -3,7 +3,7 @@
 {% block title %}Agora - 6 qui prend{% endblock %}
 
 {% block body %}
-    <div class="h-screen w-screen" {{ stimulus_controller('sixqp') }}>
+    <div class="h-screen w-screen overflow-hidden absolute" {{ stimulus_controller('sixqp') }}>
         <div class="h-full w-full overflow-hidden">
             {% block nav %}
                 {{ include('/Game/Utils/navigation.html.twig') }}
@@ -26,6 +26,9 @@
             <div class="flex bg-green-500 h-1/4 w-5/6 float-bottom-0" id="personalBoard">
                 {{ include('/Game/Six_qp/PersonalBoard/personalBoard.html.twig') }}
             </div>
+            {% endblock %}
+            {% block chat %}
+                    {{ include('/Game/Utils/chat.html.twig') }}
             {% endblock %}
         </div>
     </div>

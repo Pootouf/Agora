@@ -4,41 +4,55 @@ namespace App\Service\Game\Splendor;
 
 use App\Entity\Game\DTO\Game;
 use App\Entity\Game\Splendor\DevelopmentCardsSPL;
+use App\Entity\Game\Splendor\DrawCardsSPL;
 use App\Entity\Game\Splendor\GameSPL;
 use App\Entity\Game\Splendor\MainBoardSPL;
 use App\Entity\Game\Splendor\PlayerCardSPL;
 use App\Entity\Game\Splendor\PlayerSPL;
 use App\Entity\Game\Splendor\TokenSPL;
 use App\Repository\Game\Splendor\MainBoardSPLRepository;
+use App\Repository\Game\Splendor\DevelopmentCardsSPLRepository;
+use App\Repository\Game\Splendor\GameSPLRepository;
+use App\Repository\Game\Splendor\NobleTileSPLRepository;
 use App\Repository\Game\Splendor\PlayerSPLRepository;
+use App\Repository\Game\Splendor\TokenSPLRepository;
 use App\Service\Game\AbstractGameManagerService;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\DBAL\Exception;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Common\Collections\Collection;
 use phpDocumentor\Reflection\Types\Boolean;
 use phpDocumentor\Reflection\Types\Nullable;
 use function PHPUnit\Framework\throwException;
-
 class SPLService
 {
     public static string $LABEL_JOKER = "yellow";
-    public static int $MAX_POSSIBLE_COUNT_TOKENS = 9;
+    public static int $MAX_POSSIBLE_COUNT_TOKENS = 10;
     public static int $MIN_COUNT_PLAYER = 2;
     public static int $MAX_COUNT_PLAYER = 4;
     public static int $MAX_COUNT_RESERVED_CARDS = 3;
     public static int $MAX_PRESTIGE_POINTS = 15;
     private EntityManagerInterface $entityManager;
     private PlayerSPLRepository $playerSPLRepository;
+    private TokenSPLRepository $tokenSPLRepository;
+    private NobleTileSPLRepository $nobleTileSPLRepository;
+    private DevelopmentCardsSPLRepository $developmentCardsSPLRepository;
 
     private MainBoardSPLRepository $mainBoardSPLRepository;
 
     public function __construct(EntityManagerInterface $entityManager,
         PlayerSPLRepository $playerSPLRepository,
-        MainBoardSPLRepository $mainBoardSPLRepository)
+        MainBoardSPLRepository $mainBoardSPLRepository,
+                                TokenSPLRepository $tokenSPLRepository,
+                                NobleTileSPLRepository $nobleTileSPLRepository,
+                                DevelopmentCardsSPLRepository $developmentCardsSPLRepository)
     {
         $this->entityManager = $entityManager;
         $this->playerSPLRepository =  $playerSPLRepository;
         $this->mainBoardSPLRepository = $mainBoardSPLRepository;
+        $this->tokenSPLRepository = $tokenSPLRepository;
+        $this->nobleTileSPLRepository = $nobleTileSPLRepository;
+        $this->developmentCardsSPLRepository = $developmentCardsSPLRepository;
     }
 
     /**
@@ -49,13 +63,22 @@ class SPLService
      */
     public function takeToken(PlayerSPL $playerSPL, TokenSPL $tokenSPL) : void
     {
-        // Method to check player's tokens count
-
-        // Method to check if player can take this token (2 same tokens method)
-
-        // Method to check if player can take this token (3 different tokens method)
-
-        // player can take and action is performed
+        if($playerSPL->getPersonalBoard()->getTokens()->count() >= 10){
+            throw new Exception("Can't pick up more tokens");
+        }
+        $tokensPickable = $this->canChooseTwoTokens($playerSPL, $tokenSPL);
+        if($tokensPickable == -1){
+            throw new Exception("An error as occurred");
+        }
+        $playerSPL->getPersonalBoard()->addToken($tokenSPL);
+        if($tokensPickable == 1){
+            $selectedTokens = $playerSPL->getPersonalBoard()->getTokens();
+            foreach ($selectedTokens as $selectedToken){
+                $playerSPL->getPersonalBoard()->addToken($selectedToken);
+            }
+            $game = $playerSPL->getGameSPL();
+            $this->endRoundOfPlayer($game, $playerSPL);
+        }
     }
 
     /**
@@ -139,7 +162,7 @@ class SPLService
      */
     public function getPlayerFromNameAndGame(GameSPL $game, string $name) : ?PlayerSPL
     {
-        return $this->playerSPLRepository->findOneBy(['game' => $game->getId(), 'username' => $name]);
+        return $this->playerSPLRepository->findOneBy(['gameSPL' => $game->getId(), 'username' => $name]);
     }
 
     /**
@@ -197,6 +220,33 @@ class SPLService
         return $array;
     }
 
+    /**
+     * endRoundOfPlayer : ends player's round and gives it to next player
+     * @param PlayerSPL $playerSPL
+     * @return void
+     */
+    public function endRoundOfPlayer(GameSPL $gameSPL, PlayerSPL $playerSPL) : void
+    {
+        $players = $gameSPL->getPlayers();
+        $nbOfPlayers = $players->count();
+        $index = $players->indexOf($playerSPL);
+        $nextPlayer = $players->get(($index + 1) % $nbOfPlayers);
+        foreach ($players as $player) {
+            $player->setTurnOfPlayer(false);
+        }
+        $nextPlayer->setTurnOfPlayer(true);
+    }
+
+    /**
+     * getActivePlayer : returns the player who has to play
+     * @param GameSPL $gameSPL
+     * @return PlayerSPL
+     */
+    public function getActivePlayer(GameSPL $gameSPL) : PlayerSPL
+    {
+        return $this->playerSPLRepository->findOneBy(["gameSPL" => $gameSPL->getId(),
+        "turnOfPlayer" => true]);
+    }
     /**
      * getPrestigePoints : returns total prestige points of a player
      * @param PlayerSPL $player
@@ -321,5 +371,54 @@ class SPLService
             }
         }
         return $token;
+    }
+
+    /**
+     * canChooseTwoTokens : permet de vérifier si un joueur peut prendre le jeton $tokenSPL
+     * @param PlayerSPL $playerSPL
+     * @param TokenSPL $tokenSPL
+     * @return int
+     *          0 Si la pile est vide
+     *          1 Si on prends un jeton de même couleur que
+     *              celui dans notre pile
+     *          -1 Si on ne peut pas prendre le jeton
+     */
+    private function canChooseTwoTokens(PlayerSPL $playerSPL, TokenSPL $tokenSPL): int
+    {
+        $selectedTokens = $playerSPL->getPersonalBoard()->getTokens();
+        if($selectedTokens->count() == 0){
+            return 0;
+        }
+        if($selectedTokens->count() == 1 && $selectedTokens->first()->getColor() != $tokenSPL->getColor()){
+            return 1;
+        }
+        return $this->canChooseThreeTokens($playerSPL, $tokenSPL);
+    }
+
+    /**
+     * @param PlayerSPL $playerSPL
+     * @param TokenSPL $tokenSPL
+     * @return int
+     *          0 Si la pile est vide ou que la pile est de taille 1 et que
+     *              le jeton dedans est de couleur différente
+     *          1 Si on prends un jeton de couleur différente de
+     *              ceux déjà présent dans la pile
+     *          -1 Si on ne peut pas prendre le jeton
+     */
+    private function canChooseThreeTokens(PlayerSPL $playerSPL, TokenSPL $tokenSPL): int
+    {
+        $selectedTokens = $playerSPL->getPersonalBoard()->getTokens();
+        if($selectedTokens->count() == 0){
+            return 0;
+        }
+        if($selectedTokens->count() == 1 && $selectedTokens->first()->getColor() != $tokenSPL->getColor()){
+            return 0;
+        }
+        if($selectedTokens->count() == 2 && $selectedTokens->first()->getColor() != $tokenSPL->getColor()
+            && $selectedTokens[1]->getColor() != $tokenSPL->getColor()
+            && $selectedTokens->first()->getColor() != $selectedTokens[1]->getColor()){
+            return 1;
+        }
+        return -1;
     }
 }

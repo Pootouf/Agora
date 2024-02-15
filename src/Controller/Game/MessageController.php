@@ -24,25 +24,27 @@ class MessageController extends AbstractController
     }
 
 
-    #[Route('/game/{gameId}/send/{playerId}/message/{message}', name: 'app_game_send_new_message')]
-    public function sendMessage(int $playerId, int $gameId, string $message) : Response
+    #[Route('/game/{gameId}/message/send/{playerId}/{authorUsername}/{message}', name: 'app_game_send_new_message')]
+    public function sendMessage(int $playerId, int $gameId, string $message, string $authorUsername) : Response
     {
-        $this->messageService->sendMessage($playerId, $gameId, $message);
-        $this->publishMessage($gameId, $message, $playerId);
+        $this->messageService->sendMessage($playerId, $gameId, $message, $authorUsername);
+        $this->publishMessage($gameId, $message, $authorUsername);
         return new Response('Message sent', Response::HTTP_OK);
     }
 
-    #[Route('/game/{gameId}/display/chat', name: 'app_game_display_new_messages')]
+    #[Route('/game/{gameId}/message/display', name: 'app_game_display_new_messages')]
     public function receiveMessage(int $gameId) : Response
     {
-        $this->messageService->receiveMessage($gameId);
-        return new Response(); //TODO: add chat template
+        $messages = $this->messageService->receiveMessage($gameId);
+        return $this->render('Game/Utils/chat.html.twig', [
+            'messages' => $messages
+        ]);
     }
 
-    private function publishMessage(int $gameId, string $message, int $playerId): void
+    private function publishMessage(int $gameId, string $message, string $playerUsername): void
     {
         $this->publishService->publish(
-            $this->generateUrl('app_game_display_new_messages', ['id' => $gameId]).'newMessage',
-            new Response($message."§".$playerId));
+            $this->generateUrl('app_game_display_new_messages', ['gameId' => $gameId]).'newMessage',
+            new Response($message."§".$playerUsername));
     }
 }

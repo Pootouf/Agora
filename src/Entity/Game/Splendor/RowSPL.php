@@ -2,23 +2,23 @@
 
 namespace App\Entity\Game\Splendor;
 
-use App\Entity\Game\DTO\Component;
 use App\Repository\Game\Splendor\RowSPLRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: RowSPLRepository::class)]
-class RowSPL extends Component
+class RowSPL
 {
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
     #[ORM\Column]
-    private ?int $cardLevel = null;
+    private ?int $id = null;
 
-    #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?GameSPL $game = null;
+    #[ORM\Column]
+    private ?int $level = null;
 
-    #[ORM\OneToMany(targetEntity: DevelopmentCardsSPL::class, mappedBy: 'rowSPL')]
+    #[ORM\ManyToMany(targetEntity: DevelopmentCardsSPL::class)]
     private Collection $developmentCards;
 
     #[ORM\ManyToOne(inversedBy: 'rowsSPL')]
@@ -35,26 +35,14 @@ class RowSPL extends Component
         return $this->id;
     }
 
-    public function getCardLevel(): ?int
+    public function getLevel(): ?int
     {
-        return $this->cardLevel;
+        return $this->level;
     }
 
-    public function setCardLevel(int $cardLevel): static
+    public function setLevel(int $level): static
     {
-        $this->cardLevel = $cardLevel;
-
-        return $this;
-    }
-
-    public function getGame(): ?GameSPL
-    {
-        return $this->game;
-    }
-
-    public function setGame(?GameSPL $game): static
-    {
-        $this->game = $game;
+        $this->level = $level;
 
         return $this;
     }
@@ -71,7 +59,6 @@ class RowSPL extends Component
     {
         if (!$this->developmentCards->contains($developmentCard)) {
             $this->developmentCards->add($developmentCard);
-            $developmentCard->setRowSPL($this);
         }
 
         return $this;
@@ -79,12 +66,7 @@ class RowSPL extends Component
 
     public function removeDevelopmentCard(DevelopmentCardsSPL $developmentCard): static
     {
-        if ($this->developmentCards->removeElement($developmentCard)) {
-            // set the owning side to null (unless already changed)
-            if ($developmentCard->getRowSPL() === $this) {
-                $developmentCard->setRowSPL(null);
-            }
-        }
+        $this->developmentCards->removeElement($developmentCard);
 
         return $this;
     }

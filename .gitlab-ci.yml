@@ -1,4 +1,4 @@
-image: etiennebinginot/agora:1.1
+image: etiennebinginot/agora:1.2
 
 stages:
   - factory
@@ -6,16 +6,15 @@ stages:
   - deploy
 
 cache:
-  policy: pull-push
-  unprotect: true
-  untracked: true
-  when: on_success
+  paths:
+    - /app/vendor/
 
 
 variables:
   MYSQL_ROOT_PASSWORD: password
   MYSQL_TCP_PORT: 3307
   MYSQL_DATABASE: main_test
+  XDEBUG_MODE: coverage
 
 services:
   - name: mariadb:10.11.2
@@ -23,12 +22,14 @@ services:
 
 
 before_script:
-  # Setup SSH deploy keys
-  - 'which ssh-agent || ( apt-get install -qq openssh-client )'
-  - eval $(ssh-agent -s)
-  - ssh-add <(echo $ID_RSA_GAME | base64 -d)
-  - mkdir -p ~/.ssh
-  - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+  - chmod u+x composer.phar  
+  - rm -f composer.lock 
+  - mv composer.phar /usr/local/bin/composer  
+  - composer update  
+  - symfony console tailwind:init
+  - symfony console --env=test doctrine:migrations:migrate
+  - symfony console doctrine:fixtures:load --env=test -n
+
   
 
 deploy_dev_game:
@@ -37,6 +38,12 @@ deploy_dev_game:
     name: staging
     url: http://srv-dpi-agora-dev-jeux.univ-rouen.fr/
   script:
+    # Setup SSH deploy keys
+    - 'which ssh-agent || ( apt-get install -qq openssh-client )'
+    - eval $(ssh-agent -s)
+    - ssh-add <(echo $ID_RSA_GAME | base64 -d)
+    - mkdir -p ~/.ssh
+    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
     - ssh $SERVER_GAME_USER@$SERVER_GAME_IP "cd /var/www/agora && git checkout develop-game && git pull origin develop-game && docker compose up --build -d && exit"
   only:
     - develop-game
@@ -55,8 +62,6 @@ integrationFactory:
     - preprod
     - main
   script:
-    - symfony console --env=test doctrine:migrations:migrate
-    - symfony console doctrine:fixtures:load --env=test -n
     - php bin/phpunit tests/Game/Factory/Integration --coverage-text
   allow_failure: false
   environment: test
@@ -75,8 +80,6 @@ integration6QP:
     - preprod
     - main
   script:
-    - symfony console --env=test doctrine:migrations:migrate
-    - symfony console doctrine:fixtures:load --env=test -n
     - php bin/phpunit tests/Game/SixQP/Integration --coverage-text
   allow_failure: false
   environment: test
@@ -88,8 +91,7 @@ application6QP:
     - preprod
     - main
   script:
-    - symfony console --env=test doctrine:migrations:migrate
-    - symfony console doctrine:fixtures:load --env=test -n
+    - symfony console tailwind:build
     - php bin/phpunit tests/Game/SixQP/Application --coverage-text
   allow_failure: false
   environment: test

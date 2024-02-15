@@ -11,20 +11,21 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: DevelopmentCardsSPLRepository::class)]
 class DevelopmentCardsSPL extends Card
 {
+    public static int $LEVEL_ONE = 1;
+    public static int $LEVEL_TWO = 2;
+    public static int $LEVEL_THREE = 3;
+
     #[ORM\Column]
     private ?int $prestigePoints = null;
 
     #[ORM\Column(length: 255)]
     private ?string $color = null;
 
-    #[ORM\ManyToOne(inversedBy: 'developmentCards')]
-    private ?DrawCardsSPL $drawCardsSPL = null; 
-
-    #[ORM\ManyToOne(inversedBy: 'developmentCards')]
-    private ?RowSPL $rowSPL = null;
-
     #[ORM\ManyToMany(targetEntity: CardCostSPL::class)]
     private Collection $cardCost;
+
+    #[ORM\Column]
+    private ?int $level = null;
 
     public function __construct()
     {
@@ -60,30 +61,6 @@ class DevelopmentCardsSPL extends Card
         return $this;
     }
 
-    public function getDrawCardsSPL(): ?DrawCardsSPL
-    {
-        return $this->drawCardsSPL;
-    }
-
-    public function setDrawCardsSPL(?DrawCardsSPL $drawCardsSPL): static
-    {
-        $this->drawCardsSPL = $drawCardsSPL;
-
-        return $this;
-    }
-
-    public function getRowSPL(): ?RowSPL
-    {
-        return $this->rowSPL;
-    }
-
-    public function setRowSPL(?RowSPL $rowSPL): static
-    {
-        $this->rowSPL = $rowSPL;
-
-        return $this;
-    }
-
     /**
      * @return Collection<int, CardCostSPL>
      */
@@ -104,6 +81,18 @@ class DevelopmentCardsSPL extends Card
     private function removeCardCost(CardCostSPL $cardCost): static
     {
         $this->cardCost->removeElement($cardCost);
+
+        return $this;
+    }
+
+    public function getLevel(): ?int
+    {
+        return $this->level;
+    }
+
+    public function setLevel(int $level): static
+    {
+        $this->level = $level;
 
         return $this;
     }
