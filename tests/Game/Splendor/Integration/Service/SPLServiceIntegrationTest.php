@@ -42,32 +42,6 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $splendorService->takeToken($player, $token);
     }
 
-    public function testTakeThreeIdenticalTokens(): void
-    {
-        $splendorService = static::getContainer()->get(SPLService::class);
-        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
-        $game = $this->createGame(4);
-        $player = $game->getPlayers()[0];
-        $personalBoard = $player->getPersonalBoard();
-        for ($i = 0; $i < 2; ++$i) {
-            $token = new TokenSPL();
-            $token->setType("joyau");
-            $token->setColor("blue");
-            $selectedToken = new SelectedTokenSPL();
-            $selectedToken->setToken($token);
-            $entityManager->persist($token);
-            $entityManager->persist($selectedToken);
-            $personalBoard->addSelectedToken($selectedToken);
-        }
-        $entityManager->persist($player);
-        $entityManager->persist($game);
-        $entityManager->persist($personalBoard);
-        $entityManager->flush();
-        $token = new TokenSPL();
-        $this->expectException(\Exception::class);
-        $splendorService->takeToken($player, $token);
-    }
-
     public function testTakeThreeTokensButWithTwiceSameColor(): void
     {
         $splendorService = static::getContainer()->get(SPLService::class);
@@ -144,6 +118,31 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $splendorService->takeToken($player, $token);
     }
 
+    public function testTakeTokensWithTwoSameColorShouldFailBecauseNotAvailable() : void
+    {
+        //GIVEN
+        $splendorService = static::getContainer()->get(SPLService::class);
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $token = new TokenSPL();
+        $token->setColor("red");
+        $token->setType("ruby");
+        $mainBoard = $game->getMainBoard();
+        $mainBoard->addToken($token);
+        $token1 = new TokenSPL();
+        $token1->setColor("red");
+        $token1->setType("ruby");
+        $mainBoard->addToken($token1);
+        $entityManager->persist($token);
+        $entityManager->persist($token1);
+        $entityManager->flush();
+        $splendorService->takeToken($player, $token);
+        //THEN
+        $this->expectException(\Exception::class);
+        //WHEN
+        $splendorService->takeToken($player, $token1);
+    }
     public function testIsGameEndedShouldReturnFalseBecauseNotLastPlayer() : void
     {
         //GIVEN

@@ -3,6 +3,7 @@
 namespace App\Tests\Game\Splendor\Unit\Service;
 
 use App\Entity\Game\Splendor\GameSPL;
+use App\Entity\Game\Splendor\MainBoardSPL;
 use App\Entity\Game\Splendor\NobleTileSPL;
 use App\Entity\Game\Splendor\PersonalBoardSPL;
 use App\Entity\Game\Splendor\PlayerSPL;
@@ -130,6 +131,30 @@ class SPLServiceTest extends TestCase
         $this->SPLService->takeToken($player, $token4);
     }
 
+    public function testTakeTokensWithTwoSameColorShouldFailBecauseNotAvailable() : void
+    {
+        //GIVEN
+        $game = new GameSPL();
+        $mainBoard = new MainBoardSPL();
+        $game->setMainBoard($mainBoard);
+        $mainBoard->setGameSPL($game);
+        $player = new PlayerSPL();
+        $player->setGameSPL($game);
+        $game->addPlayer($player);
+        $personalBoard = new PersonalBoardSPL();
+        $player->setPersonalBoard($personalBoard);
+        $token = new TokenSPL();
+        $token->setColor("red");
+        $mainBoard->addToken($token);
+        $token1 = new TokenSPL();
+        $token1->setColor("red");
+        $mainBoard->addToken($token1);
+        $this->SPLService->takeToken($player, $token);
+        //THEN
+        $this->expectException(\Exception::class);
+        //WHEN
+        $this->SPLService->takeToken($player, $token1);
+    }
     public function testIsGameEndedShouldReturnFalseBecauseNotLastPlayer() : void
     {
         //GIVEN
@@ -333,4 +358,5 @@ class SPLServiceTest extends TestCase
         }
         $this->assertSame($expectedResult, $result);
     }
+
 }
