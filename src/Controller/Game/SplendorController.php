@@ -54,9 +54,9 @@ class SplendorController extends AbstractController
         } else {
             //TODO : display the game
         }
-        return $this->render('/Game/Six_qp/index.html.twig', [
+        return $this->render('/Game/Splendor/index.html.twig', [
             'game' => $game,
-            'playerBoughtCards' => $player->getCards(),
+            'playerBoughtCards' => $player->getPersonalBoard()->getPlayerCards(), //TODO: separate reserved and bought cards
             //'playerReservedCards' => $this->service->getReservedCards($player),
             'playerTokens' => $player->getPersonalBoard()->getTokens(),
             'drawCardsLevelOneCount' => $game->getMainBoard()->getDrawCards()->get(DrawCardsSPL::$LEVEL_ONE),

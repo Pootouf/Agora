@@ -58,15 +58,14 @@ class SPLService
         for ($i = 0; $i < $game->getPlayers()->count() + 1; $i++) {
             $mainBoard->addNobleTile($nobleTiles[$i]);
         }
-        //TODO: add field level to developmentCards
         $levelOneCards = $this->developmentCardsSPLRepository->findBy(
-            ['color' => DevelopmentCardsSPL::$LEVEL_ONE_COLOR]
+            ['level' => DevelopmentCardsSPL::$LEVEL_ONE]
         );
         $levelTwoCards = $this->developmentCardsSPLRepository->findBy(
-            ['color' => DevelopmentCardsSPL::$LEVEL_TWO_COLOR]
+            ['level' => DevelopmentCardsSPL::$LEVEL_TWO]
         );
         $levelThreeCards = $this->developmentCardsSPLRepository->findBy(
-            ['color' => DevelopmentCardsSPL::$LEVEL_THREE_COLOR]
+            ['level' => DevelopmentCardsSPL::$LEVEL_THREE]
         );
         shuffle($levelOneCards);
         shuffle($levelTwoCards);
@@ -148,7 +147,7 @@ class SPLService
      */
     public function getPlayerFromNameAndGame(GameSPL $game, string $name) : ?PlayerSPL
     {
-        return $this->playerSPLRepository->findOneBy(['game' => $game->getId(), 'username' => $name]);
+        return $this->playerSPLRepository->findOneBy(['gameSPL' => $game->getId(), 'username' => $name]);
     }
 
     /**
