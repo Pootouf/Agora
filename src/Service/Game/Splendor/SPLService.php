@@ -228,6 +228,16 @@ class SPLService
     }
 
     /**
+     * clearSelectedTokens : removes selected tokens from player
+     * @param PlayerSPL $playerSPL
+     * @return void
+     */
+    public function clearSelectedTokens(PlayerSPL $playerSPL) : void
+    {
+        $playerSPL->getPersonalBoard()->getSelectedTokens()->clear();
+    }
+
+    /**
      * getActivePlayer : returns the player who has to play
      * @param GameSPL $gameSPL
      * @return PlayerSPL
