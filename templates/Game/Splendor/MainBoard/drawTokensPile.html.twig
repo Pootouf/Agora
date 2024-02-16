@@ -7,22 +7,43 @@
     <div class="grid grid-rows-2 grid-cols-5 w-full mx-2 mt-5 h-max-height
             landscape:md:flex landscape:md:mt-2 landscape:md-justify-center landscape:md:align-center
             lg:justify-center lg:align-center ">
+        {# {% set diamond = whiteTokensPile %}
+        {% set ruby = redTokensPile %}
+        {% set sapphire = blueTokensPile %}
+        {% set onyx = blackTokensPile %}#}
         {% for token in ['diamond', 'emerald', 'ruby', 'sapphire', 'onyx'] %}
-            <div class="overflow-hidden  w-auto origin-bottom">
+            {# {% selected = player.personalBoard.selectedTokens|filter(type == token %} #}
+            <div class="ml-5 flex flex-col flex-row items-center justify-center w-auto origin-bottom overflow-hidden">
                 <img
-                    class=" object-cover w-7/12 aspect-auto rounded-2xl "
-                    src="{{ asset('resourcesGames/Splendor/Images/Tokens/' ~ token ~'Token.png') }}"
-                    alt='{{ token }}'
+                        class=" object-cover w-6/12 mx-auto aspect-auto rounded-2xl "
+                        src="{{ asset('resourcesGames/Splendor/Images/Tokens/' ~ token ~ 'Token.png') }}"
+                        alt='{{ token }}'
                 >
+                <div class="flex items-center justify-center">
+                        <span
+                                class="shrink-0 rounded-full bg-gray-500 font-mono text-md
+                                        font-medium tracking-tight text-white"
+                        >
+                            7 {# {{ token|length }} #}
+                        </span>
+                </div>
             </div>
 
         {% endfor %}
-        <div class="xl:lg:ml-5 overflow-hidden  w-auto origin-bottom">
-            <img
-                    class=" object-cover w-7/12 aspect-auto rounded-2xl"
-                    src="{{ asset('resourcesGames/Splendor/Images/Tokens/goldToken.png') }}"
-                    alt="goldToken"
-            >
+        <div class="ml-5 flex flex-col flex-row items-center justify-center w-auto origin-bottom overflow-hidden">
+                <img
+                        class=" object-cover w-6/12 mx-auto aspect-auto rounded-2xl "
+                        src="{{ asset('resourcesGames/Splendor/Images/Tokens/goldToken.png') }}"
+                        alt='goldToken'
+                >
+                <div class="flex items-center justify-center">
+                        <span
+                                class="shrink-0 rounded-full bg-gray-500 font-mono text-md
+                                        font-medium tracking-tight text-white"
+                        >
+                            7 {# {{ yellowTokensPile|length }} #}
+                        </span>
+                </div>
         </div>
     </div>
     <div class="">
