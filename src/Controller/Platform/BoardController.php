@@ -24,8 +24,8 @@ class BoardController extends AbstractController
         $form = $this->createForm(BoardRegistrationType::class, $board, [
             'game' => $game]
         );
-        return $this->render('platform/testform.html.twig', [
-            'controller_name' => 'BoardCreation',
+        return $this->render('platform/game/boardRegister.html.twig', [
+            'game' => $game,
             'form' => $form->createView()
 
         ]);
