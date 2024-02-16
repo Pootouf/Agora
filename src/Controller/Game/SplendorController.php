@@ -48,6 +48,7 @@ class SplendorController extends AbstractController
     {
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         $isSpectator = false;
+        $needToPlay = false;
         if ($player == null) {
             $player = $game->getPlayers()->get(0);
             $isSpectator = true;
@@ -74,7 +75,7 @@ class SplendorController extends AbstractController
             'isGameFinished' => $this->service->isGameEnded($game),
             'nobleTiles' => $game->getMainBoard()->getNobleTiles(),
             'isSpectator' => $isSpectator,
-            //find a way to have development cards' jewels count, tokens count per color and per player for ranking
+            'needToPlay' => $needToPlay
         ]);
 
     }
