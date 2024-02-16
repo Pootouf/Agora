@@ -148,16 +148,20 @@ class SPLService
         $personalBoard = $player->getPersonalBoard();
         $cardsOfPlayer = $personalBoard->getPlayerCards();
 
-        $reservedCards = new ArrayCollection();
-        for ($i = 0; $i < $cardsOfPlayer->count(); $i++)
-        {
-            $card = $cardsOfPlayer->get($i);
-            if ($card->isReserved())
-            {
-                $reservedCards->add($card);
-            }
-        }
-        return $reservedCards;
+        return $this->getCards($cardsOfPlayer, true);
+    }
+
+    /**
+     * getPurchasedCards : get development cards purchased by player
+     * @param PlayerSPL $player
+     * @return Collection<int, DevelopmentCardsSPL>
+     */
+    public function getPurchasedCards(PlayerSPL $player) : Collection
+    {
+        $personalBoard = $player->getPersonalBoard();
+        $cardsOfPlayer = $personalBoard->getPlayerCards();
+
+        return $this->getCards($cardsOfPlayer, false);
     }
 
     //TODO : METHOD TO SET TURN TO NEXT PLAYER AND ENSURE EVERY OTHER TURN IS FALSE
@@ -329,6 +333,20 @@ class SPLService
         $level = $card->getLevel();
         $discardsAtLevel = $mainBoard->getDrawCards()->get( $level - 1);
         return $discardsAtLevel->getDevelopmentCards()->contains($card);
+    }
+
+    private function getCards(Collection $cards, bool $reserved) : Collection
+    {
+        $searchCards = new ArrayCollection();
+        for ($i = 0; $i < $cards->count(); $i++)
+        {
+            $card = $cards->get($i);
+            if ($card->isReserved() == $reserved)
+            {
+                $searchCards->add($card);
+            }
+        }
+        return $searchCards;
     }
 
     private function manageRow(MainBoardSPL $mainBoard, DevelopmentCardsSPL $card): void
