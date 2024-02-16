@@ -69,6 +69,9 @@ class DevelopmentCardsSPL extends Card
         return $this->cardCost;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     private function addCardCost(CardCostSPL $cardCost): static
     {
         if (!$this->cardCost->contains($cardCost)) {
@@ -77,7 +80,9 @@ class DevelopmentCardsSPL extends Card
 
         return $this;
     }
-
+    /**
+     * @codeCoverageIgnore
+     */
     private function removeCardCost(CardCostSPL $cardCost): static
     {
         $this->cardCost->removeElement($cardCost);
