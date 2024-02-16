@@ -112,7 +112,7 @@ class SixQPService
      * placeCard : place the chosen card into the selected row, and update player's discard if necessary
      * @param ChosenCardSixQP $chosenCardSixQP
      * @param RowSixQP $row
-     * @return int 0 if the card has been placed, position of the row +1 if line retrieve, -1 otherwise
+     * @return int 0 if the card has been placed, -1 if line retrieve
      */
     public function placeCardIntoRow(ChosenCardSixQP $chosenCardSixQP, RowSixQP $row): int
     {

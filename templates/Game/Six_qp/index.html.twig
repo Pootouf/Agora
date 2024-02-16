@@ -33,6 +33,11 @@
             {% endblock %}
         </div>
     </div>
+
+    {# ANIMATION MANAGEMENT #}
+    <script type="text/javascript" src="{{ asset('resourcesGames/6QP/rankingAnimation.js') }}"></script>
+
+    {# NOTIFICATION MANAGEMENT #}
     {% if not isSpectator %}
     <script>
         {% set path = path('app_game_show_sixqp', {'id': game.id}) ~ 'notifyPlayer' ~ player.id %}
@@ -46,4 +51,78 @@
         }
     </script>
     {% endif %}
+
+    {# CHOSEN CARDS MANAGEMENT#}
+    <script>
+        {% set path = path('app_game_show_sixqp', {'id': game.id}) ~ 'chosenCards' %}
+        const eventSourceChosenCards = new EventSource("{{ mercure(path)|escape('js') }}");
+        eventSourceChosenCards.onmessage = event => {
+            queueMicrotask(() => {
+                console.log('chosenCards')
+                let chosenCards = document.getElementById('chosenCards');
+                chosenCards.innerHTML = event.data;
+            });
+
+        }
+
+        {% set pathAnimation = path('app_game_show_sixqp', {'id': game.id}) ~ 'animChosenCard' %}
+        const eventSourceAnimChosenCard = new EventSource("{{ mercure(pathAnimation)|escape('js') }}");
+        eventSourceAnimChosenCard.onmessage = event => {
+            console.log('eventSourceAnimChosenCard')
+            console.log(event.data)
+            queueMicrotask(() => moveChosenCard(event.data))
+        }
+    </script>
+
+
+    {# MAINBOARD MANAGEMENT #}
+    <script>
+        {% set path = path('app_game_show_sixqp', {'id': game.id}) ~ 'mainBoard' %}
+        {% set pathAnimRow = path('app_game_show_sixqp', {'id': game.id}) ~ 'animRow' %}
+        const eventSourceMainBoard = new EventSource("{{ mercure(path)|escape('js') }}");
+        const eventSourceAnimRow = new EventSource("{{ mercure(pathAnimRow)|escape('js') }}");
+        eventSourceMainBoard.onmessage = async event => {
+            console.log('eventSourceMainBoard')
+            queueMicrotask(() => {
+                console.log('mainBoard')
+                let mainBoard = document.getElementById('mainBoard');
+                mainBoard.innerHTML = event.data;
+            });
+        }
+
+
+        eventSourceAnimRow.onmessage = event => {
+            console.log('eventSourceAnimRow')
+            queueMicrotask(() => translateRow("row_" + event.data));
+        }
+        {% if needToChoose %}
+        alert('Please choose a row');
+        {% endif %}
+    </script>
+
+
+    {# PERSONAL BOARD MANAGEMENT #}
+    <script>
+        {% set route = '' %}
+        {% if isSpectator %}
+        {% set route = 'spectator' %}
+        {% else %}
+        {% set route = player.id ~ 'player' %}
+        {% endif %}
+        {% set path = path('app_game_show_sixqp', {'id': game.id}) ~ 'personalBoard' ~ route %}
+        const eventSourcePersonalBoard = new EventSource("{{ mercure(path)|escape('js') }}");
+        eventSourcePersonalBoard.onmessage = event => {
+            let personalBoard = document.getElementById('personalBoard');
+            personalBoard.innerHTML = event.data;
+        }
+    </script>
+
+    {# END OF GAME MANAGEMENT #}
+    <script>
+        {% set path = path('app_game_show_sixqp', {'id': game.id}) ~ 'endOfGame' %}
+        const eventSourceEndOfGame = new EventSource("{{ mercure(path)|escape('js') }}");
+        eventSourceEndOfGame.onmessage = event => {
+            gameFinished(event.data);
+        }
+    </script>
 {% endblock %}

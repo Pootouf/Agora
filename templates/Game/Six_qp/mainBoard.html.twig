@@ -14,7 +14,7 @@ This section displays the main board of the game
                         {url: path('app_game_sixqp_placecardonrow', {idRow: row.id, idGame: game.id})}) }}>
                     {% for card in row.cards %}
                         <img
-                            {% if chosenCard != null and chosenCard.id == card %}
+                            {% if chosenCard != null and chosenCard.card.id == card.id %}
                                 id="image_{{ card.id }}"
                                 class="hidden h-full float float-left"
                             {% else %}
@@ -28,50 +28,3 @@ This section displays the main board of the game
             {% endfor %}
         </div>
     </div>
-    <script>
-        {% set path = path('app_game_show_sixqp', {'id': game.id}) ~ 'mainBoard' %}
-        {% set pathAnimRow = path('app_game_show_sixqp', {'id': game.id}) ~ 'animRow' %}
-        const eventSourceMainBoard = new EventSource("{{ mercure(path)|escape('js') }}");
-        const eventSourceAnimRow = new EventSource("{{ mercure(pathAnimRow)|escape('js') }}");
-        eventSourceMainBoard.onmessage = async event => {
-            console.log('eventSourceMainBoard')
-            queueMicrotask(() => {
-                console.log('mainBoard')
-                let mainBoard = document.getElementById('mainBoard');
-                mainBoard.innerHTML = event.data;
-            });
-        }
-
-
-        eventSourceAnimRow.onmessage = event => {
-            console.log('eventSourceAnimRow')
-            queueMicrotask(() => translateRow("row_" + event.data));
-        }
-        {% if needToChoose %}
-            alert('Please choose a row');
-        {% endif %}
-    </script>
-{% block javascripts %}
-    <script>
-        function translateRow(rowid) {
-            console.log('translateRow')
-            let row = document.getElementById(rowid);
-            console.log('Translating row:', row );
-            row.animate(
-                [
-                    {transform: "translateX(0px)", opacity: 1},
-                    {transform: "translateX(700px) scale(0.5)", opacity: 0},
-                ],
-                {
-                    duration: 1100,
-                    iterations: 1,
-                },
-            ).addEventListener("finish", async () => {
-                console.log('fetch')
-                const response = await fetch("{{path('app_game_sixqp_retrievemainboard', {id: game.id})}}");
-                let mainBoard = document.getElementById('mainBoard');
-                mainBoard.innerHTML = await response.text();
-            });
-        }
-    </script>
-{% endblock %}

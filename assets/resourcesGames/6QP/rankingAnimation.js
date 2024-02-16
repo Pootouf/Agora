@@ -203,6 +203,22 @@ function moveChosenCard(cardId) {
     })
 }
 
+function translateRow(rowid) {
+    console.log('translateRow')
+    let row = document.getElementById(rowid);
+    console.log('Translating row:', row );
+    row.animate(
+        [
+            {transform: "translateX(0px)", opacity: 1},
+            {transform: "translateX(700px) scale(0.5)", opacity: 0},
+        ],
+        {
+            duration: 1100,
+            iterations: 1,
+        },
+    )
+}
+
 let animationContainer;
 window.addEventListener('load', function () {
     animationContainer = document.getElementById('animationContainer');

@@ -10,7 +10,7 @@
             <div class="grid grid-cols-2 grid-rows-5 w-full h-full pt-10 p-3">
                 {% set ind = 0 %}
                 {% for chosenCard in chosenCards%}
-                        <div id="{{ chosenCard.id }}" class=" hover:z-10 hover:overflow-visible z-0 p-2">
+                        <div id="{{ chosenCard.card.id }}" class=" hover:z-10 hover:overflow-visible z-0 p-2">
                         {% if chosenCard is not null %}
                             {% set hovering = "" %}
                             {% if ind != 0 and ind != 1 %}
@@ -38,23 +38,3 @@
                 {% endfor %}
             </div>
         </div>
-        <script type="text/javascript" src="{{ asset('resourcesGames/6QP/rankingAnimation.js') }}"></script>
-        <script>
-            {% set path = path('app_game_show_sixqp', {'id': game.id}) ~ 'chosenCards' %}
-            const eventSourceChosenCards = new EventSource("{{ mercure(path)|escape('js') }}");
-            eventSourceChosenCards.onmessage = event => {
-                queueMicrotask(() => {
-                    console.log('chosenCards')
-                    let chosenCards = document.getElementById('chosenCards');
-                    chosenCards.innerHTML = event.data;
-                });
-
-            }
-
-            {% set pathAnimation = path('app_game_show_sixqp', {'id': game.id}) ~ 'animChosenCard' %}
-            const eventSourceAnimChosenCard = new EventSource("{{ mercure(pathAnimation)|escape('js') }}");
-            eventSourceAnimChosenCard.onmessage = event => {
-                console.log('eventSourceAnimChosenCard')
-                queueMicrotask(() => moveChosenCard(event.data))
-            }
-        </script>

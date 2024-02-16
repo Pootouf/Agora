@@ -157,7 +157,9 @@ class SixQPController extends AbstractController
         $this->entityManager->persist($row);
         $this->entityManager->flush();
 
+        $this->publishAnimRowClear($game, $row);
         $this->publishNewScoreForPlayer($game, $player);
+        $this->publishMainBoard($game, null);
 
         try {
             $this->managePlacementOfCards($game);
@@ -165,31 +167,6 @@ class SixQPController extends AbstractController
             return new Response('Need to choose', Response::HTTP_OK);
         }
         return new Response('Card placed', Response::HTTP_OK);
-    }
-
-    #[Route('/game/{id}/sixqp/retrieveMainBoard', name: 'app_game_sixqp_retrievemainboard')]
-    public function retrieveMainBoard(GameSixQP $game): Response
-    {
-        return $this->render('Game/Six_qp/mainBoard.html.twig',
-            ['rows' => $game->getRowSixQPs(),
-                'game' => $game,
-                'needToChoose' => false,
-                'chosenCard' => []
-            ]
-        );
-    }
-
-    #[Route('/game/{id}/sixqp/retrieveChosenCards', name: 'app_game_sixqp_retrieveChosenCards')]
-    public function retrieveChosenCards(GameSixQP $game): Response
-    {
-        $chosenCards = $this->chosenCardSixQPRepository->findBy(['game' => $game->getId()]);
-         return $this->render('Game/Six_qp/chosenCards.html.twig',
-            [
-                'chosenCards' => $chosenCards,
-                'playerNumbers' => $game->getPlayerSixQPs()->count(),
-                'game'=>$game,
-            ]
-        );
     }
 
     /**
@@ -244,11 +221,17 @@ class SixQPController extends AbstractController
                 $this->publishNotificationForPlayer($game, $player);
                 throw new Exception("Can't place automatically the card");
             } else {
+                $message = "test1";
+                $this->logService->sendSystemLog($game, $message);
                 if ($this->service->placeCardIntoRow($chosenCard, $row) != 0) {
                     $this->publishAnimRowClear($game, $row);
-                    $this->publishNewScoreForPlayer($game, $chosenCard->getPlayer());
+                    $this->publishNewScoreForPlayer($game, $player);
                 }
+                $message = "test2";
+                $this->logService->sendSystemLog($game, $message);
                 $this->publishMainBoard($game, $chosenCard);
+                $message = "test3";
+                $this->logService->sendSystemLog($game, $message);
                 $this->publishAnimChosenCard($game, $chosenCard);
                 $message = "System placed the card " . $chosenCard->getCard()->getValue()
                     . " during game " . $game->getId() . " on row " . $row->getPosition();
@@ -257,6 +240,7 @@ class SixQPController extends AbstractController
         }
         $chosenCards = $this->chosenCardSixQPRepository->findBy(['game' => $game->getId()]);
         $this->service->clearCards($chosenCards);
+        $this->publishChosenCards($game);
     }
 
     private function publishEndOfGame(GameSixQP $game): void
@@ -351,7 +335,7 @@ class SixQPController extends AbstractController
     {
         $this->publishService->publish(
             $this->generateUrl('app_game_show_sixqp', ['id' => $game->getId()]).'animChosenCard',
-            new Response($chosenCard->getId())
+            new Response($chosenCard->getCard()->getId())
         );
     }
 }
