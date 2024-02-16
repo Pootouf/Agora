@@ -15,6 +15,7 @@
     const clockID = setInterval(updateElapsedTime, 1000);
 */
 function updateUserScore(player) {
+    console.log('updateUserScore')
     let scoreElement = document.getElementById(player[0]);
     if (scoreElement) {
         let landscapeScore = document.getElementById('l_' + player[0] + '_points');
@@ -39,6 +40,7 @@ function updateUserScore(player) {
 }
 
 function updateLeaderboard() {
+    console.log('updateLeaderboard')
     let leaderboardContainer = document.getElementById('leaderboard');
     if (leaderboardContainer) {
         let leaderboardItems = Array.from(leaderboardContainer.children);
@@ -68,7 +70,7 @@ function updateLeaderboard() {
 }
 
 function animateLeaderboard(leaderboardItems, positionMap, newPositionMap) {
-
+    console.log('animateLeaderboard')
     leaderboardItems.forEach((item) => {
         let initialPosition = item.getBoundingClientRect();
         let finalPosition = positionMap.get(newPositionMap.get(item).toString());
@@ -85,6 +87,7 @@ function animateLeaderboard(leaderboardItems, positionMap, newPositionMap) {
 }
 
 function applyScoresStyle(leaderboardItems) {
+    console.log('applyScoresStyle')
     let first = document.getElementById(
         'l_' + leaderboardItems[0].id + '_points').dataset.score;
     let last = document.getElementById('l_' +
@@ -129,7 +132,7 @@ function resetRankingOrder() {
 }
 
 
-
+/*
 let waitingAnimationList = [];
 
 function actionAnimation(anim) {
@@ -143,7 +146,7 @@ function actionAnimation(anim) {
         resolve();
     })
 }
-
+*/
 
 
 async function placeChosenCardsAnim(cards) {
@@ -157,6 +160,7 @@ async function placeChosenCardsAnim(cards) {
 }
 
 function moveChosenCard(cardId) {
+    console.log('moveChosenCard')
     return new Promise(resolve => {
         let cardFinalPositionElement = document.getElementById('image_' + cardId);
         let cardElementInChosenCard = document.getElementById(cardId).firstElementChild;

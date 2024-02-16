@@ -14,7 +14,7 @@ This section displays the main board of the game
                         {url: path('app_game_sixqp_placecardonrow', {idRow: row.id, idGame: game.id})}) }}>
                     {% for card in row.cards %}
                         <img
-                            {% if card in processedCards %}
+                            {% if chosenCard != null and chosenCard.id == card %}
                                 id="image_{{ card.id }}"
                                 class="hidden h-full float float-left"
                             {% else %}
@@ -34,22 +34,18 @@ This section displays the main board of the game
         const eventSourceMainBoard = new EventSource("{{ mercure(path)|escape('js') }}");
         const eventSourceAnimRow = new EventSource("{{ mercure(pathAnimRow)|escape('js') }}");
         eventSourceMainBoard.onmessage = async event => {
-            let mainBoard = document.getElementById('mainBoard');
-            mainBoard.innerHTML = event.data;
-            console.log('remplacer')
-            console.log({{ processedCards | json_encode }})
-            {% if processedCards is not empty %}
-                console.log('g des cartes a process')
-                const response = fetch("{{path('app_game_sixqp_retrieveChosenCards', {id: game.id})}}");
-                let chosenCards = document.getElementById('chosenCards');
-                chosenCards.innerHTML = await response.text();
-            {% endif %}
+            console.log('eventSourceMainBoard')
+            queueMicrotask(() => {
+                console.log('mainBoard')
+                let mainBoard = document.getElementById('mainBoard');
+                mainBoard.innerHTML = event.data;
+            });
         }
 
 
         eventSourceAnimRow.onmessage = event => {
-            console.log("Event data:", event.data);
-            translateRow("row_" + event.data);
+            console.log('eventSourceAnimRow')
+            queueMicrotask(() => translateRow("row_" + event.data));
         }
         {% if needToChoose %}
             alert('Please choose a row');
@@ -58,6 +54,7 @@ This section displays the main board of the game
 {% block javascripts %}
     <script>
         function translateRow(rowid) {
+            console.log('translateRow')
             let row = document.getElementById(rowid);
             console.log('Translating row:', row );
             row.animate(
@@ -69,7 +66,7 @@ This section displays the main board of the game
                     duration: 1100,
                     iterations: 1,
                 },
-            ).addEventListener("finish", async ev => {
+            ).addEventListener("finish", async () => {
                 console.log('fetch')
                 const response = await fetch("{{path('app_game_sixqp_retrievemainboard', {id: game.id})}}");
                 let mainBoard = document.getElementById('mainBoard');

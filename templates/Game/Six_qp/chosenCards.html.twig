@@ -43,29 +43,18 @@
             {% set path = path('app_game_show_sixqp', {'id': game.id}) ~ 'chosenCards' %}
             const eventSourceChosenCards = new EventSource("{{ mercure(path)|escape('js') }}");
             eventSourceChosenCards.onmessage = event => {
-                let chosenCards = document.getElementById('chosenCards');
-                chosenCards.innerHTML = event.data;
+                queueMicrotask(() => {
+                    console.log('chosenCards')
+                    let chosenCards = document.getElementById('chosenCards');
+                    chosenCards.innerHTML = event.data;
+                });
+
             }
 
-
+            {% set pathAnimation = path('app_game_show_sixqp', {'id': game.id}) ~ 'animChosenCard' %}
+            const eventSourceAnimChosenCard = new EventSource("{{ mercure(pathAnimation)|escape('js') }}");
+            eventSourceAnimChosenCard.onmessage = event => {
+                console.log('eventSourceAnimChosenCard')
+                queueMicrotask(() => moveChosenCard(event.data))
+            }
         </script>
-{% block javascripts %}
-    <script>
-        function translateCard(cardid) {
-            let card = document.getElementById(cardid);
-            console.log('Translating card:', card );
-            card.animate(
-                [
-                    {transform: "translateY(0px)", opacity: 1},
-                    {transform: "translateY(-700px) scale(0.5)", opacity: 0},
-                ],
-                {
-                    duration: 1100,
-                    iterations: 1,
-                },
-            );
-        }
-
-
-    </script>
-{% endblock %}

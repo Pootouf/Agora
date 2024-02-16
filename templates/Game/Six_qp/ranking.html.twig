@@ -76,7 +76,7 @@ This section displays the game's name, and the current game's timer and leaderbo
 		{% set path = path('app_game_show_sixqp', {'id': game.id}) ~ 'ranking' %}
         const eventSourceRanking = new EventSource("{{ mercure(path)|escape('js') }}");
         eventSourceRanking.onmessage = event => {
-			updateUserScore(event.data.split(' '));
+			queueMicrotask(() => updateUserScore(event.data.split(' ')));
         }
 	</script>
 

@@ -174,7 +174,7 @@ class SixQPController extends AbstractController
             ['rows' => $game->getRowSixQPs(),
                 'game' => $game,
                 'needToChoose' => false,
-                'processedCards' => []
+                'chosenCard' => []
             ]
         );
     }
