@@ -22,7 +22,7 @@
 
 
 		<div class="space-y-12 max-w-6xl">
-			{{ form_start(form, {'method': 'GET'}) }}
+			{{ form_start(form) }}
 
 			<div class="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2">
 				<div>
@@ -58,16 +58,11 @@
 				</div>
 
 				<div id="inactivityFrom" class="hidden">
-					<label for="inactivity" class="block font-medium leading-6 text-gray-900">Temps d'inactivité</label>
+					<label for="inactivity" class="block font-medium leading-6 text-gray-900">Temps d'inactivité (en heures, entre 24 et 168)</label>
 					<div class="relative mt-2 rounded-md shadow-sm">
-						<input type="number" name="inactivity" id="inactivity"
-							   class="block w-full rounded-md border-0 py-1.5 pl-5 pr-24 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6" min="1">
-						<select id="inactivityUnit" name="inactivityUnit" class="absolute inset-y-0 right-0 flex items-center h-full rounded-md border-0 bg-transparent py-0 pl-2 pr-7 text-gray-500 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm">
-							<option>Heure</option>
-							<option>Jour</option>
-							<option>Semaine</option>
-							<option>Mois</option>
-						</select>
+						{{ form_widget(form.inactivityHours, {'attr': {
+							'class': 'block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6'
+						}}) }}
 					</div>
 				</div>
 
