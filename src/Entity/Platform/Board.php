@@ -21,7 +21,8 @@ class Board
     private ?int $nbUserMax = null;
 
     #[ORM\Column(length: 20)]
-    private ?string $status = null;
+    private ?string $status
+        = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $creationDate = null;
@@ -40,6 +41,9 @@ class Board
 
     #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'boards')]
     private Collection $listUsers;
+
+    #[ORM\Column]
+    private ?int $inactivityHours = null;
 
 
     public function __construct(int $invitationDays)
@@ -175,6 +179,18 @@ class Board
     //Return true if the board is availble for a player to join
     public function isAvailble(){
         return $this->status!="IN_GAME" && $this->listUsers->count() + $this->nbInvitations < $this->nbUserMax;
+    }
+
+    public function getInactivityHours(): ?int
+    {
+        return $this->inactivityHours;
+    }
+
+    public function setInactivityHours(int $inactivityHours): static
+    {
+        $this->inactivityHours = $inactivityHours;
+
+        return $this;
     }
 
 }
