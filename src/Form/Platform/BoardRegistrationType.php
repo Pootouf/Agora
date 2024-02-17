@@ -18,17 +18,16 @@ class BoardRegistrationType extends AbstractType
     {
         $game = $options["game"];
 
-        $nbOfPlayers = [];
-        // Générer les choix de 1 à n
-        for ($i = $game->getMinPlayers(); $i <= $game->getMaxPlayers(); $i++) {
-            $nbOfPlayers[] = $i;
-        }
+        $choices = range($game->getMinPlayers(), $game->getMaxPlayers(), 1);
+        $choice_label = array_map('strval', $choices);
         $builder
             ->add('nbUserMax', ChoiceType::class, [
-                'choices' => $nbOfPlayers,
-            ])
+                'choices' => $choices,
+                'choice_label' => function($choice, $key, $value) {
+                    return strval($value);
+                }])
             ->add('nbInvitations', ChoiceType::class, [
-                'choices' => $nbOfPlayers,
+                'choices' => [0]
                 ])
             ->add('invitationHash')
         ;

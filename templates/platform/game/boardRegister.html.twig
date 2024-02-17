@@ -30,18 +30,18 @@
 						'class': 'block text-sm font-medium leading-6 text-gray-900'
 					}}) }}
 					<div class="mt-2">
-						{{ form_widget(form.nbUserMax, { 'attr': {
+						{{ form_widget(form.nbUserMax, {'id': 'nbUsers', 'attr': {
 							'class': 'block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6'
 						}}) }}
 					</div>
 				</div>
 
 				<div>
-					{{ form_label(form.nbInvitations, 'Nombre de place réservé', { 'label_attr': {
+					{{ form_label(form.nbInvitations, 'Nombre de place réservé', {'label_attr': {
 						'class': 'block text-sm font-medium leading-6 text-gray-900'
 					}}) }}
 					<div class="mt-2">
-						{{ form_widget(form.nbInvitations, { 'attr': {
+						{{ form_widget(form.nbInvitations, { 'id': 'nbInvitations','attr': {
 							'class': 'block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6'
 						}}) }}
 					</div>
@@ -92,6 +92,25 @@
 		document.addEventListener('DOMContentLoaded', function() {
 			const checkbox = document.getElementById('inactivityCheck');
 			const champPersonnalisable = document.getElementById('inactivityFrom');
+			const nbUsers = document.getElementById('nbUsers');
+			const nbInvitations = document.getElementById('nbInvitations');
+
+			//Change the options of nbInvitation depending on the selected value in nbUsers
+			function dynamicNbInvitations(){
+				var selectedValue = parseInt(nbUsers.value); // Récupérer la valeur sélectionnée et convertir en entier
+				nbInvitations.innerHTML="";
+
+				for (var i = 0; i < selectedValue; i++) {
+					var option = document.createElement('option');
+					option.value = i;
+					option.textContent = i;
+					nbInvitations.appendChild(option);
+				}
+			}
+			//Initialize the nbInvitations select input
+			dynamicNbInvitations();
+
+			nbUsers.addEventListener('change',dynamicNbInvitations);
 
 			checkbox.addEventListener('change', function() {
 				if (checkbox.checked) {
