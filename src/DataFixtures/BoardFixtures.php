@@ -32,6 +32,7 @@ class BoardFixtures extends Fixture implements DependentFixtureInterface
             $board->setInactivityTimer(new \DateTime());
             //The number of invited people
             $board->setNbInvitations(rand(0,$nbPlayersMax - $nbJoinedPlayers));
+            $board->setInactivityHours(rand(6,48));
             $manager->persist($board);
         }
         $manager->flush();
