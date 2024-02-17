@@ -14,6 +14,7 @@ use App\Repository\Game\Splendor\GameSPLRepository;
 use App\Repository\Game\Splendor\NobleTileSPLRepository;
 use App\Repository\Game\Splendor\TokenSPLRepository;
 use App\Service\Game\Splendor\SPLService;
+use App\Service\Game\Splendor\TokenSPLService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use PhpCsFixer\Linter\TokenizerLinter;
@@ -24,6 +25,7 @@ class SPLServiceTest extends TestCase
 {
     private SPLService $SPLService;
 
+    private TokenSPLService $tokenSPLService;
     protected function setUp(): void
     {
         $entityManager = $this->createMock(EntityManagerInterface::class);
@@ -33,6 +35,7 @@ class SPLServiceTest extends TestCase
         $developmentCardRepository = $this->createMock(DevelopmentCardsSPLRepository::class);
         $this->SPLService = new SPLService($entityManager, $playerRepository, $tokenRepository,
             $nobleTileRepository, $developmentCardRepository);
+        $this->tokenSPLService = new TokenSPLService($entityManager, $tokenRepository, $this->SPLService);
     }
     public function testTakeTokenWhenAlreadyFull() : void
     {
@@ -49,7 +52,7 @@ class SPLServiceTest extends TestCase
         $this->assertSame(10, $personalBoard->getTokens()->count());
         $token = new TokenSPL();
         $this->expectException(\Exception::class);
-        $this->SPLService->takeToken($player, $token);
+        $this->tokenSPLService->takeToken($player, $token);
     }
 
     public function testTakeThreeIdenticalTokens() : void
@@ -74,7 +77,7 @@ class SPLServiceTest extends TestCase
         $personalBoard->addSelectedToken($selectedToken1);
         $personalBoard->addSelectedToken($selectedToken2);
         $this->expectException(\Exception::class);
-        $this->SPLService->takeToken($player, $token3);
+        $this->tokenSPLService->takeToken($player, $token3);
     }
 
     public function testTakeThreeTokensButWithTwiceSameColor() : void
@@ -99,7 +102,7 @@ class SPLServiceTest extends TestCase
         $personalBoard->addSelectedToken($selectedToken1);
         $personalBoard->addSelectedToken($selectedToken2);
         $this->expectException(\Exception::class);
-        $this->SPLService->takeToken($player, $token3);
+        $this->tokenSPLService->takeToken($player, $token3);
     }
 
     public function testTakeFourTokens() : void
@@ -129,7 +132,7 @@ class SPLServiceTest extends TestCase
         $personalBoard->addSelectedToken($selectedToken2);
         $personalBoard->addSelectedToken($selectedToken3);
         $this->expectException(\Exception::class);
-        $this->SPLService->takeToken($player, $token4);
+        $this->tokenSPLService->takeToken($player, $token4);
     }
 
     public function testTakeTokensWithTwoSameColorShouldFailBecauseNotAvailable() : void
@@ -150,11 +153,11 @@ class SPLServiceTest extends TestCase
         $token1 = new TokenSPL();
         $token1->setColor("red");
         $mainBoard->addToken($token1);
-        $this->SPLService->takeToken($player, $token);
+        $this->tokenSPLService->takeToken($player, $token);
         //THEN
         $this->expectException(\Exception::class);
         //WHEN
-        $this->SPLService->takeToken($player, $token1);
+        $this->tokenSPLService->takeToken($player, $token1);
     }
 
     public function testClearSelectedTokens() : void
@@ -168,7 +171,7 @@ class SPLServiceTest extends TestCase
         $player->setPersonalBoard($personalBoard);
         $personalBoard->addSelectedToken(new SelectedTokenSPL());
         //WHEN
-        $this->SPLService->clearSelectedTokens($player);
+        $this->tokenSPLService->clearSelectedTokens($player);
         //THEN
         $this->assertEmpty($player->getPersonalBoard()->getSelectedTokens());
     }
