@@ -12,10 +12,15 @@ use Symfony\Component\Routing\Annotation\Route;
 class GameController extends AbstractController
 {
     #[Route('/game', name: 'app_game')]
-    public function index(): Response
+    public function index(EntityManagerInterface $entityManager): Response
     {
+        $gameRepository = $entityManager->getRepository(Game::class);
+
+        $games = $gameRepository->findAll();
+
         return $this->render('platform/game/game.html.twig', [
             'controller_name' => 'GameController',
+            'games' => $games,
         ]);
     }
 }

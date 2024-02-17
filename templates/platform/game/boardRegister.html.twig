@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block body %}
-	<header class="relative isolate px-6 pt-14 lg:px-8">
+	<div class="relative isolate px-6 pt-14 lg:px-8">
 		<div class="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80" aria-hidden="true">
 			<div class="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-danger to-primary opacity-30 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]" style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)"></div>
 		</div>
@@ -22,13 +22,14 @@
 
 
 		<div class="space-y-12 max-w-6xl">
-			{{ form_start(form) }}
+			{{ form_start(form, {'method': 'GET'}) }}
 
 			<div class="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2">
 				<div>
 					{{ form_label(form.nbUserMax, 'Nombre de joueur', { 'label_attr': {
 						'class': 'block text-sm font-medium leading-6 text-gray-900'
 					}}) }}
+					<p class="block text-sm font-medium leading-6 text-gray-600">de {{ game.getMinPlayers }} à {{ game.getMaxPlayers }} joueurs</p>
 					<div class="mt-2">
 						{{ form_widget(form.nbUserMax, {'id': 'nbUsers', 'attr': {
 							'class': 'block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6'
@@ -40,6 +41,7 @@
 					{{ form_label(form.nbInvitations, 'Nombre de place réservé', {'label_attr': {
 						'class': 'block text-sm font-medium leading-6 text-gray-900'
 					}}) }}
+					<p class="block text-sm font-medium leading-6 text-gray-600">Place accessible uniquement via un lien généré à la création de la table.</p>
 					<div class="mt-2">
 						{{ form_widget(form.nbInvitations, { 'id': 'nbInvitations','attr': {
 							'class': 'block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6'
@@ -47,22 +49,15 @@
 					</div>
 				</div>
 
-				<div class="flex items-center">
-					<div class="leading-6">
-						<label for="inactivityCheck" class="font-medium text-gray-900">définir le temps de jeu max ?
-							<p class="text-sm text-gray-600">Permet de définir le temps de jeu maximum avant l'expulsion d'un joueur.</p>
-						</label>
-
-					</div>
-					<input id="inactivityCheck" name="inactivityCheck" type="checkbox" class="mt-2 mx-5 rounded border-gray-300 text-primary focus:ring-primary">
-				</div>
-
-				<div id="inactivityFrom" class="hidden">
-					<label for="inactivity" class="block font-medium leading-6 text-gray-900">Temps d'inactivité (en heures, entre 24 et 168)</label>
+				<div>
+					<label for="inactivity" class="block text-sm font-medium leading-6 text-gray-900">Temps d'inactivité</label>
+					<p class="block text-sm font-medium leading-6 text-gray-600">Permet de définir le temps de jeu maximum avant l'expulsion d'un joueur (en heures).</p>
 					<div class="relative mt-2 rounded-md shadow-sm">
-						{{ form_widget(form.inactivityHours, {'attr': {
-							'class': 'block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6'
-						}}) }}
+						<input type="number" name="inactivity" id="inactivity"
+							   class="block w-full rounded-md border-0 py-1.5 pl-5 pr-24 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6" value="24" min="1">
+						<span class="absolute inset-y-0 right-0 flex items-center h-full rounded-md border-0 bg-transparent py-0 pl-2 pr-7 text-gray-500 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm">
+							heures
+						</span>
 					</div>
 				</div>
 
@@ -81,40 +76,6 @@
 				<div class="relative left-[calc(50%+3rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 bg-gradient-to-tr from-primary to-danger opacity-30 sm:left-[calc(50%+36rem)] sm:w-[72.1875rem]" style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)"></div>
 			</div>
 		</div>
-	</header>
-
-	<script>
-		document.addEventListener('DOMContentLoaded', function() {
-			const checkbox = document.getElementById('inactivityCheck');
-			const champPersonnalisable = document.getElementById('inactivityFrom');
-			const nbUsers = document.getElementById('nbUsers');
-			const nbInvitations = document.getElementById('nbInvitations');
-
-			//Change the options of nbInvitation depending on the selected value in nbUsers
-			function dynamicNbInvitations(){
-				var selectedValue = parseInt(nbUsers.value); // Récupérer la valeur sélectionnée et convertir en entier
-				nbInvitations.innerHTML="";
-
-				for (var i = 0; i < selectedValue; i++) {
-					var option = document.createElement('option');
-					option.value = i;
-					option.textContent = i;
-					nbInvitations.appendChild(option);
-				}
-			}
-			//Initialize the nbInvitations select input
-			dynamicNbInvitations();
-
-			nbUsers.addEventListener('change',dynamicNbInvitations);
-
-			checkbox.addEventListener('change', function() {
-				if (checkbox.checked) {
-					champPersonnalisable.classList.remove('hidden');
-				} else {
-					champPersonnalisable.classList.add('hidden');
-				}
-			});
-		});
-	</script>
+	</div>
 
 {% endblock %}
