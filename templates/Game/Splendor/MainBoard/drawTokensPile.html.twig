@@ -4,54 +4,54 @@
     @return :
 #}
 
-{#
+{# Variables initialization #}
 {% set diamond = whiteTokensPile %}
 {% set ruby = redTokensPile %}
 {% set sapphire = blueTokensPile %}
 {% set onyx = blackTokensPile %}
+{% set emerald = greenTokensPile %}
+{% set tokens = [diamond, emerald, ruby, sapphire, onyx] %}
+{% set tokensName = ['diamond', 'emerald', 'ruby', 'sapphire', 'onyx'] %}
 {% set selectedTokensNb = 0 %}
-#}
 
-{% set needToPlay = false %}
+
 <div class="px-10 flex float-top-0 w-full h-1/5 bg-orange-400">
     <div class="grid grid-rows-1 grid-cols-5 w-full mx-2 mt-5 h-max-height
             landscape:md:flex landscape:md:mt-2 landscape:md-justify-center landscape:md:align-center
             xl:lg:justify-center xl:lg:align-center ">
 
-        {% for token in ['diamond', 'emerald', 'ruby', 'sapphire', 'onyx'] %}
-            {#
-            {% set selected = player.personalBoard.selectedTokens|filter(type == token) %}
+        {% for i in 0..tokens|length - 1 %}
+            {% set selectedTokens = player.personalBoard.selectedTokens|filter(type => type == tokens[i]) %}
+            {% set selected = selectedTokens|length %}
             {% set selectedTokensNb = selectedTokensNb + selected %}
-            #}
-
 
             <div
                     class="ml-5 flex flex-col flex-row items-center justify-center w-auto origin-bottom
                             sm:overflow-visible overflow-hidden
-                            {# {% if token|length == 0 %}
+                            {% if tokens[i]|length == 0 %}
                                 opacity-25
-                            {% endif %} #}"
+                            {% endif %}"
             >
                 <button type="button"
-                {# {% if not needToPlay %} disabled {% endif %}#}
+                {% if not needToPlay %} disabled {% endif %}
                         class="relative items-center w-6/12 focus:outline-none focus:ring-blue-300 focus:ring-black-800"
                 >
                     <img
                             class=" object-cover w-fit mx-auto aspect-auto rounded-2xl "
-                            src="{{ asset('resourcesGames/Splendor/Images/Tokens/' ~ token ~ 'Token.png') }}"
-                            alt='{{ token }}'
+                            src="{{ asset('resourcesGames/Splendor/Images/Tokens/' ~ tokensName[i] ~ 'Token.png') }}"
+                            alt='{{ tokensName[i] }}'
                     >
-                    {#
+
                     {% if selected > 0 %}
 
                     <span
                             class="absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white
                                 bg-red-500 border-2 border-white rounded-full -top-0 -end-2 dark:border-gray-900"
                     >
-                        {# {{ selected }} 3
+                        {{ selected }}
                     </span>
                     {% endif %}
-                    #}
+
                 </button>
 
                 <div class="flex items-center justify-center">
@@ -59,7 +59,7 @@
                                 class="shrink-0 rounded-full bg-gray-500 font-mono text-md
                                         font-medium tracking-tight text-white"
                         >
-                            7 {# {{ token|length }} #}
+                            {{ tokens[i]|length }}
                         </span>
                 </div>
             </div>
@@ -68,9 +68,9 @@
         <div
                 class="ml-5 flex flex-col flex-row items-center justify-center w-auto origin-bottom sm:overflow-visible
                         overflow-hidden
-                      {# {% if token|length == 0 %}
+                      {% if yellowTokensPile|length == 0 %}
                                 opacity-25
-                            {% endif %} #}"
+                            {% endif %}"
         >
                 <img
                         class=" object-cover w-6/12 mx-auto aspect-auto rounded-2xl "
@@ -82,12 +82,11 @@
                                 class="shrink-0 rounded-full bg-gray-500 font-mono text-md
                                         font-medium tracking-tight text-white"
                         >
-                            7 {# {{ yellowTokensPile|length }} #}
+                            {{ yellowTokensPile|length }}
                         </span>
                 </div>
         </div>
     </div>
-    {#
     {% if selectedTokensNb != 0 %}
     <button type="button"
             class=" rounded-md p-2 inline-flex items-center justify-center text-white m-auto hover:text-red
@@ -102,7 +101,6 @@
         </svg>
     </button>
     {% endif %}
-    #}
 </div>
 <script>
     {% set path = path('app_game_show_spl', {'id': game.id}) ~ 'mainBoard' %}
@@ -112,8 +110,8 @@
         mainBoard.innerHTML = event.data;
     }
 
-    {# {% if needToPlay %}
+    {% if needToPlay %}
     alert("It's your turn to play ! " +
         "Buy or reserve a card, or take 2 same color tokens, or even 3 different colors tokens !");
-    {% endif %}#}
+    {% endif %}
 </script>
