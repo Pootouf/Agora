@@ -16,6 +16,7 @@ use App\Repository\Game\Splendor\TokenSPLRepository;
 use App\Service\Game\Splendor\SPLService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
+use PhpCsFixer\Linter\TokenizerLinter;
 use PHPUnit\Framework\TestCase;
 use App\Repository\Game\Splendor\PlayerSPLRepository;
 
@@ -154,6 +155,22 @@ class SPLServiceTest extends TestCase
         $this->expectException(\Exception::class);
         //WHEN
         $this->SPLService->takeToken($player, $token1);
+    }
+
+    public function testClearSelectedTokens() : void
+    {
+        //GIVEN
+        $game = new GameSPL();
+        $player = new PlayerSPL();
+        $player->setGameSPL($game);
+        $game->addPlayer($player);
+        $personalBoard = new PersonalBoardSPL();
+        $player->setPersonalBoard($personalBoard);
+        $personalBoard->addSelectedToken(new SelectedTokenSPL());
+        //WHEN
+        $this->SPLService->clearSelectedTokens($player);
+        //THEN
+        $this->assertEmpty($player->getPersonalBoard()->getSelectedTokens());
     }
     public function testIsGameEndedShouldReturnFalseBecauseNotLastPlayer() : void
     {

@@ -143,6 +143,20 @@ class SPLServiceIntegrationTest extends KernelTestCase
         //WHEN
         $splendorService->takeToken($player, $token1);
     }
+
+    public function testClearSelectedTokens() : void
+    {
+        //GIVEN
+        $splendorService = static::getContainer()->get(SPLService::class);
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->get(0);
+        $personalBoard = $player->getPersonalBoard();
+        $personalBoard->addSelectedToken(new SelectedTokenSPL());
+        //WHEN
+        $splendorService->clearSelectedTokens($player);
+        //THEN
+        $this->assertEmpty($player->getPersonalBoard()->getSelectedTokens());
+    }
     public function testIsGameEndedShouldReturnFalseBecauseNotLastPlayer() : void
     {
         //GIVEN
