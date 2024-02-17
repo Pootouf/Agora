@@ -14,7 +14,7 @@
 
     const clockID = setInterval(updateElapsedTime, 1000);
 */
-async function updateUserScore(player) {
+function updateUserScore(player) {
     let scoreElement = document.getElementById(player[0]);
     if (scoreElement) {
         let landscapeScore = document.getElementById('l_' + player[0] + '_points');
@@ -33,7 +33,7 @@ async function updateUserScore(player) {
             }
         }
     }
-    await updateLeaderboard();
+    updateLeaderboard().then(() => executeNextInQueue());
 }
 
 async function updateLeaderboard() {
@@ -65,8 +65,8 @@ async function updateLeaderboard() {
     }
 }
 
-function animateLeaderboard(leaderboardItems, positionMap, newPositionMap) {
-    return new Promise(resolve => {
+async function animateLeaderboard(leaderboardItems, positionMap, newPositionMap) {
+    await new Promise(resolve => {
         leaderboardItems.forEach((item) => {
             let initialPosition = item.getBoundingClientRect();
             let finalPosition = positionMap.get(newPositionMap.get(item).toString());
@@ -141,7 +141,7 @@ async function placeChosenCardsAnim(cards) {
 }*/
 
 function translateRow(rowid) {
-    return new Promise(resolve => {
+    new Promise(resolve => {
         let row = document.getElementById(rowid);
         console.log('debut animation clearrow')
         row.animate(
@@ -157,57 +157,71 @@ function translateRow(rowid) {
             console.log('fin animation clearrow')
             resolve()
         })
-    });
+    }).then(r => executeNextInQueue());
 
 }
 
 let animationContainer = document.getElementById('animationContainer');
 
 function moveChosenCard(cardId) {
-    let cardFinalPositionElement = document.getElementById('image_' + cardId);
-    let cardElementInChosenCard = document.getElementById(cardId).firstElementChild;
+    new Promise(resolve => {
+        isExecuting = true;
+        let cardFinalPositionElement = document.getElementById('image_' + cardId);
+        let cardElementInChosenCard = document.getElementById(cardId).firstElementChild;
 
-    let chosenCardShape = cardElementInChosenCard.getBoundingClientRect();
-    let cardFinalPositionShape = cardFinalPositionElement.getBoundingClientRect();
+        let chosenCardShape = cardElementInChosenCard.getBoundingClientRect();
+        let cardFinalPositionShape = cardFinalPositionElement.getBoundingClientRect();
 
-    let movingCardElement = cardElementInChosenCard.cloneNode(true);
-    movingCardElement.id = 'movingcard_' + cardId;
+        let movingCardElement = cardElementInChosenCard.cloneNode(true);
+        movingCardElement.id = 'movingcard_' + cardId;
+        console.log(movingCardElement)
+        movingCardElement.classList.add('absolute');
+        animationContainer.appendChild(movingCardElement);
+        movingCardElement.height = chosenCardShape.height;
+        movingCardElement.width = chosenCardShape.width;
+        console.log(cardFinalPositionElement)
+        console.log(cardFinalPositionShape)
+        console.log('debut animation movingCard');
+        animationContainer.classList.remove('hidden');
 
-    movingCardElement.classList.add('absolute');
-    animationContainer.appendChild(movingCardElement);
-    movingCardElement.height = chosenCardShape.height;
-    movingCardElement.width = chosenCardShape.width;
-    console.log('debut animation movingCard');
-    let animation = movingCardElement.animate(
-        [
+
+
+        movingCardElement.animate(
+            [
+                {
+                    transform: "translate(" + chosenCardShape.x + "px, " + chosenCardShape.y + "px)",
+                    width: chosenCardShape.width + "px",
+                    height: chosenCardShape.height + "px",
+                },
+                {width: chosenCardShape.width * 1.5 + "px", height: chosenCardShape.height * 1.5 + "px"},
+                {
+                    transform: "translate(" + cardFinalPositionShape.x + "px, " + cardFinalPositionShape.y + "px)",
+                    width: cardFinalPositionShape.width + "px",
+                    height: cardFinalPositionShape.height + "px"
+                },
+            ],
             {
-                transform: "translate(" + chosenCardShape.x + "px, " + chosenCardShape.y + "px)",
-                width: chosenCardShape.width + "px",
-                height: chosenCardShape.height + "px",
-            },
-            {width: chosenCardShape.width * 1.5 + "px", height: chosenCardShape.height * 1.5 + "px"},
-            {
-                transform: "translate(" + cardFinalPositionShape.x + "px, " + cardFinalPositionShape.y + "px)",
-                width: cardFinalPositionShape.width + "px",
-                height: cardFinalPositionShape.height + "px"
-            },
-        ],
-        {
-            duration: 5000,
-            iterations: 1,
-            fill: "forwards" // Reste a la positon final
-        }
-    )
-    animation.finished.then();
+                duration: 5000,
+                iterations: 1,
+                fill: "forwards" // Reste a la positon final
+            }
+        ).addEventListener("finish", () => {
+            console.log('fin animation movingCard')
+            movingCardElement.remove();
+            //cardElementInChosenCard.remove()
+            //cardFinalPositionElement.classList.remove('hidden')
+            isExecuting = false;
+            animationContainer.classList.add('hidden');
+            resolve();
+        });
+        cardElementInChosenCard.remove()
+    }).then(r => executeNextInQueue());
 
-    /* ).addEventListener("finish", () => {
-         console.log('fin animation movingCard')
-         movingCardElement.remove();
-         cardFinalPositionElement.classList.remove('hidden')
-         resolve();
-     });*/
     console.log('fin fonction movingCard')
+
 }
+
+
 window.addEventListener('load', function () {
     let leaderboardContainer = document.getElementById('leaderboard');
     if (leaderboardContainer) {
@@ -220,3 +234,26 @@ window.onresize = function(){
     clearTimeout(timerForReset);
     timerForReset = setTimeout(resetRankingOrder, 100);
 };
+
+
+const animationQueue = [];
+
+function addToQueue(func) {
+    animationQueue.push(func);
+}
+
+let isExecuting = false;
+
+function executeNextInQueue() {
+    if (animationQueue.length > 0) { //&& !isExecuting) {
+        const nextAnim = animationQueue.shift();
+        nextAnim();
+
+    } else {
+        setTimeout(executeNextInQueue, 100);
+    }
+
+}
+
+
+executeNextInQueue();

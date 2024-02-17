@@ -57,9 +57,9 @@
         {% set path = path('app_game_show_sixqp', {'id': game.id}) ~ 'ranking' %}
         const eventSourceRanking = new EventSource("{{ mercure(path)|escape('js') }}");
         eventSourceRanking.onmessage = event => {
-            console.log('queueMicrotask debut ranking')
-            queueMicrotask(() => updateUserScore(event.data.split(' ')));
-            console.log('queueMicrotask fin ranking')
+            console.log('file debut ranking')
+            addToQueue(() => updateUserScore(event.data.split(' ')));
+            console.log('file fin ranking')
         }
     </script>
 
@@ -68,25 +68,26 @@
         {% set path = path('app_game_show_sixqp', {'id': game.id}) ~ 'chosenCards' %}
         const eventSourceChosenCards = new EventSource("{{ mercure(path)|escape('js') }}");
         eventSourceChosenCards.onmessage = event => {
-            queueMicrotask(() => {
-                console.log('queueMicrotask début chosenCards')
+            addToQueue(() => {
+                console.log('file début chosenCards')
                 let chosenCards = document.getElementById('chosenCards');
                 chosenCards.innerHTML = event.data;
-                console.log('queueMicrotask fin chosenCards')
-            });
+                executeNextInQueue()
+                console.log('file fin chosenCards')
+            })
 
         }
 
         {% set pathAnimation = path('app_game_show_sixqp', {'id': game.id}) ~ 'animChosenCard' %}
         const eventSourceAnimChosenCard = new EventSource("{{ mercure(pathAnimation)|escape('js') }}");
         eventSourceAnimChosenCard.onmessage = event => {
-            console.log('eventSourceAnimChosenCard')
 
-            setTimeout(() => {
-                console.log('queueMicrotask début moveChosenCard')
+            addToQueue(() => {
+                console.log('file début moveChosenCard')
                 moveChosenCard(event.data)
-                console.log('queueMicrotask fin moveChosenCard')
-            }, 0);
+                console.log('file fin moveChosenCard')
+            });
+
 
         }
     </script>
@@ -98,22 +99,25 @@
         {% set pathAnimRow = path('app_game_show_sixqp', {'id': game.id}) ~ 'animRow' %}
         const eventSourceMainBoard = new EventSource("{{ mercure(path)|escape('js') }}");
         const eventSourceAnimRow = new EventSource("{{ mercure(pathAnimRow)|escape('js') }}");
-        eventSourceMainBoard.onmessage = async event => {
-            queueMicrotask(() => {
-                console.log('queueMicrotask début mainboard')
+        eventSourceMainBoard.onmessage = event => {
+
+            addToQueue(() => {
+                console.log('file début mainboard')
                 let mainBoard = document.getElementById('mainBoard');
                 mainBoard.innerHTML = event.data;
-                console.log('queueMicrotask fin mainboard')
-            });
+                executeNextInQueue()
+                console.log('file fin mainboard')
+            })
+
         }
 
 
         eventSourceAnimRow.onmessage = event => {
-            queueMicrotask(async () => {
-                console.log('queueMicrotask début animrow')
-                await translateRow("row_" + event.data)
-                console.log('queueMicrotask fin animrow')
-            });
+            addToQueue(() => {
+                console.log('file début animrow')
+                translateRow("row_" + event.data)
+                console.log('file fin animrow')
+            })
         }
         {% if needToChoose %}
         alert('Please choose a row');

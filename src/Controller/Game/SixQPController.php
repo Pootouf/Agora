@@ -200,8 +200,8 @@ class SixQPController extends AbstractController
             }
             foreach ($game->getPlayerSixQPs() as $player) {
                 $this->publishPersonalBoard($game, $player);
-                $this->publishMainBoard($game, null);
             }
+            $this->publishMainBoard($game, null);
         }
     }
 
