@@ -4,4 +4,11 @@
     @return :
 #}
 <div class="flex float-left w-[25%] h-5/6 bg-blue-600">
+    <div class="h-full w-full grid grid-cols-2 place-items-center">
+        {% for card in nobleTiles %}
+            <img class="rounded-lg shadow-black shadow-lg s-1/2"
+                 src="{{ asset('resourcesGames/Splendor/Images/NobleTiles/' ~ card.id ~ '.png') }}"
+                 alt="nobleTile">
+        {% endfor %}
+    </div>
 </div>
