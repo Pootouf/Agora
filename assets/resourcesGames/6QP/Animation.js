@@ -174,16 +174,12 @@ function moveChosenCard(cardId) {
 
         let movingCardElement = cardElementInChosenCard.cloneNode(true);
         movingCardElement.id = 'movingcard_' + cardId;
-        console.log(movingCardElement)
         movingCardElement.classList.add('absolute');
         animationContainer.appendChild(movingCardElement);
         movingCardElement.height = chosenCardShape.height;
         movingCardElement.width = chosenCardShape.width;
-        console.log(cardFinalPositionElement)
-        console.log(cardFinalPositionShape)
         console.log('debut animation movingCard');
         animationContainer.classList.remove('hidden');
-
 
 
         movingCardElement.animate(
@@ -208,8 +204,8 @@ function moveChosenCard(cardId) {
         ).addEventListener("finish", () => {
             console.log('fin animation movingCard')
             movingCardElement.remove();
-            //cardElementInChosenCard.remove()
-            //cardFinalPositionElement.classList.remove('hidden')
+            cardElementInChosenCard.remove();
+            cardFinalPositionElement.classList.remove('invisible');
             isExecuting = false;
             animationContainer.classList.add('hidden');
             resolve();

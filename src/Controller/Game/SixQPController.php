@@ -118,7 +118,6 @@ class SixQPController extends AbstractController
         $this->logService->sendPlayerLog($game, $player, $message);
 
         $this->publishChosenCards($game);
-        $this->publishMainBoard($game,null);
         $this->publishPersonalBoard($game, $player);
 
         if ($this->service->doesAllPlayersHaveChosen($game)) {
@@ -159,7 +158,8 @@ class SixQPController extends AbstractController
 
         $this->publishAnimRowClear($game, $row);
         $this->publishNewScoreForPlayer($game, $player);
-        $this->publishMainBoard($game, null);
+        $this->publishMainBoard($game, $chosenCard);
+        $this->publishAnimChosenCard($game, $chosenCard);
 
         try {
             $this->managePlacementOfCards($game);
@@ -221,17 +221,11 @@ class SixQPController extends AbstractController
                 $this->publishNotificationForPlayer($game, $player);
                 throw new Exception("Can't place automatically the card");
             } else {
-                $message = "test1";
-                $this->logService->sendSystemLog($game, $message);
                 if ($this->service->placeCardIntoRow($chosenCard, $row) != 0) {
                     $this->publishAnimRowClear($game, $row);
                     $this->publishNewScoreForPlayer($game, $player);
                 }
-                $message = "test2";
-                $this->logService->sendSystemLog($game, $message);
                 $this->publishMainBoard($game, $chosenCard);
-                $message = "test3";
-                $this->logService->sendSystemLog($game, $message);
                 $this->publishAnimChosenCard($game, $chosenCard);
                 $message = "System placed the card " . $chosenCard->getCard()->getValue()
                     . " during game " . $game->getId() . " on row " . $row->getPosition();
