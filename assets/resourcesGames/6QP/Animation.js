@@ -161,9 +161,9 @@ function translateRow(rowid) {
 
 }
 
-let animationContainer;
+let animationContainer = document.getElementById('animationContainer');
 
-async function moveChosenCard(cardId) {
+function moveChosenCard(cardId) {
     let cardFinalPositionElement = document.getElementById('image_' + cardId);
     let cardElementInChosenCard = document.getElementById(cardId).firstElementChild;
 
@@ -198,7 +198,7 @@ async function moveChosenCard(cardId) {
             fill: "forwards" // Reste a la positon final
         }
     )
-    await animation.finished;
+    animation.finished.then();
 
     /* ).addEventListener("finish", () => {
          console.log('fin animation movingCard')
@@ -209,7 +209,6 @@ async function moveChosenCard(cardId) {
     console.log('fin fonction movingCard')
 }
 window.addEventListener('load', function () {
-    animationContainer = document.getElementById('animationContainer');
     let leaderboardContainer = document.getElementById('leaderboard');
     if (leaderboardContainer) {
         applyScoresStyle(Array.from(leaderboardContainer.children));

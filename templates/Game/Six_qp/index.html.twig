@@ -58,7 +58,7 @@
         const eventSourceRanking = new EventSource("{{ mercure(path)|escape('js') }}");
         eventSourceRanking.onmessage = event => {
             console.log('queueMicrotask debut ranking')
-            queueMicrotask(async () => await updateUserScore(event.data.split(' ')));
+            queueMicrotask(() => updateUserScore(event.data.split(' ')));
             console.log('queueMicrotask fin ranking')
         }
     </script>
@@ -82,11 +82,11 @@
         eventSourceAnimChosenCard.onmessage = event => {
             console.log('eventSourceAnimChosenCard')
 
-            queueMicrotask(() => {
+            setTimeout(() => {
                 console.log('queueMicrotask début moveChosenCard')
                 moveChosenCard(event.data)
                 console.log('queueMicrotask fin moveChosenCard')
-            });
+            }, 0);
 
         }
     </script>
