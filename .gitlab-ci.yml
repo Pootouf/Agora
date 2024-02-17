@@ -1,4 +1,4 @@
-image: etiennebinginot/agora:1.2
+image: etiennebinginot/agora:1.3
 
 stages:
   - factory
@@ -7,8 +7,10 @@ stages:
   - deploy
 
 cache:
+  key: ${CI_COMMIT_REF_SLUG}
   paths:
-    - /app/vendor/
+    - vendor/
+    - var/
 
 
 variables:
@@ -23,11 +25,10 @@ services:
 
 
 before_script:
-  - chmod u+x composer.phar  
-  - rm -f composer.lock 
-  - mv composer.phar /usr/local/bin/composer  
-  - composer update  
-  - symfony console tailwind:init
+  - chmod u+x composer.phar
+  - mv composer.phar /usr/local/bin/composer
+  - composer install
+  - symfony console tailwind:build
   - symfony console --env=test doctrine:migrations:migrate
   - symfony console doctrine:fixtures:load --env=test -n
 
@@ -52,7 +53,7 @@ deploy_dev_game:
 unitFactory:
   stage: factory
   script:
-    - php bin/phpunit tests/Game/Factory/Unit --coverage-text
+    - php bin/phpunit tests/Game/Factory/Unit
   allow_failure: false
   environment: test
 
@@ -63,14 +64,14 @@ integrationFactory:
     - preprod
     - main
   script:
-    - php bin/phpunit tests/Game/Factory/Integration --coverage-text
+    - php bin/phpunit tests/Game/Factory/Integration
   allow_failure: false
   environment: test
 
 unit6QP:
   stage: sixqp
   script:
-    - php bin/phpunit tests/Game/SixQP/Unit --coverage-text
+    - php bin/phpunit tests/Game/SixQP/Unit
   allow_failure: false
   environment: test
 
@@ -81,7 +82,7 @@ integration6QP:
     - preprod
     - main
   script:
-    - php bin/phpunit tests/Game/SixQP/Integration --coverage-text
+    - php bin/phpunit tests/Game/SixQP/Integration
   allow_failure: false
   environment: test
 
@@ -93,14 +94,14 @@ application6QP:
     - main
   script:
     - symfony console tailwind:build
-    - php bin/phpunit tests/Game/SixQP/Application --coverage-text
+    - php bin/phpunit tests/Game/SixQP/Application
   allow_failure: false
   environment: test
 
 unitSplendor:
   stage: splendor
   script:
-    - php bin/phpunit tests/Game/Splendor/Unit --coverage-text
+    - php bin/phpunit tests/Game/Splendor/Unit
   allow_failure: false
   environment: test
 
@@ -111,7 +112,7 @@ integrationSplendor:
     - preprod
     - main
   script:
-    - php bin/phpunit tests/Game/Splendor/Integration --coverage-text
+    - php bin/phpunit tests/Game/Splendor/Integration
   allow_failure: false
   environment: test
 

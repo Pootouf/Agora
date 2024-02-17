@@ -5,6 +5,7 @@ RUN apt-get -y update && apt-get -y install \
     unzip \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get -y autoremove
+ENV COMPOSER_ALLOW_SUPERUSER=1
 RUN curl -1sLf 'https://dl.cloudsmith.io/public/symfony/stable/setup.deb.sh' | bash \
     && apt install symfony-cli
 RUN pecl install xdebug \
@@ -14,12 +15,11 @@ RUN pecl install xdebug \
     && echo "xdebug.mode=debug" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
     && echo "xdebug.client_host=host.docker.internal" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 WORKDIR /app
-COPY . /app
+COPY composer.json composer.phar /app/
 RUN bash -c "chmod u+x composer.phar  \
-    && rm -f composer.lock \
     && mv composer.phar /usr/local/bin/composer  \
-    && composer update  \
-    && symfony console tailwind:init"
+    && composer install"
+COPY . /app
 ###> recipes ###
 ###< recipes ###
 EXPOSE 8000
