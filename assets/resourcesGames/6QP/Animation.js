@@ -14,8 +14,7 @@
 
     const clockID = setInterval(updateElapsedTime, 1000);
 */
-function updateUserScore(player) {
-    console.log('updateUserScore')
+async function updateUserScore(player) {
     let scoreElement = document.getElementById(player[0]);
     if (scoreElement) {
         let landscapeScore = document.getElementById('l_' + player[0] + '_points');
@@ -26,8 +25,6 @@ function updateUserScore(player) {
                 landscapeScore.getElementsByTagName('p').item(1).innerText = "points";
             }
         }
-
-
         let portraitScore = document.getElementById('p_' + player[0] + '_points');
         if (portraitScore) {
             portraitScore.getElementsByTagName('p').item(0).innerText = player[1];
@@ -36,11 +33,11 @@ function updateUserScore(player) {
             }
         }
     }
-    updateLeaderboard();
+    await updateLeaderboard();
 }
 
-function updateLeaderboard() {
-    console.log('updateLeaderboard')
+async function updateLeaderboard() {
+
     let leaderboardContainer = document.getElementById('leaderboard');
     if (leaderboardContainer) {
         let leaderboardItems = Array.from(leaderboardContainer.children);
@@ -62,32 +59,32 @@ function updateLeaderboard() {
             item.dataset.origin = index.toString();
         });
         applyScoresStyle(leaderboardItems);
-        animateLeaderboard(leaderboardItems, positionMap, newPositionMap)
-
+        await animateLeaderboard(leaderboardItems, positionMap, newPositionMap)
 
 
     }
 }
 
 function animateLeaderboard(leaderboardItems, positionMap, newPositionMap) {
-    console.log('animateLeaderboard')
-    leaderboardItems.forEach((item) => {
-        let initialPosition = item.getBoundingClientRect();
-        let finalPosition = positionMap.get(newPositionMap.get(item).toString());
+    return new Promise(resolve => {
+        leaderboardItems.forEach((item) => {
+            let initialPosition = item.getBoundingClientRect();
+            let finalPosition = positionMap.get(newPositionMap.get(item).toString());
 
-        let dy = finalPosition.y - initialPosition.y + parseInt(item.dataset.origingap);
-        item.dataset.origingap = dy.toString()
+            let dy = finalPosition.y - initialPosition.y + parseInt(item.dataset.origingap);
+            item.dataset.origingap = dy.toString()
 
-        // Applique du CSS pour translater l'élément sur l'axe Y
-        item.style.transition = 'transform 1s ease-out';
-        item.style.transform = `translateY(${dy}px)`;
+            // Apply CSS to translate an element on axe Y
+            item.style.transition = 'transform 1s ease-out';
+            item.style.transform = `translateY(${dy}px)`;
 
-        positionMap.set(item, finalPosition);
+            positionMap.set(item, finalPosition);
+        });
+        resolve()
     });
 }
 
 function applyScoresStyle(leaderboardItems) {
-    console.log('applyScoresStyle')
     let first = document.getElementById(
         'l_' + leaderboardItems[0].id + '_points').dataset.score;
     let last = document.getElementById('l_' +
@@ -133,22 +130,6 @@ function resetRankingOrder() {
 
 
 /*
-let waitingAnimationList = [];
-
-function actionAnimation(anim) {
-    return new Promise(resolve => {
-        if(anim) {
-            waitingAnimationList.push(anim);
-        }
-        else {
-            waitingAnimationList.shift();
-        }
-        resolve();
-    })
-}
-*/
-
-
 async function placeChosenCardsAnim(cards) {
     animationContainer.classList.remove('hidden');
     console.log(cards);
@@ -157,69 +138,76 @@ async function placeChosenCardsAnim(cards) {
         await moveChosenCard(card.id);
     }
     animationContainer.classList.add('hidden');
-}
-
-function moveChosenCard(cardId) {
-    console.log('moveChosenCard')
-    return new Promise(resolve => {
-        let cardFinalPositionElement = document.getElementById('image_' + cardId);
-        let cardElementInChosenCard = document.getElementById(cardId).firstElementChild;
-
-        let chosenCardShape = cardElementInChosenCard.getBoundingClientRect();
-        let cardFinalPositionShape = cardFinalPositionElement.getBoundingClientRect();
-        console.log(chosenCardShape)
-        console.log(cardFinalPositionShape)
-
-        let movingCardElement = cardElementInChosenCard.cloneNode(true);
-        movingCardElement.id = 'movingcard_' + cardId;
-
-        movingCardElement.classList.add('absolute');
-        animationContainer.appendChild(movingCardElement);
-        movingCardElement.height = chosenCardShape.height;
-        movingCardElement.width = chosenCardShape.width;
-        movingCardElement.animate(
-            [
-                {
-                    transform: "translate(" + chosenCardShape.x + "px, " + chosenCardShape.y + "px)",
-                    width: chosenCardShape.width + "px",
-                    height: chosenCardShape.height + "px",
-                },
-                {width: chosenCardShape.width * 1.5 + "px", height: chosenCardShape.height * 1.5 + "px"},
-                {
-                    transform: "translate(" + cardFinalPositionShape.x + "px, " + cardFinalPositionShape.y + "px)",
-                    width: cardFinalPositionShape.width + "px",
-                    height: cardFinalPositionShape.height + "px"
-                },
-            ],
-            {
-                duration: 1700,
-                iterations: 1,
-                fill: "forwards" // Reste a la positon final
-            }
-        ).addEventListener("finish", () => {
-            movingCardElement.remove();
-            resolve();
-        });
-    })
-}
+}*/
 
 function translateRow(rowid) {
-    console.log('translateRow')
-    let row = document.getElementById(rowid);
-    console.log('Translating row:', row );
-    row.animate(
-        [
-            {transform: "translateX(0px)", opacity: 1},
-            {transform: "translateX(700px) scale(0.5)", opacity: 0},
-        ],
-        {
-            duration: 1100,
-            iterations: 1,
-        },
-    )
+    return new Promise(resolve => {
+        let row = document.getElementById(rowid);
+        console.log('debut animation clearrow')
+        row.animate(
+            [
+                {transform: "translateX(0px)", opacity: 1},
+                {transform: "translateX(700px) scale(0.5)", opacity: 0},
+            ],
+            {
+                duration: 5000,
+                iterations: 1,
+            },
+        ).addEventListener("finish", () => {
+            console.log('fin animation clearrow')
+            resolve()
+        })
+    });
+
 }
 
 let animationContainer;
+
+async function moveChosenCard(cardId) {
+    let cardFinalPositionElement = document.getElementById('image_' + cardId);
+    let cardElementInChosenCard = document.getElementById(cardId).firstElementChild;
+
+    let chosenCardShape = cardElementInChosenCard.getBoundingClientRect();
+    let cardFinalPositionShape = cardFinalPositionElement.getBoundingClientRect();
+
+    let movingCardElement = cardElementInChosenCard.cloneNode(true);
+    movingCardElement.id = 'movingcard_' + cardId;
+
+    movingCardElement.classList.add('absolute');
+    animationContainer.appendChild(movingCardElement);
+    movingCardElement.height = chosenCardShape.height;
+    movingCardElement.width = chosenCardShape.width;
+    console.log('debut animation movingCard');
+    let animation = movingCardElement.animate(
+        [
+            {
+                transform: "translate(" + chosenCardShape.x + "px, " + chosenCardShape.y + "px)",
+                width: chosenCardShape.width + "px",
+                height: chosenCardShape.height + "px",
+            },
+            {width: chosenCardShape.width * 1.5 + "px", height: chosenCardShape.height * 1.5 + "px"},
+            {
+                transform: "translate(" + cardFinalPositionShape.x + "px, " + cardFinalPositionShape.y + "px)",
+                width: cardFinalPositionShape.width + "px",
+                height: cardFinalPositionShape.height + "px"
+            },
+        ],
+        {
+            duration: 5000,
+            iterations: 1,
+            fill: "forwards" // Reste a la positon final
+        }
+    )
+    await animation.finished;
+
+    /* ).addEventListener("finish", () => {
+         console.log('fin animation movingCard')
+         movingCardElement.remove();
+         cardFinalPositionElement.classList.remove('hidden')
+         resolve();
+     });*/
+    console.log('fin fonction movingCard')
+}
 window.addEventListener('load', function () {
     animationContainer = document.getElementById('animationContainer');
     let leaderboardContainer = document.getElementById('leaderboard');
