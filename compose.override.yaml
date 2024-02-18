@@ -2,18 +2,19 @@ version: '3'
 
 services:
   agora:
-    command: bash -c "cd /app
+    command: bash -c "cd /var/www/agora
       && symfony console doctrine:migrations:migrate
       && symfony console --env=test doctrine:migrations:migrate
-      && composer install
-      && symfony server:stop
-      && symfony server:start --no-tls"
+      && (php bin/console tailwind:build --watch &)
+      && php-fpm"
     volumes:
-      - .:/app
-      - /app/vendor
-      - /app/var
-    ports:
-      - "8000"
+      - .:/var/www/agora
+      - /var/www/agora/vendor
+      - /var/www/agora/var
+    environment:
+      XDEBUG_MODE: "${XDEBUG_MODE:-off}"
+      APP_DEBUG: 1
+
 
 ###> doctrine/doctrine-bundle ###
 ###< doctrine/doctrine-bundle ###
@@ -26,7 +27,4 @@ services:
 ###< symfony/mailer ###
 
 ###> symfony/mercure-bundle ###
-  mercure:
-    ports:
-      - "80"
 ###< symfony/mercure-bundle ###
