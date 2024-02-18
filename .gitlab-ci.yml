@@ -22,7 +22,8 @@ variables:
 services:
   - name: mariadb:10.11.2
     alias: database_test
-
+  - name: dunglas/mercure:latest
+    alias: mercure
 
 before_script:
   - composer install

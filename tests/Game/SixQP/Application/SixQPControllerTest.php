@@ -127,14 +127,6 @@ class SixQPControllerTest extends WebTestCase
         $this->gameUserRepository = static::getContainer()->get(GameUserRepository::class);
         $this->gameSixQPRepository = static::getContainer()->get(GameSixQPRepository::class);
         $this->playerSixQPRepository = static::getContainer()->get(PlayerSixQPRepository::class);
-        $this->publishService = $this->getMockBuilder(PublishService::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['publish'])
-            ->getMock();
-        $this->publishService->method('publish')->willReturn(new Response('published!'));
-        $container = static::getContainer();
-        $container->set('App\Service\Game\PublishService', $this->publishService);
-        $this->sixQPService = static::getContainer()->get(SixQPService::class);
         $user1 = $this->gameUserRepository->findOneByUsername("test0");
         $user2 = $this->gameUserRepository->findOneByUsername("test1");
         $user3 = $this->gameUserRepository->findOneByUsername("test2");
