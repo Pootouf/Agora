@@ -10,6 +10,7 @@ use App\Repository\Game\SixQP\PlayerSixQPRepository;
 use App\Service\Game\PublishService;
 use App\Service\Game\SixQP\SixQPGameManagerService;
 use App\Service\Game\SixQP\SixQPService;
+use phpDocumentor\Reflection\Types\Void_;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -130,6 +131,7 @@ class SixQPControllerTest extends WebTestCase
             ->disableOriginalConstructor()
             ->onlyMethods(['publish'])
             ->getMock();
+        $this->publishService->method('publish')->willReturn(new Response('published!'));
         $container = static::getContainer();
         $container->set('\App\Service\Game\PublishService', $this->publishService);
         $this->sixQPService = static::getContainer()->get(SixQPService::class);
