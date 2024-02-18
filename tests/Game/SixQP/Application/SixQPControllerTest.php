@@ -10,7 +10,6 @@ use App\Repository\Game\SixQP\PlayerSixQPRepository;
 use App\Service\Game\PublishService;
 use App\Service\Game\SixQP\SixQPGameManagerService;
 use App\Service\Game\SixQP\SixQPService;
-use phpDocumentor\Reflection\Types\Void_;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -127,6 +126,7 @@ class SixQPControllerTest extends WebTestCase
         $this->gameUserRepository = static::getContainer()->get(GameUserRepository::class);
         $this->gameSixQPRepository = static::getContainer()->get(GameSixQPRepository::class);
         $this->playerSixQPRepository = static::getContainer()->get(PlayerSixQPRepository::class);
+        $this->sixQPService = static::getContainer()->get(SixQPService::class);
         $user1 = $this->gameUserRepository->findOneByUsername("test0");
         $user2 = $this->gameUserRepository->findOneByUsername("test1");
         $user3 = $this->gameUserRepository->findOneByUsername("test2");
