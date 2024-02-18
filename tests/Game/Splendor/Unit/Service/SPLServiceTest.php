@@ -2,10 +2,13 @@
 
 namespace App\Tests\Game\Splendor\Unit\Service;
 
+use App\Entity\Game\Splendor\DevelopmentCardsSPL;
 use App\Entity\Game\Splendor\GameSPL;
+use App\Entity\Game\Splendor\MainBoardSPL;
 use App\Entity\Game\Splendor\NobleTileSPL;
 use App\Entity\Game\Splendor\PersonalBoardSPL;
 use App\Entity\Game\Splendor\PlayerSPL;
+use App\Entity\Game\Splendor\RowSPL;
 use App\Entity\Game\Splendor\TokenSPL;
 use App\Repository\Game\Splendor\GameSPLRepository;
 use App\Service\Game\Splendor\SPLService;
@@ -24,6 +27,84 @@ class SPLServiceTest extends TestCase
         $playerRepository = $this->createMock(PlayerSPLRepository::class);
         $this->SPLService = new SPLService($entityManager, $playerRepository);
     }
+
+    public function testReserveCardsFromMainBoardWhenIsNotAccessible() : void
+    {
+        // GIVEN
+
+        // WHEN
+
+        // THEN
+
+
+    }
+
+    public function testReserveCardsFromMainBoardWhenIsAccessibleFromRow() : void
+    {
+
+        // GIVEN
+        $game = new GameSPL();
+        $mainBoard = new MainBoardSPL();
+        $personalBoard = new PersonalBoardSPL();
+        $player = new PlayerSPL();
+
+        $game->setMainBoard($mainBoard);
+        $game->addPlayer($player);
+        $player->setGameSPL($game);
+        $player->setPersonalBoard($personalBoard);
+        $personalBoard->setPlayerSPL($player);
+
+        $testCard = new DevelopmentCardsSPL();
+        $testCard->setLevel(2);
+
+        for ($i = 0; $i < 3; $i++) {
+            $row = new RowSPL();
+            $row->setLevel($i);
+            for ($c = 0; $c < 4; $c++) {
+                if ($c == 2 && $i == 2) {
+                    break;
+                }
+                $card = new DevelopmentCardsSPL();
+                $card->setLevel($i);
+                $row->addDevelopmentCard($card);
+            }
+            if ($i == 2) {
+                $row->addDevelopmentCard($testCard);
+                break;
+            }
+        }
+
+        // WHEN
+
+        $this->SPLService->reserveCards($player, $testCard);
+
+        // THEN
+
+        $this->assertTrue($this->SPLService
+            ->getReserveCards($player)
+            ->contains($testCard));
+    }
+
+    public function testReserveCardsAtPlayer() : void
+    {
+
+    }
+
+    public function testReserveCardsAtOtherPlayer() : void
+    {
+
+    }
+
+    public function testReserveCardsWhenAlreadyFull() : void
+    {
+
+    }
+
+    public function testReserveCardsWhenNotAlreadyFull() : void
+    {
+
+    }
+
     public function testTakeTokenWhenAlreadyFull() : void
     {
         $game = new GameSPL();

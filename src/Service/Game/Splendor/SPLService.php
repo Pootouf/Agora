@@ -44,9 +44,9 @@ class SPLService
     public function __construct(EntityManagerInterface $entityManager,
         PlayerSPLRepository $playerSPLRepository,
         MainBoardSPLRepository $mainBoardSPLRepository,
-                                TokenSPLRepository $tokenSPLRepository,
-                                NobleTileSPLRepository $nobleTileSPLRepository,
-                                DevelopmentCardsSPLRepository $developmentCardsSPLRepository)
+        TokenSPLRepository $tokenSPLRepository,
+        NobleTileSPLRepository $nobleTileSPLRepository,
+        DevelopmentCardsSPLRepository $developmentCardsSPLRepository)
     {
         $this->entityManager = $entityManager;
         $this->playerSPLRepository =  $playerSPLRepository;
