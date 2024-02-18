@@ -114,7 +114,6 @@ application6QP:
     - develop-game
     - preprod
     - main
-    - feature/Game/6QP/ApplicationTestsWithMercure
   script:
     - symfony console tailwind:build
     - php bin/phpunit tests/Game/SixQP/Application
