@@ -43,6 +43,10 @@ class BoardController extends AbstractController
             $manager->persist($board);
             $manager->flush();
 
+            $this->addFlash(
+                'success',
+                'La table à bien été créé ! Lien d\'invitation : '
+            );
 
             return $this->redirectToRoute('app_home');
         }
