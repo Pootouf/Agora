@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+  agora:
+    command: bash -c "cd /var/www/agora
+      && symfony console doctrine:migrations:migrate
+      && (php bin/console tailwind:build --watch &)
+      && php-fpm"
+    environment:
+      XDEBUG_MODE: "${XDEBUG_MODE:-off}"
+      APP_DEBUG: 0
+
+
+###> doctrine/doctrine-bundle ###
+###< doctrine/doctrine-bundle ###
+
+###> symfony/mailer ###
+###< symfony/mailer ###
+
+###> symfony/mercure-bundle ###
+###< symfony/mercure-bundle ###
