@@ -70,6 +70,8 @@ class SixQPControllerTest extends WebTestCase
         $newUrl = "/game/" . $gameId . "/sixqp/select/" . $card->getId();
         $this->client1->request("GET", $newUrl);
         $this->assertTrue($player->getCards()->contains($card));
+        $container = static::getContainer();
+        $container->set('\App\Service\Game\PublishService', $this->publishService);
         $this->assertEquals(Response::HTTP_OK,
             $this->client1->getResponse()->getStatusCode());
         $newUrl = "/game/" . $gameId . "/sixqp/select/" . $card2->getId();
@@ -132,8 +134,6 @@ class SixQPControllerTest extends WebTestCase
             ->onlyMethods(['publish'])
             ->getMock();
         $this->publishService->method('publish')->willReturn(new Response('published!'));
-        $container = static::getContainer();
-        $container->set('\App\Service\Game\PublishService', $this->publishService);
         $this->sixQPService = static::getContainer()->get(SixQPService::class);
         $user1 = $this->gameUserRepository->findOneByUsername("test0");
         $user2 = $this->gameUserRepository->findOneByUsername("test1");
