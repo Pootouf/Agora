@@ -20,7 +20,7 @@ final class Version6QPDATA extends AbstractMigration
     public function up(Schema $schema): void
     {
         for ($i = 1; $i <= 104; $i++) {
-            $points_value = 0;
+            $points_value = 1;
             if ($i % 5 == 0) {
                 $points_value = 2;
             }
