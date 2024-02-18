@@ -46,7 +46,6 @@ before_script:
     - ssh $SERVER_USER@$SERVER_IP "cd $SERVER_LOCATION && git checkout $GIT_BRANCH_NAME && git pull origin $GIT_BRANCH_NAME"
 
     # Clean docker files
-    - docker builder prune --filter until=24h --force
     - ssh $SERVER_USER@$SERVER_IP "cd $SERVER_LOCATION && docker compose down && docker image prune -a --force"
     - ssh $SERVER_USER@$SERVER_IP "cd $SERVER_LOCATION && docker compose down && docker volume prune --force"
 
