@@ -18,6 +18,9 @@ variables:
   MYSQL_TCP_PORT: 3307
   MYSQL_DATABASE: main_test
   XDEBUG_MODE: coverage
+  SERVER_NAME: ':80'
+  MERCURE_PUBLISHER_JWT_KEY: '!ChangeThisMercureHubJWTSecretKey!'
+  MERCURE_SUBSCRIBER_JWT_KEY: '!ChangeThisMercureHubJWTSecretKey!'
 
 services:
   - name: mariadb:10.11.2
