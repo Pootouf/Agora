@@ -63,7 +63,7 @@ deploy:dev_game:
   <<: *deploy
   environment:
     name: staging
-    url: http://srv-dpi-agora-dev-jeux.univ-rouen.fr/
+    url: http://srv-dpi-proj-agora-dev-jeux.univ-rouen.fr/
   variables:
     SERVER_USER: $SERVER_GAME_USER
     SERVER_IP: $SERVER_GAME_IP
