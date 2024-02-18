@@ -18,11 +18,15 @@ variables:
   MYSQL_TCP_PORT: 3307
   MYSQL_DATABASE: main_test
   XDEBUG_MODE: coverage
+  SERVER_NAME: ':80'
+  MERCURE_PUBLISHER_JWT_KEY: '!ChangeThisMercureHubJWTSecretKey!'
+  MERCURE_SUBSCRIBER_JWT_KEY: '!ChangeThisMercureHubJWTSecretKey!'
 
 services:
   - name: mariadb:10.11.2
     alias: database_test
-
+  - name: dunglas/mercure:latest
+    alias: mercure
 
 before_script:
   - composer install
@@ -110,6 +114,7 @@ application6QP:
     - develop-game
     - preprod
     - main
+    - feature/Game/6QP/ApplicationTestsWithMercure
   script:
     - symfony console tailwind:build
     - php bin/phpunit tests/Game/SixQP/Application
