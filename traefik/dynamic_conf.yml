@@ -17,7 +17,7 @@ http:
     agora-service:
       loadBalancer:
         servers:
-          - url: "http://agora:8000/"
+          - url: "http://caddy:7070/"
 
 
 tls:

@@ -46,7 +46,11 @@ deploy_dev_game:
     - ssh-add <(echo $ID_RSA_GAME | base64 -d)
     - mkdir -p ~/.ssh
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
-    - ssh $SERVER_GAME_USER@$SERVER_GAME_IP "cd /var/www/agora && git checkout develop-game && git pull origin develop-game && docker compose up --build -d && exit"
+    - ssh $SERVER_GAME_USER@$SERVER_GAME_IP "cd /var/www/agora \
+        && git checkout develop-game \
+        && git pull origin develop-game \
+        && docker compose -f compose.yaml -f compose.override.yaml up --build -d \
+        && exit"
   only:
     - develop-game
 
