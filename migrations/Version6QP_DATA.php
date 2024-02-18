@@ -20,23 +20,20 @@ final class Version6QPDATA extends AbstractMigration
     public function up(Schema $schema): void
     {
         for ($i = 1; $i <= 104; $i++) {
+            $points_value = 0;
             if ($i % 5 == 0) {
-                $this->connection->insert('card_six_qp', ['id' => $i, 'help_id' => null, 'value' => $i, 'points' => 2]);
-                continue;
+                $points_value = 2;
             }
             if ($i % 10 == 0) {
-                $this->connection->insert('card_six_qp', ['id' => $i, 'help_id' => null, 'value' => $i, 'points' => 3]);
-                continue;
+                $points_value = 3;
             }
             if ($i % 11 == 0) {
-                $this->connection->insert('card_six_qp', ['id' => $i, 'help_id' => null, 'value' => $i, 'points' => 5]);
-                continue;
+                $points_value = 5;
             }
             if ($i % 55 == 0) {
-                $this->connection->insert('card_six_qp', ['id' => $i, 'help_id' => null, 'value' => $i, 'points' => 7]);
-                continue;
+                $points_value = 7;
             }
-            $this->connection->insert('card_six_qp', ['id' => $i, 'help_id' => null, 'value' => $i, 'points' => 1]);
+            $this->connection->insert('card_six_qp', ['id' => $i, 'help_id' => null, 'value' => $i, 'points' => $points_value]);
         }
 
     }
