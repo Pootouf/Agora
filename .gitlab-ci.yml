@@ -62,7 +62,7 @@ before_script:
 deploy:dev_game:
   <<: *deploy
   environment:
-    name: staging
+    name: development
     url: http://srv-dpi-proj-agora-dev-jeux.univ-rouen.fr/
   variables:
     SERVER_USER: $SERVER_GAME_USER
