@@ -24,7 +24,7 @@ class BoardController extends AbstractController
         //Find the game with the id passed in parameters
         $game = $manager->getRepository(Game::class)->find($game_id);
         //create a board
-        $board = new Board(4);
+        $board = new Board();
         $form = $this->createForm(BoardRegistrationType::class, $board, [
             'game' => $game]
         );
@@ -50,9 +50,11 @@ class BoardController extends AbstractController
 
             return $this->redirectToRoute('app_home');
         }
+        /*
         dump($form->isSubmitted());
         dump($form->getData());
         dump($form->getErrors(true));     // Main errors
+        */
 
         return $this->render('platform/game/boardRegister.html.twig', [
             'game' => $game,
