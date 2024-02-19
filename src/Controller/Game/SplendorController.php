@@ -55,9 +55,9 @@ class SplendorController extends AbstractController
             'playerBoughtCards' => $player->getPersonalBoard()->getPlayerCards(), //TODO: separate reserved and bought cards
             //'playerReservedCards' => $this->service->getReservedCards($player),
             'playerTokens' => $player->getPersonalBoard()->getTokens(),
-            'drawCardsLevelOneCount' => $game->getMainBoard()->getDrawCards()->get(DrawCardsSPL::$LEVEL_ONE),
-            'drawCardsLevelTwoCount' => $game->getMainBoard()->getDrawCards()->get(DrawCardsSPL::$LEVEL_TWO),
-            'drawCardsLevelThreeCount' => $game->getMainBoard()->getDrawCards()->get(DrawCardsSPL::$LEVEL_THREE),
+            'drawCardsLevelOneCount' => $game->getMainBoard()->getDrawCards()->get(DrawCardsSPL::$LEVEL_ONE)->getDevelopmentCards()->count(),
+            'drawCardsLevelTwoCount' => $game->getMainBoard()->getDrawCards()->get(DrawCardsSPL::$LEVEL_TWO)->getDevelopmentCards()->count(),
+            'drawCardsLevelThreeCount' => $game->getMainBoard()->getDrawCards()->get(DrawCardsSPL::$LEVEL_THREE)->getDevelopmentCards()->count(),
             'whiteTokensPile' => $this->tokenSPLService->getWhiteTokensFromCollection($mainBoardTokens),
             'redTokensPile' => $this->tokenSPLService->getRedTokensFromCollection($mainBoardTokens),
             'blueTokensPile' => $this->tokenSPLService->getBlueTokensFromCollection($mainBoardTokens),
