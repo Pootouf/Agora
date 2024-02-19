@@ -18,6 +18,11 @@ class PlayerSPL extends Player
     #[ORM\JoinColumn(nullable: false)]
     private ?GameSPL $gameSPL = null;
 
+    public function __construct(string $username, GameSPL $gameSPL)
+    {
+        $this->username = $username;
+        $this->gameSPL = $gameSPL;
+    }
     public function getPersonalBoard(): ?PersonalBoardSPL
     {
         return $this->personalBoard;

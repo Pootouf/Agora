@@ -283,7 +283,7 @@ class SPLServiceIntegrationTest extends KernelTestCase
         // THEN
         $result = Array();
         foreach ($game->getPlayers() as $tmp) {
-            array_push($result, $tmp->isTurnOfPlayer());
+            $result[] = $tmp->isTurnOfPlayer();
         }
         $this->assertSame($expectedResult, $result);
     }
@@ -303,7 +303,7 @@ class SPLServiceIntegrationTest extends KernelTestCase
         // THEN
         $result = Array();
         foreach ($game->getPlayers() as $tmp) {
-            array_push($result, $tmp->isTurnOfPlayer());
+            $result[] = $tmp->isTurnOfPlayer();
         }
         $this->assertSame($expectedResult, $result);
     }
@@ -317,9 +317,7 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $mainBoard->setGameSPL($game);
         $entityManager->persist($mainBoard);
         for ($i = 0; $i < $numberOfPlayer; $i++) {
-            $player = new PlayerSPL();
-            $player->setUsername('test');
-            $player->setGameSPL($game);
+            $player = new PlayerSPL('test', $game);
             $game->addPlayer($player);
             $personalBoard = new PersonalBoardSPL();
             $player->setPersonalBoard($personalBoard);
