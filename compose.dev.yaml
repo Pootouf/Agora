@@ -12,7 +12,7 @@ services:
       - /var/www/agora/vendor
       - /var/www/agora/var
     environment:
-      XDEBUG_MODE: "${XDEBUG_MODE:-on}"
+      XDEBUG_MODE: "${XDEBUG_MODE:-off}"
       APP_DEBUG: 1
 
 
