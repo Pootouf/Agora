@@ -22,17 +22,17 @@
 					<div class="alert alert-danger" role="alert">{{ flash_error }}</div>
 				{% endfor %}
 
-					<div>
-						{{ form_label(registrationForm.username, 'Identifiant', {'label_attr': {
+				<div>
+					{{ form_label(registrationForm.username, 'Identifiant', {'label_attr': {
 							'class': 'block text-sm font-medium leading-6 text-gray-900'
 						}}) }}
-						<div class="mt-2">
-							{{ form_widget(registrationForm.username, {'attr': {
+					<div class="mt-2">
+						{{ form_widget(registrationForm.username, {'attr': {
 								'class': 'block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6',
 								'placeholder': 'Identifiant'
 							}}) }}
-						</div>
 					</div>
+				</div>
 
 				<div>
 					{{ form_label(registrationForm.email, 'Email', {'label_attr': {
@@ -60,18 +60,18 @@
 					</div>
 				</div>
 
-					<div>
-						{{ form_label(registrationForm.agreeTerms, 'J\'accepte les Conditions d\'utilisation', {'label_attr': {
+				<div>
+					{{ form_widget(registrationForm.agreeTerms, {'attr': {
+							'class': 'mr-2 rounded-md border-0 py-1.5 text-primary shadow-sm ring-1 ring-outset ring-gray-300 focus:ring-2 focus:ring-outset focus:ring-primary sm:text-sm sm:leading-6'
+						}}) }}
+					{{ form_label(registrationForm.agreeTerms, 'J\'accepte les Conditions d\'utilisation', {'label_attr': {
 							'class': 'text-sm font-medium leading-6 text-gray-900'
 						}}) }}
-						{{ form_widget(registrationForm.agreeTerms, {'attr': {
-							'class': 'ml-2 rounded-md border-0 py-1.5 text-primary shadow-sm ring-1 ring-outset ring-gray-300 focus:ring-2 focus:ring-outset focus:ring-primary sm:text-sm sm:leading-6'
-						}}) }}
-					</div>
+				</div>
 
 				<div>
 					<button type="submit" class="flex w-full justify-center rounded-md bg-primary px-3 py-1.5
-					text-sm font-semibold leading-6 text-white shadow-sm hover:bg-blue-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Créer mon compte</button>
+																	text-sm font-semibold leading-6 text-white shadow-sm hover:bg-blue-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Créer mon compte</button>
 				</div>
 
 				{{ form_end(registrationForm) }}
