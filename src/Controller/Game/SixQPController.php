@@ -78,7 +78,6 @@ class SixQPController extends AbstractController
             'playersNumber' => count($game->getPlayerSixQPs()),
             'ranking' => $this->service->getRanking($game),
             'player' => $player,
-            'createdAt' => time(),
             'rows' => $game->getRowSixQPs(),
             'isGameFinished' => $this->service->isGameEnded($game),
             'isSpectator' => $isSpectator,

@@ -2,8 +2,7 @@
 This section displays the game's name, and the current game's timer and leaderboard
 
 @param :    ranking       -> Player entities who play in this game
-		    player -> the Player entity of the session's user
-		    createdAt   -> The number of seconds since the Unix Epoch when the game started
+		    player        -> the Player entity of the session's user
 
 @return :   display game's informations and leaderboard
 #}
@@ -11,16 +10,7 @@ This section displays the game's name, and the current game's timer and leaderbo
 {% block ranking %}
 	<div class="my-2 mx-2">
 		<img src="{{ asset('resourcesGames/6QP/logo.png') }}" alt="logo">
-		{#
-		<p id="elapsedTime" class="mr-1 text-center md:text-base portrait:text-xl md:text-xl">
-			00:00:00
-		</p>
-
-	    <p class="mr-1 text-center ">{{ playersNumber }} joueurs</p>
-	    <p class="mr-1 text-center ">Créée le {{ createdAt|date('d/m/Y H:i') }}</p>
-	    <p id="elapsedTime" class="mr-1 text-center ">Temps écoulé : 00:00:00</p>
-	    #}
-    </div>
+	</div>
 	<p class="text-center py-2 font-bold bg-gray-700 text-white text-xl border-y-4 border-violet-600">
 		Classement
 	</p>
@@ -29,9 +19,9 @@ This section displays the game's name, and the current game's timer and leaderbo
 			{% for user in ranking %}
 				<div id="{{ user.username }}" class="score-white" data-origingap="0" data-origin="{{ loop.index0 }}">
 					<div
-						id="l_{{ user.username }}_points"
-						class="portrait:hidden flex w-full items-center overflow-hidden"
-				        data-score="{{ user.discardSIxQP.totalPoints }}"
+							id="l_{{ user.username }}_points"
+							class="portrait:hidden flex w-full items-center overflow-hidden"
+							data-score="{{ user.discardSIxQP.totalPoints }}"
 					>
 						<img src="{{ asset('resourcesGames/6QP/teteDeBoeuf.svg') }}" alt="logo"
 						     class="lg:size-8 size-4 mr-1">
@@ -70,8 +60,4 @@ This section displays the game's name, and the current game's timer and leaderbo
 			{% endfor %}
 		</div>
 	</div>
-	<script>
-
-	</script>
-
 {% endblock %}
