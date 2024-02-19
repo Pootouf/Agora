@@ -9,5 +9,8 @@
         resolve_root_symlink
         trusted_proxies private_ranges
     }
+    log {
+        output file /var/log/caddy/agora-access.log
+    }
     encode gzip
 }
