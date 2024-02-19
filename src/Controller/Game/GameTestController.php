@@ -17,6 +17,9 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 use TokenSPLService;
 use function PHPUnit\Framework\callback;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[IsGranted('ROLE_USER')]
 class GameTestController extends AbstractController
 {

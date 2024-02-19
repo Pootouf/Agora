@@ -14,6 +14,10 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method RowSixQP[]    findAll()
  * @method RowSixQP[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
+
+/**
+ * @codeCoverageIgnore
+ */
 class RowSixQPRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)

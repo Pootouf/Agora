@@ -2,7 +2,7 @@
 
 namespace App\Repository\Game\DTO;
 
-use App\Entity\Card;
+use App\Entity\Game\DTO\Card;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -13,6 +13,10 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method Card|null findOneBy(array $criteria, array $orderBy = null)
  * @method Card[]    findAll()
  * @method Card[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ */
+
+/**
+ * @codeCoverageIgnore
  */
 class CardRepository extends ServiceEntityRepository
 {

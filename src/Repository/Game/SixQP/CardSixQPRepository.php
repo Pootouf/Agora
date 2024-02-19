@@ -14,6 +14,10 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method CardSixQP[]    findAll()
  * @method CardSixQP[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
+
+/**
+ * @codeCoverageIgnore
+ */
 class CardSixQPRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
