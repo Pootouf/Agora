@@ -1,0 +1,39 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello DashboardUserController!{% endblock %}
+
+{% block body %}
+<style>
+    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
+    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
+</style>
+
+<div class="example-wrapper">
+    <h1>Liste des boards</h1>
+    {{ form_start(searchboard) }}
+    <div class="my-custom-class-for-errors">
+        {{ form_row(searchboard.availability) }}
+    </div>
+
+    <div class="row">
+        <div class="col">
+            {{ form_row(searchboard.status) }}
+        </div>
+        <div class="col" id="some-custom-id">
+            {{ form_row(searchboard.creationdate) }}
+        </div>
+    </div>
+    {{ form_end(searchboard) }}
+    <ul>
+        {% for board in boards %}
+            <li>Boards en {{ board.status }}</li>
+            <h3>Joueurs de la table:</h3>
+            {% for user in board.listUsers %}
+                <li>{{ user.username }} - {{ user.email }}</li>
+            {% endfor %}
+        {% endfor %}
+        <tr></tr>
+    </ul>
+</div>
+
+{% endblock %}

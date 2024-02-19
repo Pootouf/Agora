@@ -18,6 +18,17 @@ services:
 ###> doctrine/doctrine-bundle ###
 ###< doctrine/doctrine-bundle ###
 
+  phpmyadmin:
+    container_name: phpmyadmin
+    image: phpmyadmin:apache
+    links:
+      - database
+    environment:
+      PMA_HOST: database
+      PMA_PORT: 3306
+    ports:
+      - "8081:80"
+
 ###> symfony/mailer ###
   mailer:
     container_name: mailer

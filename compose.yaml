@@ -5,6 +5,7 @@ services:
     container_name: agora
     image: agora-boilerplate:latest
     build:
+      context: .
       dockerfile: Dockerfile
     depends_on:
       database:
@@ -46,6 +47,8 @@ services:
       test: [ "CMD", 'mysqladmin', 'ping', '-h', 'localhost', '-u', 'root', '-ppassword' ]
       timeout: 2s
       retries: 5
+
+
 
 ###> symfony/mercure-bundle ###
   mercure:
