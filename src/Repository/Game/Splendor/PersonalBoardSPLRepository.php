@@ -14,6 +14,10 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method PersonalBoardSPL[]    findAll()
  * @method PersonalBoardSPL[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
+
+/**
+ * @codeCoverageIgnore
+ */
 class PersonalBoardSPLRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)

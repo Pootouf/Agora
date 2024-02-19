@@ -19,6 +19,10 @@ use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
  * @method GameUser[]    findAll()
  * @method GameUser[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
+
+/**
+ * @codeCoverageIgnore
+ */
 class GameUserRepository extends ServiceEntityRepository implements PasswordUpgraderInterface
 {
     public function __construct(ManagerRegistry $registry)

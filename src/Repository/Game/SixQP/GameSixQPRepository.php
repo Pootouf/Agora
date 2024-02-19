@@ -14,6 +14,10 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method GameSixQP[]    findAll()
  * @method GameSixQP[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
+
+/**
+ * @codeCoverageIgnore
+ */
 class GameSixQPRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)

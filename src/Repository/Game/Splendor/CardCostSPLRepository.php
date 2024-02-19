@@ -14,6 +14,10 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method CardCostSPL[]    findAll()
  * @method CardCostSPL[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
+
+/**
+ * @codeCoverageIgnore
+ */
 class CardCostSPLRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
