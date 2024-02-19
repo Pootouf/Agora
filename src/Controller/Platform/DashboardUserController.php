@@ -28,12 +28,18 @@ class DashboardUserController extends AbstractController
         ]);
     }
     #[Route('/dashboard/tables', name: 'app_dashboard_tables', methods: ['GET'])]
-    public function tables(BoardRepository $boardRepository): Response
+    public function tables(Request $request, BoardRepository $boardRepository): Response
     {
         $boards = $boardRepository->findAll();
+        $form = $this->createForm(SearchBoardType::class);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+
+        }
 
         return $this->render('platform/dashboard_tables/index.html.twig', [
             'boards' => $boards,
+            'searchboard' => $form->createView(),
         ]);
     }
 }

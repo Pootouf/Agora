@@ -10,6 +10,20 @@
 
 <div class="example-wrapper">
     <h1>Liste des boards</h1>
+    {{ form_start(searchboard) }}
+    <div class="my-custom-class-for-errors">
+        {{ form_row(searchboard.availability) }}
+    </div>
+
+    <div class="row">
+        <div class="col">
+            {{ form_row(searchboard.status) }}
+        </div>
+        <div class="col" id="some-custom-id">
+            {{ form_row(searchboard.creationdate) }}
+        </div>
+    </div>
+    {{ form_end(searchboard) }}
     <ul>
         {% for board in boards %}
             <li>Boards en {{ board.status }}</li>
