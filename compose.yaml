@@ -47,8 +47,6 @@ services:
       timeout: 2s
       retries: 5
 
-
-
 ###> symfony/mercure-bundle ###
   mercure:
     container_name: mercure
