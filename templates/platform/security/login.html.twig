@@ -1,32 +1,60 @@
-{% extends 'base.html.twig' %}
+{% extends 'platform/base.html.twig' %}
 
 {% block title %}Log in!
 {% endblock %}
 
 {% block body %}
-	<div class="w-full max-w-xs mx-auto">
-		<form method="post" class="space-y-4 bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 mt-16">
-			<div>
-				<label class="block text-gray-700 text-sm font-bold mb-2" for="username">
-					Nom de l'utilisateur
-				</label>
-				<input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="username" name="_username" type="text" placeholder="Nom d'utilisateur">
-			</div>
 
-			<div>
-				<label class="block text-gray-700 text-sm font-bold mb-2" for="password">
-					Mots de passe
-				</label>
-				<input class="shadow appearance-none border rounded w-full py-2 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="password" name="_password" type="password" placeholder="******************">
-			</div>
-			<input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
-			{% if error %}
-				<div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
-			{% endif %}
+	<div class="relative isolate px-6 pt-14 lg:px-8">
+		<div class="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80" aria-hidden="true">
+			<div class="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-danger to-primary opacity-30 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]" style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)"></div>
+		</div>
 
-			<button class="bg-primary hover:bg-blue-400 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-				Login
-			</button>
-		</form>
+		<div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
+			<div class="sm:mx-auto sm:w-full sm:max-w-sm">
+				<h2 class="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">Se connecter</h2>
+			</div>
+			<div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+				<form class="space-y-6" method="POST">
+					<div>
+						<label for="username" class="block text-sm font-medium leading-6 text-gray-900">Identifiant</label>
+						<div class="mt-2">
+							<input id="username" name="_username" type="text" autocomplete="username" required
+								   class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300
+								   placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6">
+						</div>
+					</div>
+					<div>
+						<div class="flex items-center justify-between">
+							<label for="password" class="block text-sm font-medium leading-6 text-gray-900">Mot de passe</label>
+							<div class="text-sm">
+								<a href="#" class="font-semibold text-primary hover:text-blue-400">Mot de passe oublié ?</a>
+							</div>
+						</div>
+						<div class="mt-2">
+							<input id="password" name="_password" type="password" autocomplete="current-password" required
+								   class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300
+								   placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6">
+						</div>
+					</div>
+					<div>
+						<button type="submit" class="flex w-full justify-center rounded-md bg-primary px-3 py-1.5
+						text-sm font-semibold leading-6 text-white shadow-sm hover:bg-blue-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Se connecter</button>
+					</div>
+					<input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+					{% if error %}
+						<div class="alert alert-danger text-warning">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+					{% endif %}
+				</form>
+				<p class="mt-10 text-center text-sm text-gray-500">
+					Vous n'avez pas de compte ?
+					<a href="/register" class="font-semibold leading-6 text-primary hover:text-blue-400">Créer un compte</a>
+				</p>
+			</div>
+		</div>
+
+		<div class="absolute inset-x-0 top-[calc(100%-13rem)] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[calc(100%-30rem)]" aria-hidden="true">
+			<div class="relative left-[calc(50%+3rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 bg-gradient-to-tr from-primary to-danger opacity-30 sm:left-[calc(50%+36rem)] sm:w-[72.1875rem]" style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)"></div>
+		</div>
 	</div>
 {% endblock %}
