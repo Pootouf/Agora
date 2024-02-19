@@ -39,31 +39,27 @@ class SPLServiceTest extends TestCase
     }
     public function testTakeTokenWhenAlreadyFull() : void
     {
-        $game = new GameSPL();
-        $player = new PlayerSPL();
-        $player->setGameSPL($game);
-        $player->setUsername('test');
-        $personalBoard = new PersonalBoardSPL();
-        $player->setPersonalBoard($personalBoard);
-        $personalBoard->setPlayerSPL($player);
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $personalBoard = $player->getPersonalBoard();
         for ($i = 0; $i < 10; ++$i) {
             $personalBoard->addToken(new TokenSPL());
         }
         $this->assertSame(10, $personalBoard->getTokens()->count());
         $token = new TokenSPL();
+        //THEN
         $this->expectException(\Exception::class);
+        //WHEN
         $this->tokenSPLService->takeToken($player, $token);
     }
 
     public function testTakeThreeIdenticalTokens() : void
     {
-        $game = new GameSPL();
-        $player = new PlayerSPL();
-        $player->setGameSPL($game);
-        $player->setUsername('test');
-        $personalBoard = new PersonalBoardSPL();
-        $player->setPersonalBoard($personalBoard);
-        $personalBoard->setPlayerSPL($player);
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $personalBoard = $player->getPersonalBoard();
         $token1 = new TokenSPL();
         $token1->setColor("blue");
         $selectedToken1 = new SelectedTokenSPL();
@@ -76,19 +72,18 @@ class SPLServiceTest extends TestCase
         $token3->setColor("blue");
         $personalBoard->addSelectedToken($selectedToken1);
         $personalBoard->addSelectedToken($selectedToken2);
+        //THEN
         $this->expectException(\Exception::class);
+        //WHEN
         $this->tokenSPLService->takeToken($player, $token3);
     }
 
     public function testTakeThreeTokensButWithTwiceSameColor() : void
     {
-        $game = new GameSPL();
-        $player = new PlayerSPL();
-        $player->setGameSPL($game);
-        $player->setUsername('test');
-        $personalBoard = new PersonalBoardSPL();
-        $player->setPersonalBoard($personalBoard);
-        $personalBoard->setPlayerSPL($player);
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $personalBoard = $player->getPersonalBoard();
         $token1 = new TokenSPL();
         $token1->setColor("blue");
         $selectedToken1 = new SelectedTokenSPL();
@@ -101,19 +96,18 @@ class SPLServiceTest extends TestCase
         $token3->setColor("blue");
         $personalBoard->addSelectedToken($selectedToken1);
         $personalBoard->addSelectedToken($selectedToken2);
+        //THEN
         $this->expectException(\Exception::class);
+        //WHEN
         $this->tokenSPLService->takeToken($player, $token3);
     }
 
     public function testTakeFourTokens() : void
     {
-        $game = new GameSPL();
-        $player = new PlayerSPL();
-        $player->setGameSPL($game);
-        $player->setUsername('test');
-        $personalBoard = new PersonalBoardSPL();
-        $player->setPersonalBoard($personalBoard);
-        $personalBoard->setPlayerSPL($player);
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $personalBoard = $player->getPersonalBoard();
         $token1 = new TokenSPL();
         $token1->setColor("blue");
         $selectedToken1 = new SelectedTokenSPL();
@@ -131,22 +125,18 @@ class SPLServiceTest extends TestCase
         $personalBoard->addSelectedToken($selectedToken1);
         $personalBoard->addSelectedToken($selectedToken2);
         $personalBoard->addSelectedToken($selectedToken3);
+        //THEN
         $this->expectException(\Exception::class);
+        //WHEN
         $this->tokenSPLService->takeToken($player, $token4);
     }
 
     public function testTakeTokensWithTwoSameColorShouldFailBecauseNotAvailable() : void
     {
         //GIVEN
-        $game = new GameSPL();
-        $mainBoard = new MainBoardSPL();
-        $game->setMainBoard($mainBoard);
-        $mainBoard->setGameSPL($game);
-        $player = new PlayerSPL();
-        $player->setGameSPL($game);
-        $game->addPlayer($player);
-        $personalBoard = new PersonalBoardSPL();
-        $player->setPersonalBoard($personalBoard);
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $mainBoard = $game->getMainBoard();
         $token = new TokenSPL();
         $token->setColor("red");
         $mainBoard->addToken($token);
@@ -163,12 +153,9 @@ class SPLServiceTest extends TestCase
     public function testClearSelectedTokens() : void
     {
         //GIVEN
-        $game = new GameSPL();
-        $player = new PlayerSPL();
-        $player->setGameSPL($game);
-        $game->addPlayer($player);
-        $personalBoard = new PersonalBoardSPL();
-        $player->setPersonalBoard($personalBoard);
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $personalBoard = $player->getPersonalBoard();
         $personalBoard->addSelectedToken(new SelectedTokenSPL());
         //WHEN
         $this->tokenSPLService->clearSelectedTokens($player);
@@ -178,21 +165,8 @@ class SPLServiceTest extends TestCase
     public function testIsGameEndedShouldReturnFalseBecauseNotLastPlayer() : void
     {
         //GIVEN
-        $game = new GameSPL();
-        $player = new PlayerSPL();
-        $player->setGameSPL($game);
-        $player->setUsername('test');
-        $personalBoard = new PersonalBoardSPL();
-        $player->setPersonalBoard($personalBoard);
-        $game->addPlayer($player);
-        $personalBoard->setPlayerSPL($player);
-        $player2 = new PlayerSPL();
-        $player2->setGameSPL($game);
-        $player2->setUsername('test1');
-        $personalBoard2 = new PersonalBoardSPL();
-        $player2->setPersonalBoard($personalBoard2);
-        $personalBoard2->setPlayerSPL($player2);
-        $game->addPlayer($player2);
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
         $player->setTurnOfPlayer(true);
         //WHEN
         $result = $this->SPLService->isGameEnded($game);
@@ -202,22 +176,10 @@ class SPLServiceTest extends TestCase
     public function testIsGameEndedShouldReturnFalseBecauseNotReachedLimit() : void
     {
         //GIVEN
-        $game = new GameSPL();
-        $player = new PlayerSPL();
-        $player->setGameSPL($game);
-        $player->setUsername('test');
-        $personalBoard = new PersonalBoardSPL();
-        $player->setPersonalBoard($personalBoard);
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
         $player->setTurnOfPlayer(false);
-        $game->addPlayer($player);
-        $personalBoard->setPlayerSPL($player);
-        $player2 = new PlayerSPL();
-        $player2->setGameSPL($game);
-        $player2->setUsername('test1');
-        $personalBoard2 = new PersonalBoardSPL();
-        $player2->setPersonalBoard($personalBoard2);
-        $personalBoard2->setPlayerSPL($player2);
-        $game->addPlayer($player2);
+        $player2 = $game->getPlayers()->last();
         $player2->setTurnOfPlayer(true);
         $nobleTile = new NobleTileSPL();
         $nobleTile->setPrestigePoints(SPLService::$MAX_PRESTIGE_POINTS - 1);
@@ -231,21 +193,8 @@ class SPLServiceTest extends TestCase
     public function testIsGameEndedShouldReturnTrue() : void
     {
         //GIVEN
-        $game = new GameSPL();
-        $player = new PlayerSPL();
-        $player->setGameSPL($game);
-        $player->setUsername('test');
-        $personalBoard = new PersonalBoardSPL();
-        $player->setPersonalBoard($personalBoard);
-        $game->addPlayer($player);
-        $personalBoard->setPlayerSPL($player);
-        $player2 = new PlayerSPL();
-        $player2->setGameSPL($game);
-        $player2->setUsername('test1');
-        $personalBoard2 = new PersonalBoardSPL();
-        $player2->setPersonalBoard($personalBoard2);
-        $personalBoard2->setPlayerSPL($player2);
-        $game->addPlayer($player2);
+        $game = $this->createGame(2);
+        $player2 = $game->getPlayers()->last();
         $player2->setTurnOfPlayer(true);
         $nobleTile = new NobleTileSPL();
         $nobleTile->setPrestigePoints(SPLService::$MAX_PRESTIGE_POINTS);
@@ -259,21 +208,8 @@ class SPLServiceTest extends TestCase
     public function testIsGameEndedShouldReturnFalseBecauseReachedLimitButNotLastPlayer() : void
     {
         //GIVEN
-        $game = new GameSPL();
-        $player = new PlayerSPL();
-        $player->setGameSPL($game);
-        $player->setUsername('test');
-        $personalBoard = new PersonalBoardSPL();
-        $player->setPersonalBoard($personalBoard);
-        $game->addPlayer($player);
-        $personalBoard->setPlayerSPL($player);
-        $player2 = new PlayerSPL();
-        $player2->setGameSPL($game);
-        $player2->setUsername('test1');
-        $personalBoard2 = new PersonalBoardSPL();
-        $player2->setPersonalBoard($personalBoard2);
-        $personalBoard2->setPlayerSPL($player2);
-        $game->addPlayer($player2);
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
         $player->setTurnOfPlayer(true);
         $nobleTile = new NobleTileSPL();
         $nobleTile->setPrestigePoints(SPLService::$MAX_PRESTIGE_POINTS);
@@ -287,23 +223,10 @@ class SPLServiceTest extends TestCase
     public function testGetRanking(): void
     {
         // GIVEN
-        $game = new GameSPL();
-        $player = new PlayerSPL();
-        $player->setGameSPL($game);
-        $player->setUsername('test');
-        $personalBoard = new PersonalBoardSPL();
-        $player->setPersonalBoard($personalBoard);
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
         $player->setTurnOfPlayer(true);
-        $game->addPlayer($player);
-        $personalBoard->setPlayerSPL($player);
-        $player2 = new PlayerSPL();
-        $player2->setGameSPL($game);
-        $player2->setUsername('test1');
-        $personalBoard2 = new PersonalBoardSPL();
-        $player2->setPersonalBoard($personalBoard2);
-        $player2->setTurnOfPlayer(false);
-        $personalBoard2->setPlayerSPL($player2);
-        $game->addPlayer($player2);
+        $player2 = $game->getPlayers()->last();
         $nobleTile1 = new NobleTileSPL();
         $nobleTile1->setPrestigePoints(2);
         $player->getPersonalBoard()->addNobleTile($nobleTile1);
@@ -320,22 +243,11 @@ class SPLServiceTest extends TestCase
     public function testEndRoundOfPlayerWhenNotLastPlayer() : void
     {
         // GIVEN
-        $game = new GameSPL();
-        $player = new PlayerSPL();
-        $player->setGameSPL($game);
-        $player->setUsername('test');
-        $personalBoard = new PersonalBoardSPL();
-        $player->setPersonalBoard($personalBoard);
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
         $player->setTurnOfPlayer(true);
-        $game->addPlayer($player);
-        $personalBoard->setPlayerSPL($player);
-        $player2 = new PlayerSPL();
-        $player2->setGameSPL($game);
-        $player2->setUsername('test1');
-        $personalBoard2 = new PersonalBoardSPL();
-        $player2->setPersonalBoard($personalBoard2);
+        $player2 = $game->getPlayers()->last();
         $player2->setTurnOfPlayer(false);
-        $personalBoard2->setPlayerSPL($player2);
         $game->addPlayer($player2);
         $expectedResult = [false, true];
         // WHEN
@@ -343,7 +255,7 @@ class SPLServiceTest extends TestCase
         // THEN
         $result = Array();
         foreach ($game->getPlayers() as $tmp) {
-            array_push($result, $tmp->isTurnOfPlayer());
+            $result[] = $tmp->isTurnOfPlayer();
         }
         $this->assertSame($expectedResult, $result);
     }
@@ -351,22 +263,11 @@ class SPLServiceTest extends TestCase
     public function testEndRoundOfPlayerWhenLastPlayer() : void
     {
         // GIVEN
-        $game = new GameSPL();
-        $player = new PlayerSPL();
-        $player->setGameSPL($game);
-        $player->setUsername('test');
-        $personalBoard = new PersonalBoardSPL();
-        $player->setPersonalBoard($personalBoard);
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
         $player->setTurnOfPlayer(false);
-        $game->addPlayer($player);
-        $personalBoard->setPlayerSPL($player);
-        $player2 = new PlayerSPL();
-        $player2->setGameSPL($game);
-        $player2->setUsername('test1');
-        $personalBoard2 = new PersonalBoardSPL();
-        $player2->setPersonalBoard($personalBoard2);
+        $player2 = $game->getPlayers()->last();
         $player2->setTurnOfPlayer(true);
-        $personalBoard2->setPlayerSPL($player2);
         $game->addPlayer($player2);
         $expectedResult = [true, false];
         // WHEN
@@ -374,9 +275,23 @@ class SPLServiceTest extends TestCase
         // THEN
         $result = Array();
         foreach ($game->getPlayers() as $tmp) {
-            array_push($result, $tmp->isTurnOfPlayer());
+            $result[] = $tmp->isTurnOfPlayer();
         }
         $this->assertSame($expectedResult, $result);
+    }
+
+    private function createGame(int $numberOfPlayers) : GameSPL
+    {
+        $game = new GameSPL();
+        for ($i = 0; $i < $numberOfPlayers; ++$i) {
+            $player = new PlayerSPL('test', $game);
+            $game->addPlayer($player);
+            $personalBoard = new PersonalBoardSPL();
+            $player->setPersonalBoard($personalBoard);
+        }
+        $mainBoard = new MainBoardSPL();
+        $game->setMainBoard($mainBoard);
+        return $game;
     }
 
 }
