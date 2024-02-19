@@ -4,11 +4,13 @@
     @return :
 #}
 <div class="flex float-left w-[25%] h-5/6 bg-blue-600">
-    <div class="h-full w-full grid grid-cols-2 place-items-center">
+    <div class="h-full w-full grid grid-rows-{{ nobleTiles|length}} place-items-center p-2">
         {% for card in nobleTiles %}
-            <img class="rounded-lg shadow-black shadow-lg s-1/2"
-                 src="{{ asset('resourcesGames/Splendor/Images/NobleTiles/' ~ card.id ~ '.png') }}"
-                 alt="nobleTile">
+            <div class="flex items-center justify-center h-full p-2 w-full">
+                <img class="items-center justify-center rounded-lg shadow-black shadow-lg max-h-full"
+                     src="{{ asset('resourcesGames/Splendor/Images/NobleTiles/' ~ card.id ~ '.png') }}"
+                     alt="nobleTile">
+            </div>
         {% endfor %}
     </div>
 </div>
