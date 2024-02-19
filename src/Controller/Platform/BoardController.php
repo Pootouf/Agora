@@ -51,6 +51,7 @@ class BoardController extends AbstractController
             return $this->redirectToRoute('app_home');
         }
         /*dump($form->isSubmitted());
+        dump($form->isSubmitted());
         dump($form->getData());
         dump($form->getErrors(true));     // Main errors
         */
