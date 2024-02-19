@@ -1,4 +1,4 @@
-image: etiennebinginot/agora:1.3
+image: etiennebinginot/agora:1.4
 
 stages:
   - factory
@@ -18,37 +18,59 @@ variables:
   MYSQL_TCP_PORT: 3307
   MYSQL_DATABASE: main_test
   XDEBUG_MODE: coverage
+  SERVER_NAME: ':80'
+  MERCURE_PUBLISHER_JWT_KEY: '!ChangeThisMercureHubJWTSecretKey!'
+  MERCURE_SUBSCRIBER_JWT_KEY: '!ChangeThisMercureHubJWTSecretKey!'
 
 services:
   - name: mariadb:10.11.2
     alias: database_test
-
+  - name: dunglas/mercure:latest
+    alias: mercure
 
 before_script:
-  - chmod u+x composer.phar
-  - mv composer.phar /usr/local/bin/composer
   - composer install
   - symfony console tailwind:build
   - symfony console --env=test doctrine:migrations:migrate
-  - symfony console doctrine:fixtures:load --env=test -n
+  - symfony console doctrine:fixtures:load --env=test -n --append
 
   
 
-deploy_dev_game:
+.deploy: &deploy
   stage: deploy
-  environment:
-    name: staging
-    url: http://srv-dpi-agora-dev-jeux.univ-rouen.fr/
   script:
     # Setup SSH deploy keys
     - 'which ssh-agent || ( apt-get install -qq openssh-client )'
     - eval $(ssh-agent -s)
-    - ssh-add <(echo $ID_RSA_GAME | base64 -d)
+    - ssh-add <(echo $ID_RSA | base64 -d)
     - mkdir -p ~/.ssh
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
-    - ssh $SERVER_GAME_USER@$SERVER_GAME_IP "cd /var/www/agora && git checkout develop-game && git pull origin develop-game && docker compose up --build -d && exit"
+
+    # Update server project
+    - ssh $SERVER_USER@$SERVER_IP "cd $SERVER_LOCATION && git checkout $GIT_BRANCH_NAME && git pull origin $GIT_BRANCH_NAME"
+
+    # Clean docker files
+    - ssh $SERVER_USER@$SERVER_IP "cd $SERVER_LOCATION && docker compose down && docker image prune -a --force"
+    - ssh $SERVER_USER@$SERVER_IP "cd $SERVER_LOCATION && docker compose down && docker volume prune --force"
+
+    # Launch project
+    - ssh $SERVER_USER@$SERVER_IP "cd $SERVER_LOCATION && docker compose -f compose.yaml -f $DOCKER_COMPOSE_FILE up --build -d"
   only:
     - develop-game
+
+
+deploy:dev_game:
+  <<: *deploy
+  environment:
+    name: development
+    url: http://srv-dpi-proj-agora-dev-jeux.univ-rouen.fr/
+  variables:
+    SERVER_USER: $SERVER_GAME_USER
+    SERVER_IP: $SERVER_GAME_IP
+    SERVER_LOCATION: /var/www/agora
+    DOCKER_COMPOSE_FILE: compose.override.yaml
+    GIT_BRANCH_NAME: develop-game
+    ID_RSA: $ID_RSA_GAME
 
 unitFactory:
   stage: factory

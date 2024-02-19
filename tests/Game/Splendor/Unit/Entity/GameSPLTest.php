@@ -26,7 +26,7 @@ class GameSPLTest extends TestCase
     public function testAddPlayerWhenNotJoined(): void
     {
         //GIVEN
-        $player = new PlayerSPL();
+        $player = new PlayerSPL('test', $this->gameSPL);
         //WHEN
         $this->gameSPL->addPlayer($player);
         //THEN
@@ -36,7 +36,7 @@ class GameSPLTest extends TestCase
     public function testAddPlayerWhenJoined(): void
     {
         //GIVEN
-        $player = new PlayerSPL();
+        $player = new PlayerSPL('test', $this->gameSPL);
         $this->gameSPL->addPlayer($player);
         $expectedLength = 1;
         //WHEN
@@ -49,7 +49,7 @@ class GameSPLTest extends TestCase
     public function testRemovePlayer(): void
     {
         //GIVEN
-        $player = new PlayerSPL();
+        $player = new PlayerSPL('test', $this->gameSPL);
         $this->gameSPL->addPlayer($player);
         //WHEN
         $this->gameSPL->removePlayer($player);

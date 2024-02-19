@@ -14,6 +14,10 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method SelectedTokenSPL[]    findAll()
  * @method SelectedTokenSPL[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
+
+/**
+ * @codeCoverageIgnore
+ */
 class SelectedTokenSPLRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)

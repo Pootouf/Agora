@@ -2,7 +2,7 @@
 
 namespace App\Entity\Game;
 
-use App\Repository\MessageRepository;
+use App\Repository\Game\MessageRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 

@@ -2,6 +2,7 @@
 
 namespace App\Tests\Game\Splendor\Unit\Entity;
 
+use App\Entity\Game\Splendor\GameSPL;
 use App\Entity\Game\Splendor\NobleTileSPL;
 use App\Entity\Game\Splendor\PersonalBoardSPL;
 use App\Entity\Game\Splendor\PlayerCardSPL;
@@ -134,7 +135,8 @@ class PersonalBoardSPLTest extends TestCase
     public function testSetPlayer(): void
     {
         //GIVEN
-        $player = new PlayerSPL();
+        $game = new GameSPL();
+        $player = new PlayerSPL('test', $game);
         //WHEN
         $this->personalBoardSPL->setPlayerSPL($player);
         //THEN

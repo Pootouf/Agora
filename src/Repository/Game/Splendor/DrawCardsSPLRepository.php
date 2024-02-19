@@ -14,6 +14,10 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method DrawCardsSPL[]    findAll()
  * @method DrawCardsSPL[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
+
+/**
+ * @codeCoverageIgnore
+ */
 class DrawCardsSPLRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)

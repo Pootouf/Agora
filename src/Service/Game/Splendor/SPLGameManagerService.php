@@ -85,9 +85,7 @@ class SPLGameManagerService extends AbstractGameManagerService
             ['username' => $playerName, 'gameSPL' => $game->getId()]) != null) {
             return SPLGameManagerService::$ERROR_ALREADY_IN_PARTY;
         }
-        $player = new PlayerSPL();
-        $player->setUsername($playerName);
-        $player->setGameSPL($game);
+        $player = new PlayerSPL($playerName, $game);
         $personalBoard = new PersonalBoardSPL();
         $player->setGameSPL($game);
         $player->setPersonalBoard($personalBoard);

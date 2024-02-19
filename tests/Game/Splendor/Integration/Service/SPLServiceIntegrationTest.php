@@ -12,6 +12,7 @@ use App\Entity\Game\Splendor\SelectedTokenSPL;
 use App\Entity\Game\Splendor\TokenSPL;
 use App\Service\Game\AbstractGameManagerService;
 use App\Service\Game\Splendor\SPLService;
+use App\Service\Game\Splendor\TokenSPLService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
@@ -20,7 +21,7 @@ class SPLServiceIntegrationTest extends KernelTestCase
 
     public function testTakeTokenWhenAlreadyFull(): void
     {
-        $splendorService = static::getContainer()->get(SPLService::class);
+        $tokenSplendorService = static::getContainer()->get(TokenSPLService::class);
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);
         $game = $this->createGame(4);
         $player = $game->getPlayers()[0];
@@ -39,12 +40,12 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $this->assertSame(10, $personalBoard->getTokens()->count());
         $token = new TokenSPL();
         $this->expectException(\Exception::class);
-        $splendorService->takeToken($player, $token);
+        $tokenSplendorService->takeToken($player, $token);
     }
 
     public function testTakeThreeTokensButWithTwiceSameColor(): void
     {
-        $splendorService = static::getContainer()->get(SPLService::class);
+        $tokenSplendorService = static::getContainer()->get(TokenSPLService::class);
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);
         $game = $this->createGame(4);
         $player = $game->getPlayers()[0];
@@ -73,12 +74,12 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $token->setType("joyau");
         $token->setColor("blue");
         $this->expectException(\Exception::class);
-        $splendorService->takeToken($player, $token);
+        $tokenSplendorService->takeToken($player, $token);
     }
 
     public function testTakeFourTokens(): void
     {
-        $splendorService = static::getContainer()->get(SPLService::class);
+        $tokenSplendorService = static::getContainer()->get(TokenSPLService::class);
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);
         $game = $this->createGame(4);
         $player = $game->getPlayers()[0];
@@ -115,13 +116,13 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $token->setType("joyau");
         $token->setColor("yellow");
         $this->expectException(\Exception::class);
-        $splendorService->takeToken($player, $token);
+        $tokenSplendorService->takeToken($player, $token);
     }
 
     public function testTakeTokensWithTwoSameColorShouldFailBecauseNotAvailable() : void
     {
         //GIVEN
-        $splendorService = static::getContainer()->get(SPLService::class);
+        $tokenSplendorService = static::getContainer()->get(TokenSPLService::class);
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
@@ -137,23 +138,23 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $entityManager->persist($token);
         $entityManager->persist($token1);
         $entityManager->flush();
-        $splendorService->takeToken($player, $token);
+        $tokenSplendorService->takeToken($player, $token);
         //THEN
         $this->expectException(\Exception::class);
         //WHEN
-        $splendorService->takeToken($player, $token1);
+        $tokenSplendorService->takeToken($player, $token1);
     }
 
     public function testClearSelectedTokens() : void
     {
         //GIVEN
-        $splendorService = static::getContainer()->get(SPLService::class);
+        $tokenSplendorService = static::getContainer()->get(TokenSPLService::class);
         $game = $this->createGame(2);
         $player = $game->getPlayers()->get(0);
         $personalBoard = $player->getPersonalBoard();
         $personalBoard->addSelectedToken(new SelectedTokenSPL());
         //WHEN
-        $splendorService->clearSelectedTokens($player);
+        $tokenSplendorService->clearSelectedTokens($player);
         //THEN
         $this->assertEmpty($player->getPersonalBoard()->getSelectedTokens());
     }
@@ -282,7 +283,7 @@ class SPLServiceIntegrationTest extends KernelTestCase
         // THEN
         $result = Array();
         foreach ($game->getPlayers() as $tmp) {
-            array_push($result, $tmp->isTurnOfPlayer());
+            $result[] = $tmp->isTurnOfPlayer();
         }
         $this->assertSame($expectedResult, $result);
     }
@@ -302,7 +303,7 @@ class SPLServiceIntegrationTest extends KernelTestCase
         // THEN
         $result = Array();
         foreach ($game->getPlayers() as $tmp) {
-            array_push($result, $tmp->isTurnOfPlayer());
+            $result[] = $tmp->isTurnOfPlayer();
         }
         $this->assertSame($expectedResult, $result);
     }
@@ -316,9 +317,7 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $mainBoard->setGameSPL($game);
         $entityManager->persist($mainBoard);
         for ($i = 0; $i < $numberOfPlayer; $i++) {
-            $player = new PlayerSPL();
-            $player->setUsername('test');
-            $player->setGameSPL($game);
+            $player = new PlayerSPL('test', $game);
             $game->addPlayer($player);
             $personalBoard = new PersonalBoardSPL();
             $player->setPersonalBoard($personalBoard);

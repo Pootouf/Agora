@@ -15,6 +15,10 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method PlayerSixQP[]    findAll()
  * @method PlayerSixQP[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
+
+/**
+ * @codeCoverageIgnore
+ */
 class PlayerSixQPRepository extends PlayerRepository
 {
     public function __construct(ManagerRegistry $registry)

@@ -14,6 +14,10 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method Pawn[]    findAll()
  * @method Pawn[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
+
+/**
+ * @codeCoverageIgnore
+ */
 class PawnRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
