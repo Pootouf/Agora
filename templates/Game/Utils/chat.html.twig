@@ -54,16 +54,26 @@
         </div>
     </div>
 </div>
+<div hidden id="templateMessage" class="bg-[#e3d5ca] rounded-2xl block p-2 mt-3">
+    <p class="bg-[#edede9] h-fit rounded-lg p-0.5 pl-2 text-5xl landscape:text-base lg:text-base">
+
+    </p>
+    <p class="text-5xl landscape:text-base lg:text-base">
+
+    </p>
+</div>
 <script>
     {% set path = path('app_game_display_new_messages', {'gameId': game.id}) ~ "newMessage" %}
     const eventSourceChat = new EventSource("{{ mercure(path)|escape('js') }}");
     eventSourceChat.onmessage = event => {
         const chat = document.getElementById("chat");
         let result = event.data.split('§');
-        let message = document.getElementsByClassName('messageDisplay').item(0);
-        let newMessage = message.cloneNode(true);
+        let template = document.getElementById("templateMessage");
+        let newMessage = template.cloneNode(true);
         newMessage.firstElementChild.textContent = result[1];
         newMessage.lastElementChild.textContent = result[0];
+        newMessage.id = "";
+        newMessage.classList.add("messageDisplay");
         chat.appendChild(newMessage);
     }
 </script>
