@@ -9,8 +9,10 @@ use Symfony\Component\Routing\Annotation\Route;
 class DescriptionController extends AbstractController
 {
     #[Route('/description', name: 'app_desc')]
-    public function index(): Response
+    public function index(int $id): Response
     {
+
+
         return $this->render('platform/game/description.html.twig', [
             'controller_name' => 'DescriptionController',
         ]);
