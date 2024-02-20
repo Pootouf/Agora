@@ -329,6 +329,31 @@ class SPLServiceTest extends TestCase
         $this->assertContains($playerCard ,$player->getPersonalBoard()->getPlayerCards());
     }
 
+    public function testBuyCardWhenCardIsReserved()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $player->setTurnOfPlayer(true);
+        $token = new TokenSPL();
+        $token->setColor(TokenSPL::$COLOR_RED);
+        $player->getPersonalBoard()->addToken($token);
+        $cardCost = new CardCostSPL();
+        $cardCost->setColor(TokenSPL::$COLOR_RED);
+        $cardCost->setPrice(1);
+        $array = new ArrayCollection();
+        $array->add($cardCost);
+        $developmentCard = DevelopmentCardsSPL::createDevelopmentCard($array);
+        $playerCard = new PlayerCardSPL();
+        $playerCard->setDevelopmentCard($developmentCard);
+        $playerCard->setIsReserved(true);
+        // WHEN
+        $this->SPLService->buyCard($player, $playerCard);
+        // THEN
+        $this->assertContains($playerCard ,$player->getPersonalBoard()->getPlayerCards());
+        $this->assertFalse($playerCard->isIsReserved());
+    }
+
     private function createGame(int $numberOfPlayers) : GameSPL
     {
         $game = new GameSPL();
