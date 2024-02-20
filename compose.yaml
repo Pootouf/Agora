@@ -1,10 +1,32 @@
 version: '3'
 
 services:
+  reverse-proxy:
+    # The official v2 Traefik image
+    image: traefik:v2.10
+    container_name: reverse_proxy
+    command:
+      - --api.insecure=true
+      - --providers.docker
+    ports:
+      - '80:80'
+      - '443:443'
+      # The Web UI (enabled by --api.insecure=true)
+      - '8080:8080'
+    volumes:
+      # So that Traefik can listen to the Docker events
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./traefik/:/etc/traefik
+    depends_on:
+      - jaeger
+
   agora:
     container_name: agora
     image: agora-boilerplate:latest
+    ports:
+      - '9000'
     build:
+      context: .
       dockerfile: Dockerfile
     depends_on:
       database:
@@ -13,6 +35,23 @@ services:
         condition: service_healthy
     environment:
       SERVER_NAME: ${SERVER_NAME:-localhost}
+      TRUSTED_PROXIES: ${TRUSTED_PROXIES:-127.0.0.0/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,reverse_proxy,REMOTE_ADDR}
+    labels:
+      - "traefik.http.routers.agora.rule=Host(`agora.docker.localhost`)"
+
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: caddy
+    volumes:
+      - ./Caddyfile/:/etc/caddy/Caddyfile
+      - ./:/var/www/agora
+    ports:
+      - '7070'
+    depends_on:
+      - agora
+    labels:
+      - "traefik.http.routers.caddy.rule=Host(`caddy.docker.localhost`)"
 
 ###> doctrine/doctrine-bundle ###
   database:
@@ -51,7 +90,6 @@ services:
   mercure:
     container_name: mercure
     image: dunglas/mercure
-    restart: unless-stopped
     environment:
       SERVER_NAME: ':80'
       MERCURE_PUBLISHER_JWT_KEY: '!ChangeThisMercureHubJWTSecretKey!'
@@ -59,15 +97,61 @@ services:
       # Set the URL of your Symfony project (without trailing slash!) as value of the cors_origins directive
       MERCURE_EXTRA_DIRECTIVES: |
         cors_origins *
-    # Comment the following line to disable the development mode
-    command: /usr/bin/caddy run --config /etc/caddy/Caddyfile.dev
-    volumes:
-      - mercure_data:/data
-      - mercure_config:/config
+        anonymous
+        ui
+    ports:
+      - "80"
+    labels:
+      - "traefik.http.routers.mercure.rule=Host(`mercure.docker.localhost`)"
 ###< symfony/mercure-bundle ###
 
-volumes:
-###> symfony/mercure-bundle ###
-  mercure_data:
-  mercure_config:
-###< symfony/mercure-bundle ###
+  jaeger:
+    container_name: jaeger
+    image: jaegertracing/all-in-one:1.54
+    ports:
+      - "5575:5775/udp"
+      - "6831:6831/udp"
+      - "6832:6832/udp"
+      - "5778:5778"
+      - "16686:16686"
+      - "14268:14268"
+      - "9411:9411"
+    environment:
+      COLLECTOR_ZIPKIN_HTTP_PORT: 9411
+    labels:
+      traefik.http.routers.jaeger.rule: Host(`jaeger.docker.localhost`)
+      traefik.http.routers.jaeger.entrypoints: web
+      traefik.http.routers.jaeger.service: jaeger
+      traefik.http.services.jaeger.loadbalancer.server.port: 16686
+
+  prometheus:
+    image: prom/prometheus:v2.49.1
+    container_name: prometheus
+    volumes:
+      - ./prometheus/:/etc/prometheus/
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    ports:
+      - "9090:9090"
+    labels:
+      traefik.http.routers.prometheus.rule: Host(`prometheus.localhost`)
+      traefik.http.routers.prometheus.service: prometheus
+      traefik.http.services.prometheus.loadbalancer.server.port: 9090
+
+  grafana:
+    image: grafana/grafana
+    depends_on:
+      - prometheus
+    environment:
+      GF_INSTALL_PLUGINS: grafana-piechart-panel
+    labels:
+      traefik.http.routers.grafana.rule: Host(`grafana.localhost`)
+      traefik.http.routers.grafana.service: grafana
+      traefik.http.services.grafana.loadbalancer.server.port: 3000
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./grafana/datasources:/etc/grafana/provisioning/datasources
+      - ./grafana/dashboards/dashboard.yaml:/etc/grafana/provisioning/dashboards/main.yaml
+      - ./grafana/dashboards/json:/var/lib/grafana/dashboards

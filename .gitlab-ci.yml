@@ -1,37 +1,137 @@
-image: etiennebinginot/agora:1.0
+image: etiennebinginot/agora:1.4
+
+stages:
+  - factory
+  - sixqp
+  - splendor
+  - deploy
 
 cache:
-  policy: pull-push
-  unprotect: true
-  untracked: true
-  when: on_success
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - vendor/
+    - var/
 
-services:
-  - name: mariadb:10.11.2
-    alias: database_test
 
 variables:
   MYSQL_ROOT_PASSWORD: password
   MYSQL_TCP_PORT: 3307
   MYSQL_DATABASE: main_test
+  XDEBUG_MODE: coverage
+
+services:
+  - name: mariadb:10.11.2
+    alias: database_test
 
 
-unit:
-  stage: test
+before_script:
+  - composer install
+  - symfony console tailwind:build
+  - symfony console --env=test doctrine:migrations:migrate
+  - symfony console doctrine:fixtures:load --env=test -n --append
+
+  
+
+.deploy: &deploy
+  stage: deploy
   script:
-    - php bin/phpunit tests/Unit --coverage-text
+    # Setup SSH deploy keys
+    - 'which ssh-agent || ( apt-get install -qq openssh-client )'
+    - eval $(ssh-agent -s)
+    - ssh-add <(echo $ID_RSA | base64 -d)
+    - mkdir -p ~/.ssh
+    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+
+    # Update server project
+    - ssh $SERVER_USER@$SERVER_IP "cd $SERVER_LOCATION && git checkout $GIT_BRANCH_NAME && git pull origin $GIT_BRANCH_NAME"
+
+    # Clean docker files
+    - ssh $SERVER_USER@$SERVER_IP "cd $SERVER_LOCATION && docker compose down && docker image prune -a --force"
+    - ssh $SERVER_USER@$SERVER_IP "cd $SERVER_LOCATION && docker compose down && docker volume prune --force"
+
+    # Launch project
+    - ssh $SERVER_USER@$SERVER_IP "cd $SERVER_LOCATION && docker compose -f compose.yaml -f $DOCKER_COMPOSE_FILE up --build -d"
+  only:
+    - develop-game
+
+
+deploy:dev_game:
+  <<: *deploy
+  environment:
+    name: staging
+    url: http://srv-dpi-agora-dev-jeux.univ-rouen.fr/
+  variables:
+    SERVER_USER: $SERVER_GAME_USER
+    SERVER_IP: $SERVER_GAME_IP
+    SERVER_LOCATION: /var/www/agora
+    DOCKER_COMPOSE_FILE: compose.override.yaml
+    GIT_BRANCH_NAME: develop-game
+    ID_RSA: $ID_RSA_GAME
+
+unitFactory:
+  stage: factory
+  script:
+    - php bin/phpunit tests/Game/Factory/Unit
   allow_failure: false
   environment: test
 
-integration:
-  stage: test
+integrationFactory:
+  stage: factory
   only:
-    - develop
+    - develop-game
     - preprod
     - main
   script:
-    - symfony console --env=test doctrine:migrations:migrate
-    - symfony console doctrine:fixtures:load --env=test -n
-    - php bin/phpunit tests/Integration --coverage-text
+    - php bin/phpunit tests/Game/Factory/Integration
   allow_failure: false
   environment: test
+
+unit6QP:
+  stage: sixqp
+  script:
+    - php bin/phpunit tests/Game/SixQP/Unit
+  allow_failure: false
+  environment: test
+
+integration6QP:
+  stage: sixqp
+  only:
+    - develop-game
+    - preprod
+    - main
+  script:
+    - php bin/phpunit tests/Game/SixQP/Integration
+  allow_failure: false
+  environment: test
+
+application6QP:
+  stage: sixqp
+  only:
+    - develop-game
+    - preprod
+    - main
+  script:
+    - symfony console tailwind:build
+    - php bin/phpunit tests/Game/SixQP/Application
+  allow_failure: false
+  environment: test
+
+unitSplendor:
+  stage: splendor
+  script:
+    - php bin/phpunit tests/Game/Splendor/Unit
+  allow_failure: false
+  environment: test
+
+integrationSplendor:
+  stage: splendor
+  only:
+    - develop-game
+    - preprod
+    - main
+  script:
+    - php bin/phpunit tests/Game/Splendor/Integration
+  allow_failure: false
+  environment: test
+
+

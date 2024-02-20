@@ -9,6 +9,7 @@ use App\Entity\Game\SixQP\PlayerSixQP;
 use App\Entity\Game\SixQP\RowSixQP;
 use App\Repository\Game\SixQP\PlayerSixQPRepository;
 use App\Service\Game\AbstractGameManagerService;
+use App\Service\Game\LogService;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 
@@ -17,14 +18,16 @@ class SixQPGameManagerService extends AbstractGameManagerService
     private EntityManagerInterface $entityManager;
     private PlayerSixQPRepository $playerSixQPRepository;
     private SixQPService $sixQPService;
-
+    private LogService $logService;
     public function __construct(EntityManagerInterface $entityManager,
         PlayerSixQPRepository $playerSixQPRepository,
-        SixQPService $sixQPService)
+        SixQPService $sixQPService,
+        LogService $logService)
     {
         $this->entityManager = $entityManager;
         $this->playerSixQPRepository = $playerSixQPRepository;
         $this->sixQPService = $sixQPService;
+        $this->logService = $logService;
     }
 
 
@@ -34,7 +37,7 @@ class SixQPGameManagerService extends AbstractGameManagerService
     public function createGame(): int
     {
         $game = new GameSixQP();
-        $game->setGameName('6QP');
+        $game->setGameName(AbstractGameManagerService::$SIXQP_LABEL);
         for($i = 0; $i < RowSixQP::$NUMBER_OF_ROWS_BY_GAME; $i++) {
             $row = new RowSixQP();
             $row->setPosition($i);
@@ -44,6 +47,7 @@ class SixQPGameManagerService extends AbstractGameManagerService
 
         $this->entityManager->persist($game);
         $this->entityManager->flush();
+        $this->logService->sendSystemLog($game, "game " . $game->getId() . " was created");
         return $game->getId();
     }
 
@@ -73,6 +77,8 @@ class SixQPGameManagerService extends AbstractGameManagerService
         $this->entityManager->persist($player);
         $this->entityManager->persist($discard);
         $this->entityManager->flush();
+        $this->logService->sendPlayerLog($game, $player,
+            $playerName . " joined game " . $game->getId());
         return SixQPGameManagerService::$SUCCESS;
     }
 
@@ -94,6 +100,8 @@ class SixQPGameManagerService extends AbstractGameManagerService
         }
         $this->entityManager->remove($player);
         $this->entityManager->flush();
+        $this->logService->sendSystemLog($game,
+            $playerName . " was removed from the game " . $game->getId());
         return SixQPGameManagerService::$SUCCESS;
     }
 
@@ -112,6 +120,7 @@ class SixQPGameManagerService extends AbstractGameManagerService
         foreach ($game->getRowSixQPs() as $rowSixQP) {
             $this->entityManager->remove($rowSixQP);
         }
+        $this->logService->sendSystemLog($game, "game " . $game->getId() . "ended");
         $this->entityManager->remove($game);
         $this->entityManager->flush();
         return SixQPGameManagerService::$SUCCESS;
@@ -135,6 +144,7 @@ class SixQPGameManagerService extends AbstractGameManagerService
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         $this->sixQPService->initializeNewRound($game);
+        $this->logService->sendSystemLog($game, "game " . $game->getId() . " began");
         return SixQPGameManagerService::$SUCCESS;
     }
 

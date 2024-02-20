@@ -14,6 +14,7 @@ use App\Repository\Game\SixQP\CardSixQPRepository;
 use App\Repository\Game\SixQP\ChosenCardSixQPRepository;
 use App\Repository\Game\SixQP\PlayerSixQPRepository;
 use App\Service\Game\AbstractGameManagerService;
+use App\Service\Game\LogService;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
@@ -28,15 +29,19 @@ class SixQPService
     private ChosenCardSixQPRepository $chosenCardSixQPRepository;
     private PlayerSixQPRepository $playerSixQPRepository;
 
+    private LogService $logService;
+
     public function __construct(EntityManagerInterface $entityManager,
         CardSixQPRepository $cardSixQPRepository,
         ChosenCardSixQPRepository $chosenCardSixQPRepository,
-        PlayerSixQPRepository $playerSixQPRepository)
+        PlayerSixQPRepository $playerSixQPRepository,
+        LogService $logService)
     {
         $this->entityManager = $entityManager;
         $this->cardSixQPRepository = $cardSixQPRepository;
         $this->chosenCardSixQPRepository = $chosenCardSixQPRepository;
         $this->playerSixQPRepository = $playerSixQPRepository;
+        $this->logService = $logService;
     }
 
 
@@ -104,30 +109,26 @@ class SixQPService
     }
 
     /**
-     * placeCard : place the chosen card into the right row, and update player's discard if necessary
+     * placeCard : place the chosen card into the selected row, and update player's discard if necessary
      * @param ChosenCardSixQP $chosenCardSixQP
-     * @return int 0 if the card has been placed, -1 otherwise
+     * @param RowSixQP $row
+     * @return int 0 if the card has been placed, position of the row +1 if line retrieve, -1 otherwise
      */
-    public function placeCard(ChosenCardSixQP $chosenCardSixQP): int
+    public function placeCardIntoRow(ChosenCardSixQP $chosenCardSixQP, RowSixQP $row): int
     {
-        $game = $chosenCardSixQP->getGame();
-        $rows = $game->getRowSixQPs();
         $player = $chosenCardSixQP->getPlayer();
 
-        $row = $this->getValidRowForCard($chosenCardSixQP, $rows);
-        if ($row == null) {
-            return -1;
-        }
-
+        $returnValue = 0;
         if ($row->getCards()->count() == 5) {
             $this->addRowToDiscardOfPlayer($player, $row);
+            $returnValue = -1;
         }
         $row->getCards()->add($chosenCardSixQP->getCard());
 
 
         $this->entityManager->persist($row);
         $this->entityManager->flush();
-        return 0;
+        return $returnValue;
     }
 
     /**
@@ -171,28 +172,31 @@ class SixQPService
     }
 
     /**
-     * revealCard : reveal the chosen card
-     * @param ChosenCardSixQP $chosenCardSixQP the card to reveal
-     * @return void
+     * doesAllPlayersHaveChosen: return true if all players have chosen
+     * @param GameSixQP $game
+     * @return bool
      */
-    public function revealCard(ChosenCardSixQP $chosenCardSixQP): void
-    {
-        $chosenCardSixQP->setVisible(true);
-        $this->entityManager->persist($chosenCardSixQP);
-        $this->entityManager->flush();
-    }
-
     public function doesAllPlayersHaveChosen(GameSixQP $game): bool {
         $chosenCards = $this->chosenCardSixQPRepository->findBy(['game' => $game->getId()]);
         return count($chosenCards) == count($game->getPlayerSixQPs());
     }
 
+    /**
+     * doesPlayerAlreadyHasPlayed: return true if the player already have chose a card
+     * @param PlayerSixQP $player
+     * @return bool
+     */
     public function doesPlayerAlreadyHasPlayed(PlayerSixQP $player): bool
     {
         $chosenCard = $this->chosenCardSixQPRepository->findOneBy(['player'=>$player->getId()]);
         return $chosenCard != null;
     }
 
+    /**
+     * getNotPlacedCard: return an array of the chosen cards which are not already placed
+     * @param GameSixQP $game
+     * @return array<ChosenCardSixQP> the chosen cards which are not placed
+     */
     public function getNotPlacedCard(GameSixQP $game): array {
         $chosenCards = $this->chosenCardSixQPRepository->findBy(['game' => $game->getId()]);
         for ($i = 0; $i < count($chosenCards); $i++) {
@@ -220,7 +224,13 @@ class SixQPService
         return $this->hasPlayerLost($players);
     }
 
-    public function getPlayerFromNameAndGame(GameSixQP $game, string $name)
+    /**
+     * getPlayerFromNameAndGame: search for the player with name $name in the game, null if not found
+     * @param GameSixQP $game the game of the player
+     * @param string $name
+     * @return ?PlayerSixQP
+     */
+    public function getPlayerFromNameAndGame(GameSixQP $game, string $name): ?PlayerSixQP
     {
         return $this->playerSixQPRepository->findOneBy(['game' => $game->getId(), 'username' => $name]);
     }
@@ -230,14 +240,14 @@ class SixQPService
      * getValidRowForCard : calculate the row with the nearest value to the chosen card,
      *                      with the chosen card value greater than the value of the row
      * @param ChosenCardSixQP $chosenCardSixQP the chosen card
-     * @param Collection $rows the rows of the game
+     * @param GameSixQP $game the game
      * @return ?RowSixQP the valid row, null if no valid row in the game
      */
-    private function getValidRowForCard(ChosenCardSixQP $chosenCardSixQP, Collection $rows): ?RowSixQP
+    public function getValidRowForCard(GameSixQP $game, ChosenCardSixQP $chosenCardSixQP): ?RowSixQP
     {
         $rowResult = null;
         $lastSmallestDistance = INF;
-        foreach ($rows as $row) {
+        foreach ($game->getRowSixQPs() as $row) {
             $cards = $row->getCards();
 
             $chosenCardValue = $chosenCardSixQP->getCard()->getValue();
@@ -261,11 +271,17 @@ class SixQPService
      */
     public function addRowToDiscardOfPlayer(PlayerSixQP $player, RowSixQP $row): void
     {
+        $total = 0;
         foreach ($row->getCards() as $card) {
             $player->getDiscardSixQP()->addCard($card);
             $player->getDiscardSixQP()->addPoints($card->getPoints());
+            $total += $card->getPoints();
             $row->removeCard($card);
         }
+        $game = $player->getGame();
+        $this->logService->sendPlayerLog($game, $player, $player->getUsername()
+            . " picked up row " . $game->getRowSixQPs()->indexOf($row)
+             . " and got " . $total . " points");
         $this->entityManager->persist($row);
         $this->entityManager->persist($player->getDiscardSixQP());
         $this->entityManager->flush();
@@ -285,9 +301,10 @@ class SixQPService
 
     /**
      * hasCardLeft : checks if at least one player still has a card
-     * @param Collection $players : a collection of 6QP players
+     * @param Collection<PlayerSixQP> $players : a collection of 6QP players
+     * @return bool
      */
-    private function hasCardLeft(Collection $players): bool
+    public function hasCardLeft(Collection $players): bool
     {
         foreach ($players as $player) {
             if (count($player->getCards()) != 0) {
@@ -297,9 +314,46 @@ class SixQPService
         return false;
     }
 
+    /**
+     * getWinner : return the winner of the game
+     * @param GameSixQP $game
+     * @return ?PlayerSixQP if there is a winner, null otherwise
+     */
+    public function getWinner(GameSixQP $game): ?PlayerSixQP
+    {
+        $winner = null;
+        $winnerScore = INF;
+        foreach ($game->getPlayerSixQPs() as $player) {
+            if ($player->getDiscardSixQP()->getTotalPoints() < $winnerScore) {
+                $winner = $player;
+                $winnerScore = $player->getDiscardSixQP()->getTotalPoints();
+            } elseif ($player->getDiscardSixQP()->getTotalPoints() == $winnerScore) {
+                $winner = null;
+            }
+        }
+        return $winner;
+    }
+
+    /**
+     * clearCards: delete all the chosenCards in the array
+     * @param array<ChosenCardSixQP> $chosenCards
+     * @return void
+     */
+    public function clearCards(array $chosenCards): void
+    {
+        foreach ($chosenCards as $chosenCard) {
+            $player = $chosenCard->getPlayer();
+            $this->entityManager->remove($chosenCard);
+            $player->setChosenCardSixQP(null);
+            $this->entityManager->persist($player);
+        }
+        $this->entityManager->flush();
+    }
+
      /**
      * hasPlayerLost : checks if at least one player has reached limit of points
-     * @param Collection $players : a collection of 6QP players
+     * @param Collection<PlayerSixQP> $players : a collection of 6QP players
+     * @return bool
      */
     private function hasPlayerLost(Collection $players): bool
     {

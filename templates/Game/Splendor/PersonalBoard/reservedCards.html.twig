@@ -1,0 +1,32 @@
+{#
+    This section displays the reserved cards that can have a player, only visible by him
+    @param :
+    @return :
+#}
+<div class="border-solid border-black border-2 h-full w-full mt-5 mx-5 rounded-2xl bg-[#2a9d8f]">
+    <div class="flex float-right h-fit w-fit mt-2 mr-4">
+        <p class="text-lg">Cartes réservées</p>
+    </div>
+    <div class="w-full flex justify-around">
+        {#
+        {% for card in playerReservedCards %}
+            {% set cardURL = card.id %}
+            <div class="hover:-translate-y-[100%] hover:scale-y-150 hover:scale-x-[1.4] transition ease-in-out delay-100">
+                <img class="rounded-2xl"
+                     src="{{ asset('resourcesGames/Splendor/Images/DevelopmentCards/' ~ cardURL ~ '.png') }}"
+                     alt="{{ cardURL }}"
+                >
+            </div>
+        {% endfor %}
+        #}
+        <div class="hover:-translate-y-[100%] hover:scale-y-150 hover:scale-x-[1.4] transition ease-in-out delay-100">
+            <img class="rounded-2xl" src="{{ asset('resourcesGames/Splendor/Images/DevelopmentCards/1.png') }}" alt="1">
+        </div>
+        <div class="hover:-translate-y-[100%] hover:scale-y-150 hover:scale-x-[1.4] transition ease-in-out delay-100">
+            <img class="rounded-2xl" src="{{ asset('resourcesGames/Splendor/Images/DevelopmentCards/5.png') }}" alt="5">
+        </div>
+        <div class="hover:-translate-y-[100%] hover:scale-y-150 hover:scale-x-[1.4] transition ease-in-out delay-100">
+            <img class="rounded-2xl" src="{{ asset('resourcesGames/Splendor/Images/DevelopmentCards/4.png') }}" alt="4">
+        </div>
+    </div>
+</div>
