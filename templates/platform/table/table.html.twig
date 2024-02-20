@@ -18,67 +18,91 @@
    <div class="mx-auto max-w-7xl px-6 lg:px-8 mt-16">
       <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
          <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 border border-gray-300">
-            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-               <tr>
-                  <th scope="col" class="px-3 py-3 text-center">
-                     Aperçu
-                  </th>
-                  <th scope="col" class="px-3 py-3">
-                     Informations
-                  </th>
-                  <th scope="col" class="px-20 py-3">
-                     Joueurs
-                  </th>
-                  <th scope="col" class="px-3 py-3">
-                     Action
-                  </th>
-               </tr>
-            </thead>
-            <tbody>
-               {% for row in 1..10 %}
-               {% set colorClass = row % 2 == 1 ? 'bg-gradient-to-r from-transparent to-green-200' : 'bg-gradient-to-r from-transparent to-red-200' %}
-               <tr class="{{ colorClass }} border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                  <td class="p-2 text-center">
-                     <a href="lien_vers_image">
-                     <img src="https://images.pexels.com/photos/8111252/pexels-photo-8111252.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" class="w-32 h-16 md:w-24 md:h-24 rounded-md mx-auto" alt="Nom du Jeu 1">
-                     </a>
-                  </td>
-                  <td class="px-3 py-4 font-semibold text-gray-900 dark:text-white">
-                     <div><a href="lien_vers_jeu" class="text-blue-500 hover:underline">Nom du jeu</a></div>
-                     <div>Nom de la table</div>
-                     <div>Places disponibles : 0</div>
-                  </td>
-                  <td class="px-20 py-4">
-                     <table class="w-full text-xs text-gray-500 dark:text-gray-400 table-container">
-                        {% for row in 1..2 %}
+    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+        <tr>
+            <th scope="col" class="px-3 py-3 text-center">
+                Aperçu
+            </th>
+            <th scope="col" class="px-3 py-3">
+                Informations
+            </th>
+            <th scope="col" class="px-20 py-3">
+                Joueurs
+            </th>
+            <th scope="col" class="px-3 py-3">
+                Action
+            </th>
+        </tr>
+    </thead>
+
+
+<tbody>
+    {% for board in boards %}
+        {% set users = board.listUsers %}
+        {% set availableSeats = 8 - users|length %}
+       {# {% set colorClass = 
+            board.isAvailable() == 'OPEN' ? 'bg-gradient-to-r from-transparent to-green-200' : 
+            board.isAvailable() == 'CLOSE' ? 'bg-gradient-to-r from-transparent to-red-200' : '' 
+        %} #}
+        <tr class="bg-gradient-to-r from-transparent to-green-200 {# colorClass #} border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+            <td class="p-2 text-center">
+                <a href="/lien_vers_image">
+                    <img src="https://images.pexels.com/photos/8111252/pexels-photo-8111252.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" class="w-32 h-16 md:w-24 md:h-24 rounded-md mx-auto" alt="Nom du Jeu 1">
+                </a>
+            </td>
+            <td class="px-3 py-4 font-semibold text-gray-900 dark:text-white">
+                <div><a href="/lien_vers_description_jeu" class="text-blue-500 hover:underline">Nom du jeu</a></div>
+                <div>Places disponibles : {{ availableSeats }}</div>
+                <div>Status: 
+                    {% if board.status == 'WAITING' %}
+                        En attente
+                    {% elseif board.status == 'IN_GAME' %}
+                        En cours
+                    {% elseif board.status == 'FINISH' %}
+                        Terminé
+                    {% endif %}
+                </div>
+                <div>Date de création: le {{ board.creationdate|date('Y-m-d à H:i:s') }}</div>
+            </td>
+            <td class="px-20 py-4">
+                <table class="w-full text-xs text-gray-500 dark:text-gray-400 table-container">
+                    {% for row in 1..2 %}
                         <tr>
-                           {% for column in 1..4 %}
-                           {% set playerId = (row - 1) * 4 + column %}
-                           <td class="h-8 w-8 mb-1">
-                              <a href="/">
-                              <img src="https://avatarfiles.alphacoders.com/244/thumb-244471.png" alt="Avatar de Joueur {{ playerId }}" class="w-full h-full rounded-full object-cover">
-                              </a>
-                           </td>
-                           <td class="text-xs pl-2">
-                              <a href="/">Joueur {{ playerId }}</a>
-                           </td>
-                           {% endfor %}
+                            {% for column in 1..4 %}
+                                {% set userIndex = (row - 1) * 4 + column - 1 %}
+                                {% set user = users|length > userIndex ? users[userIndex] : null %}
+                                <td class="h-8 w-8 mb-1">
+                                    <a href="/">
+                                        {% if user %}
+                                            <img src="https://avatarfiles.alphacoders.com/244/thumb-244471.png" alt="Avatar de {{ user.username }}" class="w-8 h-8 rounded-full object-cover">
+                                        {% endif %}
+                                    </a>
+                                </td>
+                                <td class="text-xs pl-2">
+                                    <a href="/">{{ user.username ?? '' }}</a>
+                                </td>
+                            {% endfor %}
                         </tr>
-                        {% endfor %}
-                     </table>
-                  </td>
-                  <td class="px-3 py-4">
-                     <a href="/" class="text-white bg-primary hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
-                     Rejoindre
-                     </a>
-                     <a href="/" class="text-white bg-red-500 hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
-                     Quitter
-                     </a>
-                  </td>
-               </tr>
-               {% endfor %}
-            </tbody>
-         </table>
+                    {% endfor %}
+                </table>
+            </td>
+            <td class="px-3 py-4">
+                <a href="/" class="text-white bg-primary hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
+                    Rejoindre
+                </a>
+                <a href="/" class="text-white bg-red-500 hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
+                    Quitter
+                </a>
+            </td>
+        </tr>
+    {% endfor %}
+</tbody>
+
+
+
+
+</table>
+
       </div>
    </div>
    <div class="absolute inset-x-0 top-[calc(100%-13rem)] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[calc(100%-30rem)]" aria-hidden="true">

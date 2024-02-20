@@ -2,16 +2,25 @@
 
 namespace App\Controller\Platform;
 
+use App\Form\Platform\SearchBoardType;
+use App\Repository\Platform\BoardRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 class TableController extends AbstractController
 {
-    #[Route('/table', name: 'app_table')]
-    public function index(): Response
+    #[Route('/table', name: 'app_table', methods: ['GET'])]
+    public function index(Request $request, BoardRepository $boardRepository): Response
     {
+        $boards = $boardRepository->findAll();
+        $form = $this->createForm(SearchBoardType::class);
+        $form->handleRequest($request);
+
         return $this->render('platform/table/table.html.twig', [
+            'boards' => $boards,
+            'searchboard' => $form->createView(),
             'controller_name' => 'TableController',
         ]);
     }
