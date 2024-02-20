@@ -237,6 +237,14 @@ class SPLService
             "turnOfPlayer" => true]);
     }
 
+    /**
+     * buyCard : check if player can buy a card and remove the card from the main board
+     *
+     * @param GameSPL $gameSPL
+     * @param PlayerSPL $playerSPL
+     * @param DevelopmentCardsSPL $developmentCardsSPL
+     * @return void
+     */
     public function buyCard(GameSPL $gameSPL, PlayerSPL $playerSPL,
                             DevelopmentCardsSPL $developmentCardsSPL): void
     {
@@ -244,6 +252,8 @@ class SPLService
             $playerCard = new PlayerCardSPL();
             $playerCard->setDevelopmentCard($developmentCardsSPL);
             $playerSPL->getPersonalBoard()->addPlayerCard($playerCard);
+            $this->retrievePlayerMoney($playerSPL, $developmentCardsSPL);
+
         }
     }
 
@@ -257,6 +267,12 @@ class SPLService
         return $game->getGameName() == AbstractGameManagerService::$SPL_LABEL ? $game : null;
     }
 
+    /**
+     * hasEnoughMoney : check if player has enough money to buy the card
+     * @param PlayerSPL $playerSPL
+     * @param DevelopmentCardsSPL $developmentCardSPL
+     * @return bool
+     */
     private function hasEnoughMoney(PlayerSPL $playerSPL, DevelopmentCardsSPL $developmentCardSPL): bool
     {
         $playerMoney = $this->computePlayerMoney($playerSPL);
@@ -274,10 +290,15 @@ class SPLService
         return false;
     }
 
+    /**
+     * computePlayerMoney : calculate player money from his cards and his tokens
+     * @param PlayerSPL $playerSPL
+     * @return array
+     */
     private function computePlayerMoney(PlayerSPL $playerSPL): array
     {
-        $playerCards = $playerSPL->getPersonalBoard()->getPlayerCards();
         $money = array();
+        $playerCards = $playerSPL->getPersonalBoard()->getPlayerCards();
         foreach ($playerCards as $playerCard){
             $cardColor = $playerCard->getDevelopmentCard()->getColor();
             $money[$cardColor] += 1;
@@ -290,6 +311,11 @@ class SPLService
         return $money;
     }
 
+    /**
+     * computeCardPrice : calculate the price of a card and put it in an array
+     * @param DevelopmentCardsSPL $developmentCardsSPL
+     * @return array
+     */
     private function computeCardPrice(DevelopmentCardsSPL $developmentCardsSPL): array
     {
         $price = array();
@@ -301,4 +327,46 @@ class SPLService
         return $price;
     }
 
+    /**
+     * retrievePlayerMoney : remove tokens from the player to buy a card
+     * @param PlayerSPL $playerSPL
+     * @param DevelopmentCardsSPL $developmentCardsSPL
+     * @return void
+     */
+    private function retrievePlayerMoney(PlayerSPL $playerSPL, DevelopmentCardsSPL $developmentCardsSPL): void
+    {
+        $playerMoney = $this->computePlayerMoney($playerSPL);
+        $cardPrice = $this->computeCardPrice($developmentCardsSPL);
+
+        // compute token number to retrieve
+        $playerCards = $playerSPL->getPersonalBoard()->getPlayerCards();
+        foreach ($playerCards as $playerCard){
+            $cardColor = $playerCard->getDevelopmentCard()->getColor();
+            $playerMoney[$cardColor] -= 1;
+        }
+
+        // remove non gold token
+        foreach ($cardPrice as $color => $amount){
+            $tokens = $playerSPL->getPersonalBoard()->getTokens();
+            foreach ($tokens as $token){
+                if($token->getColor() == $color && $amount > 0){
+                    $playerSPL->getPersonalBoard()->removeToken($token);
+                    $amount -= 1;
+                }
+            }
+        }
+
+        // remove gold token if it is needed
+        foreach ($cardPrice as $amount){
+            if($amount > 0){
+                $tokens = $playerSPL->getPersonalBoard()->getTokens();
+                foreach ($tokens as $token){
+                    if($token->getColor() == TokenSPL::$COLOR_YELLOW && $amount > 0){
+                        $playerSPL->getPersonalBoard()->removeToken($token);
+                        $amount -= 1;
+                    }
+                }
+            }
+        }
+    }
 }
