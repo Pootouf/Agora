@@ -137,6 +137,16 @@ class SPLService
      */
     private function getPrestigePoints(PlayerSPL $player): int
     {
+        return $this->getPrestigePoints($player);
+    }
+
+    /**
+     * calculatePrestigePoints : calculate total points accumulated by a player
+     *
+     * @param PlayerSPL $player
+     */
+    private function calculatePrestigePoints(PlayerSPL $player): void
+    {
         $total = 0;
         $nobleTiles = $player->getPersonalBoard()->getNobleTiles();
         $developCards = $player->getPersonalBoard()->getPlayerCards();
@@ -146,7 +156,9 @@ class SPLService
         foreach ($developCards as $card) {
             $total += $card->getDevelopmentCard()->getPrestigePoints();
         }
-        return $total;
+        $player->setTotalPoints($total);
+        $this->entityManager->persist($player);
+        $this->entityManager->flush();
     }
 
     /**
