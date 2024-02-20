@@ -31,7 +31,6 @@ class BoardController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            dump($form->isValid());
 
             $board->setCreationDate(new \DateTime());
             $board->setInvitationTimer(new \DateTime());
@@ -50,11 +49,6 @@ class BoardController extends AbstractController
 
             return $this->redirectToRoute('app_home');
         }
-        /*dump($form->isSubmitted());
-        dump($form->isSubmitted());
-        dump($form->getData());
-        dump($form->getErrors(true));     // Main errors
-        */
 
         return $this->render('platform/game/boardRegister.html.twig', [
             'game' => $game,
