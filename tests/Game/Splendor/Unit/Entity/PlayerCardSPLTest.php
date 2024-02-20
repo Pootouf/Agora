@@ -3,9 +3,11 @@
 namespace App\Tests\Game\Splendor\Unit\Entity;
 
 use App\Entity\Game\Splendor\DevelopmentCardsSPL;
+use App\Entity\Game\Splendor\GameSPL;
 use App\Entity\Game\Splendor\MainBoardSPL;
 use App\Entity\Game\Splendor\PersonalBoardSPL;
 use App\Entity\Game\Splendor\PlayerCardSPL;
+use App\Entity\Game\Splendor\PlayerSPL;
 use App\Entity\Game\Splendor\RowSPL;
 use App\Entity\Game\Splendor\SelectedTokenSPL;
 use App\Entity\Game\Splendor\TokenSPL;
@@ -67,7 +69,10 @@ class PlayerCardSPLTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->playerCardSPL = new PlayerCardSPL();
+        $player = new PlayerSPL('test', new GameSPL());
+        $card = new DevelopmentCardsSPL();
+        $bool = false;
+        $this->playerCardSPL = new PlayerCardSPL($player, $card, $bool);
     }
 }
 

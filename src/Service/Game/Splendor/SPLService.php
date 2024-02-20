@@ -392,10 +392,11 @@ class SPLService
         $searchCards = new ArrayCollection();
         for ($i = 0; $i < $cards->count(); $i++)
         {
-            $card = $cards->get($i)->getDevelopmentCard();
+            $developCard = $cards->get($i)->getDevelopmentCard();
+            $card = $cards->get($i);
             if ($card->isIsReserved() === $reserved)
             {
-                $searchCards->add($card);
+                $searchCards->add($developCard);
             }
         }
         return $searchCards;
