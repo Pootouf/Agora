@@ -3,10 +3,13 @@
 namespace App\Service\Game\Splendor;
 
 use App\Entity\Game\DTO\Game;
+use App\Entity\Game\DTO\Player;
 use App\Entity\Game\Splendor\DevelopmentCardsSPL;
 use App\Entity\Game\Splendor\DrawCardsSPL;
 use App\Entity\Game\Splendor\GameSPL;
+use App\Entity\Game\Splendor\PlayerCardSPL;
 use App\Entity\Game\Splendor\PlayerSPL;
+use App\Entity\Game\Splendor\TokenSPL;
 use App\Repository\Game\Splendor\DevelopmentCardsSPLRepository;
 use App\Repository\Game\Splendor\NobleTileSPLRepository;
 use App\Repository\Game\Splendor\PlayerSPLRepository;
@@ -234,6 +237,16 @@ class SPLService
             "turnOfPlayer" => true]);
     }
 
+    public function buyCard(GameSPL $gameSPL, PlayerSPL $playerSPL,
+                            DevelopmentCardsSPL $developmentCardsSPL): void
+    {
+        if($this->hasEnoughMoney($playerSPL, $developmentCardsSPL)){
+            $playerCard = new PlayerCardSPL();
+            $playerCard->setDevelopmentCard($developmentCardsSPL);
+            $playerSPL->getPersonalBoard()->addPlayerCard($playerCard);
+        }
+    }
+
     /**
      * @param Game $game
      * @return ?GameSPL
@@ -244,5 +257,48 @@ class SPLService
         return $game->getGameName() == AbstractGameManagerService::$SPL_LABEL ? $game : null;
     }
 
+    private function hasEnoughMoney(PlayerSPL $playerSPL, DevelopmentCardsSPL $developmentCardSPL): bool
+    {
+        $playerMoney = $this->computePlayerMoney($playerSPL);
+        $cardPrice = $this->computeCardPrice($developmentCardSPL);
+
+        $difference = 0;
+        foreach ($cardPrice as $color => $amount){
+            if($playerMoney[$color] < $amount){
+                $difference += 1;
+            }
+        }
+        if($playerMoney[TokenSPL::$COLOR_YELLOW] >= $difference){
+            return true;
+        }
+        return false;
+    }
+
+    private function computePlayerMoney(PlayerSPL $playerSPL): array
+    {
+        $playerCards = $playerSPL->getPersonalBoard()->getPlayerCards();
+        $money = array();
+        foreach ($playerCards as $playerCard){
+            $cardColor = $playerCard->getDevelopmentCard()->getColor();
+            $money[$cardColor] += 1;
+        }
+        $playerTokens = $playerSPL->getPersonalBoard()->getTokens();
+        foreach ($playerTokens as $playerToken){
+            $tokenColor = $playerToken->getColor();
+            $money[$tokenColor] += 1;
+        }
+        return $money;
+    }
+
+    private function computeCardPrice(DevelopmentCardsSPL $developmentCardsSPL): array
+    {
+        $price = array();
+        $cardCosts = $developmentCardsSPL->getCardCost();
+        foreach ($cardCosts as $cardCost){
+            $costColor = $cardCost->getColor();
+            $price[$costColor] += 1;
+        }
+        return $price;
+    }
 
 }
