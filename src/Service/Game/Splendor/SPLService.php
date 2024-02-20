@@ -3,15 +3,13 @@
 namespace App\Service\Game\Splendor;
 
 use App\Entity\Game\DTO\Game;
+use App\Entity\Game\DTO\Player;
 use App\Entity\Game\Splendor\DevelopmentCardsSPL;
 use App\Entity\Game\Splendor\DrawCardsSPL;
 use App\Entity\Game\Splendor\GameSPL;
-use App\Entity\Game\Splendor\MainBoardSPL;
 use App\Entity\Game\Splendor\PlayerCardSPL;
 use App\Entity\Game\Splendor\PlayerSPL;
-use App\Entity\Game\Splendor\RowSPL;
 use App\Entity\Game\Splendor\TokenSPL;
-use App\Repository\Game\Splendor\MainBoardSPLRepository;
 use App\Repository\Game\Splendor\DevelopmentCardsSPLRepository;
 use App\Repository\Game\Splendor\NobleTileSPLRepository;
 use App\Repository\Game\Splendor\PlayerSPLRepository;
@@ -315,6 +313,29 @@ class SPLService
             "turnOfPlayer" => true]);
     }
 
+    /**
+     * buyCard : check if player can buy a card and remove the card from the main board
+     *
+     * @param GameSPL $gameSPL
+     * @param PlayerSPL $playerSPL
+     * @param PlayerCardSPL $playerCardSPL
+     * @return void
+     */
+    public function buyCard(GameSPL $gameSPL, PlayerSPL $playerSPL,
+                            PlayerCardSPL $playerCardSPL): void
+    {
+        $developmentCardsSPL = $playerCardSPL->getDevelopmentCard();
+        if($this->hasEnoughMoney($playerSPL, $developmentCardsSPL)){
+            $playerSPL->getPersonalBoard()->addPlayerCard($playerCardSPL);
+            $this->retrievePlayerMoney($playerSPL, $developmentCardsSPL);
+            if($playerCardSPL->isIsReserved()){
+                $playerCardSPL->setIsReserved(false);
+            } else {
+                $playerCardSPL->setPersonalBoardSPL($playerSPL->getPersonalBoard());
+            }
+        }
+    }
+
     private function canReserveCards(PlayerSPL $player, DevelopmentCardsSPL $card): bool
     {
         if (!$this->checkCanReserveSidesPlayer($player, $card) ||
@@ -521,29 +542,111 @@ class SPLService
     }
 
     /**
+     * hasEnoughMoney : check if player has enough money to buy the card
      * @param PlayerSPL $playerSPL
-     * @param TokenSPL $tokenSPL
-     * @return int
-     *          0 Si la pile est vide ou que la pile est de taille 1 et que
-     *              le jeton dedans est de couleur différente
-     *          1 Si on prends un jeton de couleur différente de
-     *              ceux déjà présent dans la pile
-     *          -1 Si on ne peut pas prendre le jeton
+     * @param DevelopmentCardsSPL $developmentCardSPL
+     * @return bool
      */
-    private function canChooseThreeTokens(PlayerSPL $playerSPL, TokenSPL $tokenSPL): int
+    private function hasEnoughMoney(PlayerSPL $playerSPL, DevelopmentCardsSPL $developmentCardSPL): bool
     {
-        $selectedTokens = $playerSPL->getPersonalBoard()->getTokens();
-        if($selectedTokens->count() == 0){
-            return 0;
+        $playerMoney = $this->computePlayerMoney($playerSPL);
+        $cardPrice = $this->computeCardPrice($developmentCardSPL);
+
+        $difference = 0;
+        foreach ($cardPrice as $color => $amount){
+            if($playerMoney[$color] < $amount){
+                $difference += 1;
+            }
         }
-        if($selectedTokens->count() == 1 && $selectedTokens->first()->getColor() != $tokenSPL->getColor()){
-            return 0;
+        if($playerMoney[TokenSPL::$COLOR_YELLOW] >= $difference){
+            return true;
         }
-        if($selectedTokens->count() == 2 && $selectedTokens->first()->getColor() != $tokenSPL->getColor()
-            && $selectedTokens[1]->getColor() != $tokenSPL->getColor()
-            && $selectedTokens->first()->getColor() != $selectedTokens[1]->getColor()){
-            return 1;
-        }
-        return -1;
+        return false;
     }
+
+    /**
+     * computePlayerMoney : calculate player money from his cards and his tokens
+     * @param PlayerSPL $playerSPL
+     * @return array
+     */
+    private function computePlayerMoney(PlayerSPL $playerSPL): array
+    {
+        $money = array();
+        $playerCards = $playerSPL->getPersonalBoard()->getPlayerCards();
+        foreach ($playerCards as $playerCard){
+            $cardColor = $playerCard->getDevelopmentCard()->getColor();
+            $money[$cardColor] += 1;
+        }
+        $playerTokens = $playerSPL->getPersonalBoard()->getTokens();
+        foreach ($playerTokens as $playerToken){
+            $tokenColor = $playerToken->getColor();
+            $money[$tokenColor] += 1;
+        }
+        return $money;
+    }
+
+    /**
+     * computeCardPrice : calculate the price of a card and put it in an array
+     * @param DevelopmentCardsSPL $developmentCardsSPL
+     * @return array
+     */
+    private function computeCardPrice(DevelopmentCardsSPL $developmentCardsSPL): array
+    {
+        $price = array();
+        $cardCosts = $developmentCardsSPL->getCardCost();
+        foreach ($cardCosts as $cardCost){
+            $costColor = $cardCost->getColor();
+            $price[$costColor] += 1;
+        }
+        return $price;
+    }
+
+    /**
+     * retrievePlayerMoney : remove tokens from the player to buy a card
+     * @param PlayerSPL $playerSPL
+     * @param DevelopmentCardsSPL $developmentCardsSPL
+     * @return void
+     */
+    private function retrievePlayerMoney(PlayerSPL $playerSPL, DevelopmentCardsSPL $developmentCardsSPL): void
+    {
+
+        $cardPrice = $this->computeCardPrice($developmentCardsSPL);
+
+        // remove non gold token
+        foreach ($cardPrice as $color => $amount){
+            $tokens = $playerSPL->getPersonalBoard()->getTokens();
+            foreach ($tokens as $token){
+                if($token->getColor() == $color && $amount > 0){
+                    $playerSPL->getPersonalBoard()->removeToken($token);
+                    $amount -= 1;
+                }
+            }
+        }
+
+        // remove gold token if it is needed
+        foreach ($cardPrice as $amount){
+            if($amount > 0){
+                $tokens = $playerSPL->getPersonalBoard()->getTokens();
+                foreach ($tokens as $token){
+                    if($token->getColor() == TokenSPL::$COLOR_YELLOW && $amount > 0){
+                        $playerSPL->getPersonalBoard()->removeToken($token);
+                        $amount -= 1;
+                    }
+                }
+            }
+        }
+    }
+
+    /*private function computeTokenToRetrieve(PlayerSPL $playerSPL, DevelopmentCardsSPL $developmentCardsSPL): array
+    {
+        $playerMoney = $this->computePlayerMoney($playerSPL);
+
+        // compute token number to retrieve
+        $playerCards = $playerSPL->getPersonalBoard()->getPlayerCards();
+        foreach ($playerCards as $playerCard){
+            $cardColor = $playerCard->getDevelopmentCard()->getColor();
+            $playerMoney[$cardColor] -= 1;
+        }
+        return $playerMoney;
+    }*/
 }
