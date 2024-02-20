@@ -46,12 +46,10 @@ class Board
     private ?int $inactivityHours = null;
 
 
-    public function __construct(int $invitationDays)
+    public function __construct()
     {
         $this->status = "WAITING";
         $this->invitationHash = sha1(random_bytes(10));
-        $this->creationDate = new \DateTime();
-        $this->invitationTimer = $this->creationDate->modify('+' . $invitationDays . ' days');
         $this->listUsers = new ArrayCollection();
     }
 

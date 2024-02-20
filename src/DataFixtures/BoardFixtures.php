@@ -18,7 +18,7 @@ class BoardFixtures extends Fixture implements DependentFixtureInterface
         $users = $manager->getRepository(User::class)->findAll();
 
         for ($i=1; $i <= 50; $i++) {
-            $board = new Board(rand(1, 5));
+            $board = new Board();
             //The number of player required to launch the game
             $nbPlayersMax = rand(6, 10);
             $board->setNbUserMax($nbPlayersMax);
@@ -33,6 +33,7 @@ class BoardFixtures extends Fixture implements DependentFixtureInterface
             //The number of invited people
             $board->setNbInvitations(rand(0,$nbPlayersMax - $nbJoinedPlayers));
             $board->setInactivityHours(rand(6,48));
+            $board->setCreationDate(new \DateTime());
             $manager->persist($board);
         }
         $manager->flush();
