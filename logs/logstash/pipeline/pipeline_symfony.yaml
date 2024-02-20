@@ -1,0 +1,24 @@
+input {
+  file {
+    type => "symfony_gametest"
+    path => "/var/log/symfony/gametest.log"
+    start_position => beginning
+  }
+}
+
+filter {
+  grok {
+    patterns_dir => ["/etc/logstash/conf.d/patterns"]
+    match => { "message" => "%{SYMFONY}"}
+  }
+}
+
+
+output {
+  elasticsearch {
+    hosts => "http://elasticsearch:9200"
+    index => "logstash-symfony-%{+YYYY.MM.dd}"
+    user => "elastic"
+    password => "changeme"
+  }
+}

@@ -1,0 +1,17 @@
+input {
+  file {
+    type => "caddy_access"
+    path => "/var/log/caddy/agora_access.log"
+    start_position => beginning
+  }
+}
+
+
+output {
+  elasticsearch {
+    hosts => "http://elasticsearch:9200"
+    index => "logstash-caddy-%{+YYYY.MM.dd}"
+    user => "elastic"
+    password => "changeme"
+  }
+}
