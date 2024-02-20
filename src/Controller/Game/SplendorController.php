@@ -91,12 +91,18 @@ class SplendorController extends AbstractController
         try {
             $this->tokenSPLService->takeToken($player, $tokenSPL);
         } catch(Exception) {
-            //TODO log
+            $message = $player->getUsername() . " tried to pick a token of " . $tokenSPL->getColor()
+                . " but could not ";
+            $this->logService->sendPlayerLog($gameSPL, $player, $message);
             return new Response('Impossible to choose', Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-        //TODO log
+        $message = $player->getUsername() . " picked a token of " . $tokenSPL->getColor();
+        $this->logService->sendPlayerLog($gameSPL, $player, $message);
         //TODO publish(s)
-
+        $this->entityManager->persist($gameSPL);
+        $this->entityManager->persist($tokenSPL);
+        $this->entityManager->persist($player);
+        $this->entityManager->flush();
         if ($this->tokenSPLService->mustEndPlayerRoundBecauseOfTokens($player)) {
             $this->tokenSPLService->validateTakingOfTokens($player);
             $this->tokenSPLService->clearSelectedTokens($player);
@@ -105,6 +111,12 @@ class SplendorController extends AbstractController
         return new Response('token picked', Response::HTTP_OK);
     }
 
+     /**
+      * manageEndOfRound: if the game must end then end the game
+      *     else end active player's round
+      * @param GameSPL $gameSPL
+      * @return void
+      */
     private function manageEndOfRound(GameSPL $gameSPL): void
     {
         if ($this->SPLService->isGameEnded($gameSPL)) {
@@ -112,6 +124,10 @@ class SplendorController extends AbstractController
         } else {
             $activePlayer = $this->SPLService->getActivePlayer($gameSPL);
             $this->SPLService->endRoundOfPlayer($gameSPL, $activePlayer);
+            $this->entityManager->persist($gameSPL);
+            $this->entityManager->persist($activePlayer);
+            $this->entityManager->flush();
+            // TODO notif next player
         }
     }
 }
