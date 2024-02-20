@@ -164,6 +164,13 @@ class Board
         return $this;
     }
 
+    //get the number of players
+
+    public function getUsersNb(): ?int
+    {
+        return $this->getListUsers()->count();
+    }
+
     //Remove user of the list of player
     public function removeListUser(User $user): static
     {
