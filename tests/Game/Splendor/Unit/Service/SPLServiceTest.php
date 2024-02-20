@@ -3,6 +3,7 @@
 namespace App\Tests\Game\Splendor\Unit\Service;
 
 use App\Entity\Game\Splendor\DevelopmentCardsSPL;
+use App\Entity\Game\Splendor\DrawCardsSPL;
 use App\Entity\Game\Splendor\GameSPL;
 use App\Entity\Game\Splendor\MainBoardSPL;
 use App\Entity\Game\Splendor\NobleTileSPL;
@@ -298,6 +299,31 @@ class SPLServiceTest extends TestCase
             $player->setPersonalBoard($personalBoard);
         }
         $mainBoard = new MainBoardSPL();
+
+        // insert discards and rows
+
+        for ($i = 0; $i <= DrawCardsSPL::$LEVEL_THREE; $i++) {
+            $discard = new DrawCardsSPL();
+            $discard->setLevel($i);
+            for ($c = 0; $c < 10; $c++) {
+                $card = new DevelopmentCardsSPL();
+                $card->setLevel($i);
+                $discard->addDevelopmentCard($card);
+            }
+            $mainBoard->addDrawCard($discard);
+        }
+
+        for ($i = 0; $i <= DrawCardsSPL::$LEVEL_THREE; $i++) {
+            $row = new RowSPL();
+            $row->setLevel($i);
+            for ($c = 0; $c < 4; $c++) {
+                $tcard = new DevelopmentCardsSPL();
+                $tcard->setLevel($i);
+                $row->addDevelopmentCard($tcard);
+            }
+            $mainBoard->addRowsSPL($row);
+        }
+
         $game->setMainBoard($mainBoard);
         return $game;
     }
@@ -318,20 +344,20 @@ class SPLServiceTest extends TestCase
 
         // THEN
 
-        $this->assertTrue($this->SPLService
-            ->getReserveCards($player)
-            ->contains($card));
-        $this->assertFalse($game->getMainBoard()
-            ->getDrawCards()->get($level)
-            ->getDevelopmentCards()->contains($card));
+        $this->assertContains($card,
+        $this->SPLService
+            ->getReserveCards($player));
+        $this->assertNotContains($card, $game->getMainBoard() ->getDrawCards()->get($level)
+            ->getDevelopmentCards());
     }
+
     public function testReserveCardsFromMainBoardWhenIsNotAccessibleFromDiscard() : void
     {
         // GIVEN
         $game = $this->createGame(SPLService::$MIN_COUNT_PLAYER);
         $player = $game->getPlayers()->first();
 
-        $level = DevelopmentCardsSPL::$LEVEL_ONE;
+        $level = DevelopmentCardsSPL::$LEVEL_ONE - 1;
         $discard = $game->getMainBoard()->getDrawCards()->get($level);
         $card = $discard->getDevelopmentCards()->get(0);
 
@@ -385,5 +411,4 @@ class SPLServiceTest extends TestCase
         $this->expectException(\Exception::class);
         $this->SPLService->reserveCards($player, $card);
     }
-
 }

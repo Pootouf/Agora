@@ -26,9 +26,8 @@ class PlayerCardSPL
 
     public function __construct(PlayerSPL $player, DevelopmentCardsSPL $card, bool $reserved) {
         $this->developmentCard = $card;
-        $this->game = $player->getGameSPL();
-        $this->personalBoard = $player->getPersonalBoard();
-        $this->reserved = $reserved;
+        $this->personalBoardSPL = $player->getPersonalBoard();
+        $this->isReserved = $reserved;
     }
 
     public function getId(): ?int

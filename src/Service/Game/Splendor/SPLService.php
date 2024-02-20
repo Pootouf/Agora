@@ -9,6 +9,7 @@ use App\Entity\Game\Splendor\GameSPL;
 use App\Entity\Game\Splendor\MainBoardSPL;
 use App\Entity\Game\Splendor\PlayerCardSPL;
 use App\Entity\Game\Splendor\PlayerSPL;
+use App\Entity\Game\Splendor\RowSPL;
 use App\Entity\Game\Splendor\TokenSPL;
 use App\Repository\Game\Splendor\MainBoardSPLRepository;
 use App\Repository\Game\Splendor\DevelopmentCardsSPLRepository;
@@ -20,8 +21,8 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Exception;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Common\Collections\Collection;
-use phpDocumentor\Reflection\Types\Boolean;
 use phpDocumentor\Reflection\Types\Nullable;
+use function PHPUnit\Framework\equalTo;
 use function PHPUnit\Framework\throwException;
 class SPLService
 {
@@ -116,7 +117,7 @@ class SPLService
         // Check can reserve
         if (!$this->canReserveCards($player, $card))
         {
-            throwException(new \Exception("You can't reserve cards"));
+            throw new Exception("You can't reserve cards");
         }
 
         $game = $player->getGameSPL();
@@ -129,12 +130,14 @@ class SPLService
         $from = $this->whereIsThisCard($mainBoard, $card);
         if ($from == -1)
         {
-            throwException(new \Exception("An error has been received"));
+            throw new Exception("An error has been received");
         }
 
         // Reserve now => Manage cards
         $playerCard = new PlayerCardSPL($player, $card, true);
         $personalBoard->addPlayerCard($playerCard);
+        $this->entityManager->persist($personalBoard);
+        $this->entityManager->persist($playerCard);
 
         // Manage cards
         // => I know that my card is in main board; so i remove this card from row or draw card
@@ -145,8 +148,9 @@ class SPLService
             $this->manageRow($mainBoard, $card);
         }
 
-       // Manage token
-       $this->manageJokerToken($player);
+        $this->entityManager->flush();
+        // Manage token
+        $this->manageJokerToken($player);
     }
 
     /**
@@ -311,7 +315,7 @@ class SPLService
             "turnOfPlayer" => true]);
     }
 
-    private function canReserveCards(PlayerSPL $player, DevelopmentCardsSPL $card): Boolean
+    private function canReserveCards(PlayerSPL $player, DevelopmentCardsSPL $card): bool
     {
         if (!$this->checkCanReserveSidesPlayer($player, $card) ||
             !$this->checkCanReserveSideMainBoard($player, $card) )
@@ -322,7 +326,7 @@ class SPLService
         return true;
     }
 
-    private function checkCanReserveSidesPlayer(PlayerSPL $player, DevelopmentCardsSPL $card): Boolean
+    private function checkCanReserveSidesPlayer(PlayerSPL $player, DevelopmentCardsSPL $card): bool
     {
         // Method that checks the number of reserved cards
 
@@ -343,7 +347,7 @@ class SPLService
         return true;
     }
 
-    private function checkCanReserveSideMainBoard(PlayerSPL $player, DevelopmentCardsSPL $card): Boolean
+    private function checkCanReserveSideMainBoard(PlayerSPL $player, DevelopmentCardsSPL $card): bool
     {
         // check if exist in main board
 
@@ -354,19 +358,33 @@ class SPLService
     }
 
     private function checkInRowAtLevel(MainBoardSPL $mainBoard
-        , DevelopmentCardsSPL $card) : Boolean
+        , DevelopmentCardsSPL $card) : bool
     {
         $level = $card->getLevel();
-        $rowAtLevel = $mainBoard->getRowsSPL()->get($level - 1);
-        return $rowAtLevel->getDevelopmentCards()->contains($card);
+        $rowAtLevel = $mainBoard->getRowsSPL()->get($level);
+        return $this->isCardInRow($rowAtLevel, $card);
+    }
+
+    private function isCardInRow(RowSPL $row, DevelopmentCardsSPL $card): bool
+    {
+        $count = $row->getDevelopmentCards()->count();
+        $cards = $row->getDevelopmentCards();
+        for ($i = 0; $i < $count; $i++)
+        {
+            if ($cards->get($i) === $card) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private function checkInDiscardAtLevel(MainBoardSPL $mainBoard
-        , DevelopmentCardsSPL $card) : Boolean
+        , DevelopmentCardsSPL $card) : bool
     {
         $level = $card->getLevel();
-        $discardsAtLevel = $mainBoard->getDrawCards()->get( $level - 1);
-        return $discardsAtLevel->getDevelopmentCards()->contains($card);
+        $discardsAtLevel = $mainBoard->getDrawCards()->get($level);
+        $testCard = $discardsAtLevel->getDevelopmentCards()->last();
+        return $card === $testCard;
     }
 
     private function getCards(Collection $cards, bool $reserved) : Collection
@@ -374,8 +392,8 @@ class SPLService
         $searchCards = new ArrayCollection();
         for ($i = 0; $i < $cards->count(); $i++)
         {
-            $card = $cards->get($i);
-            if ($card->isReserved() == $reserved)
+            $card = $cards->get($i)->getDevelopmentCard();
+            if ($card->isIsReserved() === $reserved)
             {
                 $searchCards->add($card);
             }
@@ -386,11 +404,11 @@ class SPLService
     private function manageRow(MainBoardSPL $mainBoard, DevelopmentCardsSPL $card): void
     {
         $level = $card->getLevel();
-        $row = $mainBoard->getRowsSPL()->get($level - 1);
+        $row = $mainBoard->getRowsSPL()->get($level);
         $row->removeDevelopmentCard($card);
 
         // get first cards of discards associate at level
-        $discardsOfLevel = $mainBoard->getDrawCards()->get($level - 1);
+        $discardsOfLevel = $mainBoard->getDrawCards()->get($level);
         $cardsInDiscard = $discardsOfLevel->getDevelopmentCards();
         $lastCard = $cardsInDiscard->count();
         if ($lastCard > 0)
@@ -398,14 +416,17 @@ class SPLService
             $discard = $cardsInDiscard->get($lastCard - 1);
             $row->addDevelopmentCard($discard);
             $discardsOfLevel->removeDevelopmentCard($discard);
+            $this->entityManager->persist($discardsOfLevel);
         }
+        $this->entityManager->persist($row);
     }
 
     private function manageDiscard(MainBoardSPL $mainBoard, DevelopmentCardsSPL $card): void
     {
         $level = $card->getLevel();
-        $discardsAtLevel = $mainBoard->getDrawCards()->get($level - 1);
+        $discardsAtLevel = $mainBoard->getDrawCards()->get($level);
         $discardsAtLevel->removeDevelopmentCard($card);
+        $this->entityManager->persist($discardsAtLevel);
     }
 
     private function manageJokerToken(PlayerSPL $player): void
@@ -422,6 +443,8 @@ class SPLService
                 $joker = $this->getJokerToken($mainBoard);
                 $personalBoard->addToken($joker);
                 $mainBoard->removeToken($joker);
+                $this->entityManager->persist($personalBoard);
+                $this->entityManager->persist($mainBoard);
             }
         }
     }
@@ -456,13 +479,13 @@ class SPLService
     private function whereIsThisCard(MainBoardSPL $mainBoard, DevelopmentCardsSPL $card) : int
     {
         $level = $card->getLevel();
-        $row = $mainBoard->getRowsSPL()->get($level - 1);
+        $row = $mainBoard->getRowsSPL()->get($level);
         if ($row->getDevelopmentCards()->contains($card))
         {
             return SPLService::$COMES_OF_THE_ROWS;
         }
 
-        $discards = $mainBoard->getDrawCards()->get($level - 1);
+        $discards = $mainBoard->getDrawCards()->get($level);
         if ($discards->getDevelopmentCards()->contains($card))
         {
             return SPLService::$COMES_OF_THE_DISCARDS;
