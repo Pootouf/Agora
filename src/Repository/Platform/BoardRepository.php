@@ -38,6 +38,22 @@ class BoardRepository extends ServiceEntityRepository
 //        ;
 //    }
 
+//    /**
+//     * @return Board[] Returns an array of Board objects
+//     */
+//    public function searchBoard($value): array
+//    {
+//        $boards =  $this->createQueryBuilder('b')
+//            ->andWhere('b.exampleField LIKE :val')
+//            ->setParameter('val', $value)
+//            ->orderBy('b.id', 'ASC')
+//            ->setMaxResults(10)
+//            ->getQuery()
+//            ->getResult()
+//        ;
+//        return $boards;
+//    }
+
 //    public function findOneBySomeField($value): ?Board
 //    {
 //        return $this->createQueryBuilder('b')
