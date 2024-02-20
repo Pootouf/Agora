@@ -32,6 +32,15 @@ class DevelopmentCardsSPL extends Card
         $this->cardCost = new ArrayCollection();
     }
 
+    public static function createDevelopmentCard(ArrayCollection $array): DevelopmentCardsSPL
+    {
+        $developmentCard = new DevelopmentCardsSPL();
+        foreach ($array as $cardCostSPL){
+            $developmentCard->addCardCost($cardCostSPL);
+        }
+        return $developmentCard;
+    }
+
     public function getId(): ?int
     {
         return $this->id;

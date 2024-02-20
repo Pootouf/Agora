@@ -2,10 +2,13 @@
 
 namespace App\Tests\Game\Splendor\Unit\Service;
 
+use App\Entity\Game\Splendor\CardCostSPL;
+use App\Entity\Game\Splendor\DevelopmentCardsSPL;
 use App\Entity\Game\Splendor\GameSPL;
 use App\Entity\Game\Splendor\MainBoardSPL;
 use App\Entity\Game\Splendor\NobleTileSPL;
 use App\Entity\Game\Splendor\PersonalBoardSPL;
+use App\Entity\Game\Splendor\PlayerCardSPL;
 use App\Entity\Game\Splendor\PlayerSPL;
 use App\Entity\Game\Splendor\SelectedTokenSPL;
 use App\Entity\Game\Splendor\TokenSPL;
@@ -281,6 +284,49 @@ class SPLServiceTest extends TestCase
             $result[] = $tmp->isTurnOfPlayer();
         }
         $this->assertSame($expectedResult, $result);
+    }
+
+    public function testBuyCardWhenNotEnoughMoney()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $player->setTurnOfPlayer(true);
+        $cardCost = new CardCostSPL();
+        $cardCost->setColor(TokenSPL::$COLOR_RED);
+        $cardCost->setPrice(1);
+        $array = new ArrayCollection();
+        $array->add($cardCost);
+        $developmentCard = DevelopmentCardsSPL::createDevelopmentCard($array);
+        $playerCard = new PlayerCardSPL();
+        $playerCard->setDevelopmentCard($developmentCard);
+        // WHEN
+        $this->SPLService->buyCard($player, $playerCard);
+        // THEN
+        $this->assertNotContains($playerCard ,$player->getPersonalBoard()->getPlayerCards());
+    }
+
+    public function testBuyCardWhenEnoughMoney()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $player->setTurnOfPlayer(true);
+        $token = new TokenSPL();
+        $token->setColor(TokenSPL::$COLOR_RED);
+        $player->getPersonalBoard()->addToken($token);
+        $cardCost = new CardCostSPL();
+        $cardCost->setColor(TokenSPL::$COLOR_RED);
+        $cardCost->setPrice(1);
+        $array = new ArrayCollection();
+        $array->add($cardCost);
+        $developmentCard = DevelopmentCardsSPL::createDevelopmentCard($array);
+        $playerCard = new PlayerCardSPL();
+        $playerCard->setDevelopmentCard($developmentCard);
+        // WHEN
+        $this->SPLService->buyCard($player, $playerCard);
+        // THEN
+        $this->assertContains($playerCard ,$player->getPersonalBoard()->getPlayerCards());
     }
 
     private function createGame(int $numberOfPlayers) : GameSPL
