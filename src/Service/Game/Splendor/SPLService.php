@@ -34,27 +34,14 @@ class SPLService
     public static int $MAX_COUNT_RESERVED_CARDS = 3;
     public static int $MAX_PRESTIGE_POINTS = 15;
     public static int $MIN_AVAILABLE_TOKENS = 4;
-    private EntityManagerInterface $entityManager;
-    private PlayerSPLRepository $playerSPLRepository;
-    private TokenSPLRepository $tokenSPLRepository;
-    private NobleTileSPLRepository $nobleTileSPLRepository;
-    private DevelopmentCardsSPLRepository $developmentCardsSPLRepository;
-    private MainBoardSPLRepository $mainBoardSPLRepository;
 
-    public function __construct(EntityManagerInterface $entityManager,
-        PlayerSPLRepository $playerSPLRepository,
-        MainBoardSPLRepository $mainBoardSPLRepository,
-        TokenSPLRepository $tokenSPLRepository,
-        NobleTileSPLRepository $nobleTileSPLRepository,
-        DevelopmentCardsSPLRepository $developmentCardsSPLRepository)
-    {
-        $this->entityManager = $entityManager;
-        $this->playerSPLRepository =  $playerSPLRepository;
-        $this->mainBoardSPLRepository = $mainBoardSPLRepository;
-        $this->tokenSPLRepository = $tokenSPLRepository;
-        $this->nobleTileSPLRepository = $nobleTileSPLRepository;
-        $this->developmentCardsSPLRepository = $developmentCardsSPLRepository;
-    }
+    public function __construct(private EntityManagerInterface $entityManager,
+        private PlayerSPLRepository $playerSPLRepository,
+        private MainBoardSPLRepository $mainBoardSPLRepository,
+        private TokenSPLRepository $tokenSPLRepository,
+        private NobleTileSPLRepository $nobleTileSPLRepository,
+        private DevelopmentCardsSPLRepository $developmentCardsSPLRepository)
+    { }
 
     /**
      * initializeNewGame: initialize a new Splendor game
@@ -116,32 +103,6 @@ class SPLService
         $this->entityManager->persist($mainBoard);
         $this->entityManager->persist($game);
         $this->entityManager->flush();
-    }
-
-    /**
-     * takeToken : player takes a token from the mainBoard
-     * @param PlayerSPL $playerSPL
-     * @param TokenSPL $tokenSPL
-     * @return void
-     */
-    public function takeToken(PlayerSPL $playerSPL, TokenSPL $tokenSPL) : void
-    {
-        if($playerSPL->getPersonalBoard()->getTokens()->count() >= 10){
-            throw new Exception("Can't pick up more tokens");
-        }
-        $tokensPickable = $this->canChooseTwoTokens($playerSPL, $tokenSPL);
-        if($tokensPickable == -1){
-            throw new Exception("An error as occurred");
-        }
-        $playerSPL->getPersonalBoard()->addToken($tokenSPL);
-        if($tokensPickable == 1){
-            $selectedTokens = $playerSPL->getPersonalBoard()->getTokens();
-            foreach ($selectedTokens as $selectedToken){
-                $playerSPL->getPersonalBoard()->addToken($selectedToken);
-            }
-            $game = $playerSPL->getGameSPL();
-            $this->endRoundOfPlayer($game, $playerSPL);
-        }
     }
 
     /**
