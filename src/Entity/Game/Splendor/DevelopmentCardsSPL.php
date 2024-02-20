@@ -27,6 +27,15 @@ class DevelopmentCardsSPL extends Card
     #[ORM\Column]
     private ?int $level = null;
 
+    public static function createDevelopmentCard(ArrayCollection $array): DevelopmentCardsSPL
+    {
+        $developmentCard = new DevelopmentCardsSPL();
+        foreach ($array as $cardCostSPL){
+            $developmentCard->addCardCost($cardCostSPL);
+        }
+        return $developmentCard;
+    }
+
     public function __construct()
     {
         $this->cardCost = new ArrayCollection();
