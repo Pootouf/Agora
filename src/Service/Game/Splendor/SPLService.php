@@ -230,18 +230,21 @@ class SPLService
      *
      * @param GameSPL $gameSPL
      * @param PlayerSPL $playerSPL
-     * @param DevelopmentCardsSPL $developmentCardsSPL
+     * @param PlayerCardSPL $playerCardSPL
      * @return void
      */
     public function buyCard(GameSPL $gameSPL, PlayerSPL $playerSPL,
-                            DevelopmentCardsSPL $developmentCardsSPL): void
+                            PlayerCardSPL $playerCardSPL): void
     {
+        $developmentCardsSPL = $playerCardSPL->getDevelopmentCard();
         if($this->hasEnoughMoney($playerSPL, $developmentCardsSPL)){
-            $playerCard = new PlayerCardSPL();
-            $playerCard->setDevelopmentCard($developmentCardsSPL);
-            $playerSPL->getPersonalBoard()->addPlayerCard($playerCard);
+            $playerSPL->getPersonalBoard()->addPlayerCard($playerCardSPL);
             $this->retrievePlayerMoney($playerSPL, $developmentCardsSPL);
-
+            if($playerCardSPL->isIsReserved()){
+                $playerCardSPL->setIsReserved(false);
+            } else {
+                $playerCardSPL->setPersonalBoardSPL($playerSPL->getPersonalBoard());
+            }
         }
     }
 
@@ -323,15 +326,8 @@ class SPLService
      */
     private function retrievePlayerMoney(PlayerSPL $playerSPL, DevelopmentCardsSPL $developmentCardsSPL): void
     {
-        $playerMoney = $this->computePlayerMoney($playerSPL);
-        $cardPrice = $this->computeCardPrice($developmentCardsSPL);
 
-        // compute token number to retrieve
-        $playerCards = $playerSPL->getPersonalBoard()->getPlayerCards();
-        foreach ($playerCards as $playerCard){
-            $cardColor = $playerCard->getDevelopmentCard()->getColor();
-            $playerMoney[$cardColor] -= 1;
-        }
+        $cardPrice = $this->computeCardPrice($developmentCardsSPL);
 
         // remove non gold token
         foreach ($cardPrice as $color => $amount){
@@ -357,4 +353,17 @@ class SPLService
             }
         }
     }
+
+    /*private function computeTokenToRetrieve(PlayerSPL $playerSPL, DevelopmentCardsSPL $developmentCardsSPL): array
+    {
+        $playerMoney = $this->computePlayerMoney($playerSPL);
+
+        // compute token number to retrieve
+        $playerCards = $playerSPL->getPersonalBoard()->getPlayerCards();
+        foreach ($playerCards as $playerCard){
+            $cardColor = $playerCard->getDevelopmentCard()->getColor();
+            $playerMoney[$cardColor] -= 1;
+        }
+        return $playerMoney;
+    }*/
 }
