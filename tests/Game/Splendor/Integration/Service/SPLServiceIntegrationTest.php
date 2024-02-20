@@ -16,6 +16,7 @@ use App\Entity\Game\Splendor\TokenSPL;
 use App\Service\Game\AbstractGameManagerService;
 use App\Service\Game\Splendor\SPLService;
 use App\Service\Game\Splendor\TokenSPLService;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
@@ -312,6 +313,104 @@ class SPLServiceIntegrationTest extends KernelTestCase
             $result[] = $tmp->isTurnOfPlayer();
         }
         $this->assertSame($expectedResult, $result);
+    }
+
+    public function testBuyCardWhenNotEnoughMoney(): void
+    {
+        // GIVEN
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $splendorService = static::getContainer()->get(SPLService::class);
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $cardCost = new CardCostSPL();
+        $cardCost->setColor(TokenSPL::$COLOR_RED);
+        $cardCost->setPrice(1);
+        $entityManager->persist($cardCost);
+        $array = new ArrayCollection();
+        $array->add($cardCost);
+        $developmentCard = DevelopmentCardsSPL::createDevelopmentCard($array);
+        $developmentCard->setPrestigePoints(1);
+        $developmentCard->setColor("red");
+        $developmentCard->setLevel(DevelopmentCardsSPL::$LEVEL_ONE);
+        $developmentCard->setValue(1);
+        $entityManager->persist($developmentCard);
+        $playerCard = new PlayerCardSPL($player, $developmentCard, false);
+        $playerCard->setPersonalBoardSPL($player->getPersonalBoard());
+        $entityManager->persist($playerCard);
+        $entityManager->flush();
+        // WHEN
+        $splendorService->buyCard($player, $playerCard);
+        // THEN
+        $this->assertNotContains($playerCard, $player->getPersonalBoard()->getPlayerCards());
+    }
+
+    public function testBuyCardWhenEnoughMoney()
+    {
+        // GIVEN
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $splendorService = static::getContainer()->get(SPLService::class);
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $token = new TokenSPL();
+        $token->setColor(TokenSPL::$COLOR_RED);
+        $token->setType("ruby");
+        $entityManager->persist($token);
+        $player->getPersonalBoard()->addToken($token);
+        $cardCost = new CardCostSPL();
+        $cardCost->setColor(TokenSPL::$COLOR_RED);
+        $cardCost->setPrice(1);
+        $entityManager->persist($cardCost);
+        $array = new ArrayCollection();
+        $array->add($cardCost);
+        $developmentCard = DevelopmentCardsSPL::createDevelopmentCard($array);
+        $developmentCard->setPrestigePoints(1);
+        $developmentCard->setColor("red");
+        $developmentCard->setLevel(DevelopmentCardsSPL::$LEVEL_ONE);
+        $developmentCard->setValue(1);
+        $entityManager->persist($developmentCard);
+        $playerCard = new PlayerCardSPL($player, $developmentCard, false);
+        $playerCard->setPersonalBoardSPL($player->getPersonalBoard());
+        $entityManager->persist($playerCard);
+        $entityManager->flush();
+        // WHEN
+        $splendorService->buyCard($player, $playerCard);
+        // THEN
+        $this->assertContains($playerCard, $player->getPersonalBoard()->getPlayerCards());
+    }
+
+    public function testBuyCardWhenCardIsReserved()
+    {
+        // GIVEN
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $splendorService = static::getContainer()->get(SPLService::class);
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $token = new TokenSPL();
+        $token->setColor(TokenSPL::$COLOR_RED);
+        $token->setType("ruby");
+        $entityManager->persist($token);
+        $player->getPersonalBoard()->addToken($token);
+        $cardCost = new CardCostSPL();
+        $cardCost->setColor(TokenSPL::$COLOR_RED);
+        $cardCost->setPrice(1);
+        $entityManager->persist($cardCost);
+        $array = new ArrayCollection();
+        $array->add($cardCost);
+        $developmentCard = DevelopmentCardsSPL::createDevelopmentCard($array);
+        $developmentCard->setPrestigePoints(1);
+        $developmentCard->setColor("red");
+        $developmentCard->setLevel(DevelopmentCardsSPL::$LEVEL_ONE);
+        $developmentCard->setValue(1);
+        $entityManager->persist($developmentCard);
+        $playerCard = new PlayerCardSPL($player, $developmentCard, true);
+        $playerCard->setPersonalBoardSPL($player->getPersonalBoard());
+        $entityManager->persist($playerCard);
+        $entityManager->flush();
+        // WHEN
+        $splendorService->buyCard($player, $playerCard);
+        // THEN
+        $this->assertContains($playerCard, $player->getPersonalBoard()->getPlayerCards());
+        $this->assertFalse($playerCard->isIsReserved());
     }
 
     public function testAddBuyableNobleTilesToPlayerShouldAddTileToPlayer() : void

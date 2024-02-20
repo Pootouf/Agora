@@ -3,6 +3,63 @@
     @param :
     @return :
 #}
-<div class="flow float-start w-[75%] h-5/6 bg-yellow-600">
 
+{%  set needToPlay = true %}
+<div class="flow flex flex-row float-start w-[75%] h-5/6 bg-yellow-600">
+
+    {# Display discards and remaining cards number #}
+    <div class="flex w-3/12 h-full bg-blue grid grid-rows-3">
+        {% set drawCardsCount =
+            [drawCardsLevelOneCount, drawCardsLevelTwoCount, drawCardsLevelThreeCount]
+        %}
+        {% for i in 3..1 %}
+            <div class="relative h-full w-fit mx-auto p-2">
+                <button
+                    {% if not needToPlay %}
+                        disabled
+                    {% endif %}
+                        class="h-full p-2 w-full"
+                >
+                    <img
+                            class="items-center aspect-auto justify-center rounded-lg shadow-black shadow-lg max-h-full"
+                            src="{{ asset('resourcesGames/Splendor/Images/cardLevel' ~ i ~ '.png') }}"
+                            alt='{{ 'cardLevel' ~ i ~ '.png' }}'
+                    >
+                    <span
+                            class="absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white
+                                   bg-red-500 border-2 border-white rounded-full top-2 end-1 dark:border-gray-900"
+                    >
+                            {{ drawCardsCount[i-1] }}
+                    </span>
+                </button>
+            </div>
+        {% endfor %}
+    </div>
+
+    {# Display development cards #}
+    <div class="flex grid grid-rows-3 grid-cols-4 h-full w-9/12 z-4">
+        {% for i in 3..1 %}
+            {% for card in rows[i - 1].developmentCards|filter(card => card.level == i) %}
+                <div class="h-full p-2 w-full" id="card_{{ card.id }}">
+                    <button
+                            {% if not needToPlay %}
+                            disabled
+                            {% endif %}
+                            class="h-full p-2 w-full"
+                    >
+                            <img id='image_card_{{ card.id }}'
+                                 class="hover:scale-[2] transition ease-in-out delay-100
+                                        items-center justify-center rounded-lg shadow-black shadow-lg max-h-full"
+
+                                 src="{{
+                                        asset('resourcesGames/Splendor/Images/DevelopmentCards/'
+                                            ~ card.id ~ '.png')
+                                      }}"
+                                 alt="{{ 'cardLevel' ~ i }}"
+                            >
+                    </button>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
 </div>

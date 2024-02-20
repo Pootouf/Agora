@@ -10,6 +10,7 @@ use App\Entity\Game\SixQP\PlayerSixQP;
 use App\Entity\Game\SixQP\RowSixQP;
 use App\Entity\Game\Splendor\DrawCardsSPL;
 use App\Entity\Game\Splendor\GameSPL;
+use App\Entity\Game\Splendor\TokenSPL;
 use App\Repository\Game\SixQP\ChosenCardSixQPRepository;
 use App\Repository\Game\SixQP\PlayerSixQPRepository;
 use App\Service\Game\LogService;
@@ -55,9 +56,9 @@ class SplendorController extends AbstractController
             'playerBoughtCards' => $player->getPersonalBoard()->getPlayerCards(), //TODO: separate reserved and bought cards
             //'playerReservedCards' => $this->service->getReservedCards($player),
             'playerTokens' => $player->getPersonalBoard()->getTokens(),
-            'drawCardsLevelOneCount' => $game->getMainBoard()->getDrawCards()->get(DrawCardsSPL::$LEVEL_ONE),
-            'drawCardsLevelTwoCount' => $game->getMainBoard()->getDrawCards()->get(DrawCardsSPL::$LEVEL_TWO),
-            'drawCardsLevelThreeCount' => $game->getMainBoard()->getDrawCards()->get(DrawCardsSPL::$LEVEL_THREE),
+            'drawCardsLevelOneCount' => $game->getMainBoard()->getDrawCards()->get(DrawCardsSPL::$LEVEL_ONE)->getDevelopmentCards()->count(),
+            'drawCardsLevelTwoCount' => $game->getMainBoard()->getDrawCards()->get(DrawCardsSPL::$LEVEL_TWO)->getDevelopmentCards()->count(),
+            'drawCardsLevelThreeCount' => $game->getMainBoard()->getDrawCards()->get(DrawCardsSPL::$LEVEL_THREE)->getDevelopmentCards()->count(),
             'whiteTokensPile' => $this->tokenSPLService->getWhiteTokensFromCollection($mainBoardTokens),
             'redTokensPile' => $this->tokenSPLService->getRedTokensFromCollection($mainBoardTokens),
             'blueTokensPile' => $this->tokenSPLService->getBlueTokensFromCollection($mainBoardTokens),
@@ -74,5 +75,59 @@ class SplendorController extends AbstractController
             'needToPlay' => $needToPlay
         ]);
 
+    }
+    #[Route('/game/{idGame}/splendor/takeToken/{idToken}', name: 'app_game_splendor_selectToken')]
+    public function takeToken(
+        #[MapEntity(id: 'idGame')] GameSPL $gameSPL,
+        #[MapEntity(id: 'idToken')] TokenSPL $tokenSPL): Response
+    {
+        $player = $this->SPLService->getPlayerFromNameAndGame($gameSPL, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+        }
+        if ($this->SPLService->getActivePlayer($gameSPL) !== $player) {
+            return new Response("Not player's turn", Response::HTTP_FORBIDDEN);
+        }
+        try {
+            $this->tokenSPLService->takeToken($player, $tokenSPL);
+        } catch(Exception) {
+            $message = $player->getUsername() . " tried to pick a token of " . $tokenSPL->getColor()
+                . " but could not ";
+            $this->logService->sendPlayerLog($gameSPL, $player, $message);
+            return new Response('Impossible to choose', Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+        $message = $player->getUsername() . " picked a token of " . $tokenSPL->getColor();
+        $this->logService->sendPlayerLog($gameSPL, $player, $message);
+        //TODO publish(s)
+        $this->entityManager->persist($gameSPL);
+        $this->entityManager->persist($tokenSPL);
+        $this->entityManager->persist($player);
+        $this->entityManager->flush();
+        if ($this->tokenSPLService->mustEndPlayerRoundBecauseOfTokens($player)) {
+            $this->tokenSPLService->validateTakingOfTokens($player);
+            $this->tokenSPLService->clearSelectedTokens($player);
+            $this->manageEndOfRound($gameSPL);
+        }
+        return new Response('token picked', Response::HTTP_OK);
+    }
+
+     /**
+      * manageEndOfRound: if the game must end then end the game
+      *     else end active player's round
+      * @param GameSPL $gameSPL
+      * @return void
+      */
+    private function manageEndOfRound(GameSPL $gameSPL): void
+    {
+        if ($this->SPLService->isGameEnded($gameSPL)) {
+            //TODO call ranking and print end of game
+        } else {
+            $activePlayer = $this->SPLService->getActivePlayer($gameSPL);
+            $this->SPLService->endRoundOfPlayer($gameSPL, $activePlayer);
+            $this->entityManager->persist($gameSPL);
+            $this->entityManager->persist($activePlayer);
+            $this->entityManager->flush();
+            // TODO notif next player
+        }
     }
 }
