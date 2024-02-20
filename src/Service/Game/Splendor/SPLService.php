@@ -214,7 +214,7 @@ class SPLService
      */
     private function getPrestigePoints(PlayerSPL $player): int
     {
-        return $this->getPrestigePoints($player);
+        return $player->getTotalPoints();
     }
 
     /**
@@ -222,7 +222,7 @@ class SPLService
      *
      * @param PlayerSPL $player
      */
-    private function calculatePrestigePoints(PlayerSPL $player): void
+    public function calculatePrestigePoints(PlayerSPL $player): void
     {
         $total = 0;
         $nobleTiles = $player->getPersonalBoard()->getNobleTiles();
