@@ -44,6 +44,6 @@ class BoardFixtures extends Fixture implements DependentFixtureInterface
     //Board depends on Users and Game
     public function getDependencies()
     {
-        return[UserFixtures::class];
+        return[UserPlatformFixtures::class];
     }
 }
