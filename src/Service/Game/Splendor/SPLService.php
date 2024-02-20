@@ -15,6 +15,7 @@ use App\Repository\Game\Splendor\NobleTileSPLRepository;
 use App\Repository\Game\Splendor\PlayerSPLRepository;
 use App\Repository\Game\Splendor\TokenSPLRepository;
 use App\Service\Game\AbstractGameManagerService;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 
 class SPLService
@@ -258,6 +259,63 @@ class SPLService
                 $playerCardSPL->setPersonalBoardSPL($playerSPL->getPersonalBoard());
             }
         }
+    }
+
+    /**
+     * addBuyableNobleTilesToPlayer: add the first noble tiles the player can afford to his stock
+     * @param GameSPL $game
+     * @param PlayerSPL $player
+     * @return void
+     */
+    public function addBuyableNobleTilesToPlayer(GameSPL $game, PlayerSPL $player): void
+    {
+        $playerCards = $player->getPersonalBoard()->getPlayerCards();
+        $filteredCards = $this->filterCardsByColor($playerCards);
+        foreach ($game->getMainBoard()->getNobleTiles() as $tile) {
+            $costs = $tile->getCardsCost();
+            $canBuy = true;
+            foreach ($costs as $cost) {
+                $color = $cost->getColor();
+                if ($cost->getPrice() > sizeof($filteredCards[$color])) {
+                    $canBuy = false;
+                }
+            }
+            if ($canBuy) {
+                $player->getPersonalBoard()->addNobleTile($tile);
+                $game->getMainBoard()->removeNobleTile($tile);
+                $this->entityManager->persist($player->getPersonalBoard());
+                $this->entityManager->persist($game->getMainBoard());
+                $this->entityManager->flush();
+            }
+        }
+    }
+
+    /**
+     * filterCardsByColor: take an array of playerCards and filter it by color
+     * @param Collection $playerCards
+     * @return array<String, Collection<PlayerCardSPL>> an array associating color with the cards of the player
+     */
+    private function filterCardsByColor(Collection $playerCards): array {
+        return [
+            TokenSPL::$COLOR_BLUE => $this->getCardOfColor($playerCards, TokenSPL::$COLOR_BLUE),
+            TokenSPL::$COLOR_BLACK => $this->getCardOfColor($playerCards, TokenSPL::$COLOR_BLACK),
+            TokenSPL::$COLOR_GREEN => $this->getCardOfColor($playerCards, TokenSPL::$COLOR_GREEN),
+            TokenSPL::$COLOR_RED => $this->getCardOfColor($playerCards, TokenSPL::$COLOR_RED),
+            TokenSPL::$COLOR_WHITE => $this->getCardOfColor($playerCards, TokenSPL::$COLOR_WHITE),
+        ];
+    }
+
+    /**
+     * getCardOfColor: select all the $playerCards with the $color
+     * @param Collection<DevelopmentCardsSPL> $playerCards
+     * @param string $color
+     * @return Collection<DevelopmentCardsSPL> the card of the selected color
+     */
+    private function getCardOfColor(Collection $playerCards, string $color): Collection
+    {
+        return $playerCards->filter(function (PlayerCardSPL $cards) use ($color) {
+            return $cards->getDevelopmentCard()->getColor() == $color;
+        });
     }
 
     /**
