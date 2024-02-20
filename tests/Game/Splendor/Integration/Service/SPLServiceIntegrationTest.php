@@ -1,7 +1,7 @@
 <?php
 
 
-namespace App\Tests\Game\Splendor\Integration\Service;
+namespace Game\Splendor\Integration\Service;
 
 use App\Entity\Game\Splendor\CardCostSPL;
 use App\Entity\Game\Splendor\DevelopmentCardsSPL;
@@ -421,9 +421,9 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
         for ($i = 0; $i < 3; $i++) {
-            $playerCard = $this->createPlayerCard(TokenSPL::$COLOR_RED);
+            $playerCard = $this->createPlayerCard($player, TokenSPL::$COLOR_RED);
             $player->getPersonalBoard()->addPlayerCard($playerCard);
-            $playerCard = $this->createPlayerCard(TokenSPL::$COLOR_BLUE);
+            $playerCard = $this->createPlayerCard($player, TokenSPL::$COLOR_BLUE);
             $player->getPersonalBoard()->addPlayerCard($playerCard);
         }
         $nobleTile = $this->createNobleTile([
@@ -450,9 +450,9 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
         for ($i = 0; $i < 3; $i++) {
-            $playerCard = $this->createPlayerCard(TokenSPL::$COLOR_RED);
+            $playerCard = $this->createPlayerCard($player, TokenSPL::$COLOR_RED);
             $player->getPersonalBoard()->addPlayerCard($playerCard);
-            $playerCard = $this->createPlayerCard(TokenSPL::$COLOR_BLUE);
+            $playerCard = $this->createPlayerCard($player, TokenSPL::$COLOR_BLUE);
             $player->getPersonalBoard()->addPlayerCard($playerCard);
         }
         $nobleTile = $this->createNobleTile([
@@ -471,7 +471,7 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $this->assertSame($expectedNumberOfNobleTile, $player->getPersonalBoard()->getNobleTiles()->count());
     }
 
-    private function createPlayerCard(string $color) : PlayerCardSPL
+    private function createPlayerCard(PlayerSPL $player, string $color) : PlayerCardSPL
     {
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);
         $card = new DevelopmentCardsSPL();
@@ -479,9 +479,7 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $card->setPrestigePoints(0);
         $card->setLevel(0);
         $entityManager->persist($card);
-        $playerCard = new PlayerCardSPL();
-        $playerCard->setIsReserved(false);
-        $playerCard->setDevelopmentCard($card);
+        $playerCard = new PlayerCardSPL($player, $card, false);
         $entityManager->persist($playerCard);
         return $playerCard;
     }
