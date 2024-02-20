@@ -2,7 +2,7 @@ input {
   file {
     type => "symfony_gametest"
     path => "/var/log/symfony/gametest.log"
-    start_position => beginning
+    mode => "tail"
   }
 }
 
@@ -16,9 +16,10 @@ filter {
 
 output {
   elasticsearch {
-    hosts => "http://elasticsearch:9200"
     index => "logstash-symfony-%{+YYYY.MM.dd}"
-    user => "elastic"
-    password => "changeme"
+    hosts=> "${ELASTIC_HOSTS}"
+    user=> "${ELASTIC_USER}"
+    password=> "${ELASTIC_PASSWORD}"
+    cacert=> "certs/ca/ca.crt"
   }
 }
