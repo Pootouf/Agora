@@ -14,17 +14,24 @@
         %}
         {% for i in 3..1 %}
             <div class="relative h-full w-fit mx-auto p-2">
-                <img
-                        class="items-center aspect-auto justify-center rounded-lg shadow-black shadow-lg max-h-full "
-                        src="{{ asset('resourcesGames/Splendor/Images/cardLevel' ~ i ~ '.png') }}"
-                        alt='{{ 'cardLevel' ~ i ~ '.png' }}'
+                <button
+                    {% if not needToPlay %}
+                        disabled
+                    {% endif %}
+                        class="h-full p-2 w-full"
                 >
-                <span
-                        class="absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white
-                                bg-red-500 border-2 border-white rounded-full -top-0 -end-2 dark:border-gray-900"
-                >
-                        {{ drawCardsCount[i-1] }}
-                </span>
+                    <img
+                            class="items-center aspect-auto justify-center rounded-lg shadow-black shadow-lg max-h-full"
+                            src="{{ asset('resourcesGames/Splendor/Images/cardLevel' ~ i ~ '.png') }}"
+                            alt='{{ 'cardLevel' ~ i ~ '.png' }}'
+                    >
+                    <span
+                            class="absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white
+                                   bg-red-500 border-2 border-white rounded-full top-2 end-1 dark:border-gray-900"
+                    >
+                            {{ drawCardsCount[i-1] }}
+                    </span>
+                </button>
             </div>
         {% endfor %}
     </div>
@@ -40,7 +47,8 @@
                             {% endif %}
                             class="h-full p-2 w-full"
                     >
-                            <img id='image_card_{{ card.id }}' class="hover:scale-[2] transition ease-in-out delay-100
+                            <img id='image_card_{{ card.id }}'
+                                 class="hover:scale-[2] transition ease-in-out delay-100
                                         items-center justify-center rounded-lg shadow-black shadow-lg max-h-full"
 
                                  src="{{
