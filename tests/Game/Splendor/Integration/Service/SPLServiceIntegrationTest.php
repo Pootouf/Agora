@@ -1,7 +1,7 @@
 <?php
 
 
-namespace App\Tests\Game\Splendor\Integration\Service;
+namespace Game\Splendor\Integration\Service;
 
 use App\Entity\Game\Splendor\CardCostSPL;
 use App\Entity\Game\Splendor\DevelopmentCardsSPL;
@@ -411,6 +411,92 @@ class SPLServiceIntegrationTest extends KernelTestCase
         // THEN
         $this->assertContains($playerCard, $player->getPersonalBoard()->getPlayerCards());
         $this->assertFalse($playerCard->isIsReserved());
+    }
+
+    public function testAddBuyableNobleTilesToPlayerShouldAddTileToPlayer() : void
+    {
+        //GIVEN
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $splendorService = static::getContainer()->get(SPLService::class);
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        for ($i = 0; $i < 3; $i++) {
+            $playerCard = $this->createPlayerCard($player, TokenSPL::$COLOR_RED);
+            $player->getPersonalBoard()->addPlayerCard($playerCard);
+            $playerCard = $this->createPlayerCard($player, TokenSPL::$COLOR_BLUE);
+            $player->getPersonalBoard()->addPlayerCard($playerCard);
+        }
+        $nobleTile = $this->createNobleTile([
+            TokenSPL::$COLOR_RED => 3,
+            TokenSPL::$COLOR_BLUE => 3,
+        ]);
+        $game->getMainBoard()->addNobleTile($nobleTile);
+        $entityManager->persist($nobleTile);
+        $entityManager->persist($player->getPersonalBoard());
+        $entityManager->persist($game->getMainBoard());
+        $entityManager->flush();
+        //WHEN
+        $splendorService->addBuyableNobleTilesToPlayer($game, $player);
+        //THEN
+        $this->assertSame($nobleTile, $player->getPersonalBoard()->getNobleTiles()->first());
+    }
+
+
+    public function testAddBuyableNobleTilesToPlayerShouldDoNothing() : void
+    {
+        //GIVEN
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $splendorService = static::getContainer()->get(SPLService::class);
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        for ($i = 0; $i < 3; $i++) {
+            $playerCard = $this->createPlayerCard($player, TokenSPL::$COLOR_RED);
+            $player->getPersonalBoard()->addPlayerCard($playerCard);
+            $playerCard = $this->createPlayerCard($player, TokenSPL::$COLOR_BLUE);
+            $player->getPersonalBoard()->addPlayerCard($playerCard);
+        }
+        $nobleTile = $this->createNobleTile([
+            TokenSPL::$COLOR_RED => 3,
+            TokenSPL::$COLOR_BLUE => 4,
+        ]);
+        $game->getMainBoard()->addNobleTile($nobleTile);
+        $entityManager->persist($nobleTile);
+        $entityManager->persist($player->getPersonalBoard());
+        $entityManager->persist($game->getMainBoard());
+        $entityManager->flush();
+        $expectedNumberOfNobleTile = 0;
+        //WHEN
+        $splendorService->addBuyableNobleTilesToPlayer($game, $player);
+        //THEN
+        $this->assertSame($expectedNumberOfNobleTile, $player->getPersonalBoard()->getNobleTiles()->count());
+    }
+
+    private function createPlayerCard(PlayerSPL $player, string $color) : PlayerCardSPL
+    {
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $card = new DevelopmentCardsSPL();
+        $card->setColor($color);
+        $card->setPrestigePoints(0);
+        $card->setLevel(0);
+        $entityManager->persist($card);
+        $playerCard = new PlayerCardSPL($player, $card, false);
+        $entityManager->persist($playerCard);
+        return $playerCard;
+    }
+
+    private function createNobleTile(array $param) : NobleTileSPL
+    {
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $nobleTile = new NobleTileSPL();
+        foreach ($param as $color => $price) {
+            $cardCost = new CardCostSPL();
+            $cardCost->setColor($color);
+            $cardCost->setPrice($price);
+            $entityManager->persist($cardCost);
+            $nobleTile->addCardsCost($cardCost);
+        }
+        $nobleTile->setPrestigePoints(0);
+        return $nobleTile;
     }
 
     private function createGame(int $numberOfPlayer): GameSPL

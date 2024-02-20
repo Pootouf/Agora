@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\Game\Splendor\Unit\Service;
+namespace Game\Splendor\Unit\Service;
 
 use App\Entity\Game\Splendor\CardCostSPL;
 use App\Entity\Game\Splendor\DevelopmentCardsSPL;
@@ -15,7 +15,6 @@ use App\Entity\Game\Splendor\SelectedTokenSPL;
 use App\Entity\Game\Splendor\RowSPL;
 use App\Entity\Game\Splendor\TokenSPL;
 use App\Repository\Game\Splendor\DevelopmentCardsSPLRepository;
-use App\Repository\Game\Splendor\GameSPLRepository;
 use App\Repository\Game\Splendor\MainBoardSPLRepository;
 use App\Repository\Game\Splendor\NobleTileSPLRepository;
 use App\Repository\Game\Splendor\TokenSPLRepository;
@@ -359,6 +358,52 @@ class SPLServiceTest extends TestCase
         $this->assertFalse($playerCard->isIsReserved());
     }
 
+    public function testAddBuyableNobleTilesToPlayerShouldAddTileToPlayer() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        for ($i = 0; $i < 3; $i++) {
+            $playerCard = $this->createPlayerCard($player, TokenSPL::$COLOR_RED);
+            $player->getPersonalBoard()->addPlayerCard($playerCard);
+            $playerCard = $this->createPlayerCard($player, TokenSPL::$COLOR_BLUE);
+            $player->getPersonalBoard()->addPlayerCard($playerCard);
+        }
+        $nobleTile = $this->createNobleTile([
+            TokenSPL::$COLOR_RED => 3,
+            TokenSPL::$COLOR_BLUE => 3,
+        ]);
+        $game->getMainBoard()->addNobleTile($nobleTile);
+        //WHEN
+        $this->SPLService->addBuyableNobleTilesToPlayer($game, $player);
+        //THEN
+        $this->assertSame($nobleTile, $player->getPersonalBoard()->getNobleTiles()->first());
+    }
+
+
+    public function testAddBuyableNobleTilesToPlayerShouldDoNothing() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        for ($i = 0; $i < 3; $i++) {
+            $playerCard = $this->createPlayerCard($player, TokenSPL::$COLOR_RED);
+            $player->getPersonalBoard()->addPlayerCard($playerCard);
+            $playerCard = $this->createPlayerCard($player, TokenSPL::$COLOR_BLUE);
+            $player->getPersonalBoard()->addPlayerCard($playerCard);
+        }
+        $nobleTile = $this->createNobleTile([
+            TokenSPL::$COLOR_RED => 3,
+            TokenSPL::$COLOR_BLUE => 4,
+        ]);
+        $game->getMainBoard()->addNobleTile($nobleTile);
+        $expectedNumberOfNobleTile = 0;
+        //WHEN
+        $this->SPLService->addBuyableNobleTilesToPlayer($game, $player);
+        //THEN
+        $this->assertSame($expectedNumberOfNobleTile, $player->getPersonalBoard()->getNobleTiles()->count());
+    }
+
     private function createGame(int $numberOfPlayers) : GameSPL
     {
         $game = new GameSPL();
@@ -623,5 +668,28 @@ class SPLServiceTest extends TestCase
 
         $this->expectException(\Exception::class);
         $this->SPLService->reserveCard($player, $card);
+    }
+
+    private function createPlayerCard(PlayerSPL $player, string $color) : PlayerCardSPL
+    {
+        $card = new DevelopmentCardsSPL();
+        $card->setColor($color);
+        $card->setPrestigePoints(0);
+        $card->setLevel(0);
+        $playerCard = new PlayerCardSPL($player, $card, false);
+        return $playerCard;
+    }
+
+    private function createNobleTile(array $param) : NobleTileSPL
+    {
+        $nobleTile = new NobleTileSPL();
+        foreach ($param as $color => $price) {
+            $cardCost = new CardCostSPL();
+            $cardCost->setColor($color);
+            $cardCost->setPrice($price);
+            $nobleTile->addCardsCost($cardCost);
+        }
+        $nobleTile->setPrestigePoints(0);
+        return $nobleTile;
     }
 }
