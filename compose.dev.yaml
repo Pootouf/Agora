@@ -7,10 +7,6 @@ services:
       && symfony console --env=test doctrine:migrations:migrate
       && (php bin/console tailwind:build --watch &)
       && php-fpm"
-    volumes:
-      - .:/var/www/agora
-      - /var/www/agora/vendor
-      - /var/www/agora/var
     environment:
       XDEBUG_MODE: "${XDEBUG_MODE:-off}"
       APP_DEBUG: 1
