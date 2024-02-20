@@ -8,7 +8,7 @@ use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
-class dUserFixtures extends Fixture
+class UserPlatformFixtures extends Fixture
 {
     private UserPasswordHasherInterface $hasher;
 
