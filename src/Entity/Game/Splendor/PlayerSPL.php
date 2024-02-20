@@ -25,6 +25,7 @@ class PlayerSPL extends Player
     {
         $this->username = $username;
         $this->gameSPL = $gameSPL;
+        $this->totalPoints = 0;
     }
     public function getPersonalBoard(): ?PersonalBoardSPL
     {

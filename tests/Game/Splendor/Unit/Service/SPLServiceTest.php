@@ -199,6 +199,7 @@ class SPLServiceTest extends TestCase
         $nobleTile = new NobleTileSPL();
         $nobleTile->setPrestigePoints(SPLService::$MAX_PRESTIGE_POINTS);
         $player2->getPersonalBoard()->addNobleTile($nobleTile);
+        $this->SPLService->calculatePrestigePoints($player2);
         //WHEN
         $result = $this->SPLService->isGameEnded($game);
         //THEN
@@ -234,6 +235,8 @@ class SPLServiceTest extends TestCase
         $nobleTile2->setPrestigePoints(3);
         $player2->getPersonalBoard()->addNobleTile($nobleTile2);
         $expectedRanking = array($player2, $player);
+        $this->SPLService->calculatePrestigePoints($player);
+        $this->SPLService->calculatePrestigePoints($player2);
         // WHEN
         $result = $this->SPLService->getRanking($game);
         // THEN
