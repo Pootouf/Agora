@@ -13,12 +13,32 @@
             landscape:translate-x-[0.3rem] landscape:translate-x-[0.5rem]
             landscape:lg:translate-y-[1rem] landscape:lg:-translate-y-[2.8rem] landscape:lg:-translate-y-[6.5rem]
             landscape:lg:translate-x-[0.4rem]
-            landscape:2xl:translate-y-[0.5rem] landscape:2xl:-translate-y-[5.5rem] landscape:2xl:-translate-y-[11.8rem]
+            landscape:2xl:translate-y-[0rem] landscape:2xl:-translate-y-[5.5rem] landscape:2xl:-translate-y-[11rem]
             landscape:2xl:translate-x-[0rem] landscape:2xl:translate-x-[0.6rem] landscape:2xl:translate-x-[0.8rem]
             "></div>
 <div class="w-full h-[90%] landscape:h-4/5 z-1 z-2 z-3">
-    {% set colors = ["009b77","ffffff","0f52ba","0f0f0f","e0115f"] %}
-    {% set prcards = ["reservedCardLvl1.svg","reservedCardLvl2.svg","reservedCardLvl3.svg"] %}
+    {% set colorsNames = ["green","white","blue","black","red"] %}
+    {% set colors = [
+        {"green": "009b77"},
+        {"white": "ffffff"},
+        {"blue": "0f52ba"},
+        {"black": "0f0f0f"},
+        {"red": "e0115f"}
+    ] %}
+    {% set colorsTokens = ["green","white","blue","black","red","yellow"] %}
+    {% set tokensNames = [
+        {"green": "emeraldToken.png"},
+        {"white": "diamondToken.png"},
+        {"blue": "sapphireToken.png"},
+        {"black": "onyxToken.png"},
+        {"red": "rubyToken.png"},
+        {"yellow": "goldToken.png"}
+    ] %}
+    {% set prcards = [
+        {"1": "reservedCardLvl1.svg"},
+        {"2": "reservedCardLvl2.svg"},
+        {"3": "reservedCardLvl3.svg"}
+    ] %}
     {% set angleStep = 45 %}
     {% set translateY = [
         {"0": "0"},
@@ -36,9 +56,9 @@
         {"2": -6.5}
     ] %}
     {% set xlTranslateY = [
-        {"0": 0.5},
+        {"0": 0},
         {"1": -5.5},
-        {"2": -11.8}
+        {"2": -11}
     ] %}
     {% set translateX = [
         {"0": "0"},
@@ -60,31 +80,44 @@
         {"1": 0.6},
         {"2": 0.8}
     ] %}
-    {% set tokensNames = ["emeraldToken.png","diamondToken.png","sapphireToken.png","onyxToken.png","rubyToken.png",
-    "goldToken.png"] %}
-    {% for i in 1..4 %}
+    {% for p in ranking %}
+        {% set playerCards = p.personalBoard.playerCards %}
         <div class="bg-[#a2d2ff] h-[23.5%] landscape:md:h-1/4 landscape:lg:h-[23.5%] rounded-2xl mx-3
         landscape:mx-2 lg:mx-5 my-6 landscape:my-2 text-3xl">
             <div class="w-full h-[12%] landscape:h-1/5 pt-2 landscape:pt-1 flex justify-around landscape:justify-between">
-                <p class="landscape:ml-3 landscape:text-sm landscape:lg:text-lg">Joueur {{ i }}</p>
+                <p class="landscape:ml-3 landscape:text-sm landscape:lg:text-lg">{{ p.username }}</p>
                 <div class="flex landscape:mr-2">
-                    <p class="mr-1 landscape:text-base landscape:lg:text-lg">2</p>
+                    {% set playerCardsScore = playerCards|filter(c => c.isReserved == "false")
+                        |reduce((acc,a) => acc + a.developmentCard.prestigePoints) %}
+                    {% set NobleScore = p.personalBoard.nobleTiles|reduce((acc,a) => acc + a.prestigePoints) %}
+                    {% set playerScore = playerCardsScore + NobleScore %}
+                    <p class="mr-1 landscape:text-base landscape:lg:text-lg">{{ playerScore }}</p>
                     <img class="h-8 landscape:h-5 landscape:lg:h-7" src="{{ asset('resourcesGames/utils/star.svg') }}" alt="splendor victory point">
                 </div>
             </div>
 
             <div class="w-full h-2/5 landscape:h-2/5 pt-2 landscape:ml-2 landscape:lg:ml-4 grid grid-cols-3 grid-rows-2 landscape:flex
             gap-y-3 landscape:gap-3 ">
-                {% for color in colors %}
-                    <div class="h-full landscape:w-[10%] landscape:lg:w-[11%] rounded-xl bg-[#{{ color }}] mx-2 landscape:mx-0
+                {% set playerCardsColors = playerCards|filter(c => c.isReserved == "false")|map(c => c.developmentCard.color) %}
+                {% set playerCardsColorsCount = [
+                    {"green": playerCardsColors|filter(c => c == "green")|length},
+                    {"white": playerCardsColors|filter(c => c == "white")|length},
+                    {"blue": playerCardsColors|filter(c => c == "blue")|length},
+                    {"black": playerCardsColors|filter(c => c == "black")|length},
+                    {"red": playerCardsColors|filter(c => c == "red")|length}
+                ] %}
+                {% for color in colorsNames %}
+                    <div class="h-full landscape:w-[10%] landscape:lg:w-[11%] rounded-xl bg-[#{{ colors|column(color)|first }}] mx-2 landscape:mx-0
                      flex items-center justify-center">
-                        <p class="h-fit text-[#c0c0c0] text-5xl landscape:text-xl landscape:lg:text-3xl">1</p>
+                        <p class="h-fit text-[#c0c0c0] text-5xl landscape:text-xl landscape:lg:text-3xl">
+                            {{ playerCardsColorsCount|column(color)|first }}</p>
                     </div>
                 {% endfor %}
                 <div class="scale-[60%] translate-x-[0.5rem] -translate-y-[1rem] landscape:w-[13%]
                 landscape:translate-x-0 landscape:lg:translate-x-[1rem]">
                     {% set i = 0 %}
-                    {% for c in prcards %}
+                    {% set playerReservedCardsLevel = playerCards|filter(c => c.isReserved == "true")|map(c => c.developmentCard.level) %}
+                    {% for lvl in test %}
                         {% set lTranslateY = landscapeTranslateY|column(i)|first %}
                         {% set llgTranslateY = lgTranslateY|column(i)|first %}
                         {% set lxlTranslateY = xlTranslateY|column(i)|first %}
@@ -98,6 +131,7 @@
                         landscape:2xl:{% if lxlTranslateY < 0 %}-{% endif %}translate-y-[{{ lxlTranslateY|abs }}rem]
                         landscape:2xl:translate-x-[{{ xlTranslateX|column(i)|first }}rem]
                         z-{{ i + 1 }}">
+                            {% set c = prcards|column(lvl)|first %}
                             <img src="{{ asset('resourcesGames/Splendor/Images/' ~ c) }}" alt="{{ c|split('.')[0] }}">
                         </div>
                         {% set i = i + 1 %}
@@ -106,15 +140,24 @@
             </div>
             <div class="w-full h-2/6 landscape:h-2/5 landscape:lg:pt-2 landscape:mx-1 landscape:ml-1 landscape:lg:ml-2 mt-2 landscape:mt-0
             grid grid-cols-3 grid-rows-2 landscape:flex gap-y-14 landscape:gap-0">
-                {% for token in tokensNames %}
+                {% set playerTokensColors = p.personalBoard.tokens|map(t => t.color) %}
+                {% set playerTokensColorsCount = [
+                    {"green": playerTokensColors|filter(c => c == "green")|length},
+                    {"white": playerTokensColors|filter(c => c == "white")|length},
+                    {"blue": playerTokensColors|filter(c => c == "blue")|length},
+                    {"black": playerTokensColors|filter(c => c == "black")|length},
+                    {"red": playerTokensColors|filter(c => c == "red")|length},
+                    {"yellow": playerTokensColors|filter(c => c == "yellow")|length}
+                ] %}
+                {% for tokenColor in colorsTokens %}
                 <div class="block landscape:flex landscape:w-[15%] landscape:2xl:w-[14%]">
                     <img class="scale-[0.85] landscape:scale-[0.7] landscape:lg:scale-[0.8]"
-                         src="{{ asset('resourcesGames/Splendor/Images/Tokens/' ~ token) }}"
+                         src="{{ asset('resourcesGames/Splendor/Images/Tokens/' ~ tokensNames|column(tokenColor)|first) }}"
                          alt="player emerald stock overflow-visible">
                     <p class="hidden landscape:flex right-0 top-0 bg-red-600 rounded-full h-fit py-0.5 px-1.5
                     text-xs -translate-x-4 lg:-translate-x-5 -translate-y-1 lg:translate-y-0 text-white
-                    scale-[70%] lg:scale-100 landscape:2xl:scale-125">1</p>
-                    <p class="landscape:hidden text-3xl w-full text-center">1</p>
+                    scale-[70%] lg:scale-100 landscape:2xl:scale-125">{{ playerTokensColorsCount|column(tokenColor)|first }}</p>
+                    <p class="landscape:hidden text-3xl w-full text-center">{{ playerTokensColorsCount|column(tokenColor)|first }}</p>
                 </div>
                 {% endfor %}
             </div>
