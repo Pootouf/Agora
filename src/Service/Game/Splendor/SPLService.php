@@ -110,10 +110,10 @@ class SPLService
      * @param DevelopmentCardsSPL $card
      * @return void
      */
-    public function reserveCards(PlayerSPL $player, DevelopmentCardsSPL $card) : void
+    public function reserveCard(PlayerSPL $player, DevelopmentCardsSPL $card) : void
     {
         // Check can reserve
-        if (!$this->canReserveCards($player, $card))
+        if (!$this->canReserveCard($player, $card))
         {
             throw new Exception("You can't reserve cards");
         }
@@ -169,7 +169,7 @@ class SPLService
      * @param PlayerSPL $player
      * @return Collection<int, DevelopmentCardsSPL>
      */
-    public function getReserveCards(PlayerSPL $player) : Collection
+    public function getReservedCards(PlayerSPL $player) : Collection
     {
         $personalBoard = $player->getPersonalBoard();
         $cardsOfPlayer = $personalBoard->getPlayerCards();
@@ -392,7 +392,7 @@ class SPLService
         });
     }
 
-    private function canReserveCards(PlayerSPL $player, DevelopmentCardsSPL $card): bool
+    private function canReserveCard(PlayerSPL $player, DevelopmentCardsSPL $card): bool
     {
         if (!$this->checkCanReserveSidesPlayer($player, $card) ||
             !$this->checkCanReserveSideMainBoard($player, $card) )
@@ -407,7 +407,7 @@ class SPLService
     {
         // Method that checks the number of reserved cards
 
-        $reservedCardsOfPlayer = $this->getReserveCards($player);
+        $reservedCardsOfPlayer = $this->getReservedCards($player);
         if ($reservedCardsOfPlayer->count()
             == SPLService::$MAX_COUNT_RESERVED_CARDS)
         {
@@ -431,7 +431,7 @@ class SPLService
         $mainBoard = $player->getGameSPL()->getMainBoard();
 
         return $this->checkInRowAtLevel($mainBoard, $card)
-            || $this->checkInDiscardAtLevel($mainBoard, $card);
+            xor $this->checkInDiscardAtLevel($mainBoard, $card);
     }
 
     private function checkInRowAtLevel(MainBoardSPL $mainBoard
@@ -533,7 +533,7 @@ class SPLService
         return $this->getNumberOfTokenAtColor($tokens, $color);
     }
 
-    private function getNumberOfTokenAtColor(Collection $tokens, string $color) : int
+    public function getNumberOfTokenAtColor(Collection $tokens, string $color) : int
     {
         $count = 0;
         for ($i = 0; $i < $tokens->count(); $i++)
