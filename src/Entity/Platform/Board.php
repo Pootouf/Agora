@@ -164,7 +164,7 @@ class Board
         return $this;
     }
 
-    //get the number of players
+    //return the number of players who have joined the table
 
     public function getUsersNb(): ?int
     {
