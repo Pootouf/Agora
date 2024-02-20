@@ -2,7 +2,6 @@
 
 namespace App\Service\Game;
 
-
 use App\Entity\Game\DTO\Game;
 use App\Entity\Game\GameUser;
 use App\Repository\Game\SixQP\GameSixQPRepository;

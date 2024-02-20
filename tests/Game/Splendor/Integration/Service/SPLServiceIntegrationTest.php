@@ -203,6 +203,7 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $player->getPersonalBoard()->addNobleTile($nobleTile);
         $entityManager->persist($nobleTile);
         $entityManager->flush();
+        $splendorService->calculatePrestigePoints($player);
         //WHEN
         $result = $splendorService->isGameEnded($game);
         //THEN
@@ -244,6 +245,8 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $player1->getPersonalBoard()->addNobleTile($nobleTile1);
         $player2->getPersonalBoard()->addNobleTile($nobleTile2);
         $entityManager->flush();
+        $splendorService->calculatePrestigePoints($player1);
+        $splendorService->calculatePrestigePoints($player2);
         $expectedRanking = array($player2, $player1);
         // WHEN
         $result = $splendorService->getRanking($game);

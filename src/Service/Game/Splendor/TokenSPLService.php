@@ -9,6 +9,7 @@ use App\Repository\Game\Splendor\TokenSPLRepository;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Exception;
 use Doctrine\ORM\EntityManagerInterface;
+use phpDocumentor\Reflection\Types\Boolean;
 
 class TokenSPLService
 {
@@ -101,13 +102,48 @@ class TokenSPLService
         $selectedToken = new SelectedTokenSPL();
         $selectedToken->setToken($tokenSPL);
         $playerSPL->getPersonalBoard()->addSelectedToken($selectedToken);
-        if ($tokensPickable == 1) {
-            $selectedTokens = $playerSPL->getPersonalBoard()->getSelectedTokens();
-            foreach ($selectedTokens as $selectedToken) {
-                $playerSPL->getPersonalBoard()->addToken($selectedToken->getToken());
-            }
-            $game = $playerSPL->getGameSPL();
-            $this->SPLService->endRoundOfPlayer($game, $playerSPL);
+        $this->entityManager->persist($selectedToken);
+        $this->entityManager->persist($playerSPL);
+        $this->entityManager->flush();
+    }
+
+    /**
+     * mustEndPLayerRoundBecauseOfTokens: returns if a player's round must end because of
+     *      his selected tokens
+     *
+     * @param PlayerSPL $playerSPL
+     * @return bool
+     */
+    public function mustEndPlayerRoundBecauseOfTokens(PLayerSPL $playerSPL): Boolean
+    {
+        $personalBoard = $playerSPL->getPersonalBoard();
+        $tokens = $personalBoard->getTokens();
+        $tokensNb = $tokens->count();
+        $selectedTokens = $personalBoard->getSelectedTokens();
+        $selectedTokensNb = $selectedTokens->count();
+        $firstToken = $selectedTokens->first()->getToken();
+        $lastToken = $selectedTokens->last()->getToken();
+        if ($tokensNb + $selectedTokensNb == 10
+            || $selectedTokensNb == 3
+            || $selectedTokensNb == 2 && $firstToken->getColor() == $lastToken->getColor()
+        ) {
+            return true;
+        }
+        return false;
+    }
+
+
+    /**
+     * validateTakingOfTokens: transfer all selected tokens to player's owned
+     *
+     * @param PlayerSPL $playerSPL
+     * @return void
+     */
+    public function validateTakingOfTokens(PlayerSPL $playerSPL): void
+    {
+        $selectedTokens = $playerSPL->getPersonalBoard()->getSelectedTokens();
+        foreach ($selectedTokens as $selectedToken) {
+            $playerSPL->getPersonalBoard()->addToken($selectedToken->getToken());
         }
     }
 
@@ -194,6 +230,4 @@ class TokenSPLService
         }
         return -1;
     }
-
-
 }
