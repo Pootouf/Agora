@@ -2,6 +2,7 @@
 
 namespace App\Controller\Game;
 
+use AllowDynamicProperties;
 use App\Entity\Game\SixQP\CardSixQP;
 use App\Entity\Game\SixQP\ChosenCardSixQP;
 use App\Entity\Game\SixQP\GameSixQP;
@@ -15,6 +16,7 @@ use App\Service\Game\LogService;
 use App\Service\Game\SixQP\SixQPService;
 use App\Service\Game\PublishService;
 use App\Service\Game\Splendor\SPLService;
+use App\Service\Game\Splendor\TokenSPLService;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
@@ -23,37 +25,31 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-#[IsGranted('ROLE_USER')]
+ #[IsGranted('ROLE_USER')]
 class SplendorController extends AbstractController
 {
-    private SPLService $service;
-    private EntityManagerInterface $entityManager;
-    private PublishService $publishService;
-    private LogService $logService;
 
-    public function __construct(EntityManagerInterface $entityManager,
-                                ChosenCardSixQPRepository $chosenCardSixQPRepository,
-                                SPLService $service,
-                                LogService $logService,
-                                PublishService $publishService)
-    {
-        $this->publishService = $publishService;
-        $this->entityManager = $entityManager;
-        $this->logService = $logService;
-        $this->service = $service;
-    }
+
+    public function __construct(private EntityManagerInterface $entityManager,
+                                private TokenSPLService $tokenSPLService,
+                                private SPLService $SPLService,
+                                private LogService $logService,
+                                private PublishService $publishService)
+    {}
 
     #[Route('/game/splendor/{id}', name: 'app_game_show_spl')]
     public function showGame(GameSPL $game): Response
     {
-        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        $player = $this->SPLService->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         $isSpectator = false;
+        $needToPlay = false;
         if ($player == null) {
             $player = $game->getPlayers()->get(0);
             $isSpectator = true;
         } else {
             //TODO : display the game
         }
+        $mainBoardTokens = $game->getMainBoard()->getTokens();
         return $this->render('/Game/Splendor/index.html.twig', [
             'game' => $game,
             'playerBoughtCards' => $player->getPersonalBoard()->getPlayerCards(), //TODO: separate reserved and bought cards
@@ -62,14 +58,20 @@ class SplendorController extends AbstractController
             'drawCardsLevelOneCount' => $game->getMainBoard()->getDrawCards()->get(DrawCardsSPL::$LEVEL_ONE),
             'drawCardsLevelTwoCount' => $game->getMainBoard()->getDrawCards()->get(DrawCardsSPL::$LEVEL_TWO),
             'drawCardsLevelThreeCount' => $game->getMainBoard()->getDrawCards()->get(DrawCardsSPL::$LEVEL_THREE),
+            'whiteTokensPile' => $this->tokenSPLService->getWhiteTokensFromCollection($mainBoardTokens),
+            'redTokensPile' => $this->tokenSPLService->getRedTokensFromCollection($mainBoardTokens),
+            'blueTokensPile' => $this->tokenSPLService->getBlueTokensFromCollection($mainBoardTokens),
+            'greenTokensPile' => $this->tokenSPLService->getGreenTokensFromCollection($mainBoardTokens),
+            'blackTokensPile' => $this->tokenSPLService->getBlackTokensFromCollection($mainBoardTokens),
+            'yellowTokensPile' => $this->tokenSPLService->getYellowTokensFromCollection($mainBoardTokens),
             'rows' => $game->getMainBoard()->getRowsSPL(),
             'playersNumber' => count($game->getPlayers()),
-            'ranking' => $this->service->getRanking($game),
+            'ranking' => $this->SPLService->getRanking($game),
             'player' => $player,
-            'isGameFinished' => $this->service->isGameEnded($game),
+            'isGameFinished' => $this->SPLService->isGameEnded($game),
             'nobleTiles' => $game->getMainBoard()->getNobleTiles(),
             'isSpectator' => $isSpectator,
-            //find a way to have development cards' jewels count, tokens count per color and per player for ranking
+            'needToPlay' => $needToPlay
         ]);
 
     }

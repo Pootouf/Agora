@@ -28,14 +28,10 @@ class ChosenCardSixQP extends Component
     #[ORM\JoinColumn(nullable: false)]
     private ?CardSixQP $card = null;
 
-    #[ORM\Column]
-    private ?bool $visible = null;
-
-    public function __construct(PlayerSixQP $player, GameSixQP $game, CardSixQP $card, bool $visible) {
+    public function __construct(PlayerSixQP $player, GameSixQP $game, CardSixQP $card) {
         $this -> player = $player;
         $this -> game = $game;
         $this -> card = $card;
-        $this -> visible = $visible;
     }
 
     public function getPlayer(): ?PlayerSixQP
@@ -70,18 +66,6 @@ class ChosenCardSixQP extends Component
     public function setCard(?CardSixQP $card): static
     {
         $this->card = $card;
-
-        return $this;
-    }
-
-    public function isVisible(): ?bool
-    {
-        return $this->visible;
-    }
-
-    public function setVisible(bool $visible): static
-    {
-        $this->visible = $visible;
 
         return $this;
     }

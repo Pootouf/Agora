@@ -12,7 +12,6 @@ use App\Entity\Game\Splendor\PlayerSPL;
 use App\Entity\Game\Splendor\TokenSPL;
 use App\Repository\Game\Splendor\MainBoardSPLRepository;
 use App\Repository\Game\Splendor\DevelopmentCardsSPLRepository;
-use App\Repository\Game\Splendor\GameSPLRepository;
 use App\Repository\Game\Splendor\NobleTileSPLRepository;
 use App\Repository\Game\Splendor\PlayerSPLRepository;
 use App\Repository\Game\Splendor\TokenSPLRepository;
@@ -34,6 +33,7 @@ class SPLService
     public static int $COMES_OF_THE_ROWS = 2;
     public static int $MAX_COUNT_RESERVED_CARDS = 3;
     public static int $MAX_PRESTIGE_POINTS = 15;
+    public static int $MIN_AVAILABLE_TOKENS = 4;
     private EntityManagerInterface $entityManager;
     private PlayerSPLRepository $playerSPLRepository;
     private TokenSPLRepository $tokenSPLRepository;
@@ -54,6 +54,68 @@ class SPLService
         $this->tokenSPLRepository = $tokenSPLRepository;
         $this->nobleTileSPLRepository = $nobleTileSPLRepository;
         $this->developmentCardsSPLRepository = $developmentCardsSPLRepository;
+    }
+
+    /**
+     * initializeNewGame: initialize a new Splendor game
+     *
+     * @param GameSPL $game
+     * @return void
+     */
+    public function initializeNewGame(GameSPL $game): void
+    {
+        $mainBoard = $game->getMainBoard();
+        $tokens = $this->tokenSPLRepository->findAll();
+        foreach ($tokens as $token) {
+            $mainBoard->addToken($token);
+        }
+        $nobleTiles = $this->nobleTileSPLRepository->findAll();
+        shuffle($nobleTiles);
+        for ($i = 0; $i < $game->getPlayers()->count() + 1; $i++) {
+            $mainBoard->addNobleTile($nobleTiles[$i]);
+        }
+        $levelOneCards = $this->developmentCardsSPLRepository->findBy(
+            ['level' => DevelopmentCardsSPL::$LEVEL_ONE]
+        );
+        $levelTwoCards = $this->developmentCardsSPLRepository->findBy(
+            ['level' => DevelopmentCardsSPL::$LEVEL_TWO]
+        );
+        $levelThreeCards = $this->developmentCardsSPLRepository->findBy(
+            ['level' => DevelopmentCardsSPL::$LEVEL_THREE]
+        );
+        shuffle($levelOneCards);
+        shuffle($levelTwoCards);
+        shuffle($levelThreeCards);
+        $rows = $mainBoard->getRowsSPL();
+        for ($i = 0; $i < 4; $i++) {
+            $rows[DrawCardsSPL::$LEVEL_ONE]->addDevelopmentCard($levelOneCards[$i]);
+            $rows[DrawCardsSPL::$LEVEL_TWO]->addDevelopmentCard($levelTwoCards[$i]);
+            $rows[DrawCardsSPL::$LEVEL_THREE]->addDevelopmentCard($levelThreeCards[$i]);
+        }
+        array_splice($levelOneCards, 0, 4);
+        array_splice($levelTwoCards, 0, 4);
+        array_splice($levelThreeCards, 0, 4);
+        $this->entityManager->persist($rows[DrawCardsSPL::$LEVEL_ONE]);
+        $this->entityManager->persist($rows[DrawCardsSPL::$LEVEL_TWO]);
+        $this->entityManager->persist($rows[DrawCardsSPL::$LEVEL_THREE]);
+        $drawCardLevelOne = $mainBoard->getDrawCards()->get(DrawCardsSPL::$LEVEL_ONE);
+        $drawCardLevelTwo = $mainBoard->getDrawCards()->get(DrawCardsSPL::$LEVEL_TWO);
+        $drawCardLevelThree = $mainBoard->getDrawCards()->get(DrawCardsSPL::$LEVEL_THREE);
+        foreach ($levelOneCards as $card) {
+            $drawCardLevelOne->addDevelopmentCard($card);
+        }
+        foreach ($levelTwoCards as $card) {
+            $drawCardLevelTwo->addDevelopmentCard($card);
+        }
+        foreach ($levelThreeCards as $card) {
+            $drawCardLevelThree->addDevelopmentCard($card);
+        }
+        $this->entityManager->persist($drawCardLevelOne);
+        $this->entityManager->persist($drawCardLevelTwo);
+        $this->entityManager->persist($drawCardLevelThree);
+        $this->entityManager->persist($mainBoard);
+        $this->entityManager->persist($game);
+        $this->entityManager->flush();
     }
 
     /**
@@ -128,14 +190,15 @@ class SPLService
 
     /**
      * isGameEnded : checks if a game must end or not
+     *
      * @param GameSPL $game
      * @return bool
      */
-    public function isGameEnded(GameSPL $game) : bool
+    public function isGameEnded(GameSPL $game): bool
     {
 
-       return $this->hasOnePlayerReachedLimit($game)
-           && $this->hasLastPlayerPlayed($game);
+        return $this->hasOnePlayerReachedLimit($game)
+            && $this->hasLastPlayerPlayed($game);
     }
 
     /**
@@ -167,30 +230,60 @@ class SPLService
     //TODO : METHOD TO SET TURN TO NEXT PLAYER AND ENSURE EVERY OTHER TURN IS FALSE
 
     /**
+     * hasOnePlayerReachedLimit : checks if one player reached prestige points limit
+     *
      * @param GameSPL $game
-     * @param string $name
-     * @return ?PlayerSPL
+     * @return bool
      */
-    public function getPlayerFromNameAndGame(GameSPL $game, string $name) : ?PlayerSPL
+    public function hasOnePlayerReachedLimit(GameSPL $game): bool
     {
-        return $this->playerSPLRepository->findOneBy(['gameSPL' => $game->getId(), 'username' => $name]);
+        foreach ($game->getPlayers() as $player) {
+            if ($this->getPrestigePoints($player) >= SPLService::$MAX_PRESTIGE_POINTS) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
-     * @param Game $game
-     * @return ?GameSPL
+     * getPrestigePoints : returns total prestige points of a player
+     *
+     * @param PlayerSPL $player
+     * @return int
      */
-    private function getGameSplFromGame(Game $game): ?GameSpl {
-        /** @var GameSpl $game */
-        return $game->getGameName() == AbstractGameManagerService::$SPL_LABEL ? $game : null;
+    private function getPrestigePoints(PlayerSPL $player): int
+    {
+        return $this->getPrestigePoints($player);
+    }
+
+    /**
+     * calculatePrestigePoints : calculate total points accumulated by a player
+     *
+     * @param PlayerSPL $player
+     */
+    private function calculatePrestigePoints(PlayerSPL $player): void
+    {
+        $total = 0;
+        $nobleTiles = $player->getPersonalBoard()->getNobleTiles();
+        $developCards = $player->getPersonalBoard()->getPlayerCards();
+        foreach ($nobleTiles as $tile) {
+            $total += $tile->getPrestigePoints();
+        }
+        foreach ($developCards as $card) {
+            $total += $card->getDevelopmentCard()->getPrestigePoints();
+        }
+        $player->setTotalPoints($total);
+        $this->entityManager->persist($player);
+        $this->entityManager->flush();
     }
 
     /**
      * hasLastPlayerPlayed : checks if the player who last played was the last player
+     *
      * @param GameSPL $game
      * @return bool
      */
-    private function hasLastPlayerPlayed(GameSPL $game) : bool
+    private function hasLastPlayerPlayed(GameSPL $game): bool
     {
         $players = $game->getPlayers();
         $lastPlayer = $players->last();
@@ -202,22 +295,18 @@ class SPLService
     }
 
     /**
-     * hasOnePlayerReachedLimit : checks if one player reached prestige points limit
      * @param GameSPL $game
-     * @return bool
+     * @param string  $name
+     * @return ?PlayerSPL
      */
-    public function hasOnePlayerReachedLimit(GameSPL $game) : bool
+    public function getPlayerFromNameAndGame(GameSPL $game, string $name): ?PlayerSPL
     {
-        foreach($game->getPlayers() as $player) {
-            if($this->getPrestigePoints($player) >= SPLService::$MAX_PRESTIGE_POINTS) {
-                return true;
-            }
-        }
-        return false;
+        return $this->playerSPLRepository->findOneBy(['gameSPL' => $game->getId(), 'username' => $name]);
     }
 
     /**
      * getRanking : returns a sorted array of player
+     *
      * @param GameSPL $gameSPL
      * @return array
      */
@@ -225,7 +314,7 @@ class SPLService
     {
         $array = $gameSPL->getPlayers()->toArray();
         usort($array,
-            function (PlayerSPL $player1, PlayerSPL $player2) {
+            function(PlayerSPL $player1, PlayerSPL $player2) {
                 return $this->getPrestigePoints($player2) - $this->getPrestigePoints($player1);
             });
         return $array;
@@ -233,10 +322,11 @@ class SPLService
 
     /**
      * endRoundOfPlayer : ends player's round and gives it to next player
+     *
      * @param PlayerSPL $playerSPL
      * @return void
      */
-    public function endRoundOfPlayer(GameSPL $gameSPL, PlayerSPL $playerSPL) : void
+    public function endRoundOfPlayer(GameSPL $gameSPL, PlayerSPL $playerSPL): void
     {
         $players = $gameSPL->getPlayers();
         $nbOfPlayers = $players->count();
@@ -250,31 +340,14 @@ class SPLService
 
     /**
      * getActivePlayer : returns the player who has to play
+     *
      * @param GameSPL $gameSPL
      * @return PlayerSPL
      */
-    public function getActivePlayer(GameSPL $gameSPL) : PlayerSPL
+    public function getActivePlayer(GameSPL $gameSPL): PlayerSPL
     {
         return $this->playerSPLRepository->findOneBy(["gameSPL" => $gameSPL->getId(),
-        "turnOfPlayer" => true]);
-    }
-    /**
-     * getPrestigePoints : returns total prestige points of a player
-     * @param PlayerSPL $player
-     * @return int
-     */
-    public function getPrestigePoints(PlayerSPL $player) : int
-    {
-        $total = 0;
-        $nobleTiles = $player->getPersonalBoard()->getNobleTiles();
-        $developCards = $player->getPersonalBoard()->getPlayerCards();
-        foreach($nobleTiles as $tile) {
-            $total += $tile->getPrestigePoints();
-        }
-        foreach($developCards as $card) {
-            $total += $card->getDevelopmentCard()->getPrestigePoints();
-        }
-        return $total;
+            "turnOfPlayer" => true]);
     }
 
     private function canReserveCards(PlayerSPL $player, DevelopmentCardsSPL $card): Boolean
@@ -453,25 +526,13 @@ class SPLService
     }
 
     /**
-     * canChooseTwoTokens : permet de vérifier si un joueur peut prendre le jeton $tokenSPL
-     * @param PlayerSPL $playerSPL
-     * @param TokenSPL $tokenSPL
-     * @return int
-     *          0 Si la pile est vide
-     *          1 Si on prends un jeton de même couleur que
-     *              celui dans notre pile
-     *          -1 Si on ne peut pas prendre le jeton
+     * @param Game $game
+     * @return ?GameSPL
      */
-    private function canChooseTwoTokens(PlayerSPL $playerSPL, TokenSPL $tokenSPL): int
+    private function getGameSplFromGame(Game $game): ?GameSpl
     {
-        $selectedTokens = $playerSPL->getPersonalBoard()->getTokens();
-        if($selectedTokens->count() == 0){
-            return 0;
-        }
-        if($selectedTokens->count() == 1 && $selectedTokens->first()->getColor() != $tokenSPL->getColor()){
-            return 1;
-        }
-        return $this->canChooseThreeTokens($playerSPL, $tokenSPL);
+        /** @var GameSpl $game */
+        return $game->getGameName() == AbstractGameManagerService::$SPL_LABEL ? $game : null;
     }
 
     /**

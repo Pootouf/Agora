@@ -8,55 +8,60 @@ use PHPUnit\Framework\TestCase;
 
 class MessageTest extends TestCase
 {
-    public function testCreateMessage() {
-        
+    public function testCreateMessage()
+    {
+
         // GIVEN
 
         // WHEN
         $message = new Message();
 
         // THEN
-        
+        $this->assertTrue($message->getId() >= 0);
         $this->assertNull($message->getContent());
         $this->assertNull($message->getDate());
         $this->assertNull($message->getAuthorId());
         $this->assertNull($message->getGameId());
     }
 
-    public function testSetContent() {
+    public function testSetContent(): void
+    {
         // GIVEN
         $message = new Message();
-
+        $string = "Bonjour à tous";
         // WHEN
-        $message->setContent("Bonjour à tous");
+        $message->setContent($string);
 
         // THEN
-        $this->assertEquals("Bonjour à tous", $message->getContent());
+        $this->assertEquals($string, $message->getContent());
     }
 
-    public function testSetAuthorId() {
+    public function testSetAuthorId(): void
+    {
         // GIVEN
         $message = new Message();
-
+        $authorId = 1;
         // WHEN
-        $message->setAuthorId(1);
+        $message->setAuthorId($authorId);
 
         // THEN
-        $this->assertEquals(1, $message->getAuthorId());
+        $this->assertEquals($authorId, $message->getAuthorId());
     }
 
-    public function testSetGameId() {
+    public function testSetGameId(): void
+    {
         // GIVEN
         $message = new Message();
-
+        $gameId = 1;
         // WHEN
-        $message->setGameId(1);
+        $message->setGameId($gameId);
 
         // THEN
-        $this->assertEquals(1, $message->getGameId());
+        $this->assertEquals($gameId, $message->getGameId());
     }
 
-    public function testSetDate() {
+    public function testSetDate(): void
+    {
         // GIVEN
         $message = new Message();
         $date = new DateTime("now");
@@ -69,4 +74,14 @@ class MessageTest extends TestCase
         $this->assertEquals($date, $message->getDate());
     }
 
+    public function testSetAuthorUsername(): void
+    {
+        //GIVEN
+        $message = new Message();
+        $author = "me";
+        //WHEN
+        $message->setAuthorUsername($author);
+        //THEN
+        $this->assertEquals($author, $message->getAuthorUsername());
+    }
 }

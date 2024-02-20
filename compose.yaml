@@ -23,7 +23,10 @@ services:
   agora:
     container_name: agora
     image: agora-boilerplate:latest
+    ports:
+      - '9000'
     build:
+      context: .
       dockerfile: Dockerfile
     depends_on:
       database:
@@ -32,9 +35,23 @@ services:
         condition: service_healthy
     environment:
       SERVER_NAME: ${SERVER_NAME:-localhost}
-      XDEBUG_MODE: coverage
+      TRUSTED_PROXIES: ${TRUSTED_PROXIES:-127.0.0.0/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,reverse_proxy,REMOTE_ADDR}
     labels:
       - "traefik.http.routers.agora.rule=Host(`agora.docker.localhost`)"
+
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: caddy
+    volumes:
+      - ./Caddyfile/:/etc/caddy/Caddyfile
+      - ./:/var/www/agora
+    ports:
+      - '7070'
+    depends_on:
+      - agora
+    labels:
+      - "traefik.http.routers.caddy.rule=Host(`caddy.docker.localhost`)"
 
 ###> doctrine/doctrine-bundle ###
   database:
@@ -82,6 +99,8 @@ services:
         cors_origins *
         anonymous
         ui
+    ports:
+      - "80"
     labels:
       - "traefik.http.routers.mercure.rule=Host(`mercure.docker.localhost`)"
 ###< symfony/mercure-bundle ###

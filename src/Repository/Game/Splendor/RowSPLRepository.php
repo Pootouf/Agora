@@ -14,6 +14,10 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method RowSPL[]    findAll()
  * @method RowSPL[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
+
+/**
+ * @codeCoverageIgnore
+ */
 class RowSPLRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
