@@ -198,5 +198,10 @@ class Board
         return $this;
     }
 
+    public function hasUser(User $user):bool
+    {
+        return $this->listUsers->contains($user);
+    }
+
 }
 

@@ -58,6 +58,8 @@ class BoardController extends AbstractController
     #[Route('/joinBoard/{id}', name: 'app_join_board')]
     public function joinBoardController(int $id, EntityManagerInterface $entityManager, Security $security): Response
     {
+        /*$boards = $entityManager->getRepository(Board::class)->findAll();
+        dd($boards);*/
         //get the board object
         $board = $entityManager->getRepository(Board::class)->find($id);
         //get the logged user
@@ -68,24 +70,47 @@ class BoardController extends AbstractController
         $boardMaxUser = $board->getNbUserMax();
         $boardUserNb = $board->getUsersNb();
         //test if the user can join a table
-        if ($boardStatus === "IN_GAME" || $boardStatus === "FINISH" || $boardUserNb == $boardMaxUser) {
+        if ($board->hasUser($user)||$boardStatus === "IN_GAME" || $boardStatus === "FINISH" || $boardUserNb == $boardMaxUser) {
             $errorMessage = "impssible de rejoindre la table";
             //send the error message to user, using session or flush
             $this->addFlash('warning', $errorMessage);
-            return $this->redirectToRoute('/dashboard/user');
+            return $this->redirectToRoute('app_dashboard_tables');
         }
         //add user the Board users list
-        $board->addListUser($user);
+        $user->addBoard($board);
         $this->addFlash('success', 'bienvenu sur cette table de ');
         //save changes
         $entityManager->persist($board);
         $entityManager->flush();
+        $entityManager->persist($user);
+        $entityManager->flush();
+
+        //dd($user->getBoards());
 
         /*
          * Here we test player number equal to the max players we lunch the game
          * */
 
-        return $this->redirectToRoute('dashboard/user');
-
+        return $this->redirectToRoute('app_dashboard_user');
     }
+
+#[Route('/leaveBoard/{id}', name: 'app_leave_board')]
+public function leaveBoard(int $id, EntityManagerInterface $entityManager, Security $security):Response
+{
+    $board = $entityManager->getRepository(Board::class)->find($id);
+    //get the logged user
+    $userId = $security->getUser()->getId();
+    $user = $entityManager->getRepository(User::class)->find($userId);
+    //remove the user from user list && save
+    $user->removeBoard($board);
+
+    $entityManager->persist($board);
+    $entityManager->flush();
+    $entityManager->persist($user);
+    $entityManager->flush();
+
+    return $this->redirectToRoute('app_dashboard_tables');
+}
+
+
 }
