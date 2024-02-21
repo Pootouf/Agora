@@ -18,7 +18,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 class BoardController extends AbstractController
 {
-    #[Route('/boardCreation/{game_id}', name: 'app_board_create', requirements: ['game_id' => '\d+'], methods: ['GET','POST', 'HEAD'])]
+    #[Route('/boardCreation/{game_id}', name: 'app_board_create', requirements: ['game_id' => '\d+'], methods: ['GET', 'POST', 'HEAD'])]
     public function create(Request $request, $game_id, EntityManagerInterface $manager, Security $security): Response
     {
         //Find the game with the id passed in parameters
@@ -26,7 +26,7 @@ class BoardController extends AbstractController
         //create a board
         $board = new Board();
         $form = $this->createForm(BoardRegistrationType::class, $board, [
-            'game' => $game]
+                'game' => $game]
         );
         $form->handleRequest($request);
 
@@ -49,10 +49,43 @@ class BoardController extends AbstractController
 
             return $this->redirectToRoute('app_home');
         }
-
         return $this->render('platform/game/boardRegister.html.twig', [
             'game' => $game,
             'form' => $form->createView()
         ]);
+    }
+
+    #[Route('/joinBoard/{id}', name: 'app_join_board')]
+    public function joinBoardController(int $id, EntityManagerInterface $entityManager, Security $security): Response
+    {
+        //get the board object
+        $board = $entityManager->getRepository(Board::class)->find($id);
+        //get the logged user
+        $userId = $security->getUser()->getId();
+        $user = $entityManager->getRepository(User::class)->find($userId);
+        //get the bord data
+        $boardStatus = $board->getStatus();
+        $boardMaxUser = $board->getNbUserMax();
+        $boardUserNb = $board->getUsersNb();
+        //test if the user can join a table
+        if ($boardStatus === "IN_GAME" || $boardStatus === "FINISH" || $boardUserNb == $boardMaxUser) {
+            $errorMessage = "impssible de rejoindre la table";
+            //send the error message to user, using session or flush
+            $this->addFlash('warning', $errorMessage);
+            return $this->redirectToRoute('/dashboard/user');
+        }
+        //add user the Board users list
+        $board->addListUser($user);
+        $this->addFlash('success', 'bienvenu sur cette table de ');
+        //save changes
+        $entityManager->persist($board);
+        $entityManager->flush();
+
+        /*
+         * Here we test player number equal to the max players we lunch the game
+         * */
+
+        return $this->redirectToRoute('dashboard/user');
+
     }
 }
