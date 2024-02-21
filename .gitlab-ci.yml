@@ -137,4 +137,14 @@ integrationSplendor:
   allow_failure: false
   environment: test
 
-
+applicationSplendor:
+  stage: splendor
+  only:
+    - develop-game
+    - preprod
+    - main
+  script:
+    - symfony console tailwind:build
+    - php bin/phpunit tests/Game/Splendor/Application
+  allow_failure: false
+  environment: test
