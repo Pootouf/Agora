@@ -20,11 +20,8 @@ use App\Entity\Game\Splendor\RowSPL;
 use App\Service\Game\AbstractGameManagerService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Exception;
-use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Common\Collections\Collection;
-use phpDocumentor\Reflection\Types\Nullable;
-use function PHPUnit\Framework\equalTo;
-use function PHPUnit\Framework\throwException;
+use Doctrine\ORM\EntityManagerInterface;
 class SPLService
 {
     public static string $LABEL_JOKER = "yellow";
@@ -113,10 +110,10 @@ class SPLService
      * @param DevelopmentCardsSPL $card
      * @return void
      */
-    public function reserveCards(PlayerSPL $player, DevelopmentCardsSPL $card) : void
+    public function reserveCard(PlayerSPL $player, DevelopmentCardsSPL $card) : void
     {
         // Check can reserve
-        if (!$this->canReserveCards($player, $card))
+        if (!$this->canReserveCard($player, $card))
         {
             throw new Exception("You can't reserve cards");
         }
@@ -172,7 +169,7 @@ class SPLService
      * @param PlayerSPL $player
      * @return Collection<int, DevelopmentCardsSPL>
      */
-    public function getReserveCards(PlayerSPL $player) : Collection
+    public function getReservedCards(PlayerSPL $player) : Collection
     {
         $personalBoard = $player->getPersonalBoard();
         $cardsOfPlayer = $personalBoard->getPlayerCards();
@@ -319,12 +316,11 @@ class SPLService
     /**
      * buyCard : check if player can buy a card and remove the card from the main board
      *
-     * @param GameSPL $gameSPL
      * @param PlayerSPL $playerSPL
      * @param PlayerCardSPL $playerCardSPL
      * @return void
      */
-    public function buyCard(GameSPL $gameSPL, PlayerSPL $playerSPL,
+    public function buyCard(PlayerSPL $playerSPL,
                             PlayerCardSPL $playerCardSPL): void
     {
         $developmentCardsSPL = $playerCardSPL->getDevelopmentCard();
@@ -339,7 +335,64 @@ class SPLService
         }
     }
 
-    private function canReserveCards(PlayerSPL $player, DevelopmentCardsSPL $card): bool
+    /**
+     * addBuyableNobleTilesToPlayer: add the first noble tiles the player can afford to his stock
+     * @param GameSPL $game
+     * @param PlayerSPL $player
+     * @return void
+     */
+    public function addBuyableNobleTilesToPlayer(GameSPL $game, PlayerSPL $player): void
+    {
+        $playerCards = $player->getPersonalBoard()->getPlayerCards();
+        $filteredCards = $this->filterCardsByColor($playerCards);
+        foreach ($game->getMainBoard()->getNobleTiles() as $tile) {
+            $costs = $tile->getCardsCost();
+            $canBuy = true;
+            foreach ($costs as $cost) {
+                $color = $cost->getColor();
+                if ($cost->getPrice() > sizeof($filteredCards[$color])) {
+                    $canBuy = false;
+                }
+            }
+            if ($canBuy) {
+                $player->getPersonalBoard()->addNobleTile($tile);
+                $game->getMainBoard()->removeNobleTile($tile);
+                $this->entityManager->persist($player->getPersonalBoard());
+                $this->entityManager->persist($game->getMainBoard());
+                $this->entityManager->flush();
+            }
+        }
+    }
+
+    /**
+     * filterCardsByColor: take an array of playerCards and filter it by color
+     * @param Collection $playerCards
+     * @return array<String, Collection<PlayerCardSPL>> an array associating color with the cards of the player
+     */
+    private function filterCardsByColor(Collection $playerCards): array {
+        return [
+            TokenSPL::$COLOR_BLUE => $this->getCardOfColor($playerCards, TokenSPL::$COLOR_BLUE),
+            TokenSPL::$COLOR_BLACK => $this->getCardOfColor($playerCards, TokenSPL::$COLOR_BLACK),
+            TokenSPL::$COLOR_GREEN => $this->getCardOfColor($playerCards, TokenSPL::$COLOR_GREEN),
+            TokenSPL::$COLOR_RED => $this->getCardOfColor($playerCards, TokenSPL::$COLOR_RED),
+            TokenSPL::$COLOR_WHITE => $this->getCardOfColor($playerCards, TokenSPL::$COLOR_WHITE),
+        ];
+    }
+
+    /**
+     * getCardOfColor: select all the $playerCards with the $color
+     * @param Collection<DevelopmentCardsSPL> $playerCards
+     * @param string $color
+     * @return Collection<DevelopmentCardsSPL> the card of the selected color
+     */
+    private function getCardOfColor(Collection $playerCards, string $color): Collection
+    {
+        return $playerCards->filter(function (PlayerCardSPL $cards) use ($color) {
+            return $cards->getDevelopmentCard()->getColor() == $color;
+        });
+    }
+
+    private function canReserveCard(PlayerSPL $player, DevelopmentCardsSPL $card): bool
     {
         if (!$this->checkCanReserveSidesPlayer($player, $card) ||
             !$this->checkCanReserveSideMainBoard($player, $card) )
@@ -354,7 +407,7 @@ class SPLService
     {
         // Method that checks the number of reserved cards
 
-        $reservedCardsOfPlayer = $this->getReserveCards($player);
+        $reservedCardsOfPlayer = $this->getReservedCards($player);
         if ($reservedCardsOfPlayer->count()
             == SPLService::$MAX_COUNT_RESERVED_CARDS)
         {
@@ -378,7 +431,7 @@ class SPLService
         $mainBoard = $player->getGameSPL()->getMainBoard();
 
         return $this->checkInRowAtLevel($mainBoard, $card)
-            || $this->checkInDiscardAtLevel($mainBoard, $card);
+            xor $this->checkInDiscardAtLevel($mainBoard, $card);
     }
 
     private function checkInRowAtLevel(MainBoardSPL $mainBoard
@@ -480,7 +533,7 @@ class SPLService
         return $this->getNumberOfTokenAtColor($tokens, $color);
     }
 
-    private function getNumberOfTokenAtColor(Collection $tokens, string $color) : int
+    public function getNumberOfTokenAtColor(Collection $tokens, string $color) : int
     {
         $count = 0;
         for ($i = 0; $i < $tokens->count(); $i++)
@@ -574,7 +627,7 @@ class SPLService
      */
     private function computePlayerMoney(PlayerSPL $playerSPL): array
     {
-        $money = array();
+        $money = $this->initializeColorTab();
         $playerCards = $playerSPL->getPersonalBoard()->getPlayerCards();
         foreach ($playerCards as $playerCard){
             $cardColor = $playerCard->getDevelopmentCard()->getColor();
@@ -595,11 +648,11 @@ class SPLService
      */
     private function computeCardPrice(DevelopmentCardsSPL $developmentCardsSPL): array
     {
-        $price = array();
+        $price = $this->initializeColorTab();
         $cardCosts = $developmentCardsSPL->getCardCost();
         foreach ($cardCosts as $cardCost){
             $costColor = $cardCost->getColor();
-            $price[$costColor] += 1;
+            $price[$costColor] += $cardCost->getPrice();
         }
         return $price;
     }
@@ -640,16 +693,14 @@ class SPLService
         }
     }
 
-    /*private function computeTokenToRetrieve(PlayerSPL $playerSPL, DevelopmentCardsSPL $developmentCardsSPL): array
+    private function initializeColorTab():array
     {
-        $playerMoney = $this->computePlayerMoney($playerSPL);
-
-        // compute token number to retrieve
-        $playerCards = $playerSPL->getPersonalBoard()->getPlayerCards();
-        foreach ($playerCards as $playerCard){
-            $cardColor = $playerCard->getDevelopmentCard()->getColor();
-            $playerMoney[$cardColor] -= 1;
-        }
-        return $playerMoney;
-    }*/
+        $array[TokenSPL::$COLOR_YELLOW] = 0;
+        $array[TokenSPL::$COLOR_RED] = 0;
+        $array[TokenSPL::$COLOR_BLUE] = 0;
+        $array[TokenSPL::$COLOR_BLACK] = 0;
+        $array[TokenSPL::$COLOR_GREEN] = 0;
+        $array[TokenSPL::$COLOR_WHITE] = 0;
+        return $array;
+    }
 }

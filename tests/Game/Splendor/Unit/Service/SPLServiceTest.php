@@ -1,19 +1,20 @@
 <?php
 
-namespace App\Tests\Game\Splendor\Unit\Service;
+namespace Game\Splendor\Unit\Service;
 
+use App\Entity\Game\Splendor\CardCostSPL;
 use App\Entity\Game\Splendor\DevelopmentCardsSPL;
 use App\Entity\Game\Splendor\DrawCardsSPL;
 use App\Entity\Game\Splendor\GameSPL;
 use App\Entity\Game\Splendor\MainBoardSPL;
 use App\Entity\Game\Splendor\NobleTileSPL;
 use App\Entity\Game\Splendor\PersonalBoardSPL;
+use App\Entity\Game\Splendor\PlayerCardSPL;
 use App\Entity\Game\Splendor\PlayerSPL;
 use App\Entity\Game\Splendor\SelectedTokenSPL;
 use App\Entity\Game\Splendor\RowSPL;
 use App\Entity\Game\Splendor\TokenSPL;
 use App\Repository\Game\Splendor\DevelopmentCardsSPLRepository;
-use App\Repository\Game\Splendor\GameSPLRepository;
 use App\Repository\Game\Splendor\MainBoardSPLRepository;
 use App\Repository\Game\Splendor\NobleTileSPLRepository;
 use App\Repository\Game\Splendor\TokenSPLRepository;
@@ -21,9 +22,11 @@ use App\Service\Game\Splendor\SPLService;
 use App\Service\Game\Splendor\TokenSPLService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Query\Expr\Math;
 use PhpCsFixer\Linter\TokenizerLinter;
 use PHPUnit\Framework\TestCase;
 use App\Repository\Game\Splendor\PlayerSPLRepository;
+use Random\Randomizer;
 
 class SPLServiceTest extends TestCase
 {
@@ -289,6 +292,118 @@ class SPLServiceTest extends TestCase
         $this->assertSame($expectedResult, $result);
     }
 
+    public function testBuyCardWhenNotEnoughMoney()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $player->setTurnOfPlayer(true);
+        $cardCost = new CardCostSPL();
+        $cardCost->setColor(TokenSPL::$COLOR_RED);
+        $cardCost->setPrice(1);
+        $array = new ArrayCollection();
+        $array->add($cardCost);
+        $developmentCard = DevelopmentCardsSPL::createDevelopmentCard($array);
+        $playerCard = new PlayerCardSPL($player, new DevelopmentCardsSPL(), false);
+        $playerCard->setDevelopmentCard($developmentCard);
+        // WHEN
+        $this->SPLService->buyCard($player, $playerCard);
+        // THEN
+        $this->assertNotContains($playerCard ,$player->getPersonalBoard()->getPlayerCards());
+    }
+    public function testBuyCardWhenEnoughMoney()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $player->setTurnOfPlayer(true);
+        $token = new TokenSPL();
+        $token->setColor(TokenSPL::$COLOR_RED);
+        $player->getPersonalBoard()->addToken($token);
+        $cardCost = new CardCostSPL();
+        $cardCost->setColor(TokenSPL::$COLOR_RED);
+        $cardCost->setPrice(1);
+        $array = new ArrayCollection();
+        $array->add($cardCost);
+        $developmentCard = DevelopmentCardsSPL::createDevelopmentCard($array);
+        $playerCard = new PlayerCardSPL($player, new DevelopmentCardsSPL(), false);
+        $playerCard->setDevelopmentCard($developmentCard);
+        // WHEN
+        $this->SPLService->buyCard($player, $playerCard);
+        // THEN
+        $this->assertContains($playerCard ,$player->getPersonalBoard()->getPlayerCards());
+    }
+    public function testBuyCardWhenCardIsReserved()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $player->setTurnOfPlayer(true);
+        $token = new TokenSPL();
+        $token->setColor(TokenSPL::$COLOR_RED);
+        $player->getPersonalBoard()->addToken($token);
+        $cardCost = new CardCostSPL();
+        $cardCost->setColor(TokenSPL::$COLOR_RED);
+        $cardCost->setPrice(1);
+        $array = new ArrayCollection();
+        $array->add($cardCost);
+        $developmentCard = DevelopmentCardsSPL::createDevelopmentCard($array);
+        $playerCard = new PlayerCardSPL($player, new DevelopmentCardsSPL(), false);
+        $playerCard->setDevelopmentCard($developmentCard);
+        $playerCard->setIsReserved(true);
+        // WHEN
+        $this->SPLService->buyCard($player, $playerCard);
+        // THEN
+        $this->assertContains($playerCard ,$player->getPersonalBoard()->getPlayerCards());
+        $this->assertFalse($playerCard->isIsReserved());
+    }
+
+    public function testAddBuyableNobleTilesToPlayerShouldAddTileToPlayer() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        for ($i = 0; $i < 3; $i++) {
+            $playerCard = $this->createPlayerCard($player, TokenSPL::$COLOR_RED);
+            $player->getPersonalBoard()->addPlayerCard($playerCard);
+            $playerCard = $this->createPlayerCard($player, TokenSPL::$COLOR_BLUE);
+            $player->getPersonalBoard()->addPlayerCard($playerCard);
+        }
+        $nobleTile = $this->createNobleTile([
+            TokenSPL::$COLOR_RED => 3,
+            TokenSPL::$COLOR_BLUE => 3,
+        ]);
+        $game->getMainBoard()->addNobleTile($nobleTile);
+        //WHEN
+        $this->SPLService->addBuyableNobleTilesToPlayer($game, $player);
+        //THEN
+        $this->assertSame($nobleTile, $player->getPersonalBoard()->getNobleTiles()->first());
+    }
+
+
+    public function testAddBuyableNobleTilesToPlayerShouldDoNothing() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        for ($i = 0; $i < 3; $i++) {
+            $playerCard = $this->createPlayerCard($player, TokenSPL::$COLOR_RED);
+            $player->getPersonalBoard()->addPlayerCard($playerCard);
+            $playerCard = $this->createPlayerCard($player, TokenSPL::$COLOR_BLUE);
+            $player->getPersonalBoard()->addPlayerCard($playerCard);
+        }
+        $nobleTile = $this->createNobleTile([
+            TokenSPL::$COLOR_RED => 3,
+            TokenSPL::$COLOR_BLUE => 4,
+        ]);
+        $game->getMainBoard()->addNobleTile($nobleTile);
+        $expectedNumberOfNobleTile = 0;
+        //WHEN
+        $this->SPLService->addBuyableNobleTilesToPlayer($game, $player);
+        //THEN
+        $this->assertSame($expectedNumberOfNobleTile, $player->getPersonalBoard()->getNobleTiles()->count());
+    }
+
     private function createGame(int $numberOfPlayers) : GameSPL
     {
         $game = new GameSPL();
@@ -317,22 +432,35 @@ class SPLServiceTest extends TestCase
             $row = new RowSPL();
             $row->setLevel($i);
             for ($c = 0; $c < 4; $c++) {
-                $tcard = new DevelopmentCardsSPL();
-                $tcard->setLevel($i);
-                $row->addDevelopmentCard($tcard);
+                $card = new DevelopmentCardsSPL();
+                $card->setLevel($i);
+                $row->addDevelopmentCard($card);
             }
             $mainBoard->addRowsSPL($row);
         }
+
+        $joker = new TokenSPL();
+        $joker->setColor(SPLService::$LABEL_JOKER);
+        $mainBoard->addToken($joker);
 
         $game->setMainBoard($mainBoard);
         return $game;
     }
 
-    public function testReserveCardsFromMainBoardWhenIsAccessibleFromDiscard() : void
+    public function testReserveCardFromMainBoardWhenIsAccessibleFromDiscardWithoutToken() : void
     {
         // GIVEN
         $game = $this->createGame(SPLService::$MIN_COUNT_PLAYER);
         $player = $game->getPlayers()->first();
+        $personal = $player->getPersonalBoard();
+
+        while ($personal->getTokens()->count() !=
+            SPLService::$MAX_POSSIBLE_COUNT_TOKENS)
+        {
+            $token = new TokenSPL();
+            $token->setColor("red");
+            $player->getPersonalBoard()->addToken($token);
+        }
 
         $level = DevelopmentCardsSPL::$LEVEL_ONE;
         $discard = $game->getMainBoard()->getDrawCards()->get($level);
@@ -340,18 +468,48 @@ class SPLServiceTest extends TestCase
 
         // WHEN
 
-        $this->SPLService->reserveCards($player, $card);
+        $this->SPLService->reserveCard($player, $card);
 
         // THEN
 
-        $this->assertContains($card,
-        $this->SPLService
-            ->getReserveCards($player));
-        $this->assertNotContains($card, $game->getMainBoard() ->getDrawCards()->get($level)
+        $this->assertContains($card, $this->SPLService
+            ->getReservedCards($player));
+        $this->assertNotContains($card, $game->getMainBoard()
+            ->getDrawCards()->get($level)
             ->getDevelopmentCards());
+        $this->assertSame(0,
+            $this->SPLService->getNumberOfTokenAtColor($personal->getTokens(),
+                SPLService::$LABEL_JOKER));
     }
 
-    public function testReserveCardsFromMainBoardWhenIsNotAccessibleFromDiscard() : void
+    public function testReserveCardFromMainBoardWhenIsAccessibleFromDiscardWithToken() : void
+    {
+        // GIVEN
+        $game = $this->createGame(SPLService::$MIN_COUNT_PLAYER);
+        $player = $game->getPlayers()->first();
+        $personal = $player->getPersonalBoard();
+
+        $level = DevelopmentCardsSPL::$LEVEL_ONE;
+        $discard = $game->getMainBoard()->getDrawCards()->get($level);
+        $card = $discard->getDevelopmentCards()->last();
+
+        // WHEN
+
+        $this->SPLService->reserveCard($player, $card);
+
+        // THEN
+
+        $this->assertContains($card, $this->SPLService
+            ->getReservedCards($player));
+        $this->assertNotContains($card, $game->getMainBoard()
+            ->getDrawCards()->get($level)
+            ->getDevelopmentCards());
+        $this->assertSame(1,
+            $this->SPLService->getNumberOfTokenAtColor($personal->getTokens(),
+                SPLService::$LABEL_JOKER));
+    }
+
+    public function testReserveCardFromMainBoardWhenIsNotAccessibleFromDiscard() : void
     {
         // GIVEN
         $game = $this->createGame(SPLService::$MIN_COUNT_PLAYER);
@@ -363,15 +521,15 @@ class SPLServiceTest extends TestCase
 
         // WHEN et THEN
         $this->expectException(\Exception::class);
-        $this->SPLService->reserveCards($player, $card);
+        $this->SPLService->reserveCard($player, $card);
     }
 
-    public function testReserveCardsFromMainBoardWhenIsAccessibleFromRow() : void
+    public function testReserveCardFromMainBoardWhenIsAccessibleFromRowWithToken() : void
     {
-
         // GIVEN
         $game = $this->createGame(SPLService::$MIN_COUNT_PLAYER);
         $player = $game->getPlayers()->first();
+        $personal = $player->getPersonalBoard();
 
         $level = DevelopmentCardsSPL::$LEVEL_ONE;
         $row = $game->getMainBoard()->getRowsSPL()->get($level);
@@ -379,19 +537,59 @@ class SPLServiceTest extends TestCase
 
         // WHEN
 
-        $this->SPLService->reserveCards($player, $card);
+        $this->SPLService->reserveCard($player, $card);
 
         // THEN
 
         $this->assertTrue($this->SPLService
-            ->getReserveCards($player)
+            ->getReservedCards($player)
             ->contains($card));
         $this->assertFalse($game->getMainBoard()
             ->getRowsSPL()->get($level)
             ->getDevelopmentCards()->contains($card));
+        $this->assertSame(1,
+            $this->SPLService->getNumberOfTokenAtColor($personal->getTokens(),
+                SPLService::$LABEL_JOKER));
     }
 
-    public function testReserveCardsWhenAlreadyFull() : void
+    public function testReserveCardFromMainBoardWhenIsAccessibleFromRowWithoutToken() : void
+    {
+
+        // GIVEN
+        $game = $this->createGame(SPLService::$MIN_COUNT_PLAYER);
+        $player = $game->getPlayers()->first();
+        $personal = $player->getPersonalBoard();
+
+        while ($personal->getTokens()->count() !=
+            SPLService::$MAX_POSSIBLE_COUNT_TOKENS)
+        {
+            $token = new TokenSPL();
+            $token->setColor("red");
+            $player->getPersonalBoard()->addToken($token);
+        }
+
+        $level = DevelopmentCardsSPL::$LEVEL_ONE;
+        $row = $game->getMainBoard()->getRowsSPL()->get($level);
+        $card = $row->getDevelopmentCards()->first();
+
+        // WHEN
+
+        $this->SPLService->reserveCard($player, $card);
+
+        // THEN
+
+        $this->assertTrue($this->SPLService
+            ->getReservedCards($player)
+            ->contains($card));
+        $this->assertFalse($game->getMainBoard()
+            ->getRowsSPL()->get($level)
+            ->getDevelopmentCards()->contains($card));
+        $this->assertSame(0,
+            $this->SPLService->getNumberOfTokenAtColor($personal->getTokens(),
+                SPLService::$LABEL_JOKER));
+    }
+
+    public function testReserveCardWhenAlreadyFull() : void
     {
         // GIVEN
         $game = $this->createGame(SPLService::$MIN_COUNT_PLAYER);
@@ -402,13 +600,96 @@ class SPLServiceTest extends TestCase
         {
             $row = $game->getMainBoard()->getRowsSPL()->get($level);
             $card = $row->getDevelopmentCards()->first();
-            $this->SPLService->reserveCards($player, $card);
+            $this->SPLService->reserveCard($player, $card);
         }
 
         // WHEN et THEN
         $card = $game->getMainBoard()->getDrawCards()
             ->get($level)->getDevelopmentCards()->last();
         $this->expectException(\Exception::class);
-        $this->SPLService->reserveCards($player, $card);
+        $this->SPLService->reserveCard($player, $card);
+    }
+
+    public function testReserveCardIsNotAccessibleAndTokensIsNotFull() : void
+    {
+        // GIVEN
+        $game = $this->createGame(SPLService::$MIN_COUNT_PLAYER);
+        $player = $game->getPlayers()->first();
+
+        $card = new DevelopmentCardsSPL();
+        $card->setLevel(DevelopmentCardsSPL::$LEVEL_ONE);
+
+        // WHEN et THEN
+
+        $this->expectException(\Exception::class);
+        $this->SPLService->reserveCard($player, $card);
+    }
+
+    public function testReserveCardIsNotAccessibleAndTokensIsFull() : void
+    {
+        // GIVEN
+        $game = $this->createGame(SPLService::$MIN_COUNT_PLAYER);
+        $player = $game->getPlayers()->first();
+        $personal = $player->getPersonalBoard();
+
+        while ($personal->getTokens()->count() !=
+            SPLService::$MAX_POSSIBLE_COUNT_TOKENS)
+        {
+            $token = new TokenSPL();
+            $token->setColor("red");
+            $player->getPersonalBoard()->addToken($token);
+        }
+
+        $card = new DevelopmentCardsSPL();
+        $card->setLevel(DevelopmentCardsSPL::$LEVEL_ONE);
+
+        // WHEN et THEN
+
+        $this->expectException(\Exception::class);
+        $this->SPLService->reserveCard($player, $card);
+    }
+
+    public function testReserveCardFromDiscardAndRowAndTokenIsNotFull() : void
+    {
+        // GIVEN
+        $game = $this->createGame(SPLService::$MIN_COUNT_PLAYER);
+        $player = $game->getPlayers()->first();
+
+        $card = new DevelopmentCardsSPL();
+        $level = DevelopmentCardsSPL::$LEVEL_ONE;
+        $card->setLevel($level);
+        $game->getMainBoard()->getRowsSPL()
+            ->get($level - 1)->addDevelopmentCard($card);
+        $game->getMainBoard()->getDrawCards()
+            ->get($level - 1)->addDevelopmentCard($card);
+
+
+        // WHEN et THEN
+
+        $this->expectException(\Exception::class);
+        $this->SPLService->reserveCard($player, $card);
+    }
+
+    private function createPlayerCard(PlayerSPL $player, string $color) : PlayerCardSPL
+    {
+        $card = new DevelopmentCardsSPL();
+        $card->setColor($color);
+        $card->setPrestigePoints(0);
+        $card->setLevel(0);
+        $playerCard = new PlayerCardSPL($player, $card, false);
+        return $playerCard;
+    }
+
+    private function createNobleTile(array $param) : NobleTileSPL
+    {
+        $nobleTile = new NobleTileSPL();
+        foreach ($param as $color => $price) {
+            $cardCost = new CardCostSPL();
+            $cardCost->setColor($color);
+            $cardCost->setPrice($price);
+            $nobleTile->addCardsCost($cardCost);
+        }
+        $nobleTile->setPrestigePoints(0);
+        return $nobleTile;
     }
 }
