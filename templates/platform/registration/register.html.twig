@@ -61,21 +61,11 @@
 				</div>
 
 				<div>
-					{{ form_widget(registrationForm.agreeTerms, {'attr': {
-							'class': 'mr-2 rounded-md border-0 py-1.5 text-primary shadow-sm ring-1 ring-outset ring-gray-300 focus:ring-2 focus:ring-outset focus:ring-primary sm:text-sm sm:leading-6'
-						}}) }}
-					{{ form_label(registrationForm.agreeTerms, 'J\'accepte les Conditions d\'utilisation', {'label_attr': {
-							'class': 'text-sm font-medium leading-6 text-gray-900'
-						}}) }}
-				</div>
-
-				<div>
 					<button type="submit" class="flex w-full justify-center rounded-md bg-primary px-3 py-1.5
 																	text-sm font-semibold leading-6 text-white shadow-sm hover:bg-blue-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Créer mon compte</button>
 				</div>
 
 				{{ form_end(registrationForm) }}
-
 
 				<p class="mt-10 text-center text-sm text-gray-500">
 					Déjà un compte ?
