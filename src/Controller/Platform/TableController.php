@@ -15,6 +15,7 @@ class TableController extends AbstractController
     #[Route('/table', name: 'app_table', methods: ['GET'])]
     public function index(Security $security, Request $request, BoardRepository $boardRepository): Response
     {
+
         $currentUserID = null;
         if ($security->getUser() !== null) {
             $currentUserID = $security->getUser()->getId();

@@ -41,7 +41,7 @@
 <tbody>
     {% for board in boards %}
         {% set users = board.listUsers %}
-        {% set availableSeats = 8 - users|length %}
+        {% set availableSeats = board.getNbAvailbleSlots() %}
         {% set colorClass = 
             board.isAvailble() ? 'bg-gradient-to-r from-transparent to-green-200' : 'bg-gradient-to-r from-transparent to-red-200'
         %} 
@@ -64,40 +64,43 @@
                         Terminé
                     {% endif %}
                 </div>
-                <div>Table : 
+                <div>Accessibilité : 
                     {% if board.isAvailble() == true %}
                         Ouverte
                     {% elseif board.isAvailble() == false %}
                         Fermé
                     {% endif %}
                 </div>
-                <div>Date de création: le {{ board.creationdate|date('Y-m-d à H:i:s') }}</div>
+                <div>Date de création: Le {{ board.creationdate|date('d-m-Y à H:i') }}</div>
             </td>
-            <td class="px-20 py-4">
-                <table class="w-full text-xs text-gray-500 dark:text-gray-400 table-container">
-                    {% for row in 1..2 %}
-                        <tr>
-                            {% for column in 1..4 %}
-                                {% set userIndex = (row - 1) * 4 + column - 1 %}
-                                {% set user = users|length > userIndex ? users[userIndex] : null %}
-                                <td class="h-8 w-8 mb-1">
-                                    <a href="/">
-                                        {% if user %}
-                                            <img src="https://avatarfiles.alphacoders.com/244/thumb-244471.png" alt="Avatar de {{ user.username }}" class="w-8 h-8 rounded-full object-cover">
-                                        {% endif %}
-                                    </a>
-                                </td>
-                                <td class="text-xs pl-2">
-                                    <a href="/">{{ user.username ?? '' }}</a>
-                                </td>
-                            {% endfor %}
-                        </tr>
-                    {% endfor %}
-                </table>
-            </td>
+           <td class="px-20 py-4">
+    <table class="w-full text-xs text-gray-500 dark:text-gray-400 table-container">
+        {% set usersCount = users|length %}
+        {% set maxUsers = board.getNbUserMax() %}
+        {% set rows = (maxUsers / 4)|round(0, 'ceil') %}
+        {% set cellWidth = 100 / 4 %}
+        {% for row in 1..rows %}
+            <tr>
+                {% for column in 1..4 %}
+                    {% set userIndex = (row - 1) * 4 + column - 1 %}
+                    {% set user = userIndex < usersCount ? users[userIndex] : null %}
+                    <td class="mb-1" style="width: {{ cellWidth }}%;">
+                        <a href="/" class="flex items-center justify-center">
+                            {% if user %}
+                                <img src="https://avatarfiles.alphacoders.com/244/thumb-244471.png" alt="Avatar de {{ user.username }}" class="w-8 h-8 rounded-full object-cover mr-2">
+                                <span>{{ user.username }}</span>
+                            {% endif %}
+                        </a>
+                    </td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+    </table>
+</td>
+
             <td class="px-3 py-4">
                 {% if app.user %}
-                    {% if board.isAvailble() == true %}
+                    {% if board.isAvailble() == true and availableSeats > 0 %}
                         <a href="/" class="text-white bg-primary hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
                             Rejoindre
                         </a>

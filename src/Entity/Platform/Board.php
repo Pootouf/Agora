@@ -193,5 +193,10 @@ class Board
         return $this;
     }
 
+    //Return the actual number of availble slots of the board
+    //getNbAvailbleSlots() == 0 => isAvailble() == false 
+    public function getNbAvailbleSlots(){
+        return $this->getNbUserMax() - ($this->listUsers->count() + $this->nbInvitations);
+    }
 }
 
