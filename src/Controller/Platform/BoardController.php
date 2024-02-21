@@ -85,11 +85,13 @@ class BoardController extends AbstractController
         $entityManager->persist($user);
         $entityManager->flush();
 
+        //dd($user->getBoards());
+
         /*
          * Here we test player number equal to the max players we lunch the game
          * */
 
-        return $this->redirectToRoute('app_dashboard_tables');
+        return $this->redirectToRoute('app_dashboard_user');
     }
 
 #[Route('/leaveBoard/{id}', name: 'app_leave_board')]
@@ -100,9 +102,11 @@ public function leaveBoard(int $id, EntityManagerInterface $entityManager, Secur
     $userId = $security->getUser()->getId();
     $user = $entityManager->getRepository(User::class)->find($userId);
     //remove the user from user list && save
-    $board->removeListUser($user);
+    $user->removeBoard($board);
 
     $entityManager->persist($board);
+    $entityManager->flush();
+    $entityManager->persist($user);
     $entityManager->flush();
 
     return $this->redirectToRoute('app_dashboard_tables');
