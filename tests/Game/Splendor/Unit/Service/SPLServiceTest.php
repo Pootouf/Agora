@@ -404,49 +404,6 @@ class SPLServiceTest extends TestCase
         $this->assertSame($expectedNumberOfNobleTile, $player->getPersonalBoard()->getNobleTiles()->count());
     }
 
-    private function createGame(int $numberOfPlayers) : GameSPL
-    {
-        $game = new GameSPL();
-        for ($i = 0; $i < $numberOfPlayers; ++$i) {
-            $player = new PlayerSPL('test', $game);
-            $game->addPlayer($player);
-            $personalBoard = new PersonalBoardSPL();
-            $player->setPersonalBoard($personalBoard);
-        }
-        $mainBoard = new MainBoardSPL();
-
-        // insert discards and rows
-
-        for ($i = 0; $i <= DrawCardsSPL::$LEVEL_THREE; $i++) {
-            $discard = new DrawCardsSPL();
-            $discard->setLevel($i);
-            for ($c = 0; $c < 10; $c++) {
-                $card = new DevelopmentCardsSPL();
-                $card->setLevel($i);
-                $discard->addDevelopmentCard($card);
-            }
-            $mainBoard->addDrawCard($discard);
-        }
-
-        for ($i = 0; $i <= DrawCardsSPL::$LEVEL_THREE; $i++) {
-            $row = new RowSPL();
-            $row->setLevel($i);
-            for ($c = 0; $c < 4; $c++) {
-                $card = new DevelopmentCardsSPL();
-                $card->setLevel($i);
-                $row->addDevelopmentCard($card);
-            }
-            $mainBoard->addRowsSPL($row);
-        }
-
-        $joker = new TokenSPL();
-        $joker->setColor(SPLService::$LABEL_JOKER);
-        $mainBoard->addToken($joker);
-
-        $game->setMainBoard($mainBoard);
-        return $game;
-    }
-
     public function testReserveCardFromMainBoardWhenIsAccessibleFromDiscardWithoutToken() : void
     {
         // GIVEN
@@ -670,6 +627,21 @@ class SPLServiceTest extends TestCase
         $this->SPLService->reserveCard($player, $card);
     }
 
+    public function testGetDrawCardsByLevelReturnSameCollection() : void
+    {
+        //GIVEN
+        $numberOfPlayers = 2;
+        $game = $this->createGame($numberOfPlayers);
+        $drawLevelOne = $game->getMainBoard()->getDrawCards()->get(DrawCardsSPL::$LEVEL_ONE);
+        $card = new DevelopmentCardsSPL();
+        $card->setLevel(DevelopmentCardsSPL::$LEVEL_ONE);
+        $drawLevelOne->addDevelopmentCard($card);
+        //WHEN
+        $result = $this->SPLService->getDrawCardsByLevel(DrawCardsSPL::$LEVEL_ONE, $game);
+        //THEN
+        $this->assertSame($card->getId(), $result->first()->getId());
+    }
+
     private function createPlayerCard(PlayerSPL $player, string $color) : PlayerCardSPL
     {
         $card = new DevelopmentCardsSPL();
@@ -691,5 +663,48 @@ class SPLServiceTest extends TestCase
         }
         $nobleTile->setPrestigePoints(0);
         return $nobleTile;
+    }
+
+    private function createGame(int $numberOfPlayers) : GameSPL
+    {
+        $game = new GameSPL();
+        for ($i = 0; $i < $numberOfPlayers; ++$i) {
+            $player = new PlayerSPL('test', $game);
+            $game->addPlayer($player);
+            $personalBoard = new PersonalBoardSPL();
+            $player->setPersonalBoard($personalBoard);
+        }
+        $mainBoard = new MainBoardSPL();
+
+        // insert discards and rows
+
+        for ($i = 0; $i <= DrawCardsSPL::$LEVEL_THREE; $i++) {
+            $discard = new DrawCardsSPL();
+            $discard->setLevel($i);
+            for ($c = 0; $c < 10; $c++) {
+                $card = new DevelopmentCardsSPL();
+                $card->setLevel($i);
+                $discard->addDevelopmentCard($card);
+            }
+            $mainBoard->addDrawCard($discard);
+        }
+
+        for ($i = 0; $i <= DrawCardsSPL::$LEVEL_THREE; $i++) {
+            $row = new RowSPL();
+            $row->setLevel($i);
+            for ($c = 0; $c < 4; $c++) {
+                $card = new DevelopmentCardsSPL();
+                $card->setLevel($i);
+                $row->addDevelopmentCard($card);
+            }
+            $mainBoard->addRowsSPL($row);
+        }
+
+        $joker = new TokenSPL();
+        $joker->setColor(SPLService::$LABEL_JOKER);
+        $mainBoard->addToken($joker);
+
+        $game->setMainBoard($mainBoard);
+        return $game;
     }
 }

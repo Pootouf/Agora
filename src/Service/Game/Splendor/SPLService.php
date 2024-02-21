@@ -365,6 +365,17 @@ class SPLService
     }
 
     /**
+     * getDrawCardsByLevel : return a list of development cards from the draw indicated by its level
+     * @param int $level
+     * @param GameSPL $game
+     * @return Collection<DevelopmentCardsSPL>
+     */
+    public function getDrawCardsByLevel(int $level, GameSPL $game) : Collection
+    {
+        return $game->getMainBoard()->getDrawCards()->get($level)->getDevelopmentCards();
+    }
+
+    /**
      * filterCardsByColor: take an array of playerCards and filter it by color
      * @param Collection $playerCards
      * @return array<String, Collection<PlayerCardSPL>> an array associating color with the cards of the player

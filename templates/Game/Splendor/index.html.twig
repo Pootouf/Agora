@@ -4,7 +4,7 @@
 
 {% block body %}
     <div class="h-screen w-screen overflow-hidden absolute" {{ stimulus_controller('splendor') }}>
-        <div class="h-full w-full overflow-hidden">
+        <div id="index_splendor" class="h-full w-full overflow-hidden">
             {% block nav %}
                 {{ include('/Game/Utils/navigation.html.twig') }}
             {% endblock %}
@@ -39,4 +39,11 @@
         }
     </script>
     {% endif %}
+
+    <script>
+        function closeWindow() {
+            let window = document.getElementById('selectedCardActions');
+            window.remove();
+        }
+    </script>
 {% endblock %}
