@@ -48,6 +48,9 @@ services:
       co.elastic.metrics/metricsets: docker
       co.elastic.metrics/hosts: '$${data.host}:9000'
       co.elastic.metrics/period: 10s
+      co.elastic.logs/module: agora
+      co.elastic.logs/fileset.stdout: access
+      co.elastic.logs/fileset.stderr: error
 
 
   caddy:
@@ -67,6 +70,9 @@ services:
       co.elastic.metrics/metricsets: docker
       co.elastic.metrics/hosts: '$${data.host}:7070'
       co.elastic.metrics/period: 10s
+      co.elastic.logs/module: caddy
+      co.elastic.logs/fileset.stdout: access
+      co.elastic.logs/fileset.stderr: error
 
 ###> doctrine/doctrine-bundle ###
   database:
@@ -125,6 +131,9 @@ services:
       co.elastic.metrics/metricsets: docker
       co.elastic.metrics/hosts: '$${data.host}:80'
       co.elastic.metrics/period: 10s
+      co.elastic.logs/module: mercure
+      co.elastic.logs/fileset.stdout: access
+      co.elastic.logs/fileset.stderr: error
 ###< symfony/mercure-bundle ###
 
 
@@ -354,6 +363,30 @@ services:
       - LOGSTASH_HOSTS=http://logstash:9600
 
 
+  filebeat:
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    image: docker.elastic.co/beats/filebeat:${STACK_VERSION}
+    user: root
+    command:
+      - --strict.perms=false
+    volumes:
+      - certs:/usr/share/filebeat/certs
+      - filebeatdata:/usr/share/filebeat/data
+      - ./logs/symfony:/var/log/symfony
+      - ./logs/caddy:/var/log/caddy
+      - ./logs/mercure:/var/log/mercure
+      - "./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro"
+      - "/var/lib/docker/containers:/var/lib/docker/containers:ro"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    environment:
+      - ELASTIC_USER=elastic
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - ELASTIC_HOSTS=https://elasticsearch:9200
+      - KIBANA_HOSTS=http://kibana:5601
+      - LOGSTASH_HOSTS=http://logstash:9600
+
   logstash:
     depends_on:
       elasticsearch:
@@ -364,6 +397,8 @@ services:
     labels:
       co.elastic.logs/module: logstash
     user: root
+    ports:
+      - "9600"
     volumes:
       - certs:/usr/share/logstash/certs
       - logstashdata:/usr/share/logstash/data
@@ -387,6 +422,8 @@ volumes:
   kibanadata:
     driver: local
   metricbeatdata:
+    driver: local
+  filebeatdata:
     driver: local
   logstashdata:
     driver: local
