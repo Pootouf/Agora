@@ -8,6 +8,7 @@ use App\Entity\Game\SixQP\ChosenCardSixQP;
 use App\Entity\Game\SixQP\GameSixQP;
 use App\Entity\Game\SixQP\PlayerSixQP;
 use App\Entity\Game\SixQP\RowSixQP;
+use App\Entity\Game\Splendor\DevelopmentCardsSPL;
 use App\Entity\Game\Splendor\DrawCardsSPL;
 use App\Entity\Game\Splendor\GameSPL;
 use App\Repository\Game\SixQP\ChosenCardSixQPRepository;
@@ -53,7 +54,7 @@ class SplendorController extends AbstractController
         return $this->render('/Game/Splendor/index.html.twig', [
             'game' => $game,
             'playerBoughtCards' => $player->getPersonalBoard()->getPlayerCards(), //TODO: separate reserved and bought cards
-            //'playerReservedCards' => $this->service->getReservedCards($player),
+            'playerReservedCards' => $this->SPLService->getReserveCards($player),
             'playerTokens' => $player->getPersonalBoard()->getTokens(),
             'drawCardsLevelOneCount' => $game->getMainBoard()->getDrawCards()->get(DrawCardsSPL::$LEVEL_ONE)->getDevelopmentCards()->count(),
             'drawCardsLevelTwoCount' => $game->getMainBoard()->getDrawCards()->get(DrawCardsSPL::$LEVEL_TWO)->getDevelopmentCards()->count(),
@@ -71,8 +72,51 @@ class SplendorController extends AbstractController
             'isGameFinished' => $this->SPLService->isGameEnded($game),
             'nobleTiles' => $game->getMainBoard()->getNobleTiles(),
             'isSpectator' => $isSpectator,
-            'needToPlay' => $needToPlay
+            'needToPlay' => $needToPlay,
+            'selectedCard' => null,
+            'levelCard' => null,
+            'selectedReservedCard' => null,
         ]);
-
     }
+
+     #[Route('/game/{idGame}/splendor/select/board/{idCard}', name: 'app_game_splendor_select_from_board')]
+     public function selectCardFromBoard(
+         #[MapEntity(id: 'idGame')] GameSPL $game,
+         #[MapEntity(id: 'idCard')] DevelopmentCardsSPL $card): Response
+     {
+         return $this->render('Game/Splendor/MainBoard/cardActions.html.twig',
+         [
+             'selectedCard' => $card,
+             'levelCard' => null,
+             'game' => $game,
+             'selectedReservedCard' => null,
+         ]);
+     }
+
+     #[Route('/game/{idGame}/splendor/select/draw/{level}', name: 'app_game_splendor_select_from_draw')]
+     public function selectCardFromDraw(
+         #[MapEntity(id: 'idGame')] GameSPL $game, int $level): Response
+     {
+         return $this->render('Game/Splendor/MainBoard/cardActions.html.twig',
+             [
+                 'levelCard' => $level,
+                 'selectedCard' => null,
+                 'game' => $game,
+                 'selectedReservedCard' => null,
+             ]);
+     }
+
+     #[Route('/game/{idGame}/splendor/select/reserved/{idCard}', name: 'app_game_splendor_select_from_personal_board')]
+     public function selectCardFromPersonalBoard(
+         #[MapEntity(id: 'idGame')] GameSPL $game,
+         #[MapEntity(id: 'idCard')] DevelopmentCardsSPL $card): Response
+     {
+         return $this->render('Game/Splendor/MainBoard/cardActions.html.twig',
+             [
+                 'selectedCard' => null,
+                 'levelCard' => null,
+                 'game' => $game,
+                 'selectedReservedCard' => $card,
+             ]);
+     }
 }
