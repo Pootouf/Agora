@@ -82,7 +82,8 @@
     ] %}
     {% for p in ranking %}
         {% set playerCards = p.personalBoard.playerCards %}
-        <div class="bg-[#a2d2ff] h-[23.5%] landscape:md:h-1/4 landscape:lg:h-[23.5%] rounded-2xl mx-3
+        <div class="{#bg-[#4C6E9Bff]#} bg-gradient-to-r from-[#707984ff] to-[#4C6E9Bff] border-solid border-[5px] border-[#AC9424ff]
+        h-[23.5%] landscape:md:h-1/4 landscape:lg:h-[23.5%] rounded-2xl mx-3
         landscape:mx-2 lg:mx-5 my-6 landscape:my-2 text-3xl">
             <div class="w-full h-[12%] landscape:h-1/5 pt-2 landscape:pt-1 flex justify-around landscape:justify-between">
                 <p class="landscape:ml-3 landscape:text-sm landscape:lg:text-lg">{{ p.username }}</p>
@@ -117,7 +118,7 @@
                 landscape:translate-x-0 landscape:lg:translate-x-[1rem]">
                     {% set i = 0 %}
                     {% set playerReservedCardsLevel = playerCards|filter(c => c.isReserved == "true")|map(c => c.developmentCard.level) %}
-                    {% for lvl in test %}
+                    {% for lvl in playerReservedCardsLevel %}
                         {% set lTranslateY = landscapeTranslateY|column(i)|first %}
                         {% set llgTranslateY = lgTranslateY|column(i)|first %}
                         {% set lxlTranslateY = xlTranslateY|column(i)|first %}
