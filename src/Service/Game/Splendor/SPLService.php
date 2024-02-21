@@ -96,6 +96,9 @@ class SPLService
         foreach ($levelThreeCards as $card) {
             $drawCardLevelThree->addDevelopmentCard($card);
         }
+        $firstPlayer = $game->getPlayers()->first();
+        $firstPlayer->setTurnOfPlayer(true);
+        $this->entityManager->persist($firstPlayer);
         $this->entityManager->persist($drawCardLevelOne);
         $this->entityManager->persist($drawCardLevelTwo);
         $this->entityManager->persist($drawCardLevelThree);
