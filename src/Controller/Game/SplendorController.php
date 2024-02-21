@@ -54,12 +54,12 @@ class SplendorController extends AbstractController
         $mainBoardTokens = $game->getMainBoard()->getTokens();
         return $this->render('/Game/Splendor/index.html.twig', [
             'game' => $game,
-            'playerBoughtCards' => $player->getPersonalBoard()->getPlayerCards(), //TODO: separate reserved and bought cards
+            'playerBoughtCards' => $this->SPLService->getPurchasedCards($player),
             'playerReservedCards' => $this->SPLService->getReservedCards($player),
             'playerTokens' => $player->getPersonalBoard()->getTokens(),
-            'drawCardsLevelOneCount' => $game->getMainBoard()->getDrawCards()->get(DrawCardsSPL::$LEVEL_ONE)->getDevelopmentCards()->count(),
-            'drawCardsLevelTwoCount' => $game->getMainBoard()->getDrawCards()->get(DrawCardsSPL::$LEVEL_TWO)->getDevelopmentCards()->count(),
-            'drawCardsLevelThreeCount' => $game->getMainBoard()->getDrawCards()->get(DrawCardsSPL::$LEVEL_THREE)->getDevelopmentCards()->count(),
+            'drawCardsLevelOneCount' => $this->SPLService->getDrawCardsByLevel(DrawCardsSPL::$LEVEL_ONE, $game)->count(),
+            'drawCardsLevelTwoCount' => $this->SPLService->getDrawCardsByLevel(DrawCardsSPL::$LEVEL_TWO, $game)->count(),
+            'drawCardsLevelThreeCount' => $this->SPLService->getDrawCardsByLevel(DrawCardsSPL::$LEVEL_THREE, $game)->count(),
             'whiteTokensPile' => $this->tokenSPLService->getWhiteTokensFromCollection($mainBoardTokens),
             'redTokensPile' => $this->tokenSPLService->getRedTokensFromCollection($mainBoardTokens),
             'blueTokensPile' => $this->tokenSPLService->getBlueTokensFromCollection($mainBoardTokens),
