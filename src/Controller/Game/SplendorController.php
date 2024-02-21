@@ -55,7 +55,7 @@ class SplendorController extends AbstractController
         return $this->render('/Game/Splendor/index.html.twig', [
             'game' => $game,
             'playerBoughtCards' => $player->getPersonalBoard()->getPlayerCards(), //TODO: separate reserved and bought cards
-            'playerReservedCards' => $this->SPLService->getReserveCards($player),
+            'playerReservedCards' => $this->SPLService->getReservedCards($player),
             'playerTokens' => $player->getPersonalBoard()->getTokens(),
             'drawCardsLevelOneCount' => $game->getMainBoard()->getDrawCards()->get(DrawCardsSPL::$LEVEL_ONE)->getDevelopmentCards()->count(),
             'drawCardsLevelTwoCount' => $game->getMainBoard()->getDrawCards()->get(DrawCardsSPL::$LEVEL_TWO)->getDevelopmentCards()->count(),
