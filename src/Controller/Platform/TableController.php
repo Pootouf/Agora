@@ -2,6 +2,7 @@
 
 namespace App\Controller\Platform;
 
+use App\Entity\Platform\Game;
 use App\Entity\Platform\Board;
 use App\Entity\Platform\User;
 use App\Form\Platform\SearchBoardType;
@@ -78,17 +79,40 @@ class TableController extends AbstractController
         $user = $entityManager->getRepository(User::class)->find($userId);
         $boardStatus = $board->getStatus();
         $boardMaxUser = $board->getNbUserMax();
-        $boardUserNb = $board->getUsersNb();
+        $boardUsers = $board->getListUsers();
+        $boardUserNb = $boardUsers->count();
+
         if ($boardStatus === "IN_GAME" || $boardStatus === "FINISH" || $boardUserNb == $boardMaxUser) {
-            $errorMessage = "impssible de rejoindre la table";
+            $errorMessage = "Impossible de rejoindre la table";
             $this->addFlash('warning', $errorMessage);
             return $this->redirectToRoute('/dashboard/user');
         }
+
         $board->addListUser($user);
-        $this->addFlash('success', 'bienvenu sur cette table de ');
+        $this->addFlash('success', 'Bienvenue sur cette table');
         $entityManager->persist($board);
         $entityManager->flush();
         return $this->redirectToRoute('dashboard/user');
-
     }
+
+    #[Route('/leaveBoard/{id}', name: 'app_leave_board')]
+    public function leaveBoardController(int $id, EntityManagerInterface $entityManager, Security $security): Response
+    {
+        $board = $entityManager->getRepository(Board::class)->find($id);
+        $userId = $security->getUser()->getId();
+        $user = $entityManager->getRepository(User::class)->find($userId);
+    
+        if ($board->getListUsers()->contains($user)) {
+            $board->getListUsers()->removeElement($user); // Correction ici
+            $this->addFlash('success', 'Vous avez quitté la table.');
+            $entityManager->persist($board);
+            $entityManager->flush();
+        } else {
+            $this->addFlash('warning', 'Vous n\'êtes pas dans cette table.');
+        }
+
+        return $this->redirectToRoute('dashboard/table');
+    }
+
 }
+
