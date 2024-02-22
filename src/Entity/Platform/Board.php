@@ -45,6 +45,9 @@ class Board
     #[ORM\Column]
     private ?int $inactivityHours = null;
 
+    #[ORM\ManyToOne(inversedBy: 'boards')]
+    private ?Game $game = null;
+
 
     public function __construct()
     {
@@ -209,6 +212,17 @@ class Board
         return $this->getNbUserMax() - ($this->listUsers->count() + $this->nbInvitations);
     }
 
+    public function getGame(): ?Game
+    {
+        return $this->game;
+    }
+
+    public function setGame(?Game $game): static
+    {
+        $this->game = $game;
+
+        return $this;
+    }
 
 }
 
