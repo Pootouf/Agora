@@ -2,6 +2,7 @@
 
 namespace App\Tests\Game\Splendor\Unit\Entity;
 
+use App\Entity\Game\Splendor\DevelopmentCardsSPL;
 use App\Entity\Game\Splendor\GameSPL;
 use App\Entity\Game\Splendor\NobleTileSPL;
 use App\Entity\Game\Splendor\PersonalBoardSPL;
@@ -100,7 +101,10 @@ class PersonalBoardSPLTest extends TestCase
     public function testAddPlayerCardWhenNotOwned(): void
     {
         //GIVEN
-        $playerCard = new PlayerCardSPL();
+        $player = new PlayerSPL('test', new GameSPL());
+        $card = new DevelopmentCardsSPL();
+        $bool = false;
+        $playerCard = new PlayerCardSPL($player, $card, $bool);
         //WHEN
         $this->personalBoardSPL->addPlayerCard($playerCard);
         //THEN
@@ -111,7 +115,10 @@ class PersonalBoardSPLTest extends TestCase
     public function testAddPlayerCardWhenOwned(): void
     {
         //GIVEN
-        $playerCard = new PlayerCardSPL();
+        $player = new PlayerSPL('test', new GameSPL());
+        $card = new DevelopmentCardsSPL();
+        $bool = false;
+        $playerCard = new PlayerCardSPL($player, $card, $bool);
         $this->personalBoardSPL->addPlayerCard($playerCard);
         $expectedLength = 1;
         //WHEN
@@ -124,7 +131,10 @@ class PersonalBoardSPLTest extends TestCase
     public function testRemovePlayerCard(): void
     {
         //GIVEN
-        $playerCard = new PlayerCardSPL();
+        $player = new PlayerSPL('test', new GameSPL());
+        $card = new DevelopmentCardsSPL();
+        $bool = false;
+        $playerCard = new PlayerCardSPL($player, $card, $bool);
         $this->personalBoardSPL->addPlayerCard($playerCard);
         //WHEN
         $this->personalBoardSPL->removePlayerCard($playerCard);

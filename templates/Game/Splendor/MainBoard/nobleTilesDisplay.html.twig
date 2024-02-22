@@ -3,5 +3,22 @@
     @param :
     @return :
 #}
+
+{# Loading of tailwind values for hovering #}
+<div hidden="hidden" class="hover:scale-[1.6] hover:scale-[1.7] hover:scale-[1.8] hover:scale-[1.9] hover:scale-[2]">
+</div>
+
+{# Display noble tiles #}
 <div class="flex float-left w-[25%] h-5/6 bg-blue-600">
+    <div class="h-full w-full grid grid-rows-{{ nobleTiles|length}} place-items-center p-2">
+        {% for card in nobleTiles %}
+            <div class="flex items-center justify-center h-full p-2 w-full">
+                {% set calcul = 1.5 + (nobleTiles|length)/10 %}
+                <img class="hover:scale-[{{ calcul }}] transition ease-in-out delay-100
+                            items-center justify-center rounded-lg shadow-black shadow-lg max-h-full"
+                     src="{{ asset('resourcesGames/Splendor/Images/NobleTiles/' ~ card.id ~ '.png') }}"
+                     alt="nobleTile">
+            </div>
+        {% endfor %}
+    </div>
 </div>

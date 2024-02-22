@@ -114,7 +114,7 @@ class TokenSPLService
      * @param PlayerSPL $playerSPL
      * @return bool
      */
-    public function mustEndPlayerRoundBecauseOfTokens(PLayerSPL $playerSPL): Boolean
+    public function mustEndPlayerRoundBecauseOfTokens(PLayerSPL $playerSPL): bool
     {
         $personalBoard = $playerSPL->getPersonalBoard();
         $tokens = $personalBoard->getTokens();
