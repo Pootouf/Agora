@@ -176,6 +176,7 @@ class SPLControllerTest extends WebTestCase
         $this->SPLGameManagerService = static::getContainer()->get(SPLGameManagerService::class);
         $this->gameUserRepository = static::getContainer()->get(GameUserRepository::class);
         $this->gameSPLRepository = static::getContainer()->get(GameSPLRepository::class);
+        $this->entityManager = static::getContainer()->get(EntityManagerInterface::class);
         $this->playerSPLRepository = static::getContainer()->get(PlayerSPLRepository::class);
         $this->tokenSPLService = static::getContainer()->get(TokenSPLService::class);
         $this->SPLService = static::getContainer()->get(SPLService::class);
