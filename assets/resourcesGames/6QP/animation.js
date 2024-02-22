@@ -162,6 +162,45 @@ function translateRow(rowid) {
 		})
 	}).then(() => animationQueue.executeNextInQueue());
 
+/**
+ * Show the end game screen
+ * @param {string}winner name of the game's winner
+ * @param {string}player name of the current player
+ */
+function gameFinished(winner, player) {
+	if (winner === null) {
+		document.getElementById('winner').textContent = 'Match nul ! 🤝';
+	} else if (winner === player) {
+		document.getElementById('winner').textContent = 'Bravo ! 👏 Vous avez gagné la partie';
+	} else if (player) {
+		document.getElementById('winner').textContent = 'Dommage ! 😖 Vous avez perdu la partie';
+	} else {
+		document.getElementById('winner').textContent = winner + " a remporté la partie 👏";
+	}
+	showEndgame();
+}
+
+
+/**
+ * Animates the show up of the endGame displayer
+ */
+function showEndgame() {
+	new Promise(resolve => {
+		let endGameScreen = document.getElementById('endGameScreen');
+		document.body.style.overflow = 'hidden';
+		endGameScreen.firstElementChild.animate(
+			[
+				{transform: "translateY(-30px)", opacity: 0},
+				{transform: "translateY(0px)", opacity: 1},
+			],
+			{
+				duration: 2000,
+				easing: "ease",
+				fill: "forwards",
+			}
+		).finished.then(() => resolve())
+		endGameScreen.classList.remove('hidden');
+	}).then(() => animationQueue.executeNextInQueue())
 }
 
 /**

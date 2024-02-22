@@ -135,7 +135,24 @@
         {% set path = path('app_game_show_sixqp', {'id': game.id}) ~ 'endOfGame' %}
         const eventSourceEndOfGame = new EventSource("{{ mercure(path)|escape('js') }}");
         eventSourceEndOfGame.onmessage = event => {
-            gameFinished(event.data);
+            animationQueue.addToQueue(() => {
+                gameFinished(event.data, {{ isSpectator ? null : player.username }});
+            });
         }
+
+        {% if isGameFinished %}
+            {% set winner = null %}
+            {# Arbitrary value impossible to reach  #}
+            {% set winnerScore = 9999 %}
+            {% for player in game.playerSixQPs %}
+                {% if player.discardSixQP.totalPoints < winnerScore %}
+                    {% set winnerScore = player.discardSixQP.totalPoints %}
+                    {% set winner = player.username %}
+                {% elseif player.discardSixQP.totalPoints == winnerScore %}
+                    {% set winner = null %}
+                {% endif %}
+            {% endfor %}
+            gameFinished("{{ winner }}", {{ isSpectator ? null : player.username }});
+        {% endif %}
     </script>
 {% endblock %}
