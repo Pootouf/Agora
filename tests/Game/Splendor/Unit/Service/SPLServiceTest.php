@@ -358,6 +358,54 @@ class SPLServiceTest extends TestCase
         $this->assertFalse($playerCard->isIsReserved());
     }
 
+    public function testTokenRetrievedWhenBuy()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $player->setTurnOfPlayer(true);
+        $token = new TokenSPL();
+        $token->setColor(TokenSPL::$COLOR_RED);
+        $player->getPersonalBoard()->addToken($token);
+        $cardCost = new CardCostSPL();
+        $cardCost->setColor(TokenSPL::$COLOR_RED);
+        $cardCost->setPrice(1);
+        $array = new ArrayCollection();
+        $array->add($cardCost);
+        $developmentCard = DevelopmentCardsSPL::createDevelopmentCard($array);
+        $playerCard = new PlayerCardSPL($player, new DevelopmentCardsSPL(), false);
+        $playerCard->setDevelopmentCard($developmentCard);
+        $playerCard->setIsReserved(true);
+        // WHEN
+        $this->SPLService->buyCard($player, $playerCard);
+        // THEN
+        $this->assertNotContains($token, $player->getPersonalBoard()->getTokens());
+    }
+
+    public function testGoldTokenRetrievedWhenBuy()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $player->setTurnOfPlayer(true);
+        $token = new TokenSPL();
+        $token->setColor(TokenSPL::$COLOR_YELLOW);
+        $player->getPersonalBoard()->addToken($token);
+        $cardCost = new CardCostSPL();
+        $cardCost->setColor(TokenSPL::$COLOR_RED);
+        $cardCost->setPrice(1);
+        $array = new ArrayCollection();
+        $array->add($cardCost);
+        $developmentCard = DevelopmentCardsSPL::createDevelopmentCard($array);
+        $playerCard = new PlayerCardSPL($player, new DevelopmentCardsSPL(), false);
+        $playerCard->setDevelopmentCard($developmentCard);
+        $playerCard->setIsReserved(true);
+        // WHEN
+        $this->SPLService->buyCard($player, $playerCard);
+        // THEN
+        $this->assertNotContains($token, $player->getPersonalBoard()->getTokens());
+    }
+
     public function testAddBuyableNobleTilesToPlayerShouldAddTileToPlayer() : void
     {
         //GIVEN
