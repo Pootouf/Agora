@@ -10,8 +10,6 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: PersonalBoardSPLRepository::class)]
 class PersonalBoardSPL
 {
-    public static int $MAX_TOKEN = 10;
-
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]

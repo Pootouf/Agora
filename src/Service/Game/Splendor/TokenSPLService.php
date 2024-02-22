@@ -4,6 +4,7 @@ namespace App\Service\Game\Splendor;
 
 use App\Entity\Game\Splendor\PlayerSPL;
 use App\Entity\Game\Splendor\SelectedTokenSPL;
+use App\Entity\Game\Splendor\SplendorParameters;
 use App\Entity\Game\Splendor\TokenSPL;
 use App\Repository\Game\Splendor\TokenSPLRepository;
 use Doctrine\Common\Collections\Collection;
@@ -24,7 +25,7 @@ class TokenSPLService
     public function getRedTokensFromCollection(Collection $tokens): Collection
     {
         return $tokens->filter(function($token) {
-            return $token->getColor() == TokenSPL::$COLOR_RED;
+            return $token->getColor() == SplendorParameters::$COLOR_RED;
         });
     }
 
@@ -35,7 +36,7 @@ class TokenSPLService
     public function getBlueTokensFromCollection(Collection $tokens): Collection
     {
         return $tokens->filter(function($token) {
-            return $token->getColor() == TokenSPL::$COLOR_BLUE;
+            return $token->getColor() == SplendorParameters::$COLOR_BLUE;
         });
     }
 
@@ -46,7 +47,7 @@ class TokenSPLService
     public function getGreenTokensFromCollection(Collection $tokens): Collection
     {
         return $tokens->filter(function($token) {
-            return $token->getColor() == TokenSPL::$COLOR_GREEN;
+            return $token->getColor() == SplendorParameters::$COLOR_GREEN;
         });
     }
 
@@ -57,7 +58,7 @@ class TokenSPLService
     public function getWhiteTokensFromCollection(Collection $tokens): Collection
     {
         return $tokens->filter(function($token) {
-            return $token->getColor() == TokenSPL::$COLOR_WHITE;
+            return $token->getColor() == SplendorParameters::$COLOR_WHITE;
         });
     }
 
@@ -68,7 +69,7 @@ class TokenSPLService
     public function getBlackTokensFromCollection(Collection $tokens): Collection
     {
         return $tokens->filter(function($token) {
-            return $token->getColor() == TokenSPL::$COLOR_BLACK;
+            return $token->getColor() == SplendorParameters::$COLOR_BLACK;
         });
     }
 
@@ -79,7 +80,7 @@ class TokenSPLService
     public function getYellowTokensFromCollection(Collection $tokens): Collection
     {
         return $tokens->filter(function($token) {
-            return $token->getColor() == TokenSPL::$COLOR_YELLOW;
+            return $token->getColor() == SplendorParameters::$COLOR_YELLOW;
         });
     }
 

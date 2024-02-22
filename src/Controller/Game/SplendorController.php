@@ -11,6 +11,7 @@ use App\Entity\Game\SixQP\RowSixQP;
 use App\Entity\Game\Splendor\DevelopmentCardsSPL;
 use App\Entity\Game\Splendor\DrawCardsSPL;
 use App\Entity\Game\Splendor\GameSPL;
+use App\Entity\Game\Splendor\SplendorParameters;
 use App\Entity\Game\Splendor\TokenSPL;
 use App\Repository\Game\SixQP\ChosenCardSixQPRepository;
 use App\Repository\Game\SixQP\PlayerSixQPRepository;
@@ -57,9 +58,9 @@ class SplendorController extends AbstractController
             'playerBoughtCards' => $this->SPLService->getPurchasedCards($player),
             'playerReservedCards' => $this->SPLService->getReservedCards($player),
             'playerTokens' => $player->getPersonalBoard()->getTokens(),
-            'drawCardsLevelOneCount' => $this->SPLService->getDrawCardsByLevel(DrawCardsSPL::$LEVEL_ONE, $game)->count(),
-            'drawCardsLevelTwoCount' => $this->SPLService->getDrawCardsByLevel(DrawCardsSPL::$LEVEL_TWO, $game)->count(),
-            'drawCardsLevelThreeCount' => $this->SPLService->getDrawCardsByLevel(DrawCardsSPL::$LEVEL_THREE, $game)->count(),
+            'drawCardsLevelOneCount' => $this->SPLService->getDrawCardsByLevel(SplendorParameters::$DRAW_CARD_LEVEL_ONE, $game)->count(),
+            'drawCardsLevelTwoCount' => $this->SPLService->getDrawCardsByLevel(SplendorParameters::$DRAW_CARD_LEVEL_TWO, $game)->count(),
+            'drawCardsLevelThreeCount' => $this->SPLService->getDrawCardsByLevel(SplendorParameters::$DRAW_CARD_LEVEL_THREE, $game)->count(),
             'whiteTokensPile' => $this->tokenSPLService->getWhiteTokensFromCollection($mainBoardTokens),
             'redTokensPile' => $this->tokenSPLService->getRedTokensFromCollection($mainBoardTokens),
             'blueTokensPile' => $this->tokenSPLService->getBlueTokensFromCollection($mainBoardTokens),

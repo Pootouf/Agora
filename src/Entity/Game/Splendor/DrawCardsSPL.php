@@ -10,10 +10,6 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: DrawCardsSPLRepository::class)]
 class DrawCardsSPL
 {
-    public static int $LEVEL_ONE = 0;
-    public static int $LEVEL_TWO = 1;
-    public static int $LEVEL_THREE = 2;
-
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]

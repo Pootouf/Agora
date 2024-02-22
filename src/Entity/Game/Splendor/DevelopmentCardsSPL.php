@@ -11,10 +11,6 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: DevelopmentCardsSPLRepository::class)]
 class DevelopmentCardsSPL extends Card
 {
-    public static int $LEVEL_ONE = 1;
-    public static int $LEVEL_TWO = 2;
-    public static int $LEVEL_THREE = 3;
-
     #[ORM\Column]
     private ?int $prestigePoints = null;
 
