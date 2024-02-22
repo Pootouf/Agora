@@ -8,6 +8,7 @@ use App\Entity\Platform\Game;
 use App\Entity\Platform\Board;
 use App\Entity\Platform\User;
 use App\Form\Platform\BoardRegistrationType;
+use App\Service\Game\GameManagerService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -18,6 +19,13 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 class BoardController extends AbstractController
 {
+
+    private GameManagerService $gameManagerService;
+    
+    public function __construct(GameManagerService $gameManagerService)
+    {
+        $this->gameManagerService = $gameManagerService;
+    }
     #[Route('/boardCreation/{game_id}', name: 'app_board_create', requirements: ['game_id' => '\d+'], methods: ['GET', 'POST', 'HEAD'])]
     public function create(Request $request, $game_id, EntityManagerInterface $manager, Security $security): Response
     {
@@ -32,14 +40,27 @@ class BoardController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
 
+            //setting all timers of the board
             $board->setCreationDate(new \DateTime());
             $board->setInvitationTimer(new \DateTime());
             $board->setInactivityTimer(new \DateTime());
+
+            //create the instance of game and register its id to the board
+            $gameId = $this->gameManagerService->createGame($game->getLabel());
+            $board->setGameId($gameId);
+
+            //adding user to the board, and board to the user's board list
             $userId = $security->getUser()->getId();
             $user = $manager->getRepository(User::class)->find($userId);
             $user->addBoard($board);
+            $this->gameManagerService->joinGame($gameId, $user);
 
+            //adding the new board to the game's board list
+            // A COMPLETER APRES LE FIX DE MICHEL
+
+            //persist the information to the database
             $manager->persist($board);
+            $manager->persist($user);
             $manager->flush();
 
             $this->addFlash(
@@ -56,7 +77,7 @@ class BoardController extends AbstractController
     }
 
     #[Route('/joinBoard/{id}', name: 'app_join_board')]
-    public function joinBoardController(int $id, EntityManagerInterface $entityManager, Security $security): Response
+    public function joinBoardController(int $id, EntityManagerInterface $entityManager, Security $security,  ): Response
     {
         /*$boards = $entityManager->getRepository(Board::class)->findAll();
         dd($boards);*/
@@ -71,14 +92,23 @@ class BoardController extends AbstractController
         $boardUserNb = $board->getUsersNb();
         //test if the user can join a table
         if ($board->hasUser($user)||$boardStatus === "IN_GAME" || $boardStatus === "FINISH" || $boardUserNb == $boardMaxUser) {
-            $errorMessage = "impssible de rejoindre la table";
+            $errorMessage = "Impossible de rejoindre la table";
             //send the error message to user, using session or flush
             $this->addFlash('warning', $errorMessage);
             return $this->redirectToRoute('app_dashboard_tables');
         }
         //add user the Board users list
         $user->addBoard($board);
-        $this->addFlash('success', 'bienvenu sur cette table de ');
+        $this->addFlash('success', 'La table a bien été rejointe ');
+
+        //add the user to the game data
+        $this->gameManagerService->joinGame($board->getGameId(), $user);
+
+        //If it was the last player to complete the board, launch the game
+        if($board->isFull()){
+            $this->gameManagerService->launchGame($board->getGameId());
+            $board->setStatus("IN_GAME");
+        }
         //save changes
         $entityManager->persist($board);
         $entityManager->flush();
@@ -87,9 +117,6 @@ class BoardController extends AbstractController
 
         //dd($user->getBoards());
 
-        /*
-         * Here we test player number equal to the max players we lunch the game
-         * */
 
         return $this->redirectToRoute('app_dashboard_user');
     }
@@ -101,8 +128,9 @@ public function leaveBoard(int $id, EntityManagerInterface $entityManager, Secur
     //get the logged user
     $userId = $security->getUser()->getId();
     $user = $entityManager->getRepository(User::class)->find($userId);
-    //remove the user from user list && save
+    //remove the user from user list
     $user->removeBoard($board);
+    $this->gameManagerService->quitGame($board->getGameId(), $user);
 
     $entityManager->persist($board);
     $entityManager->flush();

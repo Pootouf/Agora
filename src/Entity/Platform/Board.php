@@ -45,6 +45,9 @@ class Board
     #[ORM\Column]
     private ?int $inactivityHours = null;
 
+    #[ORM\Column]
+    private ?int $gameId = null;
+
 
     public function __construct()
     {
@@ -201,6 +204,18 @@ class Board
     public function hasUser(User $user):bool
     {
         return $this->listUsers->contains($user);
+    }
+
+    public function getGameId(): ?int
+    {
+        return $this->gameId;
+    }
+
+    public function setGameId(int $gameId): static
+    {
+        $this->gameId = $gameId;
+
+        return $this;
     }
 
 }
