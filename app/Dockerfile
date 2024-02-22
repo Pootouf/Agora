@@ -1,4 +1,4 @@
-FROM php:8.3-fpm
+FROM dunglas/frankenphp
 
 #Base dependencies
 RUN apt-get -y update && apt-get -y install \
@@ -25,12 +25,11 @@ RUN pecl install xdebug \
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 
-WORKDIR /var/www/agora
-
+WORKDIR /app/public
 
 #Get the composer files
-COPY composer.json composer.lock .env /var/www/agora/
-COPY bin/console /var/www/agora/bin/
+COPY composer.json composer.lock .env /app/public/
+COPY bin/console /app/public/bin/
 
 #Composer dependencies
 ENV COMPOSER_ALLOW_SUPERUSER=1
@@ -38,7 +37,7 @@ RUN composer install
 
 
 #Copy the project files
-COPY . /var/www/agora
+COPY . /app/public
 
 
 ###> recipes ###
