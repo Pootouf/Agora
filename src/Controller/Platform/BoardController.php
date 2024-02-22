@@ -124,7 +124,7 @@ public function leaveBoard(int $id, EntityManagerInterface $entityManager, Secur
 
         }
 
-        return $this->render('platform/dashboard_user/index.html.twig', [
+        return $this->render('platform/dashboard_tables/index.html.twig', [
             'boards' => $boards,
             'searchboard' => $form->createView(),
         ]);

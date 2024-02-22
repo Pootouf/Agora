@@ -178,7 +178,7 @@ class Board
     public function removeListUser(User $user): static
     {
         if ($this->listUsers->contains($user)) {
-            $this->listUsers->remove($user);
+            $this->listUsers->removeElement($user);
         }
 
         return $this;
@@ -204,6 +204,12 @@ class Board
     public function hasUser(User $user):bool
     {
         return $this->listUsers->contains($user);
+    }
+
+    //Return the actual number of availble slots of the board
+    //getNbAvailbleSlots() == 0 => isAvailble() == false
+    public function getNbAvailbleSlots(){
+        return $this->getNbUserMax() - ($this->listUsers->count() + $this->nbInvitations);
     }
 
     public function getGame(): ?Game
