@@ -32,38 +32,3 @@ Comes with a button to the homepage and another one to the game's homepage
 		</div>
 	</div>
 </div>
-
-<script>
-
-
-    function gameFinished(username) {
-        //clearInterval(clockID);
-        document.getElementById('endGameScreen').classList.remove('hidden');
-        if (username === null) {
-            document.getElementById('winner').innerHTML = 'Match nul ! 🤝';
-        }
-        else if (username === "{{ player.username }}") {
-            document.getElementById('winner').innerHTML = 'Bravo ! 👏 Vous avez gagné la partie';
-        } else {
-            document.getElementById('winner').innerHTML = 'Dommage ! 😖 Vous avez perdu la partie';
-        }
-        document.body.style.overflow = 'hidden';
-    }
-
-    {% if isGameFinished %}
-		{% set winner = null %}
-		{# Arbitrary value impossible to reach  #}
-		{% set winnerScore = 9999 %}
-		{% for player in game.playerSixQPs %}
-			{% if player.discardSixQP.totalPoints < winnerScore %}
-				{% set winnerScore = player.discardSixQP.totalPoints %}
-				{% set winner = player.username %}
-			{% elseif player.discardSixQP.totalPoints == winnerScore %}
-				{% set winner = null %}
-			{% endif %}
-		{% endfor %}
-
-		gameFinished("{{ winner }}");
-    {% endif %}
-
-</script>
