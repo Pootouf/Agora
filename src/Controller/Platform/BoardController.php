@@ -8,6 +8,8 @@ use App\Entity\Platform\Game;
 use App\Entity\Platform\Board;
 use App\Entity\Platform\User;
 use App\Form\Platform\BoardRegistrationType;
+use App\Form\Platform\SearchBoardType;
+use App\Repository\Platform\BoardRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -111,6 +113,37 @@ public function leaveBoard(int $id, EntityManagerInterface $entityManager, Secur
 
     return $this->redirectToRoute('app_dashboard_tables');
 }
+
+    #[\Symfony\Component\Routing\Attribute\Route('/dashboard/user', name: 'app_dashboard_user', methods: ['GET'])]
+    public function index(Request $request, Security $security): Response
+    {
+        $boards = $security->getUser()->getBoards();
+        $form = $this->createForm(SearchBoardType::class);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+
+        }
+
+        return $this->render('platform/dashboard_user/index.html.twig', [
+            'boards' => $boards,
+            'searchboard' => $form->createView(),
+        ]);
+    }
+    #[Route('/dashboard/tables', name: 'app_dashboard_tables', methods: ['GET'])]
+    public function tables(Request $request, BoardRepository $boardRepository): Response
+    {
+        $boards = $boardRepository->findAll();
+        $form = $this->createForm(SearchBoardType::class);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+
+        }
+
+        return $this->render('platform/dashboard_tables/index.html.twig', [
+            'boards' => $boards,
+            'searchboard' => $form->createView(),
+        ]);
+    }
 
 
 }
