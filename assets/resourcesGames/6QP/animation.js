@@ -68,13 +68,12 @@ async function animateLeaderboard(leaderboardItems, positionMap, newPositionMap)
 		leaderboardItems.forEach((item) => {
 			let initialPosition = item.getBoundingClientRect();
 			let finalPosition = positionMap.get(newPositionMap.get(item).toString());
-			let currentY = initialPosition.y + parseInt(item.dataset.origingap);
-			let finalY = finalPosition.y - currentY;
+			let finalY = finalPosition.y - initialPosition.y + parseInt(item.dataset.origingap);
+
 			item.dataset.origingap = finalY.toString()
 
 			item.animate(
 				[
-					{transform: `translateY(${currentY}px)`},
 					{transform: `translateY(${finalY}px)`}
 				],
 				{
@@ -143,9 +142,10 @@ function resetRanking() {
  * Animates a row to translate out of the screen
  *
  * @param {string} rowid The ID of the row to translate.
+ * @returns {Promise<unknown>}
  */
 function translateRow(rowid) {
-	new Promise(resolve => {
+	return new Promise(resolve => {
 		let row = document.getElementById(rowid);
 		row.animate(
 			[
@@ -154,9 +154,12 @@ function translateRow(rowid) {
 			],
 			{
 				duration: 2000,
-				iterations: 1,
 				fill: "forwards",
 			},
+		).finished.then(() => resolve())
+	});
+
+}
 
 /**
  * Animates the show up of all first cards in each row after a new round
@@ -247,7 +250,6 @@ function moveChosenCard(cardId) {
 		animationContainer.appendChild(movingCardElement);
 		movingCardElement.height = chosenCardShape.height;
 		movingCardElement.width = chosenCardShape.width;
-		animationContainer.classList.remove('hidden');
 
 		// Usefull to set a duration for the animation equal for every distance the translating movement will do
 		let distance = Math.sqrt((cardFinalPositionShape.x - chosenCardShape.x) ** 2 +
@@ -260,7 +262,7 @@ function moveChosenCard(cardId) {
 					width: chosenCardShape.width + "px",
 					height: chosenCardShape.height + "px",
 				},
-				{width: chosenCardShape.width * 1.5 + "px", height: chosenCardShape.height * 1.5 + "px"},
+				{width: chosenCardShape.width * 1.2 + "px", height: chosenCardShape.height * 1.2 + "px"},
 				{
 					transform: "translate(" + cardFinalPositionShape.x + "px, " + cardFinalPositionShape.y + "px)",
 					width: cardFinalPositionShape.width + "px",
@@ -269,14 +271,12 @@ function moveChosenCard(cardId) {
 			],
 			{
 				duration: distance / 0.3,
-				iterations: 1,
 				fill: "forwards", // Reste a la positon final
 			}
 		).addEventListener("finish", () => {
 			movingCardElement.remove();
 			cardElementInChosenCard.remove();
 			cardFinalPositionElement.classList.remove('invisible');
-			animationContainer.classList.add('hidden');
 			resolve();
 		});
 		cardElementInChosenCard.remove()
