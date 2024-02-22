@@ -99,11 +99,13 @@ class TokenSPLService
         if ($tokensPickable == -1) {
             throw new Exception("An error as occurred");
         }
+        $personalBoard = $playerSPL->getPersonalBoard();
         $selectedToken = new SelectedTokenSPL();
         $selectedToken->setToken($tokenSPL);
-        $playerSPL->getPersonalBoard()->addSelectedToken($selectedToken);
+        $selectedToken->setPersonalBoardSPL($personalBoard);
+        $personalBoard->addSelectedToken($selectedToken);
+        $this->entityManager->persist($personalBoard);
         $this->entityManager->persist($selectedToken);
-        $this->entityManager->persist($playerSPL);
         $this->entityManager->flush();
     }
 
@@ -144,7 +146,10 @@ class TokenSPLService
         $selectedTokens = $playerSPL->getPersonalBoard()->getSelectedTokens();
         foreach ($selectedTokens as $selectedToken) {
             $playerSPL->getPersonalBoard()->addToken($selectedToken->getToken());
+            $this->entityManager->persist($playerSPL->getPersonalBoard());
+            $this->entityManager->persist($playerSPL);
         }
+        $this->entityManager->flush();
     }
 
     /**
@@ -156,6 +161,8 @@ class TokenSPLService
     public function clearSelectedTokens(PlayerSPL $playerSPL): void
     {
         $playerSPL->getPersonalBoard()->getSelectedTokens()->clear();
+        $this->entityManager->persist($playerSPL);
+        $this->entityManager->flush();
     }
 
     /**

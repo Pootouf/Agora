@@ -300,8 +300,11 @@ class SPLService
         $nextPlayer = $players->get(($index + 1) % $nbOfPlayers);
         foreach ($players as $player) {
             $player->setTurnOfPlayer(false);
+            $this->entityManager->persist($player);
         }
         $nextPlayer->setTurnOfPlayer(true);
+        $this->entityManager->persist($nextPlayer);
+        $this->entityManager->flush();
     }
 
     /**
