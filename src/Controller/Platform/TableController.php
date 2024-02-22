@@ -16,8 +16,24 @@ use Symfony\Component\Security\Core\Security;
 
 class TableController extends AbstractController
 {
-    #[Route('/table', name: 'app_table', methods: ['GET'])]
-    public function index(Security $security, Request $request, BoardRepository $boardRepository, EntityManagerInterface $entityManager): Response
+    #[Route('/dashboard/user', name: 'app_dashboard_user', methods: ['GET'])]
+    public function index(Request $request, Security $security): Response
+    {
+        $boards = $security->getUser()->getBoards();
+        $form = $this->createForm(SearchBoardType::class);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+
+        }
+
+        return $this->render('platform/dashboard_user/index.html.twig', [
+            'boards' => $boards,
+            'searchboard' => $form->createView(),
+        ]);
+    }
+
+    #[Route('/dashboard/tables', name: 'app_dashboard_tables', methods: ['GET'])]
+    public function tables(Security $security, Request $request, BoardRepository $boardRepository, EntityManagerInterface $entityManager): Response
     {
         $currentUserID = null;
         if ($security->getUser() !== null) {
@@ -28,7 +44,7 @@ class TableController extends AbstractController
         $form = $this->createForm(SearchBoardType::class);
         $form->handleRequest($request);
 
-        return $this->render('platform/table/table.html.twig', [
+        return $this->render('platform/dashboard_tables/index.html.twig', [
             'boards' => $boards,
             'searchboard' => $form->createView(),
             'currentUserID' => $currentUserID,
@@ -111,7 +127,7 @@ class TableController extends AbstractController
             $this->addFlash('warning', 'Vous n\'êtes pas dans cette table.');
         }
 
-        return $this->redirectToRoute('dashboard/table');
+        return $this->redirectToRoute('dashboard/tables');
     }
 
 }
