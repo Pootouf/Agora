@@ -2,18 +2,15 @@
 
 namespace App\Tests\Game\Splendor\Application;
 
-use App\Entity\Game\Splendor\PlayerSPL;
-use App\Entity\Game\Splendor\TokenSPL;
+use App\Entity\Game\Splendor\SelectedTokenSPL;
 use App\Repository\Game\GameUserRepository;
-use App\Repository\Game\SixQP\GameSixQPRepository;
-use App\Repository\Game\SixQP\PlayerSixQPRepository;
 use App\Repository\Game\Splendor\GameSPLRepository;
 use App\Repository\Game\Splendor\PlayerSPLRepository;
-use App\Service\Game\SixQP\SixQPGameManagerService;
-use App\Service\Game\SixQP\SixQPService;
 use App\Service\Game\Splendor\SPLGameManagerService;
 use App\Service\Game\Splendor\SPLService;
 use App\Service\Game\Splendor\TokenSPLService;
+use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
@@ -26,11 +23,12 @@ class SPLControllerTest extends WebTestCase
     private PlayerSPLRepository $playerSPLRepository;
     private SPLGameManagerService $SPLGameManagerService;
 
+    private EntityManagerInterface $entityManager;
     private GameSPLRepository $gameSPLRepository;
     private SPLService $SPLService;
-
     private TokenSPLService $tokenSPLService;
-    public function testPlayersHaveAccessToGame() : void
+
+    public function testPlayersHaveAccessToGame(): void
     {
         //GIVEN
         $gameId = $this->initializeGameWithTwoPlayers();
@@ -59,7 +57,7 @@ class SPLControllerTest extends WebTestCase
             $this->client->getResponse()->getStatusCode());
     }
 
-    public function testWhenNotActivePlayerShouldReturnHTTPForbidden() : void
+    public function testWhenNotActivePlayerShouldReturnHTTPForbidden(): void
     {
         //GIVEN
         $gameId = $this->initializeGameWithTwoPlayers();
@@ -67,10 +65,10 @@ class SPLControllerTest extends WebTestCase
         $mainBoard = $game->getMainBoard();
         $token = $mainBoard->getTokens()[0];
         $newUrl = "/game/" . $gameId . "/splendor/takeToken/" . $token->getId();
-        $user2 = $this->gameUserRepository->findOneByUsername("test1");
+        $user1 = $this->gameUserRepository->findOneByUsername("test0");
         $player = $this->SPLService->getActivePlayer($game);
         $this->SPLService->endRoundOfPlayer($game, $player);
-        $this->client->loginUser($user2);
+        $this->client->loginUser($user1);
         //WHEN
         $this->client->request("GET", $newUrl);
         //THEN
@@ -78,7 +76,7 @@ class SPLControllerTest extends WebTestCase
             $this->client->getResponse()->getStatusCode());
     }
 
-    public function testTakeTokenWhenPlayerIsFull() : void
+    public function testTakeTokenWhenPlayerIsFull(): void
     {
         //GIVEN
         $gameId = $this->initializeGameWithTwoPlayers();
@@ -99,7 +97,39 @@ class SPLControllerTest extends WebTestCase
             $this->client->getResponse()->getStatusCode());
     }
 
-    public function testTakeTokenWhenNotEnoughTokensOnMainBoard() : void
+    public function testTakeTokenWhenMustSkipPlayerRound(): void
+    {
+        //GIVEN
+        $gameId = $this->initializeGameWithTwoPlayers();
+        $game = $this->gameSPLRepository->findOneById($gameId);
+        $mainBoard = $game->getMainBoard();
+        $tokens = $mainBoard->getTokens();
+        $user1 = $this->gameUserRepository->findOneByUsername("test0");
+        $player = $this->SPLService->getActivePlayer($game);
+        for ($i = 0; $i < 9; ++$i) {
+            $player->getPersonalBoard()->addToken($tokens[$i]);
+            $this->entityManager->persist($player->getPersonalBoard());
+            $this->entityManager->persist($player);
+        }
+        $selectedToken = new SelectedTokenSPL();
+        $selectedToken->setToken($tokens[28]);
+        $player->getPersonalBoard()->addSelectedToken($selectedToken);
+        $this->entityManager->persist($selectedToken);
+        $this->entityManager->flush();
+        $newUrl = "/game/" . $gameId . "/splendor/takeToken/35";
+        $this->client->loginUser($user1);
+        $this->client->request("GET", $newUrl);
+        $this->assertEquals(Response::HTTP_OK,
+            $this->client->getResponse()->getStatusCode());
+        $newUrl = "/game/" . $gameId . "/splendor/takeToken/36";
+        //WHEN
+        $this->client->request("GET", $newUrl);
+        //THEN
+        $this->assertEquals(Response::HTTP_FORBIDDEN,
+            $this->client->getResponse()->getStatusCode());
+    }
+
+    public function testTakeTokenWhenNotEnoughTokensOnMainBoard(): void
     {
         //GIVEN
         $gameId = $this->initializeGameWithTwoPlayers();
@@ -111,17 +141,18 @@ class SPLControllerTest extends WebTestCase
         for ($i = 0; $i < 4; ++$i) {
             $mainBoard->removeToken($whiteTokens[$i]);
         }
-        $newUrl = "/game/" . $gameId . "/splendor/takeToken/4";
+        $newUrl = "/game/" . $gameId . "/splendor/takeToken/5";
         $this->client->loginUser($user1);
         //WHEN
         $this->client->request("GET", $newUrl);
-        $newUrl = "/game/" . $gameId . "/splendor/takeToken/5";
+        $newUrl = "/game/" . $gameId . "/splendor/takeToken/6";
         $this->client->request("GET", $newUrl);
         //THEN
         $this->assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR,
             $this->client->getResponse()->getStatusCode());
     }
-    public function testTakeTokenShouldReturnHTTPOK() : void
+
+    public function testTakeTokenShouldReturnHTTPOK(): void
     {
         //GIVEN
         $gameId = $this->initializeGameWithTwoPlayers();
@@ -145,6 +176,7 @@ class SPLControllerTest extends WebTestCase
         $this->SPLGameManagerService = static::getContainer()->get(SPLGameManagerService::class);
         $this->gameUserRepository = static::getContainer()->get(GameUserRepository::class);
         $this->gameSPLRepository = static::getContainer()->get(GameSPLRepository::class);
+        $this->entityManager = static::getContainer()->get(EntityManagerInterface::class);
         $this->playerSPLRepository = static::getContainer()->get(PlayerSPLRepository::class);
         $this->tokenSPLService = static::getContainer()->get(TokenSPLService::class);
         $this->SPLService = static::getContainer()->get(SPLService::class);

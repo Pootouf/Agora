@@ -144,10 +144,6 @@ class SplendorController extends AbstractController
          $message = $player->getUsername() . " picked a token of " . $tokenSPL->getColor();
          $this->logService->sendPlayerLog($gameSPL, $player, $message);
          //TODO publish(s)
-         $this->entityManager->persist($gameSPL);
-         $this->entityManager->persist($tokenSPL);
-         $this->entityManager->persist($player);
-         $this->entityManager->flush();
          if ($this->tokenSPLService->mustEndPlayerRoundBecauseOfTokens($player)) {
              $this->tokenSPLService->validateTakingOfTokens($player);
              $this->tokenSPLService->clearSelectedTokens($player);
