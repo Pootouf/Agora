@@ -10,6 +10,7 @@ services:
     environment:
       XDEBUG_MODE: "${XDEBUG_MODE:-off}"
       APP_DEBUG: 0
+      APP_ENV: prod
 
 
 ###> doctrine/doctrine-bundle ###

@@ -10,6 +10,7 @@ services:
     environment:
       XDEBUG_MODE: "${XDEBUG_MODE:-off}"
       APP_DEBUG: 1
+      APP_ENV: gametest
 
 
 ###> doctrine/doctrine-bundle ###

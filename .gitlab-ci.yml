@@ -29,6 +29,7 @@ services:
     alias: mercure
 
 before_script:
+  - cd app
   - composer install
   - symfony console tailwind:build
   - symfony console --env=test doctrine:migrations:migrate
@@ -68,7 +69,7 @@ deploy:dev_game:
     SERVER_USER: $SERVER_GAME_USER
     SERVER_IP: $SERVER_GAME_IP
     SERVER_LOCATION: /var/www/agora
-    DOCKER_COMPOSE_FILE: compose.override.yaml
+    DOCKER_COMPOSE_FILE: compose.gametest.yaml
     GIT_BRANCH_NAME: develop-game
     ID_RSA: $ID_RSA_GAME
 

@@ -14,6 +14,7 @@ services:
     ports:
       - '${APP_PUBLIC_HTTP_PORT:-80}:80'
       - '${APP_PUBLIC_HTTPS_PORT:-443}:443'
+      - '${APP_PUBLIC_HTTPS_PORT:-443}:443/udp'
       # The Web UI (enabled by --api.insecure=true)
       - '${TRAEFIK_DASHBOARD_PORT:-8080}:8080'
     volumes:
@@ -25,9 +26,9 @@ services:
     container_name: agora
     image: agora-boilerplate:latest
     ports:
-      - '9000'
+      - '7070'
     build:
-      context: .
+      context: ./app
       dockerfile: Dockerfile
     volumes:
       - ./logs/symfony:/var/www/agora/var/log
@@ -39,31 +40,21 @@ services:
     environment:
       SERVER_NAME: ${SERVER_NAME:-localhost}
       TRUSTED_PROXIES: ${TRUSTED_PROXIES:-127.0.0.0/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,reverse_proxy,REMOTE_ADDR}
+      MERCURE_URL: ${MERCURE_URL:-http://mercure/.well-known/mercure}
+      DATABASE_URL: ${DATABASE_URL}
+      DATABASE_TEST_URL: ${DATABASE_TEST_URL}
+      FRANKENPHP_CONFIG: "worker ./public/index.php"
     labels:
       traefik.http.routers.agora.rule: Host(`agora.docker.localhost`)
 
-
-  caddy:
-    image: caddy:2-alpine
-    container_name: caddy
-    volumes:
-      - ./Caddyfile/:/etc/caddy/Caddyfile
-      - ./:/var/www/agora
-      - ./logs/caddy:/var/log/caddy
-    ports:
-      - '7070'
-    depends_on:
-      - agora
-    labels:
-      traefik.http.routers.caddy.rule: Host(`caddy.docker.localhost`)
 
 ###> doctrine/doctrine-bundle ###
   database:
     container_name: database
     image: 'mariadb:10.11.2'
     environment:
-      MYSQL_ROOT_PASSWORD: password
-      MYSQL_DATABASE: main
+      MYSQL_ROOT_PASSWORD: ${DATABASE_PASSWORD}
+      MYSQL_DATABASE: ${DATABASE_NAME}
     ports:
       # To allow the host machine to access the ports below, modify the lines below.
       # For example, to allow the host to connect to port 3306 on the container, you would change
@@ -80,9 +71,9 @@ services:
     container_name: database_test
     image: 'mariadb:10.11.2'
     environment:
-      MYSQL_ROOT_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: ${DATABASE_PASSWORD}
       MYSQL_TCP_PORT: 3307
-      MYSQL_DATABASE: main_test
+      MYSQL_DATABASE: ${DATABASE_TEST_NAME}
     ports:
       - '3307'
     healthcheck:
@@ -95,7 +86,7 @@ services:
     container_name: mercure
     image: dunglas/mercure
     environment:
-      SERVER_NAME: ':80'
+      SERVER_NAME: ${MERCURE_SERVER_NAME:'-80'}
       MERCURE_PUBLISHER_JWT_KEY: '!ChangeThisMercureHubJWTSecretKey!'
       MERCURE_SUBSCRIBER_JWT_KEY: '!ChangeThisMercureHubJWTSecretKey!'
       # Set the URL of your Symfony project (without trailing slash!) as value of the cors_origins directive
