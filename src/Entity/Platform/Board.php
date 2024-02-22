@@ -45,6 +45,9 @@ class Board
     #[ORM\Column]
     private ?int $inactivityHours = null;
 
+    #[ORM\ManyToOne(inversedBy: 'boards')]
+    private ?Game $game = null;
+
 
     public function __construct()
     {
@@ -201,6 +204,18 @@ class Board
     public function hasUser(User $user):bool
     {
         return $this->listUsers->contains($user);
+    }
+
+    public function getGame(): ?Game
+    {
+        return $this->game;
+    }
+
+    public function setGame(?Game $game): static
+    {
+        $this->game = $game;
+
+        return $this;
     }
 
 }
