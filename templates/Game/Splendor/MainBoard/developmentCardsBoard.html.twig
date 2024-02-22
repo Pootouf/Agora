@@ -20,7 +20,7 @@
                                 {idGame: game.id, level: i})
                             })
                         }}
-                        {% if not needToPlay %}
+                        {% if not needToPlay or isSpectator %}
                             disabled
                         {% endif %}
                         class="h-full p-2 w-full"
@@ -74,7 +74,7 @@
                                     {idGame: game.id, idCard: card.id})
                                 })
                             }}
-                            {% if not needToPlay %}
+                            {% if not needToPlay or isSpectator %}
                             disabled
                             {% endif %}
                             class="h-full p-2 w-full"
