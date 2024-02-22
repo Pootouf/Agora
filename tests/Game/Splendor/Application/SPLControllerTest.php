@@ -138,6 +138,7 @@ class SPLControllerTest extends WebTestCase
         $this->assertEquals(Response::HTTP_OK,
             $this->client->getResponse()->getStatusCode());
     }
+
     private function initializeGameWithTwoPlayers() : int
     {
         $this->client =  static::createClient();
