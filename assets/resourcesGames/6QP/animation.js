@@ -157,10 +157,35 @@ function translateRow(rowid) {
 				iterations: 1,
 				fill: "forwards",
 			},
-		).addEventListener("finish", () => {
-			resolve()
-		})
-	}).then(() => animationQueue.executeNextInQueue());
+
+/**
+ * Animates the show up of all first cards in each row after a new round
+ */
+function showFirstCards() {
+	let promisesAnimations = []
+
+	Array.from(document.getElementById('rowsContainer').children).forEach(row => {
+		promisesAnimations.push(
+			new Promise(resolve => {
+				const firstCard = row.firstElementChild.firstElementChild;
+				const startY = - firstCard.getBoundingClientRect().y;
+
+				firstCard.animate(
+					[
+						{transform: `translateY(${startY}px)`, opacity: 0},
+						{transform: "translateY(0px)", opacity: 1},
+					],
+					{
+						duration: 2000,
+						easing: "ease",
+						fill: "forwards",
+					}
+				).finished.then(() => resolve())
+			})
+		)
+	})
+	Promise.all(promisesAnimations).then(() => animationQueue.executeNextInQueue())
+}
 
 /**
  * Show the end game screen

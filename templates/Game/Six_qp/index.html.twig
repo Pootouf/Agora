@@ -68,7 +68,6 @@
         {% set path = path('app_game_show_sixqp', {'id': game.id}) ~ 'chosenCards' %}
         const eventSourceChosenCards = new EventSource("{{ mercure(path)|escape('js') }}");
         eventSourceChosenCards.onmessage = event => {
-
             animationQueue.addToQueue(() => {
                 let chosenCards = document.getElementById('chosenCards');
                 chosenCards.innerHTML = event.data;
@@ -91,8 +90,14 @@
     <script>
         {% set path = path('app_game_show_sixqp', {'id': game.id}) ~ 'mainBoard' %}
         {% set pathAnimRow = path('app_game_show_sixqp', {'id': game.id}) ~ 'animRow' %}
+        {% set pathAnimAllRow = path('app_game_show_sixqp', {'id': game.id}) ~ 'animAllRow' %}
+        {% set pathAnimFirstCards = path('app_game_show_sixqp', {'id': game.id}) ~ 'animFirstCards' %}
+
         const eventSourceMainBoard = new EventSource("{{ mercure(path)|escape('js') }}");
         const eventSourceAnimRow = new EventSource("{{ mercure(pathAnimRow)|escape('js') }}");
+        const eventSourceAnimAllRow = new EventSource("{{ mercure(pathAnimAllRow)|escape('js') }}");
+        const eventSourceAnimFirstCards = new EventSource("{{ mercure(pathAnimFirstCards)|escape('js') }}");
+
         eventSourceMainBoard.onmessage = event => {
             animationQueue.addToQueue(() => {
                 let mainBoard = document.getElementById('mainBoard');
@@ -105,9 +110,26 @@
 
         eventSourceAnimRow.onmessage = event => {
             animationQueue.addToQueue(() => {
-                translateRow("row_" + event.data)
+                translateRow("row_" + event.data).then(() => animationQueue.executeNextInQueue());
             })
         }
+
+        eventSourceAnimAllRow.onmessage = () => {
+            animationQueue.addToQueue(() => {
+                const rowsContainer = document.getElementById("rowsContainer");
+                const children = Array.from(rowsContainer.children);
+
+                setTimeout(() => {
+                    const rowsAnimations = children.map(row => translateRow(row.id));
+                    Promise.all(rowsAnimations).then(() => animationQueue.executeNextInQueue());
+                }, 2000);
+            })
+        }
+
+        eventSourceAnimFirstCards.onmessage = () => {
+            animationQueue.addToQueue(() => showFirstCards());
+        }
+
         {% if needToChoose %}
         alert('Please choose a row');
         {% endif %}
@@ -125,8 +147,11 @@
         {% set path = path('app_game_show_sixqp', {'id': game.id}) ~ 'personalBoard' ~ route %}
         const eventSourcePersonalBoard = new EventSource("{{ mercure(path)|escape('js') }}");
         eventSourcePersonalBoard.onmessage = event => {
-            let personalBoard = document.getElementById('personalBoard');
-            personalBoard.innerHTML = event.data;
+            animationQueue.addToQueue(() => {
+                let personalBoard = document.getElementById('personalBoard');
+                personalBoard.innerHTML = event.data;
+                animationQueue.executeNextInQueue()
+            });
         }
     </script>
 

@@ -84,6 +84,7 @@ class SixQPController extends AbstractController
             'needToChoose' => $needToChoose,
             'messages' => $messages,
             'chosenCard' => null,
+            'isNewRound' => false,
         ]);
 
     }
@@ -197,10 +198,11 @@ class SixQPController extends AbstractController
                 $this->logService->sendSystemLog($game,
                 "could not initialize round for game " . $game->getId());
             }
+            $this->publishAnimAllRowClear($game);
             foreach ($game->getPlayerSixQPs() as $player) {
                 $this->publishPersonalBoard($game, $player);
             }
-            $this->publishMainBoard($game, null);
+            $this->publishMainBoard($game, null, true);
         }
     }
 
@@ -261,6 +263,13 @@ class SixQPController extends AbstractController
             new Response($row->getId()));
     }
 
+    private function publishAnimAllRowClear(GameSixQP $game): void
+    {
+        $this->publishService->publish(
+            $this->generateUrl('app_game_show_sixqp', ['id' => $game->getId()]).'animAllRow',
+            new Response());
+    }
+
     private function publishNewScoreForPlayer(GameSixQP $game, PlayerSixQP $player): void
     {
         $this->publishService->publish(
@@ -309,7 +318,7 @@ class SixQPController extends AbstractController
         }
     }
 
-    private function publishMainBoard(GameSixQP $game, ?ChosenCardSixQP $chosenCardSixQP): void
+    private function publishMainBoard(GameSixQP $game, ?ChosenCardSixQP $chosenCardSixQP, bool $isNewRound = false): void
     {
         $response =  $this->render('Game/Six_qp/mainBoard.html.twig',
             [
@@ -317,11 +326,17 @@ class SixQPController extends AbstractController
                 'game' => $game,
                 'needToChoose' => false,
                 'chosenCard' => $chosenCardSixQP,
+                'isNewRound' => $isNewRound,
             ]
         );
         $this->publishService->publish(
             $this->generateUrl('app_game_show_sixqp', ['id' => $game->getId()]).'mainBoard',
             $response);
+        if ($isNewRound) {
+            $this->publishService->publish(
+                $this->generateUrl('app_game_show_sixqp', ['id' => $game->getId()]).'animFirstCards',
+                new Response());
+        }
     }
 
     private function publishAnimChosenCard(GameSixQP $game, ChosenCardSixQP $chosenCard): void
