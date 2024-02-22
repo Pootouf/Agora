@@ -19,7 +19,7 @@ class GameFixtures extends Fixture
             $game->setMinPlayers(rand(2,4));
             $game->setMaxPlayers(rand(5,10));
             $game->setIsActive(true);
-            $game->setImgURL("NoImgNow");
+            $game->setImgURL("images/" . rand(1, 3) . ".jpg");
             $manager->persist($game);
         }
         $manager->flush();

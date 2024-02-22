@@ -39,10 +39,11 @@ class GameEntityTest extends TestCase
         $game = new Game();
 
         // WHEN
-        $game->setImgURL('https://example.com/image.jpg');
+        $imagePath = '/images/1.jpg';
+        $game->setImgURL($imagePath);
 
         //THEN
-        $this->assertEquals('https://example.com/image.jpg', $entity->getImgURL());
+        $this->assertSame($imagePath, $game->getImgURL());
     }
 
     public function testSetLabel()
