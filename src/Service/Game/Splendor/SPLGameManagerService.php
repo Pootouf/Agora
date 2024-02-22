@@ -91,7 +91,7 @@ class SPLGameManagerService extends AbstractGameManagerService
         $player->setPersonalBoard($personalBoard);
         $personalBoard->setPlayerSPL($player);
         $player->setPersonalBoard($personalBoard);
-
+        $game->addPlayer($player);
         $this->entityManager->persist($player);
         $this->entityManager->persist($personalBoard);
         $this->entityManager->flush();

@@ -3,6 +3,7 @@
 namespace App\Controller\Game;
 
 use App\Entity\Game\SixQP\GameSixQP;
+use App\Entity\Game\Splendor\DrawCardsSPL;
 use App\Entity\Game\Splendor\GameSPL;
 use App\Entity\Game\Splendor\PlayerCardSPL;
 use App\Repository\Game\SixQP\GameSixQPRepository;
@@ -14,7 +15,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
-use TokenSPLService;
 use function PHPUnit\Framework\callback;
 
 /**
@@ -140,7 +140,10 @@ class GameTestController extends AbstractController
         $tokens = $gameSPL->getMainBoard()->getTokens()->toArray();
 
         $nobleTiles = $gameSPL->getMainBoard()->getNobleTiles()->toArray();
-        $cards = $gameSPL->getMainBoard()->getDrawCards()->toArray();
+        $cardsLevel1 = $gameSPL->getMainBoard()->getDrawCards()->get(DrawCardsSPL::$LEVEL_ONE)->getDevelopmentCards();
+        $cardsLevel2 = $gameSPL->getMainBoard()->getDrawCards()->get(DrawCardsSPL::$LEVEL_TWO)->getDevelopmentCards();
+        $cardsLevel3 = $gameSPL->getMainBoard()->getDrawCards()->get(DrawCardsSPL::$LEVEL_THREE)->getDevelopmentCards();
+        $cards = array_merge($cardsLevel1->toArray(), $cardsLevel2->toArray(), $cardsLevel3->toArray());
         shuffle($cards);
         shuffle($nobleTiles);
 
@@ -161,10 +164,9 @@ class GameTestController extends AbstractController
 
             for ($i = 0; $i < 3; $i++) {
                 $this->doRandomly(function () use ($gameSPL, $entityManager, $cardInd, $cards, $player) {
-                    $playerCard = new PlayerCardSPL();
-                    $playerCard->setDevelopmentCard($cards[$cardInd]);
+                    $playerCard = new PlayerCardSPL($player, $cards[$cardInd], false);
                     $player->getPersonalBoard()->addPlayerCard($playerCard);
-                    $gameSPL->getMainBoard()->removeDrawCard($cards[$cardInd]);
+                    $gameSPL->getMainBoard()->getDrawCards()->get($cards[$cardInd]->getLevel() - 1)->removeDevelopmentCard($cards[$cardInd]);
                     $entityManager->persist($playerCard);
                     $entityManager->persist($player->getPersonalBoard());
                     $entityManager->persist($gameSPL->getMainBoard());
@@ -174,11 +176,9 @@ class GameTestController extends AbstractController
             }
 
             $this->doRandomly(function () use ($gameSPL, $entityManager, $cardInd, $cards, $player) {
-                $playerCard = new PlayerCardSPL();
-                $playerCard->setDevelopmentCard($cards[$cardInd]);
-                $playerCard->setIsReserved(true);
+                $playerCard = new PlayerCardSPL($player, $cards[$cardInd], true);
                 $player->getPersonalBoard()->addPlayerCard($playerCard);
-                $gameSPL->getMainBoard()->removeDrawCard($cards[$cardInd]);
+                $gameSPL->getMainBoard()->getDrawCards()->get($cards[$cardInd]->getLevel() - 1)->removeDevelopmentCard($cards[$cardInd]);
                 $entityManager->persist($playerCard);
                 $entityManager->persist($player->getPersonalBoard());
                 $entityManager->persist($gameSPL->getMainBoard());
@@ -186,7 +186,7 @@ class GameTestController extends AbstractController
             });
             $cardInd++;
 
-            for ($i = 0; $i < 2; $i++) {
+            for ($i = 0; $i < 1; $i++) {
                 $this->doRandomly(function () use ($gameSPL, $nobleTiles, $nobleTileInd, $entityManager, $player) {
                     $player->getPersonalBoard()->addNobleTile($nobleTiles[$nobleTileInd]);
                     $gameSPL->getMainBoard()->removeNobleTile($nobleTiles[$nobleTileInd]);
@@ -207,7 +207,7 @@ class GameTestController extends AbstractController
     {
         $random = rand(0, 1);
         if ($random == 1) {
-            callback($call);
+            call_user_func($call);
         }
     }
 }
