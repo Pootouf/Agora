@@ -49,7 +49,7 @@ class SplendorController extends AbstractController
             $player = $game->getPlayers()->get(0);
             $isSpectator = true;
         } else {
-            //TODO : display the game
+            $needToPlay = $player->isTurnOfPlayer();
         }
         $mainBoardTokens = $game->getMainBoard()->getTokens();
         return $this->render('/Game/Splendor/index.html.twig', [

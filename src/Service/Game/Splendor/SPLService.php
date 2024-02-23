@@ -346,11 +346,32 @@ class SPLService
                 $this->entityManager->persist($playerSPL->getPersonalBoard());
             }
             $this->retrievePlayerMoney($playerSPL, $developmentCardsSPL);
-            if($playerCardSPL->isIsReserved()){
+            if($playerCardSPL->isIsReserved()) {
                 $playerCardSPL->setIsReserved(false);
                 $this->entityManager->persist($playerCardSPL);
+            } else {
+                $mainBoard = $playerSPL->getGameSPL()->getMainBoard();
+                foreach ($mainBoard->getRowsSPL() as $row) {
+                    if($this->isCardInRow($row, $developmentCardsSPL)) {
+                        //Remove the bought card from row
+                        $row->removeDevelopmentCard($developmentCardsSPL);
+
+                        //Add a new card in the row
+                        $levelCard = $developmentCardsSPL->getLevel();
+                        $levelDraw = $mainBoard->getDrawCards()->get($levelCard - 1);
+                        $row->addDevelopmentCard($levelDraw->getDevelopmentCards()->first());
+                        $this->entityManager->persist($playerSPL->getGameSPL()->getMainBoard());
+
+                        //Remove the new card from draw
+                        $levelDraw->removeDevelopmentCard($developmentCardsSPL);
+                        $this->entityManager->persist($levelDraw);
+                        $this->entityManager->persist($row);
+                    }
+                }
             }
             $this->entityManager->flush();
+        } else {
+            throw new Exception('Not enough money to buy this card');
         }
     }
 
@@ -404,10 +425,16 @@ class SPLService
         GameSPL $game,
         DevelopmentCardsSPL $developmentCard): ?PlayerCardSPL
     {
-        return $this->playerCardSPLRepository->findOneBy([
-            'game' => $game->getId(),
-            'developmentCard' => $developmentCard->getId(),
-        ]);
+        foreach($game->getPlayers() as $player) {
+            $temp = $this->playerCardSPLRepository->findOneBy([
+                'personalBoardSPL' => $player->getPersonalBoard(),
+                'developmentCard' => $developmentCard->getId(),
+            ]);
+            if($temp != null) {
+                return $temp;
+            }
+        }
+        return null;
     }
 
     /**
@@ -495,7 +522,7 @@ class SPLService
     private function checkInRowAtLevel(MainBoardSPL $mainBoard
         , DevelopmentCardsSPL $card) : bool
     {
-        $level = $card->getLevel();
+        $level = $card->getLevel() - 1;
         $rowAtLevel = $mainBoard->getRowsSPL()->get($level);
         return $this->isCardInRow($rowAtLevel, $card);
     }
@@ -516,7 +543,7 @@ class SPLService
     private function checkInDiscardAtLevel(MainBoardSPL $mainBoard
         , DevelopmentCardsSPL $card) : bool
     {
-        $level = $card->getLevel();
+        $level = $card->getLevel() -1;
         $discardsAtLevel = $mainBoard->getDrawCards()->get($level);
         $testCard = $discardsAtLevel->getDevelopmentCards()->last();
         return $card === $testCard;
@@ -539,7 +566,7 @@ class SPLService
 
     private function manageRow(MainBoardSPL $mainBoard, DevelopmentCardsSPL $card): void
     {
-        $level = $card->getLevel();
+        $level = $card->getLevel() - 1;
         $row = $mainBoard->getRowsSPL()->get($level);
         $row->removeDevelopmentCard($card);
 
@@ -614,7 +641,7 @@ class SPLService
 
     private function whereIsThisCard(MainBoardSPL $mainBoard, DevelopmentCardsSPL $card) : int
     {
-        $level = $card->getLevel();
+        $level = $card->getLevel() - 1;
         $row = $mainBoard->getRowsSPL()->get($level);
         if ($row->getDevelopmentCards()->contains($card))
         {
