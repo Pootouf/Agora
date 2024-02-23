@@ -334,14 +334,11 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $developmentCard->setLevel(DevelopmentCardsSPL::$LEVEL_ONE);
         $developmentCard->setValue(1);
         $entityManager->persist($developmentCard);
-        $playerCard = new PlayerCardSPL($player, $developmentCard, false);
-        $playerCard->setPersonalBoardSPL($player->getPersonalBoard());
-        $entityManager->persist($playerCard);
         $entityManager->flush();
-        // WHEN
-        $splendorService->buyCard($player, $playerCard);
         // THEN
-        $this->assertNotContains($playerCard, $player->getPersonalBoard()->getPlayerCards());
+        $this->expectException(\Exception::class);
+        // WHEN
+        $splendorService->buyCard($player, $developmentCard);
     }
 
     public function testBuyCardWhenEnoughMoney()
@@ -368,13 +365,11 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $developmentCard->setLevel(DevelopmentCardsSPL::$LEVEL_ONE);
         $developmentCard->setValue(1);
         $entityManager->persist($developmentCard);
-        $playerCard = new PlayerCardSPL($player, $developmentCard, false);
-        $playerCard->setPersonalBoardSPL($player->getPersonalBoard());
-        $entityManager->persist($playerCard);
         $entityManager->flush();
         // WHEN
-        $splendorService->buyCard($player, $playerCard);
+        $splendorService->buyCard($player, $developmentCard);
         // THEN
+        $playerCard = $splendorService->getPlayerCardFromDevelopmentCard($game, $developmentCard);
         $this->assertContains($playerCard, $player->getPersonalBoard()->getPlayerCards());
     }
 
@@ -402,13 +397,11 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $developmentCard->setLevel(DevelopmentCardsSPL::$LEVEL_ONE);
         $developmentCard->setValue(1);
         $entityManager->persist($developmentCard);
-        $playerCard = new PlayerCardSPL($player, $developmentCard, true);
-        $playerCard->setPersonalBoardSPL($player->getPersonalBoard());
-        $entityManager->persist($playerCard);
         $entityManager->flush();
         // WHEN
-        $splendorService->buyCard($player, $playerCard);
+        $splendorService->buyCard($player, $developmentCard);
         // THEN
+        $playerCard = $splendorService->getPlayerCardFromDevelopmentCard($game, $developmentCard);
         $this->assertContains($playerCard, $player->getPersonalBoard()->getPlayerCards());
         $this->assertFalse($playerCard->isIsReserved());
     }
@@ -437,12 +430,9 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $developmentCard->setLevel(DevelopmentCardsSPL::$LEVEL_ONE);
         $developmentCard->setValue(1);
         $entityManager->persist($developmentCard);
-        $playerCard = new PlayerCardSPL($player, $developmentCard, true);
-        $playerCard->setPersonalBoardSPL($player->getPersonalBoard());
-        $entityManager->persist($playerCard);
         $entityManager->flush();
         // WHEN
-        $splendorService->buyCard($player, $playerCard);
+        $splendorService->buyCard($player, $developmentCard);
         // THEN
         $this->assertNotContains($token, $player->getPersonalBoard()->getTokens());
     }
@@ -471,12 +461,9 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $developmentCard->setLevel(DevelopmentCardsSPL::$LEVEL_ONE);
         $developmentCard->setValue(1);
         $entityManager->persist($developmentCard);
-        $playerCard = new PlayerCardSPL($player, $developmentCard, true);
-        $playerCard->setPersonalBoardSPL($player->getPersonalBoard());
-        $entityManager->persist($playerCard);
         $entityManager->flush();
         // WHEN
-        $splendorService->buyCard($player, $playerCard);
+        $splendorService->buyCard($player, $developmentCard);
         // THEN
         $this->assertNotContains($token, $player->getPersonalBoard()->getTokens());
     }
