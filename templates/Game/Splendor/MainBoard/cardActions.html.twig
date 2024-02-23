@@ -36,12 +36,22 @@ Comes with a button to the homepage and another one to the game's homepage
         <p id="actions" class="text-4xl font-bold mb-4"></p>
         <div class="grid-cols-{{ actionsNumber }} font-bold flex justify-center items-center">
                 <button id="buy_card_{{ card }}"
+                        {{ stimulus_action('splendor', 'buyCard', 'click',
+                            {url:path('app_game_splendor_buy_card',
+                                {idGame: game.id, idCard: card})
+                            })
+                        }}
                         class="{% if levelCard != null %} hidden {% endif %}
                                 rounded-lg bg-amber-300 text-black py-2 px-3 m-1 inline-flex portrait:text-2xl items-center"
                 >
                     Buy this card
                 </button>
                 <button id="reserve_card_{{ card }}"
+                        {{ stimulus_action('splendor', 'reserveCard', 'click',
+                            {url:path('app_game_splendor_reserve_card',
+                                {idGame: game.id, idCard: card})
+                            })
+                        }}
                         class="{% if selectedReservedCard != null %} hidden {% endif %}
                         rounded-lg  bg-amber-300 text-black py-2 px-3 m-1 inline-flex portrait:text-2xl items-center"
                 >

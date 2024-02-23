@@ -21,4 +21,14 @@ export default class extends Controller {
         tree.appendChild(node);
     }
 
+    async buyCard(card) {
+        let url = card.params.url;
+        const response = await fetch(url);
+    }
+
+    async reserveCard(card) {
+        let url = card.params.url;
+        const response = await fetch(url);
+    }
+
 }
