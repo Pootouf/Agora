@@ -121,6 +121,62 @@ class SplendorController extends AbstractController
              ]);
      }
 
+     #[Route('/game/{idGame}/splendor/buy/card/{idCard}', name: 'app_game_splendor_buy_card')]
+     public function buyCard(
+         #[MapEntity(id: 'idGame')] GameSPL $game,
+         #[MapEntity(id: 'idCard')] DevelopmentCardsSPL $card): Response
+     {
+         $player = $this->SPLService->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+         if ($player == null) {
+             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+         }
+         if ($this->SPLService->getActivePlayer($game) !== $player) {
+             return new Response("Not player's turn", Response::HTTP_FORBIDDEN);
+         }
+         $playerCard = $this->SPLService->getPlayerCardFromDevelopmentCard($game, $card);
+         if ($playerCard != null) {
+             if ($player->getId() != $playerCard->getPersonalBoardSPL()->getPlayerSPL()->getId()) {
+                 return new Response("Not player's card", Response::HTTP_FORBIDDEN);
+             }
+             if (!$playerCard->isIsReserved()) {
+                 return new Response("The card is not reserved", Response::HTTP_FORBIDDEN);
+             }
+         }
+         try {
+             $this->SPLService->buyCard($player, $card);
+         } catch (Exception $e) {
+             return new Response("Not player's card", Response::HTTP_FORBIDDEN);
+         }
+         $this->SPLService->addBuyableNobleTilesToPlayer($game, $player);
+         //TODO: publish
+         $this->manageEndOfRound($game);
+         return new Response('Card Bought', Response::HTTP_OK);
+     }
+
+     #[Route('/game/{idGame}/splendor/reserve/card/{idCard}', name: 'app_game_splendor_reserve_card')]
+     public function reserveCard(
+         #[MapEntity(id: 'idGame')] GameSPL $game,
+         #[MapEntity(id: 'idCard')] DevelopmentCardsSPL $card): Response
+     {
+         $player = $this->SPLService->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+         if ($player == null) {
+             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+         }
+         if ($this->SPLService->getActivePlayer($game) !== $player) {
+             return new Response("Not player's turn", Response::HTTP_FORBIDDEN);
+         }
+         if (!$this->SPLService->canPlayerReserveCard($game, $card)) {
+             return new Response("Can't reserve this card", Response::HTTP_FORBIDDEN);
+         }
+         try {
+             $this->SPLService->reserveCard($player, $card);
+         } catch (Exception $e) {
+             return new Response("Can't reserve this card", Response::HTTP_FORBIDDEN);
+         }
+         $this->manageEndOfRound($game);
+         return new Response('Card reserved', Response::HTTP_OK);
+     }
+
      #[Route('/game/{idGame}/splendor/takeToken/{idToken}', name: 'app_game_splendor_selectToken')]
      public function takeToken(
          #[MapEntity(id: 'idGame')] GameSPL $gameSPL,

@@ -12,6 +12,7 @@ use App\Entity\Game\Splendor\PlayerSPL;
 use App\Entity\Game\Splendor\TokenSPL;
 use App\Repository\Game\Splendor\DevelopmentCardsSPLRepository;
 use App\Repository\Game\Splendor\NobleTileSPLRepository;
+use App\Repository\Game\Splendor\PlayerCardSPLRepository;
 use App\Repository\Game\Splendor\PlayerSPLRepository;
 use App\Repository\Game\Splendor\MainBoardSPLRepository;
 use App\Repository\Game\Splendor\TokenSPLRepository;
@@ -39,7 +40,8 @@ class SPLService
         private MainBoardSPLRepository $mainBoardSPLRepository,
         private TokenSPLRepository $tokenSPLRepository,
         private NobleTileSPLRepository $nobleTileSPLRepository,
-        private DevelopmentCardsSPLRepository $developmentCardsSPLRepository)
+        private DevelopmentCardsSPLRepository $developmentCardsSPLRepository,
+        private PlayerCardSPLRepository $playerCardSPLRepository)
     { }
 
     /**
@@ -320,21 +322,32 @@ class SPLService
      * buyCard : check if player can buy a card and remove the card from the main board
      *
      * @param PlayerSPL $playerSPL
-     * @param PlayerCardSPL $playerCardSPL
+     * @param DevelopmentCardsSPL $developmentCardsSPL
      * @return void
+     * @throws \Exception if it's not the card of the player
      */
     public function buyCard(PlayerSPL $playerSPL,
-                            PlayerCardSPL $playerCardSPL): void
+                            DevelopmentCardsSPL $developmentCardsSPL): void
     {
-        $developmentCardsSPL = $playerCardSPL->getDevelopmentCard();
+        $playerCardSPL = $this->getPlayerCardFromDevelopmentCard($playerSPL->getGameSPL(), $developmentCardsSPL);
+        if ($playerCardSPL != null
+            && $playerCardSPL->getPersonalBoardSPL()->getPlayerSPL()->getId() != $playerSPL->getId()
+            && !$playerCardSPL->isIsReserved()) {
+            throw new \Exception('Not the card of the player');
+        }
         if($this->hasEnoughMoney($playerSPL, $developmentCardsSPL)){
-            $playerSPL->getPersonalBoard()->addPlayerCard($playerCardSPL);
+            if ($playerCardSPL == null) {
+                $playerCardSPL = new PlayerCardSPL($playerSPL, $developmentCardsSPL, false);
+                $playerSPL->getPersonalBoard()->addPlayerCard($playerCardSPL);
+                $this->entityManager->persist($playerCardSPL);
+                $this->entityManager->persist($playerSPL->getPersonalBoard());
+            }
             $this->retrievePlayerMoney($playerSPL, $developmentCardsSPL);
             if($playerCardSPL->isIsReserved()){
                 $playerCardSPL->setIsReserved(false);
-            } else {
-                $playerCardSPL->setPersonalBoardSPL($playerSPL->getPersonalBoard());
+                $this->entityManager->persist($playerCardSPL);
             }
+            $this->entityManager->flush();
         }
     }
 
@@ -377,6 +390,34 @@ class SPLService
     {
         return $game->getMainBoard()->getDrawCards()->get($level)->getDevelopmentCards();
     }
+
+    /**
+     * getPlayerCardFromDevelopmentCard : return the player's card with a game and a development card
+     * @param GameSPL $game
+     * @param DevelopmentCardsSPL $developmentCard
+     * @return PlayerCardSPL|null
+     */
+    public function getPlayerCardFromDevelopmentCard(
+        GameSPL $game,
+        DevelopmentCardsSPL $developmentCard): ?PlayerCardSPL
+    {
+        return $this->playerCardSPLRepository->findOneBy([
+            'game' => $game->getId(),
+            'developmentCard' => $developmentCard->getId(),
+        ]);
+    }
+
+    /**
+     * canPlayerReserveCard: return true if the player can reserve the cards
+     * @param GameSPL $game
+     * @param DevelopmentCardsSPL $card
+     * @return bool
+     */
+    public function canPlayerReserveCard(GameSPL $game, DevelopmentCardsSPL $card): bool
+    {
+        return $this->getPlayerCardFromDevelopmentCard($game, $card) == null;
+    }
+
 
     /**
      * filterCardsByColor: take an array of playerCards and filter it by color
