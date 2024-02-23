@@ -33,7 +33,12 @@ class BoardFixtures extends Fixture implements DependentFixtureInterface
             //The number of invited people
             $board->setNbInvitations(rand(0,$nbPlayersMax - $nbJoinedPlayers));
             $board->setInactivityHours(rand(6,48));
-            $board->setCreationDate(new \DateTime());
+            $startDate = new \DateTime('2024-02-01');
+            $endDate = new \DateTime('2024-02-23');
+            $randomTimestamp = mt_rand($startDate->getTimestamp(), $endDate->getTimestamp());
+            $randomDate = new \DateTime();
+            $randomDate->setTimestamp($randomTimestamp);
+            $board->setCreationDate($randomDate);
             $board->setInvitationTimer(new \DateTime());
             $manager->persist($board);
         }
