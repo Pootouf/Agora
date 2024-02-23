@@ -12,6 +12,7 @@
 {% set emerald = greenTokensPile %}
 {% set tokens = [diamond, emerald, ruby, sapphire, onyx] %}
 {% set tokensName = ['diamond', 'emerald', 'ruby', 'sapphire', 'onyx'] %}
+{% set tokensColor = ['white', 'green', 'red', 'blue', 'black'] %}
 {% set selectedTokensNb = 0 %}
 
 
@@ -21,7 +22,9 @@
             xl:lg:justify-center xl:lg:align-center ">
 
         {% for i in 0..tokens|length - 1 %}
-            {% set selectedTokens = player.personalBoard.selectedTokens|filter(type => type == tokens[i]) %}
+            {% set selectedTokens = player.personalBoard.selectedTokens|filter(
+                selectedToken => selectedToken.token.type == tokensName[i]
+            ) %}
             {% set selected = selectedTokens|length %}
             {% set selectedTokensNb = selectedTokensNb + selected %}
 
@@ -35,6 +38,11 @@
                 <button type="button"
                 {% if not needToPlay %} disabled {% endif %}
                         class="relative items-center w-6/12 focus:outline-none focus:ring-blue-300 focus:ring-black-800"
+                        {{ stimulus_action('splendor', 'takeToken', 'click',
+                            {url:path('app_game_splendor_selectToken',
+                                {idGame: game.id, color: tokensColor[i]})
+                            })
+                        }}
                 >
                     <img
                             class=" object-cover w-fit mx-auto aspect-auto rounded-2xl "

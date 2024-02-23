@@ -13,8 +13,7 @@ Comes with a button to the homepage and another one to the game's homepage
     {% set cardPath =  'DevelopmentCards/' ~ card %}
     {% set actionsNumber = 3 %}
 {% elseif levelCard != null %}
-    {% set card = levelCard %}
-    {% set cardPath = 'cardLevel' ~ card %}
+    {% set cardPath = 'cardLevel' ~ levelCard %}
     {% set actionsNumber = 2 %}
 {% else %}
     {% set card = selectedReservedCard.id %}
@@ -33,25 +32,37 @@ Comes with a button to the homepage and another one to the game's homepage
              }}"
              alt="{{ 'selectedCard' ~ card }}"
         >
+
         <p id="actions" class="text-4xl font-bold mb-4"></p>
         <div class="grid-cols-{{ actionsNumber }} font-bold flex justify-center items-center">
+            {% if card != null %}
                 <button id="buy_card_{{ card }}"
                         {{ stimulus_action('splendor', 'buyCard', 'click',
                             {url:path('app_game_splendor_buy_card',
                                 {idGame: game.id, idCard: card})
                             })
                         }}
-                        class="{% if levelCard != null %} hidden {% endif %}
-                                rounded-lg bg-amber-300 text-black py-2 px-3 m-1 inline-flex portrait:text-2xl items-center"
+                        class="rounded-lg bg-amber-300 text-black py-2 px-3 m-1 inline-flex
+                                portrait:text-2xl items-center"
                 >
                     Buy this card
                 </button>
+            {% endif %}
                 <button id="reserve_card_{{ card }}"
-                        {{ stimulus_action('splendor', 'reserveCard', 'click',
-                            {url:path('app_game_splendor_reserve_card',
-                                {idGame: game.id, idCard: card})
-                            })
-                        }}
+                        {% if card == null %}
+                            {% set idDraw = levelCard - 1 %}
+                            {{ stimulus_action('splendor', 'reserveCardOnDraw', 'click',
+                                {url:path('app_game_splendor_reserve_card_draw',
+                                    {idGame: game.id, level: levelCard})
+                                })
+                            }}
+                        {% else %}
+                            {{ stimulus_action('splendor', 'reserveCardOnRow', 'click',
+                                {url:path('app_game_splendor_reserve_card_row',
+                                    {idGame: game.id, idCard: card})
+                                })
+                            }}
+                        {% endif %}
                         class="{% if selectedReservedCard != null %} hidden {% endif %}
                         rounded-lg  bg-amber-300 text-black py-2 px-3 m-1 inline-flex portrait:text-2xl items-center"
                 >

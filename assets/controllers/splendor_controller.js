@@ -26,8 +26,18 @@ export default class extends Controller {
         const response = await fetch(url);
     }
 
-    async reserveCard(card) {
+    async reserveCardOnRow(card) {
         let url = card.params.url;
+        const response = await fetch(url);
+    }
+
+    async reserveCardOnDraw(level) {
+        let url = level.params.url;
+        const response = await fetch(url);
+    }
+
+    async takeToken(token) {
+        let url = token.params.url;
         const response = await fetch(url);
     }
 
