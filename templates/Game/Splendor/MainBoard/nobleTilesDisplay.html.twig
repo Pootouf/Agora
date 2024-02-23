@@ -15,7 +15,8 @@
             <div class="flex items-center justify-center h-full p-2 w-full">
                 {% set calcul = 1.5 + (nobleTiles|length)/10 %}
                 <img class="hover:scale-[{{ calcul }}] transition ease-in-out delay-100
-                            items-center justify-center rounded-lg shadow-black shadow-lg max-h-full"
+                            items-center justify-center rounded-lg shadow-black shadow-lg max-h-full
+                            {% if isSpectator %}transform hover:-translate-y-20{% endif %}"
                      src="{{ asset('resourcesGames/Splendor/Images/NobleTiles/' ~ card.id ~ '.png') }}"
                      alt="nobleTile">
             </div>
