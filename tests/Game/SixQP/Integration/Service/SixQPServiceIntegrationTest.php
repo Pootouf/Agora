@@ -7,6 +7,7 @@ use App\Entity\Game\SixQP\DiscardSixQP;
 use App\Entity\Game\SixQP\GameSixQP;
 use App\Entity\Game\SixQP\PlayerSixQP;
 use App\Entity\Game\SixQP\RowSixQP;
+use App\Entity\Game\SixQP\SixQPParameters;
 use App\Repository\Game\SixQP\GameSixQPRepository;
 use App\Service\Game\AbstractGameManagerService;
 use App\Service\Game\SixQP\SixQPService;
@@ -32,7 +33,7 @@ class SixQPServiceIntegrationTest extends KernelTestCase
 
         foreach ($players as $player) {
             $this->assertNotNull($player->getCards());
-            $this->assertSame(PlayerSixQP::$NUMBER_OF_CARDS_BY_PLAYER, count($player->getCards()));
+            $this->assertSame(SixQPParameters::$NUMBER_OF_CARDS_BY_PLAYER, count($player->getCards()));
             $this->assertSame(count($game->getPlayerSixQPs()), count($players));
         }
         foreach ($rows as $row) {
@@ -425,7 +426,7 @@ class SixQPServiceIntegrationTest extends KernelTestCase
         $entityManager->persist($discard);
         $entityManager->persist($discard2);
         $entityManager->flush();
-        $player->getDiscardSixQP()->addPoints($sixQPService::$MAX_POINTS - 1);
+        $player->getDiscardSixQP()->addPoints(SixQPParameters::$MAX_POINTS - 1);
         $entityManager->persist($game);
         $entityManager->persist($player);
         //WHEN
@@ -451,7 +452,7 @@ class SixQPServiceIntegrationTest extends KernelTestCase
         $entityManager->persist($discard);
         $entityManager->persist($discard2);
         $entityManager->flush();
-        $player->getDiscardSixQP()->addPoints($sixQPService::$MAX_POINTS);
+        $player->getDiscardSixQP()->addPoints(SixQPParameters::$MAX_POINTS);
         $entityManager->persist($game);
         $entityManager->persist($player);
         //WHEN
@@ -546,7 +547,7 @@ class SixQPServiceIntegrationTest extends KernelTestCase
         $discard2->addPoints(10);
         $discard3 = new DiscardSixQP($player3, $game);
         $player3->setDiscardSixQP($discard3);
-        $discard3->addPoints(SixQPService::$MAX_POINTS);
+        $discard3->addPoints(SixQPParameters::$MAX_POINTS);
         $entityManager->persist($discard1);
         $entityManager->persist($discard2);
         $entityManager->persist($discard3);
@@ -575,7 +576,7 @@ class SixQPServiceIntegrationTest extends KernelTestCase
         $discard2->addPoints(10);
         $discard3 = new DiscardSixQP($player3, $game);
         $player3->setDiscardSixQP($discard3);
-        $discard3->addPoints(SixQPService::$MAX_POINTS);
+        $discard3->addPoints(SixQPParameters::$MAX_POINTS);
         $entityManager->persist($discard1);
         $entityManager->persist($discard2);
         $entityManager->persist($discard3);

@@ -7,6 +7,7 @@ use App\Entity\Game\SixQP\DiscardSixQP;
 use App\Entity\Game\SixQP\GameSixQP;
 use App\Entity\Game\SixQP\PlayerSixQP;
 use App\Entity\Game\SixQP\RowSixQP;
+use App\Entity\Game\SixQP\SixQPParameters;
 use App\Repository\Game\SixQP\PlayerSixQPRepository;
 use App\Service\Game\AbstractGameManagerService;
 use App\Service\Game\LogService;
@@ -38,7 +39,7 @@ class SixQPGameManagerService extends AbstractGameManagerService
     {
         $game = new GameSixQP();
         $game->setGameName(AbstractGameManagerService::$SIXQP_LABEL);
-        for($i = 0; $i < RowSixQP::$NUMBER_OF_ROWS_BY_GAME; $i++) {
+        for($i = 0; $i < SixQPParameters::$NUMBER_OF_ROWS_BY_GAME; $i++) {
             $row = new RowSixQP();
             $row->setPosition($i);
             $game->addRowSixQP($row);
