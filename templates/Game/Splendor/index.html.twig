@@ -16,7 +16,8 @@
                 {{  include('/Game/Splendor/Ranking/ranking.html.twig') }}
             </div>
             {% endblock %}
-                <div id="mainBoard" class="flow float-start w-[75%] {% if not isSpectator %}h-[84%]{% endif %}h-[100%]">
+                <div id="mainBoard" class="flow float-start w-[75%]
+                        {% if isSpectator %}h-full pb-3{% else %}h-[84%]{% endif %}">
                     {{ include('/Game/Splendor/MainBoard/mainBoard.html.twig') }}
                 </div>
             {% block personalBoard %}
