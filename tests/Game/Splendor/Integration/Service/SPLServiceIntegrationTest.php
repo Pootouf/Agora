@@ -5,12 +5,14 @@ namespace Game\Splendor\Integration\Service;
 
 use App\Entity\Game\Splendor\CardCostSPL;
 use App\Entity\Game\Splendor\DevelopmentCardsSPL;
+use App\Entity\Game\Splendor\DrawCardsSPL;
 use App\Entity\Game\Splendor\GameSPL;
 use App\Entity\Game\Splendor\MainBoardSPL;
 use App\Entity\Game\Splendor\NobleTileSPL;
 use App\Entity\Game\Splendor\PersonalBoardSPL;
 use App\Entity\Game\Splendor\PlayerCardSPL;
 use App\Entity\Game\Splendor\PlayerSPL;
+use App\Entity\Game\Splendor\RowSPL;
 use App\Entity\Game\Splendor\SelectedTokenSPL;
 use App\Entity\Game\Splendor\TokenSPL;
 use App\Service\Game\AbstractGameManagerService;
@@ -406,6 +408,34 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $this->assertFalse($playerCard->isIsReserved());
     }
 
+    public function testBuyCardWhenCardIsReservedBySomeoneElse()
+    {
+        // GIVEN
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $splendorService = static::getContainer()->get(SPLService::class);
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $lastPlayer = $game->getPlayers()->last();
+        $cardCost = new CardCostSPL();
+        $cardCost->setColor(TokenSPL::$COLOR_RED);
+        $cardCost->setPrice(1);
+        $entityManager->persist($cardCost);
+        $array = new ArrayCollection();
+        $array->add($cardCost);
+        $developmentCard = DevelopmentCardsSPL::createDevelopmentCard($array);
+        $developmentCard->setPrestigePoints(1);
+        $developmentCard->setColor("red");
+        $developmentCard->setLevel(DevelopmentCardsSPL::$LEVEL_ONE);
+        $developmentCard->setValue(1);
+        $splendorService->reserveCard($lastPlayer, $developmentCard);
+        $entityManager->persist($lastPlayer);
+        $entityManager->persist($developmentCard);
+        $entityManager->flush();
+        // THEN
+        $this->expectException(\Exception::class);
+        // WHEN
+        $splendorService->buyCard($player, $developmentCard);
+    }
     public function testTokenRetrievedWhenBuy()
     {
         // GIVEN
@@ -561,6 +591,34 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $game->setGameName(AbstractGameManagerService::$SPL_LABEL);
         $mainBoard = new MainBoardSPL();
         $mainBoard->setGameSPL($game);
+        for ($i = 0; $i <= DrawCardsSPL::$LEVEL_THREE; $i++) {
+            $discard = new DrawCardsSPL();
+            $discard->setLevel($i);
+            for ($c = 0; $c < 10; $c++) {
+                $card = new DevelopmentCardsSPL();
+                $card->setLevel($i);
+                $card->setPrestigePoints(1);
+                $card->setColor("red");
+                $card->setValue(1);
+                $entityManager->persist($card);
+                $discard->addDevelopmentCard($card);
+                $entityManager->persist($discard);
+            }
+            $mainBoard->addDrawCard($discard);
+            $row = new RowSPL();
+            $row->setLevel($i);
+            for ($c = 0; $c < 4; $c++) {
+                $card = new DevelopmentCardsSPL();
+                $card->setLevel($i);
+                $card->setPrestigePoints(1);
+                $card->setColor("red");
+                $card->setValue(1);
+                $entityManager->persist($card);
+                $row->addDevelopmentCard($card);
+                $entityManager->persist($row);
+            }
+            $mainBoard->addRowsSPL($row);
+        }
         $entityManager->persist($mainBoard);
         for ($i = 0; $i < $numberOfPlayer; $i++) {
             $player = new PlayerSPL('test', $game);

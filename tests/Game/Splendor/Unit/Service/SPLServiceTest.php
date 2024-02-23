@@ -24,6 +24,7 @@ use App\Service\Game\Splendor\TokenSPLService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query\Expr\Math;
+use Exception;
 use PhpCsFixer\Linter\TokenizerLinter;
 use PHPUnit\Framework\TestCase;
 use App\Repository\Game\Splendor\PlayerSPLRepository;
@@ -179,6 +180,7 @@ class SPLServiceTest extends TestCase
         //GIVEN
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
+        $player->setTotalPoints(SPLService::$MAX_PRESTIGE_POINTS);
         $player->setTurnOfPlayer(true);
         //WHEN
         $result = $this->SPLService->isGameEnded($game);
@@ -308,7 +310,7 @@ class SPLServiceTest extends TestCase
         $array->add($cardCost);
         $developmentCard = DevelopmentCardsSPL::createDevelopmentCard($array);
         // THEN
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
         // WHEN
         $this->SPLService->buyCard($player, $developmentCard);
     }
@@ -660,6 +662,29 @@ class SPLServiceTest extends TestCase
         }
         $nobleTile->setPrestigePoints(0);
         return $nobleTile;
+    }
+
+    public function testCalculatePrestigePointsWithCardsAndTiles(): void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $personalBoard = $player->getPersonalBoard();
+        $tile1 = new NobleTileSPL();
+        $tile1->setPrestigePoints(12);
+        $personalBoard->addNobleTile($tile1);
+        $tile2 = new NobleTileSPL();
+        $tile2->setPrestigePoints(45);
+        $personalBoard->addNobleTile($tile2);
+        $card = new DevelopmentCardsSPL();
+        $card->setPrestigePoints(10);
+        $playerCard = new PlayerCardSPL($player, $card, false);
+        $personalBoard->addPlayerCard($playerCard);
+        $expectedResult = 67;
+        //WHEN
+        $this->SPLService->calculatePrestigePoints($player);
+        //THEN
+        $this->assertSame($expectedResult, $player->getTotalPoints());
     }
 
     private function createGame(int $numberOfPlayers) : GameSPL
