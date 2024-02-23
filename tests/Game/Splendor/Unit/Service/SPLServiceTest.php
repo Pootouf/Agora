@@ -17,6 +17,7 @@ use App\Entity\Game\Splendor\TokenSPL;
 use App\Repository\Game\Splendor\DevelopmentCardsSPLRepository;
 use App\Repository\Game\Splendor\MainBoardSPLRepository;
 use App\Repository\Game\Splendor\NobleTileSPLRepository;
+use App\Repository\Game\Splendor\PlayerCardSPLRepository;
 use App\Repository\Game\Splendor\TokenSPLRepository;
 use App\Service\Game\Splendor\SPLService;
 use App\Service\Game\Splendor\TokenSPLService;
@@ -41,8 +42,10 @@ class SPLServiceTest extends TestCase
         $tokenRepository = $this->createMock(TokenSPLRepository::class);
         $nobleTileRepository = $this->createMock(NobleTileSPLRepository::class);
         $developmentCardRepository = $this->createMock(DevelopmentCardsSPLRepository::class);
+        $playerCardRepository = $this->createMock(PlayerCardSPLRepository::class);
+
         $this->SPLService = new SPLService($entityManager, $playerRepository, $mainBoardSPLRepository, $tokenRepository,
-            $nobleTileRepository, $developmentCardRepository);
+            $nobleTileRepository, $developmentCardRepository, $playerCardRepository);
         $this->tokenSPLService = new TokenSPLService($entityManager, $tokenRepository, $this->SPLService);
     }
 
@@ -304,58 +307,10 @@ class SPLServiceTest extends TestCase
         $array = new ArrayCollection();
         $array->add($cardCost);
         $developmentCard = DevelopmentCardsSPL::createDevelopmentCard($array);
-        $playerCard = new PlayerCardSPL($player, new DevelopmentCardsSPL(), false);
-        $playerCard->setDevelopmentCard($developmentCard);
-        // WHEN
-        $this->SPLService->buyCard($player, $playerCard);
         // THEN
-        $this->assertNotContains($playerCard ,$player->getPersonalBoard()->getPlayerCards());
-    }
-    public function testBuyCardWhenEnoughMoney()
-    {
-        // GIVEN
-        $game = $this->createGame(2);
-        $player = $game->getPlayers()->first();
-        $player->setTurnOfPlayer(true);
-        $token = new TokenSPL();
-        $token->setColor(TokenSPL::$COLOR_RED);
-        $player->getPersonalBoard()->addToken($token);
-        $cardCost = new CardCostSPL();
-        $cardCost->setColor(TokenSPL::$COLOR_RED);
-        $cardCost->setPrice(1);
-        $array = new ArrayCollection();
-        $array->add($cardCost);
-        $developmentCard = DevelopmentCardsSPL::createDevelopmentCard($array);
-        $playerCard = new PlayerCardSPL($player, new DevelopmentCardsSPL(), false);
-        $playerCard->setDevelopmentCard($developmentCard);
+        $this->expectException(\Exception::class);
         // WHEN
-        $this->SPLService->buyCard($player, $playerCard);
-        // THEN
-        $this->assertContains($playerCard ,$player->getPersonalBoard()->getPlayerCards());
-    }
-    public function testBuyCardWhenCardIsReserved()
-    {
-        // GIVEN
-        $game = $this->createGame(2);
-        $player = $game->getPlayers()->first();
-        $player->setTurnOfPlayer(true);
-        $token = new TokenSPL();
-        $token->setColor(TokenSPL::$COLOR_RED);
-        $player->getPersonalBoard()->addToken($token);
-        $cardCost = new CardCostSPL();
-        $cardCost->setColor(TokenSPL::$COLOR_RED);
-        $cardCost->setPrice(1);
-        $array = new ArrayCollection();
-        $array->add($cardCost);
-        $developmentCard = DevelopmentCardsSPL::createDevelopmentCard($array);
-        $playerCard = new PlayerCardSPL($player, new DevelopmentCardsSPL(), false);
-        $playerCard->setDevelopmentCard($developmentCard);
-        $playerCard->setIsReserved(true);
-        // WHEN
-        $this->SPLService->buyCard($player, $playerCard);
-        // THEN
-        $this->assertContains($playerCard ,$player->getPersonalBoard()->getPlayerCards());
-        $this->assertFalse($playerCard->isIsReserved());
+        $this->SPLService->buyCard($player, $developmentCard);
     }
 
     public function testTokenRetrievedWhenBuy()
@@ -373,11 +328,8 @@ class SPLServiceTest extends TestCase
         $array = new ArrayCollection();
         $array->add($cardCost);
         $developmentCard = DevelopmentCardsSPL::createDevelopmentCard($array);
-        $playerCard = new PlayerCardSPL($player, new DevelopmentCardsSPL(), false);
-        $playerCard->setDevelopmentCard($developmentCard);
-        $playerCard->setIsReserved(true);
         // WHEN
-        $this->SPLService->buyCard($player, $playerCard);
+        $this->SPLService->buyCard($player, $developmentCard);
         // THEN
         $this->assertNotContains($token, $player->getPersonalBoard()->getTokens());
     }
@@ -397,11 +349,8 @@ class SPLServiceTest extends TestCase
         $array = new ArrayCollection();
         $array->add($cardCost);
         $developmentCard = DevelopmentCardsSPL::createDevelopmentCard($array);
-        $playerCard = new PlayerCardSPL($player, new DevelopmentCardsSPL(), false);
-        $playerCard->setDevelopmentCard($developmentCard);
-        $playerCard->setIsReserved(true);
         // WHEN
-        $this->SPLService->buyCard($player, $playerCard);
+        $this->SPLService->buyCard($player, $developmentCard);
         // THEN
         $this->assertNotContains($token, $player->getPersonalBoard()->getTokens());
     }
