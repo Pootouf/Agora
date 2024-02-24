@@ -2,6 +2,7 @@
 
 namespace App\Service\Game\Splendor;
 
+use App\Entity\Game\Splendor\MainBoardSPL;
 use App\Entity\Game\Splendor\PlayerSPL;
 use App\Entity\Game\Splendor\SelectedTokenSPL;
 use App\Entity\Game\Splendor\TokenSPL;
@@ -16,6 +17,13 @@ class TokenSPLService
     public function __construct(private EntityManagerInterface $entityManager,
         private TokenSPLRepository $tokenSPLRepository,
         private SPLService $SPLService) {}
+
+    public function getTokenOnMainBoardFromColor(MainBoardSPL $mainBoardSPL, string $color) : ?TokenSPL
+    {
+        return $mainBoardSPL->getTokens()->filter(function (TokenSPL $tokenSPL) use ($color) {
+            return strcmp($tokenSPL->getColor(), $color) == 0;
+        })->first();
+    }
 
     /**
      * @param Collection<TokenSPL> $tokens
@@ -106,6 +114,9 @@ class TokenSPLService
         $personalBoard->addSelectedToken($selectedToken);
         $this->entityManager->persist($personalBoard);
         $this->entityManager->persist($selectedToken);
+        $mainBoard = $playerSPL->getGameSPL()->getMainBoard();
+        $mainBoard->removeToken($tokenSPL);
+        $this->entityManager->persist($mainBoard);
         $this->entityManager->flush();
     }
 
