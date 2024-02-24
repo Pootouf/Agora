@@ -22,6 +22,18 @@ class GameFixtures extends Fixture
             $game->setImgURL("NoImgNow");
             $manager->persist($game);
         }
+
+        //Six Qui Prend fixture
+
+        $sqp = new Game();
+        $sqp->setName("Six Qui Prends");
+        $sqp->setLabel("6QP");
+        $sqp->setDescrRule("C'est le 6 qui prends");
+        $sqp->setMinPlayers(2);
+        $sqp->setMaxPlayers(10);
+        $sqp->setIsActive(true);
+        $sqp->setImgURL("NoImgNow");
+        $manager->persist($sqp);
         $manager->flush();
     }
 

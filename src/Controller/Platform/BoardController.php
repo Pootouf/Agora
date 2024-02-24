@@ -11,6 +11,8 @@ use App\Form\Platform\BoardRegistrationType;
 use App\Form\Platform\SearchBoardType;
 use App\Repository\Platform\BoardRepository;
 use App\Service\Game\GameManagerService;
+use App\Service\Platform\BoardManagerService;
+use App\Service\Platform\GameViewerService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -21,18 +23,30 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 class BoardController extends AbstractController
 {
+    private EntityManagerInterface $entityManagerInterface;
 
-    private GameManagerService $gameManagerService;
-    
-    public function __construct(GameManagerService $gameManagerService)
+    private BoardManagerService $boardManagerService;
+    private GameViewerService $gameViewerService;
+
+    private Security $security;
+
+
+    public function __construct(
+        EntityManagerInterface $entityManagerInterface,
+        BoardManagerService $boardManagerService,
+        GameViewerService $gameViewerService,
+        Security $security)
     {
-        $this->gameManagerService = $gameManagerService;
+        $this->entityManagerInterface = $entityManagerInterface;
+        $this->boardManagerService = $boardManagerService;
+        $this->gameViewerService = $gameViewerService;
+        $this->security= $security;
     }
     #[Route('/boardCreation/{game_id}', name: 'app_board_create', requirements: ['game_id' => '\d+'], methods: ['GET', 'POST', 'HEAD'])]
-    public function create(Request $request, $game_id, EntityManagerInterface $manager, Security $security): Response
+    public function create(Request $request, $game_id): Response
     {
         //Find the game with the id passed in parameters
-        $game = $manager->getRepository(Game::class)->find($game_id);
+        $game = $this->entityManagerInterface->getRepository(Game::class)->find($game_id);
         //create a board
         $board = new Board();
         $form = $this->createForm(BoardRegistrationType::class, $board, [
@@ -42,28 +56,17 @@ class BoardController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-            //setting all timers of the board
-            $board->setCreationDate(new \DateTime());
-            $board->setInvitationTimer(new \DateTime());
-            $board->setInactivityTimer(new \DateTime());
+            $this->boardManagerService->setUpBoard($board, $game);
 
-            //create the instance of game and register its id to the board
-            $gameId = $this->gameManagerService->createGame($game->getLabel());
-            $board->setGameId($gameId);
-
-            //adding user to the board, and board to the user's board list
-            $userId = $security->getUser()->getId();
-            $user = $manager->getRepository(User::class)->find($userId);
-            $user->addBoard($board);
-            $this->gameManagerService->joinGame($gameId, $user);
+            //adding user to the board
+            $userId = $this->security->getUser()->getId();
+            $user = $this->entityManagerInterface->getRepository(User::class)->find($userId);
+            $this->boardManagerService->addUserToBoard($board, $user);
 
             //adding the new board to the game's board list
             // A COMPLETER APRES LE FIX DE MICHEL
 
             //persist the information to the database
-            $manager->persist($board);
-            $manager->persist($user);
-            $manager->flush();
 
             $this->addFlash(
                 'success',
@@ -79,15 +82,15 @@ class BoardController extends AbstractController
     }
 
     #[Route('/joinBoard/{id}', name: 'app_join_board')]
-    public function joinBoardController(int $id, EntityManagerInterface $entityManager, Security $security,  ): Response
+    public function joinBoardController(int $id): Response
     {
         /*$boards = $entityManager->getRepository(Board::class)->findAll();
         dd($boards);*/
         //get the board object
-        $board = $entityManager->getRepository(Board::class)->find($id);
+        $board = $this->entityManagerInterface->getRepository(Board::class)->find($id);
         //get the logged user
-        $userId = $security->getUser()->getId();
-        $user = $entityManager->getRepository(User::class)->find($userId);
+        $userId = $this->security->getUser()->getId();
+        $user = $this->entityManagerInterface->getRepository(User::class)->find($userId);
         //get the bord data
         $boardStatus = $board->getStatus();
         $boardMaxUser = $board->getNbUserMax();
@@ -99,23 +102,9 @@ class BoardController extends AbstractController
             $this->addFlash('warning', $errorMessage);
             return $this->redirectToRoute('app_dashboard_tables');
         }
-        //add user the Board users list
-        $user->addBoard($board);
+        //add user in the board users list
+        $this->boardManagerService->addUserToBoard($board, $user);
         $this->addFlash('success', 'La table a bien été rejointe ');
-
-        //add the user to the game data
-        $this->gameManagerService->joinGame($board->getGameId(), $user);
-
-        //If it was the last player to complete the board, launch the game
-        if($board->isFull()){
-            $this->gameManagerService->launchGame($board->getGameId());
-            $board->setStatus("IN_GAME");
-        }
-        //save changes
-        $entityManager->persist($board);
-        $entityManager->flush();
-        $entityManager->persist($user);
-        $entityManager->flush();
 
         //dd($user->getBoards());
 
@@ -124,28 +113,27 @@ class BoardController extends AbstractController
     }
 
 #[Route('/leaveBoard/{id}', name: 'app_leave_board')]
-public function leaveBoard(int $id, EntityManagerInterface $entityManager, Security $security):Response
+public function leaveBoard(int $id):Response
 {
-    $board = $entityManager->getRepository(Board::class)->find($id);
+    $board = $this->entityManagerInterface->getRepository(Board::class)->find($id);
     //get the logged user
-    $userId = $security->getUser()->getId();
-    $user = $entityManager->getRepository(User::class)->find($userId);
+    $userId = $this->security->getUser()->getId();
+    $user = $this->entityManagerInterface->getRepository(User::class)->find($userId);
     //remove the user from user list
-    $user->removeBoard($board);
-    $this->gameManagerService->quitGame($board->getGameId(), $user);
+    $this->boardManagerService->removePlayerFromBoard($board, $user);
 
-    $entityManager->persist($board);
-    $entityManager->flush();
-    $entityManager->persist($user);
-    $entityManager->flush();
+    $this->entityManagerInterface->persist($board);
+    $this->entityManagerInterface->flush();
+    $this->entityManagerInterface->persist($user);
+    $this->entityManagerInterface->flush();
 
     return $this->redirectToRoute('app_dashboard_tables');
 }
 
     #[\Symfony\Component\Routing\Attribute\Route('/dashboard/user', name: 'app_dashboard_user', methods: ['GET'])]
-    public function index(Request $request, Security $security): Response
+    public function index(Request $request): Response
     {
-        $boards = $security->getUser()->getBoards();
+        $boards = $this->security->getUser()->getBoards();
         $form = $this->createForm(SearchBoardType::class);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
@@ -171,6 +159,16 @@ public function leaveBoard(int $id, EntityManagerInterface $entityManager, Secur
             'boards' => $boards,
             'searchboard' => $form->createView(),
         ]);
+    }
+
+    //Redirect to the route of the game, using the id of the board
+    #[Route('/showGame/{id}', name: 'app_join_game', methods: ['GET'])]
+    public function showGame(int $id):Response
+    {
+        $board = $this->entityManagerInterface->getRepository(Board::class)->find($id);
+        $label = $board->getGame()->getLabel();
+        $route = $this->gameViewerService->getGameViewRouteFromLabel($label);
+        return $this->redirectToRoute($route, ['id' => $board->getPartyId()]);
     }
 
 
