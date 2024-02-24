@@ -27,6 +27,7 @@
     <ul>
         {% for board in boards %}
             <li>Boards en {{ board.status }}</li>
+            <li>Game {{ board.game }}</li>
             <h3>Joueurs de la table:</h3>
             {% for user in board.listUsers %}
                 <li>{{ user.username }} - {{ user.email }}</li>

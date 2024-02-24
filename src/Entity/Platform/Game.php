@@ -3,6 +3,8 @@
 namespace App\Entity\Platform;
 
 use App\Repository\Platform\GameRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: GameRepository::class)]
@@ -33,11 +35,15 @@ class Game
 
 
     #[ORM\Column]
-    private ?int $maxPlayers = null; // Valeur par défaut définie à false
+    private ?int $maxPlayers = null;
+
+    #[ORM\OneToMany(targetEntity: Board::class, mappedBy: 'game')]
+    private Collection $boards; // Valeur par défaut définie à false
 
     public function __construct()
     {
         $this->isActive = false; // Initialisation dans le constructeur
+        $this->boards = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -125,6 +131,36 @@ class Game
     public function setMaxPlayers(int $maxPlayers): static
     {
         $this->maxPlayers = $maxPlayers;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Board>
+     */
+    public function getBoards(): Collection
+    {
+        return $this->boards;
+    }
+
+    public function addBoard(Board $board): static
+    {
+        if (!$this->boards->contains($board)) {
+            $this->boards->add($board);
+            $board->setGame($this);
+        }
+
+        return $this;
+    }
+
+    public function removeBoard(Board $board): static
+    {
+        if ($this->boards->removeElement($board)) {
+            // set the owning side to null (unless already changed)
+            if ($board->getGame() === $this) {
+                $board->setGame(null);
+            }
+        }
 
         return $this;
     }

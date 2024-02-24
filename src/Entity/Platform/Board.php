@@ -45,8 +45,13 @@ class Board
     #[ORM\Column]
     private ?int $inactivityHours = null;
 
+
+    #[ORM\ManyToOne(inversedBy: 'boards')]
+    private ?Game $game = null;
+
     #[ORM\Column]
     private ?int $gameId = null;
+
 
 
     public function __construct()
@@ -178,7 +183,7 @@ class Board
     public function removeListUser(User $user): static
     {
         if ($this->listUsers->contains($user)) {
-            $this->listUsers->remove($user);
+            $this->listUsers->removeElement($user);
         }
 
         return $this;
@@ -205,6 +210,27 @@ class Board
     {
         return $this->listUsers->contains($user);
     }
+
+    
+    //Return the actual number of availble slots of the board
+    //getNbAvailbleSlots() == 0 => isAvailble() == false
+    public function getNbAvailbleSlots(){
+        return $this->getNbUserMax() - ($this->listUsers->count() +
+                $this->nbInvitations);
+    }
+
+    public function getGame(): ?Game
+    {
+        return $this->game;
+    }
+
+    public function setGame(?Game $game): static
+    {
+        $this->game=$game;
+
+        return $this;
+    }
+
 
     public function getGameId(): ?int
     {
