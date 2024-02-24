@@ -1,0 +1,26 @@
+version: '3'
+
+services:
+  agora:
+    command: bash -c "cd /var/www/agora
+      && symfony console doctrine:migrations:migrate
+      && symfony console --env=test doctrine:migrations:migrate
+      && (php bin/console tailwind:build --watch &)
+      && php-fpm"
+    environment:
+      XDEBUG_MODE: "${XDEBUG_MODE:-off}"
+      APP_DEBUG: 0
+
+
+###> doctrine/doctrine-bundle ###
+###< doctrine/doctrine-bundle ###
+
+###> symfony/mailer ###
+  mailer:
+    container_name: mailer
+    image: schickling/mailcatcher
+    ports: ["1025", "1080"]
+###< symfony/mailer ###
+
+###> symfony/mercure-bundle ###
+###< symfony/mercure-bundle ###

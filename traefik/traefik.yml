@@ -1,0 +1,47 @@
+entryPoints:
+  agora:
+    address: ":443"
+
+  web:
+    address: ":80"
+    http:
+      redirections:
+        entryPoint:
+          to: agora
+          scheme: https
+          permanent: true
+
+api:
+  # Dashboard
+  #
+  # Optional
+  # Default: true
+  #
+  dashboard: true
+  insecure: true
+
+providers:
+  file:
+    filename: /etc/traefik/dynamic_conf.yml
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    watch: true
+
+tracing:
+  jaeger:
+    samplingServerURL: http://jaeger:5778/sampling
+    localAgentHostPort: jaeger:6831
+    collector:
+      endpoint: http://jaeger:14268/api/traces?format=jaeger.thrift
+
+metrics:
+  prometheus:
+    buckets:
+      - 0.1
+      - 0.3
+      - 1.2
+      - 5.0
+    # Ajout des métriques sur les points d'entrée
+    addEntryPointsLabels: true
+    # Ajout des services
+    addServicesLabels: true

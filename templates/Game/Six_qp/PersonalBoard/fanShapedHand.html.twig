@@ -1,0 +1,52 @@
+{#
+This section displays the personal board that contains the card that the player possess
+
+@param :    game       -> the game that is displayed
+		    player -> the Player entity of the selected user
+		    playerCards   -> The cards of the current player
+
+@return :   display game's personal cards of the player in a fan shaped way for large screens, in a flow
+#}
+
+{% set interval = 6 %}
+        {% set startAngle = (playerCards|length - 1) * -1 * interval / 2 %}
+        {% set i = 0 %}
+
+
+        {% set translates_y = [
+            {"0": "0"},
+            {"6": "7"},
+            {"9": "12"},
+            {"12": "24"},
+            {"15": "35"},
+            {"18": "52"},
+            {"21": "70"},
+            {"24": "92"},
+            {"27": "117"}
+        ]%}
+
+        {% for card in playerCards %}
+            {% set angle = startAngle + i * interval %}
+            {% set factor = angle / 2%}
+            {% set translate_x = 2 * angle + (factor * 10) %}
+            <div class="hover:z-10 hover:overflow-visible overflow-hidden h-full lg:hover:-translate-y-14 lg:hover:rotate-[0deg]
+                w-fit origin-bottom
+                lg:transition lg:ease-in-out lg:delay-100
+                lg:{% if translate_x > 0 %}-{% endif %}translate-x-[{{ translate_x|abs }}px]
+                lg:translate-y-[{{ translates_y|column(angle|abs)|first }}px]
+                lg:{% if angle < 0 %}-{% endif %}rotate-[{{angle|abs}}deg] z-{{ i }}"
+            >
+                {% set cardNumber = card.value %}
+                {% if isSpectator %}
+                    {% set cardNumber = "back" %}
+                {% endif %}
+                <button type="button" {{ stimulus_action('sixqp', 'selectCard', 'click',
+                    {url: path('app_game_sixqp_select', {idCard: card.id, idGame: game.id})}) }}>
+                    <img
+                            src="{{ asset('resourcesGames/6QP/cardsImages/' ~ cardNumber ~ ".png") }}"
+                            alt="{{ cardNumber }}"
+                    >
+                </button>
+            </div>
+            {% set i = i + 1 %}
+        {% endfor %}

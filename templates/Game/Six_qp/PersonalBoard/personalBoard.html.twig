@@ -1,0 +1,36 @@
+{#
+This section displays the personal board that contains the card that the player possess
+
+@param :    game       -> the game that is displayed
+		    player -> the Player entity of the selected user
+		    playerCards   -> The cards of the current player
+
+@return :   display game's personal cards of the player
+#}
+<div class="grid grid-rows-2 grid-cols-5 w-full mx-2 mt-5 h-max-height
+            landscape:md:flex landscape:md:mt-2 landscape:md-justify-center landscape:md:align-center
+            lg:justify-center lg:align-center">
+    {#
+        Definition of the variables
+    #}
+    {% set gameId = game.id %}
+
+    {#
+        Call the file that display in fan shaped for large screens, in a flow style for other screens
+    #}
+    {{ include('/Game/Six_qp/PersonalBoard/fanShapedHand.html.twig') }}
+</div>
+<script>
+    {% set route = '' %}
+    {% if isSpectator %}
+        {% set route = 'spectator' %}
+    {% else %}
+        {% set route = player.id ~ 'player' %}
+    {% endif %}
+    {% set path = path('app_game_show_sixqp', {'id': game.id}) ~ 'personalBoard' ~ route %}
+    const eventSourcePersonalBoard = new EventSource("{{ mercure(path)|escape('js') }}");
+    eventSourcePersonalBoard.onmessage = event => {
+        let personalBoard = document.getElementById('personalBoard');
+        personalBoard.innerHTML = event.data;
+    }
+</script>

@@ -1,0 +1,13 @@
+{
+    http_port 7070
+}
+
+:7070 {
+    root * /var/www/agora/public
+    file_server
+    php_fastcgi agora:9000 {
+        resolve_root_symlink
+        trusted_proxies private_ranges
+    }
+    encode gzip
+}
