@@ -171,7 +171,14 @@ class TokenSPLService
      */
     public function clearSelectedTokens(PlayerSPL $playerSPL): void
     {
-        $playerSPL->getPersonalBoard()->getSelectedTokens()->clear();
+        $mainBoard = $playerSPL->getGameSPL()->getMainBoard();
+        $selectedTokens = $playerSPL->getPersonalBoard()->getSelectedTokens();
+        foreach($selectedTokens as $selectedToken) {
+            $mainBoard->addToken($selectedToken->getToken());
+        }
+        $selectedTokens->clear();
+        $this->entityManager->persist($mainBoard);
+        $this->entityManager->persist($playerSPL->getPersonalBoard());
         $this->entityManager->persist($playerSPL);
         $this->entityManager->flush();
     }

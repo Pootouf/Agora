@@ -1,10 +1,11 @@
 {#
     This section displays the development cards that can be reserved or bought by players
-    @param :
-    @return :
+    @param : int drawCardsLevelOneCount, int drawCardsLevelTwoCount, int drawCardsLevelThreeCount,
+             bool isSpectator, bool NeedToPlay,
+             array<RowSPL> rows
+    @return : display the development cards grid, and the different draw cards by level
 #}
 
-{%  set needToPlay = true %}
 <div class="flow flex flex-row float-start w-[75%] h-5/6 bg-yellow-600">
 
     {# Display discards and remaining cards number #}

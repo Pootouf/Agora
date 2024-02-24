@@ -11,6 +11,7 @@ use App\Entity\Game\SixQP\RowSixQP;
 use App\Entity\Game\Splendor\DevelopmentCardsSPL;
 use App\Entity\Game\Splendor\DrawCardsSPL;
 use App\Entity\Game\Splendor\GameSPL;
+use App\Entity\Game\Splendor\PlayerSPL;
 use App\Entity\Game\Splendor\TokenSPL;
 use App\Repository\Game\SixQP\ChosenCardSixQPRepository;
 use App\Repository\Game\SixQP\PlayerSixQPRepository;
@@ -201,6 +202,18 @@ class SplendorController extends AbstractController
          }
          $this->manageEndOfRound($game);
          return new Response('Card reserved', Response::HTTP_OK);
+     }
+
+     #[Route('/game/{idGame}/splendor/cancelTokensSelection', name: 'app_game_splendor_cancel_tokens_selection')]
+     public function cancelTokensSelection(
+         #[MapEntity(id: 'idGame')] GameSPL $gameSPL): Response
+     {
+         $player = $this->SPLService->getPlayerFromNameAndGame($gameSPL, $this->getUser()->getUsername());
+         if ($player == null) {
+             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+         }
+         $this->tokenSPLService->clearSelectedTokens($player);
+         return new Response('Selected tokens cleaned', Response::HTTP_OK);
      }
 
      #[Route('/game/{idGame}/splendor/takeToken/{color}', name: 'app_game_splendor_selectToken')]

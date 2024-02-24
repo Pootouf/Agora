@@ -1,6 +1,7 @@
 {#
     This section displays the color tokens that can be taken by players
-    @param : 
+    @param : whiteTokensPile, redTokensPile, blueTokensPile, blackTokensPile, greenTokensPile, tokens,
+             PlayerSPL player
     @return :
 #}
 
@@ -35,7 +36,7 @@
                                 opacity-25
                             {% endif %}"
             >
-                <button type="button"
+                <button type="button" id="{{ 'take_token' ~ i }}"
                 {% if not needToPlay %} disabled {% endif %}
                         class="relative items-center w-6/12 focus:outline-none focus:ring-blue-300 focus:ring-black-800"
                         {{ stimulus_action('splendor', 'takeToken', 'click',
@@ -52,7 +53,7 @@
 
                     {% if selected > 0 %}
 
-                    <span
+                    <span id="{{ 'selected_token' ~ i }}"
                             class="absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white
                                 bg-red-500 border-2 border-white rounded-full -top-0 -end-2 dark:border-gray-900"
                     >
@@ -97,11 +98,16 @@
     </div>
     {% if selectedTokensNb != 0 %}
     <button type="button"
+            {{ stimulus_action('splendor', 'clearSelectedTokens', 'click',
+                {url:path('app_game_splendor_cancel_tokens_selection',
+                    {idGame: game.id})
+                })
+            }}
             class=" rounded-md p-2 inline-flex items-center justify-center text-white m-auto hover:text-red
                     hover:bg-red-400 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
     >
         <span class="sr-only">Close menu</span>
-        <!-- Heroicon name: outline/x -->
+
         <svg class="h-6 w-6 hover:stroke-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
              stroke="currentColor" aria-hidden="true"
         >
