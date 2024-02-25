@@ -176,7 +176,7 @@ class TokenSPLService
             return 0;
         }
         if ($selectedTokens->count() == 1 && $selectedTokens->first()->getToken()->getColor() == $tokenSPL->getColor()) {
-            if ($this->selectTokensWithColor($playerSPL, $tokenSPL) < SPLService::$MIN_AVAILABLE_TOKENS) {
+            if ($this->selectTokensWithColor($playerSPL, $tokenSPL) < SplendorParameters::$MIN_AVAILABLE_TOKENS) {
                 return -1;
             }
             return 1;

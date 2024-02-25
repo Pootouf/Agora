@@ -19,5 +19,12 @@ class SplendorParameters
     public static string $COLOR_WHITE = 'white';
     public static string $COLOR_BLACK = 'black';
     public static string $LABEL_JOKER = "yellow";
+    public static int $MIN_NUMBER_OF_PLAYER = 2;
+    public static int $MAX_NUMBER_OF_PLAYER = 4;
+    public static int $COMES_OF_THE_DISCARDS = 1;
+    public static int $COMES_OF_THE_ROWS = 2;
+    public static int $MAX_COUNT_RESERVED_CARDS = 3;
+    public static int $MAX_PRESTIGE_POINTS = 15;
+    public static int $MIN_AVAILABLE_TOKENS = 4;
 
 }

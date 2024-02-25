@@ -185,7 +185,7 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $player = $game->getPlayers()->get(1);
         $player->setTurnOfPlayer(true);
         $nobleTile = new NobleTileSPL();
-        $nobleTile->setPrestigePoints(SPLService::$MAX_PRESTIGE_POINTS - 1);
+        $nobleTile->setPrestigePoints(SplendorParameters::$MAX_PRESTIGE_POINTS - 1);
         $player->getPersonalBoard()->addNobleTile($nobleTile);
         $entityManager->persist($nobleTile);
         $entityManager->flush();
@@ -204,7 +204,7 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $player = $game->getPlayers()->get(1);
         $player->setTurnOfPlayer(true);
         $nobleTile = new NobleTileSPL();
-        $nobleTile->setPrestigePoints(SPLService::$MAX_PRESTIGE_POINTS);
+        $nobleTile->setPrestigePoints(SplendorParameters::$MAX_PRESTIGE_POINTS);
         $player->getPersonalBoard()->addNobleTile($nobleTile);
         $entityManager->persist($nobleTile);
         $entityManager->flush();
@@ -224,7 +224,7 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $player = $game->getPlayers()->get(0);
         $player->setTurnOfPlayer(true);
         $nobleTile = new NobleTileSPL();
-        $nobleTile->setPrestigePoints(SPLService::$MAX_PRESTIGE_POINTS);
+        $nobleTile->setPrestigePoints(SplendorParameters::$MAX_PRESTIGE_POINTS);
         $player->getPersonalBoard()->addNobleTile($nobleTile);
         $entityManager->persist($nobleTile);
         $entityManager->flush();

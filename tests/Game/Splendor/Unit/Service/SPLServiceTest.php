@@ -192,7 +192,7 @@ class SPLServiceTest extends TestCase
         $player2 = $game->getPlayers()->last();
         $player2->setTurnOfPlayer(true);
         $nobleTile = new NobleTileSPL();
-        $nobleTile->setPrestigePoints(SPLService::$MAX_PRESTIGE_POINTS - 1);
+        $nobleTile->setPrestigePoints(SplendorParameters::$MAX_PRESTIGE_POINTS - 1);
         $player2->getPersonalBoard()->addNobleTile($nobleTile);
         //WHEN
         $result = $this->SPLService->isGameEnded($game);
@@ -207,7 +207,7 @@ class SPLServiceTest extends TestCase
         $player2 = $game->getPlayers()->last();
         $player2->setTurnOfPlayer(true);
         $nobleTile = new NobleTileSPL();
-        $nobleTile->setPrestigePoints(SPLService::$MAX_PRESTIGE_POINTS);
+        $nobleTile->setPrestigePoints(SplendorParameters::$MAX_PRESTIGE_POINTS);
         $player2->getPersonalBoard()->addNobleTile($nobleTile);
         $this->SPLService->calculatePrestigePoints($player2);
         //WHEN
@@ -223,7 +223,7 @@ class SPLServiceTest extends TestCase
         $player = $game->getPlayers()->first();
         $player->setTurnOfPlayer(true);
         $nobleTile = new NobleTileSPL();
-        $nobleTile->setPrestigePoints(SPLService::$MAX_PRESTIGE_POINTS);
+        $nobleTile->setPrestigePoints(SplendorParameters::$MAX_PRESTIGE_POINTS);
         $player->getPersonalBoard()->addNobleTile($nobleTile);
         //WHEN
         $result = $this->SPLService->isGameEnded($game);
@@ -456,7 +456,7 @@ class SPLServiceTest extends TestCase
     public function testReserveCardFromMainBoardWhenIsAccessibleFromDiscardWithoutToken() : void
     {
         // GIVEN
-        $game = $this->createGame(SPLService::$MIN_COUNT_PLAYER);
+        $game = $this->createGame(SplendorParameters::$MIN_NUMBER_OF_PLAYER);
         $player = $game->getPlayers()->first();
         $personal = $player->getPersonalBoard();
 
@@ -491,7 +491,7 @@ class SPLServiceTest extends TestCase
     public function testReserveCardFromMainBoardWhenIsAccessibleFromDiscardWithToken() : void
     {
         // GIVEN
-        $game = $this->createGame(SPLService::$MIN_COUNT_PLAYER);
+        $game = $this->createGame(SplendorParameters::$MIN_NUMBER_OF_PLAYER);
         $player = $game->getPlayers()->first();
         $personal = $player->getPersonalBoard();
 
@@ -518,7 +518,7 @@ class SPLServiceTest extends TestCase
     public function testReserveCardFromMainBoardWhenIsNotAccessibleFromDiscard() : void
     {
         // GIVEN
-        $game = $this->createGame(SPLService::$MIN_COUNT_PLAYER);
+        $game = $this->createGame(SplendorParameters::$MIN_NUMBER_OF_PLAYER);
         $player = $game->getPlayers()->first();
 
         $level = SplendorParameters::$DEVELOPMENT_CARD_LEVEL_ONE - 1;
@@ -533,7 +533,7 @@ class SPLServiceTest extends TestCase
     public function testReserveCardFromMainBoardWhenIsAccessibleFromRowWithToken() : void
     {
         // GIVEN
-        $game = $this->createGame(SPLService::$MIN_COUNT_PLAYER);
+        $game = $this->createGame(SplendorParameters::$MIN_NUMBER_OF_PLAYER);
         $player = $game->getPlayers()->first();
         $personal = $player->getPersonalBoard();
 
@@ -562,7 +562,7 @@ class SPLServiceTest extends TestCase
     {
 
         // GIVEN
-        $game = $this->createGame(SPLService::$MIN_COUNT_PLAYER);
+        $game = $this->createGame(SplendorParameters::$MIN_NUMBER_OF_PLAYER);
         $player = $game->getPlayers()->first();
         $personal = $player->getPersonalBoard();
 
@@ -598,11 +598,11 @@ class SPLServiceTest extends TestCase
     public function testReserveCardWhenAlreadyFull() : void
     {
         // GIVEN
-        $game = $this->createGame(SPLService::$MIN_COUNT_PLAYER);
+        $game = $this->createGame(SplendorParameters::$MIN_NUMBER_OF_PLAYER);
         $player = $game->getPlayers()->first();
         $level = SplendorParameters::$DEVELOPMENT_CARD_LEVEL_ONE;
 
-        for ($i = 0; $i < SPLService::$MAX_COUNT_RESERVED_CARDS; $i++)
+        for ($i = 0; $i < SplendorParameters::$MAX_COUNT_RESERVED_CARDS; $i++)
         {
             $row = $game->getMainBoard()->getRowsSPL()->get($level);
             $card = $row->getDevelopmentCards()->first();
@@ -619,7 +619,7 @@ class SPLServiceTest extends TestCase
     public function testReserveCardIsNotAccessibleAndTokensIsNotFull() : void
     {
         // GIVEN
-        $game = $this->createGame(SPLService::$MIN_COUNT_PLAYER);
+        $game = $this->createGame(SplendorParameters::$MIN_NUMBER_OF_PLAYER);
         $player = $game->getPlayers()->first();
 
         $card = new DevelopmentCardsSPL();
@@ -634,7 +634,7 @@ class SPLServiceTest extends TestCase
     public function testReserveCardIsNotAccessibleAndTokensIsFull() : void
     {
         // GIVEN
-        $game = $this->createGame(SPLService::$MIN_COUNT_PLAYER);
+        $game = $this->createGame(SplendorParameters::$MIN_NUMBER_OF_PLAYER);
         $player = $game->getPlayers()->first();
         $personal = $player->getPersonalBoard();
 
@@ -658,7 +658,7 @@ class SPLServiceTest extends TestCase
     public function testReserveCardFromDiscardAndRowAndTokenIsNotFull() : void
     {
         // GIVEN
-        $game = $this->createGame(SPLService::$MIN_COUNT_PLAYER);
+        $game = $this->createGame(SplendorParameters::$MIN_NUMBER_OF_PLAYER);
         $player = $game->getPlayers()->first();
 
         $card = new DevelopmentCardsSPL();

@@ -25,13 +25,6 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 class SPLService
 {
-    public static int $MIN_COUNT_PLAYER = 2;
-    public static int $MAX_COUNT_PLAYER = 4;
-    public static int $COMES_OF_THE_DISCARDS = 1;
-    public static int $COMES_OF_THE_ROWS = 2;
-    public static int $MAX_COUNT_RESERVED_CARDS = 3;
-    public static int $MAX_PRESTIGE_POINTS = 15;
-    public static int $MIN_AVAILABLE_TOKENS = 4;
 
     public function __construct(private EntityManagerInterface $entityManager,
         private PlayerSPLRepository $playerSPLRepository,
@@ -141,7 +134,7 @@ class SPLService
 
         // Manage cards
         // => I know that my card is in main board; so i remove this card from row or draw card
-        if ($from === SPLService::$COMES_OF_THE_DISCARDS)
+        if ($from === SplendorParameters::$COMES_OF_THE_DISCARDS)
         {
            $this->manageDiscard($mainBoard, $card);
         } else {
@@ -203,7 +196,7 @@ class SPLService
     public function hasOnePlayerReachedLimit(GameSPL $game): bool
     {
         foreach ($game->getPlayers() as $player) {
-            if ($this->getPrestigePoints($player) >= SPLService::$MAX_PRESTIGE_POINTS) {
+            if ($this->getPrestigePoints($player) >= SplendorParameters::$MAX_PRESTIGE_POINTS) {
                 return true;
             }
         }
@@ -422,7 +415,7 @@ class SPLService
 
         $reservedCardsOfPlayer = $this->getReservedCards($player);
         if ($reservedCardsOfPlayer->count()
-            == SPLService::$MAX_COUNT_RESERVED_CARDS)
+            == SplendorParameters::$MAX_COUNT_RESERVED_CARDS)
         {
             return false;
         }
@@ -573,13 +566,13 @@ class SPLService
         $row = $mainBoard->getRowsSPL()->get($level);
         if ($row->getDevelopmentCards()->contains($card))
         {
-            return SPLService::$COMES_OF_THE_ROWS;
+            return SplendorParameters::$COMES_OF_THE_ROWS;
         }
 
         $discards = $mainBoard->getDrawCards()->get($level);
         if ($discards->getDevelopmentCards()->contains($card))
         {
-            return SPLService::$COMES_OF_THE_DISCARDS;
+            return SplendorParameters::$COMES_OF_THE_DISCARDS;
         }
 
         return -1;
