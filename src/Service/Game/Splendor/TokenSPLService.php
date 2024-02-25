@@ -160,6 +160,9 @@ class TokenSPLService
             $this->entityManager->persist($playerSPL->getPersonalBoard());
             $this->entityManager->persist($playerSPL);
         }
+        $selectedTokens->clear();
+        $this->entityManager->persist($playerSPL->getPersonalBoard());
+        $this->entityManager->persist($playerSPL);
         $this->entityManager->flush();
     }
 

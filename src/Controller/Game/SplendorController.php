@@ -245,7 +245,6 @@ class SplendorController extends AbstractController
          //TODO publish(s)
          if ($this->tokenSPLService->mustEndPlayerRoundBecauseOfTokens($player)) {
              $this->tokenSPLService->validateTakingOfTokens($player);
-             $this->tokenSPLService->clearSelectedTokens($player);
              $this->manageEndOfRound($gameSPL);
          }
          return new Response('token picked', Response::HTTP_OK);
