@@ -3,26 +3,24 @@
     @param :
     @return :
 #}
-<div class="border-solid border-black border-2 h-full w-full mt-5 mx-5 rounded-2xl bg-[#2a9d8f]">
-    <div class="flex float-right h-fit w-fit mt-2 mr-4">
-        <p class="text-lg">Reserved cards</p>
-    </div>
-    <div class="w-full flex justify-around">
-        {% for playerCard in playerReservedCards %}
-            {% set developmentCardId = playerCard.developmentCard.id %}
-            <button {{ stimulus_action('splendor', 'selectCard', 'click',
-                        {url:path('app_game_splendor_select_from_personal_board',
-                            {idGame: game.id, idCard: developmentCardId})
-                        })
-                    }}
-                    {% if not needToPlay %}
-                    disabled
-                    {% endif %}class="hover:-translate-y-[100%] hover:scale-y-150 hover:scale-x-[1.4] transition ease-in-out delay-100">
-                <img class="rounded-2xl"
-                     src="{{ asset('resourcesGames/Splendor/Images/DevelopmentCards/' ~ developmentCardId ~ '.png') }}"
-                     alt="{{ developmentCardId }}"
-                >
-            </button>
-        {% endfor %}
-    </div>
+<div class="flex float-right h-fit w-fit mt-2 mr-4">
+    <p class="text-lg">Reserved cards</p>
+</div>
+<div class="w-full flex justify-around">
+    {% for playerCard in playerReservedCards %}
+        {% set developmentCardId = playerCard.developmentCard.id %}
+        <button {{ stimulus_action('splendor', 'selectCard', 'click',
+                    {url:path('app_game_splendor_select_from_personal_board',
+                        {idGame: game.id, idCard: developmentCardId})
+                    })
+                }}
+                {% if not needToPlay %}
+                disabled
+                {% endif %}class="hover:-translate-y-[100%] hover:scale-y-150 hover:scale-x-[1.4] transition ease-in-out delay-100">
+            <img class="rounded-2xl"
+                 src="{{ asset('resourcesGames/Splendor/Images/DevelopmentCards/' ~ developmentCardId ~ '.png') }}"
+                 alt="{{ developmentCardId }}"
+            >
+        </button>
+    {% endfor %}
 </div>

@@ -141,9 +141,7 @@ class SplendorController extends AbstractController
              return new Response("Not player's card", Response::HTTP_FORBIDDEN);
          }
          $this->SPLService->addBuyableNobleTilesToPlayer($game, $player);
-         $this->publishDevelopmentCards($game);
          $this->publishNobleTiles($game);
-         $this->publishRanking($game);
          $this->manageEndOfRound($game);
          return new Response('Card Bought', Response::HTTP_OK);
      }
@@ -169,9 +167,6 @@ class SplendorController extends AbstractController
              return new Response("Can't reserve this card : " . $e->getMessage(), Response::HTTP_FORBIDDEN);
          }
          $this->manageEndOfRound($game);
-         $this->publishReservedCards($game);
-         $this->publishDevelopmentCards($game);
-         $this->publishRanking($game);
          return new Response('Card reserved', Response::HTTP_OK);
      }
 
@@ -198,9 +193,6 @@ class SplendorController extends AbstractController
              return new Response("Can't reserve this card : " . $e->getMessage(), Response::HTTP_FORBIDDEN);
          }
          $this->manageEndOfRound($game);
-         $this->publishReservedCards($game);
-         $this->publishDevelopmentCards($game);
-         $this->publishRanking($game);
          return new Response('Card reserved', Response::HTTP_OK);
      }
 
@@ -246,11 +238,11 @@ class SplendorController extends AbstractController
          if ($this->tokenSPLService->mustEndPlayerRoundBecauseOfTokens($player)) {
              $this->tokenSPLService->validateTakingOfTokens($player);
              $this->manageEndOfRound($gameSPL);
+         } else {
+             foreach ($gameSPL->getPlayers() as $playerNotif) {
+                 $this->publishToken($gameSPL, $playerNotif);
+             }
          }
-         foreach ($gameSPL->getPlayers() as $playerNotif) {
-             $this->publishToken($gameSPL, $playerNotif);
-         }
-         $this->publishRanking($gameSPL);
          return new Response('token picked', Response::HTTP_OK);
      }
 
@@ -263,13 +255,20 @@ class SplendorController extends AbstractController
      private function manageEndOfRound(GameSPL $gameSPL): void
      {
          if ($this->SPLService->isGameEnded($gameSPL)) {
-             //TODO call ranking and print end of game
+             $this->publishEndOfGame($gameSPL);
          } else {
              $activePlayer = $this->SPLService->getActivePlayer($gameSPL);
              $this->SPLService->endRoundOfPlayer($gameSPL, $activePlayer);
              $this->entityManager->persist($gameSPL);
              $this->entityManager->persist($activePlayer);
              $this->entityManager->flush();
+
+             foreach ($gameSPL->getPlayers() as $playerNotif) {
+                 $this->publishToken($gameSPL, $playerNotif);
+             }
+             $this->publishDevelopmentCards($gameSPL);
+             $this->publishRanking($gameSPL);
+             $this->publishReservedCards($gameSPL);
          }
      }
 
@@ -286,6 +285,7 @@ class SplendorController extends AbstractController
              'yellowTokensPile' => $this->tokenSPLService->getYellowTokensFromCollection($mainBoardTokens),
              'player' => $player,
              'needToPlay' => $player->isTurnOfPlayer(),
+             'game' => $game,
         ]);
 
          $this->publishService->publish(
@@ -301,7 +301,8 @@ class SplendorController extends AbstractController
         $this->publishDevelopmentCardsWithSelectedOptions($game, null, true, false);
     }
 
-    private function publishDevelopmentCardsWithSelectedOptions(GameSPL $game, ?PlayerSPL $player, bool $isSpectator, bool $needToPlay) : void
+    private function publishDevelopmentCardsWithSelectedOptions(GameSPL $game, ?PlayerSPL $player, bool $isSpectator,
+                                                                bool $needToPlay) : void
     {
         $response = $this->render('Game/Splendor/MainBoard/developmentCardsBoard.html.twig', [
             'rows' => $game->getMainBoard()->getRowsSPL(),
@@ -310,6 +311,7 @@ class SplendorController extends AbstractController
             'drawCardsLevelThreeCount' => $this->SPLService->getDrawCardsByLevel(DrawCardsSPL::$LEVEL_THREE, $game)->count(),
             'isSpectator' => $isSpectator,
             'needToPlay' => $needToPlay,
+            'game' => $game,
         ]);
 
         $this->publishService->publish(
@@ -326,6 +328,7 @@ class SplendorController extends AbstractController
             $response = $this->render('Game/Splendor/MainBoard/nobleTilesDisplay.html.twig', [
                 'nobleTiles' => $game->getMainBoard()->getNobleTiles(),
                 'isSpectator' => $isSpectator,
+                'game' => $game,
             ]);
 
             $this->publishService->publish(
@@ -338,9 +341,11 @@ class SplendorController extends AbstractController
     private function publishReservedCards(GameSPL $game): void
     {
         foreach ($game->getPlayers() as $player) {
-            $response = $this->render('Game/Splendor/MainBoard/nobleTilesDisplay.html.twig', [
+            $response = $this->render('Game/Splendor/PersonalBoard/reservedCards.html.twig', [
                 'nobleTiles' => $game->getMainBoard()->getNobleTiles(),
                 'needToPlay' => $player->isTurnOfPlayer(),
+                'playerReservedCards' => $this->SPLService->getReservedCards($player),
+                'game' => $game,
             ]);
 
             $this->publishService->publish(
@@ -354,10 +359,22 @@ class SplendorController extends AbstractController
     {
         $response = $this->render('Game/Splendor/Ranking/ranking.html.twig', [
             'ranking' => $this->SPLService->getRanking($game),
+            'game' => $game,
         ]);
 
         $this->publishService->publish(
             $this->generateUrl('app_game_show_spl', ['id' => $game->getId()]).'ranking',
             $response);
+    }
+
+    private function publishEndOfGame(GameSPL $game): void
+    {
+        $winner = $this->SPLService->getRanking($game)[0];
+        $this->logService->sendPlayerLog($game, $winner,
+            $winner->getUsername() . " won game " . $game->getId());
+        $this->logService->sendSystemLog($game, "game " . $game->getId() . " ended");
+        $this->publishService->publish(
+            $this->generateUrl('app_game_show_spl', ['id' => $game->getId()]).'endOfGame',
+            new Response($winner?->getUsername()));
     }
 }
