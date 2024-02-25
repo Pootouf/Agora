@@ -2,21 +2,12 @@
 
 namespace App\Controller\Game;
 
-use AllowDynamicProperties;
-use App\Entity\Game\SixQP\CardSixQP;
-use App\Entity\Game\SixQP\ChosenCardSixQP;
-use App\Entity\Game\SixQP\GameSixQP;
-use App\Entity\Game\SixQP\PlayerSixQP;
-use App\Entity\Game\SixQP\RowSixQP;
+
 use App\Entity\Game\Splendor\DevelopmentCardsSPL;
 use App\Entity\Game\Splendor\DrawCardsSPL;
 use App\Entity\Game\Splendor\GameSPL;
 use App\Entity\Game\Splendor\PlayerSPL;
-use App\Entity\Game\Splendor\TokenSPL;
-use App\Repository\Game\SixQP\ChosenCardSixQPRepository;
-use App\Repository\Game\SixQP\PlayerSixQPRepository;
 use App\Service\Game\LogService;
-use App\Service\Game\SixQP\SixQPService;
 use App\Service\Game\PublishService;
 use App\Service\Game\Splendor\SPLService;
 use App\Service\Game\Splendor\TokenSPLService;
@@ -25,10 +16,11 @@ use Exception;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use function Symfony\Component\Translation\t;
 
- #[IsGranted('ROLE_USER')]
+#[IsGranted('ROLE_USER')]
 class SplendorController extends AbstractController
 {
 
@@ -149,7 +141,9 @@ class SplendorController extends AbstractController
              return new Response("Not player's card", Response::HTTP_FORBIDDEN);
          }
          $this->SPLService->addBuyableNobleTilesToPlayer($game, $player);
-         //TODO: publish
+         $this->publishDevelopmentCards($game);
+         $this->publishNobleTiles($game);
+         $this->publishRanking($game);
          $this->manageEndOfRound($game);
          return new Response('Card Bought', Response::HTTP_OK);
      }
@@ -175,6 +169,9 @@ class SplendorController extends AbstractController
              return new Response("Can't reserve this card : " . $e->getMessage(), Response::HTTP_FORBIDDEN);
          }
          $this->manageEndOfRound($game);
+         $this->publishReservedCards($game);
+         $this->publishDevelopmentCards($game);
+         $this->publishRanking($game);
          return new Response('Card reserved', Response::HTTP_OK);
      }
 
@@ -201,6 +198,9 @@ class SplendorController extends AbstractController
              return new Response("Can't reserve this card : " . $e->getMessage(), Response::HTTP_FORBIDDEN);
          }
          $this->manageEndOfRound($game);
+         $this->publishReservedCards($game);
+         $this->publishDevelopmentCards($game);
+         $this->publishRanking($game);
          return new Response('Card reserved', Response::HTTP_OK);
      }
 
@@ -213,6 +213,7 @@ class SplendorController extends AbstractController
              return new Response('Invalid player', Response::HTTP_FORBIDDEN);
          }
          $this->tokenSPLService->clearSelectedTokens($player);
+         $this->publishToken($gameSPL, $player);
          return new Response('Selected tokens cleaned', Response::HTTP_OK);
      }
 
@@ -242,11 +243,14 @@ class SplendorController extends AbstractController
          }
          $message = $player->getUsername() . " picked a token of " . $tokenSPL->getColor();
          $this->logService->sendPlayerLog($gameSPL, $player, $message);
-         //TODO publish(s)
          if ($this->tokenSPLService->mustEndPlayerRoundBecauseOfTokens($player)) {
              $this->tokenSPLService->validateTakingOfTokens($player);
              $this->manageEndOfRound($gameSPL);
          }
+         foreach ($gameSPL->getPlayers() as $playerNotif) {
+             $this->publishToken($gameSPL, $playerNotif);
+         }
+         $this->publishRanking($gameSPL);
          return new Response('token picked', Response::HTTP_OK);
      }
 
@@ -266,7 +270,94 @@ class SplendorController extends AbstractController
              $this->entityManager->persist($gameSPL);
              $this->entityManager->persist($activePlayer);
              $this->entityManager->flush();
-             // TODO notif next player
          }
      }
+
+
+     private function publishToken(GameSPL $game, ?PlayerSPL $player): void
+     {
+         $mainBoardTokens = $game->getMainBoard()->getTokens();
+         $response = $this->render('Game/Splendor/MainBoard/drawTokensPile.html.twig', [
+             'whiteTokensPile' => $this->tokenSPLService->getWhiteTokensFromCollection($mainBoardTokens),
+             'redTokensPile' => $this->tokenSPLService->getRedTokensFromCollection($mainBoardTokens),
+             'blueTokensPile' => $this->tokenSPLService->getBlueTokensFromCollection($mainBoardTokens),
+             'greenTokensPile' => $this->tokenSPLService->getGreenTokensFromCollection($mainBoardTokens),
+             'blackTokensPile' => $this->tokenSPLService->getBlackTokensFromCollection($mainBoardTokens),
+             'yellowTokensPile' => $this->tokenSPLService->getYellowTokensFromCollection($mainBoardTokens),
+             'player' => $player,
+             'needToPlay' => $player->isTurnOfPlayer(),
+        ]);
+
+         $this->publishService->publish(
+             $this->generateUrl('app_game_show_spl', ['id' => $game->getId()]).'token'.$player->getId(),
+             $response);
+     }
+
+    private function publishDevelopmentCards(GameSPL $game): void
+    {
+        foreach ($game->getPlayers() as $player) {
+            $this->publishDevelopmentCardsWithSelectedOptions($game, $player, false, $player->isTurnOfPlayer());
+        }
+        $this->publishDevelopmentCardsWithSelectedOptions($game, null, true, false);
+    }
+
+    private function publishDevelopmentCardsWithSelectedOptions(GameSPL $game, ?PlayerSPL $player, bool $isSpectator, bool $needToPlay) : void
+    {
+        $response = $this->render('Game/Splendor/MainBoard/developmentCardsBoard.html.twig', [
+            'rows' => $game->getMainBoard()->getRowsSPL(),
+            'drawCardsLevelOneCount' => $this->SPLService->getDrawCardsByLevel(DrawCardsSPL::$LEVEL_ONE, $game)->count(),
+            'drawCardsLevelTwoCount' => $this->SPLService->getDrawCardsByLevel(DrawCardsSPL::$LEVEL_TWO, $game)->count(),
+            'drawCardsLevelThreeCount' => $this->SPLService->getDrawCardsByLevel(DrawCardsSPL::$LEVEL_THREE, $game)->count(),
+            'isSpectator' => $isSpectator,
+            'needToPlay' => $needToPlay,
+        ]);
+
+        $this->publishService->publish(
+            $this->generateUrl('app_game_show_spl', ['id' => $game->getId()])
+            .'developmentCards'
+            .($player == null ? 'spectator' : $player->getId()),
+            $response);
+    }
+
+    private function publishNobleTiles(GameSPL $game): void
+    {
+        foreach (['player', 'spectator'] as $role) {
+            $isSpectator = $role == 'spectator';
+            $response = $this->render('Game/Splendor/MainBoard/nobleTilesDisplay.html.twig', [
+                'nobleTiles' => $game->getMainBoard()->getNobleTiles(),
+                'isSpectator' => $isSpectator,
+            ]);
+
+            $this->publishService->publish(
+                $this->generateUrl('app_game_show_spl', ['id' => $game->getId()])
+                .'nobleTiles'.$role,
+                $response);
+        }
+    }
+
+    private function publishReservedCards(GameSPL $game): void
+    {
+        foreach ($game->getPlayers() as $player) {
+            $response = $this->render('Game/Splendor/MainBoard/nobleTilesDisplay.html.twig', [
+                'nobleTiles' => $game->getMainBoard()->getNobleTiles(),
+                'needToPlay' => $player->isTurnOfPlayer(),
+            ]);
+
+            $this->publishService->publish(
+                $this->generateUrl('app_game_show_spl', ['id' => $game->getId()]).'reservedCards'.$player->getId(),
+                $response);
+        }
+    }
+
+
+    private function publishRanking(GameSPL $game): void
+    {
+        $response = $this->render('Game/Splendor/Ranking/ranking.html.twig', [
+            'ranking' => $this->SPLService->getRanking($game),
+        ]);
+
+        $this->publishService->publish(
+            $this->generateUrl('app_game_show_spl', ['id' => $game->getId()]).'ranking',
+            $response);
+    }
 }
