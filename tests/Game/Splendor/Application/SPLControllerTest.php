@@ -47,7 +47,7 @@ class SPLControllerTest extends WebTestCase
         $game = $this->gameSPLRepository->findOneById($gameId);
         $mainBoard = $game->getMainBoard();
         $token = $mainBoard->getTokens()[0];
-        $newUrl = "/game/" . $gameId . "/splendor/takeToken/" . $token->getId();
+        $newUrl = "/game/" . $gameId . "/splendor/takeToken/" . $token->getColor();
         $user3 = $this->gameUserRepository->findOneByUsername("test2");
         $this->client->loginUser($user3);
         //WHEN
@@ -64,7 +64,7 @@ class SPLControllerTest extends WebTestCase
         $game = $this->gameSPLRepository->findOneById($gameId);
         $mainBoard = $game->getMainBoard();
         $token = $mainBoard->getTokens()[0];
-        $newUrl = "/game/" . $gameId . "/splendor/takeToken/" . $token->getId();
+        $newUrl = "/game/" . $gameId . "/splendor/takeToken/" . $token->getColor();
         $user1 = $this->gameUserRepository->findOneByUsername("test0");
         $player = $this->SPLService->getActivePlayer($game);
         $this->SPLService->endRoundOfPlayer($game, $player);
@@ -88,7 +88,7 @@ class SPLControllerTest extends WebTestCase
         for ($i = 0; $i < 10; ++$i) {
             $player->getPersonalBoard()->addToken($tokens[$i]);
         }
-        $newUrl = "/game/" . $gameId . "/splendor/takeToken/10";
+        $newUrl = "/game/" . $gameId . "/splendor/takeToken/red";
         $this->client->loginUser($user1);
         //WHEN
         $this->client->request("GET", $newUrl);
@@ -116,12 +116,12 @@ class SPLControllerTest extends WebTestCase
         $player->getPersonalBoard()->addSelectedToken($selectedToken);
         $this->entityManager->persist($selectedToken);
         $this->entityManager->flush();
-        $newUrl = "/game/" . $gameId . "/splendor/takeToken/35";
+        $newUrl = "/game/" . $gameId . "/splendor/takeToken/blue";
         $this->client->loginUser($user1);
         $this->client->request("GET", $newUrl);
         $this->assertEquals(Response::HTTP_OK,
             $this->client->getResponse()->getStatusCode());
-        $newUrl = "/game/" . $gameId . "/splendor/takeToken/36";
+        $newUrl = "/game/" . $gameId . "/splendor/takeToken/red";
         //WHEN
         $this->client->request("GET", $newUrl);
         //THEN
@@ -141,11 +141,10 @@ class SPLControllerTest extends WebTestCase
         for ($i = 0; $i < 4; ++$i) {
             $mainBoard->removeToken($whiteTokens[$i]);
         }
-        $newUrl = "/game/" . $gameId . "/splendor/takeToken/5";
+        $newUrl = "/game/" . $gameId . "/splendor/takeToken/white";
         $this->client->loginUser($user1);
         //WHEN
         $this->client->request("GET", $newUrl);
-        $newUrl = "/game/" . $gameId . "/splendor/takeToken/6";
         $this->client->request("GET", $newUrl);
         //THEN
         $this->assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR,
@@ -159,7 +158,7 @@ class SPLControllerTest extends WebTestCase
         $game = $this->gameSPLRepository->findOneById($gameId);
         $mainBoard = $game->getMainBoard();
         $token = $mainBoard->getTokens()[0];
-        $newUrl = "/game/" . $gameId . "/splendor/takeToken/" . $token->getId();
+        $newUrl = "/game/" . $gameId . "/splendor/takeToken/" . $token->getColor();
         $user1 = $this->gameUserRepository->findOneByUsername("test0");
         $player = $this->SPLService->getActivePlayer($game);
         $this->client->loginUser($user1);

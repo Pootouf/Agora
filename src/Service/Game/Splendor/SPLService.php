@@ -241,7 +241,7 @@ class SPLService
     }
 
     /**
-     * reserveCards : a player reserve a development card
+     * reserveCard : a player reserve a development card
      * @param PlayerSPL $player
      * @param DevelopmentCardsSPL $card
      * @return void
@@ -349,8 +349,12 @@ class SPLService
         $playerCardSPL = $this->getPlayerCardFromDevelopmentCard($playerSPL->getGameSPL(), $developmentCardsSPL);
         if ($playerCardSPL != null
             && $playerCardSPL->getPersonalBoardSPL()->getPlayerSPL()->getId() != $playerSPL->getId()
-            && !$playerCardSPL->isIsReserved()) {
+        ) {
             throw new \Exception('Not the card of the player');
+        }
+        if ($playerSPL->getPersonalBoard()->getPlayerCards()->contains($playerCardSPL)
+        && !$playerCardSPL->isIsReserved()) {
+            throw new \Exception('Player already bought this card');
         }
         if($this->hasEnoughMoney($playerSPL, $developmentCardsSPL)){
             if ($playerCardSPL == null) {

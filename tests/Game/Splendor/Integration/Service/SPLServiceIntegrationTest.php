@@ -1,16 +1,18 @@
 <?php
 
 
-namespace Game\Splendor\Integration\Service;
+namespace App\Tests\Game\Splendor\Integration\Service;
 
 use App\Entity\Game\Splendor\CardCostSPL;
 use App\Entity\Game\Splendor\DevelopmentCardsSPL;
+use App\Entity\Game\Splendor\DrawCardsSPL;
 use App\Entity\Game\Splendor\GameSPL;
 use App\Entity\Game\Splendor\MainBoardSPL;
 use App\Entity\Game\Splendor\NobleTileSPL;
 use App\Entity\Game\Splendor\PersonalBoardSPL;
 use App\Entity\Game\Splendor\PlayerCardSPL;
 use App\Entity\Game\Splendor\PlayerSPL;
+use App\Entity\Game\Splendor\RowSPL;
 use App\Entity\Game\Splendor\SelectedTokenSPL;
 use App\Entity\Game\Splendor\TokenSPL;
 use App\Service\Game\AbstractGameManagerService;
@@ -153,10 +155,20 @@ class SPLServiceIntegrationTest extends KernelTestCase
     {
         //GIVEN
         $tokenSplendorService = static::getContainer()->get(TokenSPLService::class);
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
         $game = $this->createGame(2);
         $player = $game->getPlayers()->get(0);
         $personalBoard = $player->getPersonalBoard();
-        $personalBoard->addSelectedToken(new SelectedTokenSPL());
+        $token = new TokenSPL();
+        $token->setType("a");
+        $token->setColor("blue");
+        $entityManager->persist($token);
+        $selectedToken = new SelectedTokenSPL();
+        $selectedToken->setToken($token);
+        $entityManager->persist($selectedToken);
+        $personalBoard->addSelectedToken($selectedToken);
+        $entityManager->persist($personalBoard);
+        $entityManager->flush();
         //WHEN
         $tokenSplendorService->clearSelectedTokens($player);
         //THEN
@@ -334,14 +346,11 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $developmentCard->setLevel(DevelopmentCardsSPL::$LEVEL_ONE);
         $developmentCard->setValue(1);
         $entityManager->persist($developmentCard);
-        $playerCard = new PlayerCardSPL($player, $developmentCard, false);
-        $playerCard->setPersonalBoardSPL($player->getPersonalBoard());
-        $entityManager->persist($playerCard);
         $entityManager->flush();
-        // WHEN
-        $splendorService->buyCard($player, $playerCard);
         // THEN
-        $this->assertNotContains($playerCard, $player->getPersonalBoard()->getPlayerCards());
+        $this->expectException(\Exception::class);
+        // WHEN
+        $splendorService->buyCard($player, $developmentCard);
     }
 
     public function testBuyCardWhenEnoughMoney()
@@ -368,13 +377,11 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $developmentCard->setLevel(DevelopmentCardsSPL::$LEVEL_ONE);
         $developmentCard->setValue(1);
         $entityManager->persist($developmentCard);
-        $playerCard = new PlayerCardSPL($player, $developmentCard, false);
-        $playerCard->setPersonalBoardSPL($player->getPersonalBoard());
-        $entityManager->persist($playerCard);
         $entityManager->flush();
         // WHEN
-        $splendorService->buyCard($player, $playerCard);
+        $splendorService->buyCard($player, $developmentCard);
         // THEN
+        $playerCard = $splendorService->getPlayerCardFromDevelopmentCard($game, $developmentCard);
         $this->assertContains($playerCard, $player->getPersonalBoard()->getPlayerCards());
     }
 
@@ -402,17 +409,44 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $developmentCard->setLevel(DevelopmentCardsSPL::$LEVEL_ONE);
         $developmentCard->setValue(1);
         $entityManager->persist($developmentCard);
-        $playerCard = new PlayerCardSPL($player, $developmentCard, true);
-        $playerCard->setPersonalBoardSPL($player->getPersonalBoard());
-        $entityManager->persist($playerCard);
         $entityManager->flush();
         // WHEN
-        $splendorService->buyCard($player, $playerCard);
+        $splendorService->buyCard($player, $developmentCard);
         // THEN
+        $playerCard = $splendorService->getPlayerCardFromDevelopmentCard($game, $developmentCard);
         $this->assertContains($playerCard, $player->getPersonalBoard()->getPlayerCards());
         $this->assertFalse($playerCard->isIsReserved());
     }
 
+    public function testBuyCardWhenCardIsReservedBySomeoneElse()
+    {
+        // GIVEN
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $splendorService = static::getContainer()->get(SPLService::class);
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $lastPlayer = $game->getPlayers()->last();
+        $developmentCard = $game->getMainBoard()->getRowsSPL()->first()->getDevelopmentCards()->first();
+        $splendorService->reserveCard($lastPlayer, $developmentCard);
+        // THEN
+        $this->expectException(\Exception::class);
+        // WHEN
+        $splendorService->buyCard($player, $developmentCard);
+    }
+
+    public function testBuyCardWhenCardAlreadyBoughtByPlayer()
+    {
+        // GIVEN
+        $splendorService = static::getContainer()->get(SPLService::class);
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $developmentCard = $game->getMainBoard()->getRowsSPL()->first()->getDevelopmentCards()->first();
+        $splendorService->buyCard($player, $developmentCard);
+        // THEN
+        $this->expectException(\Exception::class);
+        // WHEN
+        $splendorService->buyCard($player, $developmentCard);
+    }
     public function testTokenRetrievedWhenBuy()
     {
         // GIVEN
@@ -437,12 +471,9 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $developmentCard->setLevel(DevelopmentCardsSPL::$LEVEL_ONE);
         $developmentCard->setValue(1);
         $entityManager->persist($developmentCard);
-        $playerCard = new PlayerCardSPL($player, $developmentCard, true);
-        $playerCard->setPersonalBoardSPL($player->getPersonalBoard());
-        $entityManager->persist($playerCard);
         $entityManager->flush();
         // WHEN
-        $splendorService->buyCard($player, $playerCard);
+        $splendorService->buyCard($player, $developmentCard);
         // THEN
         $this->assertNotContains($token, $player->getPersonalBoard()->getTokens());
     }
@@ -471,12 +502,9 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $developmentCard->setLevel(DevelopmentCardsSPL::$LEVEL_ONE);
         $developmentCard->setValue(1);
         $entityManager->persist($developmentCard);
-        $playerCard = new PlayerCardSPL($player, $developmentCard, true);
-        $playerCard->setPersonalBoardSPL($player->getPersonalBoard());
-        $entityManager->persist($playerCard);
         $entityManager->flush();
         // WHEN
-        $splendorService->buyCard($player, $playerCard);
+        $splendorService->buyCard($player, $developmentCard);
         // THEN
         $this->assertNotContains($token, $player->getPersonalBoard()->getTokens());
     }
@@ -574,6 +602,37 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $game->setGameName(AbstractGameManagerService::$SPL_LABEL);
         $mainBoard = new MainBoardSPL();
         $mainBoard->setGameSPL($game);
+        for ($i = 0; $i <= DrawCardsSPL::$LEVEL_THREE; $i++) {
+            $discard = new DrawCardsSPL();
+            $discard->setLevel($i);
+            for ($c = 0; $c < 10; $c++) {
+                $card = new DevelopmentCardsSPL();
+                $card->setLevel($i + 1);
+                $card->setPrestigePoints(1);
+                $card->setColor("red");
+                $card->setValue(1);
+                $entityManager->persist($card);
+                $discard->addDevelopmentCard($card);
+                $entityManager->persist($discard);
+            }
+            $mainBoard->addDrawCard($discard);
+            $entityManager->persist($mainBoard);
+            $row = new RowSPL();
+            $row->setLevel($i);
+            for ($c = 0; $c < 4; $c++) {
+                $card = new DevelopmentCardsSPL();
+                $card->setLevel($i + 1);
+                $card->setPrestigePoints(1);
+                $card->setColor("red");
+                $card->setValue(1);
+                $entityManager->persist($card);
+                $row->addDevelopmentCard($card);
+                $entityManager->persist($row);
+            }
+            $mainBoard->addRowsSPL($row);
+            $entityManager->persist($mainBoard);
+
+        }
         $entityManager->persist($mainBoard);
         for ($i = 0; $i < $numberOfPlayer; $i++) {
             $player = new PlayerSPL('test', $game);
