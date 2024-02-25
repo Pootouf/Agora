@@ -1,6 +1,7 @@
 {#
     This section displays the color tokens that can be taken by players
-    @param : 
+    @param : whiteTokensPile, redTokensPile, blueTokensPile, blackTokensPile, greenTokensPile,
+             PlayerSPL player
     @return :
 #}
 
@@ -16,110 +17,101 @@
 {% set selectedTokensNb = 0 %}
 
 
-<div class="px-10 flex float-top-0 w-full h-1/5 bg-orange-400">
-    <div class="grid grid-rows-1 grid-cols-5 w-full mx-2 mt-5 h-max-height
-            landscape:md:flex landscape:md:mt-2 landscape:md-justify-center landscape:md:align-center
-            xl:lg:justify-center xl:lg:align-center ">
 
-        {% for i in 0..tokens|length - 1 %}
-            {% set selectedTokens = player.personalBoard.selectedTokens|filter(
-                selectedToken => selectedToken.token.type == tokensName[i]
-            ) %}
-            {% set selected = selectedTokens|length %}
-            {% set selectedTokensNb = selectedTokensNb + selected %}
+<div class="grid grid-rows-1 grid-cols-5 w-full mx-2 mt-5 h-max-height
+        landscape:md:flex landscape:md:mt-2 landscape:md-justify-center landscape:md:align-center
+        xl:lg:justify-center xl:lg:align-center ">
 
-            <div
-                    class="ml-5 flex flex-col flex-row items-center justify-center w-auto origin-bottom
-                            sm:overflow-visible overflow-hidden
-                            {% if tokens[i]|length == 0 %}
-                                opacity-25
-                            {% endif %}"
-            >
-                <button type="button"
-                {% if not needToPlay %} disabled {% endif %}
-                        class="relative items-center w-6/12 focus:outline-none focus:ring-blue-300 focus:ring-black-800"
-                        {{ stimulus_action('splendor', 'takeToken', 'click',
-                            {url:path('app_game_splendor_selectToken',
-                                {idGame: game.id, color: tokensColor[i]})
-                            })
-                        }}
-                >
-                    <img
-                            class=" object-cover w-fit mx-auto aspect-auto rounded-2xl "
-                            src="{{ asset('resourcesGames/Splendor/Images/Tokens/' ~ tokensName[i] ~ 'Token.png') }}"
-                            alt='{{ tokensName[i] }}'
-                    >
+    {% for i in 0..tokens|length - 1 %}
+        {% set selectedTokens = player.personalBoard.selectedTokens|filter(
+            selectedToken => selectedToken.token.type == tokensName[i]
+        ) %}
+        {% set selected = selectedTokens|length %}
+        {% set selectedTokensNb = selectedTokensNb + selected %}
 
-                    {% if selected > 0 %}
-
-                    <span
-                            class="absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white
-                                bg-red-500 border-2 border-white rounded-full -top-0 -end-2 dark:border-gray-900"
-                    >
-                        {{ selected }}
-                    </span>
-                    {% endif %}
-
-                </button>
-
-                <div class="flex items-center justify-center">
-                        <span
-                                class="shrink-0 rounded-full bg-gray-500 font-mono text-md
-                                        font-medium tracking-tight text-white"
-                        >
-                            {{ tokens[i]|length }}
-                        </span>
-                </div>
-            </div>
-
-        {% endfor %}
         <div
-                class="ml-5 flex flex-col flex-row items-center justify-center w-auto origin-bottom sm:overflow-visible
-                        overflow-hidden
-                      {% if yellowTokensPile|length == 0 %}
-                                opacity-25
-                            {% endif %}"
+                class="ml-5 flex flex-col flex-row items-center justify-center w-auto origin-bottom
+                        sm:overflow-visible overflow-hidden
+                        {% if tokens[i]|length == 0 %}
+                            opacity-25
+                        {% endif %}"
         >
+            <button type="button" id="{{ 'take_token' ~ i }}"
+            {% if not needToPlay %} disabled {% endif %}
+                    class="relative items-center w-6/12 focus:outline-none focus:ring-blue-300 focus:ring-black-800"
+                    {{ stimulus_action('splendor', 'takeToken', 'click',
+                        {url:path('app_game_splendor_selectToken',
+                            {idGame: game.id, color: tokensColor[i]})
+                        })
+                    }}
+            >
                 <img
-                        class=" object-cover w-6/12 mx-auto aspect-auto rounded-2xl "
-                        src="{{ asset('resourcesGames/Splendor/Images/Tokens/goldToken.png') }}"
-                        alt='goldToken'
+                        class=" object-cover w-fit mx-auto aspect-auto rounded-2xl "
+                        src="{{ asset('resourcesGames/Splendor/Images/Tokens/' ~ tokensName[i] ~ 'Token.png') }}"
+                        alt='{{ tokensName[i] }}'
                 >
-                <div class="flex items-center justify-center">
-                        <span
-                                class="shrink-0 rounded-full bg-gray-500 font-mono text-md
-                                        font-medium tracking-tight text-white"
-                        >
-                            {{ yellowTokensPile|length }}
-                        </span>
-                </div>
-        </div>
-    </div>
-    {% if selectedTokensNb != 0 %}
-    <button type="button"
-            class=" rounded-md p-2 inline-flex items-center justify-center text-white m-auto hover:text-red
-                    hover:bg-red-400 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
-    >
-        <span class="sr-only">Close menu</span>
-        <!-- Heroicon name: outline/x -->
-        <svg class="h-6 w-6 hover:stroke-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-             stroke="currentColor" aria-hidden="true"
-        >
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-        </svg>
-    </button>
-    {% endif %}
-</div>
-<script>
-    {% set path = path('app_game_show_spl', {'id': game.id}) ~ 'mainBoard' %}
-    const eventSourceMainBoard = new EventSource("{{ mercure(path)|escape('js') }}");
-    eventSourceMainBoard.onmessage = event => {
-        let mainBoard = document.getElementById('mainBoard');
-        mainBoard.innerHTML = event.data;
-    }
 
-    {% if needToPlay %}
-    alert("It's your turn to play ! " +
-        "Buy or reserve a card, or take 2 same color tokens, or even 3 different colors tokens !");
-    {% endif %}
-</script>
+                {% if selected > 0 %}
+
+                <span id="{{ 'selected_token' ~ i }}"
+                        class="absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white
+                            bg-red-500 border-2 border-white rounded-full -top-0 -end-2 dark:border-gray-900"
+                >
+                    {{ selected }}
+                </span>
+                {% endif %}
+
+            </button>
+
+            <div class="flex items-center justify-center">
+                    <span
+                            class="shrink-0 rounded-full bg-gray-500 font-mono text-md
+                                    font-medium tracking-tight text-white"
+                    >
+                        {{ tokens[i]|length }}
+                    </span>
+            </div>
+        </div>
+
+    {% endfor %}
+    <div
+            class="ml-5 flex flex-col flex-row items-center justify-center w-auto origin-bottom sm:overflow-visible
+                    overflow-hidden
+                  {% if yellowTokensPile|length == 0 %}
+                            opacity-25
+                        {% endif %}"
+    >
+            <img
+                    class=" object-cover w-6/12 mx-auto aspect-auto rounded-2xl "
+                    src="{{ asset('resourcesGames/Splendor/Images/Tokens/goldToken.png') }}"
+                    alt='goldToken'
+            >
+            <div class="flex items-center justify-center">
+                    <span
+                            class="shrink-0 rounded-full bg-gray-500 font-mono text-md
+                                    font-medium tracking-tight text-white"
+                    >
+                        {{ yellowTokensPile|length }}
+                    </span>
+            </div>
+    </div>
+</div>
+{% if selectedTokensNb != 0 %}
+<button type="button"
+        {{ stimulus_action('splendor', 'clearSelectedTokens', 'click',
+            {url:path('app_game_splendor_cancel_tokens_selection',
+                {idGame: game.id})
+            })
+        }}
+        class=" rounded-md p-2 inline-flex items-center justify-center text-white m-auto hover:text-red
+                hover:bg-red-400 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+>
+    <span class="sr-only">Close menu</span>
+
+    <svg class="h-6 w-6 hover:stroke-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+         stroke="currentColor" aria-hidden="true"
+    >
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+    </svg>
+</button>
+{% endif %}

@@ -1,6 +1,6 @@
 <?php
 
-namespace Game\Splendor\Unit\Service;
+namespace App\Tests\Game\Splendor\Unit\Service;
 
 use App\Entity\Game\Splendor\CardCostSPL;
 use App\Entity\Game\Splendor\DevelopmentCardsSPL;
@@ -11,22 +11,20 @@ use App\Entity\Game\Splendor\NobleTileSPL;
 use App\Entity\Game\Splendor\PersonalBoardSPL;
 use App\Entity\Game\Splendor\PlayerCardSPL;
 use App\Entity\Game\Splendor\PlayerSPL;
-use App\Entity\Game\Splendor\SelectedTokenSPL;
 use App\Entity\Game\Splendor\RowSPL;
+use App\Entity\Game\Splendor\SelectedTokenSPL;
 use App\Entity\Game\Splendor\TokenSPL;
 use App\Repository\Game\Splendor\DevelopmentCardsSPLRepository;
-use App\Repository\Game\Splendor\MainBoardSPLRepository;
+use App\Repository\Game\Splendor\DrawCardsSPLRepository;
 use App\Repository\Game\Splendor\NobleTileSPLRepository;
+use App\Repository\Game\Splendor\PlayerCardSPLRepository;
+use App\Repository\Game\Splendor\PlayerSPLRepository;
 use App\Repository\Game\Splendor\TokenSPLRepository;
 use App\Service\Game\Splendor\SPLService;
 use App\Service\Game\Splendor\TokenSPLService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\Query\Expr\Math;
-use PhpCsFixer\Linter\TokenizerLinter;
 use PHPUnit\Framework\TestCase;
-use App\Repository\Game\Splendor\PlayerSPLRepository;
-use Random\Randomizer;
 
 class SPLServiceTest extends TestCase
 {
@@ -37,12 +35,13 @@ class SPLServiceTest extends TestCase
     {
         $entityManager = $this->createMock(EntityManagerInterface::class);
         $playerRepository = $this->createMock(PlayerSPLRepository::class);
-        $mainBoardSPLRepository = $this->createMock(MainBoardSPLRepository::class);
+        $playerCardRepository = $this->createMock(PlayerCardSPLRepository::class);
         $tokenRepository = $this->createMock(TokenSPLRepository::class);
         $nobleTileRepository = $this->createMock(NobleTileSPLRepository::class);
         $developmentCardRepository = $this->createMock(DevelopmentCardsSPLRepository::class);
-        $this->SPLService = new SPLService($entityManager, $playerRepository, $mainBoardSPLRepository, $tokenRepository,
-            $nobleTileRepository, $developmentCardRepository);
+        $drawCardRepository = $this->createMock(DrawCardsSPLRepository::class);
+        $this->SPLService = new SPLService($entityManager, $playerRepository, $tokenRepository,
+            $nobleTileRepository, $developmentCardRepository, $playerCardRepository, $drawCardRepository);
         $this->tokenSPLService = new TokenSPLService($entityManager, $tokenRepository, $this->SPLService);
     }
 
@@ -165,7 +164,10 @@ class SPLServiceTest extends TestCase
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
         $personalBoard = $player->getPersonalBoard();
-        $personalBoard->addSelectedToken(new SelectedTokenSPL());
+        $token = new TokenSPL();
+        $selectedToken = new SelectedTokenSPL();
+        $selectedToken->setToken($token);
+        $personalBoard->addSelectedToken($selectedToken);
         //WHEN
         $this->tokenSPLService->clearSelectedTokens($player);
         //THEN
@@ -304,60 +306,11 @@ class SPLServiceTest extends TestCase
         $array = new ArrayCollection();
         $array->add($cardCost);
         $developmentCard = DevelopmentCardsSPL::createDevelopmentCard($array);
-        $playerCard = new PlayerCardSPL($player, new DevelopmentCardsSPL(), false);
-        $playerCard->setDevelopmentCard($developmentCard);
-        // WHEN
-        $this->SPLService->buyCard($player, $playerCard);
         // THEN
-        $this->assertNotContains($playerCard ,$player->getPersonalBoard()->getPlayerCards());
-    }
-    public function testBuyCardWhenEnoughMoney()
-    {
-        // GIVEN
-        $game = $this->createGame(2);
-        $player = $game->getPlayers()->first();
-        $player->setTurnOfPlayer(true);
-        $token = new TokenSPL();
-        $token->setColor(TokenSPL::$COLOR_RED);
-        $player->getPersonalBoard()->addToken($token);
-        $cardCost = new CardCostSPL();
-        $cardCost->setColor(TokenSPL::$COLOR_RED);
-        $cardCost->setPrice(1);
-        $array = new ArrayCollection();
-        $array->add($cardCost);
-        $developmentCard = DevelopmentCardsSPL::createDevelopmentCard($array);
-        $playerCard = new PlayerCardSPL($player, new DevelopmentCardsSPL(), false);
-        $playerCard->setDevelopmentCard($developmentCard);
+        $this->expectException(\Exception::class);
         // WHEN
-        $this->SPLService->buyCard($player, $playerCard);
-        // THEN
-        $this->assertContains($playerCard ,$player->getPersonalBoard()->getPlayerCards());
+        $this->SPLService->buyCard($player, $developmentCard);
     }
-    public function testBuyCardWhenCardIsReserved()
-    {
-        // GIVEN
-        $game = $this->createGame(2);
-        $player = $game->getPlayers()->first();
-        $player->setTurnOfPlayer(true);
-        $token = new TokenSPL();
-        $token->setColor(TokenSPL::$COLOR_RED);
-        $player->getPersonalBoard()->addToken($token);
-        $cardCost = new CardCostSPL();
-        $cardCost->setColor(TokenSPL::$COLOR_RED);
-        $cardCost->setPrice(1);
-        $array = new ArrayCollection();
-        $array->add($cardCost);
-        $developmentCard = DevelopmentCardsSPL::createDevelopmentCard($array);
-        $playerCard = new PlayerCardSPL($player, new DevelopmentCardsSPL(), false);
-        $playerCard->setDevelopmentCard($developmentCard);
-        $playerCard->setIsReserved(true);
-        // WHEN
-        $this->SPLService->buyCard($player, $playerCard);
-        // THEN
-        $this->assertContains($playerCard ,$player->getPersonalBoard()->getPlayerCards());
-        $this->assertFalse($playerCard->isIsReserved());
-    }
-
     public function testTokenRetrievedWhenBuy()
     {
         // GIVEN
@@ -373,11 +326,9 @@ class SPLServiceTest extends TestCase
         $array = new ArrayCollection();
         $array->add($cardCost);
         $developmentCard = DevelopmentCardsSPL::createDevelopmentCard($array);
-        $playerCard = new PlayerCardSPL($player, new DevelopmentCardsSPL(), false);
-        $playerCard->setDevelopmentCard($developmentCard);
-        $playerCard->setIsReserved(true);
+        $developmentCard->setLevel(1);
         // WHEN
-        $this->SPLService->buyCard($player, $playerCard);
+        $this->SPLService->buyCard($player, $developmentCard);
         // THEN
         $this->assertNotContains($token, $player->getPersonalBoard()->getTokens());
     }
@@ -397,11 +348,9 @@ class SPLServiceTest extends TestCase
         $array = new ArrayCollection();
         $array->add($cardCost);
         $developmentCard = DevelopmentCardsSPL::createDevelopmentCard($array);
-        $playerCard = new PlayerCardSPL($player, new DevelopmentCardsSPL(), false);
-        $playerCard->setDevelopmentCard($developmentCard);
-        $playerCard->setIsReserved(true);
+        $developmentCard->setLevel(1);
         // WHEN
-        $this->SPLService->buyCard($player, $playerCard);
+        $this->SPLService->buyCard($player, $developmentCard);
         // THEN
         $this->assertNotContains($token, $player->getPersonalBoard()->getTokens());
     }
@@ -477,8 +426,6 @@ class SPLServiceTest extends TestCase
 
         // THEN
 
-        $this->assertContains($card, $this->SPLService
-            ->getReservedCards($player));
         $this->assertNotContains($card, $game->getMainBoard()
             ->getDrawCards()->get($level)
             ->getDevelopmentCards());
@@ -504,29 +451,12 @@ class SPLServiceTest extends TestCase
 
         // THEN
 
-        $this->assertContains($card, $this->SPLService
-            ->getReservedCards($player));
         $this->assertNotContains($card, $game->getMainBoard()
             ->getDrawCards()->get($level)
             ->getDevelopmentCards());
         $this->assertSame(1,
             $this->SPLService->getNumberOfTokenAtColor($personal->getTokens(),
                 SPLService::$LABEL_JOKER));
-    }
-
-    public function testReserveCardFromMainBoardWhenIsNotAccessibleFromDiscard() : void
-    {
-        // GIVEN
-        $game = $this->createGame(SPLService::$MIN_COUNT_PLAYER);
-        $player = $game->getPlayers()->first();
-
-        $level = DevelopmentCardsSPL::$LEVEL_ONE - 1;
-        $discard = $game->getMainBoard()->getDrawCards()->get($level);
-        $card = $discard->getDevelopmentCards()->get(0);
-
-        // WHEN et THEN
-        $this->expectException(\Exception::class);
-        $this->SPLService->reserveCard($player, $card);
     }
 
     public function testReserveCardFromMainBoardWhenIsAccessibleFromRowWithToken() : void
@@ -545,13 +475,7 @@ class SPLServiceTest extends TestCase
         $this->SPLService->reserveCard($player, $card);
 
         // THEN
-
-        $this->assertTrue($this->SPLService
-            ->getReservedCards($player)
-            ->contains($card));
-        $this->assertFalse($game->getMainBoard()
-            ->getRowsSPL()->get($level)
-            ->getDevelopmentCards()->contains($card));
+        $this->assertNotContains($card, $game->getMainBoard()->getRowsSPL()->get($level)->getDevelopmentCards());
         $this->assertSame(1,
             $this->SPLService->getNumberOfTokenAtColor($personal->getTokens(),
                 SPLService::$LABEL_JOKER));
@@ -583,51 +507,10 @@ class SPLServiceTest extends TestCase
 
         // THEN
 
-        $this->assertTrue($this->SPLService
-            ->getReservedCards($player)
-            ->contains($card));
-        $this->assertFalse($game->getMainBoard()
-            ->getRowsSPL()->get($level)
-            ->getDevelopmentCards()->contains($card));
+        $this->assertNotContains($card, $game->getMainBoard()->getRowsSPL()->get($level)->getDevelopmentCards());
         $this->assertSame(0,
             $this->SPLService->getNumberOfTokenAtColor($personal->getTokens(),
                 SPLService::$LABEL_JOKER));
-    }
-
-    public function testReserveCardWhenAlreadyFull() : void
-    {
-        // GIVEN
-        $game = $this->createGame(SPLService::$MIN_COUNT_PLAYER);
-        $player = $game->getPlayers()->first();
-        $level = DevelopmentCardsSPL::$LEVEL_ONE;
-
-        for ($i = 0; $i < SPLService::$MAX_COUNT_RESERVED_CARDS; $i++)
-        {
-            $row = $game->getMainBoard()->getRowsSPL()->get($level);
-            $card = $row->getDevelopmentCards()->first();
-            $this->SPLService->reserveCard($player, $card);
-        }
-
-        // WHEN et THEN
-        $card = $game->getMainBoard()->getDrawCards()
-            ->get($level)->getDevelopmentCards()->last();
-        $this->expectException(\Exception::class);
-        $this->SPLService->reserveCard($player, $card);
-    }
-
-    public function testReserveCardIsNotAccessibleAndTokensIsNotFull() : void
-    {
-        // GIVEN
-        $game = $this->createGame(SPLService::$MIN_COUNT_PLAYER);
-        $player = $game->getPlayers()->first();
-
-        $card = new DevelopmentCardsSPL();
-        $card->setLevel(DevelopmentCardsSPL::$LEVEL_ONE);
-
-        // WHEN et THEN
-
-        $this->expectException(\Exception::class);
-        $this->SPLService->reserveCard($player, $card);
     }
 
     public function testReserveCardIsNotAccessibleAndTokensIsFull() : void
@@ -647,27 +530,6 @@ class SPLServiceTest extends TestCase
 
         $card = new DevelopmentCardsSPL();
         $card->setLevel(DevelopmentCardsSPL::$LEVEL_ONE);
-
-        // WHEN et THEN
-
-        $this->expectException(\Exception::class);
-        $this->SPLService->reserveCard($player, $card);
-    }
-
-    public function testReserveCardFromDiscardAndRowAndTokenIsNotFull() : void
-    {
-        // GIVEN
-        $game = $this->createGame(SPLService::$MIN_COUNT_PLAYER);
-        $player = $game->getPlayers()->first();
-
-        $card = new DevelopmentCardsSPL();
-        $level = DevelopmentCardsSPL::$LEVEL_ONE;
-        $card->setLevel($level);
-        $game->getMainBoard()->getRowsSPL()
-            ->get($level - 1)->addDevelopmentCard($card);
-        $game->getMainBoard()->getDrawCards()
-            ->get($level - 1)->addDevelopmentCard($card);
-
 
         // WHEN et THEN
 
@@ -719,6 +581,7 @@ class SPLServiceTest extends TestCase
         for ($i = 0; $i < $numberOfPlayers; ++$i) {
             $player = new PlayerSPL('test', $game);
             $game->addPlayer($player);
+            $player->setGameSPL($game);
             $personalBoard = new PersonalBoardSPL();
             $player->setPersonalBoard($personalBoard);
         }
@@ -731,7 +594,7 @@ class SPLServiceTest extends TestCase
             $discard->setLevel($i);
             for ($c = 0; $c < 10; $c++) {
                 $card = new DevelopmentCardsSPL();
-                $card->setLevel($i);
+                $card->setLevel($i + 1);
                 $discard->addDevelopmentCard($card);
             }
             $mainBoard->addDrawCard($discard);
@@ -742,7 +605,7 @@ class SPLServiceTest extends TestCase
             $row->setLevel($i);
             for ($c = 0; $c < 4; $c++) {
                 $card = new DevelopmentCardsSPL();
-                $card->setLevel($i);
+                $card->setLevel($i + 1);
                 $row->addDevelopmentCard($card);
             }
             $mainBoard->addRowsSPL($row);

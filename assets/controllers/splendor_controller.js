@@ -41,4 +41,9 @@ export default class extends Controller {
         const response = await fetch(url);
     }
 
+    async clearSelectedTokens(button) {
+        let url = button.params.url;
+        const response = await fetch(url);
+    }
+
 }

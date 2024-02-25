@@ -35,12 +35,6 @@
 
 <script>
 
-	{#{% set path = path('app_game_show_splendor', {'id': game.id}) ~ 'endOfGame' %}
-    const eventSourceEndOfGame = new EventSource("{{ mercure(path)|escape('js') }}");
-    eventSourceEndOfGame.onmessage = event => {
-        gameFinished(event.data);
-    }#}
-
 
     function gameFinished(username) {
         //clearInterval(clockID);
