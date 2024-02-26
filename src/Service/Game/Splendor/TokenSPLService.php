@@ -2,6 +2,7 @@
 
 namespace App\Service\Game\Splendor;
 
+use App\Entity\Game\Splendor\MainBoardSPL;
 use App\Entity\Game\Splendor\PlayerSPL;
 use App\Entity\Game\Splendor\SelectedTokenSPL;
 use App\Entity\Game\Splendor\SplendorParameters;
@@ -17,6 +18,13 @@ class TokenSPLService
     public function __construct(private EntityManagerInterface $entityManager,
         private TokenSPLRepository $tokenSPLRepository,
         private SPLService $SPLService) {}
+
+    public function getTokenOnMainBoardFromColor(MainBoardSPL $mainBoardSPL, string $color) : ?TokenSPL
+    {
+        return $mainBoardSPL->getTokens()->filter(function (TokenSPL $tokenSPL) use ($color) {
+            return strcmp($tokenSPL->getColor(), $color) == 0;
+        })->first();
+    }
 
     /**
      * @param Collection<TokenSPL> $tokens
@@ -100,11 +108,16 @@ class TokenSPLService
         if ($tokensPickable == -1) {
             throw new Exception("An error as occurred");
         }
+        $personalBoard = $playerSPL->getPersonalBoard();
         $selectedToken = new SelectedTokenSPL();
         $selectedToken->setToken($tokenSPL);
-        $playerSPL->getPersonalBoard()->addSelectedToken($selectedToken);
+        $selectedToken->setPersonalBoardSPL($personalBoard);
+        $personalBoard->addSelectedToken($selectedToken);
+        $this->entityManager->persist($personalBoard);
         $this->entityManager->persist($selectedToken);
-        $this->entityManager->persist($playerSPL);
+        $mainBoard = $playerSPL->getGameSPL()->getMainBoard();
+        $mainBoard->removeToken($tokenSPL);
+        $this->entityManager->persist($mainBoard);
         $this->entityManager->flush();
     }
 
@@ -145,7 +158,13 @@ class TokenSPLService
         $selectedTokens = $playerSPL->getPersonalBoard()->getSelectedTokens();
         foreach ($selectedTokens as $selectedToken) {
             $playerSPL->getPersonalBoard()->addToken($selectedToken->getToken());
+            $this->entityManager->persist($playerSPL->getPersonalBoard());
+            $this->entityManager->persist($playerSPL);
         }
+        $selectedTokens->clear();
+        $this->entityManager->persist($playerSPL->getPersonalBoard());
+        $this->entityManager->persist($playerSPL);
+        $this->entityManager->flush();
     }
 
     /**
@@ -156,7 +175,16 @@ class TokenSPLService
      */
     public function clearSelectedTokens(PlayerSPL $playerSPL): void
     {
-        $playerSPL->getPersonalBoard()->getSelectedTokens()->clear();
+        $mainBoard = $playerSPL->getGameSPL()->getMainBoard();
+        $selectedTokens = $playerSPL->getPersonalBoard()->getSelectedTokens();
+        foreach($selectedTokens as $selectedToken) {
+            $mainBoard->addToken($selectedToken->getToken());
+        }
+        $selectedTokens->clear();
+        $this->entityManager->persist($mainBoard);
+        $this->entityManager->persist($playerSPL->getPersonalBoard());
+        $this->entityManager->persist($playerSPL);
+        $this->entityManager->flush();
     }
 
     /**

@@ -93,7 +93,7 @@
         {% set playerCards = p.personalBoard.playerCards %}
 
         {#player's number cards#}
-        {% set playerCardsColors = playerCards|filter(c => c.isReserved == "false")|map(c => c.developmentCard.color) %}
+        {% set playerCardsColors = playerCards|filter(c => c.isReserved == false)|map(c => c.developmentCard.color) %}
         {% set playerCardsColorsCount = [
             {"green": playerCardsColors|filter(c => c == "green")|length},
             {"white": playerCardsColors|filter(c => c == "white")|length},
@@ -103,7 +103,7 @@
         ] %}
 
         {#player's reserved cards levels#}
-        {% set playerReservedCardsLevel = playerCards|filter(c => c.isReserved == "true")
+        {% set playerReservedCardsLevel = playerCards|filter(c => c.isReserved)
             |map(c => c.developmentCard.level) %}
 
         {#player's tokens colors#}

@@ -9,37 +9,73 @@
                 {{ include('/Game/Utils/navigation.html.twig') }}
             {% endblock %}
             {% block endGame %}
-                {{ include('/Game/Splendor/endGameScreenResult.html.twig') }}
+                    {{ include('/Game/Splendor/endGameScreenResult.html.twig') }}
             {% endblock %}
             {% block ranking %}
             <div id="ranking" class="absolute bg-[#CBE4E2ff] w-[25%] h-full right-0">
                 {{  include('/Game/Splendor/Ranking/ranking.html.twig') }}
             </div>
             {% endblock %}
-                <div id="mainBoard" class="flow float-start w-[75%] h-[84%]">
+                <div id="mainBoard" class="flow float-start w-[75%]
+                        {% if isSpectator %}h-full pb-3{% else %}h-[84%]{% endif %}">
                     {{ include('/Game/Splendor/MainBoard/mainBoard.html.twig') }}
                 </div>
             {% block personalBoard %}
-            <div class="flex bg-green-500 h-[16%] w-[75%] float-bottom-0" id="personalBoard">
-                {{ include('/Game/Splendor/PersonalBoard/personalBoard.html.twig') }}
-            </div>
+                {% if not isSpectator %}
+                <div class="flex bg-green-500 h-[16%] w-[75%] float-bottom-0" id="personalBoard">
+                    {{ include('/Game/Splendor/PersonalBoard/personalBoard.html.twig') }}
+                </div>
+                {% endif %}
             {% endblock %}
         </div>
     </div>
-    {% if not isSpectator %}
     <script>
-        {% set path = path('app_game_show_sixqp', {'id': game.id}) ~ 'notifyPlayer' ~ player.id %}
-        const eventSourceNotification = new EventSource("{{ mercure(path)|escape('js') }}");
-        eventSourceNotification.onmessage = event => {
-            for(let row of document.getElementsByClassName('rows')) {
-                row.disabled = false;
-            }
-            //Notify player
-            alert("Please choose a row")
+        {% set path = path('app_game_show_spl', {'id': game.id}) ~ 'token' ~ player.id %}
+        const eventSourceTokens = new EventSource("{{ mercure(path)|escape('js') }}");
+        eventSourceTokens.onmessage = event => {
+            let mainBoard = document.getElementById('tokens');
+            mainBoard.innerHTML = event.data;
         }
-    </script>
-    {% endif %}
 
+        {% set path = path('app_game_show_spl', {'id': game.id}) ~ 'developmentCards' ~ player.id %}
+        const eventSourceDevelopmentCards = new EventSource("{{ mercure(path)|escape('js') }}");
+        eventSourceDevelopmentCards.onmessage = event => {
+            let mainBoard = document.getElementById('developmentCards');
+            mainBoard.innerHTML = event.data;
+        }
+
+        {% set path = path('app_game_show_spl', {'id': game.id}) ~ 'nobleTiles' ~ 'player' %}
+        const eventSourceNobleTiles = new EventSource("{{ mercure(path)|escape('js') }}");
+        eventSourceNobleTiles.onmessage = event => {
+            let mainBoard = document.getElementById('nobleTiles');
+            mainBoard.innerHTML = event.data;
+        }
+
+        {% set path = path('app_game_show_spl', {'id': game.id}) ~ 'reservedCards' ~ player.id %}
+        const eventSourceReservedCards = new EventSource("{{ mercure(path)|escape('js') }}");
+        eventSourceReservedCards.onmessage = event => {
+            let mainBoard = document.getElementById('reservedCards');
+            mainBoard.innerHTML = event.data;
+        }
+
+        {% set path = path('app_game_show_spl', {'id': game.id}) ~ 'ranking' %}
+        const eventSourceRanking = new EventSource("{{ mercure(path)|escape('js') }}");
+        eventSourceRanking.onmessage = event => {
+            let ranking = document.getElementById('ranking');
+            ranking.innerHTML = event.data;
+        }
+
+        {% set path = path('app_game_show_spl', {'id': game.id}) ~ 'endOfGame' %}
+        const eventSourceEndOfGame = new EventSource("{{ mercure(path)|escape('js') }}");
+        eventSourceEndOfGame.onmessage = event => {
+            gameFinished(event.data);
+        }
+
+        {% if needToPlay %}
+        alert("It's your turn to play ! " +
+            "Buy or reserve a card, or take 2 same color tokens, or even 3 different colors tokens !");
+        {% endif %}
+    </script>
     <script>
         function closeWindow() {
             let window = document.getElementById('selectedCardActions');

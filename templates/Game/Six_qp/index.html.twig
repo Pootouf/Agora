@@ -12,46 +12,46 @@
             {% block endGame %}
                 {{ include('/Game/Six_qp/endGameScreenResult.html.twig') }}
             {% endblock %}
-                <div id="chosenCards" class="flow float-left w-1/5 h-3/4">
+            <div id="chosenCards" class="flow float-left w-1/5 h-3/4">
                 {{ include('/Game/Six_qp/chosenCards.html.twig') }}
-                </div>
+            </div>
             {% block ranking %}
-            <div id="ranking" class="flex flex-col absolute bg-violet-100 w-1/6 h-full right-0">
-                {{ include('/Game/Six_qp/ranking.html.twig') }}
-            </div>
-            {% endblock %}
-                <div id="mainBoard" class="flow float-start w-[63.3%] h-3/4">
-                    {{ include('/Game/Six_qp/mainBoard.html.twig') }}
+                <div id="ranking" class="flex flex-col absolute bg-violet-100 w-1/6 h-full right-0">
+                    {{ include('/Game/Six_qp/ranking.html.twig') }}
                 </div>
-            {% block personalBoard %}
-            <div class="flex bg-green-500 h-1/4 w-5/6 float-bottom-0" id="personalBoard">
-                {{ include('/Game/Six_qp/PersonalBoard/personalBoard.html.twig') }}
+            {% endblock %}
+            <div id="mainBoard" class="flow float-start w-[63.3%] h-3/4">
+                {{ include('/Game/Six_qp/mainBoard.html.twig') }}
             </div>
+            {% block personalBoard %}
+                <div class="flex bg-green-500 h-1/4 w-5/6 float-bottom-0" id="personalBoard">
+                    {{ include('/Game/Six_qp/PersonalBoard/personalBoard.html.twig') }}
+                </div>
             {% endblock %}
             {% block chat %}
-                    {{ include('/Game/Utils/chat.html.twig') }}
+                {{ include('/Game/Utils/chat.html.twig') }}
             {% endblock %}
         </div>
     </div>
 
     {# ANIMATION MANAGEMENT #}
-    <script type="text/javascript" src="{{ asset('resourcesGames/utils/AnimationQueue.js') }}"></script>
-    <script type="text/javascript" src="{{ asset('resourcesGames/6QP/Animation.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('resourcesGames/utils/animationQueue.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('resourcesGames/6QP/animation.js') }}"></script>
 
 
     {# NOTIFICATION MANAGEMENT #}
     {% if not isSpectator %}
-    <script>
-        {% set path = path('app_game_show_sixqp', {'id': game.id}) ~ 'notifyPlayer' ~ player.id %}
-        const eventSourceNotification = new EventSource("{{ mercure(path)|escape('js') }}");
-        eventSourceNotification.onmessage = () => {
-            for(let row of document.getElementsByClassName('rows')) {
-                row.disabled = false;
+        <script>
+            {% set path = path('app_game_show_sixqp', {'id': game.id}) ~ 'notifyPlayer' ~ player.id %}
+            const eventSourceNotification = new EventSource("{{ mercure(path)|escape('js') }}");
+            eventSourceNotification.onmessage = () => {
+                for(let row of document.getElementsByClassName('rows')) {
+                    row.disabled = false;
+                }
+                //Notify player
+                alert("Please choose a row")
             }
-            //Notify player
-            alert("Please choose a row")
-        }
-    </script>
+        </script>
     {% endif %}
 
     {# RANKING MANAGEMENT#}
@@ -68,7 +68,6 @@
         {% set path = path('app_game_show_sixqp', {'id': game.id}) ~ 'chosenCards' %}
         const eventSourceChosenCards = new EventSource("{{ mercure(path)|escape('js') }}");
         eventSourceChosenCards.onmessage = event => {
-
             animationQueue.addToQueue(() => {
                 let chosenCards = document.getElementById('chosenCards');
                 chosenCards.innerHTML = event.data;
@@ -91,8 +90,14 @@
     <script>
         {% set path = path('app_game_show_sixqp', {'id': game.id}) ~ 'mainBoard' %}
         {% set pathAnimRow = path('app_game_show_sixqp', {'id': game.id}) ~ 'animRow' %}
+        {% set pathAnimAllRow = path('app_game_show_sixqp', {'id': game.id}) ~ 'animAllRow' %}
+        {% set pathAnimFirstCards = path('app_game_show_sixqp', {'id': game.id}) ~ 'animFirstCards' %}
+
         const eventSourceMainBoard = new EventSource("{{ mercure(path)|escape('js') }}");
         const eventSourceAnimRow = new EventSource("{{ mercure(pathAnimRow)|escape('js') }}");
+        const eventSourceAnimAllRow = new EventSource("{{ mercure(pathAnimAllRow)|escape('js') }}");
+        const eventSourceAnimFirstCards = new EventSource("{{ mercure(pathAnimFirstCards)|escape('js') }}");
+
         eventSourceMainBoard.onmessage = event => {
             animationQueue.addToQueue(() => {
                 let mainBoard = document.getElementById('mainBoard');
@@ -105,9 +110,26 @@
 
         eventSourceAnimRow.onmessage = event => {
             animationQueue.addToQueue(() => {
-                translateRow("row_" + event.data)
+                translateRow("row_" + event.data).then(() => animationQueue.executeNextInQueue());
             })
         }
+
+        eventSourceAnimAllRow.onmessage = () => {
+            animationQueue.addToQueue(() => {
+                const rowsContainer = document.getElementById("rowsContainer");
+                const children = Array.from(rowsContainer.children);
+
+                setTimeout(() => {
+                    const rowsAnimations = children.map(row => translateRow(row.id));
+                    Promise.all(rowsAnimations).then(() => animationQueue.executeNextInQueue());
+                }, 2000);
+            })
+        }
+
+        eventSourceAnimFirstCards.onmessage = () => {
+            animationQueue.addToQueue(() => showFirstCards());
+        }
+
         {% if needToChoose %}
         alert('Please choose a row');
         {% endif %}
@@ -118,15 +140,18 @@
     <script>
         {% set route = '' %}
         {% if isSpectator %}
-        {% set route = 'spectator' %}
+            {% set route = 'spectator' %}
         {% else %}
-        {% set route = player.id ~ 'player' %}
+            {% set route = player.id ~ 'player' %}
         {% endif %}
         {% set path = path('app_game_show_sixqp', {'id': game.id}) ~ 'personalBoard' ~ route %}
         const eventSourcePersonalBoard = new EventSource("{{ mercure(path)|escape('js') }}");
         eventSourcePersonalBoard.onmessage = event => {
-            let personalBoard = document.getElementById('personalBoard');
-            personalBoard.innerHTML = event.data;
+            animationQueue.addToQueue(() => {
+                let personalBoard = document.getElementById('personalBoard');
+                personalBoard.innerHTML = event.data;
+                animationQueue.executeNextInQueue()
+            });
         }
     </script>
 
@@ -135,7 +160,24 @@
         {% set path = path('app_game_show_sixqp', {'id': game.id}) ~ 'endOfGame' %}
         const eventSourceEndOfGame = new EventSource("{{ mercure(path)|escape('js') }}");
         eventSourceEndOfGame.onmessage = event => {
-            gameFinished(event.data);
+            animationQueue.addToQueue(() => {
+                gameFinished(event.data, "{{ not isSpectator ? player.username }}")
+            });
         }
+
+        {% if isGameFinished %}
+            {% set winner = null %}
+            {# Arbitrary value impossible to reach  #}
+            {% set winnerScore = 9999 %}
+            {% for player in game.playerSixQPs %}
+                {% if player.discardSixQP.totalPoints < winnerScore %}
+                    {% set winnerScore = player.discardSixQP.totalPoints %}
+                    {% set winner = player.username %}
+                {% elseif player.discardSixQP.totalPoints == winnerScore %}
+                    {% set winner = null %}
+                {% endif %}
+            {% endfor %}
+            gameFinished("{{ winner }}", "{{ not isSpectator ? player.username }}")
+        {% endif %}
     </script>
 {% endblock %}

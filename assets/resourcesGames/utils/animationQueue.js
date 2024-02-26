@@ -20,8 +20,10 @@ class AnimationQueue {
 		if (this.waitingQueue.length > 0) {
 			const nextAnim = this.waitingQueue.shift();
 			nextAnim();
+			animationContainer.classList.remove('hidden');
 		} else {
-			setTimeout(this.executeNextInQueue.bind(this), 100);
+			setTimeout(this.executeNextInQueue.bind(this), 500);
+			animationContainer.classList.add('hidden');
 		}
 	}
 }
