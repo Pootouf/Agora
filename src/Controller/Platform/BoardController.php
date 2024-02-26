@@ -67,7 +67,7 @@ class BoardController extends AbstractController
 
             $this->addFlash(
                 'success',
-                'La table à bien été créé ! Lien d\'invitation : '
+                'La table à bien été créé !'
             );
 
             return $this->redirectToRoute('app_home');
