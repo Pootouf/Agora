@@ -1,7 +1,7 @@
 {% extends 'platform/base.html.twig' %}
 
 {% block title %}
-    Tables
+   Tables
 {% endblock %}
 
 {% block body %}
@@ -103,14 +103,26 @@
                   <td class="px-3 py-4">
                      {% if app.user %}
                      {% if currentUserID in usersIds %}
+                     {% if board.status == 'IN_GAME' %}
+                     <a href="/" class="text-white bg-primary hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
+                     Reprendre
+                     </a>
+                     {% else %}
                      <a href="{{ path('app_leave_board', {'id': board.id}) }}" class="text-white bg-red-500 hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
                      Quitter
                      </a>
+                     {% endif %}
                      {% else %}
+                     {% if board.status == 'IN_GAME' %}
+                     <a href="/" class="text-white bg-primary hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
+                     Voir partie
+                     </a>
+                     {% elseif board.status == 'WAITING' %}
                      {% if board.isAvailble() == true and availableSeats > 0 %}
                      <a href="{{ path('app_join_board', {'id': board.id}) }}" class="text-white bg-primary hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
                      Rejoindre
                      </a>
+                     {% endif %}
                      {% endif %}
                      {% endif %}
                      {% endif %}
