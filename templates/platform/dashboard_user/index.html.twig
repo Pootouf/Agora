@@ -1,40 +1,114 @@
-{% extends 'base.html.twig' %}
+{% extends 'platform/base.html.twig' %}
 
-{% block title %}Hello DashboardUserController!{% endblock %}
+{% block title %}
+    Tables en cours
+{% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
-
-<div class="example-wrapper">
-    <h1>Liste des boards</h1>
-    {{ form_start(searchboard) }}
-    <div class="my-custom-class-for-errors">
-        {{ form_row(searchboard.availability) }}
-    </div>
-
-    <div class="row">
-        <div class="col">
-            {{ form_row(searchboard.status) }}
-        </div>
-        <div class="col" id="some-custom-id">
-            {{ form_row(searchboard.creationdate) }}
-        </div>
-    </div>
-    {{ form_end(searchboard) }}
-    <ul>
-        {% for board in boards %}
-            <li>Boards en {{ board.status }}</li>
-            <li>Game {{ board.game }}</li>
-            <h3>Joueurs de la table:</h3>
-            {% for user in board.listUsers %}
-                <li>{{ user.username }} - {{ user.email }}</li>
-            {% endfor %}
-        {% endfor %}
-        <tr></tr>
-    </ul>
-</div>
-
+<header class="relative isolate px-6 pt-14 lg:px-8">
+   <div class="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80" aria-hidden="true">
+      <div class="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-danger to-primary opacity-30 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]" style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)"></div>
+   </div>
+   <div class="mx-auto max-w-7xl px-6 lg:px-8 mt-16">
+      <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+         <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 border border-gray-300">
+            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+               <tr>
+                  <th scope="col" class="px-3 py-3 text-center">
+                     Aperçu
+                  </th>
+                  <th scope="col" class="px-3 py-3">
+                     Informations
+                  </th>
+                  <th scope="col" class="px-20 py-3">
+                     Joueurs
+                  </th>
+                  <th scope="col" class="px-3 py-3">
+                     Action
+                  </th>
+               </tr>
+            </thead>
+            {% if app.user is not null %}
+            {% set currentUserID = app.user.id %}
+            {% endif %}
+            <tbody>
+               {% for board in boards %}
+               {% set users = board.listUsers %}
+               {% set availableSeats = board.getNbAvailbleSlots() %}
+               {% set colorClass = board.isAvailble() ? 'bg-gradient-to-r from-transparent to-green-200' : 'bg-gradient-to-r from-transparent to-red-200' %}
+               {% set usersIds = users|map(user => user.id) %}
+               <tr class="{{ colorClass }} border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                  <td class="p-2 text-center">
+                     <a href="/lien_vers_image">
+                     <img src="https://images.pexels.com/photos/8111252/pexels-photo-8111252.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" class="w-32 h-16 md:w-24 md:h-24 rounded-md mx-auto" alt="Nom du Jeu 1">
+                     </a>
+                  </td>
+                  <td class="px-3 py-4 font-semibold text-gray-900 dark:text-white">
+                     <div><a href="/lien_vers_description_jeu" class="text-blue-500 hover:underline">Nom du jeu</a></div>
+                     <div>Places disponibles : {{ availableSeats }}</div>
+                     <div>Status: 
+                        {% if board.status == 'WAITING' %}
+                        En attente
+                        {% elseif board.status == 'IN_GAME' %}
+                        En cours
+                        {% elseif board.status == 'FINISH' %}
+                        Terminé
+                        {% endif %}
+                     </div>
+                     <div>Accessibilité : 
+                        {% if board.isAvailble() == true %}
+                        Ouverte
+                        {% elseif board.isAvailble() == false %}
+                        Fermé
+                        {% endif %}
+                     </div>
+                     <div>Date de création: Le {{ board.creationdate|date('d-m-Y à H:i') }}</div>
+                  </td>
+                  <td class="px-20 py-4">
+                     <table class="w-full text-xs text-gray-500 dark:text-gray-400 table-container">
+                        {% set usersCount = users|length %}
+                        {% set maxUsers = board.getNbUserMax() %}
+                        {% set rows = (maxUsers / 4)|round(0, 'ceil') %}
+                        {% set cellWidth = 100 / 4 %}
+                        {% for row in 1..rows %}
+                        <tr>
+                           {% for column in 1..4 %}
+                           {% set userIndex = (row - 1) * 4 + column - 1 %}
+                           {% set user = userIndex < usersCount ? users[userIndex] : null %}
+                           <td style="width: {{ cellWidth }}%;{% if column < 4 %} margin-right: 1%;{% endif %}">
+                              {% if user %}
+                              <div style="width: 80px; margin: 0 auto;">
+                                 <a href="/" class="flex items-center justify-center">
+                                    <div style="text-align: center;">
+                                       <img src="https://avatarfiles.alphacoders.com/244/thumb-244471.png" alt="Avatar de {{ user.username }}" class="w-8 h-8 rounded-full object-cover mb-1">
+                                       <div>{{ user.username }}</div>
+                                    </div>
+                                 </a>
+                              </div>
+                              {% endif %}
+                           </td>
+                           {% endfor %}
+                        </tr>
+                        {% endfor %}
+                     </table>
+                  </td>
+                  <td class="px-3 py-4">
+                     {% if app.user %}
+                     {% if currentUserID in usersIds %}
+                     <a href="{{ path('app_leave_board', {'id': board.id}) }}" class="text-white bg-red-500 hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
+                     Quitter
+                     </a>
+                     {% endif %}
+                     {% endif %}
+                  </td>
+               </tr>
+               {% endfor %}
+            </tbody>
+         </table>
+      </div>
+   </div>
+   <div class="absolute inset-x-0 top-[calc(100%-13rem)] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[calc(100%-30rem)]" aria-hidden="true">
+      <div class="relative left-[calc(50%+3rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 bg-gradient-to-tr from-primary to-danger opacity-30 sm:left-[calc(50%+36rem)] sm:w-[72.1875rem]" style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)"></div>
+   </div>
+</header>
 {% endblock %}
