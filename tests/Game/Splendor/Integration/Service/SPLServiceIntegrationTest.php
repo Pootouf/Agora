@@ -603,7 +603,7 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $game->setGameName(AbstractGameManagerService::$SPL_LABEL);
         $mainBoard = new MainBoardSPL();
         $mainBoard->setGameSPL($game);
-        for ($i = 0; $i <= DrawCardsSPL::$LEVEL_THREE; $i++) {
+        for ($i = 0; $i <= SplendorParameters::$DRAW_CARD_LEVEL_THREE; $i++) {
             $discard = new DrawCardsSPL();
             $discard->setLevel($i);
             for ($c = 0; $c < 10; $c++) {

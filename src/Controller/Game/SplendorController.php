@@ -315,9 +315,9 @@ class SplendorController extends AbstractController
     {
         $response = $this->render('Game/Splendor/MainBoard/developmentCardsBoard.html.twig', [
             'rows' => $game->getMainBoard()->getRowsSPL(),
-            'drawCardsLevelOneCount' => $this->SPLService->getDrawCardsByLevel(DrawCardsSPL::$LEVEL_ONE, $game)->count(),
-            'drawCardsLevelTwoCount' => $this->SPLService->getDrawCardsByLevel(DrawCardsSPL::$LEVEL_TWO, $game)->count(),
-            'drawCardsLevelThreeCount' => $this->SPLService->getDrawCardsByLevel(DrawCardsSPL::$LEVEL_THREE, $game)->count(),
+            'drawCardsLevelOneCount' => $this->SPLService->getDrawCardsByLevel(SplendorParameters::$DRAW_CARD_LEVEL_ONE, $game)->count(),
+            'drawCardsLevelTwoCount' => $this->SPLService->getDrawCardsByLevel(SplendorParameters::$DRAW_CARD_LEVEL_TWO, $game)->count(),
+            'drawCardsLevelThreeCount' => $this->SPLService->getDrawCardsByLevel(SplendorParameters::$DRAW_CARD_LEVEL_THREE, $game)->count(),
             'isSpectator' => $isSpectator,
             'needToPlay' => $needToPlay,
             'game' => $game,

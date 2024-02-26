@@ -106,7 +106,7 @@ class SPLService
     public function hasOnePlayerReachedLimit(GameSPL $game): bool
     {
         foreach ($game->getPlayers() as $player) {
-            if ($this->getPrestigePoints($player) >= SPLService::$MAX_PRESTIGE_POINTS) {
+            if ($this->getPrestigePoints($player) >= SplendorParameters::$MAX_PRESTIGE_POINTS) {
                 return true;
             }
         }
