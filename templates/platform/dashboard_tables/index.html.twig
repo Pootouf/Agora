@@ -32,6 +32,10 @@
                         <th scope="col" class="px-3 py-3">
                             Action
                         </th>
+                        <th scope="col" class="px-3 py-3">
+                            <a href="{{ path('app_dashboard_tables', {'sort_by': 'creationDate', 'sort_order': 'asc'}) }}">Date de création ↑</a>
+                            <a href="{{ path('app_dashboard_tables', {'sort_by': 'creationDate', 'sort_order': 'desc'}) }}">Date de création ↓</a>
+                         </th>
                     </tr>
                     </thead>
                     {% if app.user is not null %}
