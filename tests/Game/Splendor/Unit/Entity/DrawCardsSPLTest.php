@@ -5,6 +5,7 @@ namespace App\Tests\Game\Splendor\Unit\Entity;
 use App\Entity\Game\Splendor\DevelopmentCardsSPL;
 use App\Entity\Game\Splendor\DrawCardsSPL;
 use App\Entity\Game\Splendor\MainBoardSPL;
+use App\Entity\Game\Splendor\SplendorParameters;
 use PHPUnit\Framework\TestCase;
 
 class DrawCardsSPLTest extends TestCase
@@ -25,7 +26,7 @@ class DrawCardsSPLTest extends TestCase
     public function testSetLevel(): void
     {
         //GIVEN
-        $level = DrawCardsSPL::$LEVEL_THREE;
+        $level = SplendorParameters::$DRAW_CARD_LEVEL_THREE;
         //WHEN
         $this->drawCardsSPL->setLevel($level);
         //THEN

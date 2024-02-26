@@ -4,6 +4,7 @@ namespace App\Tests\Game\Splendor\Unit\Entity;
 
 use App\Entity\Game\Splendor\CardCostSPL;
 use App\Entity\Game\Splendor\DevelopmentCardsSPL;
+use App\Entity\Game\Splendor\SplendorParameters;
 use App\Entity\Game\Splendor\TokenSPL;
 use PHPUnit\Framework\TestCase;
 
@@ -45,7 +46,7 @@ class DevelopmentCardsSPLTest extends TestCase
     public function testSetLevel(): void
     {
         //GIVEN
-        $level = DevelopmentCardsSPL::$LEVEL_THREE;
+        $level = SplendorParameters::$DEVELOPMENT_CARD_LEVEL_THREE;
         //WHEN
         $this->developmentCardsSPL->setLevel($level);
         //THEN

@@ -13,6 +13,7 @@ use App\Entity\Game\Splendor\MainBoardSPL;
 use App\Entity\Game\Splendor\PersonalBoardSPL;
 use App\Entity\Game\Splendor\PlayerSPL;
 use App\Entity\Game\Splendor\RowSPL;
+use App\Entity\Game\Splendor\SplendorParameters;
 use App\Repository\Game\SixQP\PlayerSixQPRepository;
 use App\Repository\Game\Splendor\PlayerSPLRepository;
 use App\Service\Game\AbstractGameManagerService;
@@ -49,7 +50,7 @@ class SPLGameManagerService extends AbstractGameManagerService
         $game->setGameName(AbstractGameManagerService::$SPL_LABEL);
         $mainBoard = new MainBoardSPL();
         $game->setMainBoard($mainBoard);
-        for ($i = 1; $i <= MainBoardSPL::$NUMBER_OF_ROWS_BY_GAME; $i++) {
+        for ($i = 1; $i <= SplendorParameters::$NUMBER_OF_ROWS_BY_GAME; $i++) {
             $row = new RowSPL();
             $row->setLevel($i);
             $mainBoard->addRowsSPL($row);

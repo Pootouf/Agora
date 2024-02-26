@@ -10,8 +10,6 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: MainBoardSPLRepository::class)]
 class MainBoardSPL
 {
-    public static int $NUMBER_OF_ROWS_BY_GAME = 3;
-
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]

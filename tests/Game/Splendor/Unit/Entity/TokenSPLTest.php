@@ -3,6 +3,7 @@
 namespace App\Tests\Game\Splendor\Unit\Entity;
 
 use App\Entity\Game\DTO\Token;
+use App\Entity\Game\Splendor\SplendorParameters;
 use App\Entity\Game\Splendor\TokenSPL;
 use PHPUnit\Framework\TestCase;
 
@@ -23,7 +24,7 @@ class TokenSPLTest extends TestCase
     public function testSetColor() : void
     {
         //GIVEN
-        $color = TokenSPL::$COLOR_BLACK;
+        $color = SplendorParameters::$COLOR_BLACK;
         //WHEN
         $this->tokenSPL->setColor($color);
         //THEN

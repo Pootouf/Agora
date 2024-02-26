@@ -6,6 +6,7 @@ use App\Entity\Game\SixQP\GameSixQP;
 use App\Entity\Game\Splendor\DrawCardsSPL;
 use App\Entity\Game\Splendor\GameSPL;
 use App\Entity\Game\Splendor\PlayerCardSPL;
+use App\Entity\Game\Splendor\SplendorParameters;
 use App\Repository\Game\SixQP\GameSixQPRepository;
 use App\Repository\Game\Splendor\GameSPLRepository;
 use App\Service\Game\AbstractGameManagerService;
@@ -140,9 +141,9 @@ class GameTestController extends AbstractController
         $tokens = $gameSPL->getMainBoard()->getTokens()->toArray();
 
         $nobleTiles = $gameSPL->getMainBoard()->getNobleTiles()->toArray();
-        $cardsLevel1 = $gameSPL->getMainBoard()->getDrawCards()->get(DrawCardsSPL::$LEVEL_ONE)->getDevelopmentCards();
-        $cardsLevel2 = $gameSPL->getMainBoard()->getDrawCards()->get(DrawCardsSPL::$LEVEL_TWO)->getDevelopmentCards();
-        $cardsLevel3 = $gameSPL->getMainBoard()->getDrawCards()->get(DrawCardsSPL::$LEVEL_THREE)->getDevelopmentCards();
+        $cardsLevel1 = $gameSPL->getMainBoard()->getDrawCards()->get(SplendorParameters::$DRAW_CARD_LEVEL_ONE)->getDevelopmentCards();
+        $cardsLevel2 = $gameSPL->getMainBoard()->getDrawCards()->get(SplendorParameters::$DRAW_CARD_LEVEL_TWO)->getDevelopmentCards();
+        $cardsLevel3 = $gameSPL->getMainBoard()->getDrawCards()->get(SplendorParameters::$DRAW_CARD_LEVEL_THREE)->getDevelopmentCards();
         $cards = array_merge($cardsLevel1->toArray(), $cardsLevel2->toArray(), $cardsLevel3->toArray());
         shuffle($cards);
         shuffle($nobleTiles);

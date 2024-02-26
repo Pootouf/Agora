@@ -14,6 +14,7 @@ use App\Entity\Game\Splendor\PlayerCardSPL;
 use App\Entity\Game\Splendor\PlayerSPL;
 use App\Entity\Game\Splendor\RowSPL;
 use App\Entity\Game\Splendor\SelectedTokenSPL;
+use App\Entity\Game\Splendor\SplendorParameters;
 use App\Entity\Game\Splendor\TokenSPL;
 use App\Service\Game\AbstractGameManagerService;
 use App\Service\Game\Splendor\SPLService;
@@ -32,7 +33,7 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $game = $this->createGame(4);
         $player = $game->getPlayers()[0];
         $personalBoard = $player->getPersonalBoard();
-        for ($i = 0; $i < PersonalBoardSPL::$MAX_TOKEN; ++$i) {
+        for ($i = 0; $i < SplendorParameters::$PLAYER_MAX_TOKEN; ++$i) {
             $token = new TokenSPL();
             $token->setType("joyau");
             $token->setColor("blue");
@@ -196,7 +197,7 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $player = $game->getPlayers()->get(1);
         $player->setTurnOfPlayer(true);
         $nobleTile = new NobleTileSPL();
-        $nobleTile->setPrestigePoints(SPLService::$MAX_PRESTIGE_POINTS - 1);
+        $nobleTile->setPrestigePoints(SplendorParameters::$MAX_PRESTIGE_POINTS - 1);
         $player->getPersonalBoard()->addNobleTile($nobleTile);
         $entityManager->persist($nobleTile);
         $entityManager->flush();
@@ -215,7 +216,7 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $player = $game->getPlayers()->get(1);
         $player->setTurnOfPlayer(true);
         $nobleTile = new NobleTileSPL();
-        $nobleTile->setPrestigePoints(SPLService::$MAX_PRESTIGE_POINTS);
+        $nobleTile->setPrestigePoints(SplendorParameters::$MAX_PRESTIGE_POINTS);
         $player->getPersonalBoard()->addNobleTile($nobleTile);
         $entityManager->persist($nobleTile);
         $entityManager->flush();
@@ -235,7 +236,7 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $player = $game->getPlayers()->get(0);
         $player->setTurnOfPlayer(true);
         $nobleTile = new NobleTileSPL();
-        $nobleTile->setPrestigePoints(SPLService::$MAX_PRESTIGE_POINTS);
+        $nobleTile->setPrestigePoints(SplendorParameters::$MAX_PRESTIGE_POINTS);
         $player->getPersonalBoard()->addNobleTile($nobleTile);
         $entityManager->persist($nobleTile);
         $entityManager->flush();
@@ -335,7 +336,7 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
         $cardCost = new CardCostSPL();
-        $cardCost->setColor(TokenSPL::$COLOR_RED);
+        $cardCost->setColor(SplendorParameters::$COLOR_RED);
         $cardCost->setPrice(1);
         $entityManager->persist($cardCost);
         $array = new ArrayCollection();
@@ -343,7 +344,7 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $developmentCard = DevelopmentCardsSPL::createDevelopmentCard($array);
         $developmentCard->setPrestigePoints(1);
         $developmentCard->setColor("red");
-        $developmentCard->setLevel(DevelopmentCardsSPL::$LEVEL_ONE);
+        $developmentCard->setLevel(SplendorParameters::$DEVELOPMENT_CARD_LEVEL_ONE);
         $developmentCard->setValue(1);
         $entityManager->persist($developmentCard);
         $entityManager->flush();
@@ -361,12 +362,12 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
         $token = new TokenSPL();
-        $token->setColor(TokenSPL::$COLOR_RED);
+        $token->setColor(SplendorParameters::$COLOR_RED);
         $token->setType("ruby");
         $entityManager->persist($token);
         $player->getPersonalBoard()->addToken($token);
         $cardCost = new CardCostSPL();
-        $cardCost->setColor(TokenSPL::$COLOR_RED);
+        $cardCost->setColor(SplendorParameters::$COLOR_RED);
         $cardCost->setPrice(1);
         $entityManager->persist($cardCost);
         $array = new ArrayCollection();
@@ -374,7 +375,7 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $developmentCard = DevelopmentCardsSPL::createDevelopmentCard($array);
         $developmentCard->setPrestigePoints(1);
         $developmentCard->setColor("red");
-        $developmentCard->setLevel(DevelopmentCardsSPL::$LEVEL_ONE);
+        $developmentCard->setLevel(SplendorParameters::$DEVELOPMENT_CARD_LEVEL_ONE);
         $developmentCard->setValue(1);
         $entityManager->persist($developmentCard);
         $entityManager->flush();
@@ -393,12 +394,12 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
         $token = new TokenSPL();
-        $token->setColor(TokenSPL::$COLOR_RED);
+        $token->setColor(SplendorParameters::$COLOR_RED);
         $token->setType("ruby");
         $entityManager->persist($token);
         $player->getPersonalBoard()->addToken($token);
         $cardCost = new CardCostSPL();
-        $cardCost->setColor(TokenSPL::$COLOR_RED);
+        $cardCost->setColor(SplendorParameters::$COLOR_RED);
         $cardCost->setPrice(1);
         $entityManager->persist($cardCost);
         $array = new ArrayCollection();
@@ -406,7 +407,7 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $developmentCard = DevelopmentCardsSPL::createDevelopmentCard($array);
         $developmentCard->setPrestigePoints(1);
         $developmentCard->setColor("red");
-        $developmentCard->setLevel(DevelopmentCardsSPL::$LEVEL_ONE);
+        $developmentCard->setLevel(SplendorParameters::$DEVELOPMENT_CARD_LEVEL_ONE);
         $developmentCard->setValue(1);
         $entityManager->persist($developmentCard);
         $entityManager->flush();
@@ -455,12 +456,12 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
         $token = new TokenSPL();
-        $token->setColor(TokenSPL::$COLOR_RED);
+        $token->setColor(SplendorParameters::$COLOR_RED);
         $token->setType("ruby");
         $entityManager->persist($token);
         $player->getPersonalBoard()->addToken($token);
         $cardCost = new CardCostSPL();
-        $cardCost->setColor(TokenSPL::$COLOR_RED);
+        $cardCost->setColor(SplendorParameters::$COLOR_RED);
         $cardCost->setPrice(1);
         $entityManager->persist($cardCost);
         $array = new ArrayCollection();
@@ -468,7 +469,7 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $developmentCard = DevelopmentCardsSPL::createDevelopmentCard($array);
         $developmentCard->setPrestigePoints(1);
         $developmentCard->setColor("red");
-        $developmentCard->setLevel(DevelopmentCardsSPL::$LEVEL_ONE);
+        $developmentCard->setLevel(SplendorParameters::$DEVELOPMENT_CARD_LEVEL_ONE);
         $developmentCard->setValue(1);
         $entityManager->persist($developmentCard);
         $entityManager->flush();
@@ -486,12 +487,12 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
         $token = new TokenSPL();
-        $token->setColor(TokenSPL::$COLOR_YELLOW);
+        $token->setColor(SplendorParameters::$COLOR_YELLOW);
         $token->setType("ruby");
         $entityManager->persist($token);
         $player->getPersonalBoard()->addToken($token);
         $cardCost = new CardCostSPL();
-        $cardCost->setColor(TokenSPL::$COLOR_RED);
+        $cardCost->setColor(SplendorParameters::$COLOR_RED);
         $cardCost->setPrice(1);
         $entityManager->persist($cardCost);
         $array = new ArrayCollection();
@@ -499,7 +500,7 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $developmentCard = DevelopmentCardsSPL::createDevelopmentCard($array);
         $developmentCard->setPrestigePoints(1);
         $developmentCard->setColor("red");
-        $developmentCard->setLevel(DevelopmentCardsSPL::$LEVEL_ONE);
+        $developmentCard->setLevel(SplendorParameters::$DEVELOPMENT_CARD_LEVEL_ONE);
         $developmentCard->setValue(1);
         $entityManager->persist($developmentCard);
         $entityManager->flush();
@@ -517,14 +518,14 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
         for ($i = 0; $i < 3; $i++) {
-            $playerCard = $this->createPlayerCard($player, TokenSPL::$COLOR_RED);
+            $playerCard = $this->createPlayerCard($player, SplendorParameters::$COLOR_RED);
             $player->getPersonalBoard()->addPlayerCard($playerCard);
-            $playerCard = $this->createPlayerCard($player, TokenSPL::$COLOR_BLUE);
+            $playerCard = $this->createPlayerCard($player, SplendorParameters::$COLOR_BLUE);
             $player->getPersonalBoard()->addPlayerCard($playerCard);
         }
         $nobleTile = $this->createNobleTile([
-            TokenSPL::$COLOR_RED => 3,
-            TokenSPL::$COLOR_BLUE => 3,
+            SplendorParameters::$COLOR_RED => 3,
+            SplendorParameters::$COLOR_BLUE => 3,
         ]);
         $game->getMainBoard()->addNobleTile($nobleTile);
         $entityManager->persist($nobleTile);
@@ -546,14 +547,14 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
         for ($i = 0; $i < 3; $i++) {
-            $playerCard = $this->createPlayerCard($player, TokenSPL::$COLOR_RED);
+            $playerCard = $this->createPlayerCard($player, SplendorParameters::$COLOR_RED);
             $player->getPersonalBoard()->addPlayerCard($playerCard);
-            $playerCard = $this->createPlayerCard($player, TokenSPL::$COLOR_BLUE);
+            $playerCard = $this->createPlayerCard($player, SplendorParameters::$COLOR_BLUE);
             $player->getPersonalBoard()->addPlayerCard($playerCard);
         }
         $nobleTile = $this->createNobleTile([
-            TokenSPL::$COLOR_RED => 3,
-            TokenSPL::$COLOR_BLUE => 4,
+            SplendorParameters::$COLOR_RED => 3,
+            SplendorParameters::$COLOR_BLUE => 4,
         ]);
         $game->getMainBoard()->addNobleTile($nobleTile);
         $entityManager->persist($nobleTile);
@@ -602,7 +603,7 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $game->setGameName(AbstractGameManagerService::$SPL_LABEL);
         $mainBoard = new MainBoardSPL();
         $mainBoard->setGameSPL($game);
-        for ($i = 0; $i <= DrawCardsSPL::$LEVEL_THREE; $i++) {
+        for ($i = 0; $i <= SplendorParameters::$DRAW_CARD_LEVEL_THREE; $i++) {
             $discard = new DrawCardsSPL();
             $discard->setLevel($i);
             for ($c = 0; $c < 10; $c++) {
