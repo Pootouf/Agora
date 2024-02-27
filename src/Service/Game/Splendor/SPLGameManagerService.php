@@ -24,21 +24,13 @@ use Exception;
 
 class SPLGameManagerService extends AbstractGameManagerService
 {
-    private EntityManagerInterface $entityManager;
-    private SPLService $SPLService;
-    private LogService $logService;
-    private PlayerSPLRepository $playerSPLRepository;
 
-    public function __construct(EntityManagerInterface $entityManager,
-        SPLService $SPLService,
-        PlayerSPLRepository $playerSPLRepository,
-        LogService $logService)
-    {
-        $this->entityManager = $entityManager;
-        $this->SPLService = $SPLService;
-        $this->logService = $logService;
-        $this->playerSPLRepository = $playerSPLRepository;
-    }
+    public function __construct(private EntityManagerInterface $entityManager,
+        private SPLService $SPLService,
+        private PlayerSPLRepository $playerSPLRepository,
+        private LogService $logService,
+        private TokenSPLService $tokenSPLService)
+    {}
 
 
     /**
@@ -160,6 +152,7 @@ class SPLGameManagerService extends AbstractGameManagerService
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         $this->SPLService->initializeNewGame($game);
+        $this->tokenSPLService->initializeGameToken($game);
         $this->logService->sendSystemLog($game, "game " . $game->getId() . " began");
         return SPLGameManagerService::$SUCCESS;
     }

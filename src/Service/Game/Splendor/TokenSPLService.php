@@ -2,12 +2,14 @@
 
 namespace App\Service\Game\Splendor;
 
+use App\Entity\Game\Splendor\GameSPL;
 use App\Entity\Game\Splendor\MainBoardSPL;
 use App\Entity\Game\Splendor\PlayerSPL;
 use App\Entity\Game\Splendor\SelectedTokenSPL;
 use App\Entity\Game\Splendor\SplendorParameters;
 use App\Entity\Game\Splendor\TokenSPL;
 use App\Repository\Game\Splendor\TokenSPLRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Exception;
 use Doctrine\ORM\EntityManagerInterface;
@@ -16,8 +18,7 @@ use phpDocumentor\Reflection\Types\Boolean;
 class TokenSPLService
 {
     public function __construct(private EntityManagerInterface $entityManager,
-        private TokenSPLRepository $tokenSPLRepository,
-        private SPLService $SPLService) {}
+        private TokenSPLRepository $tokenSPLRepository) {}
 
     public function getTokenOnMainBoardFromColor(MainBoardSPL $mainBoardSPL, string $color) : ?TokenSPL
     {
@@ -91,6 +92,7 @@ class TokenSPLService
             return $token->getColor() == SplendorParameters::$COLOR_YELLOW;
         });
     }
+
 
     /**
      * takeToken : player takes a token from the mainBoard
@@ -235,6 +237,50 @@ class TokenSPLService
     }
 
     /**
+     * initializeGameToken : add the number of token dependently of the number of players
+     * @param GameSPL $gameSPL
+     * @return void
+     */
+    public function initializeGameToken(GameSPL $gameSPL) : void
+    {
+        $tokens = new ArrayCollection($this->tokenSPLRepository->findAll());
+        $blackTokens = array_values($this->getBlackTokensFromCollection($tokens)->toArray());
+        $redTokens = array_values($this->getRedTokensFromCollection($tokens)->toArray());
+        $whiteTokens = array_values($this->getWhiteTokensFromCollection($tokens)->toArray());
+        $blueTokens = array_values($this->getBlueTokensFromCollection($tokens)->toArray());
+        $greenTokens = array_values($this->getGreenTokensFromCollection($tokens)->toArray());
+        $yellowTokens = array_values($this->getYellowTokensFromCollection($tokens)->toArray());
+
+        switch($gameSPL->getPlayers()->count()) {
+            case 2 :
+                for ($i = 0; $i < SplendorParameters::$TOKENS_NUMBER_2_PLAYERS; $i++) {
+                    $this->addATokenOfEachColor($gameSPL, $blackTokens, $blueTokens,$redTokens,
+                                          $greenTokens, $whiteTokens, $i);
+                }
+                break;
+            case 3 :
+                for ($i = 1; $i < SplendorParameters::$TOKENS_NUMBER_3_PLAYERS; $i++) {
+                    $this->addATokenOfEachColor($gameSPL, $blackTokens, $blueTokens,$redTokens,
+                        $greenTokens, $whiteTokens, $i);
+                }
+                break;
+
+            case 4 :
+                for ($i = 1; $i < SplendorParameters::$TOKENS_NUMBER_4_PLAYERS; $i++) {
+                    $this->addATokenOfEachColor($gameSPL, $blackTokens, $blueTokens,$redTokens,
+                        $greenTokens, $whiteTokens, $i);
+                }
+                break;
+        }
+
+        foreach ($yellowTokens as $token) {
+            $gameSPL->getMainBoard()->addToken($token);
+        }
+
+
+    }
+
+    /**
      * canChooseThreeTokens : checks if $playerSPL can choose $tokenSPL (in 3 tokens context)
      *
      * @param PlayerSPL $playerSPL
@@ -258,5 +304,29 @@ class TokenSPLService
             return 1;
         }
         return -1;
+    }
+
+    /**
+     * addATokenOfEachColor : add a token of each color of index $i from the collections in parameter
+     * @param GameSPL $gameSPL
+     * @param array $blackTokens
+     * @param array $blueTokens
+     * @param array $redTokens
+     * @param array $greenTokens
+     * @param array $whiteTokens
+     * @param int $i
+     * @return void
+     */
+    private function addATokenOfEachColor(GameSPL $gameSPL, array $blackTokens,
+                                          array $blueTokens, array $redTokens,
+                                          array $greenTokens, array $whiteTokens, int $i) : void
+    {
+        $gameSPL->getMainBoard()->addToken($blackTokens[$i]);
+        $gameSPL->getMainBoard()->addToken($blueTokens[$i]);
+        $gameSPL->getMainBoard()->addToken($redTokens[$i]);
+        $gameSPL->getMainBoard()->addToken($greenTokens[$i]);
+        $gameSPL->getMainBoard()->addToken($redTokens[$i]);
+        $gameSPL->getMainBoard()->addToken($whiteTokens[$i]);
+
     }
 }

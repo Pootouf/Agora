@@ -28,11 +28,10 @@ class SPLService
 
     public function __construct(private EntityManagerInterface $entityManager,
         private PlayerSPLRepository $playerSPLRepository,
-        private TokenSPLRepository $tokenSPLRepository,
         private NobleTileSPLRepository $nobleTileSPLRepository,
         private DevelopmentCardsSPLRepository $developmentCardsSPLRepository,
         private PlayerCardSPLRepository $playerCardSPLRepository,
-        private DrawCardsSPLRepository $drawCardsSPLRepository)
+        private DrawCardsSPLRepository $drawCardsSPLRepository,)
     { }
 
     /**
@@ -230,7 +229,7 @@ class SPLService
      * @param PlayerSPL $playerSPL
      * @return ArrayCollection
      */
-    public function getPurchasableCardsOnBoard(GameSPL $gameSPL, PlayerSPL $playerSPL)
+    public function getPurchasableCardsOnBoard(GameSPL $gameSPL, PlayerSPL $playerSPL): ArrayCollection
     {
         $purchasableCards = new ArrayCollection();
         foreach($gameSPL->getMainBoard()->getRowsSPL() as $row) {
@@ -256,6 +255,26 @@ class SPLService
     }
 
     /**
+     * getNumberOfTokenAtColor : return the number of tokens of the selected color
+     * @param Collection $tokens
+     * @param string $color
+     * @return int
+     */
+    public function getNumberOfTokenAtColor(Collection $tokens, string $color) : int
+    {
+        $count = 0;
+        for ($i = 0; $i < $tokens->count(); $i++)
+        {
+            $token = $tokens->get($i);
+            if ($token->getColor() === $color)
+            {
+                $count += 1;
+            }
+        }
+        return $count;
+    }
+
+    /**
      * initializeNewGame: initialize a new Splendor game
      * @param GameSPL $game
      * @return void
@@ -263,10 +282,6 @@ class SPLService
     public function initializeNewGame(GameSPL $game): void
     {
         $mainBoard = $game->getMainBoard();
-        $tokens = $this->tokenSPLRepository->findAll();
-        foreach ($tokens as $token) {
-            $mainBoard->addToken($token);
-        }
         $nobleTiles = $this->nobleTileSPLRepository->findAll();
         shuffle($nobleTiles);
         for ($i = 0; $i < $game->getPlayers()->count() + 1; $i++) {
@@ -597,20 +612,6 @@ class SPLService
     {
         $tokens = $mainBoard->getTokens();
         return $this->getNumberOfTokenAtColor($tokens, $color);
-    }
-
-    public function getNumberOfTokenAtColor(Collection $tokens, string $color) : int
-    {
-        $count = 0;
-        for ($i = 0; $i < $tokens->count(); $i++)
-        {
-            $token = $tokens->get($i);
-            if ($token->getColor() === $color)
-            {
-                $count += 1;
-            }
-        }
-        return $count;
     }
 
     private function getNumberOfTokenAtColorAtPlayer(PlayerSPL $player, string $color) : int
