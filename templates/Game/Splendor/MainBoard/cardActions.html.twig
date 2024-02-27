@@ -36,19 +36,33 @@ Comes with a button to the homepage and another one to the game's homepage
         <p id="actions" class="text-4xl font-bold mb-4"></p>
         <div class="grid-cols-{{ actionsNumber }} font-bold flex justify-center items-center">
             {% if card != null %}
+                {% set opacity = 'opacity-50' %}
+                {% set disablement = true %}
+                {% for purchasableCard in purchasableCards|filter(purchasableCard => purchasableCard == selectedCard) %}
+                    {% set opacity = '' %}
+                    {% set disablement = false %}
+                {% endfor %}
                 <button id="buy_card_{{ card }}"
                         {{ stimulus_action('splendor', 'buyCard', 'click',
                             {url:path('app_game_splendor_buy_card',
                                 {idGame: game.id, idCard: card})
                             })
                         }}
-                        class="rounded-lg bg-amber-300 text-black py-2 px-3 m-1 inline-flex
+                        {% if disablement %} disabled {% endif %}
+                        class="rounded-lg bg-amber-300 text-black py-2 px-3 m-1 inline-flex {{ opacity }}
                                 portrait:text-2xl items-center"
                 >
-                    Buy this card
+                    Acheter cette carte
                 </button>
-            {% endif %}
+                {% endif %}
+                {% set opacity = 'opacity-50' %}
+                {% set disablement = true %}
+                {% if not canReserveCard %}
+                    {% set opacity = '' %}
+                    {% set disablement = false %}
+                {% endif %}
                 <button id="reserve_card_{{ card }}"
+                        {% if canReserveCard %} disabled {% endif %}
                         {% if card == null %}
                             {% set idDraw = levelCard - 1 %}
                             {{ stimulus_action('splendor', 'reserveCardOnDraw', 'click',
@@ -63,10 +77,10 @@ Comes with a button to the homepage and another one to the game's homepage
                                 })
                             }}
                         {% endif %}
-                        class="{% if selectedReservedCard != null %} hidden {% endif %}
+                        class="{% if selectedReservedCard != null %} hidden {% endif %} {{ opacity }}
                         rounded-lg  bg-amber-300 text-black py-2 px-3 m-1 inline-flex portrait:text-2xl items-center"
                 >
-                    Reserve this card
+                    Réserver cette carte
                 </button>
                 <button id="return_board" onclick="closeWindow()"
                         class="rounded-lg bg-blue-800 py-2 px-3 m-1 portrait:text-2xl items-center"

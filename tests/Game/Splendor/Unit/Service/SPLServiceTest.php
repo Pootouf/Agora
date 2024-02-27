@@ -553,6 +553,88 @@ class SPLServiceTest extends TestCase
         $this->assertSame($card->getId(), $result->first()->getId());
     }
 
+    public function testGetPurchasableCardsOnBoardWithEnoughMoneyForACard() : void
+    {
+        //GIVEN
+        $numberOfPlayers = 2;
+        $game = $this->createGame($numberOfPlayers);
+        $player = $game->getPlayers()->first();
+        $token = new TokenSPL();
+        $token->setColor(SplendorParameters::$COLOR_RED);
+        $player->getPersonalBoard()->addToken($token);
+        $cardCost = new CardCostSPL();
+        $cardCost->setColor(SplendorParameters::$COLOR_RED);
+        $cardCost->setPrice(1);
+        $array = new ArrayCollection();
+        $array->add($cardCost);
+        $developmentCard = DevelopmentCardsSPL::createDevelopmentCard($array);
+        $game->getMainBoard()->getRowsSPL()->first()->addDevelopmentCard($developmentCard);
+
+        //WHEN
+        $result = $this->SPLService->getPurchasableCardsOnBoard($game, $player);
+
+        //THEN
+        $this->assertContains($developmentCard, $result);
+
+    }
+
+    public function testGetPurchasableCardsOnBoardWithNotEnoughMoneyForACard() : void
+    {
+        //GIVEN
+        $numberOfPlayers = 2;
+        $game = $this->createGame($numberOfPlayers);
+        $player = $game->getPlayers()->first();
+        $token = new TokenSPL();
+        $token->setColor(SplendorParameters::$COLOR_BLUE);
+        $player->getPersonalBoard()->addToken($token);
+        $cardCost = new CardCostSPL();
+        $cardCost->setColor(SplendorParameters::$COLOR_RED);
+        $cardCost->setPrice(1);
+        $array = new ArrayCollection();
+        $array->add($cardCost);
+        $developmentCard = DevelopmentCardsSPL::createDevelopmentCard($array);
+        $game->getMainBoard()->getRowsSPL()->first()->addDevelopmentCard($developmentCard);
+
+        //WHEN
+        $result = $this->SPLService->getPurchasableCardsOnBoard($game, $player);
+
+        //THEN
+        $this->assertNotContains($developmentCard, $result);
+
+    }
+
+    public function testGetPurchasableCardsOnBoardWithNotEnoughMoneyForACardAndEnoughForAnother() : void
+    {
+        //GIVEN
+        $numberOfPlayers = 2;
+        $game = $this->createGame($numberOfPlayers);
+        $player = $game->getPlayers()->first();
+        $token = new TokenSPL();
+        $token->setColor(SplendorParameters::$COLOR_BLUE);
+        $player->getPersonalBoard()->addToken($token);
+        $cardCost = new CardCostSPL();
+        $cardCost->setColor(SplendorParameters::$COLOR_RED);
+        $cardCost->setPrice(1);
+        $cardCost2 = new CardCostSPL();
+        $cardCost2->setColor(SplendorParameters::$COLOR_BLUE);
+        $cardCost2->setPrice(1);
+        $array = new ArrayCollection();
+        $array->add($cardCost);
+        $developmentCard1 = DevelopmentCardsSPL::createDevelopmentCard($array);
+        $array2 = new ArrayCollection();
+        $array2->add($cardCost2);
+        $developmentCard2 = DevelopmentCardsSPL::createDevelopmentCard($array2);
+        $game->getMainBoard()->getRowsSPL()->first()->addDevelopmentCard($developmentCard1);
+        $game->getMainBoard()->getRowsSPL()->first()->addDevelopmentCard($developmentCard2);
+
+        //WHEN
+        $result = $this->SPLService->getPurchasableCardsOnBoard($game, $player);
+
+        //THEN
+        $this->assertNotContains($developmentCard1, $result);
+        $this->assertContains($developmentCard2, $result);
+    }
+
     private function createPlayerCard(PlayerSPL $player, string $color) : PlayerCardSPL
     {
         $card = new DevelopmentCardsSPL();

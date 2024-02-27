@@ -19,6 +19,7 @@ use App\Repository\Game\Splendor\TokenSPLRepository;
 use App\Entity\Game\Splendor\MainBoardSPL;
 use App\Entity\Game\Splendor\RowSPL;
 use App\Service\Game\AbstractGameManagerService;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Exception;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
@@ -27,11 +28,10 @@ class SPLService
 
     public function __construct(private EntityManagerInterface $entityManager,
         private PlayerSPLRepository $playerSPLRepository,
-        private TokenSPLRepository $tokenSPLRepository,
         private NobleTileSPLRepository $nobleTileSPLRepository,
         private DevelopmentCardsSPLRepository $developmentCardsSPLRepository,
         private PlayerCardSPLRepository $playerCardSPLRepository,
-        private DrawCardsSPLRepository $drawCardsSPLRepository)
+        private DrawCardsSPLRepository $drawCardsSPLRepository,)
     { }
 
     /**
@@ -169,6 +169,112 @@ class SPLService
     }
 
     /**
+     * getActivePlayer : returns the player who has to play
+     * @param GameSPL $gameSPL
+     * @return PlayerSPL
+     */
+    public function getActivePlayer(GameSPL $gameSPL): PlayerSPL
+    {
+        return $this->playerSPLRepository->findOneBy(["gameSPL" => $gameSPL->getId(),
+            "turnOfPlayer" => true]);
+    }
+
+    /**
+     * getDrawCardsByLevel : return a list of development cards from the draw indicated by its level
+     * @param int $level
+     * @param GameSPL $game
+     * @return Collection<DevelopmentCardsSPL>
+     */
+    public function getDrawCardsByLevel(int $level, GameSPL $game) : Collection
+    {
+        return $game->getMainBoard()->getDrawCards()->get($level)->getDevelopmentCards();
+    }
+
+    /**
+     * getPlayerCardFromDevelopmentCard : return the player's card with a game and a development card
+     * @param GameSPL $game
+     * @param DevelopmentCardsSPL $developmentCard
+     * @return PlayerCardSPL|null
+     */
+    public function getPlayerCardFromDevelopmentCard(
+        GameSPL $game,
+        DevelopmentCardsSPL $developmentCard): ?PlayerCardSPL
+    {
+        foreach($game->getPlayers() as $player) {
+            $temp = $this->playerCardSPLRepository->findOneBy([
+                'personalBoardSPL' => $player->getPersonalBoard(),
+                'developmentCard' => $developmentCard->getId(),
+            ]);
+            if($temp != null) {
+                return $temp;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * canPlayerReserveCard: return true if the player can reserve the cards
+     * @param GameSPL $game
+     * @param DevelopmentCardsSPL $card
+     * @return bool
+     */
+    public function canPlayerReserveCard(GameSPL $game, DevelopmentCardsSPL $card): bool
+    {
+        return $this->getPlayerCardFromDevelopmentCard($game, $card) == null;
+    }
+
+    /**
+     * getPurchasableCardsOnBoard : return a list of purchasable development cards for the player
+     * @param GameSPL $gameSPL
+     * @param PlayerSPL $playerSPL
+     * @return ArrayCollection
+     */
+    public function getPurchasableCardsOnBoard(GameSPL $gameSPL, PlayerSPL $playerSPL): ArrayCollection
+    {
+        $purchasableCards = new ArrayCollection();
+        foreach($gameSPL->getMainBoard()->getRowsSPL() as $row) {
+            foreach($row->getDevelopmentCards() as $card) {
+                if($this->hasEnoughMoney($playerSPL, $card)) {
+                    $purchasableCards->add($card);
+                }
+            }
+        }
+        return $purchasableCards;
+    }
+
+    /**
+     * doesPlayerAlreadyHaveMaxNumberOfReservedCard : indicate if the player can reserve a card or not
+     * @param PlayerSPL $player
+     * @return bool
+     */
+    public function doesPlayerAlreadyHaveMaxNumberOfReservedCard(PlayerSPL $player): bool
+    {
+        $reservedCardsOfPlayer = $this->getReservedCards($player);
+        return sizeof($reservedCardsOfPlayer)
+            >= SplendorParameters::$MAX_COUNT_RESERVED_CARDS;
+    }
+
+    /**
+     * getNumberOfTokenAtColor : return the number of tokens of the selected color
+     * @param Collection $tokens
+     * @param string $color
+     * @return int
+     */
+    public function getNumberOfTokenAtColor(Collection $tokens, string $color) : int
+    {
+        $count = 0;
+        for ($i = 0; $i < $tokens->count(); $i++)
+        {
+            $token = $tokens->get($i);
+            if ($token->getColor() === $color)
+            {
+                $count += 1;
+            }
+        }
+        return $count;
+    }
+
+    /**
      * initializeNewGame: initialize a new Splendor game
      * @param GameSPL $game
      * @return void
@@ -176,10 +282,6 @@ class SPLService
     public function initializeNewGame(GameSPL $game): void
     {
         $mainBoard = $game->getMainBoard();
-        $tokens = $this->tokenSPLRepository->findAll();
-        foreach ($tokens as $token) {
-            $mainBoard->addToken($token);
-        }
         $nobleTiles = $this->nobleTileSPLRepository->findAll();
         shuffle($nobleTiles);
         for ($i = 0; $i < $game->getPlayers()->count() + 1; $i++) {
@@ -318,17 +420,6 @@ class SPLService
     }
 
     /**
-     * getActivePlayer : returns the player who has to play
-     * @param GameSPL $gameSPL
-     * @return PlayerSPL
-     */
-    public function getActivePlayer(GameSPL $gameSPL): PlayerSPL
-    {
-        return $this->playerSPLRepository->findOneBy(["gameSPL" => $gameSPL->getId(),
-            "turnOfPlayer" => true]);
-    }
-
-    /**
      * buyCard : check if player can buy a card and remove the card from the main board
      * @param PlayerSPL $playerSPL
      * @param DevelopmentCardsSPL $developmentCardsSPL
@@ -413,51 +504,6 @@ class SPLService
     }
 
     /**
-     * getDrawCardsByLevel : return a list of development cards from the draw indicated by its level
-     * @param int $level
-     * @param GameSPL $game
-     * @return Collection<DevelopmentCardsSPL>
-     */
-    public function getDrawCardsByLevel(int $level, GameSPL $game) : Collection
-    {
-        return $game->getMainBoard()->getDrawCards()->get($level)->getDevelopmentCards();
-    }
-
-    /**
-     * getPlayerCardFromDevelopmentCard : return the player's card with a game and a development card
-     * @param GameSPL $game
-     * @param DevelopmentCardsSPL $developmentCard
-     * @return PlayerCardSPL|null
-     */
-    public function getPlayerCardFromDevelopmentCard(
-        GameSPL $game,
-        DevelopmentCardsSPL $developmentCard): ?PlayerCardSPL
-    {
-        foreach($game->getPlayers() as $player) {
-            $temp = $this->playerCardSPLRepository->findOneBy([
-                'personalBoardSPL' => $player->getPersonalBoard(),
-                'developmentCard' => $developmentCard->getId(),
-            ]);
-            if($temp != null) {
-                return $temp;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * canPlayerReserveCard: return true if the player can reserve the cards
-     * @param GameSPL $game
-     * @param DevelopmentCardsSPL $card
-     * @return bool
-     */
-    public function canPlayerReserveCard(GameSPL $game, DevelopmentCardsSPL $card): bool
-    {
-        return $this->getPlayerCardFromDevelopmentCard($game, $card) == null;
-    }
-
-
-    /**
      * filterCardsByColor: take an array of playerCards and filter it by color
      * @param Collection $playerCards
      * @return array<String, Collection<PlayerCardSPL>> an array associating color with the cards of the player
@@ -491,14 +537,6 @@ class SPLService
         return !$this->doesPlayerAlreadyHaveMaxNumberOfReservedCard($player)
             && $playerCard == null;
     }
-
-    private function doesPlayerAlreadyHaveMaxNumberOfReservedCard(PlayerSPL $player): bool
-    {
-        $reservedCardsOfPlayer = $this->getReservedCards($player);
-        return sizeof($reservedCardsOfPlayer)
-            >= SplendorParameters::$MAX_COUNT_RESERVED_CARDS;
-    }
-
 
     private function checkInRowAtLevel(MainBoardSPL $mainBoard
         , DevelopmentCardsSPL $card) : bool
@@ -576,20 +614,6 @@ class SPLService
         return $this->getNumberOfTokenAtColor($tokens, $color);
     }
 
-    public function getNumberOfTokenAtColor(Collection $tokens, string $color) : int
-    {
-        $count = 0;
-        for ($i = 0; $i < $tokens->count(); $i++)
-        {
-            $token = $tokens->get($i);
-            if ($token->getColor() === $color)
-            {
-                $count += 1;
-            }
-        }
-        return $count;
-    }
-
     private function getNumberOfTokenAtColorAtPlayer(PlayerSPL $player, string $color) : int
     {
         $personalBoard = $player->getPersonalBoard();
@@ -654,7 +678,7 @@ class SPLService
         $difference = 0;
         foreach ($cardPrice as $color => $amount){
             if($playerMoney[$color] < $amount){
-                $difference += 1;
+                $difference += ($amount - $playerMoney[$color]);
             }
         }
         if($playerMoney[SplendorParameters::$COLOR_YELLOW] >= $difference){
@@ -673,8 +697,10 @@ class SPLService
         $money = $this->initializeColorTab();
         $playerCards = $playerSPL->getPersonalBoard()->getPlayerCards();
         foreach ($playerCards as $playerCard){
-            $cardColor = $playerCard->getDevelopmentCard()->getColor();
-            $money[$cardColor] += 1;
+            if(!$playerCard->isIsReserved()) {
+                $cardColor = $playerCard->getDevelopmentCard()->getColor();
+                $money[$cardColor] += 1;
+            }
         }
         $playerTokens = $playerSPL->getPersonalBoard()->getTokens();
         foreach ($playerTokens as $playerToken){
