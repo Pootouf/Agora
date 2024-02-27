@@ -282,6 +282,12 @@ class SplendorController extends AbstractController
      }
 
 
+    /**
+     * publishToken : send a mercure notification regarding the tokens
+     * @param GameSPL $game
+     * @param PlayerSPL|null $player
+     * @return void
+     */
      private function publishToken(GameSPL $game, ?PlayerSPL $player): void
      {
          $mainBoardTokens = $game->getMainBoard()->getTokens();
@@ -302,6 +308,11 @@ class SplendorController extends AbstractController
              $response);
      }
 
+    /**
+     * publishDevelopmentCards : send a mercure notification to update the development cards for a spectator
+     * @param GameSPL $game
+     * @return void
+     */
     private function publishDevelopmentCards(GameSPL $game): void
     {
         foreach ($game->getPlayers() as $player) {
@@ -310,14 +321,30 @@ class SplendorController extends AbstractController
         $this->publishDevelopmentCardsWithSelectedOptions($game, null, true, false);
     }
 
+    /**
+     * publishDevelopmentCardsWithSelectedOptions : send a mercure notification regarding the development cards on
+     *                                              main board depending on if the user is spectator or a player who
+     *                                              must play
+     * @param GameSPL $game
+     * @param PlayerSPL|null $player
+     * @param bool $isSpectator
+     * @param bool $needToPlay
+     * @return void
+     */
     private function publishDevelopmentCardsWithSelectedOptions(GameSPL $game, ?PlayerSPL $player, bool $isSpectator,
                                                                 bool $needToPlay) : void
     {
         $response = $this->render('Game/Splendor/MainBoard/developmentCardsBoard.html.twig', [
             'rows' => $game->getMainBoard()->getRowsSPL(),
-            'drawCardsLevelOneCount' => $this->SPLService->getDrawCardsByLevel(SplendorParameters::$DRAW_CARD_LEVEL_ONE, $game)->count(),
-            'drawCardsLevelTwoCount' => $this->SPLService->getDrawCardsByLevel(SplendorParameters::$DRAW_CARD_LEVEL_TWO, $game)->count(),
-            'drawCardsLevelThreeCount' => $this->SPLService->getDrawCardsByLevel(SplendorParameters::$DRAW_CARD_LEVEL_THREE, $game)->count(),
+            'drawCardsLevelOneCount' => $this->SPLService
+                ->getDrawCardsByLevel(SplendorParameters::$DRAW_CARD_LEVEL_ONE, $game)
+                ->count(),
+            'drawCardsLevelTwoCount' => $this->SPLService
+                ->getDrawCardsByLevel(SplendorParameters::$DRAW_CARD_LEVEL_TWO, $game)
+                ->count(),
+            'drawCardsLevelThreeCount' => $this->SPLService
+                ->getDrawCardsByLevel(SplendorParameters::$DRAW_CARD_LEVEL_THREE, $game)
+                ->count(),
             'isSpectator' => $isSpectator,
             'needToPlay' => $needToPlay,
             'game' => $game,
@@ -330,6 +357,11 @@ class SplendorController extends AbstractController
             $response);
     }
 
+    /**
+     * publishNobleTiles : send a mercure notification regarding noble tiles displayed on main board
+     * @param GameSPL $game
+     * @return void
+     */
     private function publishNobleTiles(GameSPL $game): void
     {
         foreach (['player', 'spectator'] as $role) {
@@ -347,6 +379,11 @@ class SplendorController extends AbstractController
         }
     }
 
+    /**
+     * publishReservedCards : send a mercure notification with information regarding the player's reserved cards
+     * @param GameSPL $game
+     * @return void
+     */
     private function publishReservedCards(GameSPL $game): void
     {
         foreach ($game->getPlayers() as $player) {
@@ -358,12 +395,18 @@ class SplendorController extends AbstractController
             ]);
 
             $this->publishService->publish(
-                $this->generateUrl('app_game_show_spl', ['id' => $game->getId()]).'reservedCards'.$player->getId(),
+                $this->generateUrl('app_game_show_spl',
+                    ['id' => $game->getId()]).'reservedCards'.$player->getId(),
                 $response);
         }
     }
 
 
+    /**
+     * publishRanking : send a mercure notification with new informations about players to display in ranking
+     * @param GameSPL $game
+     * @return void
+     */
     private function publishRanking(GameSPL $game): void
     {
         $response = $this->render('Game/Splendor/Ranking/ranking.html.twig', [
@@ -376,6 +419,11 @@ class SplendorController extends AbstractController
             $response);
     }
 
+    /**
+     * publishEndOfGame : send a mercure notification for the end of a game of Splendor
+     * @param GameSPL $game
+     * @return void
+     */
     private function publishEndOfGame(GameSPL $game): void
     {
         $winner = $this->SPLService->getRanking($game)[0];
