@@ -25,6 +25,15 @@ class RegistrationController extends AbstractController
         $this->emailVerifier = $emailVerifier;
     }
 
+    /**
+     * Handles user registration and redirect to login page after a successful registration
+     * 
+     * @param Request $request The HTTP containing the registration form data
+     * @param UserPasswordHasherInterface  $userPasswordHasher The component used for hashing user passwords
+     * @param EntityManagerInterface $entityManager the entity manager to interact with the database
+     * 
+     * @return Response HTTP response containing the registration form or a redirection to the login page
+     */
     #[Route('/register', name: 'app_register')]
     public function register(Request $request, UserPasswordHasherInterface $userPasswordHasher, EntityManagerInterface $entityManager): Response
     {
@@ -66,6 +75,14 @@ class RegistrationController extends AbstractController
         ]);
     }
 
+    /**
+     * Send email verification mail
+     * 
+     * @param Request $request HTTP request object
+     * @param TranslatorInterface $translator for translating exception messages
+     * 
+     * @return Response HTTP response redirects to homepage after successfully verifying the email, redirects to the registration page in case of a failure of sending the mail
+     */
     #[Route('/verify/email', name: 'app_verify_email')]
     public function verifyUserEmail(Request $request, TranslatorInterface $translator): Response
     {

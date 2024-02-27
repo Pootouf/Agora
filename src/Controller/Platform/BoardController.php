@@ -148,7 +148,12 @@ public function leaveBoard(int $id):Response
     #[Route('/dashboard/tables', name: 'app_dashboard_tables', methods: ['GET'])]
     public function tables(Request $request, BoardRepository $boardRepository): Response
     {
-        $boards = $boardRepository->findAll();
+        $sortBy = $request->query->get('sort_by', 'creationDate'); // Par défaut, tri par date de création
+        $sortOrder = $request->query->get('sort_order', 'desc'); // Par défaut, tri décroissant
+        // Vérifier si l'ordre de tri est valide
+        $validSortOrders = ['asc', 'desc'];
+        $sortOrder = in_array($sortOrder, $validSortOrders) ? $sortOrder : 'desc';
+        $boards = $boardRepository->findBy([], [$sortBy => $sortOrder]);
         $form = $this->createForm(SearchBoardType::class);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {

@@ -8,6 +8,11 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class SettingsController extends AbstractController
 {
+    /**
+     * Display the settings page
+     * 
+     * @return Response HTTP response: settings page
+     */
     #[Route('/settings', name: 'app_settings')]
     public function index(): Response
     {
