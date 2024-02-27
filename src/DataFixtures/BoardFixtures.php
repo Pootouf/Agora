@@ -30,7 +30,7 @@ class BoardFixtures extends Fixture implements DependentFixtureInterface
             $game = $games[rand(0,count($games) -  1)];
             $nbPlayersMax = rand($game->getMinPlayers(), $game->getMaxPlayers());
             $nbJoinedPlayers = rand(1, $nbPlayersMax);
-            $nbInvitations = (rand(0,$nbPlayersMax - $nbJoinedPlayers));
+            $nbInvitations = (0);
 
             $board = new Board();
             //setting the data from the board creation form :

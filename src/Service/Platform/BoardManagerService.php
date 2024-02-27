@@ -46,6 +46,7 @@ class BoardManagerService
     public function addUserToBoard(Board $board, User $user):int
     {
         $this->gameManagerService->joinGame($board->getPartyId() , $user);
+        $board->addListUser($user);
 
         //If it was the last player to complete the board, launch the game
         if($board->isFull()){
