@@ -19,6 +19,7 @@ use App\Repository\Game\Splendor\TokenSPLRepository;
 use App\Entity\Game\Splendor\MainBoardSPL;
 use App\Entity\Game\Splendor\RowSPL;
 use App\Service\Game\AbstractGameManagerService;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Exception;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
@@ -166,6 +167,80 @@ class SPLService
                 return $this->getPrestigePoints($player2) - $this->getPrestigePoints($player1);
             });
         return $array;
+    }
+
+    /**
+     * getActivePlayer : returns the player who has to play
+     * @param GameSPL $gameSPL
+     * @return PlayerSPL
+     */
+    public function getActivePlayer(GameSPL $gameSPL): PlayerSPL
+    {
+        return $this->playerSPLRepository->findOneBy(["gameSPL" => $gameSPL->getId(),
+            "turnOfPlayer" => true]);
+    }
+
+    /**
+     * getDrawCardsByLevel : return a list of development cards from the draw indicated by its level
+     * @param int $level
+     * @param GameSPL $game
+     * @return Collection<DevelopmentCardsSPL>
+     */
+    public function getDrawCardsByLevel(int $level, GameSPL $game) : Collection
+    {
+        return $game->getMainBoard()->getDrawCards()->get($level)->getDevelopmentCards();
+    }
+
+    /**
+     * getPlayerCardFromDevelopmentCard : return the player's card with a game and a development card
+     * @param GameSPL $game
+     * @param DevelopmentCardsSPL $developmentCard
+     * @return PlayerCardSPL|null
+     */
+    public function getPlayerCardFromDevelopmentCard(
+        GameSPL $game,
+        DevelopmentCardsSPL $developmentCard): ?PlayerCardSPL
+    {
+        foreach($game->getPlayers() as $player) {
+            $temp = $this->playerCardSPLRepository->findOneBy([
+                'personalBoardSPL' => $player->getPersonalBoard(),
+                'developmentCard' => $developmentCard->getId(),
+            ]);
+            if($temp != null) {
+                return $temp;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * canPlayerReserveCard: return true if the player can reserve the cards
+     * @param GameSPL $game
+     * @param DevelopmentCardsSPL $card
+     * @return bool
+     */
+    public function canPlayerReserveCard(GameSPL $game, DevelopmentCardsSPL $card): bool
+    {
+        return $this->getPlayerCardFromDevelopmentCard($game, $card) == null;
+    }
+
+    /**
+     * getPurchasableCardsOnBoard : return a list of purchasable development cards for the player
+     * @param GameSPL $gameSPL
+     * @param PlayerSPL $playerSPL
+     * @return ArrayCollection
+     */
+    public function getPurchasableCardsOnBoard(GameSPL $gameSPL, PlayerSPL $playerSPL)
+    {
+        $purchasableCards = new ArrayCollection();
+        foreach($gameSPL->getMainBoard()->getRowsSPL() as $row) {
+            foreach($row->getDevelopmentCards() as $card) {
+                if($this->hasEnoughMoney($playerSPL, $card)) {
+                    $purchasableCards->add($card);
+                }
+            }
+        }
+        return $purchasableCards;
     }
 
     /**
@@ -318,17 +393,6 @@ class SPLService
     }
 
     /**
-     * getActivePlayer : returns the player who has to play
-     * @param GameSPL $gameSPL
-     * @return PlayerSPL
-     */
-    public function getActivePlayer(GameSPL $gameSPL): PlayerSPL
-    {
-        return $this->playerSPLRepository->findOneBy(["gameSPL" => $gameSPL->getId(),
-            "turnOfPlayer" => true]);
-    }
-
-    /**
      * buyCard : check if player can buy a card and remove the card from the main board
      * @param PlayerSPL $playerSPL
      * @param DevelopmentCardsSPL $developmentCardsSPL
@@ -411,51 +475,6 @@ class SPLService
             }
         }
     }
-
-    /**
-     * getDrawCardsByLevel : return a list of development cards from the draw indicated by its level
-     * @param int $level
-     * @param GameSPL $game
-     * @return Collection<DevelopmentCardsSPL>
-     */
-    public function getDrawCardsByLevel(int $level, GameSPL $game) : Collection
-    {
-        return $game->getMainBoard()->getDrawCards()->get($level)->getDevelopmentCards();
-    }
-
-    /**
-     * getPlayerCardFromDevelopmentCard : return the player's card with a game and a development card
-     * @param GameSPL $game
-     * @param DevelopmentCardsSPL $developmentCard
-     * @return PlayerCardSPL|null
-     */
-    public function getPlayerCardFromDevelopmentCard(
-        GameSPL $game,
-        DevelopmentCardsSPL $developmentCard): ?PlayerCardSPL
-    {
-        foreach($game->getPlayers() as $player) {
-            $temp = $this->playerCardSPLRepository->findOneBy([
-                'personalBoardSPL' => $player->getPersonalBoard(),
-                'developmentCard' => $developmentCard->getId(),
-            ]);
-            if($temp != null) {
-                return $temp;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * canPlayerReserveCard: return true if the player can reserve the cards
-     * @param GameSPL $game
-     * @param DevelopmentCardsSPL $card
-     * @return bool
-     */
-    public function canPlayerReserveCard(GameSPL $game, DevelopmentCardsSPL $card): bool
-    {
-        return $this->getPlayerCardFromDevelopmentCard($game, $card) == null;
-    }
-
 
     /**
      * filterCardsByColor: take an array of playerCards and filter it by color
