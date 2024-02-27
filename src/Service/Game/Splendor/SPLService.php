@@ -677,7 +677,7 @@ class SPLService
         $difference = 0;
         foreach ($cardPrice as $color => $amount){
             if($playerMoney[$color] < $amount){
-                $difference += 1;
+                $difference += ($amount - $playerMoney[$color]);
             }
         }
         if($playerMoney[SplendorParameters::$COLOR_YELLOW] >= $difference){
@@ -696,8 +696,10 @@ class SPLService
         $money = $this->initializeColorTab();
         $playerCards = $playerSPL->getPersonalBoard()->getPlayerCards();
         foreach ($playerCards as $playerCard){
-            $cardColor = $playerCard->getDevelopmentCard()->getColor();
-            $money[$cardColor] += 1;
+            if(!$playerCard->isIsReserved()) {
+                $cardColor = $playerCard->getDevelopmentCard()->getColor();
+                $money[$cardColor] += 1;
+            }
         }
         $playerTokens = $playerSPL->getPersonalBoard()->getTokens();
         foreach ($playerTokens as $playerToken){
