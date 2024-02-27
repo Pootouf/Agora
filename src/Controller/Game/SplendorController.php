@@ -59,15 +59,27 @@ class SplendorController extends AbstractController
             'playerBoughtCards' => $this->SPLService->getPurchasedCards($player),
             'playerReservedCards' => $this->SPLService->getReservedCards($player),
             'playerTokens' => $player->getPersonalBoard()->getTokens(),
-            'drawCardsLevelOneCount' => $this->SPLService->getDrawCardsByLevel(SplendorParameters::$DRAW_CARD_LEVEL_ONE, $game)->count(),
-            'drawCardsLevelTwoCount' => $this->SPLService->getDrawCardsByLevel(SplendorParameters::$DRAW_CARD_LEVEL_TWO, $game)->count(),
-            'drawCardsLevelThreeCount' => $this->SPLService->getDrawCardsByLevel(SplendorParameters::$DRAW_CARD_LEVEL_THREE, $game)->count(),
-            'whiteTokensPile' => $this->tokenSPLService->getWhiteTokensFromCollection($mainBoardTokens),
-            'redTokensPile' => $this->tokenSPLService->getRedTokensFromCollection($mainBoardTokens),
-            'blueTokensPile' => $this->tokenSPLService->getBlueTokensFromCollection($mainBoardTokens),
-            'greenTokensPile' => $this->tokenSPLService->getGreenTokensFromCollection($mainBoardTokens),
-            'blackTokensPile' => $this->tokenSPLService->getBlackTokensFromCollection($mainBoardTokens),
-            'yellowTokensPile' => $this->tokenSPLService->getYellowTokensFromCollection($mainBoardTokens),
+            'drawCardsLevelOneCount' => $this->SPLService
+                    ->getDrawCardsByLevel(SplendorParameters::$DRAW_CARD_LEVEL_ONE, $game)
+                    ->count(),
+            'drawCardsLevelTwoCount' => $this->SPLService
+                    ->getDrawCardsByLevel(SplendorParameters::$DRAW_CARD_LEVEL_TWO, $game)
+                    ->count(),
+            'drawCardsLevelThreeCount' => $this->SPLService
+                    ->getDrawCardsByLevel(SplendorParameters::$DRAW_CARD_LEVEL_THREE, $game)
+                    ->count(),
+            'whiteTokensPile' => $this->tokenSPLService
+                    ->getWhiteTokensFromCollection($mainBoardTokens),
+            'redTokensPile' => $this->tokenSPLService
+                    ->getRedTokensFromCollection($mainBoardTokens),
+            'blueTokensPile' => $this->tokenSPLService
+                    ->getBlueTokensFromCollection($mainBoardTokens),
+            'greenTokensPile' => $this->tokenSPLService
+                    ->getGreenTokensFromCollection($mainBoardTokens),
+            'blackTokensPile' => $this->tokenSPLService
+                    ->getBlackTokensFromCollection($mainBoardTokens),
+            'yellowTokensPile' => $this->tokenSPLService
+                    ->getYellowTokensFromCollection($mainBoardTokens),
             'rows' => $game->getMainBoard()->getRowsSPL(),
             'playersNumber' => count($game->getPlayers()),
             'ranking' => $game->getPlayers(),
@@ -79,7 +91,9 @@ class SplendorController extends AbstractController
             'selectedCard' => null,
             'levelCard' => null,
             'selectedReservedCard' => null,
-            'purchasableCards' => $this->SPLService->getPurchasableCardsOnBoard($game, $player)
+            'purchasableCards' => $this->SPLService
+                    ->getPurchasableCardsOnBoard($game, $player),
+            'canReserveCard' => $this->SPLService->doesPlayerAlreadyHaveMaxNumberOfReservedCard($player),
         ]);
     }
 
@@ -95,7 +109,8 @@ class SplendorController extends AbstractController
              'levelCard' => null,
              'game' => $game,
              'selectedReservedCard' => null,
-             'purchasableCards' => $this->SPLService->getPurchasableCardsOnBoard($game, $player)
+             'purchasableCards' => $this->SPLService->getPurchasableCardsOnBoard($game, $player),
+             'canReserveCard' => $this->SPLService->doesPlayerAlreadyHaveMaxNumberOfReservedCard($player),
          ]);
      }
 
@@ -103,12 +118,14 @@ class SplendorController extends AbstractController
      public function selectCardFromDraw(
          #[MapEntity(id: 'idGame')] GameSPL $game, int $level): Response
      {
+         $player = $this->SPLService->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
          return $this->render('Game/Splendor/MainBoard/cardActions.html.twig',
              [
                  'levelCard' => $level,
                  'selectedCard' => null,
                  'game' => $game,
                  'selectedReservedCard' => null,
+                 'canReserveCard' => $this->SPLService->doesPlayerAlreadyHaveMaxNumberOfReservedCard($player),
              ]);
      }
 
@@ -124,7 +141,8 @@ class SplendorController extends AbstractController
                  'levelCard' => null,
                  'game' => $game,
                  'selectedReservedCard' => $card,
-                 'purchasableCards' => $this->SPLService->getPurchasableCardsOnBoard($game, $player)
+                 'purchasableCards' => $this->SPLService->getPurchasableCardsOnBoard($game, $player),
+                 'canReserveCard' => false,
              ]);
      }
 
@@ -353,6 +371,9 @@ class SplendorController extends AbstractController
             'isSpectator' => $isSpectator,
             'needToPlay' => $needToPlay,
             'game' => $game,
+            'purchasableCards' => $player == null ? [] : $this->SPLService
+                ->getPurchasableCardsOnBoard($game, $player),
+            'canReserveCard' => $player == null || $this->SPLService->doesPlayerAlreadyHaveMaxNumberOfReservedCard($player),
         ]);
 
         $this->publishService->publish(
