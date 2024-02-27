@@ -244,6 +244,18 @@ class SPLService
     }
 
     /**
+     * doesPlayerAlreadyHaveMaxNumberOfReservedCard : indicate if the player can reserve a card or not
+     * @param PlayerSPL $player
+     * @return bool
+     */
+    public function doesPlayerAlreadyHaveMaxNumberOfReservedCard(PlayerSPL $player): bool
+    {
+        $reservedCardsOfPlayer = $this->getReservedCards($player);
+        return sizeof($reservedCardsOfPlayer)
+            >= SplendorParameters::$MAX_COUNT_RESERVED_CARDS;
+    }
+
+    /**
      * initializeNewGame: initialize a new Splendor game
      * @param GameSPL $game
      * @return void
@@ -510,14 +522,6 @@ class SPLService
         return !$this->doesPlayerAlreadyHaveMaxNumberOfReservedCard($player)
             && $playerCard == null;
     }
-
-    private function doesPlayerAlreadyHaveMaxNumberOfReservedCard(PlayerSPL $player): bool
-    {
-        $reservedCardsOfPlayer = $this->getReservedCards($player);
-        return sizeof($reservedCardsOfPlayer)
-            >= SplendorParameters::$MAX_COUNT_RESERVED_CARDS;
-    }
-
 
     private function checkInRowAtLevel(MainBoardSPL $mainBoard
         , DevelopmentCardsSPL $card) : bool
