@@ -70,7 +70,7 @@ class SplendorController extends AbstractController
             'yellowTokensPile' => $this->tokenSPLService->getYellowTokensFromCollection($mainBoardTokens),
             'rows' => $game->getMainBoard()->getRowsSPL(),
             'playersNumber' => count($game->getPlayers()),
-            'ranking' => $this->SPLService->getRanking($game),
+            'ranking' => $game->getPlayers(),
             'player' => $player,
             'isGameFinished' => $this->SPLService->isGameEnded($game),
             'nobleTiles' => $game->getMainBoard()->getNobleTiles(),
