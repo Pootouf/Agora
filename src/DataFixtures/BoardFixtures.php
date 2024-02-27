@@ -5,50 +5,65 @@ namespace App\DataFixtures;
 use App\Entity\Platform\Board;
 use App\Entity\Platform\Game;
 use App\Entity\Platform\User;
+use App\Service\Game\GameManagerService;
+use App\Service\Platform\BoardManagerService;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 
 class BoardFixtures extends Fixture implements DependentFixtureInterface
 {
+    private BoardManagerService $boardManagerService;
+    public function __construct(BoardManagerService $boardManagerService)
+    {
+        $this->boardManagerService = $boardManagerService;
+    }
+    public function load(ObjectManager $manager):void
+    {
 
-    public function load(ObjectManager $manager){
-
-        //On récupère
+        //Getting all users and games created from fixtures
         $users = $manager->getRepository(User::class)->findAll();
+        $games = $manager->getRepository(Game::class)->findAll();
 
         for ($i=1; $i <= 50; $i++) {
-            $board = new Board();
-            //The number of player required to launch the game
-            $nbPlayersMax = rand(6, 10);
-            $board->setNbUserMax($nbPlayersMax);
-            //The number of players who have already joined the table
+            //Fake data from the form
+            $game = $games[rand(0,count($games) -  1)];
+            $nbPlayersMax = rand($game->getMinPlayers(), $game->getMaxPlayers());
             $nbJoinedPlayers = rand(1, $nbPlayersMax);
+            $nbInvitations = (0);
+
+            $board = new Board();
+            //setting the data from the board creation form :
+                $board->setGame($game);
+                $board->setNbUserMax($nbPlayersMax);
+                $board->setNbInvitations($nbInvitations);
+                $board->setInactivityHours(rand(24,72));
+
+            //Setting up the board :
+            $this->boardManagerService->setUpBoard($board, $game);
+
+
+            //Adding users to the board
             shuffle($users);
             for($j=0; $j < $nbJoinedPlayers; $j++)
             {
-                $users[$j]->addBoard($board);
+                $user = $users[$j];
+                $this->boardManagerService->addUserToBoard($board, $user);
             }
-            $board->setInactivityTimer(new \DateTime());
-            //The number of invited people
-            $board->setNbInvitations(rand(0,$nbPlayersMax - $nbJoinedPlayers));
-            $board->setInactivityHours(rand(6,48));
-            $startDate = new \DateTime('2024-02-01');
-            $endDate = new \DateTime('2024-02-23');
-            $randomTimestamp = mt_rand($startDate->getTimestamp(), $endDate->getTimestamp());
-            $randomDate = new \DateTime();
-            $randomDate->setTimestamp($randomTimestamp);
-            $board->setCreationDate($randomDate);
-            $board->setInvitationTimer(new \DateTime());
+
+
             $manager->persist($board);
+            $manager->flush();
         }
-        $manager->flush();
 
     }
 
     //Board depends on Users and Game
-    public function getDependencies()
+    public function getDependencies():array
     {
-        return[UserPlatformFixtures::class];
+        return[
+            UserPlatformFixtures::class,
+            GameFixtures::class
+        ];
     }
 }

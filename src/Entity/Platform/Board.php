@@ -46,11 +46,12 @@ class Board
     private ?int $inactivityHours = null;
 
 
+
     #[ORM\ManyToOne(inversedBy: 'boards')]
     private ?Game $game = null;
 
     #[ORM\Column]
-    private ?int $gameId = null;
+    private int $partyId;
 
 
 
@@ -163,13 +164,14 @@ class Board
     //      $this->listUsers->count < $this->nbMaxUser
     //Post : $user in $this->listUsers
     //       $this->listUser->count += 1
-    public function addListUser(User $user): static
+    public function addListUser(User $user): int
     {
         if (!$this->listUsers->contains($user) && $this->isAvailble() ) {
             $this->listUsers->add($user);
+            return 0;
         }
 
-        return $this;
+        return -1;
     }
 
     //return the number of players who have joined the table
@@ -214,7 +216,7 @@ class Board
     
     //Return the actual number of availble slots of the board
     //getNbAvailbleSlots() == 0 => isAvailble() == false
-    public function getNbAvailbleSlots(){
+    public function getNbAvailbleSlots():int{
         return $this->getNbUserMax() - ($this->listUsers->count() +
                 $this->nbInvitations);
     }
@@ -231,17 +233,22 @@ class Board
         return $this;
     }
 
-
-    public function getGameId(): ?int
+    public function getPartyId(): ?int
     {
-        return $this->gameId;
+        return $this->partyId;
     }
 
-    public function setGameId(int $gameId): static
+    public function setPartyId(int $partyId): static
     {
-        $this->gameId = $gameId;
+        $this->partyId = $partyId;
 
         return $this;
+    }
+
+    //Return true if all places of the board have been taken by a player
+    public function isFull():bool
+    {
+        return $this->listUsers->count() == $this->nbUserMax;
     }
 
 }
