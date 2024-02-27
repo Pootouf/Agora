@@ -79,6 +79,7 @@ class SplendorController extends AbstractController
             'selectedCard' => null,
             'levelCard' => null,
             'selectedReservedCard' => null,
+            'purchasableCards' => $this->SPLService->getPurchasableCardsOnBoard($game, $player)
         ]);
     }
 
@@ -87,12 +88,14 @@ class SplendorController extends AbstractController
          #[MapEntity(id: 'idGame')] GameSPL $game,
          #[MapEntity(id: 'idCard')] DevelopmentCardsSPL $card): Response
      {
+         $player = $this->SPLService->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
          return $this->render('Game/Splendor/MainBoard/cardActions.html.twig',
          [
              'selectedCard' => $card,
              'levelCard' => null,
              'game' => $game,
              'selectedReservedCard' => null,
+             'purchasableCards' => $this->SPLService->getPurchasableCardsOnBoard($game, $player)
          ]);
      }
 
@@ -114,12 +117,14 @@ class SplendorController extends AbstractController
          #[MapEntity(id: 'idGame')] GameSPL $game,
          #[MapEntity(id: 'idCard')] DevelopmentCardsSPL $card): Response
      {
+         $player = $this->SPLService->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
          return $this->render('Game/Splendor/MainBoard/cardActions.html.twig',
              [
                  'selectedCard' => null,
                  'levelCard' => null,
                  'game' => $game,
                  'selectedReservedCard' => $card,
+                 'purchasableCards' => $this->SPLService->getPurchasableCardsOnBoard($game, $player)
              ]);
      }
 
