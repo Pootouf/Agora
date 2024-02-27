@@ -10,16 +10,10 @@ function updateUserScore(player) {
 		landscapeScore.dataset.score = player[1];
 		if (landscapeScore) {
 			landscapeScore.getElementsByTagName('p').item(0).innerText = player[1];
-			if (player[1] > 1) {
-				landscapeScore.getElementsByTagName('p').item(1).innerText = "points";
-			}
 		}
 		let portraitScore = document.getElementById('p_' + player[0] + '_points');
 		if (portraitScore) {
 			portraitScore.getElementsByTagName('p').item(0).innerText = player[1];
-			if (player[1] > 1) {
-				portraitScore.getElementsByTagName('p').item(1).innerText = 'points';
-			}
 		}
 	}
 	updateLeaderboard().then(() => animationQueue.executeNextInQueue());

@@ -28,13 +28,10 @@ This section displays the game's name, and the current game's timer and leaderbo
 						<p class="mr-1 lg:text-xl font-bold">
 							{{ user.discardSIxQP.totalPoints }}
 						</p>
-						<p class="mr-2 text-sm font-thin">
-							{{ user.discardSIxQP.totalPoints > 1 ? 'points' : 'point' }}
-						</p>
 						{% if player.username == user.username and not isSpectator %}
-							<p class="flex-grow text-clip text-right sm:text-xs text-violet-300">{{ user.username }}</p>
+							<p class="pr-1 flex-grow text-clip text-right sm:text-xl text-violet-300">{{ user.username }}</p>
 						{% else %}
-							<p class="flex-grow text-clip text-right sm:text-xs">{{ user.username }}</p>
+							<p class="pr-1 flex-grow text-clip text-right sm:text-xl">{{ user.username }}</p>
 						{% endif %}
 					</div>
 
@@ -50,9 +47,6 @@ This section displays the game's name, and the current game's timer and leaderbo
 							     class="size-8  mr-1">
 							<p class="mr-1 text-xl font-bold">
 								{{ user.discardSIxQP.totalPoints }}
-							</p>
-							<p class="mr-2 font-thin text-sm">
-								{{ user.discardSIxQP.totalPoints > 1 ? 'points' : 'point' }}
 							</p>
 						</div>
 					</div>
