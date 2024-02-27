@@ -45,7 +45,6 @@ class BoardManagerService
     // Add $user to the board, and to the game
     public function addUserToBoard(Board $board, User $user):int
     {
-        $user->addBoard($board);
         $this->gameManagerService->joinGame($board->getPartyId() , $user);
 
         //If it was the last player to complete the board, launch the game
@@ -55,6 +54,7 @@ class BoardManagerService
         }
         $this->entityManagerInterface->persist($board);
         $this->entityManagerInterface->persist($user);
+        $user->addBoard($board);
         $this->entityManagerInterface->flush();
 
         return BoardManagerService::$SUCCESS;

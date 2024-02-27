@@ -14,63 +14,52 @@ use Doctrine\Persistence\ObjectManager;
 class BoardFixtures extends Fixture implements DependentFixtureInterface
 {
     private BoardManagerService $boardManagerService;
-    public function __construct(GameManagerService $gameManagerService, BoardManagerService $boardManagerService)
+    public function __construct(BoardManagerService $boardManagerService)
     {
         $this->boardManagerService = $boardManagerService;
     }
-    public function load(ObjectManager $manager){
+    public function load(ObjectManager $manager):void
+    {
 
         //Getting all users and games created from fixtures
         $users = $manager->getRepository(User::class)->findAll();
         $games = $manager->getRepository(Game::class)->findAll();
 
         for ($i=1; $i <= 50; $i++) {
-            $board = new Board();
-
-            //Setting the game with a fake party
-            $board->setGame($games[rand(0,count($games) -  1)]);
-            $board->setPartyId($i);
-
-            //The number of player required to launch the game
-            $nbPlayersMax = rand(6, 10);
-            $board->setNbUserMax($nbPlayersMax);
-            //The number of players who have already joined the table
+            //Fake data from the form
+            $game = $games[rand(0,count($games) -  1)];
+            $nbPlayersMax = rand($game->getMinPlayers(), $game->getMaxPlayers());
             $nbJoinedPlayers = rand(1, $nbPlayersMax);
+            $nbInvitations = (rand(0,$nbPlayersMax - $nbJoinedPlayers));
+
+            $board = new Board();
+            //setting the data from the board creation form :
+                $board->setGame($game);
+                $board->setNbUserMax($nbPlayersMax);
+                $board->setNbInvitations($nbInvitations);
+                $board->setInactivityHours(rand(24,72));
+
+            //Setting up the board :
+            $this->boardManagerService->setUpBoard($board, $game);
+
+
+            //Adding users to the board
             shuffle($users);
             for($j=0; $j < $nbJoinedPlayers; $j++)
             {
                 $user = $users[$j];
-                $user->addBoard($board);
+                $this->boardManagerService->addUserToBoard($board, $user);
             }
-            $board->setInactivityTimer(new \DateTime());
-            //The number of invited people
-            $board->setNbInvitations(rand(0,$nbPlayersMax - $nbJoinedPlayers));
-            $board->setInactivityHours(rand(6,48));
-            $board->setCreationDate(new \DateTime());
-            $board->setInvitationTimer(new \DateTime());
+
+
             $manager->persist($board);
             $manager->flush();
         }
 
-        $sqpGame = $manager->getRepository(Game::class)->findBy(array("label" => "6QP"))[0];
-        //Board test for launching 6QP
-        $boardSqp = new Board();
-        $boardSqp->setGame($sqpGame);
-        $this->boardManagerService->setUpBoard($boardSqp, $sqpGame);
-        $boardSqp->setNbInvitations(0);
-        $boardSqp->setNbUserMax(3);
-        $boardSqp->setInactivityHours(24);
-        $manager->persist($boardSqp);
-        $manager->flush();
-        $this->boardManagerService->addUserToBoard($boardSqp, $users[0]);
-        $this->boardManagerService->addUserToBoard($boardSqp, $users[1]);
-
-
-
     }
 
     //Board depends on Users and Game
-    public function getDependencies()
+    public function getDependencies():array
     {
         return[
             UserPlatformFixtures::class,
