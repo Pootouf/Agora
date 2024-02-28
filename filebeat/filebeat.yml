@@ -2,9 +2,7 @@ filebeat.inputs:
   - type: filestream
     id: default-filestream
     paths:
-      - /var/log/symfony/*.log
-      - /var/log/caddy/*.log
-      - /var/log/mercure/*.log
+      - /var/log/agora/*.log
 
 
 filebeat.autodiscover:

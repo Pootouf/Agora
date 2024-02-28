@@ -2,18 +2,21 @@ version: '3'
 
 services:
   agora:
-    command: bash -c "cd /app/public
-      && symfony console doctrine:migrations:migrate
-      && symfony console --env=test doctrine:migrations:migrate
-      && (php bin/console tailwind:build --watch &)"
+    command: bash -c "cd /app
+      && symfony console -n doctrine:migrations:migrate
+      && symfony console -n --env=test doctrine:migrations:migrate
+      && (php bin/console tailwind:build --watch &)
+      && frankenphp run --config /etc/caddy/Caddyfile --watch"
     volumes:
-      - ./app:/app/public
-      - /app/public/vendor
-      - /app/public/var
+      - ./app:/app
+      - vendor_agora:/app/vendor:delegated
+      - var_agora:/app/var:delegated
     environment:
       APP_DEBUG: 1
       APP_ENV: ${APP_ENV_DEV}
       MERCURE_PUBLIC_URL: ${MERCURE_PUBLIC_URL:-https://localhost/.well-known/mercure}
+      CADDY_GLOBAL_OPTIONS: |
+        debug
     tty: true
 
 
@@ -29,3 +32,7 @@ services:
 
 ###> symfony/mercure-bundle ###
 ###< symfony/mercure-bundle ###
+
+volumes:
+  vendor_agora:
+  var_agora:

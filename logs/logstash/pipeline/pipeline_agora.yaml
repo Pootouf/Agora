@@ -1,17 +1,18 @@
 input {
   file {
-    type => "mercure_access"
-    path => "/var/log/mercure/mercure-access.log"
+    path => "/var/log/agora/agora-access.log"
     mode => "tail"
   }
 }
 
 filter {
+
 }
+
 
 output {
   elasticsearch {
-    index => "logstash-mercure-%{+YYYY.MM.dd}"
+    index => "logstash-agora-%{+YYYY.MM.dd}"
     hosts=> "${ELASTIC_HOSTS}"
     user=> "${ELASTIC_USER}"
     password=> "${ELASTIC_PASSWORD}"
