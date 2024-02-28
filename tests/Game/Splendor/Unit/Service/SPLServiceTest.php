@@ -41,7 +41,7 @@ class SPLServiceTest extends TestCase
         $nobleTileRepository = $this->createMock(NobleTileSPLRepository::class);
         $developmentCardRepository = $this->createMock(DevelopmentCardsSPLRepository::class);
         $drawCardRepository = $this->createMock(DrawCardsSPLRepository::class);
-        $this->SPLService = new SPLService($entityManager, $playerRepository, $tokenRepository,
+        $this->SPLService = new SPLService($entityManager, $playerRepository,
             $nobleTileRepository, $developmentCardRepository, $playerCardRepository, $drawCardRepository);
         $this->tokenSPLService = new TokenSPLService($entityManager, $tokenRepository, $this->SPLService);
     }
