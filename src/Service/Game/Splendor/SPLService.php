@@ -744,6 +744,7 @@ class SPLService
                 if($token->getColor() == $color && $amount > 0){
                     $playerSPL->getPersonalBoard()->removeToken($token);
                     $amount -= 1;
+                    $playerSPL->getGameSPL()->getMainBoard()->addToken($token);
                 }
             }
         }
@@ -756,6 +757,7 @@ class SPLService
                     if($token->getColor() == SplendorParameters::$COLOR_YELLOW && $amount > 0){
                         $playerSPL->getPersonalBoard()->removeToken($token);
                         $amount -= 1;
+                        $playerSPL->getGameSPL()->getMainBoard()->addToken($token);
                     }
                 }
             }
