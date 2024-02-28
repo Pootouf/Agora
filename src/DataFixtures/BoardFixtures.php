@@ -29,7 +29,7 @@ class BoardFixtures extends Fixture implements DependentFixtureInterface
             //Fake data from the form
             $game = $games[rand(0,count($games) -  1)];
             $nbPlayersMax = rand($game->getMinPlayers(), $game->getMaxPlayers());
-            $nbJoinedPlayers = rand(1, $nbPlayersMax);
+            $nbJoinedPlayers = rand(1, $nbPlayersMax - 1);
             $nbInvitations = (0);
 
             $board = new Board();
