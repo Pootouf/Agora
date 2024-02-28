@@ -3,6 +3,7 @@
 namespace App\Tests\Game\Splendor\Application;
 
 use App\Entity\Game\Splendor\SelectedTokenSPL;
+use App\Entity\Game\Splendor\TokenSPL;
 use App\Repository\Game\GameUserRepository;
 use App\Repository\Game\Splendor\GameSPLRepository;
 use App\Repository\Game\Splendor\PlayerSPLRepository;
@@ -111,10 +112,6 @@ class SPLControllerTest extends WebTestCase
             $this->entityManager->persist($player->getPersonalBoard());
             $this->entityManager->persist($player);
         }
-        $selectedToken = new SelectedTokenSPL();
-        $selectedToken->setToken($tokens[28]);
-        $player->getPersonalBoard()->addSelectedToken($selectedToken);
-        $this->entityManager->persist($selectedToken);
         $this->entityManager->flush();
         $newUrl = "/game/" . $gameId . "/splendor/takeToken/blue";
         $this->client->loginUser($user1);
@@ -138,8 +135,8 @@ class SPLControllerTest extends WebTestCase
         $tokens = $mainBoard->getTokens();
         $whiteTokens = $this->tokenSPLService->getWhiteTokensFromCollection($tokens);
         $user1 = $this->gameUserRepository->findOneByUsername("test0");
-        for ($i = 0; $i < 4; ++$i) {
-            $mainBoard->removeToken($whiteTokens[$i]);
+        for ($i = 0; $i < 2; ++$i) {
+            $mainBoard->removeToken($whiteTokens->first());
         }
         $newUrl = "/game/" . $gameId . "/splendor/takeToken/white";
         $this->client->loginUser($user1);
@@ -185,6 +182,7 @@ class SPLControllerTest extends WebTestCase
         $game = $this->gameSPLRepository->findOneById($gameId);
         $this->SPLGameManagerService->createPlayer("test0", $game);
         $this->SPLGameManagerService->createPlayer("test1", $game);
+
         try {
             $this->SPLGameManagerService->launchGame($game);
         } catch (\Exception $e) {
