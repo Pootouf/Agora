@@ -15,6 +15,7 @@ use App\Repository\Game\Splendor\DrawCardsSPLRepository;
 use App\Repository\Game\Splendor\NobleTileSPLRepository;
 use App\Repository\Game\Splendor\PlayerCardSPLRepository;
 use App\Repository\Game\Splendor\PlayerSPLRepository;
+use App\Repository\Game\Splendor\RowSPLRepository;
 use App\Repository\Game\Splendor\TokenSPLRepository;
 use App\Entity\Game\Splendor\MainBoardSPL;
 use App\Entity\Game\Splendor\RowSPL;
@@ -30,11 +31,18 @@ class SPLService
 
     public function __construct(private EntityManagerInterface $entityManager,
         private PlayerSPLRepository $playerSPLRepository,
+        private RowSPLRepository $rowSPLRepository,
         private NobleTileSPLRepository $nobleTileSPLRepository,
         private DevelopmentCardsSPLRepository $developmentCardsSPLRepository,
         private PlayerCardSPLRepository $playerCardSPLRepository,
-        private DrawCardsSPLRepository $drawCardsSPLRepository)
+        private DrawCardsSPLRepository $drawCardsSPLRepository,
+        private LoggerInterface $logger)
     { }
+
+    public function getRowsFromGame(GameSPL $game)
+    {
+        return $this->rowSPLRepository->findBy(['mainBoardSPL' => $game->getMainBoard()->getId()]);
+    }
 
     /**
      * getCardFromDraw: return a random card from the draw or null if the draw is empty
@@ -458,15 +466,15 @@ class SPLService
                 $row = $game->getMainBoard()->getRowsSPL()->get($developmentCardsSPL->getLevel() - 1);
                 //Remove the bought card from row
                 $row->removeDevelopmentCard($developmentCardsSPL);
+                $this->entityManager->persist($row);
 
                 //Add a new card in the row
                 $levelCard = $developmentCardsSPL->getLevel();
                 $levelDraw = $mainBoard->getDrawCards()->get($levelCard - 1);
                 $row->addDevelopmentCard($levelDraw->getDevelopmentCards()->first());
-                $this->entityManager->persist($playerSPL->getGameSPL()->getMainBoard());
 
                 //Remove the new card from draw
-                $levelDraw->removeDevelopmentCard($developmentCardsSPL);
+                $levelDraw->removeDevelopmentCard($levelDraw->getDevelopmentCards()->first());
                 $this->entityManager->persist($levelDraw);
                 $this->entityManager->persist($row);
             }
