@@ -161,7 +161,7 @@ class SplendorController extends AbstractController
          $playerCard = $this->SPLService->getPlayerCardFromDevelopmentCard($game, $card);
          if ($playerCard != null) {
              if ($player->getId() != $playerCard->getPersonalBoardSPL()->getPlayerSPL()->getId()) {
-                 return new Response("Not player's card", Response::HTTP_FORBIDDEN);
+                 return new Response("Not player's card ", Response::HTTP_FORBIDDEN);
              }
              if (!$playerCard->isIsReserved()) {
                  return new Response("The card is not reserved", Response::HTTP_FORBIDDEN);
@@ -170,7 +170,7 @@ class SplendorController extends AbstractController
          try {
              $this->SPLService->buyCard($player, $card);
          } catch (Exception $e) {
-             return new Response("Not player's card", Response::HTTP_FORBIDDEN);
+             return new Response("Can't buy this card : ".$e->getMessage(), Response::HTTP_FORBIDDEN);
          }
          $this->SPLService->addBuyableNobleTilesToPlayer($game, $player);
          $this->publishNobleTiles($game);

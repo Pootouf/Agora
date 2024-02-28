@@ -23,6 +23,8 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Exception;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
+
 class SPLService
 {
 
@@ -31,7 +33,7 @@ class SPLService
         private NobleTileSPLRepository $nobleTileSPLRepository,
         private DevelopmentCardsSPLRepository $developmentCardsSPLRepository,
         private PlayerCardSPLRepository $playerCardSPLRepository,
-        private DrawCardsSPLRepository $drawCardsSPLRepository,)
+        private DrawCardsSPLRepository $drawCardsSPLRepository)
     { }
 
     /**
@@ -674,6 +676,8 @@ class SPLService
     {
         $playerMoney = $this->computePlayerMoney($playerSPL);
         $cardPrice = $this->computeCardPrice($developmentCardSPL);
+
+
 
         $difference = 0;
         foreach ($cardPrice as $color => $amount){
