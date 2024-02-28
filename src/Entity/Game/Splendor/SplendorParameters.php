@@ -35,7 +35,9 @@ class SplendorParameters
     public static int $MIN_NUMBER_OF_PLAYER = 2;
     public static int $MAX_NUMBER_OF_PLAYER = 4;
     public static int $MAX_PRESTIGE_POINTS = 15;
-    public static int $MIN_AVAILABLE_TOKENS = 4;
+    //The minimum available tokens is 4 at the beginning of the players's round, but 3 when taking the second same color
+    // token.
+    public static int $MIN_AVAILABLE_TOKENS = 3;
 
     public static int $TOKENS_NUMBER_4_PLAYERS = 7;
 
