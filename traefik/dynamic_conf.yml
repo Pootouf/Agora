@@ -1,9 +1,5 @@
 http:
   routers:
-    mercure-router:
-      rule: "PathPrefix(`/.well-known/mercure`)"
-      service: mercure-service
-      tls: {}
     agora-router:
       rule: "PathPrefix(`/`)"
       service: agora-service
