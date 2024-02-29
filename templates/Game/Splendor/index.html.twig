@@ -4,6 +4,7 @@
 
 {% block body %}
     <div class="h-screen w-screen overflow-hidden absolute" {{ stimulus_controller('splendor') }}>
+        <div id="animationContainer" class="hidden absolute top-0 left-0 w-full h-full bg-black bg-opacity-0 z-50"></div>
         <div id="index_splendor" class="h-full w-full overflow-hidden">
             {% block nav %}
                 {{ include('/Game/Utils/navigation.html.twig') }}
@@ -29,6 +30,11 @@
             {% endblock %}
         </div>
     </div>
+
+    {# ANIMATION MANAGEMENT #}
+    <script type="text/javascript" src="{{ asset('resourcesGames/utils/animationQueue.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('resourcesGames/Splendor/animation.js') }}"></script>
+
     <script>
         {% set path = path('app_game_show_spl', {'id': game.id}) ~ 'token' ~ player.id %}
         const eventSourceTokens = new EventSource("{{ mercure(path)|escape('js') }}");
