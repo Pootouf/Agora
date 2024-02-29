@@ -24,6 +24,12 @@ class PlayerGLM extends Player
     #[ORM\JoinColumn(nullable: false)]
     private ?GameGLM $gameGLM = null;
 
+    public function __construct(string $username, GameGLM $game)
+    {
+        $this->username = $username;
+        $this->gameGLM = $game;
+    }
+
     public function getPersonalBoard(): ?PersonalBoardGLM
     {
         return $this->personalBoard;
