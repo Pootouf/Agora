@@ -110,8 +110,8 @@ class GLMService
         $playersMoneyAmount = $this->getSortedListMoney($gameGLM);
         $this->computePoints($playersMoneyAmount);
 
-        // TODO COMPTER NOMBRE TUILES PAR PERSONNES
-        //  TODO RETIRER POINTS
+        $playersTileAmount = $this->getSortedListTile($gameGLM);
+        $this->retrievePoints($playersTileAmount);
         $this->entityManager->flush();
     }
 
@@ -145,25 +145,6 @@ class GLMService
             return $x[1] - $y[1];
         });
         return $result;
-    }
-
-    /**
-     * computePoints : adds points to each player
-     *
-     * @param $playersResources
-     * @return void
-     */
-    private function computePoints($playersResources): void
-    {
-        $minResource = $playersResources[0][1];
-        for ($i = 1; $i < count($playersResources); ++$i) {
-            $player = $playersResources[$i][0];
-            $resourceAmount = $playersResources[$i][1];
-            $difference = $resourceAmount - $minResource;
-            $points = $this->getPointsPerDifference($difference);
-            $player->setPoints($player->getPoints() + $points);
-            $this->entityManager->persist($player);
-        }
     }
 
     /**
@@ -205,6 +186,27 @@ class GLMService
     }
 
     /**
+     * getSortedListLeader : returns sorted list of (players, resourceAmount) by amount of cards
+     *
+     * @param GameGLM $gameGLM
+     * @return array
+     */
+    private function getSortedListCard(GameGLM $gameGLM): array
+    {
+        $players = $gameGLM->getPlayers();
+        $result = array();
+        foreach ($players as $player) {
+            $personalBoard = $player->getPersonalBoard();
+            $playerResource = $personalBoard->getCards()->count();
+            $result[] = array($player, $playerResource);
+        }
+        usort($result, function($x, $y) {
+            return $x[1] - $y[1];
+        });
+        return $result;
+    }
+
+    /**
      * getSortedListMoney : returns sorted list of (players, resourceAmount) by amount of money
      *
      * @param GameGLM $gameGLM
@@ -225,26 +227,62 @@ class GLMService
         return $result;
     }
 
-
     /**
-     * getSortedListLeader : returns sorted list of (players, resourceAmount) by amount of cards
+     * getSortedListTile : returns sorted list of (players, resourceAmount) by amount of tile
      *
      * @param GameGLM $gameGLM
      * @return array
      */
-    private function getSortedListCard(GameGLM $gameGLM): array
+    private function getSortedListTile(GameGLM $gameGLM): array
     {
         $players = $gameGLM->getPlayers();
         $result = array();
         foreach ($players as $player) {
             $personalBoard = $player->getPersonalBoard();
-            $playerResource = $personalBoard->getCards()->count();
+            $playerResource = $personalBoard->getPlayerTiles()->count();
             $result[] = array($player, $playerResource);
         }
         usort($result, function($x, $y) {
             return $x[1] - $y[1];
         });
         return $result;
+    }
+
+    /**
+     * computePoints : adds points to each player
+     *
+     * @param $playersResources
+     * @return void
+     */
+    private function computePoints($playersResources): void
+    {
+        $minResource = $playersResources[0][1];
+        for ($i = 1; $i < count($playersResources); ++$i) {
+            $player = $playersResources[$i][0];
+            $resourceAmount = $playersResources[$i][1];
+            $difference = $resourceAmount - $minResource;
+            $points = $this->getPointsPerDifference($difference);
+            $player->setPoints($player->getPoints() + $points);
+            $this->entityManager->persist($player);
+        }
+    }
+
+    /**
+     * retrievePoints : removes points to each player
+     *
+     * @param $playersResources
+     * @return void
+     */
+    private function retrievePoints($playersResources): void
+    {
+        $minResource = $playersResources[0][1];
+        for ($i = 1; $i < count($playersResources); ++$i) {
+            $player = $playersResources[$i][0];
+            $resourceAmount = $playersResources[$i][1];
+            $difference = $resourceAmount - $minResource;
+            $player->setPoints($player->getPoints() - 3 * $difference);
+            $this->entityManager->persist($player);
+        }
     }
 
 
