@@ -112,24 +112,24 @@ class BoardController extends AbstractController
         return $this->redirectToRoute('app_dashboard_user');
     }
 
-#[Route('/leaveBoard/{id}', name: 'app_leave_board')]
-public function leaveBoard(int $id):Response
-{
-    $board = $this->entityManagerInterface->getRepository(Board::class)->find($id);
-    //get the logged user
-    $userId = $this->security->getUser()->getId();
-    $user = $this->entityManagerInterface->getRepository(User::class)->find($userId);
-    //remove the user from user list
-    $this->boardManagerService->removePlayerFromBoard($board, $user);
+    #[Route('/leaveBoard/{id}', name: 'app_leave_board')]
+    public function leaveBoard(int $id):Response
+    {
+        $board = $this->entityManagerInterface->getRepository(Board::class)->find($id);
+        //get the logged user
+        $userId = $this->security->getUser()->getId();
+        $user = $this->entityManagerInterface->getRepository(User::class)->find($userId);
+        //remove the user from user list
+        $this->boardManagerService->removePlayerFromBoard($board, $user);
 
-    $this->entityManagerInterface->persist($board);
-    $this->entityManagerInterface->flush();
-    $this->entityManagerInterface->persist($user);
-    $this->entityManagerInterface->flush();
+        $this->entityManagerInterface->persist($board);
+        $this->entityManagerInterface->flush();
+        $this->entityManagerInterface->persist($user);
+        $this->entityManagerInterface->flush();
 
-    return $this->redirectToRoute('app_dashboard_tables');
-}
-
+        return $this->redirectToRoute('app_dashboard_tables');
+    }
+    //    Get all game where connected user participate
     #[\Symfony\Component\Routing\Attribute\Route('/dashboard/user', name: 'app_dashboard_user', methods: ['GET'])]
     public function boardsUser(Request $request): Response
     {
@@ -145,6 +145,7 @@ public function leaveBoard(int $id):Response
             'searchboard' => $form->createView(),
         ]);
     }
+    //    Get all created boards in platform
     #[Route('/dashboard/tables', name: 'app_dashboard_tables', methods: ['GET'])]
     public function allBoards(Request $request, BoardRepository $boardRepository): Response
     {
@@ -166,18 +167,19 @@ public function leaveBoard(int $id):Response
         ]);
     }
 
-    #[Route('/dashboard/tables', name: 'app_dashboard_tables', methods: ['GET'])]
-    public function tablesByGame(Request $request, BoardRepository $boardRepository): Response
+    //    Get all boards of an unique game
+    #[Route('/dashboard/game/{id}/tables', name: 'app_boards_game', requirements: ['id' => '\d+'], methods: ['GET'])]
+    public function tablesByGame(int $id, BoardRepository $boardRepository,  EntityManagerInterface $entityManager): Response
     {
-//        $boards = $boardRepository->findAll();
-        $data = new SearchData();
-        $form = $this->createForm(SearchBoardType::class, $data);
-        $form->handleRequest($request);
-        $results = $boardRepository->searchBoards($data);
+        $game = $entityManager->getRepository(Game::class)->find($id);
+        if($game){
+            $boards = $boardRepository->findBy(['game' => $game]);
+        }else{
+            $boards = null;
+        }
 
         return $this->render('platform/dashboard_tables/index.html.twig', [
-            'boards' => $results,
-            'form' => $form->createView(),
+            'boards' => $boards,
         ]);
     }
 
