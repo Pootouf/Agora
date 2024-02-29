@@ -7,10 +7,6 @@ function moveNobleTile(cardId, playerUsername) {
 		let nobleCardShape = nobleCardElement.getBoundingClientRect();
 		let cardFinalPositionShape = cardFinalPositionElement.getBoundingClientRect();
 
-
-
-		console.log(cardFinalPositionShape)
-
 		let movingCardElement = nobleCardElement.cloneNode(true);
 		movingCardElement.id = 'movingcard_' + cardId;
 		movingCardElement.classList.add('absolute');
@@ -20,8 +16,10 @@ function moveNobleTile(cardId, playerUsername) {
 		let distance = Math.sqrt((cardFinalPositionShape.x - nobleCardShape.x) ** 2 +
 			(cardFinalPositionShape.y - nobleCardShape.y) ** 2);
 
-		let xFinalPosition = (cardFinalPositionShape.x + cardFinalPositionShape.width / 2) - (nobleCardShape.width / 2);
-		let yFinalPosition = (cardFinalPositionShape.y + cardFinalPositionShape.height / 2) - (nobleCardShape.height / 2);
+		let xFinalPosition = (cardFinalPositionShape.x + cardFinalPositionShape.width / 2)
+										- (nobleCardShape.width / 2);
+		let yFinalPosition = (cardFinalPositionShape.y + cardFinalPositionShape.height / 2)
+										- (nobleCardShape.height / 2);
 
 		movingCardElement.animate(
 			[
@@ -37,7 +35,8 @@ function moveNobleTile(cardId, playerUsername) {
 					opacity: 1,
 				},
 				{
-					transform: "translate(" + (cardFinalPositionShape.x + cardFinalPositionShape.width / 2) + "px, " + (cardFinalPositionShape.y + cardFinalPositionShape.height / 2) + "px)",
+					transform: "translate(" + (cardFinalPositionShape.x + cardFinalPositionShape.width / 2) + "px, "
+								+ (cardFinalPositionShape.y + cardFinalPositionShape.height / 2) + "px)",
 					width: 0,
 					height: 0,
 					opacity: 0,
@@ -45,7 +44,7 @@ function moveNobleTile(cardId, playerUsername) {
 			],
 			{
 				duration: distance / 0.1,
-				fill: "forwards", // Reste a la position final
+				fill: "forwards", // Stay at the final position
 			}
 		).addEventListener("finish", () => {
 			movingCardElement.remove();
@@ -55,6 +54,63 @@ function moveNobleTile(cardId, playerUsername) {
 			resolve();
 		});
 		nobleCardElement.remove();
+	}).then(() => animationQueue.executeNextInQueue());
+}
+
+function moveTakingToken(tokenId, playerUsername) {
+	animationContainer.classList.remove('hidden');
+	new Promise(resolve => {
+		let tokenFinalPositionElement = document.getElementById(playerUsername);
+		let tokenElement = document.getElementById(tokenId);
+
+		let tokenShape = tokenElement.getBoundingClientRect();
+		let tokenFinalPositionShape = tokenFinalPositionElement.getBoundingClientRect();
+
+		let movingTokenElement = tokenElement.cloneNode(true);
+		movingTokenElement.id = 'movingtoken_' + tokenId;
+		movingTokenElement.classList.add('absolute');
+		animationContainer.appendChild(movingTokenElement);
+
+		// Usefull to set a duration for the animation equal for every distance the translating movement will do
+		let distance = Math.sqrt((tokenFinalPositionShape.x - tokenShape.x) ** 2 +
+			(tokenFinalPositionShape.y - tokenShape.y) ** 2);
+
+		let xFinalPosition = (tokenFinalPositionShape.x + tokenFinalPositionShape.width / 2)
+										- (tokenShape.width / 2);
+		let yFinalPosition = (tokenFinalPositionShape.y + tokenFinalPositionShape.height / 2)
+										- (tokenShape.height / 2);
+
+		movingTokenElement.animate(
+			[
+				{
+					transform: "translate(" + tokenShape.x + "px, " + tokenShape.y + "px)",
+					width: tokenShape.width + "px",
+					height: tokenShape.height + "px",
+				},
+				{
+					transform: "translate(" + xFinalPosition + "px, " + yFinalPosition + "px)",
+					width: tokenShape.width + "px",
+					height: tokenShape.height + "px",
+					opacity: 1,
+				},
+				{
+					transform: "translate(" + (tokenFinalPositionShape.x + tokenFinalPositionShape.width / 2) + "px, "
+						+ (tokenFinalPositionShape.y + tokenFinalPositionShape.height / 2) + "px)",
+					width: 0,
+					height: 0,
+					opacity: 0,
+				},
+			],
+			{
+				duration: distance / 0.25,
+			}
+		).addEventListener("finish", () => {
+			movingTokenElement.remove();
+			//nobleCardElement.remove();
+			console.log('finish')
+			tokenFinalPositionElement.classList.remove('invisible');
+			resolve();
+		});
 	}).then(() => animationQueue.executeNextInQueue());
 }
 
