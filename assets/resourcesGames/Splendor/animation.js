@@ -48,8 +48,6 @@ function moveNobleTile(cardId, playerUsername) {
 			}
 		).addEventListener("finish", () => {
 			movingCardElement.remove();
-			//nobleCardElement.remove();
-			console.log('finish')
 			cardFinalPositionElement.classList.remove('invisible');
 			resolve();
 		});
@@ -106,8 +104,64 @@ function moveTakingToken(tokenId, playerUsername) {
 			}
 		).addEventListener("finish", () => {
 			movingTokenElement.remove();
-			//nobleCardElement.remove();
-			console.log('finish')
+			tokenFinalPositionElement.classList.remove('invisible');
+			resolve();
+		});
+	}).then(() => animationQueue.executeNextInQueue());
+}
+
+
+
+function moveReturnedToken(tokenId, playerUsername) {
+	animationContainer.classList.remove('hidden');
+	new Promise(resolve => {
+		let tokenFinalPositionElement = document.getElementById(playerUsername);
+		let tokenElement = document.getElementById(tokenId);
+
+		let tokenShape = tokenElement.getBoundingClientRect();
+		let tokenFinalPositionShape = tokenFinalPositionElement.getBoundingClientRect();
+
+		let movingTokenElement = tokenElement.cloneNode(true);
+		movingTokenElement.id = 'movingtoken_' + tokenId;
+		movingTokenElement.classList.add('absolute');
+		animationContainer.appendChild(movingTokenElement);
+
+		// Usefull to set a duration for the animation equal for every distance the translating movement will do
+		let distance = Math.sqrt((tokenFinalPositionShape.x - tokenShape.x) ** 2 +
+			(tokenFinalPositionShape.y - tokenShape.y) ** 2);
+
+		let xFinalPosition = (tokenFinalPositionShape.x + tokenFinalPositionShape.width / 2)
+			- (tokenShape.width / 2);
+		let yFinalPosition = (tokenFinalPositionShape.y + tokenFinalPositionShape.height / 2)
+			- (tokenShape.height / 2);
+
+		movingTokenElement.animate(
+			[
+				{
+					transform: "translate(" + (tokenFinalPositionShape.x + tokenFinalPositionShape.width / 2) + "px, "
+						+ (tokenFinalPositionShape.y + tokenFinalPositionShape.height / 2) + "px)",
+					width: 0,
+					height: 0,
+					opacity: 0,
+				},
+				{
+					transform: "translate(" + xFinalPosition + "px, " + yFinalPosition + "px)",
+					width: tokenShape.width + "px",
+					height: tokenShape.height + "px",
+					opacity: 1,
+				},
+				{
+					transform: "translate(" + tokenShape.x + "px, " + tokenShape.y + "px)",
+					width: tokenShape.width + "px",
+					height: tokenShape.height + "px",
+				},
+			],
+			{
+				duration: distance / 0.25,
+				easing: 'ease-in-out',
+			}
+		).addEventListener("finish", () => {
+			movingTokenElement.remove();
 			tokenFinalPositionElement.classList.remove('invisible');
 			resolve();
 		});
