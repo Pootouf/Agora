@@ -7,7 +7,7 @@ function moveNobleTile(cardId, playerUsername) {
 		let nobleCardShape = nobleCardElement.getBoundingClientRect();
 		let cardFinalPositionShape = cardFinalPositionElement.getBoundingClientRect();
 
-		
+
 
 		console.log(cardFinalPositionShape)
 
@@ -20,6 +20,9 @@ function moveNobleTile(cardId, playerUsername) {
 		let distance = Math.sqrt((cardFinalPositionShape.x - nobleCardShape.x) ** 2 +
 			(cardFinalPositionShape.y - nobleCardShape.y) ** 2);
 
+		let xFinalPosition = (cardFinalPositionShape.x + cardFinalPositionShape.width / 2) - (nobleCardShape.width / 2);
+		let yFinalPosition = (cardFinalPositionShape.y + cardFinalPositionShape.height / 2) - (nobleCardShape.height / 2);
+
 		movingCardElement.animate(
 			[
 				{
@@ -28,11 +31,20 @@ function moveNobleTile(cardId, playerUsername) {
 					height: nobleCardShape.height + "px",
 				},
 				{
-					transform: "translate(" + (cardFinalPositionShape.x) + "px, " + cardFinalPositionShape.y + "px)",
+					transform: "translate(" + xFinalPosition + "px, " + yFinalPosition + "px)",
+					width: nobleCardShape.width + "px",
+					height: nobleCardShape.height + "px",
+					opacity: 1,
+				},
+				{
+					transform: "translate(" + (cardFinalPositionShape.x + cardFinalPositionShape.width / 2) + "px, " + (cardFinalPositionShape.y + cardFinalPositionShape.height / 2) + "px)",
+					width: 0,
+					height: 0,
+					opacity: 0,
 				},
 			],
 			{
-				duration: 5000,
+				duration: distance / 0.1,
 				fill: "forwards", // Reste a la position final
 			}
 		).addEventListener("finish", () => {
