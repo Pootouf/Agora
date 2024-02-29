@@ -38,22 +38,6 @@ class BoardRepository extends ServiceEntityRepository
 //        ;
 //    }
 
-//    /**
-//     * @return Board[] Returns an array of Board objects
-//     */
-//    public function searchBoard($value): array
-//    {
-//        $boards =  $this->createQueryBuilder('b')
-//            ->andWhere('b.exampleField LIKE :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('b.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//        return $boards;
-//    }
-
 //    public function findOneBySomeField($value): ?Board
 //    {
 //        return $this->createQueryBuilder('b')
@@ -63,4 +47,44 @@ class BoardRepository extends ServiceEntityRepository
 //            ->getOneOrNullResult()
 //        ;
 //    }
+
+    /**
+     * Results of boards linked with search
+     * @return Board[]
+     */
+    public function searchBoards(SearchData $search): array
+    {
+        $query = $this->createQueryBuilder('b');
+
+        if (!empty($search->status)) {
+            $query->andWhere('b.status = :status')
+                ->setParameter('status', "{$search->status}");
+        }
+
+        if (!empty($search->availability)) {
+            if ( $search->availability === 'OPEN') {
+                $query->andWhere('b.status != :status')
+                    ->setParameter('status', 'IN_GAME')
+                    ->andWhere('(count(b.listUsers) + b.nbInvitations) < b.nbUserMax');
+            } elseif ($search->availability === 'CLOSE') {
+                $query->andWhere('b.status != :status')
+                    ->setParameter('status', 'IN_GAME')
+                    ->orWhere('(COUNT(b.listUsers)+ b.nbInvitations) >= b.nbUserMax');
+            }
+        }
+
+        if (!empty($search->datecreation)) {
+            $query->andWhere('b.creationDate = :creationdate')
+                ->setParameter('creationdate', $search->datecreation);
+        }
+
+        if (!empty($search->game)) {
+            $query->andWhere('b.game = :game')
+                ->setParameter('game', $search->game);
+        }
+
+        return $query->getQuery()->getResult();
+    }
+
+
 }

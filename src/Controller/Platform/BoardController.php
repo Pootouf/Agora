@@ -131,7 +131,7 @@ public function leaveBoard(int $id):Response
 }
 
     #[\Symfony\Component\Routing\Attribute\Route('/dashboard/user', name: 'app_dashboard_user', methods: ['GET'])]
-    public function index(Request $request): Response
+    public function boardsUser(Request $request): Response
     {
         $boards = $this->security->getUser()->getBoards();
         $form = $this->createForm(SearchBoardType::class);
@@ -146,7 +146,7 @@ public function leaveBoard(int $id):Response
         ]);
     }
     #[Route('/dashboard/tables', name: 'app_dashboard_tables', methods: ['GET'])]
-    public function tables(Request $request, BoardRepository $boardRepository): Response
+    public function allBoards(Request $request, BoardRepository $boardRepository): Response
     {
         $sortBy = $request->query->get('sort_by', 'creationDate'); // Par défaut, tri par date de création
         $sortOrder = $request->query->get('sort_order', 'desc'); // Par défaut, tri décroissant
@@ -165,6 +165,22 @@ public function leaveBoard(int $id):Response
             'searchboard' => $form->createView(),
         ]);
     }
+
+    #[Route('/dashboard/tables', name: 'app_dashboard_tables', methods: ['GET'])]
+    public function tablesByGame(Request $request, BoardRepository $boardRepository): Response
+    {
+//        $boards = $boardRepository->findAll();
+        $data = new SearchData();
+        $form = $this->createForm(SearchBoardType::class, $data);
+        $form->handleRequest($request);
+        $results = $boardRepository->searchBoards($data);
+
+        return $this->render('platform/dashboard_tables/index.html.twig', [
+            'boards' => $results,
+            'form' => $form->createView(),
+        ]);
+    }
+
 
     //Redirect to the route of the game, using the id of the board
     #[Route('/showGame/{id}', name: 'app_join_game', methods: ['GET'])]

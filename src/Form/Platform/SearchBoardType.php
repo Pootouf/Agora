@@ -2,8 +2,8 @@
 
 namespace App\Form\Platform;
 
-use App\Entity\Game\DTO\Game;
-use App\Entity\Platform\Board;
+use App\Data\SearchData;
+use App\Entity\Platform\Game;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -20,17 +20,26 @@ class SearchBoardType extends AbstractType
                 'choices' => [
                     'En cours' => 'IN_GAME',
                     'En attente' => 'WAITING',
-                    'Teerminé' => 'FINISH'
-                ]
+                    'Terminé' => 'FINISH'
+                ],
+                'required' => false,
             ])
             ->add('availability', ChoiceType::class, [
                 'choices' => [
                     'Disponible' => 'OPEN',
                     'Indisponible' => 'CLOSE'
-                ]
+                ],
+                'required' => false,
             ])
-            ->add('creationdate', DateType::class, [
+            ->add('datecreation', DateType::class, [
                 'widget' => 'single_text',
+                'required' => false,
+            ])
+            ->add('game', EntityType::class, [
+                'class' => Game::class,
+                'choice_label' => 'name',
+                'placeholder' => 'Sélectionnez un jeu',
+                'required' => false,
             ])
         ;
     }
@@ -38,7 +47,13 @@ class SearchBoardType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => Board::class,
+            'data_class' => SearchData::class,
+            'method' => 'GET',
+            'csrf_protection' => false
         ]);
+    }
+    public function getBlockPrefix()
+    {
+        return '';
     }
 }
