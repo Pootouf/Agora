@@ -17,6 +17,7 @@ use App\Entity\Game\Splendor\TokenSPL;
 use App\Repository\Game\SixQP\ChosenCardSixQPRepository;
 use App\Repository\Game\SixQP\PlayerSixQPRepository;
 use App\Service\Game\LogService;
+use App\Service\Game\MessageService;
 use App\Service\Game\PublishService;
 use App\Service\Game\Splendor\SPLService;
 use App\Service\Game\Splendor\TokenSPLService;
@@ -38,7 +39,8 @@ class SplendorController extends AbstractController
                                 private TokenSPLService $tokenSPLService,
                                 private SPLService $SPLService,
                                 private LogService $logService,
-                                private PublishService $publishService)
+                                private PublishService $publishService,
+                                private MessageService $messageService)
     {}
 
     #[Route('/game/splendor/{id}', name: 'app_game_show_spl')]
@@ -53,6 +55,8 @@ class SplendorController extends AbstractController
         } else {
             $needToPlay = $player->isTurnOfPlayer();
         }
+        $messages = $this->messageService->receiveMessage($game->getId());
+
         $mainBoardTokens = $game->getMainBoard()->getTokens();
         return $this->render('/Game/Splendor/index.html.twig', [
             'game' => $game,
@@ -94,6 +98,7 @@ class SplendorController extends AbstractController
             'purchasableCards' => $this->SPLService
                     ->getPurchasableCardsOnBoard($game, $player),
             'canReserveCard' => $this->SPLService->doesPlayerAlreadyHaveMaxNumberOfReservedCard($player),
+            'messages' => $messages
         ]);
     }
 
