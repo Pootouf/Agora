@@ -32,7 +32,7 @@ class GlenmoreParameters {
 
     public static int $MAX_RESOURCES_PER_TILE = 3;
     public static int $MIN_NUMBER_OF_PLAYER = 2;
-    public static int $MAX_NUMBER_OF_PLAYER = 3;
+    public static int $MAX_NUMBER_OF_PLAYER = 5;
 
 
 
