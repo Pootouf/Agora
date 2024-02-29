@@ -2,11 +2,13 @@
 
 namespace App\Controller\Game;
 
+use App\Entity\Game\Glenmore\GameGLM;
 use App\Entity\Game\SixQP\GameSixQP;
 use App\Entity\Game\Splendor\DrawCardsSPL;
 use App\Entity\Game\Splendor\GameSPL;
 use App\Entity\Game\Splendor\PlayerCardSPL;
 use App\Entity\Game\Splendor\SplendorParameters;
+use App\Repository\Game\Glenmore\GameGLMRepository;
 use App\Repository\Game\SixQP\GameSixQPRepository;
 use App\Repository\Game\Splendor\GameSPLRepository;
 use App\Service\Game\AbstractGameManagerService;
@@ -203,6 +205,59 @@ class GameTestController extends AbstractController
 
         return $this->redirectToRoute('app_game_splendor_list');
     }
+
+
+
+
+    #[Route('/game/glenmore/list', name: 'app_game_glenmore_list')]
+    public function listGLMGames(GameGLMRepository $gameGLMRepository): Response
+    {
+        $games = $gameGLMRepository->findAll();
+
+        return $this->render('Game/Glenmore/GameTest/list_games.twig', [
+            'games' => $games,
+        ]);
+    }
+
+    #[Route('/game/glenmore/create', name: 'app_game_glenmore_create')]
+    public function createGlenmoreGame(): Response
+    {
+        $this->gameService->createGame(AbstractGameManagerService::$GLM_LABEL);
+        return $this->redirectToRoute('app_game_glenmore_list');
+    }
+
+    #[Route('/game/glenmore/join/{id}', name: 'app_game_glenmore_join')]
+    public function joinGlenmoreGame(GameGLM $game): Response
+    {
+        $user = $this->getUser();
+        $this->gameService->joinGame($game->getId(), $user);
+        return $this->redirectToRoute('app_game_glenmore_list');
+    }
+
+    #[Route('/game/glenmore/leave/{id}', name: 'app_game_glenmore_quit')]
+    public function quitGlenmoreGame(GameGLM $game): Response
+    {
+        $user = $this->getUser();
+        $this->gameService->quitGame($game->getId(), $user);
+        return $this->redirectToRoute('app_game_glenmore_list');
+    }
+
+    #[Route('/game/glenmore/delete/{id}', name: 'app_game_glenmore_delete')]
+    public function deleteGlenmoreGame(GameGLM $game): Response
+    {
+        $this->gameService->deleteGame($game->getId());
+        return $this->redirectToRoute('app_game_glenmore_list');
+    }
+
+    #[Route('/game/glenmore/launch/{id}', name: 'app_game_glenmore_launch')]
+    public function launchGlenmoreGame(GameGLM $game): Response
+    {
+        $this->gameService->launchGame($game->getId());
+        return $this->redirectToRoute('app_game_glenmore_list');
+    }
+
+
+
 
     private function doRandomly(Callable $call): void
     {
