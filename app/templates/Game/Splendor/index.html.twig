@@ -27,6 +27,9 @@
                 </div>
                 {% endif %}
             {% endblock %}
+            {% block chat %}
+                {{ include('/Game/Utils/chat.html.twig') }}
+            {% endblock %}
         </div>
     </div>
     <script>

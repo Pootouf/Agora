@@ -17,6 +17,7 @@ use App\Entity\Game\Splendor\TokenSPL;
 use App\Repository\Game\SixQP\ChosenCardSixQPRepository;
 use App\Repository\Game\SixQP\PlayerSixQPRepository;
 use App\Service\Game\LogService;
+use App\Service\Game\MessageService;
 use App\Service\Game\PublishService;
 use App\Service\Game\Splendor\SPLService;
 use App\Service\Game\Splendor\TokenSPLService;
@@ -38,7 +39,8 @@ class SplendorController extends AbstractController
                                 private TokenSPLService $tokenSPLService,
                                 private SPLService $SPLService,
                                 private LogService $logService,
-                                private PublishService $publishService)
+                                private PublishService $publishService,
+                                private MessageService $messageService)
     {}
 
     #[Route('/game/splendor/{id}', name: 'app_game_show_spl')]
@@ -53,6 +55,8 @@ class SplendorController extends AbstractController
         } else {
             $needToPlay = $player->isTurnOfPlayer();
         }
+        $messages = $this->messageService->receiveMessage($game->getId());
+
         $mainBoardTokens = $game->getMainBoard()->getTokens();
         return $this->render('/Game/Splendor/index.html.twig', [
             'game' => $game,
@@ -94,6 +98,7 @@ class SplendorController extends AbstractController
             'purchasableCards' => $this->SPLService
                     ->getPurchasableCardsOnBoard($game, $player),
             'canReserveCard' => $this->SPLService->doesPlayerAlreadyHaveMaxNumberOfReservedCard($player),
+            'messages' => $messages
         ]);
     }
 
@@ -161,7 +166,7 @@ class SplendorController extends AbstractController
          $playerCard = $this->SPLService->getPlayerCardFromDevelopmentCard($game, $card);
          if ($playerCard != null) {
              if ($player->getId() != $playerCard->getPersonalBoardSPL()->getPlayerSPL()->getId()) {
-                 return new Response("Not player's card", Response::HTTP_FORBIDDEN);
+                 return new Response("Not player's card ", Response::HTTP_FORBIDDEN);
              }
              if (!$playerCard->isIsReserved()) {
                  return new Response("The card is not reserved", Response::HTTP_FORBIDDEN);
@@ -170,7 +175,7 @@ class SplendorController extends AbstractController
          try {
              $this->SPLService->buyCard($player, $card);
          } catch (Exception $e) {
-             return new Response("Not player's card", Response::HTTP_FORBIDDEN);
+             return new Response("Can't buy this card : ".$e->getMessage(), Response::HTTP_FORBIDDEN);
          }
          $this->SPLService->addBuyableNobleTilesToPlayer($game, $player);
          $this->publishNobleTiles($game);
@@ -358,7 +363,7 @@ class SplendorController extends AbstractController
                                                                 bool $needToPlay) : void
     {
         $response = $this->render('Game/Splendor/MainBoard/developmentCardsBoard.html.twig', [
-            'rows' => $game->getMainBoard()->getRowsSPL(),
+            'rows' => $this->SPLService->getRowsFromGame($game),
             'drawCardsLevelOneCount' => $this->SPLService
                 ->getDrawCardsByLevel(SplendorParameters::$DRAW_CARD_LEVEL_ONE, $game)
                 ->count(),

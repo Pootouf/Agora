@@ -20,12 +20,14 @@ use App\Repository\Game\Splendor\DrawCardsSPLRepository;
 use App\Repository\Game\Splendor\NobleTileSPLRepository;
 use App\Repository\Game\Splendor\PlayerCardSPLRepository;
 use App\Repository\Game\Splendor\PlayerSPLRepository;
+use App\Repository\Game\Splendor\RowSPLRepository;
 use App\Repository\Game\Splendor\TokenSPLRepository;
 use App\Service\Game\Splendor\SPLService;
 use App\Service\Game\Splendor\TokenSPLService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 
 class SPLServiceTest extends TestCase
 {
@@ -36,13 +38,16 @@ class SPLServiceTest extends TestCase
     {
         $entityManager = $this->createMock(EntityManagerInterface::class);
         $playerRepository = $this->createMock(PlayerSPLRepository::class);
+        $rowSPLRepository = $this->createMock(RowSPLRepository::class);
         $playerCardRepository = $this->createMock(PlayerCardSPLRepository::class);
         $tokenRepository = $this->createMock(TokenSPLRepository::class);
         $nobleTileRepository = $this->createMock(NobleTileSPLRepository::class);
         $developmentCardRepository = $this->createMock(DevelopmentCardsSPLRepository::class);
         $drawCardRepository = $this->createMock(DrawCardsSPLRepository::class);
-        $this->SPLService = new SPLService($entityManager, $playerRepository,
-            $nobleTileRepository, $developmentCardRepository, $playerCardRepository, $drawCardRepository);
+        $logger = $this->createMock(LoggerInterface::class);
+        $this->SPLService = new SPLService($entityManager, $playerRepository, $rowSPLRepository,
+            $nobleTileRepository, $developmentCardRepository, $playerCardRepository, $drawCardRepository,
+            $logger);
         $this->tokenSPLService = new TokenSPLService($entityManager, $tokenRepository, $this->SPLService);
     }
 

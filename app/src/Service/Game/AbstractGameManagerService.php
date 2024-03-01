@@ -7,8 +7,8 @@ use App\Entity\Game\DTO\Game;
 abstract class AbstractGameManagerService {
 
     public static string $SIXQP_LABEL = "6QP";
-
     public static string $SPL_LABEL = "SPL";
+    public static string $GLM_LABEL = "GLM";
 
     public static int $ERROR_INVALID_NUMBER_OF_PLAYER = -4;
     public static int $ERROR_INVALID_GAME = -2;
