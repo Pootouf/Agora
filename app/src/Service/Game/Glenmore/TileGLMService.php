@@ -42,27 +42,6 @@ class TileGLMService
         return $count;
     }
 
-
-    /**
-     * isChainBroken : returns true if the chain is broken, false otherwise
-     * @param MainBoardGLM $mainBoardGLM
-     * @return bool
-     */
-    private function isChainBroken(MainBoardGLM $mainBoardGLM): bool
-    {
-        $player = $this->GLMService->getActivePlayer($mainBoardGLM->getGameGLM());
-        $playerPosition = $player->getPawn()->getPosition();
-        $positionBehindPlayer = ($playerPosition - 1) %
-            GlenmoreParameters::$NUMBER_OF_TILES_ON_BOARD;
-        $mainBoardTiles = $mainBoardGLM->getBoardTiles();
-        foreach ($mainBoardTiles as $boardTile){
-            if($boardTile->getPosition() == $positionBehindPlayer){
-                return true;
-            }
-        }
-        return false;
-    }
-
     /**
      * Assign tile for player when conditions are verified
      * @param BoardTileGLM $boardTile
@@ -147,6 +126,27 @@ class TileGLMService
 
         $this->entityManager->flush();
     }
+
+    /**
+     * isChainBroken : returns true if the chain is broken, false otherwise
+     * @param MainBoardGLM $mainBoardGLM
+     * @return bool
+     */
+    private function isChainBroken(MainBoardGLM $mainBoardGLM): bool
+    {
+        $player = $this->GLMService->getActivePlayer($mainBoardGLM->getGameGLM());
+        $playerPosition = $player->getPawn()->getPosition();
+        $positionBehindPlayer = ($playerPosition - 1) %
+            GlenmoreParameters::$NUMBER_OF_TILES_ON_BOARD;
+        $mainBoardTiles = $mainBoardGLM->getBoardTiles();
+        foreach ($mainBoardTiles as $boardTile){
+            if($boardTile->getPosition() == $positionBehindPlayer){
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     /*
         /**
