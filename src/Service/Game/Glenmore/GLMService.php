@@ -145,6 +145,7 @@ class GLMService
         $result = array();
         foreach ($players as $player) {
             $personalBoard = $player->getPersonalBoard();
+            // TODO TAKE INTO ACCOUNT IF PLAWER OWNS CASTLE OF MEY AND HATS
             $playerResource = $personalBoard->getLeaderCount();
             $result[] = array($player, $playerResource);
         }
