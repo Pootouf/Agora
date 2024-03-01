@@ -10,6 +10,8 @@ use App\Entity\Game\Glenmore\MainBoardGLM;
 use App\Entity\Game\Glenmore\PersonalBoardGLM;
 use App\Entity\Game\Glenmore\PlayerGLM;
 use App\Entity\Game\Glenmore\PlayerTileGLM;
+use App\Entity\Game\Glenmore\TileCostGLM;
+use App\Entity\Game\Glenmore\TileGLM;
 use App\Repository\Game\Glenmore\PlayerGLMRepository;
 use App\Repository\Game\Glenmore\TileGLMRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -43,6 +45,23 @@ class TileGLMService
                 GlenmoreParameters::$NUMBER_OF_TILES_ON_BOARD;
         }
         return $count;
+    }
+
+    /**
+     * activateTileBonus : gives player the bonus of $tileGLM if he can activate it
+     * @param TileGLM $tileGLM
+     * @param PlayerGLM $playerGLM
+     * @return void
+     */
+    public function activateTileBonus(TileGLM $tileGLM, PlayerGLM $playerGLM): void
+    {
+        $activationPrice = $tileGLM->getActivationPrice();
+        $activationBonus = $tileGLM->getActivationBonus();
+        $playerBoard = $playerGLM->getPersonalBoard();
+
+        if($this->canActivateBonus($tileGLM, $playerBoard)){
+            $this->giveBonusToPlayer();
+        }
     }
 
 
@@ -165,6 +184,35 @@ class TileGLMService
         return $this->canBuyTile($tile, $player)
             && $this->canPlaceTileOnPersonalBoard($tile, $player);
     }*/
+
+    /**
+     * canActivateBonus : check if player can activate tile bonus
+     * @param TileCostGLM $activationPrice
+     * @param PersonalBoardGLM $personalBoardGLM
+     * @return bool
+     */
+    private function canActivateBonus(TileGLM $tileToActivate, PersonalBoardGLM $personalBoardGLM): bool
+    {
+        $activationPrice = $tileToActivate->getActivationPrice()->first();
+        $resourceType = $activationPrice->getResource();
+        $resourceCount = $activationPrice->getPrice();
+
+        $count = 0;
+        $personalTiles = $personalBoardGLM->getPlayerTiles();
+        foreach ($personalTiles as $personalTile){
+            $resourcesOnTile = $personalTile->getResources();
+            foreach ($resourcesOnTile as $resource){
+                if($resource->getType() == $resourceType){
+                    $count += 1;
+                }
+            }
+        }
+
+        if($count >= $resourceCount){
+            return true;
+        }
+        return false;
+    }
 
     /**
      * Return a board tile that position is equal to parameter else null
