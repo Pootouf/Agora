@@ -14,6 +14,8 @@ use App\Repository\Game\Splendor\GameSPLRepository;
 use App\Service\Game\AbstractGameManagerService;
 use App\Service\Game\GameManagerService;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Util\Exception;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -227,10 +229,13 @@ class GameTestController extends AbstractController
     }
 
     #[Route('/game/glenmore/join/{id}', name: 'app_game_glenmore_join')]
-    public function joinGlenmoreGame(GameGLM $game): Response
+    public function joinGlenmoreGame(GameGLM $game, LoggerInterface $logger): Response
     {
         $user = $this->getUser();
-        $this->gameService->joinGame($game->getId(), $user);
+        $value = $this->gameService->joinGame($game->getId(), $user);
+        if ($value != AbstractGameManagerService::$SUCCESS) {
+            throw new Exception($value);
+        }
         return $this->redirectToRoute('app_game_glenmore_list');
     }
 
@@ -238,21 +243,30 @@ class GameTestController extends AbstractController
     public function quitGlenmoreGame(GameGLM $game): Response
     {
         $user = $this->getUser();
-        $this->gameService->quitGame($game->getId(), $user);
+        $value = $this->gameService->quitGame($game->getId(), $user);
+        if ($value != AbstractGameManagerService::$SUCCESS) {
+            throw new Exception($value);
+        }
         return $this->redirectToRoute('app_game_glenmore_list');
     }
 
     #[Route('/game/glenmore/delete/{id}', name: 'app_game_glenmore_delete')]
     public function deleteGlenmoreGame(GameGLM $game): Response
     {
-        $this->gameService->deleteGame($game->getId());
+        $value = $this->gameService->deleteGame($game->getId());
+        if ($value != AbstractGameManagerService::$SUCCESS) {
+            throw new Exception($value);
+        }
         return $this->redirectToRoute('app_game_glenmore_list');
     }
 
     #[Route('/game/glenmore/launch/{id}', name: 'app_game_glenmore_launch')]
     public function launchGlenmoreGame(GameGLM $game): Response
     {
-        $this->gameService->launchGame($game->getId());
+        $value = $this->gameService->launchGame($game->getId());
+        if ($value != AbstractGameManagerService::$SUCCESS) {
+            throw new Exception($value);
+        }
         return $this->redirectToRoute('app_game_glenmore_list');
     }
 

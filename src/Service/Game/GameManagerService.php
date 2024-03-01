@@ -4,26 +4,27 @@ namespace App\Service\Game;
 
 use App\Entity\Game\DTO\Game;
 use App\Entity\Game\GameUser;
+use App\Repository\Game\Glenmore\GameGLMRepository;
 use App\Repository\Game\SixQP\GameSixQPRepository;
 use App\Repository\Game\Splendor\GameSPLRepository;
+use App\Service\Game\Glenmore\GLMGameManagerService;
 use App\Service\Game\SixQP\SixQPGameManagerService;
 use App\Service\Game\Splendor\SPLGameManagerService;
 
 class GameManagerService
 {
-    private GameSixQPRepository $gameSixQPRepository;
-    private GameSPLRepository $gameSPLRepository;
     private array $gameManagerServices;
 
-    public function __construct(GameSixQPRepository $gameSixQPRepository,
-                                GameSPLRepository $gameSPLRepository,
+    public function __construct(private GameSixQPRepository $gameSixQPRepository,
+                                private GameSPLRepository $gameSPLRepository,
+                                private GameGLMRepository $gameGLMRepository,
                                 SixQPGameManagerService $sixQPGameManagerService,
-                                SPLGameManagerService $SPLGameManagerService)
+                                SPLGameManagerService $SPLGameManagerService,
+                                GLMGameManagerService $GLMGameManagerService,)
     {
-        $this->gameSixQPRepository = $gameSixQPRepository;
         $this->gameManagerServices[AbstractGameManagerService::$SIXQP_LABEL] = $sixQPGameManagerService;
         $this->gameManagerServices[AbstractGameManagerService::$SPL_LABEL] = $SPLGameManagerService;
-        $this->gameSPLRepository = $gameSPLRepository;
+        $this->gameManagerServices[AbstractGameManagerService::$GLM_LABEL] = $GLMGameManagerService;
     }
 
     public function createGame(string $gameName): int {
@@ -73,6 +74,9 @@ class GameManagerService
         $game = $this->gameSixQPRepository->findOneBy(['id' => $gameId]);
         if ($game == null) {
             $game = $this->gameSPLRepository->findOneBy(['id' => $gameId]);
+        }
+        if ($game == null) {
+            $game = $this->gameGLMRepository->findOneBy(['id' => $gameId]);
         }
         return $game;
     }
