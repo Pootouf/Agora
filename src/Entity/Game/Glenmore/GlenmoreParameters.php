@@ -11,11 +11,16 @@ class GlenmoreParameters {
     public static string $COLOR_BLACK = "black";
     public static string $COLOR_BROWN = "brown";
     public static string $COLOR_GREY = "grey";
+
     public static string $PRODUCTION_RESOURCE = "production";
     public static string $WHISKY_RESOURCE = "whisky";
     public static string $HAT_RESOURCE = "hat";
     public static string $VILLAGER_RESOURCE = "villager";
     public static string $MOVEMENT_RESOURCE = "movement";
+
+
+    public static string $TILE_NAME_START_VILLAGE = "start village";
+
     public static int $NORTH = 0;
     public static int $NORTH_EAST = 1;
     public static int $EAST = 2;
@@ -33,6 +38,11 @@ class GlenmoreParameters {
     public static int $MAX_RESOURCES_PER_TILE = 3;
     public static int $MIN_NUMBER_OF_PLAYER = 2;
     public static int $MAX_NUMBER_OF_PLAYER = 5;
+
+    public static int $START_MONEY = 6;
+
+    public static array $COLOR_FROM_POSITION = ['yellow','red', 'green', 'blue', 'white'];
+
 
     public static int $NUMBER_OF_TILES_ON_BOARD = 14;
 

@@ -2,19 +2,26 @@
 
 namespace App\Service\Game\Glenmore;
 
+use App\Entity\Game\Glenmore\DrawTilesGLM;
 use App\Entity\Game\Glenmore\GameGLM;
 use App\Entity\Game\Glenmore\GlenmoreParameters;
 use App\Entity\Game\Glenmore\PlayerGLM;
+use App\Entity\Game\Glenmore\PlayerTileGLM;
+use App\Repository\Game\Glenmore\DrawTilesGLMRepository;
 use App\Repository\Game\Glenmore\PlayerGLMRepository;
+use App\Repository\Game\Glenmore\ResourceGLMRepository;
 use App\Repository\Game\Glenmore\TileGLMRepository;
-use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\EntityManagerInterface;
 
 class GLMService
 {
     public function __construct(private EntityManagerInterface $entityManager,
                                 private TileGLMRepository $tileGLMRepository,
-                                private PlayerGLMRepository $playerGLMRepository){}
+                                private DrawTilesGLMRepository $drawTilesGLMRepository,
+                                private ResourceGLMRepository $resourceGLMRepository,
+                                private PlayerGLMRepository $playerGLMRepository)
+    {}
 
     public function getActivePlayer(GameGLM $gameGLM): PlayerGLM
     {
@@ -68,4 +75,53 @@ class GLMService
         $this->entityManager->persist($nextPlayer);
         $this->entityManager->flush();
     }
+
+
+    public function initializeNewGame(GameGLM $game) : void
+    {
+        $tilesLevelZero = $this->tileGLMRepository->findBy(['level' => GlenmoreParameters::$TILE_LEVEL_ZERO]);
+        $tilesLevelOne = $this->tileGLMRepository->findBy(['level' => GlenmoreParameters::$TILE_LEVEL_ONE]);
+        $tilesLevelTwo = $this->tileGLMRepository->findBy(['level' => GlenmoreParameters::$TILE_LEVEL_TWO]);
+        $tilesLevelThree = $this->tileGLMRepository->findBy(['level' => GlenmoreParameters::$TILE_LEVEL_THREE]);
+
+        $drawLevelZero = $this->drawTilesGLMRepository->findOneBy(
+                ['mainBoardGLM' => $game->getMainBoard()->getId(),
+                'level' => GlenmoreParameters::$TILE_LEVEL_ZERO]);
+        $drawLevelOne = $this->drawTilesGLMRepository->findOneBy(
+            ['mainBoardGLM' => $game->getMainBoard()->getId(),
+                'level' => GlenmoreParameters::$TILE_LEVEL_ONE]);
+        $drawLevelTwo = $this->drawTilesGLMRepository->findOneBy(
+            ['mainBoardGLM' => $game->getMainBoard()->getId(),
+                'level' => GlenmoreParameters::$TILE_LEVEL_TWO]);
+        $drawLevelThree = $this->drawTilesGLMRepository->findOneBy(
+            ['mainBoardGLM' => $game->getMainBoard()->getId(),
+                'level' => GlenmoreParameters::$TILE_LEVEL_THREE]);
+
+        foreach ($tilesLevelZero as $tile) $drawLevelZero->addTile($tile);
+        foreach ($tilesLevelOne as $tile) $drawLevelOne->addTile($tile);
+        foreach ($tilesLevelTwo as $tile) $drawLevelTwo->addTile($tile);
+        foreach ($tilesLevelThree as $tile) $drawLevelThree->addTile($tile);
+        $this->entityManager->persist($drawLevelZero);
+        $this->entityManager->persist($drawLevelOne);
+        $this->entityManager->persist($drawLevelTwo);
+        $this->entityManager->persist($drawLevelThree);
+
+        $startVillages = $this->tileGLMRepository->findBy(['name' => GlenmoreParameters::$TILE_NAME_START_VILLAGE]);
+        $chiefs = $this->resourceGLMRepository->findBy(['type' => GlenmoreParameters::$VILLAGER_RESOURCE]);
+        foreach ($game->getPlayers() as $player) {
+            $tile = array_pop($startVillages);
+            $chief = array_pop($chiefs);
+            $playerTile = new PlayerTileGLM();
+            $playerTile->setTile($tile);
+            $playerTile->addResource($chief);
+            $player->getPersonalBoard()->addPlayerTile($playerTile);
+            $this->entityManager->persist($playerTile);
+
+            $player->getPersonalBoard()->setMoney(GlenmoreParameters::$START_MONEY);
+            $this->entityManager->persist($player->getPersonalBoard());
+        }
+
+        $this->entityManager->flush();
+    }
+
 }
