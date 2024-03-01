@@ -16,6 +16,7 @@ class GlenmoreParameters {
     public static string $HAT_RESOURCE = "hat";
     public static string $VILLAGER_RESOURCE = "villager";
     public static string $MOVEMENT_RESOURCE = "movement";
+    public static string $POINT_RESOURCE = "points";
     public static int $NORTH = 0;
     public static int $NORTH_EAST = 1;
     public static int $EAST = 2;
@@ -52,8 +53,7 @@ class GlenmoreParameters {
     public static string $TILE_TYPE_GREEN = "green";
     public static string $TILE_TYPE_BROWN = "brown";
     public static string $TILE_TYPE_BLUE = "blue";
-
-    public static string $TILE_TYPE_START = "village";
+    public static string $TILE_TYPE_VILLAGE = "village";
     public static string $TILE_TYPE_CASTLE = "castle";
     public static string $TILE_NAME_FOREST = "forest";
     public static string $TILE_NAME_PASTURE = "pasture";

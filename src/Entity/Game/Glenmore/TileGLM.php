@@ -12,18 +12,19 @@ use Doctrine\ORM\Mapping as ORM;
 class TileGLM extends Tile
 {
 
-    #[ORM\OneToMany(targetEntity: TileCostGLM::class, mappedBy: 'tileGLM', orphanRemoval: true)]
+    #[ORM\ManyToMany(targetEntity: TileBuyCostGLM::class)]
+    #[ORM\JoinColumn(nullable: true)]
     private Collection $buyPrice;
 
-    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
-    private ?TileBonusGLM $buyBonus = null;
+    #[ORM\ManyToMany(targetEntity: TileBuyBonusGLM::class)]
+    private Collection $buyBonus;
 
-    #[ORM\OneToMany(targetEntity: TileCostGLM::class, mappedBy: 'tileBonusGLM')]
+    #[ORM\ManyToMany(targetEntity: TileActivationCostGLM::class)]
     private Collection $activationPrice;
 
-    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
+    #[ORM\ManyToMany(targetEntity: TileActivationBonusGLM::class)]
     #[ORM\JoinColumn(nullable: false)]
-    private ?TileBonusGLM $activationBonus = null;
+    private Collection|null $activationBonus = null;
 
     #[ORM\Column(length: 255)]
     private ?string $name = null;
@@ -44,88 +45,102 @@ class TileGLM extends Tile
     {
         $this->buyPrice = new ArrayCollection();
         $this->activationPrice = new ArrayCollection();
+        $this->activationBonus = new ArrayCollection();
+        $this->buyBonus = new ArrayCollection();
     }
 
     /**
-     * @return Collection<int, TileCostGLM>
+     * @return Collection<int, TileBuyCostGLM>
      */
     public function getBuyPrice(): Collection
     {
         return $this->buyPrice;
     }
 
-    public function addBuyPrice(TileCostGLM $buyPrice): static
+    public function addBuyPrice(TileBuyCostGLM $buyPrice): static
     {
         if (!$this->buyPrice->contains($buyPrice)) {
             $this->buyPrice->add($buyPrice);
-            $buyPrice->setTileGLM($this);
         }
 
         return $this;
     }
 
-    public function removeBuyPrice(TileCostGLM $buyPrice): static
+    public function removeBuyPrice(TileBuyCostGLM $buyPrice): static
     {
-        if ($this->buyPrice->removeElement($buyPrice)) {
-            // set the owning side to null (unless already changed)
-            if ($buyPrice->getTileGLM() === $this) {
-                $buyPrice->setTileGLM(null);
-            }
-        }
-
-        return $this;
-    }
-
-    public function getBuyBonus(): ?TileBonusGLM
-    {
-        return $this->buyBonus;
-    }
-
-    public function setBuyBonus(?TileBonusGLM $buyBonus): static
-    {
-        $this->buyBonus = $buyBonus;
+        $this->buyPrice->removeElement($buyPrice);
 
         return $this;
     }
 
     /**
-     * @return Collection<int, TileCostGLM>
+     * @return Collection<int, TileBuyBonusGLM>
+     */
+    public function getBuyBonus(): Collection
+    {
+        return $this->buyPrice;
+    }
+
+    public function addBuyBonus(TileBuyBonusGLM $buyBonus): static
+    {
+        if (!$this->buyBonus->contains($buyBonus)) {
+            $this->buyBonus->add($buyBonus);
+        }
+
+        return $this;
+    }
+
+    public function removeBuyBonus(TileBuyBonusGLM $buyBonus): static
+    {
+        $this->buyBonus->removeElement($buyBonus);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, TileActivationCostGLM>
      */
     public function getActivationPrice(): Collection
     {
         return $this->activationPrice;
     }
 
-    public function addActivationPrice(TileCostGLM $activationPrice): static
+    public function addActivationPrice(TileActivationCostGLM $activationPrice): static
     {
         if (!$this->activationPrice->contains($activationPrice)) {
             $this->activationPrice->add($activationPrice);
-            $activationPrice->setTileBonusGLM($this);
         }
 
         return $this;
     }
 
-    public function removeActivationPrice(TileCostGLM $activationPrice): static
+    public function removeActivationPrice(TileActivationCostGLM $activationPrice): static
     {
-        if ($this->activationPrice->removeElement($activationPrice)) {
-            // set the owning side to null (unless already changed)
-            if ($activationPrice->getTileBonusGLM() === $this) {
-                $activationPrice->setTileBonusGLM(null);
-            }
-        }
+        $this->activationPrice->removeElement($activationPrice);
 
         return $this;
     }
 
-    public function getActivationBonus(): ?TileBonusGLM
+    /**
+     * @return Collection<int, TileActivationBonusGLM>
+     */
+    public function getActivationBonus(): Collection
     {
         return $this->activationBonus;
     }
 
-    public function setActivationBonus(TileBonusGLM $activationBonus): static
+    public function addActivationBonus(TileActivationBonusGLM $activationBonus): static
     {
-        $this->activationBonus = $activationBonus;
+        if (!$this->activationBonus->contains($activationBonus)) {
+            $this->activationBonus->add($activationBonus);
+        }
+
+        return $this;
+    }
+
+    public function removeActivationBonus(TileActivationBonusGLM $activationBonus): static
+    {
+        $this->activationBonus->removeElement($activationBonus);
 
         return $this;
     }
