@@ -140,7 +140,7 @@ public function leaveBoard(int $id):Response
 
         }
 
-        return $this->render('platform/dashboard_tables/index.html.twig', [
+        return $this->render('platform/dashboard_user/index.html.twig', [
             'boards' => $boards,
             'searchboard' => $form->createView(),
         ]);
