@@ -2,16 +2,20 @@
 
 namespace App\Controller\Game;
 
+use App\Entity\Game\Glenmore\GameGLM;
 use App\Entity\Game\SixQP\GameSixQP;
 use App\Entity\Game\Splendor\DrawCardsSPL;
 use App\Entity\Game\Splendor\GameSPL;
 use App\Entity\Game\Splendor\PlayerCardSPL;
 use App\Entity\Game\Splendor\SplendorParameters;
+use App\Repository\Game\Glenmore\GameGLMRepository;
 use App\Repository\Game\SixQP\GameSixQPRepository;
 use App\Repository\Game\Splendor\GameSPLRepository;
 use App\Service\Game\AbstractGameManagerService;
 use App\Service\Game\GameManagerService;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Util\Exception;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -203,6 +207,71 @@ class GameTestController extends AbstractController
 
         return $this->redirectToRoute('app_game_splendor_list');
     }
+
+
+
+
+    #[Route('/game/glenmore/list', name: 'app_game_glenmore_list')]
+    public function listGLMGames(GameGLMRepository $gameGLMRepository): Response
+    {
+        $games = $gameGLMRepository->findAll();
+
+        return $this->render('Game/Glenmore/GameTest/list_games.twig', [
+            'games' => $games,
+        ]);
+    }
+
+    #[Route('/game/glenmore/create', name: 'app_game_glenmore_create')]
+    public function createGlenmoreGame(): Response
+    {
+        $this->gameService->createGame(AbstractGameManagerService::$GLM_LABEL);
+        return $this->redirectToRoute('app_game_glenmore_list');
+    }
+
+    #[Route('/game/glenmore/join/{id}', name: 'app_game_glenmore_join')]
+    public function joinGlenmoreGame(GameGLM $game, LoggerInterface $logger): Response
+    {
+        $user = $this->getUser();
+        $value = $this->gameService->joinGame($game->getId(), $user);
+        if ($value != AbstractGameManagerService::$SUCCESS) {
+            throw new Exception($value);
+        }
+        return $this->redirectToRoute('app_game_glenmore_list');
+    }
+
+    #[Route('/game/glenmore/leave/{id}', name: 'app_game_glenmore_quit')]
+    public function quitGlenmoreGame(GameGLM $game): Response
+    {
+        $user = $this->getUser();
+        $value = $this->gameService->quitGame($game->getId(), $user);
+        if ($value != AbstractGameManagerService::$SUCCESS) {
+            throw new Exception($value);
+        }
+        return $this->redirectToRoute('app_game_glenmore_list');
+    }
+
+    #[Route('/game/glenmore/delete/{id}', name: 'app_game_glenmore_delete')]
+    public function deleteGlenmoreGame(GameGLM $game): Response
+    {
+        $value = $this->gameService->deleteGame($game->getId());
+        if ($value != AbstractGameManagerService::$SUCCESS) {
+            throw new Exception($value);
+        }
+        return $this->redirectToRoute('app_game_glenmore_list');
+    }
+
+    #[Route('/game/glenmore/launch/{id}', name: 'app_game_glenmore_launch')]
+    public function launchGlenmoreGame(GameGLM $game): Response
+    {
+        $value = $this->gameService->launchGame($game->getId());
+        if ($value != AbstractGameManagerService::$SUCCESS) {
+            throw new Exception($value);
+        }
+        return $this->redirectToRoute('app_game_glenmore_list');
+    }
+
+
+
 
     private function doRandomly(Callable $call): void
     {

@@ -14,7 +14,7 @@ class GlenmoreController extends AbstractController
     public function __construct(private GLMService $service)
     {}
 
-    #[Route('/game/splendor/{id}', name: 'app_game_show_spl')]
+    #[Route('/game/glenmore/{id}', name: 'app_game_show_glm')]
     public function showGame(GameGLM $game): Response
     {
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
