@@ -224,6 +224,63 @@ function moveDrawCard(cardId, playerUsername) {
 	}).then(() => animationQueue.executeNextInQueue());
 }
 
+function moveDevCard(cardId, playerUsername) {
+	animationContainer.classList.remove('hidden');
+	new Promise(resolve => {
+		let cardFinalPositionElement = document.getElementById(playerUsername);
+		let devCardElement = document.getElementById('image_card_' + cardId);
+
+		let devCardShape = devCardElement.getBoundingClientRect();
+		let cardFinalPositionShape = cardFinalPositionElement.getBoundingClientRect();
+
+		let movingCardElement = devCardElement.cloneNode(true);
+		movingCardElement.id = 'movingcard_' + cardId;
+		movingCardElement.classList.add('absolute');
+		animationContainer.appendChild(movingCardElement);
+
+		// Usefull to set a duration for the animation equal for every distance the translating movement will do
+		let distance = Math.sqrt((cardFinalPositionShape.x - devCardShape.x) ** 2 +
+			(cardFinalPositionShape.y - devCardShape.y) ** 2);
+
+		let xFinalPosition = (cardFinalPositionShape.x + cardFinalPositionShape.width / 2)
+			- (devCardShape.width / 2);
+		let yFinalPosition = (cardFinalPositionShape.y + cardFinalPositionShape.height / 2)
+			- (devCardShape.height / 2);
+
+		movingCardElement.animate(
+			[
+				{
+					transform: "translate(" + devCardShape.x + "px, " + devCardShape.y + "px)",
+					width: devCardShape.width + "px",
+					height: devCardShape.height + "px",
+				},
+				{
+					transform: "translate(" + xFinalPosition + "px, " + yFinalPosition + "px)",
+					width: devCardShape.width + "px",
+					height: devCardShape.height + "px",
+					opacity: 1,
+				},
+				{
+					transform: "translate(" + (cardFinalPositionShape.x + cardFinalPositionShape.width / 2) + "px, "
+						+ (cardFinalPositionShape.y + cardFinalPositionShape.height / 2) + "px) rotate(360deg)",
+					width: 0,
+					height: 0,
+					opacity: 0,
+				},
+			],
+			{
+				duration: distance / 0.2,
+				fill: "forwards", // Stay at the final position
+			}
+		).addEventListener("finish", () => {
+			movingCardElement.remove();
+			cardFinalPositionElement.classList.remove('invisible');
+			resolve();
+		});
+		devCardElement.remove();
+	}).then(() => animationQueue.executeNextInQueue());
+}
+
 let animationQueue = new AnimationQueue();
 let animationContainer = document.getElementById('animationContainer');
 
