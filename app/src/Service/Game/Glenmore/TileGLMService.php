@@ -8,6 +8,7 @@ use App\Entity\Game\Glenmore\GlenmoreParameters;
 use App\Entity\Game\Glenmore\MainBoardGLM;
 use App\Entity\Game\Glenmore\PlayerGLM;
 use App\Entity\Game\Glenmore\PlayerTileGLM;
+use App\Entity\Game\Glenmore\TileGLM;
 use App\Repository\Game\Glenmore\PlayerGLMRepository;
 use Doctrine\DBAL\Exception;
 use Doctrine\ORM\EntityManagerInterface;
@@ -42,25 +43,17 @@ class TileGLMService
         return $count;
     }
 
-
-    /**
-     * isChainBroken : returns true if the chain is broken, false otherwise
-     * @param MainBoardGLM $mainBoardGLM
-     * @return bool
-     */
-    private function isChainBroken(MainBoardGLM $mainBoardGLM): bool
+    public function activateBonus(PlayerTileGLM $tileGLM, PlayerGLM $playerGLM): void
     {
-        $player = $this->GLMService->getActivePlayer($mainBoardGLM->getGameGLM());
-        $playerPosition = $player->getPawn()->getPosition();
-        $positionBehindPlayer = ($playerPosition - 1) %
-            GlenmoreParameters::$NUMBER_OF_TILES_ON_BOARD;
-        $mainBoardTiles = $mainBoardGLM->getBoardTiles();
-        foreach ($mainBoardTiles as $boardTile){
-            if($boardTile->getPosition() == $positionBehindPlayer){
-                return true;
+        $tile = $tileGLM->getTile();
+        if($tile->getType() != GlenmoreParameters::$TILE_NAME_FAIR){
+            if($this->hasPlayerEnoughResourcesToActivate($tileGLM, $playerGLM) &&
+                $this->hasEnoughPlaceToActivate($tileGLM)){
+                $this->givePlayerActivationBonus($tileGLM, $playerGLM);
             }
+        } else {
+            // TODO : METHOD TO GIVE RESOURCES WHEN MULTIPLE CASE POSSIBLE
         }
-        return false;
     }
 
     /**
@@ -122,7 +115,7 @@ class TileGLMService
         $posTile = $currentPosition;
 
         // Search last position busy by a tile
-        while ($this->getBoardTilesAtPosition($mainBoard, $posTile) == null)
+        while ($this->getTileInPosition($mainBoard, $posTile) == null)
         {
             $posTile -= 1;
             $posTile %= GlenmoreParameters::$NUMBER_OF_TILES_ON_BOARD;
@@ -164,23 +157,23 @@ class TileGLMService
     }*/
 
     /**
-     * Return a board tile that position is equal to parameter else null
-     * @param MainBoardGLM $mainBoard
-     * @param int $position
-     * @return BoardTileGLM|null
+     * isChainBroken : returns true if the chain is broken, false otherwise
+     * @param MainBoardGLM $mainBoardGLM
+     * @return bool
      */
-    private function getBoardTilesAtPosition(MainBoardGLM $mainBoard, int $position): ?BoardTileGLM
+    private function isChainBroken(MainBoardGLM $mainBoardGLM): bool
     {
-        $boardTiles = $mainBoard->getBoardTiles();
-        for ($i = 0; $i < count($boardTiles); $i++)
-        {
-           $boardTile = $boardTiles->get($i);
-           if ($boardTile->getPosition() == $position)
-           {
-               return $boardTile;
-           }
+        $player = $this->GLMService->getActivePlayer($mainBoardGLM->getGameGLM());
+        $playerPosition = $player->getPawn()->getPosition();
+        $positionBehindPlayer = ($playerPosition - 1) %
+            GlenmoreParameters::$NUMBER_OF_TILES_ON_BOARD;
+        $mainBoardTiles = $mainBoardGLM->getBoardTiles();
+        foreach ($mainBoardTiles as $boardTile){
+            if($boardTile->getPosition() == $positionBehindPlayer){
+                return true;
+            }
         }
-        return null;
+        return false;
     }
 
     /**
@@ -199,6 +192,52 @@ class TileGLMService
             }
         }
         return null;
+    }
+
+    /**
+     * hasPlayerEnoughResourcesToActivate : checks if player has enough resources to activate the tile
+     * @param PlayerTileGLM $playerTileGLM
+     * @param PlayerGLM $playerGLM
+     * @return bool
+     */
+    private function hasPlayerEnoughResourcesToActivate(PlayerTileGLM $playerTileGLM, PlayerGLM $playerGLM): bool
+    {
+        $tileGLM = $playerTileGLM->getTile();
+        $activationPrices = $tileGLM->getActivationPrice();
+        $playerTiles = $playerGLM->getPersonalBoard()->getPlayerTiles();
+        foreach ($activationPrices as $activationPrice){
+            $resourceType = $activationPrice->getResource();
+            $resourceAmount = $activationPrice->getPrice();
+            $playerResourceCount = 0;
+            foreach ($playerTiles as $playerTile){
+                $resourcesOnTile = $playerTile->getResources();
+                foreach ($resourcesOnTile as $resource){
+                    if($resource->getType() == $resourceType){
+                        $playerResourceCount += 1;
+                    }
+                }
+            }
+            if($playerResourceCount < $resourceAmount){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * hasEnoughPlaceToActivate : checks if player has enough space on the tile to get resources
+     * @param PlayerTileGLM $playerTileGLM
+     * @return bool
+     */
+    private function hasEnoughPlaceToActivate(PlayerTileGLM $playerTileGLM): bool
+    {
+        $tileGLM = $playerTileGLM->getTile();
+        $bonusResources = $tileGLM->getActivationBonus();
+        $count = 0;
+        foreach ($bonusResources as $bonusResource){
+            $count += $bonusResource->getAmount();
+        }
+        return ($playerTileGLM->getResources()->count() + $count) < GlenmoreParameters::$MAX_RESOURCES_PER_TILE;
     }
 
     /**
@@ -223,6 +262,22 @@ class TileGLMService
            $pointerPosition = ($pointerPosition - 1) %
                GlenmoreParameters::$NUMBER_OF_TILES_ON_BOARD;
            $this->entityManager->persist($mainBoardGLM);
+        }
+        $this->entityManager->flush();
+    }
+
+    /**
+     * givePlayerActivationBonus : gives the player his resources
+     * @param PlayerTileGLM $playerTileGLM
+     * @return void
+     */
+    private function givePlayerActivationBonus(PlayerTileGLM $playerTileGLM): void
+    {
+        $tileGLM = $playerTileGLM->getTile();
+        $activationBonusResources = $tileGLM->getActivationBonus();
+        foreach ($activationBonusResources as $activationBonusResource){
+            $playerTileGLM->addResource($activationBonusResource->getResource());
+            $this->entityManager->persist($playerTileGLM);
         }
         $this->entityManager->flush();
     }
