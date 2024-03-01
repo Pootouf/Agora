@@ -14,7 +14,7 @@ class CardGLM extends Card
     private ?string $name = null;
 
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
-    private ?TileBonusGLM $bonus = null;
+    private ?TileBuyBonusGLM $bonus = null;
 
     public function getName(): ?string
     {
@@ -28,12 +28,12 @@ class CardGLM extends Card
         return $this;
     }
 
-    public function getBonus(): ?TileBonusGLM
+    public function getBonus(): ?TileBuyBonusGLM
     {
         return $this->bonus;
     }
 
-    public function setBonus(?TileBonusGLM $bonus): static
+    public function setBonus(?TileBuyBonusGLM $bonus): static
     {
         $this->bonus = $bonus;
 
