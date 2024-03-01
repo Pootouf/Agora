@@ -23,6 +23,7 @@ class SearchBoardType extends AbstractType
                     'Terminé' => 'FINISH'
                 ],
                 'required' => false,
+                'placeholder' => 'Sélectionner le statut',
             ])
             ->add('availability', ChoiceType::class, [
                 'choices' => [
@@ -30,10 +31,12 @@ class SearchBoardType extends AbstractType
                     'Indisponible' => 'CLOSE'
                 ],
                 'required' => false,
+                'placeholder' => 'Sélectionner la disponibilité',
             ])
             ->add('datecreation', DateType::class, [
                 'widget' => 'single_text',
                 'required' => false,
+                'format' => 'yyyy-MM-dd',
             ])
             ->add('game', EntityType::class, [
                 'class' => Game::class,

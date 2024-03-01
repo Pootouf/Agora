@@ -4,13 +4,13 @@ namespace App\Controller\Platform;
 
 
 
+use App\Data\SearchData;
 use App\Entity\Platform\Game;
 use App\Entity\Platform\Board;
 use App\Entity\Platform\User;
 use App\Form\Platform\BoardRegistrationType;
 use App\Form\Platform\SearchBoardType;
 use App\Repository\Platform\BoardRepository;
-use App\Service\Game\GameManagerService;
 use App\Service\Platform\BoardManagerService;
 use App\Service\Platform\GameViewerService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -19,7 +19,6 @@ use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 class BoardController extends AbstractController
 {
@@ -100,7 +99,7 @@ class BoardController extends AbstractController
             $errorMessage = "Impossible de rejoindre la table";
             //send the error message to user, using session or flush
             $this->addFlash('warning', $errorMessage);
-            return $this->redirectToRoute('app_dashboard_tables');
+            return $this->redirectToRoute('app_boards_game', ['id' => $id]);
         }
         //add user in the board users list
         $this->boardManagerService->addUserToBoard($board, $user);
@@ -109,7 +108,7 @@ class BoardController extends AbstractController
         //dd($user->getBoards());
 
 
-        return $this->redirectToRoute('app_dashboard_user');
+        return $this->redirectToRoute('app_dashboard_tables');
     }
 
     #[Route('/leaveBoard/{id}', name: 'app_leave_board')]
@@ -131,14 +130,17 @@ class BoardController extends AbstractController
     }
     //    Get all game where connected user participate
     #[\Symfony\Component\Routing\Attribute\Route('/dashboard/user', name: 'app_dashboard_user', methods: ['GET'])]
-    public function boardsUser(Request $request): Response
+    public function boardsUser(Request $request, BoardRepository $boardRepository): Response
     {
+//        Get all boards where this connected user participate
         $boards = $this->security->getUser()->getBoards();
-        $form = $this->createForm(SearchBoardType::class);
+//        Create a data model to retrieve information of form
+        $data = new SearchData();
+        $form = $this->createForm(SearchBoardType::class, $data);
         $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
 
-        }
+//        $boards = $boardRepository->searchBoards($data);
+
 
         return $this->render('platform/dashboard_tables/index.html.twig', [
             'boards' => $boards,
@@ -149,17 +151,19 @@ class BoardController extends AbstractController
     #[Route('/dashboard/tables', name: 'app_dashboard_tables', methods: ['GET'])]
     public function allBoards(Request $request, BoardRepository $boardRepository): Response
     {
-        $sortBy = $request->query->get('sort_by', 'creationDate'); // Par défaut, tri par date de création
-        $sortOrder = $request->query->get('sort_order', 'desc'); // Par défaut, tri décroissant
-        // Vérifier si l'ordre de tri est valide
-        $validSortOrders = ['asc', 'desc'];
-        $sortOrder = in_array($sortOrder, $validSortOrders) ? $sortOrder : 'desc';
-        $boards = $boardRepository->findBy([], [$sortBy => $sortOrder]);
-        $form = $this->createForm(SearchBoardType::class);
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
+//        $sortBy = $request->query->get('sort_by', 'creationDate'); // Par défaut, tri par date de création
+//        $sortOrder = $request->query->get('sort_order', 'desc'); // Par défaut, tri décroissant
+//        // Vérifier si l'ordre de tri est valide
+//        $validSortOrders = ['asc', 'desc'];
+//        $sortOrder = in_array($sortOrder, $validSortOrders) ? $sortOrder : 'desc';
+//        $boards = $boardRepository->findBy([], [$sortBy => $sortOrder]);
 
-        }
+
+        $data = new SearchData();
+        $form = $this->createForm(SearchBoardType::class, $data);
+        $form->handleRequest($request);
+
+        $boards = $boardRepository->searchBoards($data);
 
         return $this->render('platform/dashboard_tables/index.html.twig', [
             'boards' => $boards,
@@ -167,19 +171,26 @@ class BoardController extends AbstractController
         ]);
     }
 
-    //    Get all boards of an unique game
+    //    Get all boards of a unique game
     #[Route('/dashboard/game/{id}/tables', name: 'app_boards_game', requirements: ['id' => '\d+'], methods: ['GET'])]
-    public function tablesByGame(int $id, BoardRepository $boardRepository,  EntityManagerInterface $entityManager): Response
+    public function tablesByGame(int $id, BoardRepository $boardRepository,  EntityManagerInterface $entityManager, Request $request): Response
     {
+//        retrieve game by id
         $game = $entityManager->getRepository(Game::class)->find($id);
         if($game){
-            $boards = $boardRepository->findBy(['game' => $game]);
+            $boards = $boardRepository->findBy(['game' => $game], ['creationDate' => 'DESC']);
         }else{
             $boards = null;
         }
+//        Create a data model to retrieve information of form and search boards of a unique game
+        $data = new SearchData();
+        $form = $this->createForm(SearchBoardType::class, $data);
+        $form->handleRequest($request);
+        $boards = $boardRepository->searchBoardsByGame($data, $game);
 
         return $this->render('platform/dashboard_tables/index.html.twig', [
             'boards' => $boards,
+            'searchboard' => $form->createView(),
         ]);
     }
 

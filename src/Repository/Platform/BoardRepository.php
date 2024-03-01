@@ -2,7 +2,9 @@
 
 namespace App\Repository\Platform;
 
+use App\Data\SearchData;
 use App\Entity\Platform\Board;
+use App\Entity\Platform\Game;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -63,13 +65,9 @@ class BoardRepository extends ServiceEntityRepository
 
         if (!empty($search->availability)) {
             if ( $search->availability === 'OPEN') {
-                $query->andWhere('b.status != :status')
-                    ->setParameter('status', 'IN_GAME')
-                    ->andWhere('(count(b.listUsers) + b.nbInvitations) < b.nbUserMax');
+                $query->andWhere('(size(b.listUsers) + b.nbInvitations) < b.nbUserMax');
             } elseif ($search->availability === 'CLOSE') {
-                $query->andWhere('b.status != :status')
-                    ->setParameter('status', 'IN_GAME')
-                    ->orWhere('(COUNT(b.listUsers)+ b.nbInvitations) >= b.nbUserMax');
+                $query->andWhere('(size(b.listUsers) + b.nbInvitations) >= b.nbUserMax');
             }
         }
 
@@ -82,6 +80,42 @@ class BoardRepository extends ServiceEntityRepository
             $query->andWhere('b.game = :game')
                 ->setParameter('game', $search->game);
         }
+
+        $query->orderBy('b.creationDate', 'DESC');
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
+     * Results of boards linked with search
+     * @return Board[]
+     */
+    public function searchBoardsByGame(SearchData $search, Game $game): array
+    {
+        $query = $this->createQueryBuilder('b');
+
+        if (!empty($search->status)) {
+            $query->andWhere('b.status = :status')
+                ->setParameter('status', "{$search->status}");
+        }
+
+        if (!empty($search->availability)) {
+            if ( $search->availability === 'OPEN') {
+                $query->andWhere('(size(b.listUsers) + b.nbInvitations) < b.nbUserMax');
+            } elseif ($search->availability === 'CLOSE') {
+                $query->andWhere('(size(b.listUsers) + b.nbInvitations) >= b.nbUserMax');
+            }
+        }
+
+        if (!empty($search->datecreation)) {
+            $query->andWhere('b.creationDate = :creationdate')
+                ->setParameter('creationdate', $search->datecreation);
+        }
+
+            $query->andWhere('b.game = :game')
+                ->setParameter('game', $game);
+
+        $query->orderBy('b.creationDate', 'DESC');
 
         return $query->getQuery()->getResult();
     }
