@@ -15,6 +15,7 @@ class GLMService
     public function __construct(private EntityManagerInterface $entityManager,
                                 private TileGLMRepository $tileGLMRepository,
                                 private PlayerGLMRepository $playerGLMRepository){}
+
     public function getActivePlayer(GameGLM $gameGLM): PlayerGLM
     {
         return $this->playerGLMRepository->findOneBy(["gameGLM" => $gameGLM->getId(),
