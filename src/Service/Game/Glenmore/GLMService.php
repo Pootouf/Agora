@@ -40,6 +40,7 @@ class GLMService
         return $this->playerGLMRepository->findOneBy(['gameGLM' => $game->getId(), 'username' => $name]);
     }
 
+
     /**
      * getTilesFromGame : return the tiles from the board with the given game
      * @param GameGLM $game
