@@ -46,4 +46,7 @@ class GlenmoreParameters {
 
     public static int $NUMBER_OF_TILES_ON_BOARD = 14;
 
+    public static int $MIN_TRADE = 0;
+
+    public static int $MAX_TRADE = 3;
 }
