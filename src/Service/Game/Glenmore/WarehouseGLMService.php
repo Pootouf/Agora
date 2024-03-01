@@ -32,7 +32,8 @@ class WarehouseGLMService
      * @return void
      * @throws Exception
      */
-    public function sellResource(PlayerGLM $player, ResourceGLM $resource) : void
+    public function sellResource(PlayerGLM $player
+        , ResourceGLM $resource) : void
     {
         // Initialization
         $personalBoard = $player->getPersonalBoard();
@@ -47,7 +48,7 @@ class WarehouseGLMService
         }
 
         // Check if the player has the resource
-        $playerTile = $this->hasResource($personalBoard, $resource);
+        $playerTile = $this->getResourceOnPersonalBoard($personalBoard, $resource);
         if ($playerTile != null)
         {
             throw new Exception("Unable to sell the resource");
@@ -69,7 +70,8 @@ class WarehouseGLMService
      * @param ResourceGLM $resource
      * @return int
      */
-    private function getMoneyAvailable(WarehouseGLM $warehouse, ResourceGLM $resource) : int
+    private function getMoneyAvailable(WarehouseGLM $warehouse
+        , ResourceGLM $resource) : int
     {
         $money = 0;
         $resources = $warehouse->getResources();
@@ -89,7 +91,8 @@ class WarehouseGLMService
      * @param ResourceGLM $resource
      * @return PlayerTileGLM|null
      */
-    private function hasResource(PersonalBoardGLM $personalBoard, ResourceGLM $resource) : ?PlayerTileGLM
+    private function getResourceOnPersonalBoard(PersonalBoardGLM $personalBoard
+        , ResourceGLM $resource) : ?PlayerTileGLM
     {
 
         // Search this resource in personal board
