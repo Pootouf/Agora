@@ -168,6 +168,62 @@ function moveReturnedToken(tokenId, playerUsername) {
 	}).then(() => animationQueue.executeNextInQueue());
 }
 
+function moveDrawCard(cardId, playerUsername) {
+	animationContainer.classList.remove('hidden');
+	new Promise(resolve => {
+		let cardFinalPositionElement = document.getElementById(playerUsername);
+		let drawCardElement = document.getElementById('drawCards_' + cardId);
+
+		let drawCardShape = drawCardElement.getBoundingClientRect();
+		let cardFinalPositionShape = cardFinalPositionElement.getBoundingClientRect();
+
+		let movingCardElement = drawCardElement.cloneNode(true);
+		movingCardElement.id = 'movingcard_' + cardId;
+		movingCardElement.classList.add('absolute');
+		animationContainer.appendChild(movingCardElement);
+
+		// Usefull to set a duration for the animation equal for every distance the translating movement will do
+		let distance = Math.sqrt((cardFinalPositionShape.x - drawCardShape.x) ** 2 +
+			(cardFinalPositionShape.y - drawCardShape.y) ** 2);
+
+		let xFinalPosition = (cardFinalPositionShape.x + cardFinalPositionShape.width / 2)
+			- (drawCardShape.width / 2);
+		let yFinalPosition = (cardFinalPositionShape.y + cardFinalPositionShape.height / 2)
+			- (drawCardShape.height / 2);
+
+		movingCardElement.animate(
+			[
+				{
+					transform: "translate(" + drawCardShape.x + "px, " + drawCardShape.y + "px)",
+					width: drawCardShape.width + "px",
+					height: drawCardShape.height + "px",
+				},
+				{
+					transform: "translate(" + xFinalPosition + "px, " + yFinalPosition + "px)",
+					width: drawCardShape.width + "px",
+					height: drawCardShape.height + "px",
+					opacity: 1,
+				},
+				{
+					transform: "translate(" + (cardFinalPositionShape.x + cardFinalPositionShape.width / 2) + "px, "
+						+ (cardFinalPositionShape.y + cardFinalPositionShape.height / 2) + "px) rotate(360deg)",
+					width: 0,
+					height: 0,
+					opacity: 0,
+				},
+			],
+			{
+				duration: distance / 0.2,
+				fill: "forwards", // Stay at the final position
+			}
+		).addEventListener("finish", () => {
+			movingCardElement.remove();
+			cardFinalPositionElement.classList.remove('invisible');
+			resolve();
+		});
+	}).then(() => animationQueue.executeNextInQueue());
+}
+
 let animationQueue = new AnimationQueue();
 let animationContainer = document.getElementById('animationContainer');
 

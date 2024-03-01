@@ -33,7 +33,7 @@
                <div class="landscape:hidden relative justify-center items-center aspect-auto my-auto p-auto
                             max-h-full"
                >
-                   <img
+                   <img id="drawCards{{ i }}"
                         class="items-center aspect-auto justify-center rounded-lg shadow-black shadow-lg m-auto
                                 max-h-full"
                         src="{{ asset('resourcesGames/Splendor/Images/cardLevel' ~ i ~ '.png') }}"
@@ -49,7 +49,7 @@
                </div>
 
                 {# Landscape mode #}
-                <img
+                <img    id="drawCards_{{ i }}"
                         class="portrait:hidden items-center aspect-auto justify-center rounded-lg shadow-black
                                 shadow-lg m-auto max-h-full"
                         src="{{ asset('resourcesGames/Splendor/Images/cardLevel' ~ i ~ '.png') }}"
