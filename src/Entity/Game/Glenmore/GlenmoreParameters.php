@@ -79,7 +79,6 @@ class GlenmoreParameters {
     public static string $TILE_NAME_VILLAGE = "village";
 
 
-
     public static int $MIN_TRADE = 0;
 
     public static int $MAX_TRADE = 3;
