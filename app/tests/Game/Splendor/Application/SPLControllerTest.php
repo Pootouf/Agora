@@ -2,8 +2,6 @@
 
 namespace App\Tests\Game\Splendor\Application;
 
-use App\Entity\Game\Splendor\SelectedTokenSPL;
-use App\Entity\Game\Splendor\TokenSPL;
 use App\Repository\Game\GameUserRepository;
 use App\Repository\Game\Splendor\GameSPLRepository;
 use App\Repository\Game\Splendor\PlayerSPLRepository;
@@ -11,7 +9,6 @@ use App\Service\Game\Splendor\SPLGameManagerService;
 use App\Service\Game\Splendor\SPLService;
 use App\Service\Game\Splendor\TokenSPLService;
 use Doctrine\ORM\EntityManagerInterface;
-use Exception;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
