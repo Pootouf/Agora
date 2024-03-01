@@ -9,7 +9,7 @@ services:
     environment:
       XDEBUG_MODE: "${XDEBUG_MODE:-off}"
       APP_DEBUG: 1
-      APP_ENV: gametest
+      APP_ENV_SERVER: gametest
       MERCURE_PUBLIC_URL: https://${SERVER_DEV_GAME_IP}/.well-known/mercure
 
 

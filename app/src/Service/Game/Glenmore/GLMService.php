@@ -2,7 +2,6 @@
 
 namespace App\Service\Game\Glenmore;
 
-use App\Entity\Game\Glenmore\DrawTilesGLM;
 use App\Entity\Game\Glenmore\GameGLM;
 use App\Entity\Game\Glenmore\GlenmoreParameters;
 use App\Entity\Game\Glenmore\PlayerGLM;

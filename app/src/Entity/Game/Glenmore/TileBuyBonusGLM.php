@@ -4,8 +4,6 @@ namespace App\Entity\Game\Glenmore;
 
 use App\Entity\Game\DTO\Component;
 use App\Repository\Game\Glenmore\TileBuyBonusGLMRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: TileBuyBonusGLMRepository::class)]

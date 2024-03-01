@@ -13,7 +13,7 @@ services:
       - var_agora:/app/var:delegated
     environment:
       APP_DEBUG: 1
-      APP_ENV: ${APP_ENV_DEV}
+      APP_ENV_SERVER: ${APP_ENV_DEV}
       MERCURE_PUBLIC_URL: ${MERCURE_PUBLIC_URL:-https://localhost/.well-known/mercure}
       CADDY_GLOBAL_OPTIONS: |
         debug

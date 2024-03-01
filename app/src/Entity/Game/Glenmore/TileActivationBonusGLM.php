@@ -3,19 +3,17 @@
 namespace App\Entity\Game\Glenmore;
 
 use App\Entity\Game\DTO\Component;
-use App\Repository\Game\Glenmore\TileBuyCostGLMRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
+use App\Repository\Game\Glenmore\TileActivationBonusGLMRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: TileBuyCostGLMRepository::class)]
-class TileBuyCostGLM extends Component
+#[ORM\Entity(repositoryClass: TileActivationBonusGLMRepository::class)]
+class TileActivationBonusGLM extends Component
 {
     #[ORM\ManyToOne(targetEntity: ResourceGLM::class)]
     private ResourceGLM $resource;
 
     #[ORM\Column]
-    private ?int $price = null;
+    private ?int $amount = null;
 
     /**
      * @return ResourceGLM
@@ -32,16 +30,15 @@ class TileBuyCostGLM extends Component
         return $this;
     }
 
-    public function getPrice(): ?int
+    public function getAmount(): ?int
     {
-        return $this->price;
+        return $this->amount;
     }
 
-    public function setPrice(int $price): static
+    public function setAmount(int $amount): static
     {
-        $this->price = $price;
+        $this->amount = $amount;
 
         return $this;
     }
-
 }

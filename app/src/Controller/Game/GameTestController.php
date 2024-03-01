@@ -4,7 +4,6 @@ namespace App\Controller\Game;
 
 use App\Entity\Game\Glenmore\GameGLM;
 use App\Entity\Game\SixQP\GameSixQP;
-use App\Entity\Game\Splendor\DrawCardsSPL;
 use App\Entity\Game\Splendor\GameSPL;
 use App\Entity\Game\Splendor\PlayerCardSPL;
 use App\Entity\Game\Splendor\SplendorParameters;
@@ -20,7 +19,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
-use function PHPUnit\Framework\callback;
 
 /**
  * @codeCoverageIgnore
