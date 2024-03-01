@@ -132,8 +132,13 @@ class BoardController extends AbstractController
     #[\Symfony\Component\Routing\Attribute\Route('/dashboard/user', name: 'app_dashboard_user', methods: ['GET'])]
     public function boardsUser(Request $request, BoardRepository $boardRepository): Response
     {
+//        check if we have a connected user
+        if($this->security->getUser()){
 //        Get all boards where this connected user participate
-        $boards = $this->security->getUser()->getBoards();
+            $boards = $this->security->getUser()->getBoards();
+        }else{
+            $boards = null;
+        }
 //        Create a data model to retrieve information of form
         $data = new SearchData();
         $form = $this->createForm(SearchBoardType::class, $data);

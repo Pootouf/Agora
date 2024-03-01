@@ -3,9 +3,11 @@
 namespace App\Controller\Platform;
 
 use App\Entity\Platform\Game;
+use App\Service\Platform\UserManagerService;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -54,6 +56,29 @@ class GameController extends AbstractController
         return $this->render('platform/game/description.html.twig', [
             'game' => $game,
         ]);
+    }
+
+
+    #[Route('/game/{game_id}/addfavorite', name: 'app_game_favorite', requirements: ['game_id' => '\d+'], methods: ['GET', 'POST'])]
+    public function addFavoriteGame(int $game_id, EntityManagerInterface $entityManager, Security $security): Response
+    {
+
+        $gameRepository = $entityManager->getRepository(Game::class);
+        $game = $gameRepository->find($game_id);
+
+        if(!$game) {
+            throw $this->createNotFoundException('Le jeu n\'existe pas');
+        }
+        $user = $security->getUser();
+        if ($user){
+            $user->addFavoriteGame($game);
+            $entityManager->flush();
+            $this->addFlash('successfavorite', 'Le jeu a été ajouté à vos favoris.');
+        }else{
+            $this->addFlash('user_connection', 'Le joueur n\'est pas connecté.');
+        }
+
+        return $this->redirectToRoute('app_games');
     }
 }
 
