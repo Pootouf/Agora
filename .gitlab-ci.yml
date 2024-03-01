@@ -18,17 +18,20 @@ variables:
   MYSQL_TCP_PORT: 3306
   MYSQL_DATABASE: main_test
   XDEBUG_MODE: coverage
-  SERVER_NAME: ':7070'
+  SERVER_NAME: ':80'
   MERCURE_PUBLISHER_JWT_KEY: '!ChangeThisMercureHubJWTSecretKey!'
   MERCURE_SUBSCRIBER_JWT_KEY: '!ChangeThisMercureHubJWTSecretKey!'
   DATABASE_URL: mysql://root:password@database:3306/main?serverVersion=10.11.2-MariaDB&charset=utf8mb4
-  MERCURE_URL: http://localhost:7070/.well-known/mercure
+  MERCURE_URL: http://mercure/.well-known/mercure
   MERCURE_PUBLIC_URL: ''
   APP_ENV_SERVER: test
 
 services:
   - name: mariadb:10.11.2
     alias: database
+  - name: dunglas/mercure:latest
+    alias: mercure
+
 
 before_script:
   - cd app
