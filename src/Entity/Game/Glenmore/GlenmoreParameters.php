@@ -17,6 +17,7 @@ class GlenmoreParameters {
     public static string $HAT_RESOURCE = "hat";
     public static string $VILLAGER_RESOURCE = "villager";
     public static string $MOVEMENT_RESOURCE = "movement";
+    public static string $POINT_RESOURCE = "points";
 
 
     public static string $TILE_NAME_START_VILLAGE = "start village";
@@ -45,6 +46,38 @@ class GlenmoreParameters {
 
 
     public static int $NUMBER_OF_TILES_ON_BOARD = 14;
+    public static string $CARD_CASTLE_OF_MEY = "Castle of Mey";
+    public static string $CARD_CAWDOR_CASTLE = "Cawdor Castle";
+    public static string $CARD_DUART_CASTLE = "Duart Castle";
+    public static string $CARD_CASTLE_MOIL = "Castle Moil";
+    public static string $CARD_ARMADALE_CASTLE = "Armadale Castle";
+    public static string $CARD_LOCH_SHIEL = "Loch Shiel";
+    public static string $CARD_DONAN_CASTLE = "Donan Castle";
+    public static string $CARD_LOCH_OICH = "Loch Oich";
+    public static string $CARD_LOCH_NESS = "Loch Ness";
+    public static string $CARD_IONA_ABBEY = "Iona Abbey";
+    public static string $CARD_LOCH_LOCHY = "Loch Lochy";
+    public static string $CARD_LOCH_MORAR = "Loch Morar";
+    public static string $CARD_CASTLE_STALKER = "Castle Stalker";
+    public static string $TILE_TYPE_YELLOW = "yellow";
+    public static string $TILE_TYPE_GREEN = "green";
+    public static string $TILE_TYPE_BROWN = "brown";
+    public static string $TILE_TYPE_BLUE = "blue";
+    public static string $TILE_TYPE_VILLAGE = "village";
+    public static string $TILE_TYPE_CASTLE = "castle";
+    public static string $TILE_NAME_FOREST = "forest";
+    public static string $TILE_NAME_PASTURE = "pasture";
+    public static string $TILE_NAME_QUARRY = "quarry";
+    public static string $TILE_NAME_FIELD = "field";
+    public static string $TILE_NAME_CATTLE = "cattle";
+    public static string $TILE_NAME_DISTILLERY = "distillery";
+    public static string $TILE_NAME_TAVERN = "tavern";
+    public static string $TILE_NAME_BUTCHER = "butcher";
+    public static string $TILE_NAME_FAIR = "fair";
+    public static string $TILE_NAME_BRIDGE = "bridge";
+    public static string $TILE_NAME_GROCER = "grocer";
+    public static string $TILE_NAME_VILLAGE = "village";
+
 
     public static int $MIN_TRADE = 0;
 

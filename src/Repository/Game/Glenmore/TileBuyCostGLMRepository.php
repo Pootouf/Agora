@@ -2,27 +2,27 @@
 
 namespace App\Repository\Game\Glenmore;
 
-use App\Entity\Game\Glenmore\TileCostGLM;
+use App\Entity\Game\Glenmore\TileBuyCostGLM;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<TileCostGLM>
+ * @extends ServiceEntityRepository<TileBuyCostGLM>
  *
- * @method TileCostGLM|null find($id, $lockMode = null, $lockVersion = null)
- * @method TileCostGLM|null findOneBy(array $criteria, array $orderBy = null)
- * @method TileCostGLM[]    findAll()
- * @method TileCostGLM[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method TileBuyCostGLM|null find($id, $lockMode = null, $lockVersion = null)
+ * @method TileBuyCostGLM|null findOneBy(array $criteria, array $orderBy = null)
+ * @method TileBuyCostGLM[]    findAll()
+ * @method TileBuyCostGLM[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class TileCostGLMRepository extends ServiceEntityRepository
+class TileBuyCostGLMRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, TileCostGLM::class);
+        parent::__construct($registry, TileBuyCostGLM::class);
     }
 
 //    /**
-//     * @return TileCostGLM[] Returns an array of TileCostGLM objects
+//     * @return TileBuyCostGLM[] Returns an array of TileBuyCostGLM objects
 //     */
 //    public function findByExampleField($value): array
 //    {
@@ -36,7 +36,7 @@ class TileCostGLMRepository extends ServiceEntityRepository
 //        ;
 //    }
 
-//    public function findOneBySomeField($value): ?TileCostGLM
+//    public function findOneBySomeField($value): ?TileBuyCostGLM
 //    {
 //        return $this->createQueryBuilder('t')
 //            ->andWhere('t.exampleField = :val')
