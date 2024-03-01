@@ -225,6 +225,8 @@ class TileGLMService
            }
            $pointerPosition = ($pointerPosition - 1) %
                GlenmoreParameters::$NUMBER_OF_TILES_ON_BOARD;
+           $this->entityManager->persist($mainBoardGLM);
         }
+        $this->entityManager->flush();
     }
 }
