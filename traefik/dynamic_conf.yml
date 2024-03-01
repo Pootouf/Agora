@@ -1,9 +1,5 @@
 http:
   routers:
-    mercure-router:
-      rule: "PathPrefix(`/.well-known/mercure`)"
-      service: mercure-service
-      tls: {}
     agora-router:
       rule: "PathPrefix(`/`)"
       service: agora-service
@@ -17,7 +13,7 @@ http:
     agora-service:
       loadBalancer:
         servers:
-          - url: "http://caddy:7070/"
+          - url: "http://agora:7070/"
 
 
 tls:
