@@ -1,0 +1,30 @@
+<div id="notif_turn"
+     class="max-w-xs bg-white border border-gray-200 rounded-xl shadow-lg dark:bg-gray-800 dark:border-gray-700 overflow-hidden"
+     role="alert">
+
+	<div class="flex p-4 ">
+		<div class="flex-shrink-0">
+			<svg class="flex-shrink-0 size-4 text-teal-500 mt-0.5" xmlns="http://www.w3.org/2000/svg" width="16"
+			     height="16" fill="currentColor" viewBox="0 0 16 16">
+				<path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+			</svg>
+		</div>
+		<div class="ms-3">
+			<p class="text-sm text-gray-700 dark:text-gray-400">
+				C'est à votre tour !
+			</p>
+		</div>
+		<button type="button" class="button-notif ms-auto -mx-1.5 -my-1.5 bg-white text-gray-400 hover:text-gray-900 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-gray-100 inline-flex items-center justify-center h-8 w-8 dark:text-gray-500 dark:hover:text-white dark:bg-gray-800 dark:hover:bg-gray-700"  aria-label="Close">
+			<span class="sr-only">Close</span>
+			<svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+				<path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+			</svg>
+		</button>
+
+	</div>
+
+	<div class="relative bottom-0 left-0 bg-gray-900  h-1 w-full rounded-full">
+		<div class="loadingElement h-full bg-green-500 rounded-full " style="width: 0"></div>
+	</div>
+</div>
+
