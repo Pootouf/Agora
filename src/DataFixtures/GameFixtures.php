@@ -20,7 +20,7 @@ class GameFixtures extends Fixture
         $sqp->setMinPlayers(2);
         $sqp->setMaxPlayers(10);
         $sqp->setIsActive(true);
-        $sqp->setImgURL("NoImgNow");
+        $sqp->setImgURL("images/6qp.jpg");
         $manager->persist($sqp);
         $manager->flush();
     }
