@@ -32,6 +32,7 @@ class GlenmoreController extends AbstractController
             'isSpectator' => $isSpectator,
             'needToPlay' => $needToPlay,
             //'isGameFinished' => $this->service->isGameEnded($game),
+            'isGameFinished' => false,
             'selectedTile' => null,
             'adjacentTiles' => null,
             'potentialNeighbours' => null,

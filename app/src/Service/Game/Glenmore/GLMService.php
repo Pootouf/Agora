@@ -6,6 +6,7 @@ use App\Entity\Game\Glenmore\GameGLM;
 use App\Entity\Game\Glenmore\GlenmoreParameters;
 use App\Entity\Game\Glenmore\PlayerGLM;
 use App\Entity\Game\Glenmore\PlayerTileGLM;
+use App\Entity\Game\Glenmore\PlayerTileResourceGLM;
 use App\Repository\Game\Glenmore\DrawTilesGLMRepository;
 use App\Repository\Game\Glenmore\PlayerGLMRepository;
 use App\Repository\Game\Glenmore\ResourceGLMRepository;
@@ -145,14 +146,17 @@ class GLMService
         $this->entityManager->persist($drawLevelThree);
 
         $startVillages = $this->tileGLMRepository->findBy(['name' => GlenmoreParameters::$TILE_NAME_START_VILLAGE]);
-        $chiefs = $this->resourceGLMRepository->findBy(['type' => GlenmoreParameters::$VILLAGER_RESOURCE]);
+        $villager = $this->resourceGLMRepository->findOneBy(['type' => GlenmoreParameters::$VILLAGER_RESOURCE]);
         foreach ($game->getPlayers() as $player) {
             $tile = array_pop($startVillages);
-            $chief = array_pop($chiefs);
             $playerTile = new PlayerTileGLM();
             $playerTile->setTile($tile);
-            $playerTile->addResource($chief);
+            $playerTileResource = new PlayerTileResourceGLM();
+            $playerTileResource->setResource($villager);
+            $playerTileResource->setQuantity(1);
+            $playerTile->addPlayerTileResource($playerTileResource);
             $player->getPersonalBoard()->addPlayerTile($playerTile);
+            $this->entityManager->persist($playerTileResource);
             $this->entityManager->persist($playerTile);
 
             $player->getPersonalBoard()->setMoney(GlenmoreParameters::$START_MONEY);

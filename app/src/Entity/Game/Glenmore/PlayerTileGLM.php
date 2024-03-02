@@ -20,16 +20,16 @@ class PlayerTileGLM extends Component
     #[ORM\JoinColumn(nullable: false)]
     private ?TileGLM $tile = null;
 
-    #[ORM\ManyToMany(targetEntity: ResourceGLM::class)]
-    private Collection $resources;
-
     #[ORM\ManyToMany(targetEntity: self::class)]
     private Collection $adjacentTiles;
 
+    #[ORM\OneToMany(targetEntity: PlayerTileResourceGLM::class, mappedBy: 'playerTileGLM', orphanRemoval: true)]
+    private Collection $playerTileResource;
+
     public function __construct()
     {
-        $this->resources = new ArrayCollection();
         $this->adjacentTiles = new ArrayCollection();
+        $this->playerTileResource = new ArrayCollection();
     }
 
     public function getPersonalBoard(): ?PersonalBoardGLM
@@ -56,29 +56,6 @@ class PlayerTileGLM extends Component
         return $this;
     }
 
-    /**
-     * @return Collection<int, ResourceGLM>
-     */
-    public function getResources(): Collection
-    {
-        return $this->resources;
-    }
-
-    public function addResource(ResourceGLM $resource): static
-    {
-        if (!$this->resources->contains($resource)) {
-            $this->resources->add($resource);
-        }
-
-        return $this;
-    }
-
-    public function removeResource(ResourceGLM $resource): static
-    {
-        $this->resources->removeElement($resource);
-
-        return $this;
-    }
 
     /**
      * @return Collection<int, self>
@@ -100,6 +77,36 @@ class PlayerTileGLM extends Component
     public function removeAdjacentTile(self $adjacentTile): static
     {
         $this->adjacentTiles->removeElement($adjacentTile);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PlayerTileResourceGLM>
+     */
+    public function getPlayerTileResource(): Collection
+    {
+        return $this->playerTileResource;
+    }
+
+    public function addPlayerTileResource(PlayerTileResourceGLM $playerTileResource): static
+    {
+        if (!$this->playerTileResource->contains($playerTileResource)) {
+            $this->playerTileResource->add($playerTileResource);
+            $playerTileResource->setPlayerTileGLM($this);
+        }
+
+        return $this;
+    }
+
+    public function removePlayerTileResource(PlayerTileResourceGLM $playerTileResource): static
+    {
+        if ($this->playerTileResource->removeElement($playerTileResource)) {
+            // set the owning side to null (unless already changed)
+            if ($playerTileResource->getPlayerTileGLM() === $this) {
+                $playerTileResource->setPlayerTileGLM(null);
+            }
+        }
 
         return $this;
     }
