@@ -46,6 +46,8 @@ RUN composer install
 #Copy the project files
 COPY . /app
 
+RUN symfony console importmap:install
+
 
 ###> recipes ###
 ###< recipes ###
