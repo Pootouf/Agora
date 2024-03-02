@@ -21,7 +21,8 @@ class GLMService
         private TileGLMRepository $tileGLMRepository,
         private DrawTilesGLMRepository $drawTilesGLMRepository,
         private ResourceGLMRepository $resourceGLMRepository,
-        private PlayerGLMRepository $playerGLMRepository)
+        private PlayerGLMRepository $playerGLMRepository,
+        private CardGLMService $cardGLMService)
     {}
 
 
@@ -105,8 +106,10 @@ class GLMService
      */
     public function calculatePointsAtEndOfGame(GameGLM $gameGLM): void
     {
-        //TODO METHODE POUR CHECK LES 3 CARTES SPECIALES
-        // TODO AJOUTER POINTS
+        $this->cardGLMService->applyIonaAbbey($gameGLM);
+        $this->cardGLMService->applyDuartCastle($gameGLM);
+        $this->cardGLMService->applyLochMorar($gameGLM);
+
         $playersMoneyAmount = $this->getSortedListMoney($gameGLM);
         $this->computePoints($playersMoneyAmount);
 
@@ -227,8 +230,16 @@ class GLMService
         $result = array();
         foreach ($players as $player) {
             $personalBoard = $player->getPersonalBoard();
-            // TODO TAKE INTO ACCOUNT IF PLAWER OWNS CASTLE OF MEY AND HATS
             $playerResource = $personalBoard->getLeaderCount();
+            $playerResource = $this->cardGLMService->applyCastleOfMey($personalBoard, $playerResource);
+            foreach ($personalBoard->getPlayerTiles() as $tile) {
+                $resources = $tile->getResources();
+                foreach ($resources as $resource) {
+                    if($resource->getType() == GlenmoreParameters::$HAT_RESOURCE) {
+                        ++$playerResource;
+                    }
+                }
+            }
             $result[] = array($player, $playerResource);
         }
         usort($result, function($x, $y) {
