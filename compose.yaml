@@ -150,7 +150,7 @@ services:
     labels:
       traefik.http.routers.grafana.rule: Host(`grafana.localhost`)
       traefik.http.routers.grafana.service: grafana
-      traefik.http.services.grafana.loadbalancer.server.port: 3001
+      traefik.http.services.grafana.loadbalancer.server.port: 3000
     ports:
       - "3000:3000"
     volumes:
