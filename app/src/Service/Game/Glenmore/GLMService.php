@@ -2,6 +2,7 @@
 
 namespace App\Service\Game\Glenmore;
 
+use App\Entity\Game\Glenmore\DrawTilesGLM;
 use App\Entity\Game\Glenmore\GameGLM;
 use App\Entity\Game\Glenmore\GlenmoreParameters;
 use App\Entity\Game\Glenmore\PlayerGLM;
@@ -21,7 +22,8 @@ class GLMService
         private TileGLMRepository $tileGLMRepository,
         private DrawTilesGLMRepository $drawTilesGLMRepository,
         private ResourceGLMRepository $resourceGLMRepository,
-        private PlayerGLMRepository $playerGLMRepository)
+        private PlayerGLMRepository $playerGLMRepository,
+        private CardGLMService $cardGLMService)
     {}
 
 
@@ -51,6 +53,59 @@ class GLMService
     public function getTilesFromGame(GameGLM $game): Collection
     {
         return $game->getMainBoard()->getBoardTiles();
+    }
+
+    /**
+     * getActiveDrawTile : returns the draw tile with the lowest level which is not empty
+     *                      or null if all draw tiles are empty
+     * @param GameGLM $gameGLM
+     * @return DrawTilesGLM|null
+     */
+    public function getActiveDrawTile(GameGLM $gameGLM) : ?DrawTilesGLM
+    {
+        $mainBoard = $gameGLM->getMainBoard();
+        $drawTiles = $mainBoard->getDrawTiles();
+        for ($i = GlenmoreParameters::$TILE_LEVEL_ZERO; $i <= GlenmoreParameters::$TILE_LEVEL_THREE; ++$i) {
+            $draw = $drawTiles->get($i);
+            if ($draw->getTiles()->isEmpty()) {
+                return $draw;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * isGameEnded : checks if a game must end or not
+     * @param GameGLM $gameGLM
+     * @return bool
+     */
+    public function isGameEnded(GameGLM $gameGLM) : bool
+    {
+        return $gameGLM->getMainBoard()->getDrawTiles()->last()->getTiles()->isEmpty();
+    }
+
+    /**
+     * manageEndOfRound : proceeds to count players' points depending on draw tiles level
+     * @param GameGLM $gameGLM
+     * @param int     $drawLevel
+     * @return void
+     * @throws Exception
+     */
+    public function manageEndOfRound(GameGLM $gameGLM, int $drawLevel) : void
+    {
+        switch ($drawLevel) {
+            case 1:
+            case 2:
+                $this->calculatePointsAtEndOfLevel($gameGLM);
+                break;
+            case 3:
+                $this->calculatePointsAtEndOfLevel($gameGLM);
+                $this->calculatePointsAtEndOfGame($gameGLM);
+                break;
+            default:
+                throw new Exception("impossible case");
+        }
+
     }
 
     public function endRoundOfPlayer(GameGLM $gameGLM, PlayerGLM $playerGLM, int $startPosition): void
@@ -105,8 +160,10 @@ class GLMService
      */
     public function calculatePointsAtEndOfGame(GameGLM $gameGLM): void
     {
-        //TODO METHODE POUR CHECK LES 3 CARTES SPECIALES
-        // TODO AJOUTER POINTS
+        $this->cardGLMService->applyIonaAbbey($gameGLM);
+        $this->cardGLMService->applyDuartCastle($gameGLM);
+        $this->cardGLMService->applyLochMorar($gameGLM);
+
         $playersMoneyAmount = $this->getSortedListMoney($gameGLM);
         $this->computePoints($playersMoneyAmount);
 
@@ -183,9 +240,9 @@ class GLMService
             $playerTiles = $personalBoard->getPlayerTiles();
             $playerResource = 0;
             foreach ($playerTiles as $tile) {
-                $resources = $tile->getResources();
+                $resources = $tile->getPlayerTileResource();
                 foreach ($resources as $resource) {
-                    if ($resource->getType() === $resourceType) {
+                    if ($resource->getResource()->getType() === $resourceType) {
                         ++$playerResource;
                     }
                 }
@@ -227,8 +284,16 @@ class GLMService
         $result = array();
         foreach ($players as $player) {
             $personalBoard = $player->getPersonalBoard();
-            // TODO TAKE INTO ACCOUNT IF PLAWER OWNS CASTLE OF MEY AND HATS
             $playerResource = $personalBoard->getLeaderCount();
+            $playerResource = $this->cardGLMService->applyCastleOfMey($personalBoard, $playerResource);
+            foreach ($personalBoard->getPlayerTiles() as $tile) {
+                $resources = $tile->getPlayerTileResource();
+                foreach ($resources as $resource) {
+                    if($resource->getResource()->getType() == GlenmoreParameters::$HAT_RESOURCE) {
+                        ++$playerResource;
+                    }
+                }
+            }
             $result[] = array($player, $playerResource);
         }
         usort($result, function($x, $y) {
@@ -238,7 +303,7 @@ class GLMService
     }
 
     /**
-     * getSortedListLeader : returns sorted list of (players, resourceAmount) by amount of cards
+     * getSortedListCard : returns sorted list of (players, resourceAmount) by amount of cards
      *
      * @param GameGLM $gameGLM
      * @return array
