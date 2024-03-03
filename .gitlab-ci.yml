@@ -4,6 +4,7 @@ stages:
   - factory
   - sixqp
   - splendor
+  - glenmore
   - deploy
 
 cache:
@@ -153,5 +154,23 @@ applicationSplendor:
   script:
     - symfony console tailwind:build
     - php bin/phpunit tests/Game/Splendor/Application
+  allow_failure: false
+  environment: test
+
+unitGlenmore:
+  stage: glenmore
+  script:
+    - php bin/phpunit tests/Game/Glenmore/Unit
+  allow_failure: false
+  environment: test
+
+integrationGlenmore:
+  stage: glenmore
+  only:
+    - develop-game
+    - preprod
+    - main
+  script:
+    - php bin/phpunit tests/Game/Glenmore/Integration
   allow_failure: false
   environment: test
