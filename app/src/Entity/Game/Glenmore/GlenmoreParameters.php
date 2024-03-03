@@ -78,7 +78,11 @@ class GlenmoreParameters {
     public static string $TILE_NAME_GROCER = "grocer";
     public static string $TILE_NAME_VILLAGE = "village";
 
+    public static int $IONA_ABBEY_POINTS = 2;
 
+    public static int $LOCH_MORAR_POINTS = 2;
+
+    public static int $DUART_CASTLE_POINTS = 3;
     public static int $MIN_TRADE = 0;
 
     public static int $MAX_TRADE = 3;
