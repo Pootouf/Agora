@@ -1,0 +1,33 @@
+{#
+This section displays the main board of the game
+@param : rows -> A collection of the existing rows
+@return : display a grid of the cards on the main board
+#}
+
+<div class="p-2 bg-red-500 flow float-start w-full h-full overflow-hidden
+            shadow-black shadow-[10px_10px_15px_-3px_rgba(0,0,0,0.1)]">
+    <div id="rowsContainer" class="flex flex-col h-full w-full ml-4">
+        {% for row in rows.values %}
+            <div id="row_{{ row.id }}" class="h-1/4 portrait:h-[12%] portrait:mb-52">
+                <button {% if needToChoose %}{% else %}disabled{% endif%} class="rows button h-full"
+                {{ stimulus_action('sixqp', 'selectRow', 'click',
+                    {url: path('app_game_sixqp_placecardonrow', {idRow: row.id, idGame: game.id})}) }}>
+                {% for card in row.cards %}
+                    <img
+                        {% if chosenCard != null and chosenCard.card.id == card.id %}
+                            id="image_{{ card.id }}"
+                            class="invisible h-full float float-left"
+                        {% else %}
+                            class="h-full float float-left"
+                            {% if isNewRound %}
+                                style="opacity: 0"
+                            {% endif %}
+                        {% endif %}
+                        src="{{ asset('resourcesGames/6QP/cardsImages/' ~ card.value ~ ".png")}}"
+                        alt="card">
+                {% endfor %}
+                </button>
+            </div>
+        {% endfor %}
+    </div>
+</div>

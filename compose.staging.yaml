@@ -2,14 +2,15 @@ version: '3'
 
 services:
   agora:
-    command: bash -c "cd /var/www/agora
+    command: bash -c "cd /app
       && symfony console doctrine:migrations:migrate
       && symfony console --env=test doctrine:migrations:migrate
       && (php bin/console tailwind:build --watch &)
-      && php-fpm"
+      && frankenphp run --config /etc/caddy/Caddyfile --watch"
     environment:
       XDEBUG_MODE: "${XDEBUG_MODE:-off}"
       APP_DEBUG: 0
+      APP_ENV_SERVER: prod
 
 
 ###> doctrine/doctrine-bundle ###

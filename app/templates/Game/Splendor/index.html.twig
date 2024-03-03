@@ -1,0 +1,88 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Agora - Splendor{% endblock %}
+
+{% block body %}
+    <div class="h-screen w-screen overflow-hidden absolute" {{ stimulus_controller('splendor') }}>
+        <div id="index_splendor" class="h-full w-full overflow-hidden">
+            {% block nav %}
+                {{ include('/Game/Utils/navigation.html.twig') }}
+            {% endblock %}
+            {% block endGame %}
+                    {{ include('/Game/Splendor/endGameScreenResult.html.twig') }}
+            {% endblock %}
+            {% block ranking %}
+            <div id="ranking" class="absolute bg-gradient-to-b from-[#4C6E9Bff] to-[#20222Dff] w-[25%] h-full right-0">
+                {{  include('/Game/Splendor/Ranking/ranking.html.twig') }}
+            </div>
+            {% endblock %}
+                <div id="mainBoard" class="flow float-start w-[75%]
+                        {% if isSpectator %}h-full pb-3{% else %}h-[84%]{% endif %}">
+                    {{ include('/Game/Splendor/MainBoard/mainBoard.html.twig') }}
+                </div>
+            {% block personalBoard %}
+                {% if not isSpectator %}
+                <div class="flex bg-[#20222Dff] h-[16%] w-[75%] float-bottom-0" id="personalBoard">
+                    {{ include('/Game/Splendor/PersonalBoard/personalBoard.html.twig') }}
+                </div>
+                {% endif %}
+            {% endblock %}
+            {% block chat %}
+                {{ include('/Game/Utils/chat.html.twig') }}
+            {% endblock %}
+        </div>
+    </div>
+    <script>
+        {% set path = path('app_game_show_spl', {'id': game.id}) ~ 'token' ~ player.id %}
+        const eventSourceTokens = new EventSource("{{ mercure(path)|escape('js') }}");
+        eventSourceTokens.onmessage = event => {
+            let mainBoard = document.getElementById('tokens');
+            mainBoard.innerHTML = event.data;
+        }
+
+        {% set path = path('app_game_show_spl', {'id': game.id}) ~ 'developmentCards' ~ player.id %}
+        const eventSourceDevelopmentCards = new EventSource("{{ mercure(path)|escape('js') }}");
+        eventSourceDevelopmentCards.onmessage = event => {
+            let mainBoard = document.getElementById('developmentCards');
+            mainBoard.innerHTML = event.data;
+        }
+
+        {% set path = path('app_game_show_spl', {'id': game.id}) ~ 'nobleTiles' ~ 'player' %}
+        const eventSourceNobleTiles = new EventSource("{{ mercure(path)|escape('js') }}");
+        eventSourceNobleTiles.onmessage = event => {
+            let mainBoard = document.getElementById('nobleTiles');
+            mainBoard.innerHTML = event.data;
+        }
+
+        {% set path = path('app_game_show_spl', {'id': game.id}) ~ 'reservedCards' ~ player.id %}
+        const eventSourceReservedCards = new EventSource("{{ mercure(path)|escape('js') }}");
+        eventSourceReservedCards.onmessage = event => {
+            let mainBoard = document.getElementById('reservedCards');
+            mainBoard.innerHTML = event.data;
+        }
+
+        {% set path = path('app_game_show_spl', {'id': game.id}) ~ 'ranking' %}
+        const eventSourceRanking = new EventSource("{{ mercure(path)|escape('js') }}");
+        eventSourceRanking.onmessage = event => {
+            let ranking = document.getElementById('ranking');
+            ranking.innerHTML = event.data;
+        }
+
+        {% set path = path('app_game_show_spl', {'id': game.id}) ~ 'endOfGame' %}
+        const eventSourceEndOfGame = new EventSource("{{ mercure(path)|escape('js') }}");
+        eventSourceEndOfGame.onmessage = event => {
+            gameFinished(event.data);
+        }
+
+        {% if needToPlay %}
+        alert("It's your turn to play ! " +
+            "Buy or reserve a card, or take 2 same color tokens, or even 3 different colors tokens !");
+        {% endif %}
+    </script>
+    <script>
+        function closeWindow() {
+            let window = document.getElementById('selectedCardActions');
+            window.remove();
+        }
+    </script>
+{% endblock %}
