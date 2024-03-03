@@ -2,6 +2,7 @@
 
 namespace App\Service\Game\Glenmore;
 
+use App\Entity\Game\Glenmore\DrawTilesGLM;
 use App\Entity\Game\Glenmore\GameGLM;
 use App\Entity\Game\Glenmore\GlenmoreParameters;
 use App\Entity\Game\Glenmore\PlayerGLM;
@@ -52,6 +53,59 @@ class GLMService
     public function getTilesFromGame(GameGLM $game): Collection
     {
         return $game->getMainBoard()->getBoardTiles();
+    }
+
+    /**
+     * getActiveDrawTile : returns the draw tile with the lowest level which is not empty
+     *                      or null if all draw tiles are empty
+     * @param GameGLM $gameGLM
+     * @return DrawTilesGLM|null
+     */
+    public function getActiveDrawTile(GameGLM $gameGLM) : ?DrawTilesGLM
+    {
+        $mainBoard = $gameGLM->getMainBoard();
+        $drawTiles = $mainBoard->getDrawTiles();
+        for ($i = GlenmoreParameters::$TILE_LEVEL_ZERO; $i <= GlenmoreParameters::$TILE_LEVEL_THREE; ++$i) {
+            $draw = $drawTiles->get($i);
+            if ($draw->getTiles()->isEmpty()) {
+                return $draw;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * isGameEnded : checks if a game must end or not
+     * @param GameGLM $gameGLM
+     * @return bool
+     */
+    public function isGameEnded(GameGLM $gameGLM) : bool
+    {
+        return $gameGLM->getMainBoard()->getDrawTiles()->last()->getTiles()->isEmpty();
+    }
+
+    /**
+     * manageEndOfRound : proceeds to count players' points depending on draw tiles level
+     * @param GameGLM $gameGLM
+     * @param int     $drawLevel
+     * @return void
+     * @throws Exception
+     */
+    public function manageEndOfRound(GameGLM $gameGLM, int $drawLevel) : void
+    {
+        switch ($drawLevel) {
+            case 1:
+            case 2:
+                $this->calculatePointsAtEndOfLevel($gameGLM);
+                break;
+            case 3:
+                $this->calculatePointsAtEndOfLevel($gameGLM);
+                $this->calculatePointsAtEndOfGame($gameGLM);
+                break;
+            default:
+                throw new Exception("impossible case");
+        }
+
     }
 
     public function endRoundOfPlayer(GameGLM $gameGLM, PlayerGLM $playerGLM, int $startPosition): void
