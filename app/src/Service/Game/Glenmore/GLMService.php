@@ -186,9 +186,9 @@ class GLMService
             $playerTiles = $personalBoard->getPlayerTiles();
             $playerResource = 0;
             foreach ($playerTiles as $tile) {
-                $resources = $tile->getResources();
+                $resources = $tile->getPlayerTileResource();
                 foreach ($resources as $resource) {
-                    if ($resource->getType() === $resourceType) {
+                    if ($resource->getResource()->getType() === $resourceType) {
                         ++$playerResource;
                     }
                 }
@@ -233,9 +233,9 @@ class GLMService
             $playerResource = $personalBoard->getLeaderCount();
             $playerResource = $this->cardGLMService->applyCastleOfMey($personalBoard, $playerResource);
             foreach ($personalBoard->getPlayerTiles() as $tile) {
-                $resources = $tile->getResources();
+                $resources = $tile->getPlayerTileResource();
                 foreach ($resources as $resource) {
-                    if($resource->getType() == GlenmoreParameters::$HAT_RESOURCE) {
+                    if($resource->getResource()->getType() == GlenmoreParameters::$HAT_RESOURCE) {
                         ++$playerResource;
                     }
                 }
@@ -249,7 +249,7 @@ class GLMService
     }
 
     /**
-     * getSortedListLeader : returns sorted list of (players, resourceAmount) by amount of cards
+     * getSortedListCard : returns sorted list of (players, resourceAmount) by amount of cards
      *
      * @param GameGLM $gameGLM
      * @return array
