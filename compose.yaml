@@ -44,10 +44,6 @@ services:
       #DATABASE CONFIGURATION
       DATABASE_URL: ${DATABASE_URL}
 
-      #FRANKENPHP CONFIGURATION
-      FRANKENPHP_CONFIG: "worker ./public/index.php 1"
-      APP_RUNTIME: Runtime\FrankenPhpSymfony\Runtime
-
       #MERCURE CONFIGURATION
       MERCURE_URL: ${MERCURE_URL}
       MERCURE_PUBLISHER_JWT_KEY: '!ChangeThisMercureHubJWTSecretKey!'
