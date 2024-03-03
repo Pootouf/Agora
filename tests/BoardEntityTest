@@ -1,0 +1,56 @@
+<?php
+
+namespace App\Tests;
+
+use App\Entity\Platform\Game;
+use App\Entity\Platform\Board;
+use App\Entity\Platform\User;
+use PHPUnit\Framework\TestCase;
+
+class BoardEntityTest extends TestCase
+{
+    public function testAddUserToListUsers()
+    {
+        // GIVEN
+        $board = new Board();
+        $user = new User();
+        // WHEN
+        $board->addListUser($user);
+
+        // THEN
+        $this->assertTrue($board->getListUsers()->contains($user));
+    }
+
+
+    public function testRemoveUserFromListUsers()
+    {
+        // GIVEN
+        $board = new Board();
+        $user = new User();
+
+        // WHEN
+        $board->addListUser($user);
+        $board->removeListUser($user);
+
+        // THEN
+        $this->assertFalse($board->getListUsers()->contains($user));
+    }
+
+
+    public function testIsAvailable()
+    {
+        $board = new Board();
+        $board->setNbUserMax(4);
+        $user1 = new User();
+        $user2 = new User();
+        $user3 = new User();
+        $board->addListUser($user1);
+        $board->addListUser($user2);
+
+        // Le tableau est disponible car il reste encore des places disponibles
+        $this->assertTrue($board->isAvailble());
+
+        // Le tableau n'est plus disponible car toutes les places sont occupées
+        $this->assertFalse($board->isAvailble());
+    }
+}
