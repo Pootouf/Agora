@@ -1,14 +1,21 @@
 document.addEventListener('DOMContentLoaded', function() {
 	let notificationsContainer = document.getElementById('notificationsContainer');
-	let testNotif = new IngameNotification(5)
+	let testNotif = new IngameNotification(50, 'info', 'Joueur suivant !', 'C\'est au tour de Yohann', 'red')
 });
 
 class IngameNotification {
 	static nextId = 1;
-	constructor(duration) {
+	constructor(duration, iconName = 'info', message, description, loadingBarColor = 'green') {
 		this.id = IngameNotification.nextId++;
-		this.element = document.getElementById('notif_turn').cloneNode(true);
+		this.element = document.getElementById('notif_template').cloneNode(true);
 		this.element.id = this.id;
+
+		let icon = document.getElementById('svg_' + iconName).cloneNode(true);
+		this.element.querySelector('.svgContainer').appendChild(icon)
+
+		this.element.querySelector('.notifMessage').textContent = message;
+		this.element.querySelector('.notifDescription').textContent = description;
+
 		this.element.animate(
 			[
 				{opacity: 0},
@@ -20,6 +27,7 @@ class IngameNotification {
 			}
 		)
 		this.loadingBar = this.element.querySelector('.loadingElement')
+		this.loadingBar.classList.add('bg-' + loadingBarColor + '-500')
 		notificationsContainer.appendChild(this.element);
 		this.animation = this.loadingBar.animate(
 			[
