@@ -133,6 +133,18 @@ class BoardEntityTest extends TestCase
         $this->assertEquals($invitationHash, $board->getInvitationHash());
     }
 
+    public function testNbInvitations()
+    {
+        // GIVEN
+        $board = new Board();
+        $invitations = 5;
+
+        // WHEN
+        $board->setNbInvitations($invitations);
+
+        // THEN
+        $this->assertEquals($invitations, $board->getNbInvitations());
+    }
 
     public function testUsersNb()
     {
