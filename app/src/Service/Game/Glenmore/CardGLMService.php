@@ -61,7 +61,7 @@ class CardGLMService
      */
     public function applyLochMorar(GameGLM $gameGLM) : void
     {
-        $this->applyEndGameCard($gameGLM, GlenmoreParameters::$CARD_DUART_CASTLE,
+        $this->applyEndGameCard($gameGLM, GlenmoreParameters::$CARD_LOCH_MORAR,
             GlenmoreParameters::$TILE_TYPE_GREEN, GlenmoreParameters::$LOCH_MORAR_POINTS);
     }
 
