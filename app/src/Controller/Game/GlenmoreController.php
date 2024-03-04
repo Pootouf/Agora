@@ -4,6 +4,7 @@ namespace App\Controller\Game;
 
 use App\Entity\Game\Glenmore\GameGLM;
 use App\Service\Game\Glenmore\GLMService;
+use App\Service\Game\MessageService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -11,7 +12,7 @@ use Symfony\Component\Routing\Attribute\Route;
 class GlenmoreController extends AbstractController
 {
 
-    public function __construct(private GLMService $service)
+    public function __construct(private GLMService $service, private MessageService $messageService)
     {}
 
     #[Route('/game/glenmore/{id}', name: 'app_game_show_glm')]
@@ -26,6 +27,7 @@ class GlenmoreController extends AbstractController
         } else {
             //$needToPlay = $player->isTurnOfPlayer();
         }
+        $messages = $this->messageService->receiveMessage($game->getId());
         return $this->render('/Game/Glenmore/index.html.twig', [
             'game' => $game,
             'player' => $player,
@@ -36,7 +38,8 @@ class GlenmoreController extends AbstractController
             'selectedTile' => null,
             'adjacentTiles' => null,
             'potentialNeighbours' => null,
-            'boardTiles' => $this->service->getTilesFromGame($game)
+            'boardTiles' => $this->service->getTilesFromGame($game),
+            'messages' => $messages,
         ]);
     }
 }

@@ -3,3 +3,37 @@ This section displays the personal board of a player
 @param :
 @return :
 #}
+
+<div id="closedPersonalBoard" class="bg-[#888060] w-[3/4] landscape:w-[75%] inline-block h-[3rem] landscape:h-fit
+                                    lg:h-fit absolute bottom-0 z-9 rounded-tr-2xl"
+        {{ stimulus_controller('glenmore') }}
+>
+    <div class="flex justify-center align-center w-full h-full cursor-pointer"
+            {{ stimulus_action('glenmore', 'togglePersonalBoard', 'click', { 'open': true}) }}>
+        <img src="{{ asset('resourcesGames/utils/arrow_up.svg') }}" alt="arrow up" class="h-8 landscape:h-4 mt-1 mr-2">
+        <p class="text-5xl landscape:text-base">Plateau personnel</p>
+    </div>
+</div>
+
+<div id="openedPersonalBoard" class="bg-[#888060] w-full h-full lg:w-[75%] lg:h-full absolute bottom-0 z-5
+                            lg:rounded-tr-2xl z-9
+                            overflow-y-hidden" hidden
+        {{ stimulus_controller('glenmore') }}
+>
+    <div class="h-1/30 w-full flex justify-center cursor-pointer text-5xl landscape:text-2xl lg:text-base"
+            {{ stimulus_action('glenmore', 'togglePersonalBoard', 'click', { 'open': false}) }}>
+        <img src="{{ asset('resourcesGames/utils/arrow_up.svg') }}" id="openArrow"
+             alt="arrow up" class="h-10 landscape:h-6 lg:h-4 rotate-180 mt-1 mr-2">
+        <p>Fermer le plateau personnel</p>
+    </div>
+    <div class="flex justify-center pt-2 pb-2 w-full h-[75%]">
+        <div id="tileBoard" class="w-5/6 h-full rounded-2xl p-1 overflow-y-scroll overflow-x-scroll bg-yellow-600">
+            {{ include('Game/Glenmore/PersonalBoard/displayPersonalTiles.html.twig') }}
+        </div>
+    </div>
+    <div class="flex justify-center w-full pb-2 h-[25%]">
+        <div id="resourcesBoard" class="w-5/6 h-5/6 rounded-2xl p-1 bg-gray-500">
+            {{ include('Game/Glenmore/PersonalBoard/displayPlayerResources.html.twig') }}
+        </div>
+    </div>
+</div>

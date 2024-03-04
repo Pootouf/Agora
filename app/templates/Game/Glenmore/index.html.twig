@@ -4,7 +4,7 @@
 
 {% block body %}
     <div class="h-screen w-screen overflow-hidden absolute" {{ stimulus_controller('glenmore') }}>
-        <div id="index_splendor" class="h-full w-full overflow-hidden">
+        <div id="index_glenmore" class="h-full w-full static overflow-hidden">
             {% block nav %}
                 {{ include('/Game/Utils/navigation.html.twig') }}
             {% endblock %}
@@ -17,15 +17,18 @@
             </div>
             {% endblock %}
                 <div id="mainBoard" class="flow float-start w-[75%]
-                        {% if isSpectator %}h-full pb-3{% else %}h-[84%]{% endif %}">
+                        h-full">
                     {{ include('/Game/Glenmore/MainBoard/mainBoard.html.twig') }}
                 </div>
             {% block personalBoard %}
                 {% if not isSpectator %}
-                <div class="flex bg-[#20222Dff] h-[16%] w-[75%] float-bottom-0" id="personalBoard">
+                <div id="personalBoard" class="flow float-start w-[75%] h-full">
                     {{ include('/Game/Glenmore/PersonalBoard/personalBoard.html.twig') }}
                 </div>
                 {% endif %}
+            {% endblock %}
+            {% block chat %}
+                {{ include('/Game/Utils/chat.html.twig') }}
             {% endblock %}
         </div>
     </div>
