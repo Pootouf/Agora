@@ -450,11 +450,11 @@ class SPLService
      * buyCard : check if player can buy a card and remove the card from the main board
      * @param PlayerSPL $playerSPL
      * @param DevelopmentCardsSPL $developmentCardsSPL
-     * @return void
+     * @return array
      * @throws \Exception if it's not the card of the player
      */
     public function buyCard(PlayerSPL $playerSPL,
-                            DevelopmentCardsSPL $developmentCardsSPL): void
+                            DevelopmentCardsSPL $developmentCardsSPL): array
     {
         $playerCardSPL = $this->getPlayerCardFromDevelopmentCard($playerSPL->getGameSPL(), $developmentCardsSPL);
         if ($playerCardSPL != null
@@ -473,7 +473,7 @@ class SPLService
                 $this->entityManager->persist($playerCardSPL);
                 $this->entityManager->persist($playerSPL->getPersonalBoard());
             }
-            $this->retrievePlayerMoney($playerSPL, $developmentCardsSPL);
+            $retrievePlayerMoney = $this->retrievePlayerMoney($playerSPL, $developmentCardsSPL);
             if($playerCardSPL->isIsReserved()) {
                 $playerCardSPL->setIsReserved(false);
                 $this->entityManager->persist($playerCardSPL);
@@ -496,6 +496,7 @@ class SPLService
                 $this->entityManager->persist($row);
             }
             $this->entityManager->flush();
+            return $retrievePlayerMoney;
         } else {
             throw new Exception('Not enough money to buy this card');
         }
@@ -505,12 +506,13 @@ class SPLService
      * addBuyableNobleTilesToPlayer: add the first noble tiles the player can afford to his stock
      * @param GameSPL $game
      * @param PlayerSPL $player
-     * @return void
+     * @return array
      */
-    public function addBuyableNobleTilesToPlayer(GameSPL $game, PlayerSPL $player): void
+    public function addBuyableNobleTilesToPlayer(GameSPL $game, PlayerSPL $player): array
     {
         $playerCards = $player->getPersonalBoard()->getPlayerCards();
         $filteredCards = $this->filterCardsByColor($playerCards);
+        $boughtTiles = [];
         foreach ($game->getMainBoard()->getNobleTiles() as $tile) {
             $costs = $tile->getCardsCost();
             $canBuy = true;
@@ -526,8 +528,10 @@ class SPLService
                 $this->entityManager->persist($player->getPersonalBoard());
                 $this->entityManager->persist($game->getMainBoard());
                 $this->entityManager->flush();
+                $boughtTiles[] = $tile->getId();
             }
         }
+        return $boughtTiles;
     }
 
     /**
@@ -759,9 +763,9 @@ class SPLService
      * retrievePlayerMoney : remove tokens from the player to buy a card
      * @param PlayerSPL $playerSPL
      * @param DevelopmentCardsSPL $developmentCardsSPL
-     * @return void
+     * @return array
      */
-    private function retrievePlayerMoney(PlayerSPL $playerSPL, DevelopmentCardsSPL $developmentCardsSPL): void
+    private function retrievePlayerMoney(PlayerSPL $playerSPL, DevelopmentCardsSPL $developmentCardsSPL): array
     {
 
         $cardPrice = $this->computeCardPrice($developmentCardsSPL);
@@ -794,7 +798,7 @@ class SPLService
                 }
             }
         }
-        $this->publishAnimReturnedTokens($playerSPL->getGameSPL(), $playerSPL->getUsername(), $selectedTokensForAnimation);
+        return $selectedTokensForAnimation;
     }
 
     private function initializeColorTab():array
@@ -806,19 +810,5 @@ class SPLService
         $array[SplendorParameters::$COLOR_GREEN] = 0;
         $array[SplendorParameters::$COLOR_WHITE] = 0;
         return $array;
-    }
-
-
-    private function publishAnimReturnedTokens(GameSPL $game, string $player, $returnedTokens): void
-    {
-        $returnedTokensId = [];
-
-        foreach ($returnedTokens as $token) {
-            $returnedTokensId[] = $token->getToken()->getType();
-        }
-        $this->publishService->publish(
-            $this->generateUrl('app_game_show_spl', ['id' => $game->getId()]).'animReturnedTokens',
-            new Response($player . '__' . implode('_', $returnedTokensId))
-        );
     }
 }

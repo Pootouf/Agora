@@ -179,14 +179,19 @@ class SplendorController extends AbstractController
              }
          }
          try {
-             $this->SPLService->buyCard($player, $card);
+             $returnedTokens = $this->SPLService->buyCard($player, $card);
          } catch (Exception $e) {
              return new Response("Can't buy this card : ".$e->getMessage(), Response::HTTP_FORBIDDEN);
          }
-         $this->SPLService->addBuyableNobleTilesToPlayer($game, $player);
+         $this->publishAnimReturnedTokens($game, $player->getUsername(), $returnedTokens);
+         $nobles = $this->SPLService->addBuyableNobleTilesToPlayer($game, $player);
+
+         if (! empty($nobles)){
+             $this->publishAnimNoble($game, $player->getUsername(), $nobles);
+         }
+
          $this->publishNobleTiles($game);
          $this->publishReservedCards($game);
-         $this->publishAnimNoble($game, $player->getUsername(), $player->getPersonalBoard()->getNobleTiles());
          $this->manageEndOfRound($game);
          return new Response('Card Bought', Response::HTTP_OK);
      }
@@ -500,7 +505,15 @@ class SplendorController extends AbstractController
         $nobleTile = $nobleTile->getId();
         $this->publishService->publish(
             $this->generateUrl('app_game_show_spl', ['id' => $game->getId()]).'animNoble',
-            new Response($player . '__')
+            new Response($player . '__' . $nobleTile)
+        );
+    }
+
+    private function publishAnimReturnedTokens(GameSPL $game, string $player, $returnedTokens): void
+    {
+        $this->publishService->publish(
+            $this->generateUrl('app_game_show_spl', ['id' => $game->getId()]).'animReturnedTokens',
+            new Response($player . '__' . implode('_', $returnedTokens))
         );
     }
 
