@@ -2,12 +2,17 @@
 
 namespace App\Service\Game\Glenmore;
 
+use App\Entity\Game\Glenmore\BoardTileGLM;
 use App\Entity\Game\Glenmore\DrawTilesGLM;
 use App\Entity\Game\Glenmore\GameGLM;
 use App\Entity\Game\Glenmore\GlenmoreParameters;
+use App\Entity\Game\Glenmore\PawnGLM;
 use App\Entity\Game\Glenmore\PlayerGLM;
 use App\Entity\Game\Glenmore\PlayerTileGLM;
 use App\Entity\Game\Glenmore\PlayerTileResourceGLM;
+use App\Entity\Game\Glenmore\ResourceGLM;
+use App\Entity\Game\Glenmore\WarehouseGLM;
+use App\Entity\Game\Glenmore\WarehouseLineGLM;
 use App\Repository\Game\Glenmore\DrawTilesGLMRepository;
 use App\Repository\Game\Glenmore\PlayerGLMRepository;
 use App\Repository\Game\Glenmore\ResourceGLMRepository;
@@ -16,6 +21,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
+use Psr\Log\LoggerInterface;
 
 class GLMService
 {
@@ -232,15 +238,6 @@ class GLMService
             ['mainBoardGLM' => $game->getMainBoard()->getId(),
                 'level' => GlenmoreParameters::$TILE_LEVEL_THREE]);
 
-        foreach ($tilesLevelZero as $tile) $drawLevelZero->addTile($tile);
-        foreach ($tilesLevelOne as $tile) $drawLevelOne->addTile($tile);
-        foreach ($tilesLevelTwo as $tile) $drawLevelTwo->addTile($tile);
-        foreach ($tilesLevelThree as $tile) $drawLevelThree->addTile($tile);
-        $this->entityManager->persist($drawLevelZero);
-        $this->entityManager->persist($drawLevelOne);
-        $this->entityManager->persist($drawLevelTwo);
-        $this->entityManager->persist($drawLevelThree);
-
         $startVillages = $this->tileGLMRepository->findBy(['name' => GlenmoreParameters::$TILE_NAME_START_VILLAGE]);
         $villager = $this->resourceGLMRepository->findOneBy(['type' => GlenmoreParameters::$VILLAGER_RESOURCE]);
         foreach ($game->getPlayers() as $player) {
@@ -258,8 +255,74 @@ class GLMService
             $player->getPersonalBoard()->setMoney(GlenmoreParameters::$START_MONEY);
             $this->entityManager->persist($player->getPersonalBoard());
         }
+        $game->getPlayers()->first()->setTurnOfPlayer(true);
+        $position = 0;
+        foreach ($game->getPlayers() as $player) {
+            $pawn = new PawnGLM();
+            $pawn->setPlayerGLM($player);
+            $pawn->setColor(GlenmoreParameters::$COLOR_FROM_POSITION[$position]);
+            $pawn->setPosition($position);
+            $game->getMainBoard()->addPawn($pawn);
+            $this->entityManager->persist($pawn);
+            $position++;
+        }
+        while ($position < GlenmoreParameters::$NUMBER_OF_TILES_ON_BOARD) {
+            $tile = new BoardTileGLM();
+            $gameTile = null;
+            if (!empty($tilesLevelZero)) {
+                $gameTile = array_pop($tilesLevelZero);
+            } else {
+                $gameTile = array_pop($tilesLevelOne);
+            }
+            $tile->setTile($gameTile);
+            $tile->setMainBoardGLM($game->getMainBoard());
+            $tile->setPosition($position);
+            $game->getMainBoard()->addBoardTile($tile);
+            $this->entityManager->persist($tile);
+            $position++;
+        }
 
+        foreach ($tilesLevelZero as $tile) $drawLevelZero->addTile($tile);
+        foreach ($tilesLevelOne as $tile) $drawLevelOne->addTile($tile);
+        foreach ($tilesLevelTwo as $tile) $drawLevelTwo->addTile($tile);
+        foreach ($tilesLevelThree as $tile) $drawLevelThree->addTile($tile);
+        $this->entityManager->persist($drawLevelZero);
+        $this->entityManager->persist($drawLevelOne);
+        $this->entityManager->persist($drawLevelTwo);
+        $this->entityManager->persist($drawLevelThree);
+
+        $green_cube = $this->resourceGLMRepository->findOneBy(['type' => GlenmoreParameters::$PRODUCTION_RESOURCE, 'color' => GlenmoreParameters::$COLOR_GREEN]);
+        $yellow_cube = $this->resourceGLMRepository->findOneBy(['type' => GlenmoreParameters::$PRODUCTION_RESOURCE, 'color' => GlenmoreParameters::$COLOR_YELLOW]);
+        $brown_cube = $this->resourceGLMRepository->findOneBy(['type' => GlenmoreParameters::$PRODUCTION_RESOURCE, 'color' => GlenmoreParameters::$COLOR_BROWN]);
+        $white_cube = $this->resourceGLMRepository->findOneBy(['type' => GlenmoreParameters::$PRODUCTION_RESOURCE, 'color' => GlenmoreParameters::$COLOR_WHITE]);
+        $grey_cube = $this->resourceGLMRepository->findOneBy(['type' => GlenmoreParameters::$PRODUCTION_RESOURCE, 'color' => GlenmoreParameters::$COLOR_GREY]);
+        $numberOfCoin = 0;
+        if ($game->getPlayers()->count() != GlenmoreParameters::$MAX_NUMBER_OF_PLAYER - 1) {
+            $numberOfCoin = 1;
+        }
+        $warehouse = $game->getMainBoard()->getWarehouse();
+        $this->addWarehouseLineToWarehouse($warehouse, $green_cube, $numberOfCoin);
+        $this->addWarehouseLineToWarehouse($warehouse, $yellow_cube, $numberOfCoin);
+        $this->addWarehouseLineToWarehouse($warehouse, $brown_cube, $numberOfCoin);
+        $this->addWarehouseLineToWarehouse($warehouse, $white_cube, $numberOfCoin);
+        $this->addWarehouseLineToWarehouse($warehouse, $grey_cube, $numberOfCoin);
+
+        $this->entityManager->persist($warehouse);
+        $this->entityManager->persist($game->getMainBoard());
         $this->entityManager->flush();
+    }
+
+    private function addWarehouseLineToWarehouse(WarehouseGLM $warehouse, ResourceGLM $resource, int $coinNumber): void
+    {
+        $warehouseLine = new WarehouseLineGLM();
+        $warehouseLine->setWarehouseGLM($warehouse);
+        $warehouseLine->setResource($resource);
+        $warehouseLine->setCoinNumber($coinNumber);
+        $quantity = $coinNumber == GlenmoreParameters::$COIN_NEEDED_FOR_RESOURCE_ONE ? 1 :
+                ($coinNumber == GlenmoreParameters::$COIN_NEEDED_FOR_RESOURCE_TWO ? 2 :
+                ($coinNumber == GlenmoreParameters::$COIN_NEEDED_FOR_RESOURCE_THREE ? 3 : 0));
+        $warehouseLine->setQuantity($quantity);
+        $this->entityManager->persist($warehouseLine);
     }
 
     /**
