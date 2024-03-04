@@ -21,7 +21,7 @@ class BoardBoxGLM
     /**
      * @throws Exception
      */
-    public function __construct(?PawnGLM $pawn, ?TileGLM $tile)
+    public function __construct(?TileGLM $tile, ?PawnGLM $pawn)
     {
         if($pawn != null && $tile != null) {
             throw new Exception("Wrong parameters number");
