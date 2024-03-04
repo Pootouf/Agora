@@ -15,8 +15,8 @@ use PHPUnit\Framework\InvalidArgumentException;
 class BoardBoxGLM
 {
 
-    private ?PawnGLM $pawn;
-    private ?TileGLM $tile;
+    private ?PawnGLM $pawn = null;
+    private ?TileGLM $tile = null;
 
     /**
      * @throws Exception
@@ -28,8 +28,10 @@ class BoardBoxGLM
         }
         if($pawn != null) {
             $this->pawn = $pawn;
+            $this->tile = null;
         } else if($tile != null) {
             $this->tile = $tile;
+            $this->pawn = null;
         }
     }
 
@@ -37,7 +39,7 @@ class BoardBoxGLM
      * hasTile : indicate if the board's box has a tile
      * @return bool
      */
-    public function hasTile() : Boolean
+    public function hasTile() : bool
     {
         return $this->tile != null;
     }
@@ -46,7 +48,7 @@ class BoardBoxGLM
      * hasPawn : indicate if the board's box has a pawn
      * @return bool
      */
-    public function hasPawn() : Boolean
+    public function hasPawn() : bool
     {
         return $this->pawn != null;
     }
@@ -55,25 +57,25 @@ class BoardBoxGLM
      * isEmptyBox : indicate if the board's box is empty
      * @return bool
      */
-    public function isEmptyBox() : Boolean
+    public function isEmptyBox() : bool
     {
         return $this->pawn == null && $this->tile == null;
     }
 
     /**
      * getTile : return the tile presents on the board's box
-     * @return TileGLM
+     * @return ?TileGLM
      */
-    public function getTile() : TileGLM
+    public function getTile() : ?TileGLM
     {
         return $this->tile;
     }
 
     /**
      * getPawn : return the pawn presents on the board's box
-     * @return PawnGLM
+     * @return ?PawnGLM
      */
-    public function getPawn() : PawnGLM
+    public function getPawn() : ?PawnGLM
     {
         return $this->pawn;
     }
