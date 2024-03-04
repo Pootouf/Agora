@@ -224,6 +224,10 @@ class GLMService
         $tilesLevelOne = $this->tileGLMRepository->findBy(['level' => GlenmoreParameters::$TILE_LEVEL_ONE]);
         $tilesLevelTwo = $this->tileGLMRepository->findBy(['level' => GlenmoreParameters::$TILE_LEVEL_TWO]);
         $tilesLevelThree = $this->tileGLMRepository->findBy(['level' => GlenmoreParameters::$TILE_LEVEL_THREE]);
+        shuffle($tilesLevelZero);
+        shuffle($tilesLevelOne);
+        shuffle($tilesLevelTwo);
+        shuffle($tilesLevelThree);
 
         $drawLevelZero = $this->drawTilesGLMRepository->findOneBy(
             ['mainBoardGLM' => $game->getMainBoard()->getId(),
@@ -266,7 +270,7 @@ class GLMService
             $this->entityManager->persist($pawn);
             $position++;
         }
-        while ($position < GlenmoreParameters::$NUMBER_OF_TILES_ON_BOARD) {
+        while ($position < GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD - 1) {
             $tile = new BoardTileGLM();
             $gameTile = null;
             if (!empty($tilesLevelZero)) {
