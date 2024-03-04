@@ -4,6 +4,7 @@ namespace App\Entity\Game\Glenmore;
 
 use App\Entity\Game\DTO\Component;
 use App\Repository\Game\Glenmore\PersonalBoardGLMRepository;
+use App\Entity\Game\Glenmore\PlayerCardGLM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -17,19 +18,19 @@ class PersonalBoardGLM extends Component
     #[ORM\Column]
     private ?int $money = null;
 
-    #[ORM\ManyToMany(targetEntity: CardGLM::class)]
-    private Collection $cards;
-
     #[ORM\OneToMany(targetEntity: PlayerTileGLM::class, mappedBy: 'personalBoard')]
     private Collection $playerTiles;
 
     #[ORM\OneToOne(mappedBy: 'personalBoard', cascade: ['persist', 'remove'])]
     private ?PlayerGLM $playerGLM = null;
 
+    #[ORM\OneToMany(targetEntity: PlayerCardGLM::class, mappedBy: 'personalBoard', orphanRemoval: true)]
+    private Collection $playerCardGLM;
+
     public function __construct()
     {
-        $this->cards = new ArrayCollection();
         $this->playerTiles = new ArrayCollection();
+        $this->playerCardGLM = new ArrayCollection();
     }
 
     public function getLeaderCount(): ?int
@@ -52,30 +53,6 @@ class PersonalBoardGLM extends Component
     public function setMoney(int $money): static
     {
         $this->money = $money;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, CardGLM>
-     */
-    public function getCards(): Collection
-    {
-        return $this->cards;
-    }
-
-    public function addCard(CardGLM $card): static
-    {
-        if (!$this->cards->contains($card)) {
-            $this->cards->add($card);
-        }
-
-        return $this;
-    }
-
-    public function removeCard(CardGLM $card): static
-    {
-        $this->cards->removeElement($card);
 
         return $this;
     }
@@ -123,6 +100,36 @@ class PersonalBoardGLM extends Component
         }
 
         $this->playerGLM = $playerGLM;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PlayerCardGLM>
+     */
+    public function getPlayerCardGLM(): Collection
+    {
+        return $this->playerCardGLM;
+    }
+
+    public function addPlayerCardGLM(PlayerCardGLM $playerCardGLM): static
+    {
+        if (!$this->playerCardGLM->contains($playerCardGLM)) {
+            $this->playerCardGLM->add($playerCardGLM);
+            $playerCardGLM->setPersonalBoard($this);
+        }
+
+        return $this;
+    }
+
+    public function removePlayerCardGLM(PlayerCardGLM $playerCardGLM): static
+    {
+        if ($this->playerCardGLM->removeElement($playerCardGLM)) {
+            // set the owning side to null (unless already changed)
+            if ($playerCardGLM->getPersonalBoard() === $this) {
+                $playerCardGLM->setPersonalBoard(null);
+            }
+        }
 
         return $this;
     }

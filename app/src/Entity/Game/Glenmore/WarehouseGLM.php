@@ -18,9 +18,13 @@ class WarehouseGLM extends Component
     #[ORM\OneToOne(mappedBy: 'warehouse', cascade: ['persist', 'remove'])]
     private ?MainBoardGLM $mainBoardGLM = null;
 
+    #[ORM\OneToMany(targetEntity: WarehouseResourceGLM::class, mappedBy: 'warehouse', orphanRemoval: true)]
+    private Collection $warehouseResource;
+
     public function __construct()
     {
         $this->resources = new ArrayCollection();
+        $this->warehouseResource = new ArrayCollection();
     }
 
     /**
@@ -60,6 +64,36 @@ class WarehouseGLM extends Component
         }
 
         $this->mainBoardGLM = $mainBoardGLM;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, WarehouseResourceGLM>
+     */
+    public function getWarehouseResource(): Collection
+    {
+        return $this->warehouseResource;
+    }
+
+    public function addWarehouseResource(WarehouseResourceGLM $warehouseResource): static
+    {
+        if (!$this->warehouseResource->contains($warehouseResource)) {
+            $this->warehouseResource->add($warehouseResource);
+            $warehouseResource->setWarehouse($this);
+        }
+
+        return $this;
+    }
+
+    public function removeWarehouseResource(WarehouseResourceGLM $warehouseResource): static
+    {
+        if ($this->warehouseResource->removeElement($warehouseResource)) {
+            // set the owning side to null (unless already changed)
+            if ($warehouseResource->getWarehouse() === $this) {
+                $warehouseResource->setWarehouse(null);
+            }
+        }
 
         return $this;
     }

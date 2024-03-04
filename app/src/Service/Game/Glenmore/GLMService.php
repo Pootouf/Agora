@@ -353,7 +353,7 @@ class GLMService
         $result = array();
         foreach ($players as $player) {
             $personalBoard = $player->getPersonalBoard();
-            $playerResource = $personalBoard->getCards()->count();
+            $playerResource = $personalBoard->getPlayerCardGLM()->count();
             $result[] = array($player, $playerResource);
         }
         usort($result, function($x, $y) {

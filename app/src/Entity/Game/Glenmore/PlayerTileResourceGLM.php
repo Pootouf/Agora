@@ -2,17 +2,13 @@
 
 namespace App\Entity\Game\Glenmore;
 
+use App\Entity\Game\DTO\Component;
 use App\Repository\Game\Glenmore\PlayerTileResourceGLMRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PlayerTileResourceGLMRepository::class)]
-class PlayerTileResourceGLM
+class PlayerTileResourceGLM extends Component
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
-
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     private ?ResourceGLM $resource = null;
@@ -23,12 +19,6 @@ class PlayerTileResourceGLM
     #[ORM\ManyToOne(inversedBy: 'playerTileResource')]
     #[ORM\JoinColumn(nullable: false)]
     private ?PlayerTileGLM $playerTileGLM = null;
-
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
-
     public function getResource(): ?ResourceGLM
     {
         return $this->resource;

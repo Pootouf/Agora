@@ -74,10 +74,10 @@ class WarehouseGLMService
         , ResourceGLM $resource) : int
     {
         $money = 0;
-        $resources = $warehouse->getResources();
+        $resources = $warehouse->getWarehouseResource();
         foreach ($resources as $r)
         {
-            if ($r->getColor() === $resource->getColor())
+            if ($r->getResource()->getColor() === $resource->getColor())
             {
                 $money += 1;
             }
@@ -120,12 +120,12 @@ class WarehouseGLMService
      */
     private function removeResourceInWarehouse(WarehouseGLM $warehouse, ResourceGLM $resource) : void
     {
-        $resources = $warehouse->getResources();
+        $resources = $warehouse->getWarehouseResource();
         foreach ($resources as $r)
         {
-            if ($r->getColor() === $resource->getColor())
+            if ($r->getResource()->getColor() === $resource->getColor())
             {
-                $warehouse->removeResource($r);
+                $warehouse->removeWarehouseResource($r);
                 $this->entityManager->persist($warehouse);
                 return;
             }

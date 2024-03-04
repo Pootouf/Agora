@@ -5,10 +5,6 @@ namespace App\Service\Game\Glenmore;
 use App\Entity\Game\Glenmore\GameGLM;
 use App\Entity\Game\Glenmore\GlenmoreParameters;
 use App\Entity\Game\Glenmore\PersonalBoardGLM;
-use App\Repository\Game\Glenmore\DrawTilesGLMRepository;
-use App\Repository\Game\Glenmore\PlayerGLMRepository;
-use App\Repository\Game\Glenmore\ResourceGLMRepository;
-use App\Repository\Game\Glenmore\TileGLMRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 class CardGLMService
@@ -23,8 +19,8 @@ class CardGLMService
      */
     public function applyCastleOfMey(PersonalBoardGLM $personalBoard, int $playerResource) : int
     {
-        foreach($personalBoard->getCards() as $card) {
-            if ($card->getName() == GlenmoreParameters::$CARD_CASTLE_OF_MEY) {
+        foreach($personalBoard->getPlayerCardGLM() as $playerCard) {
+            if ($playerCard->getCard()->getName() == GlenmoreParameters::$CARD_CASTLE_OF_MEY) {
                 $playerResource *= 2;
                 break;
             }
@@ -80,8 +76,8 @@ class CardGLMService
         $players = $gameGLM->getPlayers();
         $owns = false;
         foreach ($players as $player) {
-            foreach ($player->getPersonalBoard()->getCards() as $card) {
-                if ($card->getName() === $cardName) {
+            foreach ($player->getPersonalBoard()->getPlayerCardGLM() as $playerCard) {
+                if ($playerCard->getCard()->getName() === $cardName) {
                     $owns = true;
                     break;
                 }
