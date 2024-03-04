@@ -237,6 +237,7 @@ class GLMServiceTest extends TestCase
         $cardBonus->setResource($resource);
         $cardBonus->setAmount(3);
         $card->setBonus($cardBonus);
+        $tile->setCard($card);
         $playerCard = new PlayerCardGLM($personalBoard, $card);
         $personalBoard->addPlayerCardGLM($playerCard);
         $expectedAmountVillager = 1;
@@ -250,20 +251,26 @@ class GLMServiceTest extends TestCase
         $amountHat = 0;
         $typeVillager = null;
         $typeHat = null;
-        foreach ($personalBoard->getPlayerTiles() as $tile) {
-            if ($tile === $playerTile) {
-                $playerTileResources = $tile->getPlayerTileResource();
+        foreach ($personalBoard->getPlayerTiles() as $newTile) {
+            if ($newTile === $playerTile) {
+                $playerTileResources = $newTile->getPlayerTileResource();
                 foreach ($playerTileResources as $playerTileResource) {
-                    $amountVillager = $playerTileResource->getQuantity();
                     $typeVillager = $playerTileResource->getResource()->getType();
+                    if ($typeVillager === $expectedTypeVillager) {
+                        $amountVillager = $playerTileResource->getQuantity();
+                        break;
+                    }
                 }
             }
         }
         foreach ($personalBoard->getPlayerCardGLM() as $playerCard) {
             $actualCard = $playerCard->getCard();
-            if ($card === $actualCard) {
-                $amountHat = $actualCard->getBonus()->getAmount();
+            if ($tile->getCard() === $actualCard) {
                 $typeHat = $actualCard->getBonus()->getResource()->getType();
+                if ($typeHat === $expectedTypeHat) {
+                    $amountHat = $actualCard->getBonus()->getAmount();
+                    break;
+                }
             }
         }
         $this->assertEquals($expectedAmountVillager, $amountVillager);

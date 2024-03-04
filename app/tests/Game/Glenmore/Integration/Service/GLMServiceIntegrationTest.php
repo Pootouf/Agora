@@ -17,6 +17,7 @@ use App\Repository\Game\Glenmore\ResourceGLMRepository;
 use App\Repository\Game\Glenmore\TileGLMRepository;
 use App\Service\Game\AbstractGameManagerService;
 use App\Service\Game\Glenmore\GLMService;
+use App\Service\Game\Glenmore\TileGLMService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
@@ -114,6 +115,135 @@ class GLMServiceIntegrationTest extends KernelTestCase
         $result = $GLMService->isGameEnded($game);
         //THEN
         $this->assertFalse($result);
+    }
+
+    public function testGiveBuyBonusWithSimpleProductionTile() : void
+    {
+        //GIVEN
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $tileGLMService = static::getContainer()->get(TileGLMService::class);
+        $tileRepository = static::getContainer()->get(TileGLMRepository::class);
+        $game = $this->createGame(4);
+        $firstPlayer = $game->getPlayers()->first();
+        $personalBoard = $firstPlayer->getPersonalBoard();
+        $tile = $tileRepository->findOneBy(["id" => 11]);
+        $playerTile = new PlayerTileGLM();
+        $playerTile->setTile($tile);
+        $playerTile->setPersonalBoard($personalBoard);
+        $entityManager->persist($playerTile);
+        $personalBoard->addPlayerTile($playerTile);
+        $entityManager->persist($personalBoard);
+        $entityManager->flush();
+        $expectedAmount = 1;
+        $expectedType = GlenmoreParameters::$WHISKY_RESOURCE;
+        //WHEN
+        $tileGLMService->giveBuyBonus($playerTile);
+        //THEN
+        $amount = 0;
+        $type = null;
+        foreach ($personalBoard->getPlayerTiles() as $newTile) {
+            if ($newTile === $playerTile) {
+                $playerTileResources = $newTile->getPlayerTileResource();
+                foreach ($playerTileResources as $playerTileResource) {
+                    $amount = $playerTileResource->getQuantity();
+                    $type = $playerTileResource->getResource()->getType();
+                }
+            }
+        }
+        $this->assertEquals($expectedAmount, $amount);
+        $this->assertSame($expectedType, $type);
+    }
+
+    public function testGiveBuyBonusWithSimpleProductionTileWhenNoBuyBonus() : void
+    {
+        //GIVEN
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $tileGLMService = static::getContainer()->get(TileGLMService::class);
+        $tileRepository = static::getContainer()->get(TileGLMRepository::class);
+        $game = $this->createGame(4);
+        $firstPlayer = $game->getPlayers()->first();
+        $personalBoard = $firstPlayer->getPersonalBoard();
+        $tile = $tileRepository->findOneBy(["id" => 1]);
+        $playerTile = new PlayerTileGLM();
+        $playerTile->setTile($tile);
+        $playerTile->setPersonalBoard($personalBoard);
+        $entityManager->persist($playerTile);
+        $personalBoard->addPlayerTile($playerTile);
+        $entityManager->persist($personalBoard);
+        $entityManager->flush();
+        $expectedAmount = 0;
+        //WHEN
+        $tileGLMService->giveBuyBonus($playerTile);
+        //THEN
+        $amount = 0;
+        $type = null;
+        foreach ($personalBoard->getPlayerTiles() as $newTile) {
+            if ($newTile === $playerTile) {
+                $playerTileResources = $newTile->getPlayerTileResource();
+                foreach ($playerTileResources as $playerTileResource) {
+                    $amount = $playerTileResource->getQuantity();
+                    $type = $playerTileResource->getResource()->getType();
+                }
+            }
+        }
+        $this->assertEquals($expectedAmount, $amount);
+        $this->assertNull($type);
+    }
+
+    public function testGiveBuyBonusWithCard() : void
+    {
+        //GIVEN
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $tileGLMService = static::getContainer()->get(TileGLMService::class);
+        $tileRepository = static::getContainer()->get(TileGLMRepository::class);
+        $game = $this->createGame(4);
+        $firstPlayer = $game->getPlayers()->first();
+        $personalBoard = $firstPlayer->getPersonalBoard();
+        $tile = $tileRepository->findOneBy(["id" => 51]);
+        $playerTile = new PlayerTileGLM();
+        $playerTile->setTile($tile);
+        $playerTile->setPersonalBoard($personalBoard);
+        $entityManager->persist($playerTile);
+        $personalBoard->addPlayerTile($playerTile);
+        $entityManager->persist($personalBoard);
+        $entityManager->flush();
+        $expectedAmountVillager = 1;
+        $expectedAmountHat = 3;
+        $expectedTypeVillager = GlenmoreParameters::$VILLAGER_RESOURCE;
+        $expectedTypeHat = GlenmoreParameters::$HAT_RESOURCE;
+        //WHEN
+        $tileGLMService->giveBuyBonus($playerTile);
+        //THEN
+        $amountVillager = 0;
+        $amountHat = 0;
+        $typeVillager = null;
+        $typeHat = null;
+        foreach ($personalBoard->getPlayerTiles() as $newTile) {
+            if ($newTile === $playerTile) {
+                $playerTileResources = $newTile->getPlayerTileResource();
+                foreach ($playerTileResources as $playerTileResource) {
+                    $typeVillager = $playerTileResource->getResource()->getType();
+                    if ($typeVillager === $expectedTypeVillager) {
+                        $amountVillager = $playerTileResource->getQuantity();
+                        break;
+                    }
+                }
+            }
+        }
+        foreach ($personalBoard->getPlayerCardGLM() as $playerCard) {
+            $actualCard = $playerCard->getCard();
+            if ($tile->getCard() === $actualCard) {
+                $typeHat = $actualCard->getBonus()->getResource()->getType();
+                if ($typeHat === $expectedTypeHat) {
+                    $amountHat = $actualCard->getBonus()->getAmount();
+                    break;
+                }
+            }
+        }
+        $this->assertEquals($expectedAmountVillager, $amountVillager);
+        $this->assertSame($expectedTypeVillager, $typeVillager);
+        $this->assertEquals($expectedAmountHat, $amountHat);
+        $this->assertSame($expectedTypeHat, $typeHat);
     }
 
     private function createGame(int $nbOfPlayers) : GameGLM
