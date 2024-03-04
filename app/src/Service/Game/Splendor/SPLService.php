@@ -765,6 +765,7 @@ class SPLService
     {
 
         $cardPrice = $this->computeCardPrice($developmentCardsSPL);
+        $selectedTokensForAnimation = [];
 
         // remove non gold token
         foreach ($cardPrice as $color => $amount){
@@ -774,6 +775,7 @@ class SPLService
                     $playerSPL->getPersonalBoard()->removeToken($token);
                     $amount -= 1;
                     $playerSPL->getGameSPL()->getMainBoard()->addToken($token);
+                    $selectedTokensForAnimation[] = $token->getType();
                 }
             }
         }
@@ -787,10 +789,12 @@ class SPLService
                         $playerSPL->getPersonalBoard()->removeToken($token);
                         $amount -= 1;
                         $playerSPL->getGameSPL()->getMainBoard()->addToken($token);
+                        $selectedTokensForAnimation[] = $token->getType();
                     }
                 }
             }
         }
+        $this->publishAnimReturnedTokens($playerSPL->getGameSPL(), $playerSPL->getUsername(), $selectedTokensForAnimation);
     }
 
     private function initializeColorTab():array
@@ -802,5 +806,19 @@ class SPLService
         $array[SplendorParameters::$COLOR_GREEN] = 0;
         $array[SplendorParameters::$COLOR_WHITE] = 0;
         return $array;
+    }
+
+
+    private function publishAnimReturnedTokens(GameSPL $game, string $player, $returnedTokens): void
+    {
+        $returnedTokensId = [];
+
+        foreach ($returnedTokens as $token) {
+            $returnedTokensId[] = $token->getToken()->getType();
+        }
+        $this->publishService->publish(
+            $this->generateUrl('app_game_show_spl', ['id' => $game->getId()]).'animReturnedTokens',
+            new Response($player . '__' . implode('_', $returnedTokensId))
+        );
     }
 }
