@@ -1,0 +1,25 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des parties du Glenmore{% endblock %}
+
+{% block body %}
+    <h1>Glenmore</h1>
+    <a href="{{ path('app_game_glenmore_create') }}">Nouvelle partie</a>
+    {% for game in games  %}
+        <div>
+            <h2>Partie {{ game.id }}</h2>
+            <div>
+                {% for player in game.players %}
+                    <p>{{ player.username }}</p>
+                {% endfor %}
+            </div>
+            {% if game.launched %}
+                <a href="{{ path('app_game_show_glm', {'id': game.id}) }}">Rejoindre la partie</a>
+            {% else %}
+                <a href="{{ path('app_game_glenmore_join', {'id': game.id}) }}">S'inscrire</a>
+                <a href="{{ path('app_game_glenmore_launch', {'id': game.id}) }}">Lancer</a>
+            {% endif %}
+            <a href="{{ path('app_game_glenmore_delete', {'id': game.id}) }}">Supprimer</a>
+        </div>
+    {% endfor %}
+{% endblock %}
