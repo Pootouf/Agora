@@ -97,6 +97,8 @@ class SplendorController extends AbstractController
             'selectedReservedCard' => null,
             'purchasableCards' => $this->SPLService
                     ->getPurchasableCardsOnBoard($game, $player),
+            'purchasableCardsOnPersonalBoard' => $this->SPLService
+                ->getPurchasableCardsOnPersonalBoard($player),
             'canReserveCard' => $this->SPLService->doesPlayerAlreadyHaveMaxNumberOfReservedCard($player),
             'messages' => $messages
         ]);
@@ -115,6 +117,8 @@ class SplendorController extends AbstractController
              'game' => $game,
              'selectedReservedCard' => null,
              'purchasableCards' => $this->SPLService->getPurchasableCardsOnBoard($game, $player),
+             'purchasableCardsOnPersonalBoard' => $this->SPLService
+                 ->getPurchasableCardsOnPersonalBoard($player),
              'canReserveCard' => $this->SPLService->doesPlayerAlreadyHaveMaxNumberOfReservedCard($player),
          ]);
      }
@@ -147,6 +151,8 @@ class SplendorController extends AbstractController
                  'game' => $game,
                  'selectedReservedCard' => $card,
                  'purchasableCards' => $this->SPLService->getPurchasableCardsOnBoard($game, $player),
+                 'purchasableCardsOnPersonalBoard' => $this->SPLService
+                     ->getPurchasableCardsOnPersonalBoard($player),
                  'canReserveCard' => false,
              ]);
      }
@@ -179,6 +185,7 @@ class SplendorController extends AbstractController
          }
          $this->SPLService->addBuyableNobleTilesToPlayer($game, $player);
          $this->publishNobleTiles($game);
+         $this->publishReservedCards($game);
          $this->manageEndOfRound($game);
          return new Response('Card Bought', Response::HTTP_OK);
      }
@@ -378,6 +385,8 @@ class SplendorController extends AbstractController
             'game' => $game,
             'purchasableCards' => $player == null ? [] : $this->SPLService
                 ->getPurchasableCardsOnBoard($game, $player),
+            'purchasableCardsOnPersonalBoard' => $player == null ? [] : $this->SPLService
+                ->getPurchasableCardsOnPersonalBoard($player),
             'canReserveCard' => $player == null || $this->SPLService->doesPlayerAlreadyHaveMaxNumberOfReservedCard($player),
         ]);
 
@@ -422,6 +431,8 @@ class SplendorController extends AbstractController
                 'nobleTiles' => $game->getMainBoard()->getNobleTiles(),
                 'needToPlay' => $player->isTurnOfPlayer(),
                 'playerReservedCards' => $this->SPLService->getReservedCards($player),
+                'purchasableCardsOnPersonalBoard' => $this->SPLService
+                    ->getPurchasableCardsOnPersonalBoard($player),
                 'game' => $game,
             ]);
 
