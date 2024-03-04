@@ -18,7 +18,8 @@ This section displays the tiles for the main board with players' pawns on it
                 <div class="flex justify-center items-center h-full w-full">
                     <img
                          class="aspect-auto max-h-full"
-                         src="{{ asset('resourcesGames/Glenmore/BoardTiles/tilesLevel' ~ box.tile.level ~ '/' ~ box.tile.id ~ '.jpg') }}"
+                         src="{{ asset('resourcesGames/Glenmore/tiles/' ~ box.tile.id ~ '.svg')
+                              }}"
                          alt="{{ box.tile.id }}"
                     />
                 </div>
