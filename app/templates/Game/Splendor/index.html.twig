@@ -30,8 +30,17 @@
             {% block chat %}
                 {{ include('/Game/Utils/chat.html.twig') }}
             {% endblock %}
+	        <div id="notificationsStorage" class="hidden">
+		        {{ include('/Game/Splendor/notificationsStorage.html.twig') }}
+	        </div>
+	        <div id="notificationsContainer" class="absolute space-y-2 landscape:sm:w-[27%] portrait:w-[30%] landscape:lg:w-[20%] bottom-0 right-0 "></div>
         </div>
     </div>
+
+    {# ANIMATION MANAGEMENT #}
+    <script type="text/javascript" src="{{ asset('resourcesGames/utils/ingameNotification.js') }}"></script>
+
+
     <script>
         {% set path = path('app_game_show_spl', {'id': game.id}) ~ 'token' ~ player.id %}
         const eventSourceTokens = new EventSource("{{ mercure(path)|escape('js') }}");
