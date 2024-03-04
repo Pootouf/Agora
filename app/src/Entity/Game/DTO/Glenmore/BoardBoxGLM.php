@@ -23,12 +23,12 @@ class BoardBoxGLM
      */
     public function __construct(?PawnGLM $pawn, ?TileGLM $tile)
     {
-        if(($pawn == null && $tile == null) || ($pawn != null && $tile != null)) {
+        if($pawn != null && $tile != null) {
             throw new Exception("Wrong parameters number");
         }
         if($pawn != null) {
             $this->pawn = $pawn;
-        } else {
+        } else if($tile != null) {
             $this->tile = $tile;
         }
     }
@@ -49,6 +49,15 @@ class BoardBoxGLM
     public function hasPawn() : Boolean
     {
         return $this->pawn != null;
+    }
+
+    /**
+     * isEmptyBox : indicate if the board's box is empty
+     * @return bool
+     */
+    public function isEmptyBox() : Boolean
+    {
+        return $this->pawn == null && $this->tile == null;
     }
 
     /**

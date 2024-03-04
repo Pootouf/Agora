@@ -163,7 +163,7 @@ class GLMService
                     $nextPlayer = $player;
                 }
             }
-            $pointerPosition = ($pointerPosition + 1) % GlenmoreParameters::$NUMBER_OF_TILES_ON_BOARD;
+            $pointerPosition = ($pointerPosition + 1) % GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD;
         }
         if ($startPosition == $pointerPosition) {
             throw new Exception("Next player unreachable");

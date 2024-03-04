@@ -45,7 +45,7 @@ class GlenmoreParameters {
     public static array $COLOR_FROM_POSITION = ['yellow','red', 'green', 'blue', 'white'];
 
 
-    public static int $NUMBER_OF_TILES_ON_BOARD = 14;
+    public static int $NUMBER_OF_BOXES_ON_BOARD = 14;
     public static string $CARD_CASTLE_OF_MEY = "Castle of Mey";
     public static string $CARD_CAWDOR_CASTLE = "Cawdor Castle";
     public static string $CARD_DUART_CASTLE = "Duart Castle";
