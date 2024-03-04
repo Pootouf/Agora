@@ -179,6 +179,7 @@ class SplendorController extends AbstractController
          }
          $this->SPLService->addBuyableNobleTilesToPlayer($game, $player);
          $this->publishNobleTiles($game);
+         $this->publishAnimNoble($game, $player->getUsername(), $player->getPersonalBoard()->getNobleTiles());
          $this->manageEndOfRound($game);
          return new Response('Card Bought', Response::HTTP_OK);
      }
@@ -491,6 +492,15 @@ class SplendorController extends AbstractController
         $this->publishService->publish(
             $this->generateUrl('app_game_show_spl', ['id' => $game->getId()]).'animReturnedTokens',
             new Response($player . '__' . implode('_', $returnedTokensId))
+        );
+    }
+
+    private function publishAnimNoble(GameSPL $game, string $player, $nobleTile): void
+    {
+        $nobleTile = $nobleTile->getId();
+        $this->publishService->publish(
+            $this->generateUrl('app_game_show_spl', ['id' => $game->getId()]).'animNoble',
+            new Response($player . '__')
         );
     }
 
