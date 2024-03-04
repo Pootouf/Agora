@@ -35,8 +35,7 @@ class SPLService
         private NobleTileSPLRepository $nobleTileSPLRepository,
         private DevelopmentCardsSPLRepository $developmentCardsSPLRepository,
         private PlayerCardSPLRepository $playerCardSPLRepository,
-        private DrawCardsSPLRepository $drawCardsSPLRepository,
-        private LoggerInterface $logger)
+        private DrawCardsSPLRepository $drawCardsSPLRepository)
     { }
 
     public function getRowsFromGame(GameSPL $game)
@@ -234,7 +233,7 @@ class SPLService
     }
 
     /**
-     * getPurchasableCardsOnBoard : return a list of purchasable development cards for the player
+     * getPurchasableCardsOnBoard : return a list of purchasable development cards for the player on the main board
      * @param GameSPL $gameSPL
      * @param PlayerSPL $playerSPL
      * @return ArrayCollection
@@ -247,6 +246,24 @@ class SPLService
                 if($this->hasEnoughMoney($playerSPL, $card)) {
                     $purchasableCards->add($card);
                 }
+            }
+        }
+        return $purchasableCards;
+    }
+
+    /**
+     * getPurchasableCardsOnPersonalBoard : return a list of purchasable development cards for the player
+     *      between its reserved cards.
+     * @param PlayerSPL $playerSPL
+     * @return ArrayCollection
+     */
+    public function getPurchasableCardsOnPersonalBoard(PlayerSPL $playerSPL): ArrayCollection
+    {
+        $purchasableCards = new ArrayCollection();
+        $reservedCards = $this->getReservedCards($playerSPL);
+        foreach($reservedCards as $card) {
+            if($this->hasEnoughMoney($playerSPL, $card->getDevelopmentCard())) {
+                $purchasableCards->add($card->getDevelopmentCard());
             }
         }
         return $purchasableCards;
