@@ -30,8 +30,10 @@ use App\Repository\Game\Splendor\TokenSPLRepository;
 use App\Service\Game\AbstractGameManagerService;
 use App\Service\Game\Glenmore\CardGLMService;
 use App\Service\Game\Glenmore\GLMService;
+use App\Service\Game\Glenmore\TileGLMService;
 use App\Service\Game\Splendor\SPLService;
 use App\Service\Game\Splendor\TokenSPLService;
+use Doctrine\DBAL\Exception;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -44,11 +46,12 @@ class GLMServiceTest extends TestCase
         $entityManager = $this->createMock(EntityManagerInterface::class);
         $tileGLMRepository = $this->createMock(TileGLMRepository::class);
         $drawTilesGLMRepository = $this->createMock(DrawTilesGLMRepository::class);
-        $resourceGLMRepositoty = $this->createMock(ResourceGLMRepository::class);
+        $resourceGLMRepository = $this->createMock(ResourceGLMRepository::class);
         $playerGLMRepository = $this->createMock(PlayerGLMRepository::class);
         $cardGLMService = $this->createMock(CardGLMService::class);
         $this->GLMService = new GLMService($entityManager, $tileGLMRepository, $drawTilesGLMRepository,
-            $resourceGLMRepositoty, $playerGLMRepository, $cardGLMService);
+            $resourceGLMRepository, $playerGLMRepository, $cardGLMService);
+        $this->TileGLMService = new TileGLMService($entityManager, $this->GLMService, $playerGLMRepository);
     }
 
     public function testDoNotSkipPlayerTurnWhenPlayerIsStillTheLastInChain()
@@ -119,6 +122,140 @@ class GLMServiceTest extends TestCase
         //THEN
         $this->assertFalse($result);
     }
+
+    public function testPlaceNewTileOnMainBoard() : void
+    {
+        // GIVEN
+
+        $nbOfPlayers = 4;
+        $game = $this->createGame($nbOfPlayers);
+        $mainBoard = $game->getMainBoard();
+        $firstPlayer = $game->getPlayers()->first();
+        $secondPlayer = $game->getPlayers()->get(2);
+        $boardTile = $mainBoard->getBoardTiles()->last();
+
+        $lastPosition = $this->TileGLMService->assignTileToPlayer($firstPlayer, $boardTile);
+        $lastPosition -= 1;
+        $lastPosition %= GlenmoreParameters::$NUMBER_OF_TILES_ON_BOARD;
+
+
+        // WHEN
+
+        $this->TileGLMService->placeNewTile($secondPlayer,
+            $mainBoard->getDrawTiles()->get(GlenmoreParameters::$TILE_LEVEL_ONE));
+
+        // THEN
+
+        $this->assertNotContains($boardTile, $mainBoard->getBoardTiles());
+        $this->assertEquals($lastPosition, $mainBoard->getBoardTiles()->last()->getPosition());
+    }
+
+    public function testSuccessTileAllocation() : void
+    {
+        // GIVEN
+
+        $nbOfPlayers = 4;
+        $game = $this->createGame($nbOfPlayers);
+        $mainBoard = $game->getMainBoard();
+        $player = $game->getPlayers()->first();
+        $personalBoard = $player->getPersonalBoard();
+        $boardTile = $mainBoard->getBoardTiles()->last();
+
+        // WHEN
+
+        $lastPosition = $this->TileGLMService->assignTileToPlayer($player, $boardTile);
+
+        // THEN
+
+        $this->assertEquals($boardTile->getTile(),
+            $personalBoard->getPlayerTiles()->last()->getTile());
+        $this->assertNotContains($boardTile, $mainBoard->getBoardTiles());
+        $this->assertNotEquals($player->getPawn()->getPosition(), $lastPosition);
+    }
+
+    /*
+    public function testTileAllocationWhenPlayerHaveNotAllRequiredResources() : void
+    {
+        // GIVEN
+        $nbOfPlayers = 4;
+        $game = $this->createGame($nbOfPlayers);
+        $player = $game->getPlayers()->first();
+        $mainBoard = $game->getMainBoard();
+        $personalBoard = $player->getPersonalBoard();
+        $boardTiles = $mainBoard->getBoardTiles();
+
+        $level = 2;
+        for ($i = $nbOfPlayers; $i < GlenmoreParameters::$NUMBER_OF_TILES_ON_BOARD; ++$i)
+        {
+            $drawTiles = $mainBoard->getDrawTiles();
+            $draw = $drawTiles->get($level);
+
+            if ($draw->getTiles()->count() == 0) {
+                $draw = $drawTiles->get($level + 1);
+            }
+
+            $tile = $draw->getTiles()->last();
+            $mainBoardTile = new BoardTileGLM();
+            $mainBoardTile->setTile($tile);
+            $mainBoardTile->setMainBoardGLM($mainBoard);
+            $mainBoardTile->setPosition($i);
+            $mainBoard->addBoardTile($mainBoardTile);
+            $draw->removeTile($tile);
+        }
+
+        $boardTile = null;
+        $resource = null;
+        foreach ($boardTiles as $tile)
+        {
+            $buy = $tile->getTile()->getBuyPrice();
+            if ($buy->count() != 0)
+            {
+                $r = $buy->first();
+                $boardTile = $tile;
+                $resource = new ResourceGLM();
+                $resource->setColor($r->getResource()->getColor());
+                $resource->setType($r->getResource()->getType());
+            }
+            if ($resource != null && $boardTile != null)
+            {
+                break;
+            }
+        }
+
+        $personalBoard->setMoney(0);
+
+        // WHEN
+
+        $this->expectException(\Exception::class);
+
+        // THEN
+
+        $this->TileGLMService->assignTileToPlayer($player, $boardTile);
+    }
+
+
+    public function testTileAllocationWhenPlayerCanNotPlaceTileInPersonalBoard() : void
+    {
+        // GIVEN
+        $nbOfPlayers = 4;
+        $game = $this->createGame($nbOfPlayers);
+        $player = $game->getPlayers()->first();
+        $mainBoard = $game->getMainBoard();
+        $personalBoard = $player->getPersonalBoard();
+
+        $boardTiles = $mainBoard->getBoardTiles();
+
+        // TODO provoquer l'erreur de placement
+
+        // WHEN
+
+        $this->expectException(\Exception::class);
+
+        // THEN
+
+        $this->TileGLMService->assignTileToPlayer($player, $boardTile);
+    }
+    */
 
     private function createGame(int $nbOfPlayers): GameGLM
     {
@@ -202,6 +339,7 @@ class GLMServiceTest extends TestCase
             $mainBoardTile->setTile($tile);
             $mainBoardTile->setMainBoardGLM($mainBoard);
             $mainBoardTile->setPosition($i);
+            $mainBoard->addBoardTile($mainBoardTile);
             $draw->removeTile($tile);
         }
         $firstPlayer = $game->getPlayers()->first();

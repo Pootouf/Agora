@@ -121,6 +121,7 @@ class TileGLMService
         $boardTile->setTile($tile);
         $boardTile->setPosition($posTile);
         $boardTile->setMainBoardGLM($mainBoard);
+        $mainBoard->addBoardTile($boardTile);
         $this->entityManager->persist($boardTile);
         $this->entityManager->persist($mainBoard);
 
