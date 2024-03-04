@@ -42,6 +42,10 @@ Comes with a button to the homepage and another one to the game's homepage
                     {% set opacity = '' %}
                     {% set disablement = false %}
                 {% endfor %}
+                {% for purchasableCard in purchasableCardsOnPersonalBoard|filter(purchasableCard => purchasableCard == selectedReservedCard) %}
+                    {% set opacity = '' %}
+                    {% set disablement = false %}
+                {% endfor %}
                 <button id="buy_card_{{ card }}"
                         {{ stimulus_action('splendor', 'buyCard', 'click',
                             {url:path('app_game_splendor_buy_card',

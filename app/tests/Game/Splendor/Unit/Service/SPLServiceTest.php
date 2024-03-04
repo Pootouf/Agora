@@ -640,6 +640,98 @@ class SPLServiceTest extends TestCase
         $this->assertContains($developmentCard2, $result);
     }
 
+    public function testGetPurchasableCardsOnPersonalBoardWithEnoughMoneyForACard() : void
+    {
+        //GIVEN
+        $numberOfPlayers = 2;
+        $game = $this->createGame($numberOfPlayers);
+        $player = $game->getPlayers()->first();
+        $token = new TokenSPL();
+        $token->setColor(SplendorParameters::$COLOR_RED);
+        $player->getPersonalBoard()->addToken($token);
+        $cardCost = new CardCostSPL();
+        $cardCost->setColor(SplendorParameters::$COLOR_RED);
+        $cardCost->setPrice(1);
+        $array = new ArrayCollection();
+        $array->add($cardCost);
+        $developmentCard = DevelopmentCardsSPL::createDevelopmentCard($array);
+        $mock = $this->createPartialMock(SPLService::class, ['getReservedCards']);
+        $playerCard = new PlayerCardSPL($player, $developmentCard, true);
+        $reservedCard = [$playerCard];
+        $mock->method('getReservedCards')->willReturn($reservedCard);
+
+        //WHEN
+        $result = $mock->getPurchasableCardsOnPersonalBoard($player);
+
+        //THEN
+        $this->assertContains($developmentCard, $result);
+
+    }
+
+    public function testGetPurchasableCardsOnPersonalBoardWithNotEnoughMoneyForACard() : void
+    {
+        //GIVEN
+        $numberOfPlayers = 2;
+        $game = $this->createGame($numberOfPlayers);
+        $player = $game->getPlayers()->first();
+        $token = new TokenSPL();
+        $token->setColor(SplendorParameters::$COLOR_BLUE);
+        $player->getPersonalBoard()->addToken($token);
+        $cardCost = new CardCostSPL();
+        $cardCost->setColor(SplendorParameters::$COLOR_RED);
+        $cardCost->setPrice(1);
+        $array = new ArrayCollection();
+        $array->add($cardCost);
+        $developmentCard = DevelopmentCardsSPL::createDevelopmentCard($array);
+        $mock = $this->createPartialMock(SPLService::class, ['getReservedCards']);
+        $playerCard = new PlayerCardSPL($player, $developmentCard, true);
+        $reservedCard = [$playerCard];
+        $mock->method('getReservedCards')->willReturn($reservedCard);
+
+        //WHEN
+        $result = $mock->getPurchasableCardsOnPersonalBoard($player);
+
+        //THEN
+        $this->assertNotContains($developmentCard, $result);
+
+    }
+
+    public function testGetPurchasableCardsOnPersonalBoardWithNotEnoughMoneyForACardAndEnoughForAnother() : void
+    {
+        //GIVEN
+        $numberOfPlayers = 2;
+        $game = $this->createGame($numberOfPlayers);
+        $player = $game->getPlayers()->first();
+        $token = new TokenSPL();
+        $token->setColor(SplendorParameters::$COLOR_BLUE);
+        $player->getPersonalBoard()->addToken($token);
+        $cardCost = new CardCostSPL();
+        $cardCost->setColor(SplendorParameters::$COLOR_RED);
+        $cardCost->setPrice(1);
+        $cardCost2 = new CardCostSPL();
+        $cardCost2->setColor(SplendorParameters::$COLOR_BLUE);
+        $cardCost2->setPrice(1);
+        $array = new ArrayCollection();
+        $array->add($cardCost);
+        $developmentCard1 = DevelopmentCardsSPL::createDevelopmentCard($array);
+        $array2 = new ArrayCollection();
+        $array2->add($cardCost2);
+        $developmentCard2 = DevelopmentCardsSPL::createDevelopmentCard($array2);
+        $mock = $this->createPartialMock(SPLService::class, ['getReservedCards']);
+        $playerCard1 = new PlayerCardSPL($player, $developmentCard1, true);
+        $playerCard2 = new PlayerCardSPL($player, $developmentCard2, true);
+
+        $reservedCard = [$playerCard1, $playerCard2];
+        $mock->method('getReservedCards')->willReturn($reservedCard);
+
+        //WHEN
+        $result = $mock->getPurchasableCardsOnPersonalBoard($player);
+
+        //THEN
+        $this->assertNotContains($developmentCard1, $result);
+        $this->assertContains($developmentCard2, $result);
+    }
+
     private function createPlayerCard(PlayerSPL $player, string $color) : PlayerCardSPL
     {
         $card = new DevelopmentCardsSPL();
