@@ -164,6 +164,7 @@ class TileGLMService
                 $this->entityManager->persist($playerTileGLM);
             }
         }
+        // TODO gestion de certaines cartes spéciales
         $this->entityManager->persist($personalBoard);
         $this->entityManager->flush();
     }

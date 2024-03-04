@@ -3,16 +3,19 @@
 namespace App\Tests\Game\Glenmore\Unit\Service;
 
 use App\Entity\Game\Glenmore\BoardTileGLM;
+use App\Entity\Game\Glenmore\CardGLM;
 use App\Entity\Game\Glenmore\DrawTilesGLM;
 use App\Entity\Game\Glenmore\GameGLM;
 use App\Entity\Game\Glenmore\GlenmoreParameters;
 use App\Entity\Game\Glenmore\MainBoardGLM;
 use App\Entity\Game\Glenmore\PawnGLM;
 use App\Entity\Game\Glenmore\PersonalBoardGLM;
+use App\Entity\Game\Glenmore\PlayerCardGLM;
 use App\Entity\Game\Glenmore\PlayerGLM;
 use App\Entity\Game\Glenmore\PlayerTileGLM;
 use App\Entity\Game\Glenmore\PlayerTileResourceGLM;
 use App\Entity\Game\Glenmore\ResourceGLM;
+use App\Entity\Game\Glenmore\TileBuyBonusGLM;
 use App\Entity\Game\Glenmore\TileGLM;
 use App\Entity\Game\Glenmore\WarehouseGLM;
 use App\Repository\Game\Glenmore\CardGLMRepository;
@@ -30,6 +33,7 @@ use App\Repository\Game\Splendor\TokenSPLRepository;
 use App\Service\Game\AbstractGameManagerService;
 use App\Service\Game\Glenmore\CardGLMService;
 use App\Service\Game\Glenmore\GLMService;
+use App\Service\Game\Glenmore\TileGLMService;
 use App\Service\Game\Splendor\SPLService;
 use App\Service\Game\Splendor\TokenSPLService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -39,6 +43,8 @@ use Psr\Log\LoggerInterface;
 class GLMServiceTest extends TestCase
 {
     private GLMService $GLMService;
+
+    private TileGLMService $tileGLMService;
     protected function setUp(): void
     {
         $entityManager = $this->createMock(EntityManagerInterface::class);
@@ -49,6 +55,7 @@ class GLMServiceTest extends TestCase
         $cardGLMService = $this->createMock(CardGLMService::class);
         $this->GLMService = new GLMService($entityManager, $tileGLMRepository, $drawTilesGLMRepository,
             $resourceGLMRepositoty, $playerGLMRepository, $cardGLMService);
+        $this->tileGLMService = new TileGLMService($entityManager, $this->GLMService, $playerGLMRepository);
     }
     public function testIsGameEndedShouldReturnTrue() : void
     {
@@ -84,6 +91,150 @@ class GLMServiceTest extends TestCase
         $result = $this->GLMService->isGameEnded($game);
         //THEN
         $this->assertFalse($result);
+    }
+
+    public function testGiveBuyBonusWithSimpleProductionTile() : void
+    {
+        //GIVEN
+        $game = $this->createGame(4);
+        $firstPlayer = $game->getPlayers()->first();
+        $personalBoard = $firstPlayer->getPersonalBoard();
+        $tile = new TileGLM();
+        $tile->setName(GlenmoreParameters::$TILE_NAME_FOREST);
+        $tile->setType(GlenmoreParameters::$TILE_TYPE_GREEN);
+        $buyBonus = new TileBuyBonusGLM();
+        $resource = new ResourceGLM();
+        $resource->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
+        $resource->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $buyBonus->setResource($resource);
+        $buyBonus->setAmount(1);
+        $tile->addBuyBonus($buyBonus);
+        $playerTile = new PlayerTileGLM();
+        $playerTile->setTile($tile);
+        $playerTile->setPersonalBoard($personalBoard);
+        $personalBoard->addPlayerTile($playerTile);
+        $expectedAmount = 1;
+        $expectedType = GlenmoreParameters::$PRODUCTION_RESOURCE;
+        $expectedColor = GlenmoreParameters::$COLOR_GREEN;
+        //WHEN
+        $this->tileGLMService->giveBuyBonus($playerTile);
+        //THEN
+        $amount = 0;
+        $type = "";
+        $color = "";
+        foreach ($personalBoard->getPlayerTiles() as $tile) {
+            if ($tile === $playerTile) {
+                $playerTileResources = $tile->getPlayerTileResource();
+                foreach ($playerTileResources as $playerTileResource) {
+                    $amount = $playerTileResource->getQuantity();
+                    $type = $playerTileResource->getResource()->getType();
+                    $color = $playerTileResource->getResource()->getColor();
+                }
+            }
+        }
+        $this->assertEquals($expectedAmount, $amount);
+        $this->assertSame($expectedType, $type);
+        $this->assertSame($expectedColor, $color);
+    }
+
+    public function testGiveBuyBonusWithSimpleProductionTileWhenNoBuyBonus() : void
+    {
+        //GIVEN
+        $game = $this->createGame(4);
+        $firstPlayer = $game->getPlayers()->first();
+        $personalBoard = $firstPlayer->getPersonalBoard();
+        $tile = new TileGLM();
+        $tile->setName(GlenmoreParameters::$TILE_NAME_FOREST);
+        $tile->setType(GlenmoreParameters::$TILE_TYPE_GREEN);
+        $playerTile = new PlayerTileGLM();
+        $playerTile->setTile($tile);
+        $playerTile->setPersonalBoard($personalBoard);
+        $personalBoard->addPlayerTile($playerTile);
+        $expectedAmount = 0;
+        //WHEN
+        $this->tileGLMService->giveBuyBonus($playerTile);
+        //THEN
+        $amount = 0;
+        $type = null;
+        $color = null;
+        foreach ($personalBoard->getPlayerTiles() as $tile) {
+            if ($tile === $playerTile) {
+                $playerTileResources = $tile->getPlayerTileResource();
+                foreach ($playerTileResources as $playerTileResource) {
+                    $amount = $playerTileResource->getQuantity();
+                    $type = $playerTileResource->getResource()->getType();
+                    $color = $playerTileResource->getResource()->getColor();
+                }
+            }
+        }
+        $this->assertEquals($expectedAmount, $amount);
+        $this->assertNull($type);
+        $this->assertNull($color);
+    }
+
+    public function testGiveBuyBonusWithCard() : void
+    {
+        //GIVEN
+        $game = $this->createGame(4);
+        $firstPlayer = $game->getPlayers()->first();
+        $personalBoard = $firstPlayer->getPersonalBoard();
+        $tile = new TileGLM();
+        $tile->setName(GlenmoreParameters::$CARD_CAWDOR_CASTLE);
+        $tile->setType(GlenmoreParameters::$TILE_TYPE_CASTLE);
+        $buyBonus = new TileBuyBonusGLM();
+        $resource = new ResourceGLM();
+        $resource->setType(GlenmoreParameters::$VILLAGER_RESOURCE);
+        $resource->setColor(GlenmoreParameters::$COLOR_BLACK);
+        $buyBonus->setResource($resource);
+        $buyBonus->setAmount(1);
+        $tile->addBuyBonus($buyBonus);
+        $playerTile = new PlayerTileGLM();
+        $playerTile->setTile($tile);
+        $playerTile->setPersonalBoard($personalBoard);
+        $personalBoard->addPlayerTile($playerTile);
+        $card = new CardGLM();
+        $card->setName(GlenmoreParameters::$CARD_CAWDOR_CASTLE);
+        $card->setValue(0);
+        $cardBonus = new TileBuyBonusGLM();
+        $resource = new ResourceGLM();
+        $resource->setType(GlenmoreParameters::$HAT_RESOURCE);
+        $resource->setColor(GlenmoreParameters::$COLOR_BROWN);
+        $cardBonus->setResource($resource);
+        $cardBonus->setAmount(3);
+        $card->setBonus($cardBonus);
+        $playerCard = new PlayerCardGLM($personalBoard, $card);
+        $personalBoard->addPlayerCardGLM($playerCard);
+        $expectedAmountVillager = 1;
+        $expectedAmountHat = 3;
+        $expectedTypeVillager = GlenmoreParameters::$VILLAGER_RESOURCE;
+        $expectedTypeHat = GlenmoreParameters::$HAT_RESOURCE;
+        //WHEN
+        $this->tileGLMService->giveBuyBonus($playerTile);
+        //THEN
+        $amountVillager = 0;
+        $amountHat = 0;
+        $typeVillager = null;
+        $typeHat = null;
+        foreach ($personalBoard->getPlayerTiles() as $tile) {
+            if ($tile === $playerTile) {
+                $playerTileResources = $tile->getPlayerTileResource();
+                foreach ($playerTileResources as $playerTileResource) {
+                    $amountVillager = $playerTileResource->getQuantity();
+                    $typeVillager = $playerTileResource->getResource()->getType();
+                }
+            }
+        }
+        foreach ($personalBoard->getPlayerCardGLM() as $playerCard) {
+            $actualCard = $playerCard->getCard();
+            if ($card === $actualCard) {
+                $amountHat = $actualCard->getBonus()->getAmount();
+                $typeHat = $actualCard->getBonus()->getResource()->getType();
+            }
+        }
+        $this->assertEquals($expectedAmountVillager, $amountVillager);
+        $this->assertSame($expectedTypeVillager, $typeVillager);
+        $this->assertEquals($expectedAmountHat, $amountHat);
+        $this->assertSame($expectedTypeHat, $typeHat);
     }
 
     private function createGame(int $nbOfPlayers): GameGLM
