@@ -83,6 +83,8 @@ class GlenmoreParameters {
     public static int $LOCH_MORAR_POINTS = 2;
 
     public static int $DUART_CASTLE_POINTS = 3;
+
+    // Extreme value for resource sales and purchases
     public static int $MIN_TRADE = 0;
 
     public static int $MAX_TRADE = 3;

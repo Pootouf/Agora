@@ -37,7 +37,7 @@ class WarehouseGLMService
         $warehouse = $mainBoard->getWarehouse();
 
         // Check if money available
-        $money = $this->getMoneyAvailable($warehouse, $resource);
+        $money = $this->getMoneyAvailableInWarehouse($warehouse, $resource);
         if ($money == GlenmoreParameters::$MIN_TRADE)
         {
             throw new Exception("Unable to sell the resource");
@@ -49,7 +49,7 @@ class WarehouseGLMService
             $resource
         );
 
-        if ($tileResource != null || $tileResource->getQuantity() == 0)
+        if ($tileResource == null || $tileResource->getQuantity() == 0)
         {
             throw new Exception("Unable to sell the resource");
         }
@@ -70,10 +70,10 @@ class WarehouseGLMService
      * @param ResourceGLM $resource
      * @return int
      */
-    private function getMoneyAvailable(WarehouseGLM $warehouse
+    private function getMoneyAvailableInWarehouse(WarehouseGLM $warehouse
         , ResourceGLM $resource) : int
     {
-        $money = 0;
+        $money = GlenmoreParameters::$MIN_TRADE;
         $resources = $warehouse->getWarehouseResource();
         foreach ($resources as $r)
         {
@@ -91,7 +91,7 @@ class WarehouseGLMService
      * @param ResourceGLM $resource
      * @return PlayerTileGLM|null
      */
-    private function getResourceOnPersonalBoard(PersonalBoardGLM $personalBoard
+    public function getResourceOnPersonalBoard(PersonalBoardGLM $personalBoard
         , ResourceGLM $resource) : ?PlayerTileResourceGLM
     {
 
@@ -102,10 +102,13 @@ class WarehouseGLMService
             $tilesResource = $t->getPlayerTileResource();
             foreach ($tilesResource as $tile)
             {
-                $r = $tile->getResource();
-                if ($r->getColor() === $resource->getColor())
+                if ($tile->getQuantity() > 0)
                 {
-                    return $tile;
+                    $r = $tile->getResource();
+                    if ($r->getColor() === $resource->getColor())
+                    {
+                        return $tile;
+                    }
                 }
             }
         }
