@@ -10,6 +10,7 @@ use App\Entity\Game\Glenmore\PlayerGLM;
 use App\Entity\Game\Glenmore\PlayerTileGLM;
 use App\Entity\Game\Glenmore\TileGLM;
 use App\Repository\Game\Glenmore\PlayerGLMRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Exception;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -52,7 +53,13 @@ class TileGLMService
                 $this->givePlayerActivationBonus($tileGLM, $playerGLM);
             }
         } else {
-            // TODO : METHOD TO GIVE RESOURCES WHEN MULTIPLE CASE POSSIBLE
+            $playerMaximumItemsToExchange = $this->getMaximumTypeItemsToExchange($playerGLM);
+            $tileMaximumItemsToExchange = $tileGLM->getTile()->getActivationBonus()->count();
+            $itemToExchange = $playerMaximumItemsToExchange;
+            if($tileMaximumItemsToExchange < $playerMaximumItemsToExchange){
+                $itemToExchange = $tileMaximumItemsToExchange;
+            }
+
         }
     }
 
@@ -155,6 +162,21 @@ class TileGLMService
         return $this->canBuyTile($tile, $player)
             && $this->canPlaceTileOnPersonalBoard($tile, $player);
     }*/
+
+    private function getMaximumTypeItemsToExchange(PlayerGLM $playerGLM): int
+    {
+        $resourcesTypes = new ArrayCollection();
+        $playerTiles = $playerGLM->getPersonalBoard()->getPlayerTiles();
+        foreach ($playerTiles as $playerTile){
+            $resources = $playerTile->getResources();
+            foreach ($resources as $resource){
+                if(!$resourcesTypes->contains($resource->getType())){
+                    $resourcesTypes->add($resource->getType());
+                }
+            }
+        }
+        return $resourcesTypes->count();
+    }
 
     /**
      * isChainBroken : returns true if the chain is broken, false otherwise
