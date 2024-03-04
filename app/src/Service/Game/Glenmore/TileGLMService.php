@@ -6,8 +6,10 @@ use App\Entity\Game\Glenmore\BoardTileGLM;
 use App\Entity\Game\Glenmore\DrawTilesGLM;
 use App\Entity\Game\Glenmore\GlenmoreParameters;
 use App\Entity\Game\Glenmore\MainBoardGLM;
+use App\Entity\Game\Glenmore\PlayerCardGLM;
 use App\Entity\Game\Glenmore\PlayerGLM;
 use App\Entity\Game\Glenmore\PlayerTileGLM;
+use App\Entity\Game\Glenmore\PlayerTileResourceGLM;
 use App\Repository\Game\Glenmore\PlayerGLMRepository;
 use Doctrine\DBAL\Exception;
 use Doctrine\ORM\EntityManagerInterface;
@@ -125,6 +127,45 @@ class TileGLMService
         $this->entityManager->persist($boardTile);
         $this->entityManager->persist($mainBoard);
 
+        $this->entityManager->flush();
+    }
+
+    /**
+     * giveBuyBonus : once bought and placed, the playerTile gives bonus to its player
+     * @param PlayerTileGLM $playerTileGLM
+     * @return void
+     */
+    public function giveBuyBonus(PlayerTileGLM $playerTileGLM) : void
+    {
+        $tile = $playerTileGLM->getTile();
+        $personalBoard = $playerTileGLM->getPersonalBoard();
+        $buyBonus = $tile->getBuyBonus();
+        foreach ($buyBonus as $bonus) {
+            $playerTileResource = new PlayerTileResourceGLM();
+            $playerTileResource->setPlayerTileGLM($playerTileGLM);
+            $playerTileResource->setResource($bonus->getResource());
+            $playerTileResource->setQuantity($bonus->getAmount());
+            $this->entityManager->persist($playerTileResource);
+            $playerTileGLM->addPlayerTileResource($playerTileResource);
+            $this->entityManager->persist($playerTileGLM);
+        }
+        $card = $tile->getCard();
+        if ($card != null) {
+            $playerCard = new PlayerCardGLM($personalBoard, $card);
+            $this->entityManager->persist($playerCard);
+            $personalBoard->addPlayerCardGLM($playerCard);
+            $cardBonus = $card->getBonus();
+            if ($cardBonus != null) {
+                $resource = $cardBonus->getResource();
+                $playerTileResource = new PlayerTileResourceGLM();
+                $playerTileResource->setQuantity($cardBonus->getAmount());
+                $playerTileResource->setResource($resource);
+                $this->entityManager->persist($playerTileResource);
+                $playerTileGLM->addPlayerTileResource($playerTileResource);
+                $this->entityManager->persist($playerTileGLM);
+            }
+        }
+        $this->entityManager->persist($personalBoard);
         $this->entityManager->flush();
     }
 
