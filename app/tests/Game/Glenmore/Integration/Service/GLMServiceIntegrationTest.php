@@ -22,6 +22,51 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class GLMServiceIntegrationTest extends KernelTestCase
 {
+    public function testDoNotSkipPlayerTurnWhenPlayerIsStillTheLastInChain()
+    {
+        // GIVEN
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $GLMService = static::getContainer()->get(GLMService::class);
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $secondPlayer = $game->getPlayers()->last();
+        $startTurnPosition = $firstPlayer->getPawn()->getPosition();
+        $firstPlayer->getPawn()->setPosition(($startTurnPosition + 1) %
+            GlenmoreParameters::$NUMBER_OF_TILES_ON_BOARD);
+        $secondPlayer->getPawn()->setPosition(($startTurnPosition + 3) %
+            GlenmoreParameters::$NUMBER_OF_TILES_ON_BOARD);
+        $entityManager->persist($firstPlayer);
+        $entityManager->persist($secondPlayer);
+        $entityManager->persist($firstPlayer->getPawn());
+        $entityManager->persist($secondPlayer->getPawn());
+        $entityManager->flush();
+        // WHEN
+        $GLMService->endRoundOfPlayer($game, $firstPlayer, $startTurnPosition);
+        // THEN
+        $this->assertTrue($firstPlayer->isTurnOfPlayer());
+    }
+
+    public function testSkipTurnOfPlayerWhenPlayerIsNoLongerTheLastInChain()
+    {
+        // GIVEN
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $GLMService = static::getContainer()->get(GLMService::class);
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $secondPlayer = $game->getPlayers()->last();
+        $startTurnPosition = $firstPlayer->getPawn()->getPosition();
+        $firstPlayer->getPawn()->setPosition(($startTurnPosition + 3) %
+            GlenmoreParameters::$NUMBER_OF_TILES_ON_BOARD);
+        $entityManager->persist($firstPlayer);
+        $entityManager->persist($firstPlayer->getPawn());
+        $entityManager->flush();
+        // WHEN
+        $GLMService->endRoundOfPlayer($game, $firstPlayer, $startTurnPosition);
+        // THEN
+        $this->assertFalse($firstPlayer->isTurnOfPlayer());
+        $this->assertTrue($secondPlayer->isTurnOfPlayer());
+    }
+
     public function testIsGameEndedShouldReturnTrue() : void
     {
         //GIVEN
