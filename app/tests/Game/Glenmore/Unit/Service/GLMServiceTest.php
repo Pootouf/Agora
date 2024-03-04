@@ -71,9 +71,9 @@ class GLMServiceTest extends TestCase
         $secondPlayer = $game->getPlayers()->last();
         $startTurnPosition = $firstPlayer->getPawn()->getPosition();
         $firstPlayer->getPawn()->setPosition(($startTurnPosition + 1) %
-            GlenmoreParameters::$NUMBER_OF_TILES_ON_BOARD);
+            GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD);
         $secondPlayer->getPawn()->setPosition(($startTurnPosition + 3) %
-            GlenmoreParameters::$NUMBER_OF_TILES_ON_BOARD);
+            GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD);
         // WHEN
         $this->GLMService->endRoundOfPlayer($game, $firstPlayer, $startTurnPosition);
         // THEN
@@ -88,7 +88,7 @@ class GLMServiceTest extends TestCase
         $secondPlayer = $game->getPlayers()->last();
         $startTurnPosition = $firstPlayer->getPawn()->getPosition();
         $firstPlayer->getPawn()->setPosition(($startTurnPosition + 3) %
-            GlenmoreParameters::$NUMBER_OF_TILES_ON_BOARD);
+            GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD);
         // WHEN
         $this->GLMService->endRoundOfPlayer($game, $firstPlayer, $startTurnPosition);
         // THEN
@@ -297,7 +297,7 @@ class GLMServiceTest extends TestCase
         $lastPosition = $this->tileGLMService->assignTileToPlayer($boardTile, $firstPlayer);
         $lastPosition -= 1;
         if ($lastPosition < 0) {
-            $lastPosition += GlenmoreParameters::$NUMBER_OF_TILES_ON_BOARD;
+            $lastPosition += GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD;
         }
         // WHEN
 
@@ -594,7 +594,7 @@ class GLMServiceTest extends TestCase
             $playerTileResource->setQuantity(1);
         }
 
-        for ($i = $nbOfPlayers; $i < GlenmoreParameters::$NUMBER_OF_TILES_ON_BOARD; ++$i) {
+        for ($i = $nbOfPlayers; $i < GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD; ++$i) {
             $drawTiles = $mainBoard->getDrawTiles();
             $level = 0;
             for ($j = GlenmoreParameters::$TILE_LEVEL_ZERO; $j <= GlenmoreParameters::$TILE_LEVEL_THREE; ++$j) {

@@ -33,9 +33,9 @@ class GLMServiceIntegrationTest extends KernelTestCase
         $secondPlayer = $game->getPlayers()->last();
         $startTurnPosition = $firstPlayer->getPawn()->getPosition();
         $firstPlayer->getPawn()->setPosition(($startTurnPosition + 1) %
-            GlenmoreParameters::$NUMBER_OF_TILES_ON_BOARD);
+            GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD);
         $secondPlayer->getPawn()->setPosition(($startTurnPosition + 3) %
-            GlenmoreParameters::$NUMBER_OF_TILES_ON_BOARD);
+            GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD);
         $entityManager->persist($firstPlayer);
         $entityManager->persist($secondPlayer);
         $entityManager->persist($firstPlayer->getPawn());
@@ -57,7 +57,7 @@ class GLMServiceIntegrationTest extends KernelTestCase
         $secondPlayer = $game->getPlayers()->last();
         $startTurnPosition = $firstPlayer->getPawn()->getPosition();
         $firstPlayer->getPawn()->setPosition(($startTurnPosition + 3) %
-            GlenmoreParameters::$NUMBER_OF_TILES_ON_BOARD);
+            GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD);
         $entityManager->persist($firstPlayer);
         $entityManager->persist($firstPlayer->getPawn());
         $entityManager->flush();
@@ -310,7 +310,7 @@ class GLMServiceIntegrationTest extends KernelTestCase
             $entityManager->persist($player);
         }
 
-        for ($i = $nbOfPlayers; $i < GlenmoreParameters::$NUMBER_OF_TILES_ON_BOARD; ++$i) {
+        for ($i = $nbOfPlayers; $i < GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD; ++$i) {
             $drawTiles = $mainBoard->getDrawTiles();
             $level = 0;
             for ($j = GlenmoreParameters::$TILE_LEVEL_ZERO; $j <= GlenmoreParameters::$TILE_LEVEL_THREE; ++$j) {

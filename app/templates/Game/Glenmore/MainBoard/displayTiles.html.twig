@@ -1,5 +1,34 @@
 {#
 This section displays the tiles for the main board with players' pawns on it
-@param :
-@return :
+@param : boardTiles
+@return : display the tiles and pawns like the physical game
 #}
+<div hidden class="bg-red-600 bg-white-600 bg-blue-600 bg-green-600 bg-yellow-600"></div>
+
+<div class="h-full w-full grid grid-rows-4 grid-cols-5 pb-[1rem] gap-1">
+    <div class="col-start-2 row-start-2 col-span-3 row-span-2 bg-green-500">
+        {{ include('Game/Glenmore/MainBoard/warehouse.html.twig') }}
+    </div>
+    {% for row in boardTiles %}
+        {% for box in row %}
+            {% if box.isEmptyBox %}
+                <span class="w-full h-full bg-gray-500"></span>
+            {% endif %}
+            {% if box.hasTile %}
+                <div class="flex justify-center items-center h-full w-full">
+                    <img
+                         class="aspect-auto max-h-full"
+                         src="{{ asset('resourcesGames/Glenmore/tiles/' ~ box.tile.id ~ '.svg')
+                              }}"
+                         alt="{{ box.tile.id }}"
+                    />
+                </div>
+            {% endif %}
+            {% if box.hasPawn %}
+            <div class=" flex items-center justify-center bg-gray-500 space-x-8">
+                <div class="w-24 h-24 bg-{{ box.pawn.color }}-600 rounded-full"></div>
+            </div>
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+</div>
