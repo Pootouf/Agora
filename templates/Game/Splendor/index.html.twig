@@ -102,7 +102,24 @@
         }
     </script>
 
-
+    {# RETURNED TOKENS MANAGEMENT#}
+    <script>
+        {% set path = path('app_game_show_spl', {'id': game.id}) ~ 'animReturnedTokens' %}
+        const eventSourceTakenTokens = new EventSource("{{ mercure(path)|escape('js') }}");
+        eventSourceTakenTokens.onmessage = event => {
+            animationQueue.addToQueue(() => {
+                let username = event.data.split('__')[0];
+                let tokens = event.data.split('__')[1].split('_');
+                console.log(event.data)
+                console.log(username)
+                console.log(tokens)
+                setTimeout(() => {
+                    const rowsAnimations = tokens.map(token => moveReturnedToken(token, username));
+                    Promise.all(rowsAnimations).then(() => animationQueue.executeNextInQueue());
+                }, 2000);
+            })
+        }
+    </script>
 
     <script>
         function closeWindow() {
