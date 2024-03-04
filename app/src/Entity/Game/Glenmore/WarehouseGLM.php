@@ -12,43 +12,15 @@ use Doctrine\ORM\Mapping as ORM;
 class WarehouseGLM extends Component
 {
 
-    #[ORM\ManyToMany(targetEntity: ResourceGLM::class)]
-    private Collection $resources;
-
     #[ORM\OneToOne(mappedBy: 'warehouse', cascade: ['persist', 'remove'])]
     private ?MainBoardGLM $mainBoardGLM = null;
 
-    #[ORM\OneToMany(targetEntity: WarehouseResourceGLM::class, mappedBy: 'warehouse', orphanRemoval: true)]
-    private Collection $warehouseResource;
+    #[ORM\OneToMany(targetEntity: WarehouseLineGLM::class, mappedBy: 'warehouseGLM', orphanRemoval: true)]
+    private Collection $warehouseLine;
 
     public function __construct()
     {
-        $this->resources = new ArrayCollection();
-        $this->warehouseResource = new ArrayCollection();
-    }
-
-    /**
-     * @return Collection<int, ResourceGLM>
-     */
-    public function getResources(): Collection
-    {
-        return $this->resources;
-    }
-
-    public function addResource(ResourceGLM $resource): static
-    {
-        if (!$this->resources->contains($resource)) {
-            $this->resources->add($resource);
-        }
-
-        return $this;
-    }
-
-    public function removeResource(ResourceGLM $resource): static
-    {
-        $this->resources->removeElement($resource);
-
-        return $this;
+        $this->warehouseLine = new ArrayCollection();
     }
 
     public function getMainBoardGLM(): ?MainBoardGLM
@@ -69,29 +41,29 @@ class WarehouseGLM extends Component
     }
 
     /**
-     * @return Collection<int, WarehouseResourceGLM>
+     * @return Collection<int, WarehouseLineGLM>
      */
-    public function getWarehouseResource(): Collection
+    public function getWarehouseLine(): Collection
     {
-        return $this->warehouseResource;
+        return $this->warehouseLine;
     }
 
-    public function addWarehouseResource(WarehouseResourceGLM $warehouseResource): static
+    public function addWarehouseLine(WarehouseLineGLM $warehouseLine): static
     {
-        if (!$this->warehouseResource->contains($warehouseResource)) {
-            $this->warehouseResource->add($warehouseResource);
-            $warehouseResource->setWarehouse($this);
+        if (!$this->warehouseLine->contains($warehouseLine)) {
+            $this->warehouseLine->add($warehouseLine);
+            $warehouseLine->setWarehouseGLM($this);
         }
 
         return $this;
     }
 
-    public function removeWarehouseResource(WarehouseResourceGLM $warehouseResource): static
+    public function removeWarehouseLine(WarehouseLineGLM $warehouseLine): static
     {
-        if ($this->warehouseResource->removeElement($warehouseResource)) {
+        if ($this->warehouseLine->removeElement($warehouseLine)) {
             // set the owning side to null (unless already changed)
-            if ($warehouseResource->getWarehouse() === $this) {
-                $warehouseResource->setWarehouse(null);
+            if ($warehouseLine->getWarehouseGLM() === $this) {
+                $warehouseLine->setWarehouseGLM(null);
             }
         }
 

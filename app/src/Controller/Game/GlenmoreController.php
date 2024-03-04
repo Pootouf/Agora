@@ -64,7 +64,7 @@ class GlenmoreController extends AbstractController
             foreach($tiles as $tile) {
                 if($tile->getPosition() == $i) {
                     try {
-                        $boardBoxes->add(new BoardBoxGLM($tile, null));
+                        $boardBoxes->add(new BoardBoxGLM($tile->getTile(), null));
                     } catch (\Exception $e) {
                         //Can't append here with a null argument
                     }
