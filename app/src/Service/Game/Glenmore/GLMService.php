@@ -12,6 +12,7 @@ use App\Repository\Game\Glenmore\DrawTilesGLMRepository;
 use App\Repository\Game\Glenmore\PlayerGLMRepository;
 use App\Repository\Game\Glenmore\ResourceGLMRepository;
 use App\Repository\Game\Glenmore\TileGLMRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
@@ -82,6 +83,44 @@ class GLMService
     public function isGameEnded(GameGLM $gameGLM) : bool
     {
         return $gameGLM->getMainBoard()->getDrawTiles()->last()->getTiles()->isEmpty();
+    }
+
+    /**
+     * getWinner : returns the winner(s) of the game
+     * @param GameGLM $gameGLM
+     * @return ArrayCollection<Int, PlayerGLM>
+     */
+    public function getWinner(GameGLM $gameGLM) : ArrayCollection
+    {
+        $winners = new ArrayCollection();
+        $players = $gameGLM->getPlayers();
+        $maxPoint = 0;
+        foreach ($players as $player) {
+            if ($player->getPoints() > $maxPoint) {
+                $maxPoint = $player->getPoints();
+                $winners->clear();
+                $winners->add($player);
+            } else if ($player->getPoints() == $maxPoint) {
+                $winners->add($player);
+            }
+        }
+        if ($winners->count() == 1) {
+            return $winners;
+        }
+        $nbResource = 0;
+        $result = new ArrayCollection();
+        foreach ($winners as $player) {
+            $personalBoard = $player->getPersonalBoard();
+            $playerTiles = $personalBoard->getPlayerTiles();
+            if ($playerTiles->count() > $nbResource) {
+                $nbResource = $playerTiles->count();
+                $result->clear();
+                $result->add($player);
+            } else if ($player->getPoints() == $nbResource) {
+                $winners->add($player);
+            }
+        }
+        return $result;
     }
 
     /**
