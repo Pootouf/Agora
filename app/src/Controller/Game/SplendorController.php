@@ -482,18 +482,7 @@ class SplendorController extends AbstractController
         );
     }
 
-    private function publishAnimReturnedTokens(GameSPL $game, string $player, $returnedTokens): void
-    {
-        $returnedTokensId = [];
 
-        foreach ($returnedTokens as $token) {
-            $returnedTokensId[] = $token->getToken()->getType();
-        }
-        $this->publishService->publish(
-            $this->generateUrl('app_game_show_spl', ['id' => $game->getId()]).'animReturnedTokens',
-            new Response($player . '__' . implode('_', $returnedTokensId))
-        );
-    }
 
     private function publishAnimNoble(GameSPL $game, string $player, $nobleTile): void
     {
