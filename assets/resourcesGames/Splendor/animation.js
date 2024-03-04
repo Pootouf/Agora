@@ -115,11 +115,11 @@ function moveTakingToken(tokenId, playerUsername) {
 function moveReturnedToken(tokenId, playerUsername) {
 	animationContainer.classList.remove('hidden');
 	new Promise(resolve => {
-		let tokenFinalPositionElement = document.getElementById(playerUsername);
+		let tokenInitialPositionElement = document.getElementById(playerUsername);
 		let tokenElement = document.getElementById(tokenId);
 
 		let tokenShape = tokenElement.getBoundingClientRect();
-		let tokenFinalPositionShape = tokenFinalPositionElement.getBoundingClientRect();
+		let tokenFinalPositionShape = tokenInitialPositionElement.getBoundingClientRect();
 
 		let movingTokenElement = tokenElement.cloneNode(true);
 		movingTokenElement.id = 'movingtoken_' + tokenId;
