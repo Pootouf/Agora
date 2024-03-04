@@ -6,6 +6,7 @@ use App\Entity\Game\Glenmore\GlenmoreParameters;
 use App\Entity\Game\Glenmore\PersonalBoardGLM;
 use App\Entity\Game\Glenmore\PlayerGLM;
 use App\Entity\Game\Glenmore\PlayerTileGLM;
+use App\Entity\Game\Glenmore\PlayerTileResourceGLM;
 use App\Entity\Game\Glenmore\ResourceGLM;
 use App\Entity\Game\Glenmore\WarehouseGLM;
 use App\Repository\Game\Glenmore\PlayerGLMRepository;
@@ -43,17 +44,21 @@ class WarehouseGLMService
         }
 
         // Check if the player has the resource
-        $playerTile = $this->getResourceOnPersonalBoard($personalBoard, $resource);
-        if ($playerTile != null)
+        $tileResource = $this->getResourceOnPersonalBoard(
+            $personalBoard,
+            $resource
+        );
+
+        if ($tileResource != null || $tileResource->getQuantity() == 0)
         {
             throw new Exception("Unable to sell the resource");
         }
 
         // Manage resource and update
-        $playerTile->removeResource($resource);
+        $tileResource->setQuantity($tileResource->getQuantity() - 1);
         $personalBoard->setMoney($personalBoard->getMoney() + $money);
         $this->removeResourceInWarehouse($warehouse, $resource);
-        $this->entityManager->persist($playerTile);
+        $this->entityManager->persist($tileResource);
         $this->entityManager->persist($personalBoard);
 
         $this->entityManager->flush();
@@ -87,19 +92,20 @@ class WarehouseGLMService
      * @return PlayerTileGLM|null
      */
     private function getResourceOnPersonalBoard(PersonalBoardGLM $personalBoard
-        , ResourceGLM $resource) : ?PlayerTileGLM
+        , ResourceGLM $resource) : ?PlayerTileResourceGLM
     {
 
         // Search this resource in personal board
         $playerTiles = $personalBoard->getPlayerTiles();
         foreach ($playerTiles as $t)
         {
-            $resources = $t->getResources();
-            foreach ($resources as $r)
+            $tilesResource = $t->getPlayerTileResource();
+            foreach ($tilesResource as $tile)
             {
-                if ($r === $resource)
+                $r = $tile->getResource();
+                if ($r->getColor() === $resource->getColor())
                 {
-                    return $t;
+                    return $tile;
                 }
             }
         }
