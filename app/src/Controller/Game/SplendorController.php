@@ -186,6 +186,7 @@ class SplendorController extends AbstractController
          $this->SPLService->addBuyableNobleTilesToPlayer($game, $player);
          $this->publishNobleTiles($game);
          $this->publishReservedCards($game);
+         $this->publishAnimNoble($game, $player->getUsername(), $player->getPersonalBoard()->getNobleTiles());
          $this->manageEndOfRound($game);
          return new Response('Card Bought', Response::HTTP_OK);
      }
@@ -280,6 +281,7 @@ class SplendorController extends AbstractController
          $message = $player->getUsername() . " picked a token of " . $tokenSPL->getColor();
          $this->logService->sendPlayerLog($gameSPL, $player, $message);
          if ($this->tokenSPLService->mustEndPlayerRoundBecauseOfTokens($player)) {
+             $this->publishAnimTakenTokens($gameSPL, $player->getUsername(), $player->getPersonalBoard()->getSelectedTokens());
              $this->tokenSPLService->validateTakingOfTokens($player);
              $this->manageEndOfRound($gameSPL);
          } else {
@@ -476,4 +478,30 @@ class SplendorController extends AbstractController
             $this->generateUrl('app_game_show_spl', ['id' => $game->getId()]).'endOfGame',
             new Response($winner?->getUsername()));
     }
+
+
+    private function publishAnimTakenTokens(GameSPL $game, string $player, $selectedTokens): void
+    {
+        $selectedTokenIds = [];
+
+        foreach ($selectedTokens as $token) {
+            $selectedTokenIds[] = $token->getToken()->getType();
+        }
+        $this->publishService->publish(
+            $this->generateUrl('app_game_show_spl', ['id' => $game->getId()]).'animTakenTokens',
+            new Response($player . '__' . implode('_', $selectedTokenIds))
+        );
+    }
+
+
+
+    private function publishAnimNoble(GameSPL $game, string $player, $nobleTile): void
+    {
+        $nobleTile = $nobleTile->getId();
+        $this->publishService->publish(
+            $this->generateUrl('app_game_show_spl', ['id' => $game->getId()]).'animNoble',
+            new Response($player . '__')
+        );
+    }
+
 }

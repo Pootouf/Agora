@@ -34,12 +34,12 @@ class TileGLMService
         $player = $this->GLMService->getActivePlayer($mainBoardGLM->getGameGLM());
         $playerPosition = $player->getPawn()->getPosition();
         $pointerPosition = ($playerPosition - 2) %
-            GlenmoreParameters::$NUMBER_OF_TILES_ON_BOARD;
+            GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD;
         $count = 0;
         while ($this->getTileInPosition($mainBoardGLM, $pointerPosition) == null){
             $count += 1;
             $pointerPosition = ($pointerPosition - 1) %
-                GlenmoreParameters::$NUMBER_OF_TILES_ON_BOARD;
+                GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD;
         }
         return $count;
     }
@@ -107,13 +107,13 @@ class TileGLMService
         {
             $posTile -= 1;
             if ($posTile < 0) {
-                $posTile += GlenmoreParameters::$NUMBER_OF_TILES_ON_BOARD;
+                $posTile += GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD;
             }
         }
 
         // Search next position relative to the position found
         $posTile += 1;
-        $posTile %= GlenmoreParameters::$NUMBER_OF_TILES_ON_BOARD;
+        $posTile %= GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD;
 
         // Manage draw tile and update
         $tile = $drawTiles->getTiles()->last();
@@ -182,7 +182,7 @@ class TileGLMService
         $player = $this->GLMService->getActivePlayer($mainBoardGLM->getGameGLM());
         $playerPosition = $player->getPawn()->getPosition();
         $positionBehindPlayer = ($playerPosition - 1) %
-            GlenmoreParameters::$NUMBER_OF_TILES_ON_BOARD;
+            GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD;
         $mainBoardTiles = $mainBoardGLM->getBoardTiles();
         foreach ($mainBoardTiles as $boardTile){
             if($boardTile->getPosition() == $positionBehindPlayer){
@@ -257,7 +257,7 @@ class TileGLMService
         $player = $this->GLMService->getActivePlayer($mainBoardGLM->getGameGLM());
         $playerPosition = $player->getPawn()->getPosition();
         $pointerPosition = ($playerPosition - 1) %
-            GlenmoreParameters::$NUMBER_OF_TILES_ON_BOARD;
+            GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD;
         $mainBoardTiles = $mainBoardGLM->getBoardTiles();
         while ($this->getTileInPosition($mainBoardGLM, $pointerPosition) != null){
            foreach ($mainBoardTiles as $boardTile){
@@ -266,7 +266,7 @@ class TileGLMService
                }
            }
            $pointerPosition = ($pointerPosition - 1) %
-               GlenmoreParameters::$NUMBER_OF_TILES_ON_BOARD;
+               GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD;
            $this->entityManager->persist($mainBoardGLM);
         }
         $this->entityManager->flush();

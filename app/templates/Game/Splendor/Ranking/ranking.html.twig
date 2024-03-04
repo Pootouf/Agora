@@ -1,7 +1,10 @@
 {#
     This section displays the ranking with a view of the other players' possessions
-    @param :
-    @return :
+    @param : array colorsNames, array colors, array colorsTokens, array tokensNames, array prcards,
+             int angleStep, array translateY, array landscapeTranslateY, array lgTranslateY, array xlTranslateY,
+             array translateX, array landscapeTranslateX, array lgTranslateX, array xlTranslateX,
+             array playerCardsColorsCount, array playerTokensColorsCount,
+    @return : display the ranking of the game with public player information
 #}
 
 {#splendor logo#}
@@ -117,7 +120,7 @@
             {"yellow": playerTokensColors|filter(c => c == "yellow")|length}
         ] %}
 
-        <div class="bg-gradient-to-r from-[#707984ff] to-[#4C6E9Bff]
+        <div id="{{ p.username }}" class="bg-gradient-to-r from-[#707984ff] to-[#4C6E9Bff]
                     border-solid border-[5px] border-[#AC9424ff] rounded-2xl
                     h-[23.5%] landscape:md:h-1/4 landscape:lg:h-[23.5%]
                     mx-3 landscape:mx-2 lg:mx-5
