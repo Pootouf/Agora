@@ -136,12 +136,12 @@
         eventSourceNobleMove.onmessage = event => {
             animationQueue.addToQueue(() => {
                 let username = event.data.split('__')[0];
-                let noble = event.data.split('__')[1].split('_');
+                let nobles = event.data.split('__')[1].split('_');
                 console.log(event.data)
                 console.log(username)
-                console.log(noble)
+                console.log(nobles)
                 setTimeout(() => {
-                    const movesAnimations = noble.map(token => moveNobleTile(noble, username));
+                    const movesAnimations = nobles.map(noble => moveNobleTile(noble, username));
                     Promise.all(movesAnimations).then(() => animationQueue.executeNextInQueue());
                 }, 2000);
             })

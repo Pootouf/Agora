@@ -506,12 +506,13 @@ class SPLService
      * addBuyableNobleTilesToPlayer: add the first noble tiles the player can afford to his stock
      * @param GameSPL $game
      * @param PlayerSPL $player
-     * @return void
+     * @return array
      */
-    public function addBuyableNobleTilesToPlayer(GameSPL $game, PlayerSPL $player): void
+    public function addBuyableNobleTilesToPlayer(GameSPL $game, PlayerSPL $player): array
     {
         $playerCards = $player->getPersonalBoard()->getPlayerCards();
         $filteredCards = $this->filterCardsByColor($playerCards);
+        $boughtTiles = [];
         foreach ($game->getMainBoard()->getNobleTiles() as $tile) {
             $costs = $tile->getCardsCost();
             $canBuy = true;
@@ -527,8 +528,10 @@ class SPLService
                 $this->entityManager->persist($player->getPersonalBoard());
                 $this->entityManager->persist($game->getMainBoard());
                 $this->entityManager->flush();
+                $boughtTiles[] = $tile->getId();
             }
         }
+        return $boughtTiles;
     }
 
     /**
