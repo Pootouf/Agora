@@ -106,7 +106,9 @@ class TileGLMService
         while ($this->getBoardTilesAtPosition($mainBoard, $posTile) == null)
         {
             $posTile -= 1;
-            $posTile %= GlenmoreParameters::$NUMBER_OF_TILES_ON_BOARD;
+            if ($posTile < 0) {
+                $posTile += GlenmoreParameters::$NUMBER_OF_TILES_ON_BOARD;
+            }
         }
 
         // Search next position relative to the position found
