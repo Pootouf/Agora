@@ -31,13 +31,17 @@ class TileGLMService
         $this->removeTilesOfBrokenChain($mainBoardGLM);
         $player = $this->GLMService->getActivePlayer($mainBoardGLM->getGameGLM());
         $playerPosition = $player->getPawn()->getPosition();
-        $pointerPosition = ($playerPosition - 2) %
-            GlenmoreParameters::$NUMBER_OF_TILES_ON_BOARD;
+        $pointerPosition = ($playerPosition - 2);
+        if($pointerPosition < 0){
+            $pointerPosition = GlenmoreParameters::$NUMBER_OF_TILES_ON_BOARD - $pointerPosition;
+        }
         $count = 0;
         while ($this->getTileInPosition($mainBoardGLM, $pointerPosition) == null){
             $count += 1;
-            $pointerPosition = ($pointerPosition - 1) %
-                GlenmoreParameters::$NUMBER_OF_TILES_ON_BOARD;
+            $pointerPosition = ($pointerPosition - 1);
+            if($pointerPosition < 0){
+                $pointerPosition = GlenmoreParameters::$NUMBER_OF_TILES_ON_BOARD - $pointerPosition;
+            }
         }
         return $count;
     }
@@ -132,12 +136,15 @@ class TileGLMService
      * @param MainBoardGLM $mainBoardGLM
      * @return bool
      */
-    private function isChainBroken(MainBoardGLM $mainBoardGLM): bool
+    public function isChainBroken(MainBoardGLM $mainBoardGLM): bool
     {
         $player = $this->GLMService->getActivePlayer($mainBoardGLM->getGameGLM());
         $playerPosition = $player->getPawn()->getPosition();
         $positionBehindPlayer = ($playerPosition - 1) %
             GlenmoreParameters::$NUMBER_OF_TILES_ON_BOARD;
+        if($positionBehindPlayer == -1){
+            $positionBehindPlayer = GlenmoreParameters::$NUMBER_OF_TILES_ON_BOARD - 1;
+        }
         $mainBoardTiles = $mainBoardGLM->getBoardTiles();
         foreach ($mainBoardTiles as $boardTile){
             if($boardTile->getPosition() == $positionBehindPlayer){

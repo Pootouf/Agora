@@ -30,6 +30,7 @@ use App\Repository\Game\Splendor\TokenSPLRepository;
 use App\Service\Game\AbstractGameManagerService;
 use App\Service\Game\Glenmore\CardGLMService;
 use App\Service\Game\Glenmore\GLMService;
+use App\Service\Game\Glenmore\TileGLMService;
 use App\Service\Game\Splendor\SPLService;
 use App\Service\Game\Splendor\TokenSPLService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -39,16 +40,19 @@ use Psr\Log\LoggerInterface;
 class GLMServiceTest extends TestCase
 {
     private GLMService $GLMService;
+    private TileGLMService $tileGLMService;
     protected function setUp(): void
     {
         $entityManager = $this->createMock(EntityManagerInterface::class);
         $tileGLMRepository = $this->createMock(TileGLMRepository::class);
         $drawTilesGLMRepository = $this->createMock(DrawTilesGLMRepository::class);
-        $resourceGLMRepositoty = $this->createMock(ResourceGLMRepository::class);
+        $resourceGLMRepository = $this->createMock(ResourceGLMRepository::class);
         $playerGLMRepository = $this->createMock(PlayerGLMRepository::class);
         $cardGLMService = $this->createMock(CardGLMService::class);
         $this->GLMService = new GLMService($entityManager, $tileGLMRepository, $drawTilesGLMRepository,
-            $resourceGLMRepositoty, $playerGLMRepository, $cardGLMService);
+            $resourceGLMRepository, $playerGLMRepository, $cardGLMService);
+        $this->tileGLMService = new TileGLMService($entityManager, $this->GLMService,
+            $playerGLMRepository);
     }
 
     public function testDoNotSkipPlayerTurnWhenPlayerIsStillTheLastInChain()
@@ -119,6 +123,48 @@ class GLMServiceTest extends TestCase
         //THEN
         $this->assertFalse($result);
     }
+
+    public function testGetAmountOfTileToReplaceWhenChainIsBroken()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $GLMService = $this->createMock(GLMService::class);
+        $GLMService->method('getActivePlayer')->willReturn($firstPlayer);
+        $playerGLMRepository = $this->createMock(PlayerGLMRepository::class);
+        $tileGLMService = new TileGLMService($entityManager, $GLMService,
+            $playerGLMRepository);
+        $boardTiles = $game->getMainBoard()->getBoardTiles();
+        foreach ($boardTiles as $boardTile){
+            if($boardTile->getPosition() == 10){
+                $boardTile->setPosition(13);
+            }
+        }
+        $expectedResult = 3;
+        // WHEN
+        $result = $tileGLMService->getAmountOfTileToReplace($game->getMainBoard());
+        // THEN
+        $this->assertEquals($expectedResult, $result);
+    }
+
+    /*public function testGetAmountOfTileToReplaceWhenChainIsNotBroken()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $GLMService = $this->createMock(GLMService::class);
+        $GLMService->method('getActivePlayer')->willReturn($firstPlayer);
+        $playerGLMRepository = $this->createMock(PlayerGLMRepository::class);
+        $tileGLMService = new TileGLMService($entityManager, $GLMService,
+            $playerGLMRepository);
+        $expectedResult = 1;
+        // WHEN
+        $result = $tileGLMService->getAmountOfTileToReplace($game->getMainBoard());
+        // THEN
+        $this->assertEquals($expectedResult, $result);
+    }*/
 
     private function createGame(int $nbOfPlayers): GameGLM
     {
@@ -202,6 +248,7 @@ class GLMServiceTest extends TestCase
             $mainBoardTile->setTile($tile);
             $mainBoardTile->setMainBoardGLM($mainBoard);
             $mainBoardTile->setPosition($i);
+            $mainBoard->addBoardTile($mainBoardTile);
             $draw->removeTile($tile);
         }
         $firstPlayer = $game->getPlayers()->first();

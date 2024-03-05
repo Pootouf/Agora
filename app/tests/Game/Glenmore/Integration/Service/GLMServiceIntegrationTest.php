@@ -17,6 +17,7 @@ use App\Repository\Game\Glenmore\ResourceGLMRepository;
 use App\Repository\Game\Glenmore\TileGLMRepository;
 use App\Service\Game\AbstractGameManagerService;
 use App\Service\Game\Glenmore\GLMService;
+use App\Service\Game\Glenmore\TileGLMService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
@@ -116,6 +117,28 @@ class GLMServiceIntegrationTest extends KernelTestCase
         $this->assertFalse($result);
     }
 
+    public function testGetAmountOfTileToReplaceWhenChainIsBroken()
+    {
+        // GIVEN
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $tileGLMService = static ::getContainer()->get(TileGLMService::class);
+        $game = $this->createGame(2);
+        $boardTiles = $game->getMainBoard()->getBoardTiles();
+        foreach ($boardTiles as $boardTile){
+            if($boardTile->getPosition() == 10){
+                $boardTile->setPosition(13);
+                $entityManager->persist($boardTile);
+            }
+        }
+        $entityManager->flush();
+        $expectedResult = 3;
+
+        // WHEN
+        $result = $tileGLMService->getAmountOfTileToReplace($game->getMainBoard());
+        // THEN
+        $this->assertEquals($expectedResult, $result);
+    }
+
     private function createGame(int $nbOfPlayers) : GameGLM
     {
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);
@@ -196,6 +219,7 @@ class GLMServiceIntegrationTest extends KernelTestCase
             $mainBoardTile->setTile($tile);
             $mainBoardTile->setMainBoardGLM($mainBoard);
             $mainBoardTile->setPosition($i);
+            $mainBoard->addBoardTile($mainBoardTile);
             $entityManager->persist($mainBoardTile);
             $draw->removeTile($tile);
             $entityManager->persist($draw);
