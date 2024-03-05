@@ -131,6 +131,8 @@ class GLMServiceIntegrationTest extends KernelTestCase
         $playerTile->setCoordX(0);
         $playerTile->setCoordY(0);
         $playerTile->setTile($tile);
+        $playerTile->setCoordX(0);
+        $playerTile->setCoordY(0);
         $playerTile->setPersonalBoard($personalBoard);
         $entityManager->persist($playerTile);
         $personalBoard->addPlayerTile($playerTile);
@@ -208,6 +210,8 @@ class GLMServiceIntegrationTest extends KernelTestCase
         $playerTile->setCoordX(0);
         $playerTile->setCoordY(0);
         $playerTile->setTile($tile);
+        $playerTile->setCoordX(0);
+        $playerTile->setCoordY(0);
         $playerTile->setPersonalBoard($personalBoard);
         $entityManager->persist($playerTile);
         $personalBoard->addPlayerTile($playerTile);
@@ -361,6 +365,8 @@ class GLMServiceIntegrationTest extends KernelTestCase
             $playerTile->setCoordX(0);
             $playerTile->setCoordY(0);
             $playerTile->setTile($startVillages[$i]);
+            $playerTile->setCoordX(0);
+            $playerTile->setCoordY(0);
             $playerTile->setPersonalBoard($personalBoard);
             $entityManager->persist($playerTile);
             $playerTileResource = new PlayerTileResourceGLM();
