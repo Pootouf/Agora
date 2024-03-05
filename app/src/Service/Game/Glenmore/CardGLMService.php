@@ -149,10 +149,50 @@ class CardGLMService
      */
     private function applyCastleMoil(PlayerTileGLM $playerTileGLM) : void
     {
+        $this->giveWhisky($playerTileGLM, 1);
+    }
+
+    /**
+     * applyDonanCastle : gives 2 whisky barrels to the player
+     * @param PlayerTileGLM $playerTileGLM
+     * @return void
+     */
+    private function applyDonanCastle(PlayerTileGLM $playerTileGLM) : void
+    {
+       $this->giveWhisky($playerTileGLM, 2);
+    }
+
+    /**
+     * applyCastleStalker : gives another villager onto the tile
+     * @param PlayerTileGLM $playerTileGLM
+     * @return void
+     */
+    private function applyCastleStalker(PlayerTileGLM $playerTileGLM) : void
+    {
+        $resource = $this->resourceGLMRepository->findOneBy(["type" => GlenmoreParameters::$VILLAGER_RESOURCE]);
+        $playerTileResource = new PlayerTileResourceGLM();
+        $playerTileResource->setQuantity(1);
+        $playerTileResource->setResource($resource);
+        $playerTileResource->setPlayerTileGLM($playerTileGLM);
+        $this->entityManager->persist($playerTileResource);
+        $playerTileGLM->addPlayerTileResource($playerTileResource);
+        $this->entityManager->persist($playerTileGLM);
+        $this->entityManager->persist($playerTileGLM->getPersonalBoard());
+        $this->entityManager->flush();
+    }
+
+    /**
+     * giveWhisky : gives $amount whisky barrels to the player
+     * @param PlayerTileGLM $playerTileGLM
+     * @param int           $amount
+     * @return void
+     */
+    private function giveWhisky(PlayerTileGLM $playerTileGLM, int $amount) : void
+    {
         $resource = $this->resourceGLMRepository->findOneBy(["type" => GlenmoreParameters::$WHISKY_RESOURCE]);
         $playerTileResource = new PlayerTileResourceGLM();
         $playerTileResource->setResource($resource);
-        $playerTileResource->setQuantity(1);
+        $playerTileResource->setQuantity($amount);
         $playerTileResource->setPlayerTileGLM($playerTileGLM);
         $this->entityManager->persist($playerTileResource);
         $playerTileGLM->addPlayerTileResource($playerTileResource);
@@ -171,6 +211,21 @@ class CardGLMService
         $personalBoardGLM->setMoney($personalBoardGLM->getMoney() + 3);
         $this->entityManager->persist($personalBoardGLM);
         $this->entityManager->flush();
+    }
+
+    private function applyLochShiel(?PersonalBoardGLM $personalBoard) : void
+    {
+        // TODO
+    }
+
+    private function applyLochLochy(PlayerTileGLM $playerTileGLM) : void
+    {
+        // TODO
+    }
+
+    private function applyLochOich(?PersonalBoardGLM $personalBoard) : void
+    {
+        // TODO
     }
 
 }
