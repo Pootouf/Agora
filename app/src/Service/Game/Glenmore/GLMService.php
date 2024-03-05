@@ -248,6 +248,8 @@ class GLMService
             $tile = array_pop($startVillages);
             $playerTile = new PlayerTileGLM();
             $playerTile->setTile($tile);
+            $playerTile->setCoordX(0);
+            $playerTile->setCoordY(0);
             $playerTileResource = new PlayerTileResourceGLM();
             $playerTileResource->setResource($villager);
             $playerTileResource->setQuantity(1);
