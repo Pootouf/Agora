@@ -248,6 +248,8 @@ class GLMService
             $tile = array_pop($startVillages);
             $playerTile = new PlayerTileGLM();
             $playerTile->setTile($tile);
+            $playerTile->setCoordX(0);
+            $playerTile->setCoordY(0);
             $playerTileResource = new PlayerTileResourceGLM();
             $playerTileResource->setResource($villager);
             $playerTileResource->setQuantity(1);
@@ -295,11 +297,21 @@ class GLMService
         $this->entityManager->persist($drawLevelTwo);
         $this->entityManager->persist($drawLevelThree);
 
-        $green_cube = $this->resourceGLMRepository->findOneBy(['type' => GlenmoreParameters::$PRODUCTION_RESOURCE, 'color' => GlenmoreParameters::$COLOR_GREEN]);
-        $yellow_cube = $this->resourceGLMRepository->findOneBy(['type' => GlenmoreParameters::$PRODUCTION_RESOURCE, 'color' => GlenmoreParameters::$COLOR_YELLOW]);
-        $brown_cube = $this->resourceGLMRepository->findOneBy(['type' => GlenmoreParameters::$PRODUCTION_RESOURCE, 'color' => GlenmoreParameters::$COLOR_BROWN]);
-        $white_cube = $this->resourceGLMRepository->findOneBy(['type' => GlenmoreParameters::$PRODUCTION_RESOURCE, 'color' => GlenmoreParameters::$COLOR_WHITE]);
-        $grey_cube = $this->resourceGLMRepository->findOneBy(['type' => GlenmoreParameters::$PRODUCTION_RESOURCE, 'color' => GlenmoreParameters::$COLOR_GREY]);
+        $green_cube = $this->resourceGLMRepository->findOneBy(
+            ['type' => GlenmoreParameters::$PRODUCTION_RESOURCE, 'color' => GlenmoreParameters::$COLOR_GREEN]
+        );
+        $yellow_cube = $this->resourceGLMRepository->findOneBy(
+            ['type' => GlenmoreParameters::$PRODUCTION_RESOURCE, 'color' => GlenmoreParameters::$COLOR_YELLOW]
+        );
+        $brown_cube = $this->resourceGLMRepository->findOneBy(
+            ['type' => GlenmoreParameters::$PRODUCTION_RESOURCE, 'color' => GlenmoreParameters::$COLOR_BROWN]
+        );
+        $white_cube = $this->resourceGLMRepository->findOneBy(
+            ['type' => GlenmoreParameters::$PRODUCTION_RESOURCE, 'color' => GlenmoreParameters::$COLOR_WHITE]
+        );
+        $grey_cube = $this->resourceGLMRepository->findOneBy(
+            ['type' => GlenmoreParameters::$PRODUCTION_RESOURCE, 'color' => GlenmoreParameters::$COLOR_GREY]
+        );
         $numberOfCoin = 0;
         if ($game->getPlayers()->count() != GlenmoreParameters::$MAX_NUMBER_OF_PLAYER - 1) {
             $numberOfCoin = 1;
