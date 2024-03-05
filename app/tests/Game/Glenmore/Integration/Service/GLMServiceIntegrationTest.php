@@ -128,6 +128,8 @@ class GLMServiceIntegrationTest extends KernelTestCase
         $personalBoard = $firstPlayer->getPersonalBoard();
         $tile = $tileRepository->findOneBy(["id" => 11]);
         $playerTile = new PlayerTileGLM();
+        $playerTile->setCoordX(0);
+        $playerTile->setCoordY(0);
         $playerTile->setTile($tile);
         $playerTile->setPersonalBoard($personalBoard);
         $entityManager->persist($playerTile);
@@ -145,7 +147,7 @@ class GLMServiceIntegrationTest extends KernelTestCase
             if ($newTile === $playerTile) {
                 $playerTileResources = $newTile->getPlayerTileResource();
                 foreach ($playerTileResources as $playerTileResource) {
-                    $amount = $playerTileResource->getQuantity();
+                    $amount += $playerTileResource->getQuantity();
                     $type = $playerTileResource->getResource()->getType();
                 }
             }
@@ -166,6 +168,8 @@ class GLMServiceIntegrationTest extends KernelTestCase
         $tile = $tileRepository->findOneBy(["id" => 1]);
         $playerTile = new PlayerTileGLM();
         $playerTile->setTile($tile);
+        $playerTile->setCoordX(0);
+        $playerTile->setCoordY(0);
         $playerTile->setPersonalBoard($personalBoard);
         $entityManager->persist($playerTile);
         $personalBoard->addPlayerTile($playerTile);
@@ -181,7 +185,7 @@ class GLMServiceIntegrationTest extends KernelTestCase
             if ($newTile === $playerTile) {
                 $playerTileResources = $newTile->getPlayerTileResource();
                 foreach ($playerTileResources as $playerTileResource) {
-                    $amount = $playerTileResource->getQuantity();
+                    $amount += $playerTileResource->getQuantity();
                     $type = $playerTileResource->getResource()->getType();
                 }
             }
@@ -201,6 +205,8 @@ class GLMServiceIntegrationTest extends KernelTestCase
         $personalBoard = $firstPlayer->getPersonalBoard();
         $tile = $tileRepository->findOneBy(["id" => 51]);
         $playerTile = new PlayerTileGLM();
+        $playerTile->setCoordX(0);
+        $playerTile->setCoordY(0);
         $playerTile->setTile($tile);
         $playerTile->setPersonalBoard($personalBoard);
         $entityManager->persist($playerTile);
@@ -222,10 +228,9 @@ class GLMServiceIntegrationTest extends KernelTestCase
             if ($newTile === $playerTile) {
                 $playerTileResources = $newTile->getPlayerTileResource();
                 foreach ($playerTileResources as $playerTileResource) {
-                    $typeVillager = $playerTileResource->getResource()->getType();
-                    if ($typeVillager === $expectedTypeVillager) {
-                        $amountVillager = $playerTileResource->getQuantity();
-                        break;
+                    if ($playerTileResource->getResource()->getType() === $expectedTypeVillager) {
+                        $amountVillager += $playerTileResource->getQuantity();
+                        $typeVillager = $playerTileResource->getResource()->getType();
                     }
                 }
             }
@@ -235,8 +240,63 @@ class GLMServiceIntegrationTest extends KernelTestCase
             if ($tile->getCard() === $actualCard) {
                 $typeHat = $actualCard->getBonus()->getResource()->getType();
                 if ($typeHat === $expectedTypeHat) {
-                    $amountHat = $actualCard->getBonus()->getAmount();
-                    break;
+                    $amountHat += $actualCard->getBonus()->getAmount();
+                }
+            }
+        }
+        $this->assertEquals($expectedAmountVillager, $amountVillager);
+        $this->assertSame($expectedTypeVillager, $typeVillager);
+        $this->assertEquals($expectedAmountHat, $amountHat);
+        $this->assertSame($expectedTypeHat, $typeHat);
+    }
+
+    public function testGiveBuyCastleStalker() : void
+    {
+        //GIVEN
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $tileGLMService = static::getContainer()->get(TileGLMService::class);
+        $tileRepository = static::getContainer()->get(TileGLMRepository::class);
+        $game = $this->createGame(4);
+        $firstPlayer = $game->getPlayers()->first();
+        $personalBoard = $firstPlayer->getPersonalBoard();
+        $tile = $tileRepository->findOneBy(["id" => 27]);
+        $playerTile = new PlayerTileGLM();
+        $playerTile->setCoordX(0);
+        $playerTile->setCoordY(0);
+        $playerTile->setTile($tile);
+        $playerTile->setPersonalBoard($personalBoard);
+        $entityManager->persist($playerTile);
+        $personalBoard->addPlayerTile($playerTile);
+        $entityManager->persist($personalBoard);
+        $entityManager->flush();
+        $expectedAmountVillager = 2;
+        $expectedAmountHat = 1;
+        $expectedTypeVillager = GlenmoreParameters::$VILLAGER_RESOURCE;
+        $expectedTypeHat = GlenmoreParameters::$HAT_RESOURCE;
+        //WHEN
+        $tileGLMService->giveBuyBonus($playerTile);
+        //THEN
+        $amountVillager = 0;
+        $amountHat = 0;
+        $typeVillager = null;
+        $typeHat = null;
+        foreach ($personalBoard->getPlayerTiles() as $newTile) {
+            if ($newTile === $playerTile) {
+                $playerTileResources = $newTile->getPlayerTileResource();
+                foreach ($playerTileResources as $playerTileResource) {
+                    $typeVillager = $playerTileResource->getResource()->getType();
+                    if ($typeVillager === $expectedTypeVillager) {
+                        $amountVillager += $playerTileResource->getQuantity();
+                    }
+                }
+            }
+        }
+        foreach ($personalBoard->getPlayerCardGLM() as $playerCard) {
+            $actualCard = $playerCard->getCard();
+            if ($tile->getCard() === $actualCard) {
+                $typeHat = $actualCard->getBonus()->getResource()->getType();
+                if ($typeHat === $expectedTypeHat) {
+                    $amountHat += $actualCard->getBonus()->getAmount();
                 }
             }
         }
@@ -298,6 +358,8 @@ class GLMServiceIntegrationTest extends KernelTestCase
             $startVillages = $tileGLMRepository->findBy(['name' => GlenmoreParameters::$TILE_NAME_START_VILLAGE]);
             $villager = $resourceGLMRepository->findOneBy(['type' => GlenmoreParameters::$VILLAGER_RESOURCE]);
             $playerTile = new PlayerTileGLM();
+            $playerTile->setCoordX(0);
+            $playerTile->setCoordY(0);
             $playerTile->setTile($startVillages[$i]);
             $playerTile->setPersonalBoard($personalBoard);
             $entityManager->persist($playerTile);

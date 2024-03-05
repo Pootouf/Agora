@@ -18,7 +18,8 @@ class TileGLMService
 {
     public function __construct(private EntityManagerInterface $entityManager,
         private GLMService $GLMService,
-        private PlayerGLMRepository $playerGLMRepository){}
+        private PlayerGLMRepository $playerGLMRepository,
+        private CardGLMService $cardGLMService){}
 
     /**
      * getAmountOfTileToReplace : returns the amount of tiles to replace
@@ -166,8 +167,8 @@ class TileGLMService
                 $playerTileGLM->addPlayerTileResource($playerTileResource);
                 $this->entityManager->persist($playerTileGLM);
             }
+            $this->cardGLMService->buyCardManagement($playerTileGLM);
         }
-        // TODO gestion de certaines cartes spéciales
         $this->entityManager->persist($personalBoard);
         $this->entityManager->flush();
     }

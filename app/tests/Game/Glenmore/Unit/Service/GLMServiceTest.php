@@ -60,7 +60,8 @@ class GLMServiceTest extends TestCase
         $cardGLMService = $this->createMock(CardGLMService::class);
         $this->GLMService = new GLMService($entityManager, $tileGLMRepository, $drawTilesGLMRepository,
             $resourceGLMRepository, $playerGLMRepository, $cardGLMService);
-        $this->tileGLMService = new TileGLMService($entityManager, $this->GLMService, $playerGLMRepository);
+        $this->tileGLMService = new TileGLMService($entityManager, $this->GLMService, $playerGLMRepository,
+            $cardGLMService);
         $this->warehouseGLMService = new WarehouseGLMService($entityManager, $this->GLMService, $playerGLMRepository);
     }
 
