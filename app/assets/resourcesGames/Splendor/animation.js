@@ -281,63 +281,73 @@ function moveDevCard(cardId, playerUsername) {
 	}).then(() => animationQueue.executeNextInQueue());
 }
 
-function moveDrawToDevCard(cardId) {
+function moveDrawToDevCard(drawCardId, devCardId) {
 	animationContainer.classList.remove('hidden');
 	new Promise(resolve => {
-		let cardFinalPositionElement = document.getElementById('card_' + cardId);
-		let devCardElement = document.getElementById('drawCards_' + cardId);
 
-		console.log(cardFinalPositionElement, devCardElement);
+		let cardFinalPositionElement = document.getElementById('image_card_' + devCardId);
+		let drawCardElement = document.getElementById('drawCards_' + drawCardId);
 
-		let devCardShape = devCardElement.getBoundingClientRect();
+		console.log(cardFinalPositionElement, drawCardElement);
+
 		let cardFinalPositionShape = cardFinalPositionElement.getBoundingClientRect();
+		let discardCardShape = drawCardElement.getBoundingClientRect();
 
-		let movingCardElement = devCardElement.cloneNode(true);
-		movingCardElement.id = 'movingcard_' + cardId;
-		movingCardElement.classList.add('absolute');
+
+		let movingCardElement = document.getElementById('flip_card').cloneNode(true);
+		movingCardElement.id = 'movingcard_' + devCardId;
+
+		let frontImage = drawCardElement.cloneNode(true);
+		let backImage = cardFinalPositionElement.cloneNode(true);
+		frontImage.classList.add('size-full');
+		backImage.classList.add('size-full');
+
+		movingCardElement.querySelector('.spl-front').append(frontImage)
+		movingCardElement.querySelector('.spl-back').append(backImage)
 		animationContainer.appendChild(movingCardElement);
 
 		// Usefull to set a duration for the animation equal for every distance the translating movement will do
-		let distance = Math.sqrt((cardFinalPositionShape.x - devCardShape.x) ** 2 +
-			(cardFinalPositionShape.y - devCardShape.y) ** 2);
+		let distance = Math.sqrt((cardFinalPositionShape.x - discardCardShape.x) ** 2 +
+			(cardFinalPositionShape.y - discardCardShape.y) ** 2);
 
-		let xFinalPosition = (cardFinalPositionShape.x + cardFinalPositionShape.width / 2)
-			- (devCardShape.width / 2);
-		let yFinalPosition = (cardFinalPositionShape.y + cardFinalPositionShape.height / 2)
-			- (devCardShape.height / 2);
 
-		console.log("Before animation");
+
 
 		movingCardElement.animate(
 			[
 				{
-					transform: "translate(" + devCardShape.x + "px, " + devCardShape.y + "px)",
-					width: devCardShape.width + "px",
-					height: devCardShape.height + "px",
+					transform: "translate(" + discardCardShape.x + "px, " + discardCardShape.y + "px)",
+					width: discardCardShape.width + "px",
+					height: discardCardShape.height + "px",
 				},
 				{
-					transform: "translate(" + xFinalPosition + "px, " + yFinalPosition + "px)",
-					width: devCardShape.width + "px",
-					height: devCardShape.height + "px",
-					opacity: 1,
-				},
-				{
-					transform: "translate(" + (cardFinalPositionShape.x + cardFinalPositionShape.width / 2) + "px, "
-						+ (cardFinalPositionShape.y + cardFinalPositionShape.height / 2) + "px)",
-					width: 0,
-					height: 0,
-					opacity: 0,
+					transform: "translate(" + cardFinalPositionShape.x + "px, " + cardFinalPositionShape.y + "px)",
+					width: cardFinalPositionShape.width + "px",
+					height: discardCardShape.height + "px",
 				},
 			],
 			{
-				duration: distance / 0.2,
+				duration: distance / 0.3,
 				fill: "forwards", // Stay at the final position
 			}
 		).addEventListener("finish", () => {
-			console.log("Animation finish");
-			movingCardElement.remove();
-			cardFinalPositionElement.classList.remove('invisible');
-			resolve();
+			console.log("Animation 1 finish");
+			setTimeout(function () {
+				console.log("Animation 2 finish");
+				movingCardElement.querySelector('.spl-card').animate(
+					[
+						{transform : "rotateY(0deg)"},
+						{transform : "rotateY(180deg)"},
+					],
+					{
+						duration: 500,
+						fill: "forwards", // Stay at the final position
+					}
+				).addEventListener("finish", () => {
+					cardFinalPositionElement.classList.remove('invisible');
+					setTimeout(() => resolve(), 1000);
+				});
+			}, 500)
 		});
 	}).then(() => animationQueue.executeNextInQueue());
 }

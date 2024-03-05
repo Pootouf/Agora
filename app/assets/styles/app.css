@@ -2,6 +2,7 @@
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 @import "./Games/6QP/6QP.css";
+@import "./Games/SPL/SPL.css";
 
 @font-face {
     font-family: "Lato";
