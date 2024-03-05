@@ -74,7 +74,7 @@ class WarehouseGLMService
         , ResourceGLM $resource) : int
     {
         $money = GlenmoreParameters::$MIN_TRADE;
-        $resources = $warehouse->getWarehouseResource();
+        $resources = $warehouse->getWarehouseLine();
         foreach ($resources as $r)
         {
             if ($r->getResource()->getColor() === $resource->getColor())
@@ -123,12 +123,12 @@ class WarehouseGLMService
      */
     private function removeResourceInWarehouse(WarehouseGLM $warehouse, ResourceGLM $resource) : void
     {
-        $resources = $warehouse->getWarehouseResource();
+        $resources = $warehouse->getWarehouseLine();
         foreach ($resources as $r)
         {
             if ($r->getResource()->getColor() === $resource->getColor())
             {
-                $warehouse->removeWarehouseResource($r);
+                $r->setQuantity($r->getQuantity() - 1);
                 $this->entityManager->persist($warehouse);
                 return;
             }
