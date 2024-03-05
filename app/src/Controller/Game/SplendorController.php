@@ -240,10 +240,10 @@ class SplendorController extends AbstractController
          }
          try {
              $this->SPLService->reserveCard($player, $card);
-             $this->publishAnimCardOnDraw($game, $player->getUsername(), $card->getLevel() + 1);
          } catch (Exception $e) {
              return new Response("Can't reserve this card : " . $e->getMessage(), Response::HTTP_FORBIDDEN);
          }
+         $this->publishAnimCardOnDraw($game, $player->getUsername(), $card->getLevel());
          $this->manageEndOfRound($game);
          return new Response('Card reserved', Response::HTTP_OK);
      }
@@ -521,7 +521,6 @@ class SplendorController extends AbstractController
 
     private function publishAnimCardOnDraw(GameSPL $game, string $player, $drawcard): void
     {
-        $drawcard = $drawcard->getPersonalBoard()->getPlayerCards()->getLevel() + 1;
         $this->publishService->publish(
             $this->generateUrl('app_game_show_spl', ['id' => $game->getId()]).'animDrawCard',
             new Response($player . '__' . $drawcard)
