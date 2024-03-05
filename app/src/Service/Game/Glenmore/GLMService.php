@@ -175,6 +175,11 @@ class GLMService
             throw new Exception("Next player unreachable");
         }
         $nextPlayer->setTurnOfPlayer(true);
+        foreach ($nextPlayer->getPersonalBoard()->getPlayerTiles() as $playerTile) {
+            $playerTile->setActivated(false);
+            $this->entityManager->persist($playerTile);
+            $this->entityManager->persist($nextPlayer->getPersonalBoard());
+        }
         $this->entityManager->persist($nextPlayer);
         $this->entityManager->flush();
     }
