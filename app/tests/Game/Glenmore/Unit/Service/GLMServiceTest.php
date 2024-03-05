@@ -18,6 +18,7 @@ use App\Entity\Game\Glenmore\ResourceGLM;
 use App\Entity\Game\Glenmore\TileBuyBonusGLM;
 use App\Entity\Game\Glenmore\TileGLM;
 use App\Entity\Game\Glenmore\WarehouseGLM;
+use App\Entity\Game\Glenmore\WarehouseLineGLM;
 use App\Entity\Game\Glenmore\WarehouseResourceGLM;
 use App\Repository\Game\Glenmore\CardGLMRepository;
 use App\Repository\Game\Glenmore\DrawTilesGLMRepository;
@@ -427,11 +428,8 @@ class GLMServiceTest extends TestCase
         $player = $game->getPlayers()->first();
         $resource = new ResourceGLM();
         $resource->setColor(GlenmoreParameters::$COLOR_GREEN);
-        $warehouseResource = new WarehouseResourceGLM(
-            $mainBoard->getWarehouse(),
-            $resource
-        );
-        $mainBoard->getWarehouse()->addWarehouseResource($warehouseResource);
+        $mainBoard->getWarehouse()->getWarehouseLine()->first()->setResource($resource);
+        $mainBoard->getWarehouse()->getWarehouseLine()->first()->setQuantity(1);
 
         // WHEN
 
@@ -468,7 +466,7 @@ class GLMServiceTest extends TestCase
         $playerTile->addPlayerTileResource($playerTileResource);
         $personalBoard->addPlayerTile($playerTile);
 
-        $mainBoard->getWarehouse()->getWarehouseResource()->clear();
+        $mainBoard->getWarehouse()->getWarehouseLine()->clear();
 
         // WHEN
 
@@ -491,11 +489,7 @@ class GLMServiceTest extends TestCase
 
         $resourceWarehouse = new ResourceGLM();
         $resourceWarehouse->setColor(GlenmoreParameters::$COLOR_GREEN);
-        $warehouseResource = new WarehouseResourceGLM(
-            $mainBoard->getWarehouse(),
-            $resourceWarehouse
-        );
-        $mainBoard->getWarehouse()->addWarehouseResource($warehouseResource);
+        $mainBoard->getWarehouse()->getWarehouseLine()->get(1)->setQuantity(1);
 
         $resourcePlayer = new ResourceGLM();
         $resourcePlayer->setColor(GlenmoreParameters::$COLOR_GREEN);
@@ -562,6 +556,17 @@ class GLMServiceTest extends TestCase
             }
             $mainBoard->addDrawTile($draw);
             $warehouse = new WarehouseGLM();
+            $array = [GlenmoreParameters::$COLOR_BROWN, GlenmoreParameters::$COLOR_GREEN, GlenmoreParameters::$COLOR_WHITE,
+                GlenmoreParameters::$COLOR_YELLOW, GlenmoreParameters::$COLOR_GREY];
+            for ($j = 0; $j < 5; ++$j) {
+                $warehouseLine = new WarehouseLineGLM();
+                $resource = new ResourceGLM();
+                $resource->setColor($array[$j]);
+                $resource->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
+                $warehouseLine->setResource($resource);
+                $warehouseLine->setQuantity(0);
+                $warehouse->addWarehouseLine($warehouseLine);
+            }
             $warehouse->setMainBoardGLM($mainBoard);
         }
         for ($i = 0; $i < $nbOfPlayers; $i++) {
