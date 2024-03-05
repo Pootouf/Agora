@@ -128,6 +128,7 @@ class GLMServiceIntegrationTest extends KernelTestCase
         $personalBoard = $firstPlayer->getPersonalBoard();
         $tile = $tileRepository->findOneBy(["id" => 11]);
         $playerTile = new PlayerTileGLM();
+        $playerTile->setActivated(false);
         $playerTile->setCoordX(0);
         $playerTile->setCoordY(0);
         $playerTile->setTile($tile);
@@ -167,6 +168,7 @@ class GLMServiceIntegrationTest extends KernelTestCase
         $personalBoard = $firstPlayer->getPersonalBoard();
         $tile = $tileRepository->findOneBy(["id" => 1]);
         $playerTile = new PlayerTileGLM();
+        $playerTile->setActivated(false);
         $playerTile->setTile($tile);
         $playerTile->setCoordX(0);
         $playerTile->setCoordY(0);
@@ -205,6 +207,7 @@ class GLMServiceIntegrationTest extends KernelTestCase
         $personalBoard = $firstPlayer->getPersonalBoard();
         $tile = $tileRepository->findOneBy(["id" => 51]);
         $playerTile = new PlayerTileGLM();
+        $playerTile->setActivated(false);
         $playerTile->setCoordX(0);
         $playerTile->setCoordY(0);
         $playerTile->setTile($tile);
@@ -261,6 +264,7 @@ class GLMServiceIntegrationTest extends KernelTestCase
         $personalBoard = $firstPlayer->getPersonalBoard();
         $tile = $tileRepository->findOneBy(["id" => 27]);
         $playerTile = new PlayerTileGLM();
+        $playerTile->setActivated(false);
         $playerTile->setCoordX(0);
         $playerTile->setCoordY(0);
         $playerTile->setTile($tile);
@@ -358,6 +362,7 @@ class GLMServiceIntegrationTest extends KernelTestCase
             $startVillages = $tileGLMRepository->findBy(['name' => GlenmoreParameters::$TILE_NAME_START_VILLAGE]);
             $villager = $resourceGLMRepository->findOneBy(['type' => GlenmoreParameters::$VILLAGER_RESOURCE]);
             $playerTile = new PlayerTileGLM();
+            $playerTile->setActivated(false);
             $playerTile->setCoordX(0);
             $playerTile->setCoordY(0);
             $playerTile->setTile($startVillages[$i]);
