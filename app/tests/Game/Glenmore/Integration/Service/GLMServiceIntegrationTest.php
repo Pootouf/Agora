@@ -129,6 +129,8 @@ class GLMServiceIntegrationTest extends KernelTestCase
         $tile = $tileRepository->findOneBy(["id" => 11]);
         $playerTile = new PlayerTileGLM();
         $playerTile->setTile($tile);
+        $playerTile->setCoordX(0);
+        $playerTile->setCoordY(0);
         $playerTile->setPersonalBoard($personalBoard);
         $entityManager->persist($playerTile);
         $personalBoard->addPlayerTile($playerTile);
@@ -166,6 +168,8 @@ class GLMServiceIntegrationTest extends KernelTestCase
         $tile = $tileRepository->findOneBy(["id" => 1]);
         $playerTile = new PlayerTileGLM();
         $playerTile->setTile($tile);
+        $playerTile->setCoordX(0);
+        $playerTile->setCoordY(0);
         $playerTile->setPersonalBoard($personalBoard);
         $entityManager->persist($playerTile);
         $personalBoard->addPlayerTile($playerTile);
@@ -202,6 +206,8 @@ class GLMServiceIntegrationTest extends KernelTestCase
         $tile = $tileRepository->findOneBy(["id" => 51]);
         $playerTile = new PlayerTileGLM();
         $playerTile->setTile($tile);
+        $playerTile->setCoordX(0);
+        $playerTile->setCoordY(0);
         $playerTile->setPersonalBoard($personalBoard);
         $entityManager->persist($playerTile);
         $personalBoard->addPlayerTile($playerTile);
@@ -299,6 +305,8 @@ class GLMServiceIntegrationTest extends KernelTestCase
             $villager = $resourceGLMRepository->findOneBy(['type' => GlenmoreParameters::$VILLAGER_RESOURCE]);
             $playerTile = new PlayerTileGLM();
             $playerTile->setTile($startVillages[$i]);
+            $playerTile->setCoordX(0);
+            $playerTile->setCoordY(0);
             $playerTile->setPersonalBoard($personalBoard);
             $entityManager->persist($playerTile);
             $playerTileResource = new PlayerTileResourceGLM();
