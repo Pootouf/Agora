@@ -11,6 +11,7 @@ use App\Entity\Game\Glenmore\PlayerGLM;
 use App\Entity\Game\Glenmore\PlayerTileGLM;
 use App\Entity\Game\Glenmore\PlayerTileResourceGLM;
 use App\Repository\Game\Glenmore\PlayerGLMRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Exception;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -87,6 +88,25 @@ class TileGLMService
 
         // Return last position of player
         return $lastPosition;
+    }
+
+    /**
+     * getActivableTiles : returns a collection of all activable tiles after a new tile was placed
+     *  onto personalBoard
+     * @param PlayerTileGLM $playerTileGLM
+     * @return ArrayCollection<Int, PlayerTileGLM>
+     */
+    public function getActivableTiles(PlayerTileGLM $playerTileGLM) : ArrayCollection
+    {
+        // TODO traitement avec les tuiles concernées par cartes spéciales
+        $activableTiles = new ArrayCollection();
+        $adjacentTiles = $playerTileGLM->getAdjacentTiles();
+        foreach ($adjacentTiles as $adjacentTile) {
+            if (!$adjacentTile->isActivated()) {
+                $activableTiles->add($adjacentTile);
+            }
+        }
+        return $activableTiles;
     }
 
     /**
