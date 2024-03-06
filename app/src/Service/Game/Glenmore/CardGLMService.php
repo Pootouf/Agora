@@ -10,6 +10,8 @@ use App\Entity\Game\Glenmore\PlayerTileResourceGLM;
 use App\Entity\Game\Glenmore\ResourceGLM;
 use App\Entity\Game\Glenmore\TileBuyBonusGLM;
 use App\Repository\Game\Glenmore\ResourceGLMRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 
 class CardGLMService
@@ -33,6 +35,48 @@ class CardGLMService
         }
         return $playerResource;
     }
+
+    /**
+     * applyLochNess : if player owns Loch Ness and Loch Ness was not used yet during its round,
+     *  all non activated tiles can be activated but only of them
+     * @param PersonalBoardGLM $personalBoard
+     * @return Collection<Int, PlayerTileGLM>
+     */
+    public function applyLochNess(PersonalBoardGLM $personalBoard) : Collection
+    {
+        $activableTiles = new ArrayCollection();
+        $owns = false;
+        $mustActivate = false;
+        // checks if player owns Loch Ness
+        $cards = $personalBoard->getPlayerCardGLM();
+        foreach ($cards as $card) {
+            if ($card->getCard()->getName() == GlenmoreParameters::$CARD_LOCH_NESS) {
+                $owns = true;
+                break;
+            }
+        }
+        if ($owns) {
+            // gets Loch Ness tile
+            foreach ($personalBoard->getPlayerTiles() as $playerTile) {
+                if ($playerTile->getTile()->getName() == GlenmoreParameters::$CARD_LOCH_NESS) {
+                    // if Loch Ness power was not used
+                    if(!$playerTile->isActivated()) {
+                        $mustActivate = true;
+                        break;
+                    }
+                }
+            }
+            if ($mustActivate) {
+                foreach ($personalBoard->getPlayerTiles() as $playerTile) {
+                    if(!$playerTile->isActivated() && $playerTile->getTile()->getActivationBonus() != null) {
+                        $activableTiles->add($playerTile);
+                    }
+                }
+            }
+        }
+        return $activableTiles;
+    }
+
 
     /**
      * buyCardManagement : applies effect of the card associated to playerTile
@@ -59,9 +103,6 @@ class CardGLMService
                 break;
             case GlenmoreParameters::$CARD_LOCH_LOCHY:
                 $this->applyLochLochy($playerTileGLM);
-                break;
-            case GlenmoreParameters::$CARD_LOCH_OICH:
-                $this->applyLochOich($personalBoard);
                 break;
             case GlenmoreParameters::$CARD_CASTLE_MOIL:
                 $this->applyCastleMoil($playerTileGLM);
@@ -169,13 +210,12 @@ class CardGLMService
      */
     private function applyCastleStalker(PlayerTileGLM $playerTileGLM) : void
     {
-        $resource = $this->resourceGLMRepository->findOneBy(["type" => GlenmoreParameters::$VILLAGER_RESOURCE]);
-        $playerTileResource = new PlayerTileResourceGLM();
-        $playerTileResource->setQuantity(1);
-        $playerTileResource->setResource($resource);
-        $playerTileResource->setPlayerTileGLM($playerTileGLM);
-        $this->entityManager->persist($playerTileResource);
-        $playerTileGLM->addPlayerTileResource($playerTileResource);
+        foreach ($playerTileGLM->getPlayerTileResource() as $playerTileResource) {
+            if ($playerTileResource->getResource()->getType() == GlenmoreParameters::$VILLAGER_RESOURCE) {
+                $playerTileResource->setQuantity($playerTileResource->getQuantity() + 1);
+                $this->entityManager->persist($playerTileResource);
+            }
+        }
         $this->entityManager->persist($playerTileGLM);
         $this->entityManager->persist($playerTileGLM->getPersonalBoard());
         $this->entityManager->flush();
@@ -213,17 +253,30 @@ class CardGLMService
         $this->entityManager->flush();
     }
 
-    private function applyLochShiel(?PersonalBoardGLM $personalBoard) : void
+    /**
+     * applyLochShiel : for each production tile empty, gives its activation bonus
+     * @param PersonalBoardGLM $personalBoard
+     * @return void
+     */
+    private function applyLochShiel(PersonalBoardGLM $personalBoard) : void
     {
-        // TODO
+        $tiles = $personalBoard->getPlayerTiles();
+        foreach ($tiles as $tile) {
+            foreach ($tile->getPlayerTileResource() as $playerTileResource) {
+                if ($playerTileResource->getResource()->getType()
+                    == GlenmoreParameters::$PRODUCTION_RESOURCE) {
+                    if($playerTileResource->getQuantity() == 0) {
+                        $playerTileResource->setQuantity(1);
+                        $this->entityManager->persist($playerTileResource);
+                    }
+                }
+            }
+        }
+        $this->entityManager->persist($personalBoard);
+        $this->entityManager->flush();
     }
 
     private function applyLochLochy(PlayerTileGLM $playerTileGLM) : void
-    {
-        // TODO
-    }
-
-    private function applyLochOich(?PersonalBoardGLM $personalBoard) : void
     {
         // TODO
     }

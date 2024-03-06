@@ -2,6 +2,7 @@
 
 namespace App\Service\Game\Glenmore;
 
+use App\Service\Game\Glenmore\CardGLMService;
 use App\Entity\Game\Glenmore\BoardTileGLM;
 use App\Entity\Game\Glenmore\DrawTilesGLM;
 use App\Entity\Game\Glenmore\GameGLM;
@@ -25,12 +26,12 @@ use Psr\Log\LoggerInterface;
 
 class GLMService
 {
-    public function __construct(private EntityManagerInterface $entityManager,
-        private TileGLMRepository $tileGLMRepository,
-        private DrawTilesGLMRepository $drawTilesGLMRepository,
-        private ResourceGLMRepository $resourceGLMRepository,
-        private PlayerGLMRepository $playerGLMRepository,
-        private CardGLMService $cardGLMService)
+    public function __construct(private readonly EntityManagerInterface $entityManager,
+        private readonly TileGLMRepository $tileGLMRepository,
+        private readonly DrawTilesGLMRepository $drawTilesGLMRepository,
+        private readonly ResourceGLMRepository $resourceGLMRepository,
+        private readonly PlayerGLMRepository $playerGLMRepository,
+        private readonly CardGLMService $cardGLMService)
     {}
 
 
@@ -175,6 +176,11 @@ class GLMService
             throw new Exception("Next player unreachable");
         }
         $nextPlayer->setTurnOfPlayer(true);
+        foreach ($nextPlayer->getPersonalBoard()->getPlayerTiles() as $playerTile) {
+            $playerTile->setActivated(false);
+            $this->entityManager->persist($playerTile);
+            $this->entityManager->persist($nextPlayer->getPersonalBoard());
+        }
         $this->entityManager->persist($nextPlayer);
         $this->entityManager->flush();
     }
@@ -248,6 +254,8 @@ class GLMService
             $tile = array_pop($startVillages);
             $playerTile = new PlayerTileGLM();
             $playerTile->setTile($tile);
+            $playerTile->setCoordX(0);
+            $playerTile->setCoordY(0);
             $playerTileResource = new PlayerTileResourceGLM();
             $playerTileResource->setResource($villager);
             $playerTileResource->setQuantity(1);
@@ -295,11 +303,21 @@ class GLMService
         $this->entityManager->persist($drawLevelTwo);
         $this->entityManager->persist($drawLevelThree);
 
-        $green_cube = $this->resourceGLMRepository->findOneBy(['type' => GlenmoreParameters::$PRODUCTION_RESOURCE, 'color' => GlenmoreParameters::$COLOR_GREEN]);
-        $yellow_cube = $this->resourceGLMRepository->findOneBy(['type' => GlenmoreParameters::$PRODUCTION_RESOURCE, 'color' => GlenmoreParameters::$COLOR_YELLOW]);
-        $brown_cube = $this->resourceGLMRepository->findOneBy(['type' => GlenmoreParameters::$PRODUCTION_RESOURCE, 'color' => GlenmoreParameters::$COLOR_BROWN]);
-        $white_cube = $this->resourceGLMRepository->findOneBy(['type' => GlenmoreParameters::$PRODUCTION_RESOURCE, 'color' => GlenmoreParameters::$COLOR_WHITE]);
-        $grey_cube = $this->resourceGLMRepository->findOneBy(['type' => GlenmoreParameters::$PRODUCTION_RESOURCE, 'color' => GlenmoreParameters::$COLOR_GREY]);
+        $green_cube = $this->resourceGLMRepository->findOneBy(
+            ['type' => GlenmoreParameters::$PRODUCTION_RESOURCE, 'color' => GlenmoreParameters::$COLOR_GREEN]
+        );
+        $yellow_cube = $this->resourceGLMRepository->findOneBy(
+            ['type' => GlenmoreParameters::$PRODUCTION_RESOURCE, 'color' => GlenmoreParameters::$COLOR_YELLOW]
+        );
+        $brown_cube = $this->resourceGLMRepository->findOneBy(
+            ['type' => GlenmoreParameters::$PRODUCTION_RESOURCE, 'color' => GlenmoreParameters::$COLOR_BROWN]
+        );
+        $white_cube = $this->resourceGLMRepository->findOneBy(
+            ['type' => GlenmoreParameters::$PRODUCTION_RESOURCE, 'color' => GlenmoreParameters::$COLOR_WHITE]
+        );
+        $grey_cube = $this->resourceGLMRepository->findOneBy(
+            ['type' => GlenmoreParameters::$PRODUCTION_RESOURCE, 'color' => GlenmoreParameters::$COLOR_GREY]
+        );
         $numberOfCoin = 0;
         if ($game->getPlayers()->count() != GlenmoreParameters::$MAX_NUMBER_OF_PLAYER - 1) {
             $numberOfCoin = 1;
@@ -349,7 +367,7 @@ class GLMService
                 $resources = $tile->getPlayerTileResource();
                 foreach ($resources as $resource) {
                     if ($resource->getResource()->getType() === $resourceType) {
-                        ++$playerResource;
+                        $playerResource += $resource->getQuantity();
                     }
                 }
             }
@@ -370,11 +388,16 @@ class GLMService
      */
     private function getPointsPerDifference($difference): int
     {
+        if ($difference < 0) {
+            throw new Exception("difference can't be negative");
+        }
         return match ($difference) {
-            $difference < 0 => throw new Exception("difference can't be negative"),
-            $difference <= 3 => $difference,
+            0 => 0,
+            1 => 1,
+            2 => 2,
+            3 => 3,
             4 => 5,
-            default => 8,
+            default => 8
         };
     }
 
@@ -390,13 +413,13 @@ class GLMService
         $result = array();
         foreach ($players as $player) {
             $personalBoard = $player->getPersonalBoard();
-            $playerResource = $personalBoard->getLeaderCount();
-            $playerResource = $this->cardGLMService->applyCastleOfMey($personalBoard, $playerResource);
+            $leaderCount = $personalBoard->getLeaderCount();
+            $playerResource = $this->cardGLMService->applyCastleOfMey($personalBoard, $leaderCount);
             foreach ($personalBoard->getPlayerTiles() as $tile) {
                 $resources = $tile->getPlayerTileResource();
                 foreach ($resources as $resource) {
                     if($resource->getResource()->getType() == GlenmoreParameters::$HAT_RESOURCE) {
-                        ++$playerResource;
+                        $playerResource += $resource->getQuantity();
                     }
                 }
             }

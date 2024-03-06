@@ -5,10 +5,14 @@ namespace App\Controller\Game;
 use App\Entity\Game\DTO\Glenmore\BoardBoxGLM;
 use App\Entity\Game\Glenmore\GameGLM;
 use App\Entity\Game\Glenmore\GlenmoreParameters;
+use App\Entity\Game\Glenmore\PlayerGLM;
+use App\Entity\Game\Glenmore\PlayerTileGLM;
+use App\Repository\Game\Glenmore\PlayerTileGLMRepository;
 use App\Service\Game\Glenmore\GLMService;
 use App\Service\Game\MessageService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -16,7 +20,10 @@ use Symfony\Component\Routing\Attribute\Route;
 class GlenmoreController extends AbstractController
 {
 
-    public function __construct(private GLMService $service, private MessageService $messageService)
+    public function __construct(private GLMService $service,
+                                private MessageService $messageService,
+                                private LoggerInterface $logger,
+                                private PlayerTileGLMRepository $playerTileGLMRepository)
     {}
 
     #[Route('/game/glenmore/{id}', name: 'app_game_show_glm')]
@@ -37,11 +44,11 @@ class GlenmoreController extends AbstractController
             'player' => $player,
             'isSpectator' => $isSpectator,
             'needToPlay' => $needToPlay,
-            //'isGameFinished' => $this->service->isGameEnded($game),
-            'isGameFinished' => false,
+            'isGameFinished' => $this->service->isGameEnded($game),
             'selectedTile' => null,
             'adjacentTiles' => null,
             'potentialNeighbours' => null,
+            'personalBoardTiles' => $this->organizePersonalBoardRows($player),
             'boardTiles' => $this->organizeMainBoardRows($this->createBoardBoxes($game)),
             'messages' => $messages,
         ]);
@@ -130,5 +137,45 @@ class GlenmoreController extends AbstractController
 
         $rows->add($row4);
         return $rows;
+    }
+
+    /**
+     * organizePersonalBoardRows : return a collection of rows, a row is a collection of tiles or null.
+     *  It represents each row of the personal board from top to bottom.
+     * @param PlayerGLM $playerGLM
+     * @return Collection
+     */
+    private function organizePersonalBoardRows(PlayerGLM $playerGLM) : Collection
+    {
+        $result = new ArrayCollection();
+
+        $miny = $this->playerTileGLMRepository->
+            findOneBy(['personalBoard' => $playerGLM->getPersonalBoard()], ['coord_Y' => 'ASC'])->getCoordY();
+
+        $tiles = $playerGLM->getPersonalBoard()->getPlayerTiles()->toArray();
+        usort($tiles, function ($tile1, $tile2){
+           $value = $tile2->getCoordX() - $tile1->getCoordX();
+           return $value == 0 ? $tile2->getCoordY() - $tile1->getCoordY() : $value;
+        });
+
+        $previousTile = $tiles[0];
+        $currentLine = new ArrayCollection();
+        foreach ($tiles as $tile) {
+            $y = $previousTile->getCoordY();
+            if ($previousTile->getCoordX() < $tile->getCoordX()) {
+                $y = $miny;
+                $result->add($currentLine);
+                $currentLine = new ArrayCollection();
+            }
+            while ($y + 1 < $tile->getCoordY()) {
+                $currentLine->add(null);
+                $this->logger->critical($y);
+                $y++;
+            }
+            $currentLine->add($tile);
+            $previousTile = $tile;
+        }
+        $result->add($currentLine);
+        return $result;
     }
 }
