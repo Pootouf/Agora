@@ -41,4 +41,14 @@ export default class extends Controller {
                 () => openedPersonalBoard.setAttributeNode(hidden));
         }
     }
+
+    async displayPropertyCards(board) {
+        let url = board.params.url;
+        const response = await fetch(url);
+        let tree = document.getElementById("index_glenmore");
+        let placeholder = document.createElement("div");
+        placeholder.innerHTML = await response.text();
+        const node = placeholder.firstElementChild;
+        tree.appendChild(node);
+    }
 }

@@ -13,6 +13,7 @@ use App\Service\Game\MessageService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Psr\Log\LoggerInterface;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -51,6 +52,16 @@ class GlenmoreController extends AbstractController
             'personalBoardTiles' => $this->organizePersonalBoardRows($player),
             'boardTiles' => $this->organizeMainBoardRows($this->createBoardBoxes($game)),
             'messages' => $messages,
+        ]);
+    }
+
+    #[Route('game/glenmore/{idGame}/display/propertyCards', name: 'app_game_glenmore_display_player_property_cards')]
+    public function displayPropertyCards(
+        #[MapEntity(id: 'idGame')] GameGLM $gameGLM): Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($gameGLM, $this->getUser()->getUsername());
+        return $this->render('Game/Glenmore/PersonalBoard/displayPropertyCards.html.twig', [
+            'player' => $player,
         ]);
     }
 
