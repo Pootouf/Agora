@@ -33,7 +33,7 @@ class PlayerTileGLM extends Component
     private ?int $coord_Y = null;
 
     #[ORM\Column]
-    private ?bool $activated = null;
+    private ?bool $activated = false;
 
     public function __construct()
     {
