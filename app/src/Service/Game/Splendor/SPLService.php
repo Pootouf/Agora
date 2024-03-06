@@ -450,7 +450,7 @@ class SPLService
      * buyCard : check if player can buy a card and remove the card from the main board
      * @param PlayerSPL $playerSPL
      * @param DevelopmentCardsSPL $developmentCardsSPL
-     * @return array
+     * @return array<string> the type of the removed tokens
      * @throws \Exception if it's not the card of the player
      */
     public function buyCard(PlayerSPL $playerSPL,
@@ -506,13 +506,12 @@ class SPLService
      * addBuyableNobleTilesToPlayer: add the first noble tiles the player can afford to his stock
      * @param GameSPL $game
      * @param PlayerSPL $player
-     * @return array
+     * @return int the id of the bought noble tile, -1 if no noble tile bought
      */
-    public function addBuyableNobleTilesToPlayer(GameSPL $game, PlayerSPL $player): array
+    public function addBuyableNobleTilesToPlayer(GameSPL $game, PlayerSPL $player): int
     {
         $playerCards = $player->getPersonalBoard()->getPlayerCards();
         $filteredCards = $this->filterCardsByColor($playerCards);
-        $boughtTiles = [];
         foreach ($game->getMainBoard()->getNobleTiles() as $tile) {
             $costs = $tile->getCardsCost();
             $canBuy = true;
@@ -528,10 +527,10 @@ class SPLService
                 $this->entityManager->persist($player->getPersonalBoard());
                 $this->entityManager->persist($game->getMainBoard());
                 $this->entityManager->flush();
-                $boughtTiles[] = $tile->getId();
+                return $tile->getId();
             }
         }
-        return $boughtTiles;
+        return -1;
     }
 
     /**
@@ -763,7 +762,7 @@ class SPLService
      * retrievePlayerMoney : remove tokens from the player to buy a card
      * @param PlayerSPL $playerSPL
      * @param DevelopmentCardsSPL $developmentCardsSPL
-     * @return array
+     * @return array<string> the type of the removed tokens
      */
     private function retrievePlayerMoney(PlayerSPL $playerSPL, DevelopmentCardsSPL $developmentCardsSPL): array
     {

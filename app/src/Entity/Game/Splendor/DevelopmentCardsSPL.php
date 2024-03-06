@@ -37,11 +37,6 @@ class DevelopmentCardsSPL extends Card
         $this->cardCost = new ArrayCollection();
     }
 
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
-
     public function getPrestigePoints(): ?int
     {
         return $this->prestigePoints;
