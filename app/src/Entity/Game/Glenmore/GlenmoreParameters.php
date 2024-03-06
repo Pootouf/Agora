@@ -118,6 +118,9 @@ class GlenmoreParameters {
     public static int $MIN_TRADE = 0;
     public static int $MAX_TRADE = 3;
 
+    // Number of money compared to the quantity of resources
+    public static array $MONEY_FROM_QUANTITY = [3, 2, 1, 0];
+
     // COINS NEEDED FOR A RESOURCE
     public static int $COIN_NEEDED_FOR_RESOURCE_ONE = 1;
     public static int $COIN_NEEDED_FOR_RESOURCE_TWO = 2;
