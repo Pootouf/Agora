@@ -8,11 +8,13 @@ use App\Entity\Game\Glenmore\GlenmoreParameters;
 use App\Entity\Game\Glenmore\PlayerGLM;
 use App\Entity\Game\Glenmore\PlayerTileGLM;
 use App\Repository\Game\Glenmore\PlayerTileGLMRepository;
+use App\Service\Game\Glenmore\DataManagementGLMService;
 use App\Service\Game\Glenmore\GLMService;
 use App\Service\Game\MessageService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Psr\Log\LoggerInterface;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -22,8 +24,7 @@ class GlenmoreController extends AbstractController
 
     public function __construct(private GLMService $service,
                                 private MessageService $messageService,
-                                private LoggerInterface $logger,
-                                private PlayerTileGLMRepository $playerTileGLMRepository)
+                                private DataManagementGLMService $dataManagementGLMService)
     {}
 
     #[Route('/game/glenmore/{id}', name: 'app_game_show_glm')]
@@ -48,134 +49,23 @@ class GlenmoreController extends AbstractController
             'selectedTile' => null,
             'adjacentTiles' => null,
             'potentialNeighbours' => null,
-            'personalBoardTiles' => $this->organizePersonalBoardRows($player),
-            'boardTiles' => $this->organizeMainBoardRows($this->createBoardBoxes($game)),
+            'personalBoardTiles' => $this->dataManagementGLMService->organizePersonalBoardRows($player),
+            'boardTiles' => $this->dataManagementGLMService->organizeMainBoardRows(
+                $this->dataManagementGLMService->createBoardBoxes($game)),
+            'whiskyCount' => $this->dataManagementGLMService->getWhiskyCount($player),
             'messages' => $messages,
         ]);
     }
 
-    /**
-     * createBoardBoxes : return a collection of BoardBoxGLM.
-     * It transforms the pawns and tiles used in back-end into BoardBoxGLM for the front-end.
-     * @param GameGLM $game
-     * @return Collection<BoardBoxGLM>
-     */
-    private function createBoardBoxes(GameGLM $game) : Collection
+    #[Route('game/glenmore/{idGame}/display/propertyCards', name: 'app_game_glenmore_display_player_property_cards')]
+    public function displayPropertyCards(
+        #[MapEntity(id: 'idGame')] GameGLM $gameGLM): Response
     {
-        $tiles = $game->getMainBoard()->getBoardTiles();
-        $pawns = $game->getMainBoard()->getPawns();
-        $boardBoxes = new ArrayCollection();
-
-        for($i = 0; $i < GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD; $i++) {
-            $isEmptyBox = true;
-            foreach($tiles as $tile) {
-                if($tile->getPosition() == $i) {
-                    try {
-                        $boardBoxes->add(new BoardBoxGLM($tile->getTile(), null));
-                    } catch (\Exception $e) {
-                        //Can't append here with a null argument
-                    }
-                    $isEmptyBox = false;
-                    break;
-                }
-            }
-            foreach($pawns as $pawn) {
-                if($pawn->getPosition() == $i) {
-                    try {
-                        $boardBoxes->add(new BoardBoxGLM(null, $pawn));
-                    } catch (\Exception $e) {
-                        //Can't append here with a null argument
-                    }
-                    $isEmptyBox = false;
-                    break;
-                }
-            }
-            if($isEmptyBox) {
-                $boardBoxes->add(new BoardBoxGLM(null, null));
-            }
-        }
-        return $boardBoxes;
+        $player = $this->service->getPlayerFromNameAndGame($gameGLM, $this->getUser()->getUsername());
+        return $this->render('Game/Glenmore/PersonalBoard/displayPropertyCards.html.twig', [
+            'player' => $player,
+        ]);
     }
 
-    /**
-     * organizeMainBoardRows : return a collection of rows, a row is a collection of BoardBoxGLM.
-     * It represents each row of the board from top to bottom.
-     * @param Collection<BoardBoxGLM> $boardBoxes
-     * @return Collection<Collection<BoardBoxGLM>>
-     */
-    private function organizeMainBoardRows(Collection $boardBoxes) : Collection
-    {
-        $rows = new ArrayCollection();
 
-        $row1 = new ArrayCollection();
-        $row1->add($boardBoxes->get(0));
-        $row1->add($boardBoxes->get(1));
-        $row1->add($boardBoxes->get(2));
-        $row1->add($boardBoxes->get(3));
-        $row1->add($boardBoxes->get(4));
-
-        $rows->add($row1);
-
-        $row2 = new ArrayCollection();
-        $row2->add($boardBoxes->get(13));
-        $row2->add($boardBoxes->get(5));
-
-        $rows->add($row2);
-
-        $row3 = new ArrayCollection();
-        $row3->add($boardBoxes->get(12));
-        $row3->add($boardBoxes->get(6));
-
-        $rows->add($row3);
-
-        $row4 = new ArrayCollection();
-        $row4->add($boardBoxes->get(11));
-        $row4->add($boardBoxes->get(10));
-        $row4->add($boardBoxes->get(9));
-        $row4->add($boardBoxes->get(8));
-        $row4->add($boardBoxes->get(7));
-
-        $rows->add($row4);
-        return $rows;
-    }
-
-    /**
-     * organizePersonalBoardRows : return a collection of rows, a row is a collection of tiles or null.
-     *  It represents each row of the personal board from top to bottom.
-     * @param PlayerGLM $playerGLM
-     * @return Collection
-     */
-    private function organizePersonalBoardRows(PlayerGLM $playerGLM) : Collection
-    {
-        $result = new ArrayCollection();
-
-        $miny = $this->playerTileGLMRepository->
-            findOneBy(['personalBoard' => $playerGLM->getPersonalBoard()], ['coord_Y' => 'ASC'])->getCoordY();
-
-        $tiles = $playerGLM->getPersonalBoard()->getPlayerTiles()->toArray();
-        usort($tiles, function ($tile1, $tile2){
-           $value = $tile2->getCoordX() - $tile1->getCoordX();
-           return $value == 0 ? $tile2->getCoordY() - $tile1->getCoordY() : $value;
-        });
-
-        $previousTile = $tiles[0];
-        $currentLine = new ArrayCollection();
-        foreach ($tiles as $tile) {
-            $y = $previousTile->getCoordY();
-            if ($previousTile->getCoordX() < $tile->getCoordX()) {
-                $y = $miny;
-                $result->add($currentLine);
-                $currentLine = new ArrayCollection();
-            }
-            while ($y + 1 < $tile->getCoordY()) {
-                $currentLine->add(null);
-                $this->logger->critical($y);
-                $y++;
-            }
-            $currentLine->add($tile);
-            $previousTile = $tile;
-        }
-        $result->add($currentLine);
-        return $result;
-    }
 }
