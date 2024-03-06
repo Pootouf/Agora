@@ -11,9 +11,12 @@ This section displays the player's disposition of tiles
 {# Tailwind loading of placement for productions squares #}
 <div hidden class="left-0 left-8 left-16"></div>
 
-<div class="h-full w-full">
-    <h2 class="font-bold border-double border-2 w-fit">Tuiles personnelles</h2>
-    <div class="gap-1 grid grid-rows-{{ personalBoardTiles|length + 2 }} grid-cols-{{ personalBoardTiles|first|length + 2 }}">
+<h2 class="font-bold border-double border-2 w-fit">Tuiles personnelles</h2>
+
+<div class="overflow-y-scroll overflow-x-scroll h-full w-full">
+    <div class="gap-1 grid grid-rows-{{ personalBoardTiles|length + 2 }}
+                grid-cols-{{ personalBoardTiles|first|length + 2 }}"
+    >
         {# Placement of an empty row at the top of the board #}
         {% for i in 0..personalBoardTiles|first|length + 1  %}
             <span class="w-full h-full bg-blue-500"></span>
