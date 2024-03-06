@@ -2,6 +2,9 @@
 
 namespace App\Service\Game\Glenmore;
 
+use App\Entity\Game\Glenmore\TileGLM;
+use App\Repository\Game\Glenmore\PlayerTileGLMRepository;
+use App\Repository\Game\Glenmore\PlayerTileResourceGLMRepository;
 use App\Service\Game\Glenmore\CardGLMService;
 use App\Entity\Game\Glenmore\BoardTileGLM;
 use App\Entity\Game\Glenmore\DrawTilesGLM;
@@ -28,6 +31,8 @@ class GLMService
 {
     public function __construct(private readonly EntityManagerInterface $entityManager,
         private readonly TileGLMRepository $tileGLMRepository,
+        private readonly PlayerTileResourceGLMRepository $playerTileResourceGLMRepository,
+        private readonly PlayerTileGLMRepository $playerTileGLMRepository,
         private readonly DrawTilesGLMRepository $drawTilesGLMRepository,
         private readonly ResourceGLMRepository $resourceGLMRepository,
         private readonly PlayerGLMRepository $playerGLMRepository,
@@ -131,6 +136,45 @@ class GLMService
     }
 
     /**
+     * canPlaceTile: return true if the player can place the selected tile at the chosen emplacement
+     *
+     * @param int $x the coord x of the wanted emplacement
+     * @param int $y the coord y of the wanted emplacement
+     * @param TileGLM $tile
+     * @param PlayerGLM $player
+     * @return bool
+     */
+    public function canPlaceTile(int $x, int $y, TileGLM $tile, PlayerGLM $player): bool
+    {
+        //Recovery of the adjacent tiles
+        $tileLeft = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x - 1, 'coord_Y' => $y
+            , 'personalBoard' => $player->getPersonalBoard()]);
+        $tileRight = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x + 1, 'coord_Y' => $y
+            , 'personalBoard' => $player->getPersonalBoard()]);
+        $tileUp = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x, 'coord_Y' => $y - 1
+            , 'personalBoard' => $player->getPersonalBoard()]);
+        $tileDown = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x, 'coord_Y' => $y + 1
+            , 'personalBoard' => $player->getPersonalBoard()]);
+        $tileUpLeft = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x - 1, 'coord_Y' => $y - 1
+            , 'personalBoard' => $player->getPersonalBoard()]);
+        $tileUpRight = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x + 1, 'coord_Y' => $y - 1
+            , 'personalBoard' => $player->getPersonalBoard()]);
+        $tileDownLeft = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x - 1, 'coord_Y' => $y + 1
+            , 'personalBoard' => $player->getPersonalBoard()]);
+        $tileDownRight = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x + 1, 'coord_Y' => $y + 1
+            , 'personalBoard' => $player->getPersonalBoard()]);
+
+        //Verification of the constraints
+        return $this->verifyRoadAndRiverConstraints($tile, $tileLeft, $tileRight, $tileUp, $tileDown)
+            && $this->isVillagerInAdjacentTiles(
+                new ArrayCollection(
+                    [$tileLeft, $tileRight, $tileUp, $tileDown,
+                    $tileUpLeft, $tileUpRight, $tileDownLeft, $tileDownRight]
+                )
+            );
+    }
+
+    /**
      * manageEndOfRound : proceeds to count players' points depending on draw tiles level
      * @param GameGLM $gameGLM
      * @param int     $drawLevel
@@ -224,6 +268,12 @@ class GLMService
     }
 
 
+    /**
+     * initializeNewGame: initialize the game for the first round
+     *
+     * @param GameGLM $game
+     * @return void
+     */
     public function initializeNewGame(GameGLM $game) : void
     {
         $tilesLevelZero = $this->tileGLMRepository->findBy(['level' => GlenmoreParameters::$TILE_LEVEL_ZERO]);
@@ -334,17 +384,67 @@ class GLMService
         $this->entityManager->flush();
     }
 
-    private function addWarehouseLineToWarehouse(WarehouseGLM $warehouse, ResourceGLM $resource, int $coinNumber): void
+
+    /**
+     * verifyRoadAndRiverConstraints: return true if the player can place the tile with the selected adjacentTiles
+     *                                regarding rivers and roads
+     *
+     * @param TileGLM $tile
+     * @param PlayerTileGLM $tileLeft
+     * @param PlayerTileGLM $tileRight
+     * @param PlayerTileGLM $tileUp
+     * @param PlayerTileGLM $tileDown
+     * @return bool
+     */
+    private function verifyRoadAndRiverConstraints(TileGLM $tile, PlayerTileGLM $tileLeft, PlayerTileGLM $tileRight,
+                                                   PlayerTileGLM $tileUp, PlayerTileGLM $tileDown) : bool
     {
-        $warehouseLine = new WarehouseLineGLM();
-        $warehouseLine->setWarehouseGLM($warehouse);
-        $warehouseLine->setResource($resource);
-        $warehouseLine->setCoinNumber($coinNumber);
-        $quantity = $coinNumber == GlenmoreParameters::$COIN_NEEDED_FOR_RESOURCE_ONE ? 1 :
-                ($coinNumber == GlenmoreParameters::$COIN_NEEDED_FOR_RESOURCE_TWO ? 2 :
-                ($coinNumber == GlenmoreParameters::$COIN_NEEDED_FOR_RESOURCE_THREE ? 3 : 0));
-        $warehouseLine->setQuantity($quantity);
-        $this->entityManager->persist($warehouseLine);
+        $canPlace = true;
+        if ($tile->isContainingRiver()) {
+            $canPlace = ($tileUp != null && $tileUp->getTile()->isContainingRiver())
+                || ($tileDown != null && $tileDown->getTile()->isContainingRiver());
+        }
+        if ($tile->isContainingRoad()) {
+            $canPlace = $canPlace && ($tileLeft != null && $tileLeft->getTile()->isContainingRoad())
+                || ($tileRight != null && $tileRight->getTile()->isContainingRoad());
+        }
+        if (!$tile->isContainingRiver()) {
+            $canPlace = $canPlace && ($tileUp == null || !$tileUp->getTile()->isContainingRiver())
+                && ($tileDown == null || !$tileDown->getTile()->isContainingRiver());
+        }
+        if (!$tile->isContainingRoad()) {
+            $canPlace = $canPlace && ($tileLeft == null || !$tileLeft->getTile()->isContainingRoad())
+                && ($tileRight == null || !$tileRight->getTile()->isContainingRoad());
+        }
+        if(!$tile->isContainingRiver() && !$tile->isContainingRoad()) {
+            $canPlace = $canPlace && $tileLeft != null || $tileRight != null || $tileUp != null || $tileDown != null;
+        }
+        return $canPlace;
+    }
+
+
+    /**
+     * doesTileContainVillager: return true if the tile contains a villager
+     * @param PlayerTileGLM $playerTile
+     * @return bool
+     */
+    private function doesTileContainsVillager(PlayerTileGLM $playerTile) : bool
+    {
+        $villager = $this->resourceGLMRepository->findOneBy(['type' => GlenmoreParameters::$VILLAGER_RESOURCE]);
+        return $this->playerTileResourceGLMRepository->findOneBy(['resource' => $villager->getId(),
+            'playerTileGLM' => $playerTile->getId()]) != null;
+    }
+
+    /**
+     * isVillagerInAdjacentTiles: return true if a villager is found in at least one of the adjacentTiles
+     * @param Collection $adjacentTiles
+     * @return bool
+     */
+    private function isVillagerInAdjacentTiles(Collection $adjacentTiles) : bool
+    {
+        return $adjacentTiles->forAll(function(?PlayerTileGLM $tile) {
+                return $tile != null && $this->doesTileContainsVillager($tile);
+            });
     }
 
     /**
@@ -529,5 +629,26 @@ class GLMService
             $player->setPoints($player->getPoints() - 3 * $difference);
             $this->entityManager->persist($player);
         }
+    }
+
+    /**
+     * addWarehouseLineToWarehouse: create and add a warehouseLine to the warehouse with the selected options
+     *
+     * @param WarehouseGLM $warehouse
+     * @param ResourceGLM $resource
+     * @param int $coinNumber
+     * @return void
+     */
+    private function addWarehouseLineToWarehouse(WarehouseGLM $warehouse, ResourceGLM $resource, int $coinNumber): void
+    {
+        $warehouseLine = new WarehouseLineGLM();
+        $warehouseLine->setWarehouseGLM($warehouse);
+        $warehouseLine->setResource($resource);
+        $warehouseLine->setCoinNumber($coinNumber);
+        $quantity = $coinNumber == GlenmoreParameters::$COIN_NEEDED_FOR_RESOURCE_ONE ? 1 :
+            ($coinNumber == GlenmoreParameters::$COIN_NEEDED_FOR_RESOURCE_TWO ? 2 :
+                ($coinNumber == GlenmoreParameters::$COIN_NEEDED_FOR_RESOURCE_THREE ? 3 : 0));
+        $warehouseLine->setQuantity($quantity);
+        $this->entityManager->persist($warehouseLine);
     }
 }
