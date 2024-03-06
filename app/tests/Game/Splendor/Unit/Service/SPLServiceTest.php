@@ -744,14 +744,19 @@ class SPLServiceTest extends TestCase
 
     private function createNobleTile(array $param) : NobleTileSPL
     {
-        $nobleTile = new NobleTileSPL();
+        $nobleTile = $this->createPartialMock(NobleTileSPL::class, [
+            'getId', 'getCardsCost', 'getPrestigePoints'
+        ]);
+        $cardsCost = new ArrayCollection();
         foreach ($param as $color => $price) {
             $cardCost = new CardCostSPL();
             $cardCost->setColor($color);
             $cardCost->setPrice($price);
-            $nobleTile->addCardsCost($cardCost);
+            $cardsCost->add($cardCost);
         }
-        $nobleTile->setPrestigePoints(0);
+        $nobleTile->method('getCardsCost')->willReturn($cardsCost);
+        $nobleTile->method('getPrestigePoints')->willReturn(0);
+        $nobleTile->method('getId')->willReturn(0);
         return $nobleTile;
     }
 
