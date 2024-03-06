@@ -22,6 +22,8 @@ use App\Entity\Game\Glenmore\WarehouseLineGLM;
 use App\Repository\Game\Glenmore\CardGLMRepository;
 use App\Repository\Game\Glenmore\DrawTilesGLMRepository;
 use App\Repository\Game\Glenmore\PlayerGLMRepository;
+use App\Repository\Game\Glenmore\PlayerTileGLMRepository;
+use App\Repository\Game\Glenmore\PlayerTileResourceGLMRepository;
 use App\Repository\Game\Glenmore\ResourceGLMRepository;
 use App\Repository\Game\Glenmore\TileGLMRepository;
 use App\Repository\Game\Splendor\DevelopmentCardsSPLRepository;
@@ -42,6 +44,7 @@ use Doctrine\DBAL\Exception;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use function Symfony\Component\Translation\t;
 
 class GLMServiceTest extends TestCase
 {
@@ -57,8 +60,11 @@ class GLMServiceTest extends TestCase
         $drawTilesGLMRepository = $this->createMock(DrawTilesGLMRepository::class);
         $resourceGLMRepository = $this->createMock(ResourceGLMRepository::class);
         $playerGLMRepository = $this->createMock(PlayerGLMRepository::class);
+        $playerTileGLMRepository = $this->createMock(PlayerTileGLMRepository::class);
+        $playerTileResourceGLMRepository = $this->createMock(PlayerTileResourceGLMRepository::class);
         $this->cardGLMService = new CardGLMService($entityManager, $resourceGLMRepository);
-        $this->GLMService = new GLMService($entityManager, $tileGLMRepository, $drawTilesGLMRepository,
+        $this->GLMService = new GLMService($entityManager, $tileGLMRepository,
+            $playerTileResourceGLMRepository, $playerTileGLMRepository, $drawTilesGLMRepository,
             $resourceGLMRepository, $playerGLMRepository, $this->cardGLMService);
         $this->tileGLMService = new TileGLMService($entityManager, $this->GLMService, $playerGLMRepository,
             $this->cardGLMService);
@@ -593,6 +599,36 @@ class GLMServiceTest extends TestCase
         );
         $this->assertNotEquals($personalBoard->getMoney(), $lastMoney);
         $this->assertGreaterThan($lastMoney, $personalBoard->getMoney());
+    }
+
+    private function testCanPlaceTileSuccessWithValidPlacement() : void
+    {
+        //GIVEN
+        $nbPlayer = 4;
+        $game = $this->createGame($nbPlayer);
+        $player = $game->getPlayers()->first();
+        $tile = new TileGLM();
+        $tile->setContainingRoad(true);
+        $tile->setContainingRiver(false);
+        //WHEN
+        $result = $this->GLMService->canPlaceTile(1, 0, $tile, $player);
+        //THEN
+        $this->assertTrue($result);
+    }
+
+    private function testCanPlaceTileFailWithInvalidPlacement() : void
+    {
+        //GIVEN
+        $nbPlayer = 4;
+        $game = $this->createGame($nbPlayer);
+        $player = $game->getPlayers()->first();
+        $tile = new TileGLM();
+        $tile->setContainingRoad(true);
+        $tile->setContainingRiver(false);
+        //WHEN
+        $result = $this->GLMService->canPlaceTile(2, 0, $tile, $player);
+        //THEN
+        $this->assertFalse($result);
     }
 
     private function createGame(int $nbOfPlayers): GameGLM
