@@ -4,8 +4,8 @@
 
 {% block body %}
     <div class="h-screen w-screen overflow-hidden absolute" {{ stimulus_controller('splendor') }}>
-        <div id="animationContainer" class="hidden absolute top-0 left-0 w-full h-full bg-black bg-opacity-0 z-50"></div>
         <div id="index_splendor" class="h-full w-full overflow-hidden">
+            <div id="animationContainer" class="hidden absolute top-0 left-0 w-full h-full bg-black bg-opacity-0 z-50"></div>
             {% block nav %}
                 {{ include('/Game/Utils/navigation.html.twig') }}
             {% endblock %}
@@ -47,36 +47,51 @@
         {% set path = path('app_game_show_spl', {'id': game.id}) ~ 'token' ~ player.id %}
         const eventSourceTokens = new EventSource("{{ mercure(path)|escape('js') }}");
         eventSourceTokens.onmessage = event => {
-            let mainBoard = document.getElementById('tokens');
-            mainBoard.innerHTML = event.data;
+            animationQueue.addToQueue(() => {
+                let mainBoard = document.getElementById('tokens');
+                mainBoard.innerHTML = event.data;
+                animationQueue.executeNextInQueue()
+            });
         }
 
         {% set path = path('app_game_show_spl', {'id': game.id}) ~ 'developmentCards' ~ player.id %}
         const eventSourceDevelopmentCards = new EventSource("{{ mercure(path)|escape('js') }}");
         eventSourceDevelopmentCards.onmessage = event => {
-            let mainBoard = document.getElementById('developmentCards');
-            mainBoard.innerHTML = event.data;
+            animationQueue.addToQueue(() => {
+                let mainBoard = document.getElementById('developmentCards');
+                mainBoard.innerHTML = event.data;
+                animationQueue.executeNextInQueue()
+            });
         }
 
         {% set path = path('app_game_show_spl', {'id': game.id}) ~ 'nobleTiles' ~ 'player' %}
         const eventSourceNobleTiles = new EventSource("{{ mercure(path)|escape('js') }}");
         eventSourceNobleTiles.onmessage = event => {
-            let mainBoard = document.getElementById('nobleTiles');
-            mainBoard.innerHTML = event.data;
+            animationQueue.addToQueue(() => {
+                let mainBoard = document.getElementById('nobleTiles');
+                mainBoard.innerHTML = event.data;
+                animationQueue.executeNextInQueue()
+            });
         }
 
         {% set path = path('app_game_show_spl', {'id': game.id}) ~ 'reservedCards' ~ player.id %}
         const eventSourceReservedCards = new EventSource("{{ mercure(path)|escape('js') }}");
         eventSourceReservedCards.onmessage = event => {
-            let mainBoard = document.getElementById('reservedCards');
-            mainBoard.innerHTML = event.data;
+            animationQueue.addToQueue(() => {
+                let mainBoard = document.getElementById('reservedCards');
+                mainBoard.innerHTML = event.data;
+                animationQueue.executeNextInQueue()
+            });
         }
 
         {% set path = path('app_game_show_spl', {'id': game.id}) ~ 'ranking' %}
         const eventSourceRanking = new EventSource("{{ mercure(path)|escape('js') }}");
         eventSourceRanking.onmessage = event => {
-            let ranking = document.getElementById('ranking');
-            ranking.innerHTML = event.data;
+            animationQueue.addToQueue(() => {
+                let ranking = document.getElementById('ranking');
+                ranking.innerHTML = event.data;
+                animationQueue.executeNextInQueue()
+            });
         }
 
         {% set path = path('app_game_show_spl', {'id': game.id}) ~ 'endOfGame' %}
@@ -98,10 +113,7 @@
         eventSourceTakenTokens.onmessage = event => {
             animationQueue.addToQueue(() => {
                 let username = event.data.split('__')[0];
-                let tokens = event.data.split('__')[1].split('_');
-                console.log(event.data)
-                console.log(username)
-                console.log(tokens)
+                let tokens = event.data.split('__')[1].split('_')
                 setTimeout(() => {
                     const rowsAnimations = tokens.map(token => moveTakingToken(token, username));
                     Promise.all(rowsAnimations).then(() => animationQueue.executeNextInQueue());
@@ -117,10 +129,11 @@
         eventSourceReturnedTokens.onmessage = event => {
             animationQueue.addToQueue(() => {
                 let username = event.data.split('__')[0];
+                if(event.data.split('__')[1].trim() === '') {
+                    animationQueue.executeNextInQueue();
+                    return;
+                }
                 let tokens = event.data.split('__')[1].split('_');
-                console.log(event.data)
-                console.log(username)
-                console.log(tokens)
                 setTimeout(() => {
                     const movesAnimations = tokens.map(token => moveReturnedToken(token, username));
                     Promise.all(movesAnimations).then(() => animationQueue.executeNextInQueue());
@@ -137,9 +150,6 @@
             animationQueue.addToQueue(() => {
                 let username = event.data.split('__')[0];
                 let nobles = event.data.split('__')[1].split('_');
-                console.log(event.data)
-                console.log(username)
-                console.log(nobles)
                 setTimeout(() => {
                     const movesAnimations = nobles.map(noble => moveNobleTile(noble, username));
                     Promise.all(movesAnimations).then(() => animationQueue.executeNextInQueue());
@@ -153,17 +163,10 @@
         {% set path = path('app_game_show_spl', {'id': game.id}) ~ 'animDrawCard' %}
         const eventSourceReservedDrawCard = new EventSource("{{ mercure(path)|escape('js') }}");
         eventSourceReservedDrawCard.onmessage = event => {
-            console.log('tu te fais ?')
             animationQueue.addToQueue(() => {
                 let username = event.data.split('__')[0];
-                let card = event.data.split('__')[1].split('_');
-                console.log(event.data)
-                console.log(username)
-                console.log(card)
-                setTimeout(() => {
-                    const movesAnimations = card.map(card => moveDrawCard(card, username));
-                    Promise.all(movesAnimations).then(() => animationQueue.executeNextInQueue());
-                }, 2000);
+                let card = event.data.split('__')[1];
+                moveDrawCard(card, username)
             })
         }
     </script>
