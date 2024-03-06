@@ -4,30 +4,73 @@ This section displays the player's disposition of tiles
 @return : display the personal tiles like the player chosen to put
 #}
 
+{# Constants definition #}
+{% set VILLAGER = 'villager' %}
+{% set PRODUCTION = 'production' %}
+
+{# Tailwind loading of placement for productions squares #}
+<div hidden class="left-0 left-8 left-16"></div>
+
 <div class="h-full w-full">
     <h2 class="font-bold border-double border-2 w-fit">Tuiles personnelles</h2>
     <div class="gap-1 grid grid-rows-{{ personalBoardTiles|length + 2 }} grid-cols-{{ personalBoardTiles|first|length + 2 }}">
+        {# Placement of an empty row at the top of the board #}
         {% for i in 0..personalBoardTiles|first|length + 1  %}
             <span class="w-full h-full bg-blue-500"></span>
         {% endfor %}
         {% for row in personalBoardTiles %}
+
+            {# Placement of an empty space at the beginning of each row #}
             <span class="w-full h-full bg-blue-500"></span>
             {% for tile in row %}
+
+                {# Display for empty space #}
                 {% if tile == null %}
                     <span class="w-full h-full bg-gray-500"></span>
+
+                {# Display for tile #}
                 {% else %}
-                    <div class="flex justify-center items-center h-full w-full">
+                    <div class="relative flex justify-center items-center h-full w-full">
                         <img
                                 class="aspect-auto max-h-full"
                                 src="{{ asset('resourcesGames/Glenmore/tiles/' ~ tile.tile.id ~ '.svg')
                                 }}"
                                 alt="{{ tile.id }}"
                         />
+
+                        {# Resources display #}
+                        {% set productionPlacement = 0 %}
+                        {% for playerResource in tile.playerTileResource %}
+
+                            {# Placement of the villager #}
+                            {% if playerResource.resource.type == VILLAGER %}
+                                <img class="absolute items-center aspect-auto justify-center
+                                            max-h-full"
+                                    src="{{ asset('resourcesGames/Glenmore/figure.png') }}" alt="leader"
+                                />
+
+                            {# Placement of the productions #}
+                            {% elseif playerResource.resource.type == PRODUCTION %}
+                                <img class="absolute w-1/6 h-1/6 items-center aspect-auto justify-center
+                                            max-h-full left-{{ productionPlacement}} bottom-0"
+                                     src="{{
+                                            asset('resourcesGames/Glenmore/ResourcesProduction'
+                                                    ~ playerResource.resource.color ~'.png')
+                                          }}"
+                                     alt="{{ playerResource.resource.color }}"
+                                />
+                                {% set productionPlacement = productionPlacement + 8 %}
+                            {% endif %}
+                        {% endfor %}
                     </div>
                 {% endif %}
             {% endfor %}
+
+            {# Placement of an empty space at the end of each row #}
             <span class="w-full h-full bg-blue-500"></span>
         {% endfor %}
+
+        {# Placement of an empty row at the bottom of the board #}
         {% for i in 0..personalBoardTiles|first|length + 1  %}
             <span class="w-full h-full bg-blue-500"></span>
         {% endfor %}
