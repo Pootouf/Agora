@@ -88,6 +88,7 @@ class SplendorController extends AbstractController
             'playersNumber' => count($game->getPlayers()),
             'ranking' => $game->getPlayers(),
             'player' => $player,
+            'takenCard' => null,
             'isGameFinished' => $this->SPLService->isGameEnded($game),
             'nobleTiles' => $game->getMainBoard()->getNobleTiles(),
             'isSpectator' => $isSpectator,
@@ -170,6 +171,7 @@ class SplendorController extends AbstractController
              return new Response("Not player's turn", Response::HTTP_FORBIDDEN);
          }
          $playerCard = $this->SPLService->getPlayerCardFromDevelopmentCard($game, $card);
+         $reserved = false;
          if ($playerCard != null) {
              if ($player->getId() != $playerCard->getPersonalBoardSPL()->getPlayerSPL()->getId()) {
                  return new Response("Not player's card ", Response::HTTP_FORBIDDEN);
@@ -177,13 +179,17 @@ class SplendorController extends AbstractController
              if (!$playerCard->isIsReserved()) {
                  return new Response("The card is not reserved", Response::HTTP_FORBIDDEN);
              }
+             $reserved = true;
          }
          try {
-             $returnedTokens = $this->SPLService->buyCard($player, $card);
+             $returnedDatas = $this->SPLService->buyCard($player, $card);
          } catch (Exception $e) {
              return new Response("Can't buy this card : ".$e->getMessage(), Response::HTTP_FORBIDDEN);
          }
-         $this->publishAnimReturnedTokens($game, $player->getUsername(), $returnedTokens);
+         if (!$reserved) {
+             $this->publishAnimTakenCard($game, $player->getUsername(), $card, $returnedDatas["newDevCard"]);
+         }
+         $this->publishAnimReturnedTokens($game, $player->getUsername(), $returnedDatas["retrievePlayerMoney"]);
          $nobles = $this->SPLService->addBuyableNobleTilesToPlayer($game, $player);
 
          if (! empty($nobles)){
@@ -211,11 +217,16 @@ class SplendorController extends AbstractController
          if (!$this->SPLService->canPlayerReserveCard($game, $card)) {
              return new Response("Can't reserve this card", Response::HTTP_FORBIDDEN);
          }
+         $cardFromDraw = null;
          try {
-             $this->SPLService->reserveCard($player, $card);
+             $cardFromDraw = $this->SPLService->reserveCard($player, $card);
          } catch (Exception $e) {
              return new Response("Can't reserve this card : " . $e->getMessage(), Response::HTTP_FORBIDDEN);
          }
+         if ($cardFromDraw != null) {
+             $this->publishAnimTakenCard($game, $player->getUsername(), $card, $cardFromDraw);
+         }
+
          $this->manageEndOfRound($game);
          return new Response('Card reserved', Response::HTTP_OK);
      }
@@ -353,14 +364,15 @@ class SplendorController extends AbstractController
     /**
      * publishDevelopmentCards : send a mercure notification to update the development cards for a spectator
      * @param GameSPL $game
+     * @param int|null $selectedCard
      * @return void
      */
-    private function publishDevelopmentCards(GameSPL $game): void
+    private function publishDevelopmentCards(GameSPL $game, int $selectedCard = null): void
     {
         foreach ($game->getPlayers() as $player) {
-            $this->publishDevelopmentCardsWithSelectedOptions($game, $player, false, $player->isTurnOfPlayer());
+            $this->publishDevelopmentCardsWithSelectedOptions($game, $player, false, $player->isTurnOfPlayer(), $selectedCard);
         }
-        $this->publishDevelopmentCardsWithSelectedOptions($game, null, true, false);
+        $this->publishDevelopmentCardsWithSelectedOptions($game, null, true, false, $selectedCard);
     }
 
     /**
@@ -371,10 +383,11 @@ class SplendorController extends AbstractController
      * @param PlayerSPL|null $player
      * @param bool $isSpectator
      * @param bool $needToPlay
+     * @param int|null $takenCard
      * @return void
      */
     private function publishDevelopmentCardsWithSelectedOptions(GameSPL $game, ?PlayerSPL $player, bool $isSpectator,
-                                                                bool $needToPlay) : void
+                                                                bool $needToPlay, int $takenCard = null) : void
     {
         $response = $this->render('Game/Splendor/MainBoard/developmentCardsBoard.html.twig', [
             'rows' => $this->SPLService->getRowsFromGame($game),
@@ -390,6 +403,7 @@ class SplendorController extends AbstractController
             'isSpectator' => $isSpectator,
             'needToPlay' => $needToPlay,
             'game' => $game,
+            'takenCard' => $takenCard,
             'purchasableCards' => $player == null ? [] : $this->SPLService
                 ->getPurchasableCardsOnBoard($game, $player),
             'purchasableCardsOnPersonalBoard' => $player == null ? [] : $this->SPLService
@@ -500,12 +514,11 @@ class SplendorController extends AbstractController
 
 
 
-    private function publishAnimNoble(GameSPL $game, string $player, $nobleTile): void
+    private function publishAnimNoble(GameSPL $game, string $player, array $nobleTiles): void
     {
-        $nobleTile = $nobleTile->getId();
         $this->publishService->publish(
             $this->generateUrl('app_game_show_spl', ['id' => $game->getId()]).'animNoble',
-            new Response($player . '__' . $nobleTile)
+            new Response($player . '__' . implode('_', $nobleTiles))
         );
     }
 
@@ -517,6 +530,23 @@ class SplendorController extends AbstractController
         );
     }
 
+    private function publishAnimTakenCard(GameSPL $game, string $player, DevelopmentCardsSPL $selectedCard,
+                                          DevelopmentCardsSPL $newDevCard): void
+    {
+        $this->publishService->publish(
+            $this->generateUrl('app_game_show_spl', ['id' => $game->getId()]).'animTakenCard',
+            new Response($player . '__' . $selectedCard->getId())
+        );
+        $discardsOfLevel =  $game->getMainBoard()->getDrawCards()->get($selectedCard->getLevel() - 1);
+        $cardsInDiscard = $discardsOfLevel->getDevelopmentCards();
+        $numberOfCard = $cardsInDiscard->count();
 
-
+        if ($numberOfCard > 0) {
+            $this->publishDevelopmentCards($game, $newDevCard->getId());
+            $this->publishService->publish(
+                $this->generateUrl('app_game_show_spl', ['id' => $game->getId()]).'animTakenCardFromDraw',
+                new Response($selectedCard->getLevel() . '__' . $newDevCard->getId())
+            );
+        }
+    }
 }

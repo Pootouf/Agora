@@ -368,7 +368,7 @@ class SPLService
      * @return void
      * @throws Exception
      */
-    public function reserveCard(PlayerSPL $player, DevelopmentCardsSPL $card) : void
+    public function reserveCard(PlayerSPL $player, DevelopmentCardsSPL $card) : DevelopmentCardsSPL
     {
         if (!$this->canReserveCard($player, $card))
         {
@@ -393,17 +393,18 @@ class SPLService
         $personalBoard->addPlayerCard($playerCard);
         $this->entityManager->persist($playerCard);
         $this->entityManager->persist($personalBoard);
-
+        $cardFromDraw = null;
         if ($from === SplendorParameters::$COMES_OF_THE_DISCARDS)
         {
             $this->manageDiscard($mainBoard, $card);
         } else {
-            $this->manageRow($mainBoard, $card);
+            $cardFromDraw = $this->manageRow($mainBoard, $card);
         }
 
         $this->manageJokerToken($player);
 
         $this->entityManager->flush();
+        return $cardFromDraw;
     }
 
     /**
@@ -474,6 +475,7 @@ class SPLService
                 $this->entityManager->persist($playerSPL->getPersonalBoard());
             }
             $retrievePlayerMoney = $this->retrievePlayerMoney($playerSPL, $developmentCardsSPL);
+            $newDevCardInRow = null;
             if($playerCardSPL->isIsReserved()) {
                 $playerCardSPL->setIsReserved(false);
                 $this->entityManager->persist($playerCardSPL);
@@ -488,6 +490,7 @@ class SPLService
                 //Add a new card in the row
                 $levelCard = $developmentCardsSPL->getLevel();
                 $levelDraw = $mainBoard->getDrawCards()->get($levelCard - 1);
+                $newDevCardInRow = $levelDraw->getDevelopmentCards()->first();
                 $row->addDevelopmentCard($levelDraw->getDevelopmentCards()->first());
 
                 //Remove the new card from draw
@@ -496,7 +499,10 @@ class SPLService
                 $this->entityManager->persist($row);
             }
             $this->entityManager->flush();
-            return $retrievePlayerMoney;
+            return array(
+                "retrievePlayerMoney" => $retrievePlayerMoney,
+                "newDevCard" => $newDevCardInRow,
+            );
         } else {
             throw new Exception('Not enough money to buy this card');
         }
@@ -591,7 +597,7 @@ class SPLService
         return $card === $testCard;
     }
 
-    private function manageRow(MainBoardSPL $mainBoard, DevelopmentCardsSPL $card): void
+    private function manageRow(MainBoardSPL $mainBoard, DevelopmentCardsSPL $card): DevelopmentCardsSPL
     {
         $level = $card->getLevel() - 1;
         $row = $mainBoard->getRowsSPL()->get($level);
@@ -601,6 +607,7 @@ class SPLService
         $discardsOfLevel = $mainBoard->getDrawCards()->get($level);
         $cardsInDiscard = $discardsOfLevel->getDevelopmentCards();
         $numberOfCard = $cardsInDiscard->count();
+        $discard = null;
         if ($numberOfCard > 0)
         {
             $discard = $cardsInDiscard->get($numberOfCard - 1);
@@ -609,6 +616,7 @@ class SPLService
             $this->entityManager->persist($discardsOfLevel);
         }
         $this->entityManager->persist($row);
+        return $discard;
     }
 
     private function manageDiscard(MainBoardSPL $mainBoard, DevelopmentCardsSPL $card): void

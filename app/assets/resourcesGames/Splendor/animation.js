@@ -1,6 +1,45 @@
-function moveNobleTile(cardId, playerUsername) {
-	animationContainer.classList.remove('hidden');
+/**
+ * Show the end game screen
+ * @param {string}winner name of the game's winner
+ * @param {string}player name of the current player
+ */
+function gameFinished(winner, player) {
+	if (winner === null) {
+		document.getElementById('winner').textContent = 'Match nul ! 🤝';
+	} else if (winner === player) {
+		document.getElementById('winner').textContent = 'Bravo ! 👏 Vous avez gagné la partie';
+	} else if (player) {
+		document.getElementById('winner').textContent = 'Dommage ! 😖 Vous avez perdu la partie';
+	} else {
+		document.getElementById('winner').textContent = winner + " a remporté la partie 👏";
+	}
+	showEndgame();
+}
+
+/**
+ * Animates the show up of the endGame displayer
+ */
+function showEndgame() {
 	new Promise(resolve => {
+		let endGameScreen = document.getElementById('endGameScreen');
+		document.body.style.overflow = 'hidden';
+		endGameScreen.firstElementChild.animate(
+			[
+				{transform: "translateY(-30px)", opacity: 0},
+				{transform: "translateY(0px)", opacity: 1},
+			],
+			{
+				duration: 2000,
+				easing: "ease",
+				fill: "forwards",
+			}
+		).finished.then(() => resolve())
+		endGameScreen.classList.remove('hidden');
+	}).then(() => animationQueue.executeNextInQueue())
+}
+
+function moveNobleTile(cardId, playerUsername) {
+	return new Promise(resolve => {
 		let cardFinalPositionElement = document.getElementById(playerUsername);
 		let nobleCardElement = document.getElementById('noble_' + cardId);
 
@@ -48,16 +87,14 @@ function moveNobleTile(cardId, playerUsername) {
 			}
 		).addEventListener("finish", () => {
 			movingCardElement.remove();
-			cardFinalPositionElement.classList.remove('invisible');
 			resolve();
 		});
 		nobleCardElement.remove();
-	}).then(() => animationQueue.executeNextInQueue());
+	});
 }
 
 function moveTakingToken(tokenId, playerUsername) {
-	animationContainer.classList.remove('hidden');
-	new Promise(resolve => {
+	return new Promise(resolve => {
 		let tokenFinalPositionElement = document.getElementById(playerUsername);
 		let tokenElement = document.getElementById(tokenId);
 
@@ -107,14 +144,13 @@ function moveTakingToken(tokenId, playerUsername) {
 			tokenFinalPositionElement.classList.remove('invisible');
 			resolve();
 		});
-	}).then(() => animationQueue.executeNextInQueue());
+	});
 }
 
 
 
 function moveReturnedToken(tokenId, playerUsername) {
-	animationContainer.classList.remove('hidden');
-	new Promise(resolve => {
+	return new Promise(resolve => {
 		let tokenInitialPositionElement = document.getElementById(playerUsername);
 		let tokenElement = document.getElementById(tokenId);
 
@@ -162,17 +198,15 @@ function moveReturnedToken(tokenId, playerUsername) {
 			}
 		).addEventListener("finish", () => {
 			movingTokenElement.remove();
-			tokenFinalPositionElement.classList.remove('invisible');
 			resolve();
 		});
-	}).then(() => animationQueue.executeNextInQueue());
+	});
 }
 
-function moveDrawCard(cardId, playerUsername) {
-	animationContainer.classList.remove('hidden');
-	new Promise(resolve => {
+function moveDrawCard(cardId, playerUsername, face) {
+	return new Promise(resolve => {
 		let cardFinalPositionElement = document.getElementById(playerUsername);
-		let drawCardElement = document.getElementById('drawCards_' + cardId);
+		let drawCardElement = document.getElementById('drawCards_' + cardId + '_' + face);
 
 		let drawCardShape = drawCardElement.getBoundingClientRect();
 		let cardFinalPositionShape = cardFinalPositionElement.getBoundingClientRect();
@@ -218,10 +252,9 @@ function moveDrawCard(cardId, playerUsername) {
 			}
 		).addEventListener("finish", () => {
 			movingCardElement.remove();
-			cardFinalPositionElement.classList.remove('invisible');
 			resolve();
 		});
-	}).then(() => animationQueue.executeNextInQueue());
+	})
 }
 
 function moveDevCard(cardId, playerUsername) {
@@ -274,28 +307,28 @@ function moveDevCard(cardId, playerUsername) {
 			}
 		).addEventListener("finish", () => {
 			movingCardElement.remove();
-			cardFinalPositionElement.classList.remove('invisible');
 			resolve();
 		});
 		devCardElement.remove();
 	}).then(() => animationQueue.executeNextInQueue());
 }
 
-function moveDrawToDevCard(drawCardId, devCardId) {
-	animationContainer.classList.remove('hidden');
-	new Promise(resolve => {
-
+function moveDrawToDevCard(drawCardId, devCardId, face) {
+	return new Promise(resolve => {
+		console.log(face)
 		let cardFinalPositionElement = document.getElementById('image_card_' + devCardId);
-		let drawCardElement = document.getElementById('drawCards_' + drawCardId);
+		let drawCardElement = document.getElementById('drawCards_' + drawCardId + '_' + face);
 
 		console.log(cardFinalPositionElement, drawCardElement);
 
 		let cardFinalPositionShape = cardFinalPositionElement.getBoundingClientRect();
 		let discardCardShape = drawCardElement.getBoundingClientRect();
 
+		console.log(cardFinalPositionShape, discardCardShape);
 
 		let movingCardElement = document.getElementById('flip_card').cloneNode(true);
-		movingCardElement.id = 'movingcard_' + devCardId;
+		movingCardElement.id = 'movingcard_' + devCardId + '_' + face;
+		movingCardElement.classList.remove(face + ':invisible');
 
 		let frontImage = drawCardElement.cloneNode(true);
 		let backImage = cardFinalPositionElement.cloneNode(true);
@@ -309,9 +342,6 @@ function moveDrawToDevCard(drawCardId, devCardId) {
 		// Usefull to set a duration for the animation equal for every distance the translating movement will do
 		let distance = Math.sqrt((cardFinalPositionShape.x - discardCardShape.x) ** 2 +
 			(cardFinalPositionShape.y - discardCardShape.y) ** 2);
-
-
-
 
 		movingCardElement.animate(
 			[
@@ -344,22 +374,16 @@ function moveDrawToDevCard(drawCardId, devCardId) {
 						fill: "forwards", // Stay at the final position
 					}
 				).addEventListener("finish", () => {
-					cardFinalPositionElement.classList.remove('invisible');
+					cardFinalPositionElement.classList.remove(face + ':invisible');
+					movingCardElement.remove();
 					setTimeout(() => resolve(), 1000);
 				});
 			}, 500)
 		});
-	}).then(() => animationQueue.executeNextInQueue());
+	});
 }
 
 let animationQueue = new AnimationQueue();
 let animationContainer = document.getElementById('animationContainer');
-
-/*window.addEventListener('load', function () {
-	let leaderboardContainer = document.getElementById('leaderboard');
-	if (leaderboardContainer) {
-		applyScoresStyle(Array.from(leaderboardContainer.children));
-	}
-});*/
 
 animationQueue.executeNextInQueue();

@@ -47,42 +47,56 @@
         {% set path = path('app_game_show_spl', {'id': game.id}) ~ 'token' ~ player.id %}
         const eventSourceTokens = new EventSource("{{ mercure(path)|escape('js') }}");
         eventSourceTokens.onmessage = event => {
-            let mainBoard = document.getElementById('tokens');
-            mainBoard.innerHTML = event.data;
+            animationQueue.addToQueue(() => {
+                console.log("token");
+                let mainBoard = document.getElementById('tokens');
+                mainBoard.innerHTML = event.data;
+                animationQueue.executeNextInQueue()
+            })
         }
 
         {% set path = path('app_game_show_spl', {'id': game.id}) ~ 'developmentCards' ~ player.id %}
         const eventSourceDevelopmentCards = new EventSource("{{ mercure(path)|escape('js') }}");
         eventSourceDevelopmentCards.onmessage = event => {
-            let mainBoard = document.getElementById('developmentCards');
-            mainBoard.innerHTML = event.data;
+            animationQueue.addToQueue(() => {
+                console.log("developmentCards");
+                let mainBoard = document.getElementById('developmentCards');
+                mainBoard.innerHTML = event.data;
+                animationQueue.executeNextInQueue()
+            })
         }
 
         {% set path = path('app_game_show_spl', {'id': game.id}) ~ 'nobleTiles' ~ 'player' %}
         const eventSourceNobleTiles = new EventSource("{{ mercure(path)|escape('js') }}");
         eventSourceNobleTiles.onmessage = event => {
-            let mainBoard = document.getElementById('nobleTiles');
-            mainBoard.innerHTML = event.data;
+            animationQueue.addToQueue(() => {
+                console.log("nobleTiles");
+                let mainBoard = document.getElementById('nobleTiles');
+                mainBoard.innerHTML = event.data;
+                animationQueue.executeNextInQueue()
+            })
         }
 
         {% set path = path('app_game_show_spl', {'id': game.id}) ~ 'reservedCards' ~ player.id %}
         const eventSourceReservedCards = new EventSource("{{ mercure(path)|escape('js') }}");
         eventSourceReservedCards.onmessage = event => {
-            let mainBoard = document.getElementById('reservedCards');
-            mainBoard.innerHTML = event.data;
+            animationQueue.addToQueue(() => {
+                console.log("reservedCards");
+                let mainBoard = document.getElementById('reservedCards');
+                mainBoard.innerHTML = event.data;
+                animationQueue.executeNextInQueue()
+            })
         }
 
         {% set path = path('app_game_show_spl', {'id': game.id}) ~ 'ranking' %}
         const eventSourceRanking = new EventSource("{{ mercure(path)|escape('js') }}");
         eventSourceRanking.onmessage = event => {
-            let ranking = document.getElementById('ranking');
-            ranking.innerHTML = event.data;
-        }
-
-        {% set path = path('app_game_show_spl', {'id': game.id}) ~ 'endOfGame' %}
-        const eventSourceEndOfGame = new EventSource("{{ mercure(path)|escape('js') }}");
-        eventSourceEndOfGame.onmessage = event => {
-            gameFinished(event.data);
+            animationQueue.addToQueue(() => {
+                console.log("ranking");
+                let ranking = document.getElementById('ranking');
+                ranking.innerHTML = event.data;
+                animationQueue.executeNextInQueue()
+            })
         }
 
         {% if needToPlay %}
@@ -97,6 +111,7 @@
         const eventSourceTakenTokens = new EventSource("{{ mercure(path)|escape('js') }}");
         eventSourceTakenTokens.onmessage = event => {
             animationQueue.addToQueue(() => {
+                console.log("animTakenTokens");
                 let username = event.data.split('__')[0];
                 let tokens = event.data.split('__')[1].split('_');
                 console.log(event.data)
@@ -110,17 +125,50 @@
         }
     </script>
 
+    {# TAKEN CARD MANAGEMENT#}
+    <script>
+        {% set path = path('app_game_show_spl', {'id': game.id}) ~ 'animTakenCard' %}
+        const eventSourceTakenCard = new EventSource("{{ mercure(path)|escape('js') }}");
+        eventSourceTakenCard.onmessage = event => {
+            animationQueue.addToQueue(() => {
+                console.log("animTakenCard");
+                let username = event.data.split('__')[0];
+                let devCard = event.data.split('__')[1];
+
+                moveDevCard(devCard, username);
+            })
+        }
+    </script>
+
+    {# TAKEN CARD FROM DRAW MANAGEMENT#}
+    <script>
+        {% set path = path('app_game_show_spl', {'id': game.id}) ~ 'animTakenCardFromDraw' %}
+        const eventSourceTakenCardFromDraw = new EventSource("{{ mercure(path)|escape('js') }}");
+        eventSourceTakenCardFromDraw.onmessage = event => {
+            animationQueue.addToQueue(() => {
+                console.log("animTakenCardFromDraw");
+                let drawLevel = event.data.split('__')[0];
+                let devCard = event.data.split('__')[1];
+
+                console.log(drawLevel, devCard)
+
+                const movesAnimations = [moveDrawToDevCard(drawLevel, devCard, 'landscape'),];
+                    //moveDrawToDevCard(drawLevel, devCard, 'portrait')];
+
+                Promise.all(movesAnimations).then(() => animationQueue.executeNextInQueue());
+            })
+        }
+    </script>
+
     {# RETURNED TOKENS MANAGEMENT#}
     <script>
         {% set path = path('app_game_show_spl', {'id': game.id}) ~ 'animReturnedTokens' %}
         const eventSourceReturnedTokens = new EventSource("{{ mercure(path)|escape('js') }}");
         eventSourceReturnedTokens.onmessage = event => {
             animationQueue.addToQueue(() => {
+                console.log("animReturnedTokens");
                 let username = event.data.split('__')[0];
                 let tokens = event.data.split('__')[1].split('_');
-                console.log(event.data)
-                console.log(username)
-                console.log(tokens)
                 setTimeout(() => {
                     const movesAnimations = tokens.map(token => moveReturnedToken(token, username));
                     Promise.all(movesAnimations).then(() => animationQueue.executeNextInQueue());
@@ -135,11 +183,9 @@
         const eventSourceNobleMove = new EventSource("{{ mercure(path)|escape('js') }}");
         eventSourceNobleMove.onmessage = event => {
             animationQueue.addToQueue(() => {
+                console.log("animNoble");
                 let username = event.data.split('__')[0];
                 let nobles = event.data.split('__')[1].split('_');
-                console.log(event.data)
-                console.log(username)
-                console.log(nobles)
                 setTimeout(() => {
                     const movesAnimations = nobles.map(noble => moveNobleTile(noble, username));
                     Promise.all(movesAnimations).then(() => animationQueue.executeNextInQueue());
@@ -153,5 +199,34 @@
             let window = document.getElementById('selectedCardActions');
             window.remove();
         }
+    </script>
+
+    {# END OF GAME MANAGEMENT #}
+    <script>
+
+        {% set path = path('app_game_show_spl', {'id': game.id}) ~ 'endOfGame' %}
+        const eventSourceEndOfGame = new EventSource("{{ mercure(path)|escape('js') }}");
+        eventSourceEndOfGame.onmessage = event => {
+            animationQueue.addToQueue(() => {
+                gameFinished(event.data, "{{ not isSpectator ? player.username }}")
+                animationQueue.executeNextInQueue()
+            })
+        }
+
+        {% if isGameFinished %}
+            {% set winner = null %}
+            {# Arbitrary value impossible to reach  #}
+            {% set winnerScore = 0 %}
+            {% for player in game.players %}
+                {% if player.totalPoints > winnerScore %}
+                    {% set winnerScore = player.totalPoints %}
+                    {% set winner = player.username %}
+                {% elseif player.totalPoints == winnerScore %}
+                    {% set winner = null %}
+                {% endif %}
+            {% endfor %}
+            gameFinished("{{ winner }}", "{{ not isSpectator ? player.username }}")
+        {% endif %}
+
     </script>
 {% endblock %}
