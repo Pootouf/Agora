@@ -11,7 +11,8 @@ This section displays the player resources like whisky, leaders, total number of
 
         <div class="grid grid-rows-3 grid-cols-5">
             {% for propertyCard in propertyCards %}
-                <img src="{{ propertyCard.card.id }}" alt="{{ propertyCard.card.name }}" />
+                <img src="{{ asset('resourcesGames/Glenmore/PropertyCards/' ~ propertyCard.card.id ~ '.svg') }}"
+                     alt="{{ propertyCard.card.name }}" />
             {% endfor %}
         </div>
         <button id="return_board" onclick="closePropertyCardsDisplayWindow()"
