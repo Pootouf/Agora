@@ -32,6 +32,9 @@ class PlayerTileGLM extends Component
     #[ORM\Column]
     private ?int $coord_Y = null;
 
+    #[ORM\Column]
+    private ?bool $activated = null;
+
     public function __construct()
     {
         $this->adjacentTiles = new ArrayCollection();
@@ -137,6 +140,18 @@ class PlayerTileGLM extends Component
     public function setCoordY(int $coord_Y): static
     {
         $this->coord_Y = $coord_Y;
+
+        return $this;
+    }
+
+    public function isActivated(): ?bool
+    {
+        return $this->activated;
+    }
+
+    public function setActivated(bool $activated): static
+    {
+        $this->activated = $activated;
 
         return $this;
     }
