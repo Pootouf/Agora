@@ -430,7 +430,8 @@ class GLMServiceTest extends TestCase
         $resource = new ResourceGLM();
         $resource->setColor(GlenmoreParameters::$COLOR_GREEN);
         $mainBoard->getWarehouse()->getWarehouseLine()->first()->setResource($resource);
-        $mainBoard->getWarehouse()->getWarehouseLine()->first()->setQuantity(1);
+        $mainBoard->getWarehouse()->getWarehouseLine()->first()->setQuantity(2);
+        $mainBoard->getWarehouse()->getWarehouseLine()->first()->setCoinNumber(1);
 
         // WHEN
 
@@ -490,7 +491,8 @@ class GLMServiceTest extends TestCase
 
         $resourceWarehouse = new ResourceGLM();
         $resourceWarehouse->setColor(GlenmoreParameters::$COLOR_GREEN);
-        $mainBoard->getWarehouse()->getWarehouseLine()->get(1)->setQuantity(1);
+        $mainBoard->getWarehouse()->getWarehouseLine()->get(1)->setQuantity(2);
+        $mainBoard->getWarehouse()->getWarehouseLine()->get(1)->setCoinNumber(1);
 
         $resourcePlayer = new ResourceGLM();
         $resourcePlayer->setColor(GlenmoreParameters::$COLOR_GREEN);
@@ -521,6 +523,7 @@ class GLMServiceTest extends TestCase
             $resourcePlayer)
         );
         $this->assertNotEquals($personalBoard->getMoney(), $lastMoney);
+        $this->assertGreaterThan($lastMoney, $personalBoard->getMoney());
     }
 
     private function createGame(int $nbOfPlayers): GameGLM
