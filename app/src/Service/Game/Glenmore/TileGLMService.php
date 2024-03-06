@@ -98,14 +98,27 @@ class TileGLMService
      */
     public function getActivableTiles(PlayerTileGLM $playerTileGLM) : ArrayCollection
     {
-        // TODO traitement avec les tuiles concernées par cartes spéciales
         $activableTiles = new ArrayCollection();
-        $adjacentTiles = $playerTileGLM->getAdjacentTiles();
+        $personalBoard = $playerTileGLM->getPersonalBoard();
+        $lastTile = $personalBoard->getPlayerTiles()->last()->getTile();
+        $card = $lastTile->getCard();
+        // if player just bought Loch Oich then all tiles can be activated
+        if ($card != null && $card->getName() === GlenmoreParameters::$CARD_LOCH_OICH) {
+            $adjacentTiles = $personalBoard->getPlayerTiles();
+        } else { // else just adjacent tiles can be activated
+            $adjacentTiles = $playerTileGLM->getAdjacentTiles();
+        }
         foreach ($adjacentTiles as $adjacentTile) {
-            if (!$adjacentTile->isActivated()) {
+            if (!$adjacentTile->isActivated() && $adjacentTile->getTile()->getActivationBonus() != null) {
                 $activableTiles->add($adjacentTile);
             }
         }
+
+        // if every tile has been activated
+        if ($adjacentTiles->isEmpty()) {
+            $activableTiles = $this->cardGLMService->applyLochNess($personalBoard);
+        }
+
         return $activableTiles;
     }
 

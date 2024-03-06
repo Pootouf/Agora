@@ -292,9 +292,9 @@ class GLMServiceIntegrationTest extends KernelTestCase
             if ($newTile === $playerTile) {
                 $playerTileResources = $newTile->getPlayerTileResource();
                 foreach ($playerTileResources as $playerTileResource) {
-                    $typeVillager = $playerTileResource->getResource()->getType();
-                    if ($typeVillager === $expectedTypeVillager) {
+                    if ($playerTileResource->getResource()->getType() === $expectedTypeVillager) {
                         $amountVillager += $playerTileResource->getQuantity();
+                        $typeVillager = $playerTileResource->getResource()->getType();
                     }
                 }
             }
@@ -302,9 +302,9 @@ class GLMServiceIntegrationTest extends KernelTestCase
         foreach ($personalBoard->getPlayerCardGLM() as $playerCard) {
             $actualCard = $playerCard->getCard();
             if ($tile->getCard() === $actualCard) {
-                $typeHat = $actualCard->getBonus()->getResource()->getType();
-                if ($typeHat === $expectedTypeHat) {
+                if ($actualCard->getBonus()->getResource()->getType() === $expectedTypeHat) {
                     $amountHat += $actualCard->getBonus()->getAmount();
+                    $typeHat = $actualCard->getBonus()->getResource()->getType();
                 }
             }
         }
