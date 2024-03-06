@@ -148,6 +148,26 @@
         }
     </script>
 
+    {# RESERVED DRAW CARD MANAGEMENT#}
+    <script>
+        {% set path = path('app_game_show_spl', {'id': game.id}) ~ 'animDrawCard' %}
+        const eventSourceReservedDrawCard = new EventSource("{{ mercure(path)|escape('js') }}");
+        eventSourceReservedDrawCard.onmessage = event => {
+            console.log('tu te fais ?')
+            animationQueue.addToQueue(() => {
+                let username = event.data.split('__')[0];
+                let card = event.data.split('__')[1].split('_');
+                console.log(event.data)
+                console.log(username)
+                console.log(card)
+                setTimeout(() => {
+                    const movesAnimations = card.map(card => moveDrawCard(card, username));
+                    Promise.all(movesAnimations).then(() => animationQueue.executeNextInQueue());
+                }, 2000);
+            })
+        }
+    </script>
+
     <script>
         function closeWindow() {
             let window = document.getElementById('selectedCardActions');

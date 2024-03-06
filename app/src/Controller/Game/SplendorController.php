@@ -3,6 +3,7 @@
 namespace App\Controller\Game;
 
 use AllowDynamicProperties;
+use App\Entity\Game\DTO\Game;
 use App\Entity\Game\SixQP\CardSixQP;
 use App\Entity\Game\SixQP\ChosenCardSixQP;
 use App\Entity\Game\SixQP\GameSixQP;
@@ -186,7 +187,7 @@ class SplendorController extends AbstractController
          $this->publishAnimReturnedTokens($game, $player->getUsername(), $returnedTokens);
          $nobles = $this->SPLService->addBuyableNobleTilesToPlayer($game, $player);
 
-         if (! empty($nobles)){
+         if (!empty($nobles)){
              $this->publishAnimNoble($game, $player->getUsername(), $nobles);
          }
 
@@ -242,6 +243,7 @@ class SplendorController extends AbstractController
          } catch (Exception $e) {
              return new Response("Can't reserve this card : " . $e->getMessage(), Response::HTTP_FORBIDDEN);
          }
+         $this->publishAnimCardOnDraw($game, $player->getUsername(), $card->getLevel());
          $this->manageEndOfRound($game);
          return new Response('Card reserved', Response::HTTP_OK);
      }
@@ -514,6 +516,14 @@ class SplendorController extends AbstractController
         $this->publishService->publish(
             $this->generateUrl('app_game_show_spl', ['id' => $game->getId()]).'animReturnedTokens',
             new Response($player . '__' . implode('_', $returnedTokens))
+        );
+    }
+
+    private function publishAnimCardOnDraw(GameSPL $game, string $player, $drawcard): void
+    {
+        $this->publishService->publish(
+            $this->generateUrl('app_game_show_spl', ['id' => $game->getId()]).'animDrawCard',
+            new Response($player . '__' . $drawcard)
         );
     }
 
