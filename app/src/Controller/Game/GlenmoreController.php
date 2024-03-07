@@ -10,6 +10,7 @@ use App\Entity\Game\Glenmore\PlayerTileGLM;
 use App\Repository\Game\Glenmore\PlayerTileGLMRepository;
 use App\Service\Game\Glenmore\DataManagementGLMService;
 use App\Service\Game\Glenmore\GLMService;
+use App\Service\Game\Glenmore\TileGLMService;
 use App\Service\Game\MessageService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -24,7 +25,8 @@ class GlenmoreController extends AbstractController
 
     public function __construct(private GLMService $service,
                                 private MessageService $messageService,
-                                private DataManagementGLMService $dataManagementGLMService)
+                                private DataManagementGLMService $dataManagementGLMService,
+                                private TileGLMService $tileGLMService)
     {}
 
     #[Route('/game/glenmore/{id}', name: 'app_game_show_glm')]
@@ -49,6 +51,7 @@ class GlenmoreController extends AbstractController
             'selectedTile' => null,
             'adjacentTiles' => null,
             'potentialNeighbours' => null,
+            'currentDrawTile' => $this->tileGLMService->getActiveDrawTile($game),
             'personalBoardTiles' => $this->dataManagementGLMService->organizePersonalBoardRows($player),
             'boardTiles' => $this->dataManagementGLMService->organizeMainBoardRows(
                 $this->dataManagementGLMService->createBoardBoxes($game)),
