@@ -141,8 +141,8 @@ class DataManagementGLMService
 
         $tiles = $playerGLM->getPersonalBoard()->getPlayerTiles()->toArray();
         usort($tiles, function ($tile1, $tile2){
-            $value = $tile1->getCoordX() - $tile2->getCoordX();
-            return $value == 0 ? $tile1->getCoordY() - $tile2->getCoordY() : $value;
+            $value = $tile2->getCoordX() - $tile1->getCoordX();
+            return $value == 0 ? $tile2->getCoordY() - $tile1->getCoordY() : $value;
         });
 
         $previousTile = $tiles[0];
