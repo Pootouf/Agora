@@ -1,61 +1,75 @@
 {% extends 'platform/base.html.twig' %}
 
 {% block title %}
-   Tables en cours
+   Mes tables
 {% endblock %}
 
 {% block body %}
+<style>
+   .table-container {
+   border-collapse: separate;
+   border-spacing: 0 8px;
+   }
+   .search-label {
+   display: block;
+   margin-bottom: 0.5rem; /* Ajoute de l'espace entre les libellés et les menus déroulants */
+   }
+   .search-form-container {
+   display: flex;
+   justify-content: center; /* Centrer horizontalement */
+   margin-bottom: 2rem; /* Ajouter de l'espace en bas */
+   }
+   .search-form-container .w-full {
+   margin-right: 5rem; /* Ajouter un espace horizontal entre chaque filtre */
+   }
+</style>
 <header class="relative isolate px-6 pt-14 lg:px-8">
    <div class="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80" aria-hidden="true">
       <div class="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-danger to-primary opacity-30 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]" style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)"></div>
    </div>
-
-   <div class="flex items-center justify-center p-4 relative">
-    <div class="relative">
-        <button id="dropdownDefault" data-dropdown-toggle="dropdown"
-            class="text-white bg-primary hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 inline-flex items-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
-            type="button">
-            Filtrer
-            <svg class="w-4 h-4 ml-2" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-            </svg>
-        </button>
-
-        <!-- Dropdown menu -->
-        <div id="dropdown"
-            class="z-10 hidden w-56 p-3 bg-white rounded-lg shadow dark:bg-gray-700 transition-all duration-300 top-full left-0 mt-2">
-            <h6 class="mb-3 text-sm font-medium text-gray-900 dark:text-white">
-                Filtre
-            </h6>
-            <ul class="space-y-2 text-sm" aria-labelledby="dropdownDefault">
-                <li class="flex items-center">
-                    <input id="apple" type="radio" name="filter" value="croissant"
-                        class="w-4 h-4 bg-gray-100 border-gray-300 rounded-full text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 dark:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500" />
-                    <label for="apple" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-100" style="white-space: nowrap;">
-                        Par ordre croissant
-                    </label>
-                </li>
-                <li class="flex items-center">
-                    <input id="fitbit" type="radio" name="filter" value="decroissant"
-                        class="w-4 h-4 bg-gray-100 border-gray-300 rounded-full text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 dark:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500" />
-                    <label for="fitbit" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-100" style="white-space: nowrap;">
-                        Par ordre décroissant
-                    </label>
-                </li>
-            </ul>
-        </div>
-    </div>
-</div>
-
-
    <div class="mx-auto max-w-7xl px-6 lg:px-8 mt-16">
+      <div class="search-form-container">
+         <!-- Ajout de la classe de conteneur pour le formulaire -->
+         <!-- Formulaire de recherche -->
+         {{ form_start(searchboard, {'attr': {'id': 'searchForm'}}) }}
+         <div class="my-custom-class-for-errors">
+            {{ form_errors(searchboard) }}
+         </div>
+         <div class="flex flex-wrap items-start">
+            <!-- Ajout de la classe "items-start" pour aligner les éléments en haut -->
+            <div class="w-full md:w-1/4">
+               <div class="text-black font-bold">
+                  {{ form_label(searchboard.status, 'Statut', {'label_attr': {'class': 'search-label'}}) }}
+               </div>
+               {{ form_widget(searchboard.status, {'id': 'statusSelect', 'placeholder': 'Choisir le statut'}) }}
+            </div>
+            <div class="w-full md:w-1/4">
+               <div class="text-black font-bold">
+                  {{ form_label(searchboard.availability, 'Disponibilité', {'label_attr': {'class': 'search-label'}}) }}
+               </div>
+               {{ form_widget(searchboard.availability, {'id': 'availabilitySelect', 'placeholder': 'Choisir la disponibilité'}) }}
+            </div>
+            <div class="w-full md:w-1/4">
+               <div class="text-black font-bold">
+                  {{ form_label(searchboard.datecreation, 'Date de création', {'label_attr': {'class': 'search-label'}}) }}
+               </div>
+               {{ form_widget(searchboard.datecreation, {'id': 'datecreationSelect', 'placeholder': 'Choisir la date de création'}) }}
+            </div>
+            <div class="w-full md:w-1/4">
+               <div class="text-black font-bold">
+                  {{ form_label(searchboard.game, 'Jeu', {'label_attr': {'class': 'search-label'}}) }}
+               </div>
+               {{ form_widget(searchboard.game, {'id': 'gameSelect', 'placeholder': 'Choisir le jeu'}) }}
+            </div>
+         </div>
+         {{ form_end(searchboard) }}
+      </div>
       <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
          <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 border border-gray-300">
             <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                <tr>
                   <th scope="col" class="px-3 py-3 text-center">
-                     Aperçu
+                     Jeux
                   </th>
                   <th scope="col" class="px-3 py-3">
                      Informations
@@ -79,14 +93,19 @@
                {% set usersIds = users|map(user => user.id) %}
                <tr class="{{ colorClass }} border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                   <td class="p-2 text-center">
-                     <a href="{{path('app_game_description', {'game_id': board.game.id}) }}">
-                        <img src="{{ board.game.imgURL }}" class="w-32 h-16 md:w-24 md:h-24 rounded-md mx-auto" alt="{{ board.game.name }}">
+                     {% if board.game is not empty %}
+                     <a href="{{ path('app_game_description', {'game_id': board.game.id}) }}">
+                     <img src="{{ asset(board.game.imgURL) }}" class="w-32 h-16 md:w-24 md:h-24 rounded-md mx-auto" alt="{{ board.game.name }}">
                      </a>
+                     {% else %}
+                     <span class="text-red-500">Image non disponible</span>
+                     {% endif %}
                   </td>
                   <td class="px-3 py-4 font-semibold text-gray-900 dark:text-white">
                      <div class="text-black font-bold">{{ board.game.name }}</div>
+                     </br>
                      <div>Places disponibles : {{ availableSeats }}</div>
-                     <div>Status: 
+                     <div>Status : 
                         {% if board.status == 'WAITING' %}
                         En attente
                         {% elseif board.status == 'IN_GAME' %}
@@ -102,7 +121,7 @@
                         Fermé
                         {% endif %}
                      </div>
-                     <div>Date de création: Le {{ board.creationdate|date('d-m-Y à H:i') }}</div>
+                     <div>Date de création : Le {{ board.creationdate|date('d-m-Y à H:i') }}</div>
                   </td>
                   <td class="px-20 py-4">
                      <table class="w-full text-xs text-gray-500 dark:text-gray-400 table-container">
@@ -158,15 +177,15 @@
    </div>
 </header>
 <script>
-    document.addEventListener("DOMContentLoaded", function(event) {
-        var dropdownButton = document.getElementById('dropdownDefault');
-        var dropdownMenu = document.getElementById('dropdown');
-
-        dropdownButton.addEventListener('click', function() {
-            dropdownMenu.classList.toggle('hidden');
-            dropdownMenu.classList.toggle('max-h-[500px]'); // Ajustez la hauteur selon vos besoins
-        });
-    });
+   // Fonction pour soumettre automatiquement le formulaire lorsqu'une sélection change
+   function submitSearchForm() {
+       document.getElementById('searchForm').submit();
+   }
+   
+   // Ajouter des écouteurs d'événements pour les changements de sélection
+   document.getElementById('statusSelect').addEventListener('change', submitSearchForm);
+   document.getElementById('availabilitySelect').addEventListener('change', submitSearchForm);
+   document.getElementById('datecreationSelect').addEventListener('change', submitSearchForm);
+   document.getElementById('gameSelect').addEventListener('change', submitSearchForm);
 </script>
-
 {% endblock %}
