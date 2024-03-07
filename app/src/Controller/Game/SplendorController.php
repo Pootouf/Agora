@@ -285,7 +285,7 @@ class SplendorController extends AbstractController
              $message = $player->getUsername() . " tried to pick a token of " . $tokenSPL->getColor()
                  . " but could not ";
              $this->logService->sendPlayerLog($gameSPL, $player, $message);
-             return new Response('Impossible to choose', Response::HTTP_INTERNAL_SERVER_ERROR);
+             return new Response('Impossible to choose', Response::HTTP_FORBIDDEN);
          }
          $message = $player->getUsername() . " picked a token of " . $tokenSPL->getColor();
          $this->logService->sendPlayerLog($gameSPL, $player, $message);

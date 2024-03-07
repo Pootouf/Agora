@@ -91,7 +91,7 @@ class SPLControllerTest extends WebTestCase
         //WHEN
         $this->client->request("GET", $newUrl);
         //THEN
-        $this->assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR,
+        $this->assertEquals(Response::HTTP_FORBIDDEN,
             $this->client->getResponse()->getStatusCode());
     }
 
@@ -141,7 +141,7 @@ class SPLControllerTest extends WebTestCase
         $this->client->request("GET", $newUrl);
         $this->client->request("GET", $newUrl);
         //THEN
-        $this->assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR,
+        $this->assertEquals(Response::HTTP_FORBIDDEN,
             $this->client->getResponse()->getStatusCode());
     }
 
