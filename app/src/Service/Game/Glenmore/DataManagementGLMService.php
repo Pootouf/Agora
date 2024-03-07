@@ -34,7 +34,7 @@ class DataManagementGLMService
             $resources = $tile->getPlayerTileResource();
             foreach($resources as $resource) {
                 if($resource->getResource()->getType() == GlenmoreParameters::$WHISKY_RESOURCE) {
-                    ++$whiskyCount;
+                    $whiskyCount += $resource->getQuantity();
                 }
             }
         }
@@ -137,29 +137,40 @@ class DataManagementGLMService
         $result = new ArrayCollection();
 
         $miny = $this->playerTileGLMRepository->
-        findOneBy(['personalBoard' => $playerGLM->getPersonalBoard()], ['coord_Y' => 'ASC'])->getCoordY();
+        findOneBy(['personalBoard' => $playerGLM->getPersonalBoard()], ['coord_Y' => 'ASC'])->getCoordY(); // renvoie startTile, bien
+        $maxy = $this->playerTileGLMRepository->
+        findOneBy(['personalBoard' => $playerGLM->getPersonalBoard()], ['coord_Y' => 'DESC'])->getCoordY(); // alors autant suis d'accord, mais du coup pourquoi ça vient pas du code ?
 
+        //Sorting by x coord and then by y coord
         $tiles = $playerGLM->getPersonalBoard()->getPlayerTiles()->toArray();
         usort($tiles, function ($tile1, $tile2){
-            $value = $tile2->getCoordX() - $tile1->getCoordX();
-            return $value == 0 ? $tile2->getCoordY() - $tile1->getCoordY() : $value;
+            $value = $tile1->getCoordX() - $tile2->getCoordX();
+            return $value == 0 ? $tile1->getCoordY() - $tile2->getCoordY() : $value;
         });
 
         $previousTile = $tiles[0];
         $currentLine = new ArrayCollection();
+        $y = $miny;
         foreach ($tiles as $tile) {
-            $y = $previousTile->getCoordY();
+            // Move to the next line
             if ($previousTile->getCoordX() < $tile->getCoordX()) {
+                // Fill the gaps up to y max coord
+                while ($y <= $maxy) {
+                    $currentLine->add(null);
+                    $y++;
+                }
                 $y = $miny;
                 $result->add($currentLine);
                 $currentLine = new ArrayCollection();
             }
-            while ($y + 1 < $tile->getCoordY()) {
+            // Fill the gaps up to the next y coord
+            while ($y < $tile->getCoordY()) {
                 $currentLine->add(null);
                 $y++;
             }
             $currentLine->add($tile);
             $previousTile = $tile;
+            $y++;
         }
         $result->add($currentLine);
         return $result;

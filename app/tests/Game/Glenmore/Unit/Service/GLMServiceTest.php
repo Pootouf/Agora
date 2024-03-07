@@ -35,6 +35,7 @@ use App\Repository\Game\Splendor\RowSPLRepository;
 use App\Repository\Game\Splendor\TokenSPLRepository;
 use App\Service\Game\AbstractGameManagerService;
 use App\Service\Game\Glenmore\CardGLMService;
+use App\Service\Game\Glenmore\DataManagementGLMService;
 use App\Service\Game\Glenmore\GLMService;
 use App\Service\Game\Glenmore\TileGLMService;
 use App\Service\Game\Glenmore\WarehouseGLMService;
@@ -261,6 +262,7 @@ class GLMServiceTest extends TestCase
             $pawn->setColor(GlenmoreParameters::$COLOR_FROM_POSITION[$i]);
             $pawn->setPosition($i);
             $pawn->setMainBoardGLM($mainBoard);
+            $mainBoard->addPawn($pawn);
             $player->setPawn($pawn);
             $playerTile = new PlayerTileGLM();
             $startTile = new TileGLM();
@@ -276,7 +278,7 @@ class GLMServiceTest extends TestCase
             $playerTileResource->setQuantity(1);
         }
 
-        for ($i = $nbOfPlayers; $i < GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD; ++$i) {
+        for ($i = $nbOfPlayers; $i < GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD - 1; ++$i) {
             $drawTiles = $mainBoard->getDrawTiles();
             $level = 0;
             for ($j = GlenmoreParameters::$TILE_LEVEL_ZERO; $j <= GlenmoreParameters::$TILE_LEVEL_THREE; ++$j) {
