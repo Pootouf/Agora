@@ -151,11 +151,11 @@ function moveTakingToken(tokenId, playerUsername) {
 
 function moveReturnedToken(tokenId, playerUsername) {
 	return new Promise(resolve => {
-		let tokenInitialPositionElement = document.getElementById(playerUsername);
+		let tokenFinalPositionElement = document.getElementById(playerUsername);
 		let tokenElement = document.getElementById(tokenId);
 
 		let tokenShape = tokenElement.getBoundingClientRect();
-		let tokenFinalPositionShape = tokenInitialPositionElement.getBoundingClientRect();
+		let tokenFinalPositionShape = tokenFinalPositionElement.getBoundingClientRect();
 
 		let movingTokenElement = tokenElement.cloneNode(true);
 		movingTokenElement.id = 'movingtoken_' + tokenId;
@@ -254,12 +254,11 @@ function moveDrawCard(cardId, playerUsername, face) {
 			movingCardElement.remove();
 			resolve();
 		});
-	})
+	});
 }
 
 function moveDevCard(cardId, playerUsername) {
-	animationContainer.classList.remove('hidden');
-	new Promise(resolve => {
+	return new Promise(resolve => {
 		let cardFinalPositionElement = document.getElementById(playerUsername);
 		let devCardElement = document.getElementById('image_card_' + cardId);
 
@@ -310,7 +309,7 @@ function moveDevCard(cardId, playerUsername) {
 			resolve();
 		});
 		devCardElement.remove();
-	}).then(() => animationQueue.executeNextInQueue());
+	});
 }
 
 function moveDrawToDevCard(drawCardId, devCardId, face) {

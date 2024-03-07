@@ -9,6 +9,7 @@ use App\Entity\Game\Glenmore\PlayerTileGLM;
 use App\Entity\Game\Glenmore\PlayerTileResourceGLM;
 use App\Entity\Game\Glenmore\ResourceGLM;
 use App\Entity\Game\Glenmore\WarehouseGLM;
+use App\Entity\Game\Glenmore\WarehouseLineGLM;
 use App\Repository\Game\Glenmore\PlayerGLMRepository;
 use Doctrine\DBAL\Exception;
 use Doctrine\ORM\EntityManagerInterface;
@@ -37,11 +38,21 @@ class WarehouseGLMService
         $warehouse = $mainBoard->getWarehouse();
 
         // Check if money available
-        $money = $this->getMoneyAvailableInWarehouse($warehouse, $resource);
+        $warehouseLine = $this->getWarehouseLineOfResource(
+            $warehouse,
+            $resource
+        );
+        if ($warehouseLine == null)
+        {
+            throw new Exception("Unable to sell the resource");
+        }
+
+        $money = GlenmoreParameters::$MONEY_FROM_QUANTITY[$warehouseLine->getQuantity()];
         if ($money == GlenmoreParameters::$MIN_TRADE)
         {
             throw new Exception("Unable to sell the resource");
         }
+
 
         // Check if the player has the resource
         $tileResource = $this->getResourceOnPersonalBoard(
@@ -57,10 +68,9 @@ class WarehouseGLMService
         // Manage resource and update
         $tileResource->setQuantity($tileResource->getQuantity() - 1);
         $personalBoard->setMoney($personalBoard->getMoney() + $money);
-        $this->removeResourceInWarehouse($warehouse, $resource);
+        $this->manageWarehouseLine($warehouseLine, $money, false);
         $this->entityManager->persist($tileResource);
         $this->entityManager->persist($personalBoard);
-
         $this->entityManager->flush();
     }
 
@@ -68,21 +78,21 @@ class WarehouseGLMService
      * Return the price of a resource
      * @param WarehouseGLM $warehouse
      * @param ResourceGLM $resource
-     * @return int
+     * @return WarehouseLineGLM|null
      */
-    private function getMoneyAvailableInWarehouse(WarehouseGLM $warehouse
-        , ResourceGLM $resource) : int
+    private function getWarehouseLineOfResource(WarehouseGLM $warehouse
+        , ResourceGLM $resource) : ?WarehouseLineGLM
     {
         $money = GlenmoreParameters::$MIN_TRADE;
-        $resources = $warehouse->getWarehouseResource();
-        foreach ($resources as $r)
+        $warehouseLine = $warehouse->getWarehouseLine();
+        foreach ($warehouseLine as $w)
         {
-            if ($r->getResource()->getColor() === $resource->getColor())
+            if ($w->getResource()->getColor() === $resource->getColor())
             {
-                $money += 1;
+                return $w;
             }
         }
-        return $money;
+        return null;
     }
 
     /**
@@ -115,24 +125,16 @@ class WarehouseGLMService
         return null;
     }
 
-    /**
-     * Remove resource from warehouse
-     * @param WarehouseGLM $warehouse
-     * @param ResourceGLM $resource
-     * @return void
-     */
-    private function removeResourceInWarehouse(WarehouseGLM $warehouse, ResourceGLM $resource) : void
+    private function manageWarehouseLine(WarehouseLineGLM $warehouseLine, int $money, bool $isPurchasable) : void
     {
-        $resources = $warehouse->getWarehouseResource();
-        foreach ($resources as $r)
+        switch ($isPurchasable)
         {
-            if ($r->getResource()->getColor() === $resource->getColor())
-            {
-                $warehouse->removeWarehouseResource($r);
-                $this->entityManager->persist($warehouse);
-                return;
-            }
+            case true:
+                return; // TODO Etienne
+            case false:
+                $warehouseLine->setQuantity($warehouseLine->getQuantity() - 1);
+                $warehouseLine->setCoinNumber($warehouseLine->getCoinNumber() - $money);
         }
+        $this->entityManager->persist($warehouseLine);
     }
-
 }

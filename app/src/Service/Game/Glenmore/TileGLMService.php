@@ -11,6 +11,7 @@ use App\Entity\Game\Glenmore\PlayerGLM;
 use App\Entity\Game\Glenmore\PlayerTileGLM;
 use App\Entity\Game\Glenmore\PlayerTileResourceGLM;
 use App\Repository\Game\Glenmore\PlayerGLMRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Exception;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -18,7 +19,8 @@ class TileGLMService
 {
     public function __construct(private EntityManagerInterface $entityManager,
         private GLMService $GLMService,
-        private PlayerGLMRepository $playerGLMRepository){}
+        private PlayerGLMRepository $playerGLMRepository,
+        private CardGLMService $cardGLMService){}
 
     /**
      * getAmountOfTileToReplace : returns the amount of tiles to replace
@@ -86,6 +88,38 @@ class TileGLMService
 
         // Return last position of player
         return $lastPosition;
+    }
+
+    /**
+     * getActivableTiles : returns a collection of all activable tiles after a new tile was placed
+     *  onto personalBoard
+     * @param PlayerTileGLM $playerTileGLM
+     * @return ArrayCollection<Int, PlayerTileGLM>
+     */
+    public function getActivableTiles(PlayerTileGLM $playerTileGLM) : ArrayCollection
+    {
+        $activableTiles = new ArrayCollection();
+        $personalBoard = $playerTileGLM->getPersonalBoard();
+        $lastTile = $personalBoard->getPlayerTiles()->last()->getTile();
+        $card = $lastTile->getCard();
+        // if player just bought Loch Oich then all tiles can be activated
+        if ($card != null && $card->getName() === GlenmoreParameters::$CARD_LOCH_OICH) {
+            $adjacentTiles = $personalBoard->getPlayerTiles();
+        } else { // else just adjacent tiles can be activated
+            $adjacentTiles = $playerTileGLM->getAdjacentTiles();
+        }
+        foreach ($adjacentTiles as $adjacentTile) {
+            if (!$adjacentTile->isActivated() && $adjacentTile->getTile()->getActivationBonus() != null) {
+                $activableTiles->add($adjacentTile);
+            }
+        }
+
+        // if every tile has been activated
+        if ($adjacentTiles->isEmpty()) {
+            $activableTiles = $this->cardGLMService->applyLochNess($personalBoard);
+        }
+
+        return $activableTiles;
     }
 
     /**
@@ -166,8 +200,8 @@ class TileGLMService
                 $playerTileGLM->addPlayerTileResource($playerTileResource);
                 $this->entityManager->persist($playerTileGLM);
             }
+            $this->cardGLMService->buyCardManagement($playerTileGLM);
         }
-        // TODO gestion de certaines cartes spéciales
         $this->entityManager->persist($personalBoard);
         $this->entityManager->flush();
     }

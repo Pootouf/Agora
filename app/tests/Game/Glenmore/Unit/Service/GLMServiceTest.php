@@ -18,7 +18,7 @@ use App\Entity\Game\Glenmore\ResourceGLM;
 use App\Entity\Game\Glenmore\TileBuyBonusGLM;
 use App\Entity\Game\Glenmore\TileGLM;
 use App\Entity\Game\Glenmore\WarehouseGLM;
-use App\Entity\Game\Glenmore\WarehouseResourceGLM;
+use App\Entity\Game\Glenmore\WarehouseLineGLM;
 use App\Repository\Game\Glenmore\CardGLMRepository;
 use App\Repository\Game\Glenmore\DrawTilesGLMRepository;
 use App\Repository\Game\Glenmore\PlayerGLMRepository;
@@ -45,6 +45,7 @@ use Psr\Log\LoggerInterface;
 
 class GLMServiceTest extends TestCase
 {
+    private CardGLMService $cardGLMService;
     private GLMService $GLMService;
     private WarehouseGLMService $warehouseGLMService;
     private TileGLMService $tileGLMService;
@@ -56,10 +57,11 @@ class GLMServiceTest extends TestCase
         $drawTilesGLMRepository = $this->createMock(DrawTilesGLMRepository::class);
         $resourceGLMRepository = $this->createMock(ResourceGLMRepository::class);
         $playerGLMRepository = $this->createMock(PlayerGLMRepository::class);
-        $cardGLMService = $this->createMock(CardGLMService::class);
+        $this->cardGLMService = new CardGLMService($entityManager, $resourceGLMRepository);
         $this->GLMService = new GLMService($entityManager, $tileGLMRepository, $drawTilesGLMRepository,
-            $resourceGLMRepository, $playerGLMRepository, $cardGLMService);
-        $this->tileGLMService = new TileGLMService($entityManager, $this->GLMService, $playerGLMRepository);
+            $resourceGLMRepository, $playerGLMRepository, $this->cardGLMService);
+        $this->tileGLMService = new TileGLMService($entityManager, $this->GLMService, $playerGLMRepository,
+            $this->cardGLMService);
         $this->warehouseGLMService = new WarehouseGLMService($entityManager, $this->GLMService, $playerGLMRepository);
     }
 
@@ -283,6 +285,75 @@ class GLMServiceTest extends TestCase
         $this->assertSame($expectedTypeHat, $typeHat);
     }
 
+    public function testCalculatePointsAtEndOfLevelWithWhiskyDifference() : void
+    {
+        // GIVEN
+        $game = $this->createGame(5);
+        $players = $game->getPlayers();
+        for ($i = 0; $i < 5; ++$i) {
+            $personalBoard = $players[$i]->getPersonalBoard();
+            $tile = new PlayerTileGLM();
+            $tileResource = new PlayerTileResourceGLM();
+            $resource = new ResourceGLM();
+            $resource->setType(GlenmoreParameters::$WHISKY_RESOURCE);
+            $tileResource->setResource($resource);
+            $tileResource->setQuantity($i);
+            $tileResource->setPlayerTileGLM($tile);
+            $tile->addPlayerTileResource($tileResource);
+            $tile->setPersonalBoard($personalBoard);
+            $personalBoard->addPlayerTile($tile);
+        }
+        $expectedResult = [0, 1, 2, 3, 5];
+        //WHEN
+        $this->GLMService->calculatePointsAtEndOfLevel($game);
+        //THEN
+        $result = [$players[0]->getPoints(), $players[1]->getPoints(), $players[2]->getPoints(),
+            $players[3]->getPoints(), $players[4]->getPoints()];
+        $this->assertSame($expectedResult, $result);
+    }
+
+    public function testCalculatePointsAtEndOfLevelWithCastleOfMey() : void
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $players = $game->getPlayers();
+        $personalBoard = $players[1]->getPersonalBoard();
+        $tile = new PlayerTileGLM();
+        $tileResource = new PlayerTileResourceGLM();
+        $resource = new ResourceGLM();
+        $resource->setType(GlenmoreParameters::$WHISKY_RESOURCE);
+        $tileResource->setResource($resource);
+        $tileResource->setQuantity(0);
+        $tileResource->setPlayerTileGLM($tile);
+        $tile->addPlayerTileResource($tileResource);
+        $tile->setPersonalBoard($personalBoard);
+        $personalBoard->addPlayerTile($tile);
+
+        $tile = new PlayerTileGLM();
+        $tileResource = new PlayerTileResourceGLM();
+        $resource = new ResourceGLM();
+        $resource->setType(GlenmoreParameters::$HAT_RESOURCE);
+        $tileResource->setResource($resource);
+        $tileResource->setQuantity(1);
+        $tileResource->setPlayerTileGLM($tile);
+        $tile->addPlayerTileResource($tileResource);
+        $personalBoard->addPlayerTile($tile);
+        $personalBoard->setLeaderCount(2);
+
+        $card = new CardGLM();
+        $card->setName(GlenmoreParameters::$CARD_CASTLE_OF_MEY);
+        $playerCard = new PlayerCardGLM($personalBoard, $card);
+        $personalBoard->addPlayerCardGLM($playerCard);
+        $tile->setPersonalBoard($personalBoard);
+
+        $expectedResult = [0, 9];
+        //WHEN
+        $this->GLMService->calculatePointsAtEndOfLevel($game);
+        //THEN
+        $result = [$players[0]->getPoints(), $players[1]->getPoints()];
+        $this->assertSame($expectedResult, $result);
+    }
+
     public function testPlaceNewTileOnMainBoard() : void
     {
         // GIVEN
@@ -427,11 +498,9 @@ class GLMServiceTest extends TestCase
         $player = $game->getPlayers()->first();
         $resource = new ResourceGLM();
         $resource->setColor(GlenmoreParameters::$COLOR_GREEN);
-        $warehouseResource = new WarehouseResourceGLM(
-            $mainBoard->getWarehouse(),
-            $resource
-        );
-        $mainBoard->getWarehouse()->addWarehouseResource($warehouseResource);
+        $mainBoard->getWarehouse()->getWarehouseLine()->first()->setResource($resource);
+        $mainBoard->getWarehouse()->getWarehouseLine()->first()->setQuantity(2);
+        $mainBoard->getWarehouse()->getWarehouseLine()->first()->setCoinNumber(1);
 
         // WHEN
 
@@ -468,7 +537,7 @@ class GLMServiceTest extends TestCase
         $playerTile->addPlayerTileResource($playerTileResource);
         $personalBoard->addPlayerTile($playerTile);
 
-        $mainBoard->getWarehouse()->getWarehouseResource()->clear();
+        $mainBoard->getWarehouse()->getWarehouseLine()->clear();
 
         // WHEN
 
@@ -491,11 +560,8 @@ class GLMServiceTest extends TestCase
 
         $resourceWarehouse = new ResourceGLM();
         $resourceWarehouse->setColor(GlenmoreParameters::$COLOR_GREEN);
-        $warehouseResource = new WarehouseResourceGLM(
-            $mainBoard->getWarehouse(),
-            $resourceWarehouse
-        );
-        $mainBoard->getWarehouse()->addWarehouseResource($warehouseResource);
+        $mainBoard->getWarehouse()->getWarehouseLine()->get(1)->setQuantity(2);
+        $mainBoard->getWarehouse()->getWarehouseLine()->get(1)->setCoinNumber(1);
 
         $resourcePlayer = new ResourceGLM();
         $resourcePlayer->setColor(GlenmoreParameters::$COLOR_GREEN);
@@ -526,6 +592,7 @@ class GLMServiceTest extends TestCase
             $resourcePlayer)
         );
         $this->assertNotEquals($personalBoard->getMoney(), $lastMoney);
+        $this->assertGreaterThan($lastMoney, $personalBoard->getMoney());
     }
 
     private function createGame(int $nbOfPlayers): GameGLM
@@ -562,6 +629,17 @@ class GLMServiceTest extends TestCase
             }
             $mainBoard->addDrawTile($draw);
             $warehouse = new WarehouseGLM();
+            $array = [GlenmoreParameters::$COLOR_BROWN, GlenmoreParameters::$COLOR_GREEN, GlenmoreParameters::$COLOR_WHITE,
+                GlenmoreParameters::$COLOR_YELLOW, GlenmoreParameters::$COLOR_GREY];
+            for ($j = 0; $j < 5; ++$j) {
+                $warehouseLine = new WarehouseLineGLM();
+                $resource = new ResourceGLM();
+                $resource->setColor($array[$j]);
+                $resource->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
+                $warehouseLine->setResource($resource);
+                $warehouseLine->setQuantity(0);
+                $warehouse->addWarehouseLine($warehouseLine);
+            }
             $warehouse->setMainBoardGLM($mainBoard);
         }
         for ($i = 0; $i < $nbOfPlayers; $i++) {

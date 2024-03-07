@@ -420,7 +420,9 @@ class SPLService
             $total += $tile->getPrestigePoints();
         }
         foreach ($developCards as $card) {
-            $total += $card->getDevelopmentCard()->getPrestigePoints();
+            if(!$card->isIsReserved()) {
+                $total += $card->getDevelopmentCard()->getPrestigePoints();
+            }
         }
         $player->setTotalPoints($total);
         $this->entityManager->persist($player);
@@ -451,7 +453,7 @@ class SPLService
      * buyCard : check if player can buy a card and remove the card from the main board
      * @param PlayerSPL $playerSPL
      * @param DevelopmentCardsSPL $developmentCardsSPL
-     * @return array
+     * @return array<string> the type of the removed tokens
      * @throws \Exception if it's not the card of the player
      */
     public function buyCard(PlayerSPL $playerSPL,
@@ -474,7 +476,9 @@ class SPLService
                 $this->entityManager->persist($playerCardSPL);
                 $this->entityManager->persist($playerSPL->getPersonalBoard());
             }
+
             $retrievePlayerMoney = $this->retrievePlayerMoney($playerSPL, $developmentCardsSPL);
+
             $newDevCardInRow = null;
             if($playerCardSPL->isIsReserved()) {
                 $playerCardSPL->setIsReserved(false);
@@ -490,15 +494,18 @@ class SPLService
                 //Add a new card in the row
                 $levelCard = $developmentCardsSPL->getLevel();
                 $levelDraw = $mainBoard->getDrawCards()->get($levelCard - 1);
-                $newDevCardInRow = $levelDraw->getDevelopmentCards()->first();
-                $row->addDevelopmentCard($levelDraw->getDevelopmentCards()->first());
 
-                //Remove the new card from draw
-                $levelDraw->removeDevelopmentCard($levelDraw->getDevelopmentCards()->first());
-                $this->entityManager->persist($levelDraw);
+                if ($levelDraw->getDevelopmentCards()->count() > 0) {
+                    $newDevCardInRow = $levelDraw->getDevelopmentCards()->first();
+                $row->addDevelopmentCard($levelDraw->getDevelopmentCards()->first());
+                    //Remove the new card from draw
+                    $levelDraw->removeDevelopmentCard($levelDraw->getDevelopmentCards()->first());
+                    $this->entityManager->persist($levelDraw);
+                }
                 $this->entityManager->persist($row);
             }
-            $this->entityManager->flush();
+
+            $this->calculatePrestigePoints($playerSPL);
             return array(
                 "retrievePlayerMoney" => $retrievePlayerMoney,
                 "newDevCard" => $newDevCardInRow,
@@ -512,13 +519,12 @@ class SPLService
      * addBuyableNobleTilesToPlayer: add the first noble tiles the player can afford to his stock
      * @param GameSPL $game
      * @param PlayerSPL $player
-     * @return array
+     * @return int the id of the bought noble tile, -1 if no noble tile bought
      */
-    public function addBuyableNobleTilesToPlayer(GameSPL $game, PlayerSPL $player): array
+    public function addBuyableNobleTilesToPlayer(GameSPL $game, PlayerSPL $player): int
     {
         $playerCards = $player->getPersonalBoard()->getPlayerCards();
         $filteredCards = $this->filterCardsByColor($playerCards);
-        $boughtTiles = [];
         foreach ($game->getMainBoard()->getNobleTiles() as $tile) {
             $costs = $tile->getCardsCost();
             $canBuy = true;
@@ -534,10 +540,11 @@ class SPLService
                 $this->entityManager->persist($player->getPersonalBoard());
                 $this->entityManager->persist($game->getMainBoard());
                 $this->entityManager->flush();
-                $boughtTiles[] = $tile->getId();
+                $this->calculatePrestigePoints($player);
+                return $tile->getId();
             }
         }
-        return $boughtTiles;
+        return -1;
     }
 
     /**
@@ -771,7 +778,7 @@ class SPLService
      * retrievePlayerMoney : remove tokens from the player to buy a card
      * @param PlayerSPL $playerSPL
      * @param DevelopmentCardsSPL $developmentCardsSPL
-     * @return array
+     * @return array<string> the type of the removed tokens
      */
     private function retrievePlayerMoney(PlayerSPL $playerSPL, DevelopmentCardsSPL $developmentCardsSPL): array
     {

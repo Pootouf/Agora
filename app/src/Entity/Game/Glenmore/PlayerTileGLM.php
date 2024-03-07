@@ -26,6 +26,15 @@ class PlayerTileGLM extends Component
     #[ORM\OneToMany(targetEntity: PlayerTileResourceGLM::class, mappedBy: 'playerTileGLM', orphanRemoval: true)]
     private Collection $playerTileResource;
 
+    #[ORM\Column]
+    private ?int $coord_X = null;
+
+    #[ORM\Column]
+    private ?int $coord_Y = null;
+
+    #[ORM\Column]
+    private ?bool $activated = false;
+
     public function __construct()
     {
         $this->adjacentTiles = new ArrayCollection();
@@ -107,6 +116,42 @@ class PlayerTileGLM extends Component
                 $playerTileResource->setPlayerTileGLM(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getCoordX(): ?int
+    {
+        return $this->coord_X;
+    }
+
+    public function setCoordX(int $coord_X): static
+    {
+        $this->coord_X = $coord_X;
+
+        return $this;
+    }
+
+    public function getCoordY(): ?int
+    {
+        return $this->coord_Y;
+    }
+
+    public function setCoordY(int $coord_Y): static
+    {
+        $this->coord_Y = $coord_Y;
+
+        return $this;
+    }
+
+    public function isActivated(): ?bool
+    {
+        return $this->activated;
+    }
+
+    public function setActivated(bool $activated): static
+    {
+        $this->activated = $activated;
 
         return $this;
     }

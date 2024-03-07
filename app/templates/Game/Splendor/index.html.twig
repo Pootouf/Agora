@@ -4,8 +4,8 @@
 
 {% block body %}
     <div class="h-screen w-screen overflow-hidden absolute" {{ stimulus_controller('splendor') }}>
-        <div id="animationContainer" class="hidden absolute top-0 left-0 w-full h-full bg-black bg-opacity-0 z-50"></div>
         <div id="index_splendor" class="h-full w-full overflow-hidden">
+            <div id="animationContainer" class="hidden absolute top-0 left-0 w-full h-full bg-black bg-opacity-0 z-50"></div>
             {% block nav %}
                 {{ include('/Game/Utils/navigation.html.twig') }}
             {% endblock %}
@@ -52,7 +52,7 @@
                 let mainBoard = document.getElementById('tokens');
                 mainBoard.innerHTML = event.data;
                 animationQueue.executeNextInQueue()
-            })
+            });
         }
 
         {% set path = path('app_game_show_spl', {'id': game.id}) ~ 'developmentCards' ~ player.id %}
@@ -63,7 +63,7 @@
                 let mainBoard = document.getElementById('developmentCards');
                 mainBoard.innerHTML = event.data;
                 animationQueue.executeNextInQueue()
-            })
+            });
         }
 
         {% set path = path('app_game_show_spl', {'id': game.id}) ~ 'nobleTiles' ~ 'player' %}
@@ -74,7 +74,7 @@
                 let mainBoard = document.getElementById('nobleTiles');
                 mainBoard.innerHTML = event.data;
                 animationQueue.executeNextInQueue()
-            })
+            });
         }
 
         {% set path = path('app_game_show_spl', {'id': game.id}) ~ 'reservedCards' ~ player.id %}
@@ -85,7 +85,7 @@
                 let mainBoard = document.getElementById('reservedCards');
                 mainBoard.innerHTML = event.data;
                 animationQueue.executeNextInQueue()
-            })
+            });
         }
 
         {% set path = path('app_game_show_spl', {'id': game.id}) ~ 'ranking' %}
@@ -114,9 +114,6 @@
                 console.log("animTakenTokens");
                 let username = event.data.split('__')[0];
                 let tokens = event.data.split('__')[1].split('_');
-                console.log(event.data)
-                console.log(username)
-                console.log(tokens)
                 setTimeout(() => {
                     const rowsAnimations = tokens.map(token => moveTakingToken(token, username));
                     Promise.all(rowsAnimations).then(() => animationQueue.executeNextInQueue());
@@ -168,6 +165,10 @@
             animationQueue.addToQueue(() => {
                 console.log("animReturnedTokens");
                 let username = event.data.split('__')[0];
+                if(event.data.split('__')[1].trim() === '') {
+                    animationQueue.executeNextInQueue();
+                    return;
+                }
                 let tokens = event.data.split('__')[1].split('_');
                 setTimeout(() => {
                     const movesAnimations = tokens.map(token => moveReturnedToken(token, username));
@@ -190,6 +191,19 @@
                     const movesAnimations = nobles.map(noble => moveNobleTile(noble, username));
                     Promise.all(movesAnimations).then(() => animationQueue.executeNextInQueue());
                 }, 2000);
+            })
+        }
+    </script>
+
+    {# RESERVED DRAW CARD MANAGEMENT#}
+    <script>
+        {% set path = path('app_game_show_spl', {'id': game.id}) ~ 'animDrawCard' %}
+        const eventSourceReservedDrawCard = new EventSource("{{ mercure(path)|escape('js') }}");
+        eventSourceReservedDrawCard.onmessage = event => {
+            animationQueue.addToQueue(() => {
+                let username = event.data.split('__')[0];
+                let card = event.data.split('__')[1];
+                moveDrawCard(card, username)
             })
         }
     </script>

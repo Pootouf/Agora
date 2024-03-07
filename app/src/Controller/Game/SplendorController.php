@@ -3,6 +3,7 @@
 namespace App\Controller\Game;
 
 use AllowDynamicProperties;
+use App\Entity\Game\DTO\Game;
 use App\Entity\Game\SixQP\CardSixQP;
 use App\Entity\Game\SixQP\ChosenCardSixQP;
 use App\Entity\Game\SixQP\GameSixQP;
@@ -12,6 +13,7 @@ use App\Entity\Game\Splendor\DevelopmentCardsSPL;
 use App\Entity\Game\Splendor\DrawCardsSPL;
 use App\Entity\Game\Splendor\GameSPL;
 use App\Entity\Game\Splendor\PlayerSPL;
+use App\Entity\Game\Splendor\SelectedTokenSPL;
 use App\Entity\Game\Splendor\SplendorParameters;
 use App\Entity\Game\Splendor\TokenSPL;
 use App\Repository\Game\SixQP\ChosenCardSixQPRepository;
@@ -21,6 +23,7 @@ use App\Service\Game\MessageService;
 use App\Service\Game\PublishService;
 use App\Service\Game\Splendor\SPLService;
 use App\Service\Game\Splendor\TokenSPLService;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
@@ -189,16 +192,16 @@ class SplendorController extends AbstractController
          if (!$reserved) {
              $this->publishAnimTakenCard($game, $player->getUsername(), $card, $returnedDatas["newDevCard"]);
          }
+         $this->manageEndOfRound($game);
          $this->publishAnimReturnedTokens($game, $player->getUsername(), $returnedDatas["retrievePlayerMoney"]);
-         $nobles = $this->SPLService->addBuyableNobleTilesToPlayer($game, $player);
+         $nobleTileId = $this->SPLService->addBuyableNobleTilesToPlayer($game, $player);
 
-         if (! empty($nobles)){
-             $this->publishAnimNoble($game, $player->getUsername(), $nobles);
+         if ($nobleTileId != -1){
+             $this->publishAnimNoble($game, $player->getUsername(), $nobleTileId);
          }
 
          $this->publishNobleTiles($game);
          $this->publishReservedCards($game);
-         $this->manageEndOfRound($game);
          return new Response('Card Bought', Response::HTTP_OK);
      }
 
@@ -254,6 +257,7 @@ class SplendorController extends AbstractController
              return new Response("Can't reserve this card : " . $e->getMessage(), Response::HTTP_FORBIDDEN);
          }
          $this->manageEndOfRound($game);
+         $this->publishAnimCardOnDraw($game, $player->getUsername(), $card->getId());
          return new Response('Card reserved', Response::HTTP_OK);
      }
 
@@ -466,7 +470,7 @@ class SplendorController extends AbstractController
 
 
     /**
-     * publishRanking : send a mercure notification with new informations about players to display in ranking
+     * publishRanking : send a mercure notification with new information about players to display in ranking
      * @param GameSPL $game
      * @return void
      */
@@ -499,7 +503,14 @@ class SplendorController extends AbstractController
     }
 
 
-    private function publishAnimTakenTokens(GameSPL $game, string $player, $selectedTokens): void
+    /**
+     * publishAnimTakenTokens: publish the animation of taking the tokens
+     * @param GameSPL $game
+     * @param string $player
+     * @param Collection<SelectedTokenSPL> $selectedTokens
+     * @return void
+     */
+    private function publishAnimTakenTokens(GameSPL $game, string $player, Collection $selectedTokens): void
     {
         $selectedTokenIds = [];
 
@@ -513,20 +524,48 @@ class SplendorController extends AbstractController
     }
 
 
-
-    private function publishAnimNoble(GameSPL $game, string $player, array $nobleTiles): void
+    /**
+     * publishAnimNoble: publish the animation to animate noble tiles
+     * @param GameSPL $game
+     * @param string $player
+     * @param int $nobleTileId
+     * @return void
+     */
+    private function publishAnimNoble(GameSPL $game, string $player, int $nobleTileId): void
     {
         $this->publishService->publish(
             $this->generateUrl('app_game_show_spl', ['id' => $game->getId()]).'animNoble',
-            new Response($player . '__' . implode('_', $nobleTiles))
+            new Response($player . '__' . $nobleTileId)
         );
     }
 
-    private function publishAnimReturnedTokens(GameSPL $game, string $player, $returnedTokens): void
+    /**
+     * publishAnimReturnedTokens: publish the animation to return the tokens into the draw
+     * @param GameSPL $game
+     * @param string $player
+     * @param array<string> $returnedTokens the type of the tokens to return
+     * @return void
+     */
+    private function publishAnimReturnedTokens(GameSPL $game, string $player, array $returnedTokens): void
     {
         $this->publishService->publish(
             $this->generateUrl('app_game_show_spl', ['id' => $game->getId()]).'animReturnedTokens',
             new Response($player . '__' . implode('_', $returnedTokens))
+        );
+    }
+
+    /**
+     * publishAnimCardOnDraw: publish the animation of moving card from draw
+     * @param GameSPL $game
+     * @param string $player
+     * @param int $cardId
+     * @return void
+     */
+    private function publishAnimCardOnDraw(GameSPL $game, string $player, int $cardId): void
+    {
+        $this->publishService->publish(
+            $this->generateUrl('app_game_show_spl', ['id' => $game->getId()]).'animDrawCard',
+            new Response($player . '__' . $cardId)
         );
     }
 
