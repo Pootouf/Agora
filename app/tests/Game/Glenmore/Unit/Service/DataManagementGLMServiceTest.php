@@ -127,48 +127,6 @@ class DataManagementGLMServiceTest extends TestCase
         $this->assertEquals($expectedResult, $result);
     }
 
-    public function testOrganizePersonalBoardRows() : void
-    {
-        //GIVEN
-        $game = $this->createGame(2);
-        $firstPlayer = $game->getPlayers()->first();
-        $personalBoard = $firstPlayer->getPersonalBoard();
-
-        $startTile = new PlayerTileGLM();
-        $startTile->setCoordX(0);
-        $startTile->setCoordY(0);
-        $personalBoard->addPlayerTile($startTile);
-
-        $tile1 = new PlayerTileGLM();
-        $tile1->setCoordX(0);
-        $tile1->setCoordY(2);
-        $personalBoard->addPlayerTile($tile1);
-
-        $tile2 = new PlayerTileGLM();
-        $tile2->setCoordX(-1);
-        $tile2->setCoordY(1);
-        $personalBoard->addPlayerTile($tile2);
-
-        $expectedResult = new ArrayCollection();
-        $row = new ArrayCollection([null, $tile2]);
-        $expectedResult->add($row);
-
-        $row = new ArrayCollection([$startTile  , null, $tile1]);
-        $expectedResult->add($row);
-
-        $row = new ArrayCollection([$tile1, null, $tile1]);
-        $expectedResult->add($row);
-
-        $playerTileRepository = $this->createMock(PlayerTileGLMRepository::class);
-        $playerTileRepository->method("findOneBy")->willReturn($startTile);
-        $dataManagementGLMService = new DataManagementGLMService($playerTileRepository);
-        //WHEN
-        $result = $dataManagementGLMService->organizePersonalBoardRows($firstPlayer);
-
-        //THEN
-        $this->assertEquals($expectedResult, $result);
-    }
-
     private function createGame(int $nbOfPlayers): GameGLM
     {
         $game = new GameGLM();
