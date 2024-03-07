@@ -370,6 +370,54 @@ class GLMServiceIntegrationTest extends KernelTestCase
         $this->assertSame($expectedResult, $result);
     }
 
+    public function testManageEndOfRoundShouldReturnExceptionBecauseTooHigh() : void
+    {
+        //GIVEN
+        $GLMService = static::getContainer()->get(GLMService::class);
+        $game = $this->createGame(2);
+        $drawLevel = 4;
+        //THEN
+        $this->expectException(\Exception::class);
+        //WHEN
+        $GLMService->manageEndOfRound($game, $drawLevel);
+    }
+
+    public function testManageEndOfRoundShouldReturnExceptionBecauseTooLow() : void
+    {
+        //GIVEN
+        $GLMService = static::getContainer()->get(GLMService::class);
+        $game = $this->createGame(2);
+        $drawLevel = 0;
+        //THEN
+        $this->expectException(\Exception::class);
+        //WHEN
+        $GLMService->manageEndOfRound($game, $drawLevel);
+    }
+
+    public function testManageEndOfRoundForLevelTwo() : void
+    {
+        //GIVEN
+        $GLMService = static::getContainer()->get(GLMService::class);
+        $game = $this->createGame(2);
+        $drawLevel = 2;
+        //THEN
+        $this->expectNotToPerformAssertions();
+        //WHEN
+        $GLMService->manageEndOfRound($game, $drawLevel);
+    }
+
+    public function testManageEndOfRoundForLevelThree() : void
+    {
+        //GIVEN
+        $GLMService = static::getContainer()->get(GLMService::class);
+        $game = $this->createGame(2);
+        $drawLevel = 3;
+        //THEN
+        $this->expectNotToPerformAssertions();
+        //WHEN
+        $GLMService->manageEndOfRound($game, $drawLevel);
+    }
+
     private function createGame(int $nbOfPlayers) : GameGLM
     {
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);
