@@ -103,12 +103,20 @@ class GLMService
         foreach ($winners as $player) {
             $personalBoard = $player->getPersonalBoard();
             $playerTiles = $personalBoard->getPlayerTiles();
-            if ($playerTiles->count() > $nbResource) {
-                $nbResource = $playerTiles->count();
+            $playerResources = 0;
+            foreach ($playerTiles as $playerTile) {
+                foreach ($playerTile->getPlayerTileResource() as $resource) {
+                    if ($resource->getResource()->getType() === GlenmoreParameters::$PRODUCTION_RESOURCE) {
+                        $playerResources += $resource->getQuantity();
+                    }
+                }
+            }
+            if ($playerResources > $nbResource) {
                 $result->clear();
                 $result->add($player);
-            } else if ($player->getPoints() == $nbResource) {
-                $winners->add($player);
+                $nbResource = $playerResources;
+            } else if ($playerResources == $nbResource) {
+                $result->add($player);
             }
         }
         return $result;
