@@ -3,52 +3,33 @@
 namespace App\Tests\Game\Glenmore\Unit\Service;
 
 use App\Entity\Game\Glenmore\BoardTileGLM;
-use App\Entity\Game\Glenmore\CardGLM;
 use App\Entity\Game\Glenmore\DrawTilesGLM;
 use App\Entity\Game\Glenmore\GameGLM;
 use App\Entity\Game\Glenmore\GlenmoreParameters;
 use App\Entity\Game\Glenmore\MainBoardGLM;
 use App\Entity\Game\Glenmore\PawnGLM;
 use App\Entity\Game\Glenmore\PersonalBoardGLM;
-use App\Entity\Game\Glenmore\PlayerCardGLM;
 use App\Entity\Game\Glenmore\PlayerGLM;
 use App\Entity\Game\Glenmore\PlayerTileGLM;
 use App\Entity\Game\Glenmore\PlayerTileResourceGLM;
 use App\Entity\Game\Glenmore\ResourceGLM;
-use App\Entity\Game\Glenmore\TileBuyBonusGLM;
 use App\Entity\Game\Glenmore\TileGLM;
 use App\Entity\Game\Glenmore\WarehouseGLM;
 use App\Entity\Game\Glenmore\WarehouseLineGLM;
-use App\Repository\Game\Glenmore\CardGLMRepository;
 use App\Repository\Game\Glenmore\DrawTilesGLMRepository;
 use App\Repository\Game\Glenmore\PlayerGLMRepository;
-use App\Repository\Game\Glenmore\PlayerTileGLMRepository;
-use App\Repository\Game\Glenmore\PlayerTileResourceGLMRepository;
 use App\Repository\Game\Glenmore\ResourceGLMRepository;
 use App\Repository\Game\Glenmore\TileGLMRepository;
-use App\Repository\Game\Splendor\DevelopmentCardsSPLRepository;
-use App\Repository\Game\Splendor\DrawCardsSPLRepository;
-use App\Repository\Game\Splendor\NobleTileSPLRepository;
-use App\Repository\Game\Splendor\PlayerCardSPLRepository;
-use App\Repository\Game\Splendor\PlayerSPLRepository;
-use App\Repository\Game\Splendor\RowSPLRepository;
-use App\Repository\Game\Splendor\TokenSPLRepository;
 use App\Service\Game\AbstractGameManagerService;
 use App\Service\Game\Glenmore\CardGLMService;
 use App\Service\Game\Glenmore\GLMService;
-use App\Service\Game\Glenmore\TileGLMService;
 use App\Service\Game\Glenmore\WarehouseGLMService;
-use App\Service\Game\Splendor\SPLService;
-use App\Service\Game\Splendor\TokenSPLService;
-use Doctrine\DBAL\Exception;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\LoggerInterface;
-use function Symfony\Component\Translation\t;
 
-class GLMServiceTest extends TestCase
+class WarehouseGLMServiceTest extends TestCase
 {
-    private GLMService $GLMService;
+    private WarehouseGLMService $warehouseGLMService;
     protected function setUp(): void
     {
         $entityManager = $this->createMock(EntityManagerInterface::class);
@@ -57,146 +38,116 @@ class GLMServiceTest extends TestCase
         $resourceGLMRepository = $this->createMock(ResourceGLMRepository::class);
         $playerGLMRepository = $this->createMock(PlayerGLMRepository::class);
         $cardGLMService = new CardGLMService($entityManager, $resourceGLMRepository);
-        $this->GLMService = new GLMService($entityManager, $tileGLMRepository, $drawTilesGLMRepository,
+        $GLMService = new GLMService($entityManager, $tileGLMRepository, $drawTilesGLMRepository,
             $resourceGLMRepository, $playerGLMRepository, $cardGLMService);
+        $this->warehouseGLMService = new WarehouseGLMService($entityManager, $GLMService, $playerGLMRepository);
     }
 
-    public function testDoNotSkipPlayerTurnWhenPlayerIsStillTheLastInChain()
+    public function testResourceSaleWhenPlayerHaveNotThisResource() : void
     {
         // GIVEN
-        $game = $this->createGame(2);
-        $firstPlayer = $game->getPlayers()->first();
-        $secondPlayer = $game->getPlayers()->last();
-        $startTurnPosition = $firstPlayer->getPawn()->getPosition();
-        $firstPlayer->getPawn()->setPosition(($startTurnPosition + 1) %
-            GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD);
-        $secondPlayer->getPawn()->setPosition(($startTurnPosition + 3) %
-            GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD);
-        // WHEN
-        $this->GLMService->endRoundOfPlayer($game, $firstPlayer, $startTurnPosition);
-        // THEN
-        $this->assertTrue($firstPlayer->isTurnOfPlayer());
-    }
 
-    public function testSkipTurnOfPlayerWhenPlayerIsNoLongerTheLastInChain()
-    {
-        // GIVEN
-        $game = $this->createGame(2);
-        $firstPlayer = $game->getPlayers()->first();
-        $secondPlayer = $game->getPlayers()->last();
-        $startTurnPosition = $firstPlayer->getPawn()->getPosition();
-        $firstPlayer->getPawn()->setPosition(($startTurnPosition + 3) %
-            GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD);
-        // WHEN
-        $this->GLMService->endRoundOfPlayer($game, $firstPlayer, $startTurnPosition);
-        // THEN
-        $this->assertFalse($firstPlayer->isTurnOfPlayer());
-        $this->assertTrue($secondPlayer->isTurnOfPlayer());
-    }
-
-    public function testIsGameEndedShouldReturnTrue() : void
-    {
-        //GIVEN
-        $game = $this->createGame(4);
-        $drawTiles = $game->getMainBoard()->getDrawTiles();
-        foreach ($drawTiles as $drawTile) {
-            $drawTile->getTiles()->clear();
-        }
-        //WHEN
-        $result = $this->GLMService->isGameEnded($game);
-        //THEN
-        $this->assertTrue($result);
-    }
-
-    public function testIsGameEndedShouldReturnFalse() : void
-    {
-        //GIVEN
-        $game = $this->createGame(4);
-        $drawTiles = $game->getMainBoard()->getDrawTiles();
-        foreach ($drawTiles as $drawTile) {
-            if ($drawTile->getLevel() == GlenmoreParameters::$TILE_LEVEL_THREE) {
-                break;
-            }
-            $drawTile->getTiles()->clear();
-        }
-        $drawLevelThree = $drawTiles->get(GlenmoreParameters::$TILE_LEVEL_THREE);
-        $tiles = $drawLevelThree->getTiles();
-        for ($i = 0; $i < $tiles->count() - 1; ++$i) {
-            $drawLevelThree->removeTile($tiles->get($i));
-        }
-        //WHEN
-        $result = $this->GLMService->isGameEnded($game);
-        //THEN
-        $this->assertFalse($result);
-    }
-
-    public function testCalculatePointsAtEndOfLevelWithWhiskyDifference() : void
-    {
-        // GIVEN
-        $game = $this->createGame(5);
-        $players = $game->getPlayers();
-        for ($i = 0; $i < 5; ++$i) {
-            $personalBoard = $players[$i]->getPersonalBoard();
-            $tile = new PlayerTileGLM();
-            $tileResource = new PlayerTileResourceGLM();
-            $resource = new ResourceGLM();
-            $resource->setType(GlenmoreParameters::$WHISKY_RESOURCE);
-            $tileResource->setResource($resource);
-            $tileResource->setQuantity($i);
-            $tileResource->setPlayerTileGLM($tile);
-            $tile->addPlayerTileResource($tileResource);
-            $tile->setPersonalBoard($personalBoard);
-            $personalBoard->addPlayerTile($tile);
-        }
-        $expectedResult = [0, 1, 2, 3, 5];
-        //WHEN
-        $this->GLMService->calculatePointsAtEndOfLevel($game);
-        //THEN
-        $result = [$players[0]->getPoints(), $players[1]->getPoints(), $players[2]->getPoints(),
-            $players[3]->getPoints(), $players[4]->getPoints()];
-        $this->assertSame($expectedResult, $result);
-    }
-
-    public function testCalculatePointsAtEndOfLevelWithCastleOfMey() : void
-    {
-        // GIVEN
-        $game = $this->createGame(2);
-        $players = $game->getPlayers();
-        $personalBoard = $players[1]->getPersonalBoard();
-        $tile = new PlayerTileGLM();
-        $tileResource = new PlayerTileResourceGLM();
+        $nbPlayer = 4;
+        $game = $this->createGame($nbPlayer);
+        $mainBoard = $game->getMainBoard();
+        $player = $game->getPlayers()->first();
         $resource = new ResourceGLM();
-        $resource->setType(GlenmoreParameters::$WHISKY_RESOURCE);
-        $tileResource->setResource($resource);
-        $tileResource->setQuantity(0);
-        $tileResource->setPlayerTileGLM($tile);
-        $tile->addPlayerTileResource($tileResource);
-        $tile->setPersonalBoard($personalBoard);
-        $personalBoard->addPlayerTile($tile);
+        $resource->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $mainBoard->getWarehouse()->getWarehouseLine()->first()->setResource($resource);
+        $mainBoard->getWarehouse()->getWarehouseLine()->first()->setQuantity(2);
+        $mainBoard->getWarehouse()->getWarehouseLine()->first()->setCoinNumber(1);
 
-        $tile = new PlayerTileGLM();
-        $tileResource = new PlayerTileResourceGLM();
+        // WHEN
+
+        $this->expectException(\Exception::class);
+
+        // THEN
+
+        $this->warehouseGLMService->sellResource($player, $resource);
+    }
+
+    public function testResourceSaleWhenWarehouseHaveNotMoneyForThisResource() : void
+    {
+        // GIVEN
+
+        $nbPlayer = 4;
+        $game = $this->createGame($nbPlayer);
+        $player = $game->getPlayers()->first();
         $resource = new ResourceGLM();
-        $resource->setType(GlenmoreParameters::$HAT_RESOURCE);
-        $tileResource->setResource($resource);
-        $tileResource->setQuantity(1);
-        $tileResource->setPlayerTileGLM($tile);
-        $tile->addPlayerTileResource($tileResource);
-        $personalBoard->addPlayerTile($tile);
-        $personalBoard->setLeaderCount(2);
+        $resource->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $personalBoard = $player->getPersonalBoard();
+        $mainBoard = $game->getMainBoard();
+        $tile = $mainBoard->getDrawTiles()->last()->getTiles()->last();
+        $mainBoard->getDrawTiles()->last()->removeTile($tile);
 
-        $card = new CardGLM();
-        $card->setName(GlenmoreParameters::$CARD_CASTLE_OF_MEY);
-        $playerCard = new PlayerCardGLM($personalBoard, $card);
-        $personalBoard->addPlayerCardGLM($playerCard);
-        $tile->setPersonalBoard($personalBoard);
+        $playerTile = new PlayerTileGLM();
+        $playerTile->setTile($tile);
+        $playerTile->setPersonalBoard($personalBoard);
 
-        $expectedResult = [0, 9];
-        //WHEN
-        $this->GLMService->calculatePointsAtEndOfLevel($game);
-        //THEN
-        $result = [$players[0]->getPoints(), $players[1]->getPoints()];
-        $this->assertSame($expectedResult, $result);
+        $playerTileResource = new PlayerTileResourceGLM();
+        $playerTileResource->setResource($resource);
+        $playerTileResource->setQuantity(1);
+        $playerTileResource->setPlayerTileGLM($playerTile);
+
+        $playerTile->addPlayerTileResource($playerTileResource);
+        $personalBoard->addPlayerTile($playerTile);
+
+        $mainBoard->getWarehouse()->getWarehouseLine()->clear();
+
+        // WHEN
+
+        $this->expectException(\Exception::class);
+
+        // THEN
+
+        $this->warehouseGLMService->sellResource($player, $resource);
+    }
+
+    public function testSuccessResourceSale() : void
+    {
+        // GIVEN
+
+        $nbPlayer = 4;
+        $game = $this->createGame($nbPlayer);
+        $mainBoard = $game->getMainBoard();
+        $player = $game->getPlayers()->first();
+        $personalBoard = $player->getPersonalBoard();
+
+        $resourceWarehouse = new ResourceGLM();
+        $resourceWarehouse->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $mainBoard->getWarehouse()->getWarehouseLine()->get(1)->setQuantity(2);
+        $mainBoard->getWarehouse()->getWarehouseLine()->get(1)->setCoinNumber(1);
+
+        $resourcePlayer = new ResourceGLM();
+        $resourcePlayer->setColor(GlenmoreParameters::$COLOR_GREEN);
+
+        $playerTile = new PlayerTileGLM();
+        $tile = $mainBoard->getDrawTiles()->last()->getTiles()->last();
+        $playerTile->setTile($tile);
+        $playerTile->setPersonalBoard($personalBoard);
+
+        $playerTileResource = new PlayerTileResourceGLM();
+        $playerTileResource->setResource($resourcePlayer);
+        $playerTileResource->setQuantity(1);
+        $playerTileResource->setPlayerTileGLM($playerTile);
+
+        $playerTile->addPlayerTileResource($playerTileResource);
+        $personalBoard->addPlayerTile($playerTile);
+
+        $lastMoney = $personalBoard->getMoney();
+
+        // WHEN
+
+        $this->warehouseGLMService->sellResource($player, $resourcePlayer);
+
+        // THEN
+
+        $this->assertNull($this->warehouseGLMService->getResourceOnPersonalBoard(
+            $personalBoard,
+            $resourcePlayer)
+        );
+        $this->assertNotEquals($personalBoard->getMoney(), $lastMoney);
+        $this->assertGreaterThan($lastMoney, $personalBoard->getMoney());
     }
 
     private function createGame(int $nbOfPlayers): GameGLM
