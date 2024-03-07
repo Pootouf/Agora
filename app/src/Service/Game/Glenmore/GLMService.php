@@ -67,25 +67,6 @@ class GLMService
     }
 
     /**
-     * getActiveDrawTile : returns the draw tile with the lowest level which is not empty
-     *                      or null if all draw tiles are empty
-     * @param GameGLM $gameGLM
-     * @return DrawTilesGLM|null
-     */
-    public function getActiveDrawTile(GameGLM $gameGLM) : ?DrawTilesGLM
-    {
-        $mainBoard = $gameGLM->getMainBoard();
-        $drawTiles = $mainBoard->getDrawTiles();
-        for ($i = GlenmoreParameters::$TILE_LEVEL_ZERO; $i <= GlenmoreParameters::$TILE_LEVEL_THREE; ++$i) {
-            $draw = $drawTiles->get($i);
-            if ($draw->getTiles()->isEmpty()) {
-                return $draw;
-            }
-        }
-        return null;
-    }
-
-    /**
      * isGameEnded : checks if a game must end or not
      * @param GameGLM $gameGLM
      * @return bool

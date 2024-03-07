@@ -70,7 +70,7 @@
         eventSourceChosenCards.onmessage = event => {
             animationQueue.addToQueue(() => {
                 let chosenCards = document.getElementById('chosenCards');
-                chosenCards.innerHTML = event.data;
+                chosenCards.innerHTML = event.data;//
                 animationQueue.executeNextInQueue()
             })
 
