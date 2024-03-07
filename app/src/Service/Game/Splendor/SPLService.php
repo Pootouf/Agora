@@ -419,7 +419,9 @@ class SPLService
             $total += $tile->getPrestigePoints();
         }
         foreach ($developCards as $card) {
-            $total += $card->getDevelopmentCard()->getPrestigePoints();
+            if(!$card->isIsReserved()) {
+                $total += $card->getDevelopmentCard()->getPrestigePoints();
+            }
         }
         $player->setTotalPoints($total);
         $this->entityManager->persist($player);
