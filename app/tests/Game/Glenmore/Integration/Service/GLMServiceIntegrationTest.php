@@ -15,6 +15,7 @@ use App\Entity\Game\Glenmore\PlayerGLM;
 use App\Entity\Game\Glenmore\PlayerTileGLM;
 use App\Entity\Game\Glenmore\PlayerTileResourceGLM;
 use App\Entity\Game\Glenmore\ResourceGLM;
+use App\Entity\Game\Glenmore\TileGLM;
 use App\Entity\Game\Glenmore\WarehouseGLM;
 use App\Repository\Game\Glenmore\CardGLMRepository;
 use App\Repository\Game\Glenmore\ResourceGLMRepository;
@@ -22,6 +23,7 @@ use App\Repository\Game\Glenmore\TileGLMRepository;
 use App\Service\Game\AbstractGameManagerService;
 use App\Service\Game\Glenmore\GLMService;
 use App\Service\Game\Glenmore\TileGLMService;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
@@ -119,6 +121,150 @@ class GLMServiceIntegrationTest extends KernelTestCase
         $result = $GLMService->isGameEnded($game);
         //THEN
         $this->assertFalse($result);
+    }
+
+    public function testGetWinnerWithOnlyOneWinnerWithoutResourceCount() : void
+    {
+        //GIVEN
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $GLMService = static::getContainer()->get(GLMService::class);
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $lastPlayer = $game->getPlayers()->last();
+        $firstPlayer->setPoints(12);
+        $entityManager->persist($firstPlayer);
+        $lastPlayer->setPoints(15);
+        $entityManager->persist($lastPlayer);
+        $entityManager->flush();
+        $expectedResult = new ArrayCollection([$lastPlayer]);
+        //WHEN
+        $winner = $GLMService->getWinner($game);
+        //THEN
+        $this->assertEquals($expectedResult, $winner);
+    }
+
+    public function testGetWinnerWithOnlyOneWinnerWithResourceCount() : void
+    {
+        //GIVEN
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $GLMService = static::getContainer()->get(GLMService::class);
+        $tileGLMRepository = static::getContainer()->get(TileGLMRepository::class);
+        $resourceGLMRepository = static::getContainer()->get(ResourceGLMRepository::class);
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $lastPlayer = $game->getPlayers()->last();
+        $firstPlayer->setPoints(12);
+        $entityManager->persist($firstPlayer);
+        $lastPlayer->setPoints(12);
+        $entityManager->persist($lastPlayer);
+        $tile = $tileGLMRepository->findOneBy(["id" => 12]);
+        $playerTile = new PlayerTileGLM();
+        $playerTile->setTile($tile);
+        $entityManager->persist($playerTile);
+        $playerTileResource = new PlayerTileResourceGLM();
+        $resource = $resourceGLMRepository->findOneBy(["id" => 1]);
+        $playerTileResource->setResource($resource);
+        $playerTileResource->setQuantity(2);
+        $playerTileResource->setPlayerTileGLM($playerTile);
+        $entityManager->persist($playerTileResource);
+        $playerTile->addPlayerTileResource($playerTileResource);
+        $playerTile->setCoordY(0);
+        $playerTile->setCoordX(0);
+        $entityManager->persist($playerTile);
+        $lastPlayer->getPersonalBoard()->addPlayerTile($playerTile);
+        $entityManager->persist($lastPlayer->getPersonalBoard());
+
+        $tile = $tileGLMRepository->findOneBy(["id" => 12]);
+        $playerTile = new PlayerTileGLM();
+        $playerTile->setTile($tile);
+        $entityManager->persist($playerTile);
+        $playerTileResource = new PlayerTileResourceGLM();
+        $resource = $resourceGLMRepository->findOneBy(["type" => GlenmoreParameters::$WHISKY_RESOURCE]);
+        $playerTileResource->setResource($resource);
+        $playerTileResource->setQuantity(3);
+        $entityManager->persist($playerTileResource);
+        $playerTile->addPlayerTileResource($playerTileResource);
+        $playerTile->setCoordY(0);
+        $playerTile->setCoordX(0);
+        $entityManager->persist($playerTile);
+        $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile);
+        $entityManager->persist($firstPlayer->getPersonalBoard());
+        $entityManager->flush();
+        $expectedResult = new ArrayCollection([$lastPlayer]);
+        //WHEN
+        $winner = $GLMService->getWinner($game);
+        //THEN
+        $this->assertEquals($expectedResult, $winner);
+    }
+
+    public function testGetWinnerWithTwoWinners() : void
+    {
+        //GIVEN
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $GLMService = static::getContainer()->get(GLMService::class);
+        $tileGLMRepository = static::getContainer()->get(TileGLMRepository::class);
+        $resourceGLMRepository = static::getContainer()->get(ResourceGLMRepository::class);
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $lastPlayer = $game->getPlayers()->last();
+        $firstPlayer->setPoints(12);
+        $entityManager->persist($firstPlayer);
+        $lastPlayer->setPoints(12);
+        $entityManager->persist($lastPlayer);
+        $tile = $tileGLMRepository->findOneBy(["id" => 12]);
+        $playerTile = new PlayerTileGLM();
+        $playerTile->setTile($tile);
+        $entityManager->persist($playerTile);
+        $playerTileResource = new PlayerTileResourceGLM();
+        $resource = $resourceGLMRepository->findOneBy(["id" => 1]);
+        $playerTileResource->setResource($resource);
+        $playerTileResource->setQuantity(2);
+        $playerTileResource->setPlayerTileGLM($playerTile);
+        $entityManager->persist($playerTileResource);
+        $playerTile->addPlayerTileResource($playerTileResource);
+        $playerTile->setCoordY(0);
+        $playerTile->setCoordX(0);
+        $entityManager->persist($playerTile);
+        $lastPlayer->getPersonalBoard()->addPlayerTile($playerTile);
+        $entityManager->persist($lastPlayer->getPersonalBoard());
+
+        $tile = $tileGLMRepository->findOneBy(["id" => 12]);
+        $playerTile = new PlayerTileGLM();
+        $playerTile->setTile($tile);
+        $entityManager->persist($playerTile);
+        $playerTileResource = new PlayerTileResourceGLM();
+        $resource = $resourceGLMRepository->findOneBy(["type" => GlenmoreParameters::$PRODUCTION_RESOURCE]);
+        $playerTileResource->setResource($resource);
+        $playerTileResource->setQuantity(1);
+        $entityManager->persist($playerTileResource);
+        $playerTile->addPlayerTileResource($playerTileResource);
+        $playerTile->setCoordY(0);
+        $playerTile->setCoordX(0);
+        $entityManager->persist($playerTile);
+        $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile);
+        $entityManager->persist($firstPlayer->getPersonalBoard());
+        $tile = $tileGLMRepository->findOneBy(["id" => 15]);
+        $playerTile = new PlayerTileGLM();
+        $playerTile->setTile($tile);
+        $entityManager->persist($playerTile);
+        $playerTileResource = new PlayerTileResourceGLM();
+        $resource = $resourceGLMRepository->findOneBy(["type" => GlenmoreParameters::$PRODUCTION_RESOURCE]);
+        $playerTileResource->setResource($resource);
+        $playerTileResource->setQuantity(1);
+        $entityManager->persist($playerTileResource);
+        $playerTile->addPlayerTileResource($playerTileResource);
+        $playerTile->setCoordY(0);
+        $playerTile->setCoordX(0);
+        $entityManager->persist($playerTile);
+        $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile);
+        $entityManager->persist($firstPlayer->getPersonalBoard());
+        $entityManager->flush();
+        $expectedResult = new ArrayCollection([$firstPlayer, $lastPlayer]);
+        //WHEN
+        $winner = $GLMService->getWinner($game);
+        //THEN
+        $this->assertEquals(2, $winner->count());
+        $this->assertEquals($expectedResult, $winner);
     }
 
     public function testCalculatePointsAtEndOfLevelWithWhiskyDifference() : void
