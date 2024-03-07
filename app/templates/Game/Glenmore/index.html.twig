@@ -12,14 +12,22 @@
                     {{ include('/Game/Glenmore/endGameScreenResult.html.twig') }}
             {% endblock %}
             {% block ranking %}
-            <div id="ranking" class="absolute bg-gradient-to-b from-[#4C6E9Bff] to-[#20222Dff] w-[25%] h-full right-0">
+            <div id="ranking" class="absolute bg-gradient-to-b from-[#4C6E9Bff] to-[#20222Dff] w-[25%] h-3/4 right-0">
                 {{  include('/Game/Glenmore/Ranking/ranking.html.twig') }}
             </div>
             {% endblock %}
+            {% block drawTileIndicator %}
+                <div id="drawTileIndicator"
+                     class="absolute bg-gradient-to-b from-[#4C6E9Bff] to-[#20222Dff] w-[25%] h-1/4 right-0">
+                    {{  include('/Game/Glenmore/MainBoard/ranking.html.twig') }}
+                </div>
+            {% endblock %}
+            {% block mainBoard %}
                 <div id="mainBoard" class="flow float-start w-[75%]
                         h-full">
                     {{ include('/Game/Glenmore/MainBoard/mainBoard.html.twig') }}
                 </div>
+            {% endblock %}
             {% block personalBoard %}
                 {% if not isSpectator %}
                 <div id="personalBoard" class="flow float-start w-[75%] h-full">
