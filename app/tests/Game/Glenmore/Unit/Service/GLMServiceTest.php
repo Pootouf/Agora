@@ -22,6 +22,7 @@ use App\Entity\Game\Glenmore\WarehouseLineGLM;
 use App\Repository\Game\Glenmore\CardGLMRepository;
 use App\Repository\Game\Glenmore\DrawTilesGLMRepository;
 use App\Repository\Game\Glenmore\PlayerGLMRepository;
+use App\Repository\Game\Glenmore\PlayerTileGLMRepository;
 use App\Repository\Game\Glenmore\ResourceGLMRepository;
 use App\Repository\Game\Glenmore\TileGLMRepository;
 use App\Repository\Game\Splendor\DevelopmentCardsSPLRepository;
@@ -33,6 +34,7 @@ use App\Repository\Game\Splendor\RowSPLRepository;
 use App\Repository\Game\Splendor\TokenSPLRepository;
 use App\Service\Game\AbstractGameManagerService;
 use App\Service\Game\Glenmore\CardGLMService;
+use App\Service\Game\Glenmore\DataManagementGLMService;
 use App\Service\Game\Glenmore\GLMService;
 use App\Service\Game\Glenmore\TileGLMService;
 use App\Service\Game\Glenmore\WarehouseGLMService;
@@ -362,9 +364,8 @@ class GLMServiceTest extends TestCase
         $game = $this->createGame($nbOfPlayers);
         $mainBoard = $game->getMainBoard();
         $firstPlayer = $game->getPlayers()->first();
-        $secondPlayer = $game->getPlayers()->get(2);
+        $secondPlayer = $game->getPlayers()->get(1);
         $boardTile = $mainBoard->getBoardTiles()->last();
-
         $lastPosition = $this->tileGLMService->assignTileToPlayer($boardTile, $firstPlayer);
         $lastPosition -= 1;
         if ($lastPosition < 0) {
@@ -376,9 +377,8 @@ class GLMServiceTest extends TestCase
             $mainBoard->getDrawTiles()->get(GlenmoreParameters::$TILE_LEVEL_ONE));
 
         // THEN
-
         $this->assertNotContains($boardTile, $mainBoard->getBoardTiles());
-        $this->assertEquals($lastPosition, $mainBoard->getBoardTiles()->last()->getPosition());
+        $this->assertEquals($lastPosition - 1, $mainBoard->getBoardTiles()->last()->getPosition());
     }
 
     public function testSuccessTileAllocation() : void
@@ -657,6 +657,7 @@ class GLMServiceTest extends TestCase
             $pawn->setColor(GlenmoreParameters::$COLOR_FROM_POSITION[$i]);
             $pawn->setPosition($i);
             $pawn->setMainBoardGLM($mainBoard);
+            $mainBoard->addPawn($pawn);
             $player->setPawn($pawn);
             $playerTile = new PlayerTileGLM();
             $startTile = new TileGLM();
@@ -672,7 +673,7 @@ class GLMServiceTest extends TestCase
             $playerTileResource->setQuantity(1);
         }
 
-        for ($i = $nbOfPlayers; $i < GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD; ++$i) {
+        for ($i = $nbOfPlayers; $i < GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD - 1; ++$i) {
             $drawTiles = $mainBoard->getDrawTiles();
             $level = 0;
             for ($j = GlenmoreParameters::$TILE_LEVEL_ZERO; $j <= GlenmoreParameters::$TILE_LEVEL_THREE; ++$j) {
