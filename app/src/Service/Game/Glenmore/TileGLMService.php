@@ -59,7 +59,7 @@ class TileGLMService
         $drawTiles = $mainBoard->getDrawTiles();
         for ($i = GlenmoreParameters::$TILE_LEVEL_ZERO; $i <= GlenmoreParameters::$TILE_LEVEL_THREE; ++$i) {
             $draw = $drawTiles->get($i);
-            if ($draw->getTiles()->isEmpty()) {
+            if (!$draw->getTiles()->isEmpty()) {
                 return $draw;
             }
         }
