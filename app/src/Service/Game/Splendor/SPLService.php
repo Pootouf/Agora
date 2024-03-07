@@ -419,7 +419,9 @@ class SPLService
             $total += $tile->getPrestigePoints();
         }
         foreach ($developCards as $card) {
-            $total += $card->getDevelopmentCard()->getPrestigePoints();
+            if(!$card->isIsReserved()) {
+                $total += $card->getDevelopmentCard()->getPrestigePoints();
+            }
         }
         $player->setTotalPoints($total);
         $this->entityManager->persist($player);
@@ -473,7 +475,9 @@ class SPLService
                 $this->entityManager->persist($playerCardSPL);
                 $this->entityManager->persist($playerSPL->getPersonalBoard());
             }
+
             $retrievePlayerMoney = $this->retrievePlayerMoney($playerSPL, $developmentCardsSPL);
+
             if($playerCardSPL->isIsReserved()) {
                 $playerCardSPL->setIsReserved(false);
                 $this->entityManager->persist($playerCardSPL);
@@ -488,14 +492,18 @@ class SPLService
                 //Add a new card in the row
                 $levelCard = $developmentCardsSPL->getLevel();
                 $levelDraw = $mainBoard->getDrawCards()->get($levelCard - 1);
-                $row->addDevelopmentCard($levelDraw->getDevelopmentCards()->first());
 
-                //Remove the new card from draw
-                $levelDraw->removeDevelopmentCard($levelDraw->getDevelopmentCards()->first());
-                $this->entityManager->persist($levelDraw);
+                if ($levelDraw->getDevelopmentCards()->count() > 0) {
+                    $row->addDevelopmentCard($levelDraw->getDevelopmentCards()->first());
+                    //Remove the new card from draw
+                    $levelDraw->removeDevelopmentCard($levelDraw->getDevelopmentCards()->first());
+                    $this->entityManager->persist($levelDraw);
+                }
+
                 $this->entityManager->persist($row);
             }
-            $this->entityManager->flush();
+
+            $this->calculatePrestigePoints($playerSPL);
             return $retrievePlayerMoney;
         } else {
             throw new Exception('Not enough money to buy this card');
@@ -527,6 +535,7 @@ class SPLService
                 $this->entityManager->persist($player->getPersonalBoard());
                 $this->entityManager->persist($game->getMainBoard());
                 $this->entityManager->flush();
+                $this->calculatePrestigePoints($player);
                 return $tile->getId();
             }
         }
