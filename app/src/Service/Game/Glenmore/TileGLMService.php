@@ -4,6 +4,7 @@ namespace App\Service\Game\Glenmore;
 
 use App\Entity\Game\Glenmore\BoardTileGLM;
 use App\Entity\Game\Glenmore\DrawTilesGLM;
+use App\Entity\Game\Glenmore\GameGLM;
 use App\Entity\Game\Glenmore\GlenmoreParameters;
 use App\Entity\Game\Glenmore\MainBoardGLM;
 use App\Entity\Game\Glenmore\PlayerCardGLM;
@@ -44,6 +45,57 @@ class TileGLMService
                 GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD;
         }
         return $count;
+    }
+
+    /**
+     * getActiveDrawTile : returns the draw tile with the lowest level which is not empty
+     *                      or null if all draw tiles are empty
+     * @param GameGLM $gameGLM
+     * @return DrawTilesGLM|null
+     */
+    public function getActiveDrawTile(GameGLM $gameGLM) : ?DrawTilesGLM
+    {
+        $mainBoard = $gameGLM->getMainBoard();
+        $drawTiles = $mainBoard->getDrawTiles();
+        for ($i = GlenmoreParameters::$TILE_LEVEL_ZERO; $i <= GlenmoreParameters::$TILE_LEVEL_THREE; ++$i) {
+            $draw = $drawTiles->get($i);
+            if (!$draw->getTiles()->isEmpty()) {
+                return $draw;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * getActivableTiles : returns a collection of all activable tiles after a new tile was placed
+     *  onto personalBoard
+     * @param PlayerTileGLM $playerTileGLM
+     * @return ArrayCollection<Int, PlayerTileGLM>
+     */
+    public function getActivableTiles(PlayerTileGLM $playerTileGLM) : ArrayCollection
+    {
+        $activableTiles = new ArrayCollection();
+        $personalBoard = $playerTileGLM->getPersonalBoard();
+        $lastTile = $personalBoard->getPlayerTiles()->last()->getTile();
+        $card = $lastTile->getCard();
+        // if player just bought Loch Oich then all tiles can be activated
+        if ($card != null && $card->getName() === GlenmoreParameters::$CARD_LOCH_OICH) {
+            $adjacentTiles = $personalBoard->getPlayerTiles();
+        } else { // else just adjacent tiles can be activated
+            $adjacentTiles = $playerTileGLM->getAdjacentTiles();
+        }
+        foreach ($adjacentTiles as $adjacentTile) {
+            if (!$adjacentTile->isActivated() && $adjacentTile->getTile()->getActivationBonus() != null) {
+                $activableTiles->add($adjacentTile);
+            }
+        }
+
+        // if every tile has been activated
+        if ($adjacentTiles->isEmpty()) {
+            $activableTiles = $this->cardGLMService->applyLochNess($personalBoard);
+        }
+
+        return $activableTiles;
     }
 
     /**
@@ -88,38 +140,6 @@ class TileGLMService
 
         // Return last position of player
         return $lastPosition;
-    }
-
-    /**
-     * getActivableTiles : returns a collection of all activable tiles after a new tile was placed
-     *  onto personalBoard
-     * @param PlayerTileGLM $playerTileGLM
-     * @return ArrayCollection<Int, PlayerTileGLM>
-     */
-    public function getActivableTiles(PlayerTileGLM $playerTileGLM) : ArrayCollection
-    {
-        $activableTiles = new ArrayCollection();
-        $personalBoard = $playerTileGLM->getPersonalBoard();
-        $lastTile = $personalBoard->getPlayerTiles()->last()->getTile();
-        $card = $lastTile->getCard();
-        // if player just bought Loch Oich then all tiles can be activated
-        if ($card != null && $card->getName() === GlenmoreParameters::$CARD_LOCH_OICH) {
-            $adjacentTiles = $personalBoard->getPlayerTiles();
-        } else { // else just adjacent tiles can be activated
-            $adjacentTiles = $playerTileGLM->getAdjacentTiles();
-        }
-        foreach ($adjacentTiles as $adjacentTile) {
-            if (!$adjacentTile->isActivated() && $adjacentTile->getTile()->getActivationBonus() != null) {
-                $activableTiles->add($adjacentTile);
-            }
-        }
-
-        // if every tile has been activated
-        if ($adjacentTiles->isEmpty()) {
-            $activableTiles = $this->cardGLMService->applyLochNess($personalBoard);
-        }
-
-        return $activableTiles;
     }
 
     /**
