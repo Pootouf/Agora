@@ -41,6 +41,7 @@ use App\Service\Game\Glenmore\TileGLMService;
 use App\Service\Game\Glenmore\WarehouseGLMService;
 use App\Service\Game\Splendor\SPLService;
 use App\Service\Game\Splendor\TokenSPLService;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Exception;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
@@ -129,6 +130,107 @@ class GLMServiceTest extends TestCase
         $result = $this->GLMService->isGameEnded($game);
         //THEN
         $this->assertFalse($result);
+    }
+
+    public function testGetWinnerWithOnlyOneWinnerWithoutResourceCount() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $lastPlayer = $game->getPlayers()->last();
+        $firstPlayer->setPoints(12);
+        $lastPlayer->setPoints(15);
+        $expectedResult = new ArrayCollection([$lastPlayer]);
+        //WHEN
+        $winner = $this->GLMService->getWinner($game);
+        //THEN
+        $this->assertEquals($expectedResult, $winner);
+    }
+
+    public function testGetWinnerWithOnlyOneWinnerWithResourceCount() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $lastPlayer = $game->getPlayers()->last();
+        $firstPlayer->setPoints(12);
+        $lastPlayer->setPoints(12);
+        $tile = new TileGLM();
+        $playerTile = new PlayerTileGLM();
+        $playerTile->setTile($tile);
+        $playerTileResource = new PlayerTileResourceGLM();
+        $resource = new ResourceGLM();
+        $resource->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
+        $playerTileResource->setResource($resource);
+        $playerTileResource->setQuantity(2);
+        $playerTile->addPlayerTileResource($playerTileResource);
+        $lastPlayer->getPersonalBoard()->addPlayerTile($playerTile);
+
+        $tile = new TileGLM();
+        $playerTile = new PlayerTileGLM();
+        $playerTile->setTile($tile);
+        $playerTileResource = new PlayerTileResourceGLM();
+        $resource = new ResourceGLM();
+        $resource->setType(GlenmoreParameters::$WHISKY_RESOURCE);
+        $playerTileResource->setResource($resource);
+        $playerTileResource->setQuantity(3);
+        $playerTile->addPlayerTileResource($playerTileResource);
+        $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile);
+
+        $expectedResult = new ArrayCollection([$lastPlayer]);
+        //WHEN
+        $winner = $this->GLMService->getWinner($game);
+        //THEN
+        $this->assertEquals($expectedResult, $winner);
+    }
+
+    public function testGetWinnerWithTwoWinners() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $lastPlayer = $game->getPlayers()->last();
+        $firstPlayer->setPoints(12);
+        $lastPlayer->setPoints(12);
+        $tile = new TileGLM();
+        $playerTile = new PlayerTileGLM();
+        $playerTile->setTile($tile);
+        $playerTileResource = new PlayerTileResourceGLM();
+        $resource = new ResourceGLM();
+        $resource->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
+        $playerTileResource->setResource($resource);
+        $playerTileResource->setQuantity(2);
+        $playerTile->addPlayerTileResource($playerTileResource);
+        $lastPlayer->getPersonalBoard()->addPlayerTile($playerTile);
+
+        $tile = new TileGLM();
+        $playerTile = new PlayerTileGLM();
+        $playerTile->setTile($tile);
+        $playerTileResource = new PlayerTileResourceGLM();
+        $resource = new ResourceGLM();
+        $resource->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
+        $playerTileResource->setResource($resource);
+        $playerTileResource->setQuantity(1);
+        $playerTile->addPlayerTileResource($playerTileResource);
+        $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile);
+
+        $tile = new TileGLM();
+        $playerTile = new PlayerTileGLM();
+        $playerTile->setTile($tile);
+        $playerTileResource = new PlayerTileResourceGLM();
+        $resource = new ResourceGLM();
+        $resource->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
+        $playerTileResource->setResource($resource);
+        $playerTileResource->setQuantity(1);
+        $playerTile->addPlayerTileResource($playerTileResource);
+        $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile);
+
+        $expectedResult = new ArrayCollection([$firstPlayer, $lastPlayer]);
+        //WHEN
+        $winner = $this->GLMService->getWinner($game);
+        //THEN
+        $this->assertEquals(2, $winner->count());
+        $this->assertEquals($expectedResult, $winner);
     }
 
     public function testCalculatePointsAtEndOfLevelWithWhiskyDifference() : void
