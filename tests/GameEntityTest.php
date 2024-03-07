@@ -3,6 +3,7 @@
 namespace App\Tests;
 
 use App\Entity\Platform\Game;
+use App\Entity\Platform\Board;
 use PHPUnit\Framework\TestCase;
 
 class GameEntityTest extends TestCase
@@ -33,7 +34,7 @@ class GameEntityTest extends TestCase
         $this->assertEquals("le but du jeu est d'obtenir un 6 etc...", $game->getDescrRule());
     }
 
-    public function testGetSetImgURL()
+    public function testSetImgURL()
     {
         // GIVEN
         $game = new Game();
@@ -42,7 +43,7 @@ class GameEntityTest extends TestCase
         $game->setImgURL('https://example.com/image.jpg');
 
         //THEN
-        $this->assertEquals('https://example.com/image.jpg', $entity->getImgURL());
+        $this->assertEquals('https://example.com/image.jpg', $game->getImgURL());
     }
 
     public function testSetLabel()
@@ -99,4 +100,33 @@ class GameEntityTest extends TestCase
         //THEN
         $this->assertEquals(8, $game->getMaxPlayers());
     }
+
+
+
+    public function testAddGameToBoard()
+    {
+        // GIVEN
+        $game = new Game();
+        $board = new Board();
+        // WHEN
+        $game->addBoard($board);
+
+        // THEN
+        $this->assertCount(1, $game->getBoards());
+    }
+
+    public function testRemoveGameToBoard()
+    {
+        // GIVEN
+        $game = new Game();
+        $board = new Board();
+
+        // WHEN
+        $game->addBoard($board);
+        $game->removeBoard($board);
+
+        // THEN
+        $this->assertCount(0, $game->getBoards());
+    }
+
 }
