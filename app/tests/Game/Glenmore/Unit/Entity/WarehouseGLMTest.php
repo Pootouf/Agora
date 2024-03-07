@@ -86,7 +86,7 @@ class WarehouseGLMTest extends TestCase
         $this->assertNull($warehouseLine->getWarehouseGLM());
         $this->assertNotContains($warehouseLine, $this->warehouseGLM->getWarehouseLine());
     }
-    
+
     public function testRemoveWarehouseLineAlreadyRemoved() : void
     {
         // GIVEN
