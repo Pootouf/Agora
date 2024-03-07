@@ -63,10 +63,10 @@ class GLMServiceTest extends TestCase
         $playerTileGLMRepository = $this->createMock(PlayerTileGLMRepository::class);
         $playerTileResourceGLMRepository = $this->createMock(PlayerTileResourceGLMRepository::class);
         $this->cardGLMService = new CardGLMService($entityManager, $resourceGLMRepository);
-        $this->GLMService = new GLMService($entityManager, $tileGLMRepository,
-            $playerTileResourceGLMRepository, $playerTileGLMRepository, $drawTilesGLMRepository,
+        $this->GLMService = new GLMService($entityManager, $tileGLMRepository, $drawTilesGLMRepository,
             $resourceGLMRepository, $playerGLMRepository, $this->cardGLMService);
-        $this->tileGLMService = new TileGLMService($entityManager, $this->GLMService, $playerGLMRepository,
+        $this->tileGLMService = new TileGLMService($entityManager, $this->GLMService
+            , $resourceGLMRepository, $playerTileResourceGLMRepository, $playerTileGLMRepository,
             $this->cardGLMService);
         $this->warehouseGLMService = new WarehouseGLMService($entityManager, $this->GLMService, $playerGLMRepository);
     }
@@ -599,36 +599,6 @@ class GLMServiceTest extends TestCase
         );
         $this->assertNotEquals($personalBoard->getMoney(), $lastMoney);
         $this->assertGreaterThan($lastMoney, $personalBoard->getMoney());
-    }
-
-    private function testCanPlaceTileSuccessWithValidPlacement() : void
-    {
-        //GIVEN
-        $nbPlayer = 4;
-        $game = $this->createGame($nbPlayer);
-        $player = $game->getPlayers()->first();
-        $tile = new TileGLM();
-        $tile->setContainingRoad(true);
-        $tile->setContainingRiver(false);
-        //WHEN
-        $result = $this->GLMService->canPlaceTile(1, 0, $tile, $player);
-        //THEN
-        $this->assertTrue($result);
-    }
-
-    private function testCanPlaceTileFailWithInvalidPlacement() : void
-    {
-        //GIVEN
-        $nbPlayer = 4;
-        $game = $this->createGame($nbPlayer);
-        $player = $game->getPlayers()->first();
-        $tile = new TileGLM();
-        $tile->setContainingRoad(true);
-        $tile->setContainingRiver(false);
-        //WHEN
-        $result = $this->GLMService->canPlaceTile(2, 0, $tile, $player);
-        //THEN
-        $this->assertFalse($result);
     }
 
     private function createGame(int $nbOfPlayers): GameGLM

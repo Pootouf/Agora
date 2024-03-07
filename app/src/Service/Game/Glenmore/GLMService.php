@@ -31,8 +31,6 @@ class GLMService
 {
     public function __construct(private readonly EntityManagerInterface $entityManager,
         private readonly TileGLMRepository $tileGLMRepository,
-        private readonly PlayerTileResourceGLMRepository $playerTileResourceGLMRepository,
-        private readonly PlayerTileGLMRepository $playerTileGLMRepository,
         private readonly DrawTilesGLMRepository $drawTilesGLMRepository,
         private readonly ResourceGLMRepository $resourceGLMRepository,
         private readonly PlayerGLMRepository $playerGLMRepository,
@@ -135,44 +133,6 @@ class GLMService
         return $result;
     }
 
-    /**
-     * canPlaceTile: return true if the player can place the selected tile at the chosen emplacement
-     *
-     * @param int $x the coord x of the wanted emplacement
-     * @param int $y the coord y of the wanted emplacement
-     * @param TileGLM $tile
-     * @param PlayerGLM $player
-     * @return bool
-     */
-    public function canPlaceTile(int $x, int $y, TileGLM $tile, PlayerGLM $player): bool
-    {
-        //Recovery of the adjacent tiles
-        $tileLeft = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x - 1, 'coord_Y' => $y
-            , 'personalBoard' => $player->getPersonalBoard()]);
-        $tileRight = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x + 1, 'coord_Y' => $y
-            , 'personalBoard' => $player->getPersonalBoard()]);
-        $tileUp = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x, 'coord_Y' => $y - 1
-            , 'personalBoard' => $player->getPersonalBoard()]);
-        $tileDown = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x, 'coord_Y' => $y + 1
-            , 'personalBoard' => $player->getPersonalBoard()]);
-        $tileUpLeft = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x - 1, 'coord_Y' => $y - 1
-            , 'personalBoard' => $player->getPersonalBoard()]);
-        $tileUpRight = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x + 1, 'coord_Y' => $y - 1
-            , 'personalBoard' => $player->getPersonalBoard()]);
-        $tileDownLeft = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x - 1, 'coord_Y' => $y + 1
-            , 'personalBoard' => $player->getPersonalBoard()]);
-        $tileDownRight = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x + 1, 'coord_Y' => $y + 1
-            , 'personalBoard' => $player->getPersonalBoard()]);
-
-        //Verification of the constraints
-        return $this->verifyRoadAndRiverConstraints($tile, $tileLeft, $tileRight, $tileUp, $tileDown)
-            && $this->isVillagerInAdjacentTiles(
-                new ArrayCollection(
-                    [$tileLeft, $tileRight, $tileUp, $tileDown,
-                    $tileUpLeft, $tileUpRight, $tileDownLeft, $tileDownRight]
-                )
-            );
-    }
 
     /**
      * manageEndOfRound : proceeds to count players' points depending on draw tiles level
@@ -384,68 +344,6 @@ class GLMService
         $this->entityManager->flush();
     }
 
-
-    /**
-     * verifyRoadAndRiverConstraints: return true if the player can place the tile with the selected adjacentTiles
-     *                                regarding rivers and roads
-     *
-     * @param TileGLM $tile
-     * @param PlayerTileGLM $tileLeft
-     * @param PlayerTileGLM $tileRight
-     * @param PlayerTileGLM $tileUp
-     * @param PlayerTileGLM $tileDown
-     * @return bool
-     */
-    private function verifyRoadAndRiverConstraints(TileGLM $tile, PlayerTileGLM $tileLeft, PlayerTileGLM $tileRight,
-                                                   PlayerTileGLM $tileUp, PlayerTileGLM $tileDown) : bool
-    {
-        $canPlace = true;
-        if ($tile->isContainingRiver()) {
-            $canPlace = ($tileUp != null && $tileUp->getTile()->isContainingRiver())
-                || ($tileDown != null && $tileDown->getTile()->isContainingRiver());
-        }
-        if ($tile->isContainingRoad()) {
-            $canPlace = $canPlace && ($tileLeft != null && $tileLeft->getTile()->isContainingRoad())
-                || ($tileRight != null && $tileRight->getTile()->isContainingRoad());
-        }
-        if (!$tile->isContainingRiver()) {
-            $canPlace = $canPlace && ($tileUp == null || !$tileUp->getTile()->isContainingRiver())
-                && ($tileDown == null || !$tileDown->getTile()->isContainingRiver());
-        }
-        if (!$tile->isContainingRoad()) {
-            $canPlace = $canPlace && ($tileLeft == null || !$tileLeft->getTile()->isContainingRoad())
-                && ($tileRight == null || !$tileRight->getTile()->isContainingRoad());
-        }
-        if(!$tile->isContainingRiver() && !$tile->isContainingRoad()) {
-            $canPlace = $canPlace && $tileLeft != null || $tileRight != null || $tileUp != null || $tileDown != null;
-        }
-        return $canPlace;
-    }
-
-
-    /**
-     * doesTileContainVillager: return true if the tile contains a villager
-     * @param PlayerTileGLM $playerTile
-     * @return bool
-     */
-    private function doesTileContainsVillager(PlayerTileGLM $playerTile) : bool
-    {
-        $villager = $this->resourceGLMRepository->findOneBy(['type' => GlenmoreParameters::$VILLAGER_RESOURCE]);
-        return $this->playerTileResourceGLMRepository->findOneBy(['resource' => $villager->getId(),
-            'playerTileGLM' => $playerTile->getId()]) != null;
-    }
-
-    /**
-     * isVillagerInAdjacentTiles: return true if a villager is found in at least one of the adjacentTiles
-     * @param Collection $adjacentTiles
-     * @return bool
-     */
-    private function isVillagerInAdjacentTiles(Collection $adjacentTiles) : bool
-    {
-        return $adjacentTiles->forAll(function(?PlayerTileGLM $tile) {
-                return $tile != null && $this->doesTileContainsVillager($tile);
-            });
-    }
 
     /**
      * getSortedListResource : returns sorted list of (players, resourceAmount) by amount of resources
