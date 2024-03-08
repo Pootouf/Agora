@@ -73,7 +73,7 @@ class GlenmoreController extends AbstractController
         ]);
     }
 
-    #[Route('game/glenmore/{idGame}/selectTileOnMainBoard/{idTile}', name: 'app_game_glenmore_select_tile_on_mainboard')]
+    #[Route('game/glenmore/{idGame}/select/tile/mainBoard/{idTile}', name: 'app_game_glenmore_select_tile_on_mainboard')]
     public function selectTileOnMainBoard(
         #[MapEntity(id: 'idGame')] GameGLM $game,
         #[MapEntity(id: 'idTile')] BoardTileGLM $tile
@@ -92,6 +92,23 @@ class GlenmoreController extends AbstractController
             return new Response("can't select this tile", Response::HTTP_FORBIDDEN);
         }
         return new Response('player selected this tile', Response::HTTP_OK);
+    }
+
+    #[Route('game/glenmore/{idGame}/select/tile/personalBoard/{idTile}', name: 'app_game_glenmore_select_tile_on_personalboard')]
+    public function selectTileOnPersonalBoard(
+        #[MapEntity(id: 'idGame')] GameGLM $game,
+        #[MapEntity(id: 'idTile')] PlayerTileGLM $tile
+    )  : Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+        }
+        return $this->render('/Game/Glenmore/PersonalBoard/selectTile.html.twig', [
+            'selectedTile' => $tile,
+            'game' => $game,
+            'player' => $player,
+        ]);
     }
 
 }
