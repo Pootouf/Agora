@@ -26,6 +26,7 @@ use App\Service\Game\Glenmore\TileGLMService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use function Symfony\Component\String\s;
 
 class GLMServiceIntegrationTest extends KernelTestCase
 {
@@ -369,6 +370,66 @@ class GLMServiceIntegrationTest extends KernelTestCase
         $result = [$players[0]->getPoints(), $players[1]->getPoints()];
         $this->assertSame($expectedResult, $result);
     }
+
+    public function testCalculatePointsAtEndOfGameWithOnlyMoney() : void
+    {
+        // GIVEN
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $GLMService = static::getContainer()->get(GLMService::class);
+        $game = $this->createGame(5);
+        $players = $game->getPlayers();
+        for ($i = 0; $i < 5; ++$i) {
+            $personalBoard = $players->get($i)->getPersonalBoard();
+            $personalBoard->setMoney($i);
+            $entityManager->persist($personalBoard);
+        }
+        $entityManager->flush();
+        $expectedResult = [0, 1, 2, 3, 4];
+        //WHEN
+        $GLMService->calculatePointsAtEndOfGame($game);
+        //THEN
+        $result = [$players->get(0)->getPoints(),
+            $players->get(1)->getPoints(),
+            $players->get(2)->getPoints(),
+            $players->get(3)->getPoints(),
+            $players->get(4)->getPoints()];
+        $this->assertSame($expectedResult, $result);
+    }
+
+    public function testCalculatePointsAtEndOfGameWithMoneyAndDifferencesOfTiles() : void
+    {
+        // GIVEN
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $GLMService = static::getContainer()->get(GLMService::class);
+        $tileRepository = static::getContainer()->get(TileGLMRepository::class);
+        $game = $this->createGame(2);
+        $players = $game->getPlayers();
+
+        $personalBoard = $players->get(0)->getPersonalBoard();
+        $personalBoard->setMoney(15);
+        $players->get(1)->getPersonalBoard()->setMoney(0);
+        for ($i = 0; $i < 4; ++$i) {
+            $playerTile = new PlayerTileGLM();
+            $playerTile->setCoordX(0);
+            $playerTile->setCoordY(0);
+            $playerTile->setActivated(0);
+            $playerTile->setPersonalBoard($personalBoard);
+            $tile = $tileRepository->findOneBy(["id" => $i + 1]);
+            $playerTile->setTile($tile);
+            $entityManager->persist($playerTile);
+            $personalBoard->addPlayerTile($playerTile);
+            $entityManager->persist($personalBoard);
+        }
+        $entityManager->flush();
+        $expectedResult = [3, 0];
+        //WHEN
+        $GLMService->calculatePointsAtEndOfGame($game);
+        //THEN
+        $result = [$players->get(0)->getPoints(),
+            $players->get(1)->getPoints()];
+        $this->assertSame($expectedResult, $result);
+    }
+
 
     public function testManageEndOfRoundShouldReturnExceptionBecauseTooHigh() : void
     {
