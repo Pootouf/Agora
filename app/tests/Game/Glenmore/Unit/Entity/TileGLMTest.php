@@ -243,11 +243,11 @@ class TileGLMTest extends TestCase
 
         // WHEN
 
-        $this->setName($name);
+        $this->tileGLM->setName($name);
 
         // THEN
 
-        $this->assertSame($name, $this->getName());
+        $this->assertSame($name, $this->tileGLM->getName());
     }
 
     public function testSetContainingRiver() : void
