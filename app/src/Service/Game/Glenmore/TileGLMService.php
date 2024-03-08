@@ -4,23 +4,31 @@ namespace App\Service\Game\Glenmore;
 
 use App\Entity\Game\Glenmore\BoardTileGLM;
 use App\Entity\Game\Glenmore\DrawTilesGLM;
+use App\Entity\Game\Glenmore\GameGLM;
 use App\Entity\Game\Glenmore\GlenmoreParameters;
 use App\Entity\Game\Glenmore\MainBoardGLM;
 use App\Entity\Game\Glenmore\PlayerCardGLM;
 use App\Entity\Game\Glenmore\PlayerGLM;
 use App\Entity\Game\Glenmore\PlayerTileGLM;
 use App\Entity\Game\Glenmore\PlayerTileResourceGLM;
+use App\Entity\Game\Glenmore\TileGLM;
 use App\Repository\Game\Glenmore\PlayerGLMRepository;
+use App\Repository\Game\Glenmore\PlayerTileGLMRepository;
+use App\Repository\Game\Glenmore\PlayerTileResourceGLMRepository;
+use App\Repository\Game\Glenmore\ResourceGLMRepository;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Exception;
 use Doctrine\ORM\EntityManagerInterface;
 
 class TileGLMService
 {
-    public function __construct(private EntityManagerInterface $entityManager,
-        private GLMService $GLMService,
-        private PlayerGLMRepository $playerGLMRepository,
-        private CardGLMService $cardGLMService){}
+    public function __construct(private readonly EntityManagerInterface $entityManager,
+                                private readonly GLMService $GLMService,
+                                private readonly ResourceGLMRepository $resourceGLMRepository,
+                                private readonly PlayerTileResourceGLMRepository $playerTileResourceGLMRepository,
+                                private readonly PlayerTileGLMRepository $playerTileGLMRepository,
+                                private readonly CardGLMService $cardGLMService){}
 
     /**
      * getAmountOfTileToReplace : returns the amount of tiles to replace
@@ -44,6 +52,57 @@ class TileGLMService
                 GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD;
         }
         return $count;
+    }
+
+    /**
+     * getActiveDrawTile : returns the draw tile with the lowest level which is not empty
+     *                      or null if all draw tiles are empty
+     * @param GameGLM $gameGLM
+     * @return DrawTilesGLM|null
+     */
+    public function getActiveDrawTile(GameGLM $gameGLM) : ?DrawTilesGLM
+    {
+        $mainBoard = $gameGLM->getMainBoard();
+        $drawTiles = $mainBoard->getDrawTiles();
+        for ($i = GlenmoreParameters::$TILE_LEVEL_ZERO; $i <= GlenmoreParameters::$TILE_LEVEL_THREE; ++$i) {
+            $draw = $drawTiles->get($i);
+            if (!$draw->getTiles()->isEmpty()) {
+                return $draw;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * getActivableTiles : returns a collection of all activable tiles after a new tile was placed
+     *  onto personalBoard
+     * @param PlayerTileGLM $playerTileGLM
+     * @return ArrayCollection<Int, PlayerTileGLM>
+     */
+    public function getActivableTiles(PlayerTileGLM $playerTileGLM) : ArrayCollection
+    {
+        $activableTiles = new ArrayCollection();
+        $personalBoard = $playerTileGLM->getPersonalBoard();
+        $lastTile = $personalBoard->getPlayerTiles()->last()->getTile();
+        $card = $lastTile->getCard();
+        // if player just bought Loch Oich then all tiles can be activated
+        if ($card != null && $card->getName() === GlenmoreParameters::$CARD_LOCH_OICH) {
+            $adjacentTiles = $personalBoard->getPlayerTiles();
+        } else { // else just adjacent tiles can be activated
+            $adjacentTiles = $playerTileGLM->getAdjacentTiles();
+        }
+        foreach ($adjacentTiles as $adjacentTile) {
+            if (!$adjacentTile->isActivated() && $adjacentTile->getTile()->getActivationBonus() != null) {
+                $activableTiles->add($adjacentTile);
+            }
+        }
+
+        // if every tile has been activated
+        if ($adjacentTiles->isEmpty()) {
+            $activableTiles = $this->cardGLMService->applyLochNess($personalBoard);
+        }
+
+        return $activableTiles;
     }
 
     /**
@@ -91,35 +150,42 @@ class TileGLMService
     }
 
     /**
-     * getActivableTiles : returns a collection of all activable tiles after a new tile was placed
-     *  onto personalBoard
-     * @param PlayerTileGLM $playerTileGLM
-     * @return ArrayCollection<Int, PlayerTileGLM>
+     * canPlaceTile: return true if the player can place the selected tile at the chosen emplacement
+     *
+     * @param int $x the coord x of the wanted emplacement
+     * @param int $y the coord y of the wanted emplacement
+     * @param TileGLM $tile
+     * @param PlayerGLM $player
+     * @return bool
      */
-    public function getActivableTiles(PlayerTileGLM $playerTileGLM) : ArrayCollection
+    public function canPlaceTile(int $x, int $y, TileGLM $tile, PlayerGLM $player): bool
     {
-        $activableTiles = new ArrayCollection();
-        $personalBoard = $playerTileGLM->getPersonalBoard();
-        $lastTile = $personalBoard->getPlayerTiles()->last()->getTile();
-        $card = $lastTile->getCard();
-        // if player just bought Loch Oich then all tiles can be activated
-        if ($card != null && $card->getName() === GlenmoreParameters::$CARD_LOCH_OICH) {
-            $adjacentTiles = $personalBoard->getPlayerTiles();
-        } else { // else just adjacent tiles can be activated
-            $adjacentTiles = $playerTileGLM->getAdjacentTiles();
-        }
-        foreach ($adjacentTiles as $adjacentTile) {
-            if (!$adjacentTile->isActivated() && $adjacentTile->getTile()->getActivationBonus() != null) {
-                $activableTiles->add($adjacentTile);
-            }
-        }
+        //Recovery of the adjacent tiles
+        $tileLeft = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x - 1, 'coord_Y' => $y
+            , 'personalBoard' => $player->getPersonalBoard()]);
+        $tileRight = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x + 1, 'coord_Y' => $y
+            , 'personalBoard' => $player->getPersonalBoard()]);
+        $tileUp = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x, 'coord_Y' => $y - 1
+            , 'personalBoard' => $player->getPersonalBoard()]);
+        $tileDown = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x, 'coord_Y' => $y + 1
+            , 'personalBoard' => $player->getPersonalBoard()]);
+        $tileUpLeft = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x - 1, 'coord_Y' => $y - 1
+            , 'personalBoard' => $player->getPersonalBoard()]);
+        $tileUpRight = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x + 1, 'coord_Y' => $y - 1
+            , 'personalBoard' => $player->getPersonalBoard()]);
+        $tileDownLeft = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x - 1, 'coord_Y' => $y + 1
+            , 'personalBoard' => $player->getPersonalBoard()]);
+        $tileDownRight = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x + 1, 'coord_Y' => $y + 1
+            , 'personalBoard' => $player->getPersonalBoard()]);
 
-        // if every tile has been activated
-        if ($adjacentTiles->isEmpty()) {
-            $activableTiles = $this->cardGLMService->applyLochNess($personalBoard);
-        }
-
-        return $activableTiles;
+        //Verification of the constraints
+        return $this->verifyRoadAndRiverConstraints($tile, $tileLeft, $tileRight, $tileUp, $tileDown)
+            && $this->isVillagerInAdjacentTiles(
+                new ArrayCollection(
+                    [$tileLeft, $tileRight, $tileUp, $tileDown,
+                        $tileUpLeft, $tileUpRight, $tileDownLeft, $tileDownRight]
+                )
+            );
     }
 
     /**
@@ -204,6 +270,69 @@ class TileGLMService
         }
         $this->entityManager->persist($personalBoard);
         $this->entityManager->flush();
+    }
+
+
+    /**
+     * verifyRoadAndRiverConstraints: return true if the player can place the tile with the selected adjacentTiles
+     *                                regarding rivers and roads
+     *
+     * @param TileGLM $tile
+     * @param ?PlayerTileGLM $tileLeft
+     * @param ?PlayerTileGLM $tileRight
+     * @param ?PlayerTileGLM $tileUp
+     * @param ?PlayerTileGLM $tileDown
+     * @return bool
+     */
+    private function verifyRoadAndRiverConstraints(TileGLM $tile, ?PlayerTileGLM $tileLeft, ?PlayerTileGLM $tileRight,
+                                                   ?PlayerTileGLM $tileUp, ?PlayerTileGLM $tileDown) : bool
+    {
+        $canPlace = true;
+        if ($tile->isContainingRiver()) {
+            $canPlace = ($tileUp != null && $tileUp->getTile()->isContainingRiver())
+                || ($tileDown != null && $tileDown->getTile()->isContainingRiver());
+        }
+        if ($tile->isContainingRoad()) {
+            $canPlace = $canPlace && ($tileLeft != null && $tileLeft->getTile()->isContainingRoad())
+                || ($tileRight != null && $tileRight->getTile()->isContainingRoad());
+        }
+        if (!$tile->isContainingRiver()) {
+            $canPlace = $canPlace && ($tileUp == null || !$tileUp->getTile()->isContainingRiver())
+                && ($tileDown == null || !$tileDown->getTile()->isContainingRiver());
+        }
+        if (!$tile->isContainingRoad()) {
+            $canPlace = $canPlace && ($tileLeft == null || !$tileLeft->getTile()->isContainingRoad())
+                && ($tileRight == null || !$tileRight->getTile()->isContainingRoad());
+        }
+        if(!$tile->isContainingRiver() && !$tile->isContainingRoad()) {
+            $canPlace = $canPlace && ($tileLeft != null || $tileRight != null || $tileUp != null || $tileDown != null);
+        }
+        return $canPlace;
+    }
+
+
+    /**
+     * doesTileContainVillager: return true if the tile contains a villager
+     * @param PlayerTileGLM $playerTile
+     * @return bool
+     */
+    private function doesTileContainsVillager(PlayerTileGLM $playerTile) : bool
+    {
+        $villager = $this->resourceGLMRepository->findOneBy(['type' => GlenmoreParameters::$VILLAGER_RESOURCE]);
+        return $this->playerTileResourceGLMRepository->findOneBy(['resource' => $villager->getId(),
+                'playerTileGLM' => $playerTile->getId()]) != null;
+    }
+
+    /**
+     * isVillagerInAdjacentTiles: return true if a villager is found in at least one of the adjacentTiles
+     * @param Collection $adjacentTiles
+     * @return bool
+     */
+    private function isVillagerInAdjacentTiles(Collection $adjacentTiles) : bool
+    {
+        return !$adjacentTiles->filter(function(?PlayerTileGLM $tile) {
+            return $tile != null && $this->doesTileContainsVillager($tile);
+        })->isEmpty();
     }
 
     /**

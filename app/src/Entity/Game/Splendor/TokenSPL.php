@@ -12,10 +12,6 @@ class TokenSPL extends Token
     #[ORM\Column(length: 255)]
     private ?string $color = null;
 
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
 
     public function getColor(): ?string
     {

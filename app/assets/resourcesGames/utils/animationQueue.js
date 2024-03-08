@@ -19,11 +19,11 @@ class AnimationQueue {
 	executeNextInQueue() {
 		if (this.waitingQueue.length > 0) {
 			const nextAnim = this.waitingQueue.shift();
+			animationContainer.classList.remove('hidden');
 			nextAnim();
-			//animationContainer.classList.remove('hidden');
 		} else {
 			setTimeout(this.executeNextInQueue.bind(this), 500);
-			//animationContainer.classList.add('hidden');
+			animationContainer.classList.add('hidden');
 		}
 	}
 }

@@ -49,5 +49,8 @@ class SplendorParameters
     public static int $COMES_OF_THE_DISCARDS = 1;
     public static int $COMES_OF_THE_ROWS = 2;
 
+    // POINTS PRESTIGE GIVEN BY NOBLE TILES
+
+    public static int $POINT_PRESTIGE_BY_NOBLE_TILE = 3;
 
 }

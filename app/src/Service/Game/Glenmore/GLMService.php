@@ -2,6 +2,9 @@
 
 namespace App\Service\Game\Glenmore;
 
+use App\Entity\Game\Glenmore\TileGLM;
+use App\Repository\Game\Glenmore\PlayerTileGLMRepository;
+use App\Repository\Game\Glenmore\PlayerTileResourceGLMRepository;
 use App\Service\Game\Glenmore\CardGLMService;
 use App\Entity\Game\Glenmore\BoardTileGLM;
 use App\Entity\Game\Glenmore\DrawTilesGLM;
@@ -64,25 +67,6 @@ class GLMService
     }
 
     /**
-     * getActiveDrawTile : returns the draw tile with the lowest level which is not empty
-     *                      or null if all draw tiles are empty
-     * @param GameGLM $gameGLM
-     * @return DrawTilesGLM|null
-     */
-    public function getActiveDrawTile(GameGLM $gameGLM) : ?DrawTilesGLM
-    {
-        $mainBoard = $gameGLM->getMainBoard();
-        $drawTiles = $mainBoard->getDrawTiles();
-        for ($i = GlenmoreParameters::$TILE_LEVEL_ZERO; $i <= GlenmoreParameters::$TILE_LEVEL_THREE; ++$i) {
-            $draw = $drawTiles->get($i);
-            if ($draw->getTiles()->isEmpty()) {
-                return $draw;
-            }
-        }
-        return null;
-    }
-
-    /**
      * isGameEnded : checks if a game must end or not
      * @param GameGLM $gameGLM
      * @return bool
@@ -119,16 +103,25 @@ class GLMService
         foreach ($winners as $player) {
             $personalBoard = $player->getPersonalBoard();
             $playerTiles = $personalBoard->getPlayerTiles();
-            if ($playerTiles->count() > $nbResource) {
-                $nbResource = $playerTiles->count();
+            $playerResources = 0;
+            foreach ($playerTiles as $playerTile) {
+                foreach ($playerTile->getPlayerTileResource() as $resource) {
+                    if ($resource->getResource()->getType() === GlenmoreParameters::$PRODUCTION_RESOURCE) {
+                        $playerResources += $resource->getQuantity();
+                    }
+                }
+            }
+            if ($playerResources > $nbResource) {
                 $result->clear();
                 $result->add($player);
-            } else if ($player->getPoints() == $nbResource) {
-                $winners->add($player);
+                $nbResource = $playerResources;
+            } else if ($playerResources == $nbResource) {
+                $result->add($player);
             }
         }
         return $result;
     }
+
 
     /**
      * manageEndOfRound : proceeds to count players' points depending on draw tiles level
@@ -215,8 +208,7 @@ class GLMService
         $this->cardGLMService->applyDuartCastle($gameGLM);
         $this->cardGLMService->applyLochMorar($gameGLM);
 
-        $playersMoneyAmount = $this->getSortedListMoney($gameGLM);
-        $this->computePoints($playersMoneyAmount);
+        $this->computePointsWithMoney($gameGLM);
 
         $playersTileAmount = $this->getSortedListTile($gameGLM);
         $this->retrievePoints($playersTileAmount);
@@ -224,6 +216,12 @@ class GLMService
     }
 
 
+    /**
+     * initializeNewGame: initialize the game for the first round
+     *
+     * @param GameGLM $game
+     * @return void
+     */
     public function initializeNewGame(GameGLM $game) : void
     {
         $tilesLevelZero = $this->tileGLMRepository->findBy(['level' => GlenmoreParameters::$TILE_LEVEL_ZERO]);
@@ -334,18 +332,6 @@ class GLMService
         $this->entityManager->flush();
     }
 
-    private function addWarehouseLineToWarehouse(WarehouseGLM $warehouse, ResourceGLM $resource, int $coinNumber): void
-    {
-        $warehouseLine = new WarehouseLineGLM();
-        $warehouseLine->setWarehouseGLM($warehouse);
-        $warehouseLine->setResource($resource);
-        $warehouseLine->setCoinNumber($coinNumber);
-        $quantity = $coinNumber == GlenmoreParameters::$COIN_NEEDED_FOR_RESOURCE_ONE ? 1 :
-                ($coinNumber == GlenmoreParameters::$COIN_NEEDED_FOR_RESOURCE_TWO ? 2 :
-                ($coinNumber == GlenmoreParameters::$COIN_NEEDED_FOR_RESOURCE_THREE ? 3 : 0));
-        $warehouseLine->setQuantity($quantity);
-        $this->entityManager->persist($warehouseLine);
-    }
 
     /**
      * getSortedListResource : returns sorted list of (players, resourceAmount) by amount of resources
@@ -453,27 +439,6 @@ class GLMService
     }
 
     /**
-     * getSortedListMoney : returns sorted list of (players, resourceAmount) by amount of money
-     *
-     * @param GameGLM $gameGLM
-     * @return array
-     */
-    private function getSortedListMoney(GameGLM $gameGLM): array
-    {
-        $players = $gameGLM->getPlayers();
-        $result = array();
-        foreach ($players as $player) {
-            $personalBoard = $player->getPersonalBoard();
-            $playerResource = $personalBoard->getMoney();
-            $result[] = array($player, $playerResource);
-        }
-        usort($result, function($x, $y) {
-            return $x[1] - $y[1];
-        });
-        return $result;
-    }
-
-    /**
      * getSortedListTile : returns sorted list of (players, resourceAmount) by amount of tile
      *
      * @param GameGLM $gameGLM
@@ -514,6 +479,23 @@ class GLMService
     }
 
     /**
+     * computePointsWithMoney : adds to each player one point for each money coin he owns
+     *
+     * @param GameGLM $gameGLM
+     * @return void
+     */
+    private function computePointsWithMoney(GameGLM $gameGLM): void
+    {
+        $players = $gameGLM->getPlayers();
+        foreach ($players as $player) {
+            $resourceAmount = $player->getPersonalBoard()->getMoney();
+            $player->setPoints($player->getPoints() + $resourceAmount);
+            $this->entityManager->persist($player);
+        }
+    }
+
+
+    /**
      * retrievePoints : removes points to each player
      *
      * @param $playersResources
@@ -529,5 +511,26 @@ class GLMService
             $player->setPoints($player->getPoints() - 3 * $difference);
             $this->entityManager->persist($player);
         }
+    }
+
+    /**
+     * addWarehouseLineToWarehouse: create and add a warehouseLine to the warehouse with the selected options
+     *
+     * @param WarehouseGLM $warehouse
+     * @param ResourceGLM $resource
+     * @param int $coinNumber
+     * @return void
+     */
+    private function addWarehouseLineToWarehouse(WarehouseGLM $warehouse, ResourceGLM $resource, int $coinNumber): void
+    {
+        $warehouseLine = new WarehouseLineGLM();
+        $warehouseLine->setWarehouseGLM($warehouse);
+        $warehouseLine->setResource($resource);
+        $warehouseLine->setCoinNumber($coinNumber);
+        $quantity = $coinNumber == GlenmoreParameters::$COIN_NEEDED_FOR_RESOURCE_ONE ? 1 :
+            ($coinNumber == GlenmoreParameters::$COIN_NEEDED_FOR_RESOURCE_TWO ? 2 :
+                ($coinNumber == GlenmoreParameters::$COIN_NEEDED_FOR_RESOURCE_THREE ? 3 : 0));
+        $warehouseLine->setQuantity($quantity);
+        $this->entityManager->persist($warehouseLine);
     }
 }

@@ -15,6 +15,7 @@ use App\Entity\Game\Glenmore\PlayerGLM;
 use App\Entity\Game\Glenmore\PlayerTileGLM;
 use App\Entity\Game\Glenmore\PlayerTileResourceGLM;
 use App\Entity\Game\Glenmore\ResourceGLM;
+use App\Entity\Game\Glenmore\TileGLM;
 use App\Entity\Game\Glenmore\WarehouseGLM;
 use App\Repository\Game\Glenmore\CardGLMRepository;
 use App\Repository\Game\Glenmore\ResourceGLMRepository;
@@ -22,8 +23,10 @@ use App\Repository\Game\Glenmore\TileGLMRepository;
 use App\Service\Game\AbstractGameManagerService;
 use App\Service\Game\Glenmore\GLMService;
 use App\Service\Game\Glenmore\TileGLMService;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use function Symfony\Component\String\s;
 
 class GLMServiceIntegrationTest extends KernelTestCase
 {
@@ -121,201 +124,148 @@ class GLMServiceIntegrationTest extends KernelTestCase
         $this->assertFalse($result);
     }
 
-    public function testGiveBuyBonusWithSimpleProductionTile() : void
+    public function testGetWinnerWithOnlyOneWinnerWithoutResourceCount() : void
     {
         //GIVEN
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);
-        $tileGLMService = static::getContainer()->get(TileGLMService::class);
-        $tileRepository = static::getContainer()->get(TileGLMRepository::class);
-        $game = $this->createGame(4);
+        $GLMService = static::getContainer()->get(GLMService::class);
+        $game = $this->createGame(2);
         $firstPlayer = $game->getPlayers()->first();
-        $personalBoard = $firstPlayer->getPersonalBoard();
-        $tile = $tileRepository->findOneBy(["id" => 11]);
-        $playerTile = new PlayerTileGLM();
-        $playerTile->setActivated(false);
-        $playerTile->setCoordX(0);
-        $playerTile->setCoordY(0);
-        $playerTile->setTile($tile);
-        $playerTile->setCoordX(0);
-        $playerTile->setCoordY(0);
-        $playerTile->setPersonalBoard($personalBoard);
-        $entityManager->persist($playerTile);
-        $personalBoard->addPlayerTile($playerTile);
-        $entityManager->persist($personalBoard);
+        $lastPlayer = $game->getPlayers()->last();
+        $firstPlayer->setPoints(12);
+        $entityManager->persist($firstPlayer);
+        $lastPlayer->setPoints(15);
+        $entityManager->persist($lastPlayer);
         $entityManager->flush();
-        $expectedAmount = 1;
-        $expectedType = GlenmoreParameters::$WHISKY_RESOURCE;
+        $expectedResult = new ArrayCollection([$lastPlayer]);
         //WHEN
-        $tileGLMService->giveBuyBonus($playerTile);
+        $winner = $GLMService->getWinner($game);
         //THEN
-        $amount = 0;
-        $type = null;
-        foreach ($personalBoard->getPlayerTiles() as $newTile) {
-            if ($newTile === $playerTile) {
-                $playerTileResources = $newTile->getPlayerTileResource();
-                foreach ($playerTileResources as $playerTileResource) {
-                    $amount += $playerTileResource->getQuantity();
-                    $type = $playerTileResource->getResource()->getType();
-                }
-            }
-        }
-        $this->assertEquals($expectedAmount, $amount);
-        $this->assertSame($expectedType, $type);
+        $this->assertEquals($expectedResult, $winner);
     }
 
-    public function testGiveBuyBonusWithSimpleProductionTileWhenNoBuyBonus() : void
+    public function testGetWinnerWithOnlyOneWinnerWithResourceCount() : void
     {
         //GIVEN
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);
-        $tileGLMService = static::getContainer()->get(TileGLMService::class);
-        $tileRepository = static::getContainer()->get(TileGLMRepository::class);
-        $game = $this->createGame(4);
+        $GLMService = static::getContainer()->get(GLMService::class);
+        $tileGLMRepository = static::getContainer()->get(TileGLMRepository::class);
+        $resourceGLMRepository = static::getContainer()->get(ResourceGLMRepository::class);
+        $game = $this->createGame(2);
         $firstPlayer = $game->getPlayers()->first();
-        $personalBoard = $firstPlayer->getPersonalBoard();
-        $tile = $tileRepository->findOneBy(["id" => 1]);
+        $lastPlayer = $game->getPlayers()->last();
+        $firstPlayer->setPoints(12);
+        $entityManager->persist($firstPlayer);
+        $lastPlayer->setPoints(12);
+        $entityManager->persist($lastPlayer);
+        $tile = $tileGLMRepository->findOneBy(["id" => 12]);
         $playerTile = new PlayerTileGLM();
-        $playerTile->setActivated(false);
         $playerTile->setTile($tile);
-        $playerTile->setCoordX(0);
-        $playerTile->setCoordY(0);
-        $playerTile->setPersonalBoard($personalBoard);
         $entityManager->persist($playerTile);
-        $personalBoard->addPlayerTile($playerTile);
-        $entityManager->persist($personalBoard);
+        $playerTileResource = new PlayerTileResourceGLM();
+        $resource = $resourceGLMRepository->findOneBy(["id" => 1]);
+        $playerTileResource->setResource($resource);
+        $playerTileResource->setQuantity(2);
+        $playerTileResource->setPlayerTileGLM($playerTile);
+        $entityManager->persist($playerTileResource);
+        $playerTile->addPlayerTileResource($playerTileResource);
+        $playerTile->setCoordY(0);
+        $playerTile->setCoordX(0);
+        $entityManager->persist($playerTile);
+        $lastPlayer->getPersonalBoard()->addPlayerTile($playerTile);
+        $entityManager->persist($lastPlayer->getPersonalBoard());
+
+        $tile = $tileGLMRepository->findOneBy(["id" => 12]);
+        $playerTile = new PlayerTileGLM();
+        $playerTile->setTile($tile);
+        $entityManager->persist($playerTile);
+        $playerTileResource = new PlayerTileResourceGLM();
+        $resource = $resourceGLMRepository->findOneBy(["type" => GlenmoreParameters::$WHISKY_RESOURCE]);
+        $playerTileResource->setResource($resource);
+        $playerTileResource->setQuantity(3);
+        $entityManager->persist($playerTileResource);
+        $playerTile->addPlayerTileResource($playerTileResource);
+        $playerTile->setCoordY(0);
+        $playerTile->setCoordX(0);
+        $entityManager->persist($playerTile);
+        $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile);
+        $entityManager->persist($firstPlayer->getPersonalBoard());
         $entityManager->flush();
-        $expectedAmount = 0;
+        $expectedResult = new ArrayCollection([$lastPlayer]);
         //WHEN
-        $tileGLMService->giveBuyBonus($playerTile);
+        $winner = $GLMService->getWinner($game);
         //THEN
-        $amount = 0;
-        $type = null;
-        foreach ($personalBoard->getPlayerTiles() as $newTile) {
-            if ($newTile === $playerTile) {
-                $playerTileResources = $newTile->getPlayerTileResource();
-                foreach ($playerTileResources as $playerTileResource) {
-                    $amount += $playerTileResource->getQuantity();
-                    $type = $playerTileResource->getResource()->getType();
-                }
-            }
-        }
-        $this->assertEquals($expectedAmount, $amount);
-        $this->assertNull($type);
+        $this->assertEquals($expectedResult, $winner);
     }
 
-    public function testGiveBuyBonusWithCard() : void
+    public function testGetWinnerWithTwoWinners() : void
     {
         //GIVEN
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);
-        $tileGLMService = static::getContainer()->get(TileGLMService::class);
-        $tileRepository = static::getContainer()->get(TileGLMRepository::class);
-        $game = $this->createGame(4);
+        $GLMService = static::getContainer()->get(GLMService::class);
+        $tileGLMRepository = static::getContainer()->get(TileGLMRepository::class);
+        $resourceGLMRepository = static::getContainer()->get(ResourceGLMRepository::class);
+        $game = $this->createGame(2);
         $firstPlayer = $game->getPlayers()->first();
-        $personalBoard = $firstPlayer->getPersonalBoard();
-        $tile = $tileRepository->findOneBy(["id" => 51]);
+        $lastPlayer = $game->getPlayers()->last();
+        $firstPlayer->setPoints(12);
+        $entityManager->persist($firstPlayer);
+        $lastPlayer->setPoints(12);
+        $entityManager->persist($lastPlayer);
+        $tile = $tileGLMRepository->findOneBy(["id" => 12]);
         $playerTile = new PlayerTileGLM();
-        $playerTile->setActivated(false);
-        $playerTile->setCoordX(0);
-        $playerTile->setCoordY(0);
         $playerTile->setTile($tile);
-        $playerTile->setCoordX(0);
-        $playerTile->setCoordY(0);
-        $playerTile->setPersonalBoard($personalBoard);
         $entityManager->persist($playerTile);
-        $personalBoard->addPlayerTile($playerTile);
-        $entityManager->persist($personalBoard);
-        $entityManager->flush();
-        $expectedAmountVillager = 1;
-        $expectedAmountHat = 3;
-        $expectedTypeVillager = GlenmoreParameters::$VILLAGER_RESOURCE;
-        $expectedTypeHat = GlenmoreParameters::$HAT_RESOURCE;
-        //WHEN
-        $tileGLMService->giveBuyBonus($playerTile);
-        //THEN
-        $amountVillager = 0;
-        $amountHat = 0;
-        $typeVillager = null;
-        $typeHat = null;
-        foreach ($personalBoard->getPlayerTiles() as $newTile) {
-            if ($newTile === $playerTile) {
-                $playerTileResources = $newTile->getPlayerTileResource();
-                foreach ($playerTileResources as $playerTileResource) {
-                    if ($playerTileResource->getResource()->getType() === $expectedTypeVillager) {
-                        $amountVillager += $playerTileResource->getQuantity();
-                        $typeVillager = $playerTileResource->getResource()->getType();
-                    }
-                }
-            }
-        }
-        foreach ($personalBoard->getPlayerCardGLM() as $playerCard) {
-            $actualCard = $playerCard->getCard();
-            if ($tile->getCard() === $actualCard) {
-                $typeHat = $actualCard->getBonus()->getResource()->getType();
-                if ($typeHat === $expectedTypeHat) {
-                    $amountHat += $actualCard->getBonus()->getAmount();
-                }
-            }
-        }
-        $this->assertEquals($expectedAmountVillager, $amountVillager);
-        $this->assertSame($expectedTypeVillager, $typeVillager);
-        $this->assertEquals($expectedAmountHat, $amountHat);
-        $this->assertSame($expectedTypeHat, $typeHat);
-    }
+        $playerTileResource = new PlayerTileResourceGLM();
+        $resource = $resourceGLMRepository->findOneBy(["id" => 1]);
+        $playerTileResource->setResource($resource);
+        $playerTileResource->setQuantity(2);
+        $playerTileResource->setPlayerTileGLM($playerTile);
+        $entityManager->persist($playerTileResource);
+        $playerTile->addPlayerTileResource($playerTileResource);
+        $playerTile->setCoordY(0);
+        $playerTile->setCoordX(0);
+        $entityManager->persist($playerTile);
+        $lastPlayer->getPersonalBoard()->addPlayerTile($playerTile);
+        $entityManager->persist($lastPlayer->getPersonalBoard());
 
-    public function testGiveBuyCastleStalker() : void
-    {
-        //GIVEN
-        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
-        $tileGLMService = static::getContainer()->get(TileGLMService::class);
-        $tileRepository = static::getContainer()->get(TileGLMRepository::class);
-        $game = $this->createGame(4);
-        $firstPlayer = $game->getPlayers()->first();
-        $personalBoard = $firstPlayer->getPersonalBoard();
-        $tile = $tileRepository->findOneBy(["id" => 27]);
+        $tile = $tileGLMRepository->findOneBy(["id" => 12]);
         $playerTile = new PlayerTileGLM();
-        $playerTile->setActivated(false);
-        $playerTile->setCoordX(0);
-        $playerTile->setCoordY(0);
         $playerTile->setTile($tile);
-        $playerTile->setPersonalBoard($personalBoard);
         $entityManager->persist($playerTile);
-        $personalBoard->addPlayerTile($playerTile);
-        $entityManager->persist($personalBoard);
+        $playerTileResource = new PlayerTileResourceGLM();
+        $resource = $resourceGLMRepository->findOneBy(["type" => GlenmoreParameters::$PRODUCTION_RESOURCE]);
+        $playerTileResource->setResource($resource);
+        $playerTileResource->setQuantity(1);
+        $entityManager->persist($playerTileResource);
+        $playerTile->addPlayerTileResource($playerTileResource);
+        $playerTile->setCoordY(0);
+        $playerTile->setCoordX(0);
+        $entityManager->persist($playerTile);
+        $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile);
+        $entityManager->persist($firstPlayer->getPersonalBoard());
+        $tile = $tileGLMRepository->findOneBy(["id" => 15]);
+        $playerTile = new PlayerTileGLM();
+        $playerTile->setTile($tile);
+        $entityManager->persist($playerTile);
+        $playerTileResource = new PlayerTileResourceGLM();
+        $resource = $resourceGLMRepository->findOneBy(["type" => GlenmoreParameters::$PRODUCTION_RESOURCE]);
+        $playerTileResource->setResource($resource);
+        $playerTileResource->setQuantity(1);
+        $entityManager->persist($playerTileResource);
+        $playerTile->addPlayerTileResource($playerTileResource);
+        $playerTile->setCoordY(0);
+        $playerTile->setCoordX(0);
+        $entityManager->persist($playerTile);
+        $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile);
+        $entityManager->persist($firstPlayer->getPersonalBoard());
         $entityManager->flush();
-        $expectedAmountVillager = 2;
-        $expectedAmountHat = 1;
-        $expectedTypeVillager = GlenmoreParameters::$VILLAGER_RESOURCE;
-        $expectedTypeHat = GlenmoreParameters::$HAT_RESOURCE;
+        $expectedResult = new ArrayCollection([$firstPlayer, $lastPlayer]);
         //WHEN
-        $tileGLMService->giveBuyBonus($playerTile);
+        $winner = $GLMService->getWinner($game);
         //THEN
-        $amountVillager = 0;
-        $amountHat = 0;
-        $typeVillager = null;
-        $typeHat = null;
-        foreach ($personalBoard->getPlayerTiles() as $newTile) {
-            if ($newTile === $playerTile) {
-                $playerTileResources = $newTile->getPlayerTileResource();
-                foreach ($playerTileResources as $playerTileResource) {
-                    if ($playerTileResource->getResource()->getType() === $expectedTypeVillager) {
-                        $amountVillager += $playerTileResource->getQuantity();
-                        $typeVillager = $playerTileResource->getResource()->getType();
-                    }
-                }
-            }
-        }
-        foreach ($personalBoard->getPlayerCardGLM() as $playerCard) {
-            $actualCard = $playerCard->getCard();
-            if ($tile->getCard() === $actualCard) {
-                if ($actualCard->getBonus()->getResource()->getType() === $expectedTypeHat) {
-                    $amountHat += $actualCard->getBonus()->getAmount();
-                    $typeHat = $actualCard->getBonus()->getResource()->getType();
-                }
-            }
-        }
-        $this->assertEquals($expectedAmountVillager, $amountVillager);
-        $this->assertSame($expectedTypeVillager, $typeVillager);
-        $this->assertEquals($expectedAmountHat, $amountHat);
-        $this->assertSame($expectedTypeHat, $typeHat);
+        $this->assertEquals(2, $winner->count());
+        $this->assertEquals($expectedResult, $winner);
     }
 
     public function testCalculatePointsAtEndOfLevelWithWhiskyDifference() : void
@@ -419,6 +369,114 @@ class GLMServiceIntegrationTest extends KernelTestCase
         //THEN
         $result = [$players[0]->getPoints(), $players[1]->getPoints()];
         $this->assertSame($expectedResult, $result);
+    }
+
+    public function testCalculatePointsAtEndOfGameWithOnlyMoney() : void
+    {
+        // GIVEN
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $GLMService = static::getContainer()->get(GLMService::class);
+        $game = $this->createGame(5);
+        $players = $game->getPlayers();
+        for ($i = 0; $i < 5; ++$i) {
+            $personalBoard = $players->get($i)->getPersonalBoard();
+            $personalBoard->setMoney($i);
+            $entityManager->persist($personalBoard);
+        }
+        $entityManager->flush();
+        $expectedResult = [0, 1, 2, 3, 4];
+        //WHEN
+        $GLMService->calculatePointsAtEndOfGame($game);
+        //THEN
+        $result = [$players->get(0)->getPoints(),
+            $players->get(1)->getPoints(),
+            $players->get(2)->getPoints(),
+            $players->get(3)->getPoints(),
+            $players->get(4)->getPoints()];
+        $this->assertSame($expectedResult, $result);
+    }
+
+    public function testCalculatePointsAtEndOfGameWithMoneyAndDifferencesOfTiles() : void
+    {
+        // GIVEN
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $GLMService = static::getContainer()->get(GLMService::class);
+        $tileRepository = static::getContainer()->get(TileGLMRepository::class);
+        $game = $this->createGame(2);
+        $players = $game->getPlayers();
+
+        $personalBoard = $players->get(0)->getPersonalBoard();
+        $personalBoard->setMoney(15);
+        $players->get(1)->getPersonalBoard()->setMoney(0);
+        for ($i = 0; $i < 4; ++$i) {
+            $playerTile = new PlayerTileGLM();
+            $playerTile->setCoordX(0);
+            $playerTile->setCoordY(0);
+            $playerTile->setActivated(0);
+            $playerTile->setPersonalBoard($personalBoard);
+            $tile = $tileRepository->findOneBy(["id" => $i + 1]);
+            $playerTile->setTile($tile);
+            $entityManager->persist($playerTile);
+            $personalBoard->addPlayerTile($playerTile);
+            $entityManager->persist($personalBoard);
+        }
+        $entityManager->flush();
+        $expectedResult = [3, 0];
+        //WHEN
+        $GLMService->calculatePointsAtEndOfGame($game);
+        //THEN
+        $result = [$players->get(0)->getPoints(),
+            $players->get(1)->getPoints()];
+        $this->assertSame($expectedResult, $result);
+    }
+
+
+    public function testManageEndOfRoundShouldReturnExceptionBecauseTooHigh() : void
+    {
+        //GIVEN
+        $GLMService = static::getContainer()->get(GLMService::class);
+        $game = $this->createGame(2);
+        $drawLevel = 4;
+        //THEN
+        $this->expectException(\Exception::class);
+        //WHEN
+        $GLMService->manageEndOfRound($game, $drawLevel);
+    }
+
+    public function testManageEndOfRoundShouldReturnExceptionBecauseTooLow() : void
+    {
+        //GIVEN
+        $GLMService = static::getContainer()->get(GLMService::class);
+        $game = $this->createGame(2);
+        $drawLevel = 0;
+        //THEN
+        $this->expectException(\Exception::class);
+        //WHEN
+        $GLMService->manageEndOfRound($game, $drawLevel);
+    }
+
+    public function testManageEndOfRoundForLevelTwo() : void
+    {
+        //GIVEN
+        $GLMService = static::getContainer()->get(GLMService::class);
+        $game = $this->createGame(2);
+        $drawLevel = 2;
+        //THEN
+        $this->expectNotToPerformAssertions();
+        //WHEN
+        $GLMService->manageEndOfRound($game, $drawLevel);
+    }
+
+    public function testManageEndOfRoundForLevelThree() : void
+    {
+        //GIVEN
+        $GLMService = static::getContainer()->get(GLMService::class);
+        $game = $this->createGame(2);
+        $drawLevel = 3;
+        //THEN
+        $this->expectNotToPerformAssertions();
+        //WHEN
+        $GLMService->manageEndOfRound($game, $drawLevel);
     }
 
     private function createGame(int $nbOfPlayers) : GameGLM
