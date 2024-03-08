@@ -27,6 +27,9 @@ class PersonalBoardGLM extends Component
     #[ORM\OneToMany(targetEntity: PlayerCardGLM::class, mappedBy: 'personalBoard', orphanRemoval: true)]
     private Collection $playerCardGLM;
 
+    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
+    private ?BoardTileGLM $selectedTile = null;
+
     public function __construct()
     {
         $this->playerTiles = new ArrayCollection();
@@ -130,6 +133,18 @@ class PersonalBoardGLM extends Component
                 $playerCardGLM->setPersonalBoard(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getSelectedTile(): ?BoardTileGLM
+    {
+        return $this->selectedTile;
+    }
+
+    public function setSelectedTile(?BoardTileGLM $selectedTile): static
+    {
+        $this->selectedTile = $selectedTile;
 
         return $this;
     }

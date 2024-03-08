@@ -115,50 +115,6 @@ class TileGLMService
     }
 
     /**
-     * Assign tile for player when conditions are verified
-     * @param BoardTileGLM $boardTile
-     * @param PlayerGLM $player
-     * @return int
-     * @throws Exception
-     */
-    public function assignTileToPlayer(BoardTileGLM $boardTile, PlayerGLM $player) : int
-    {
-        // Check if condition for assign tile - TODO Write condition for assign tile
-        /* if (!$this->verifyAssignTile($tile, $player))
-        {
-            throw new Exception("Unable to recover tile");
-        } */
-
-        // Initialization
-        $personalBoard = $player->getPersonalBoard();
-        $mainBoard = $boardTile->getMainBoardGLM();
-        $lastPosition = $player->getPawn()->getPosition();
-        $newPosition = $boardTile->getPosition();
-
-        // Here assign tile --> Creation of player tile
-        $playerTile = new PlayerTileGLM();
-        $playerTile->setTile($boardTile->getTile());
-        $playerTile->setPersonalBoard($personalBoard);
-        $personalBoard->addPlayerTile($playerTile);
-
-        // Set new position of pawn's player and update
-        $player->getPawn()->setPosition($newPosition);
-        $this->entityManager->persist($player);
-
-        // Update
-        $this->entityManager->persist($playerTile);
-        $this->entityManager->persist($personalBoard);
-
-        // Manage main board and update
-        $mainBoard->removeBoardTile($boardTile);
-        $this->entityManager->persist($mainBoard);
-        $this->entityManager->flush();
-
-        // Return last position of player
-        return $lastPosition;
-    }
-
-    /**
      * canPlaceTile: return true if the player can place the selected tile at the chosen emplacement
      *
      * @param int $x the coord x of the wanted emplacement
@@ -281,7 +237,6 @@ class TileGLMService
         $this->entityManager->flush();
     }
 
-
     /**
      * verifyRoadAndRiverConstraints: return true if the player can place the tile with the selected adjacentTiles
      *                                regarding rivers and roads
@@ -332,6 +287,7 @@ class TileGLMService
                 'playerTileGLM' => $playerTile->getId()]) != null;
     }
 
+
     /**
      * isVillagerInAdjacentTiles: return true if a villager is found in at least one of the adjacentTiles
      * @param Collection $adjacentTiles
@@ -363,7 +319,6 @@ class TileGLMService
         return false;
     }
 
-
     /*
         /**
          * checks if player can take tile :
@@ -378,6 +333,50 @@ class TileGLMService
         return $this->canBuyTile($tile, $player)
             && $this->canPlaceTileOnPersonalBoard($tile, $player);
     }*/
+
+
+    /**
+     * Assign tile for player when conditions are verified
+     * @param BoardTileGLM $boardTile
+     * @param PlayerGLM $player
+     * @throws Exception
+     */
+    public function assignTileToPlayer(BoardTileGLM $boardTile, PlayerGLM $player) : void
+    {
+        // Check if condition for assign tile - TODO Write condition for assign tile
+        /* if (!$this->verifyAssignTile($tile, $player))
+        {
+            throw new Exception("Unable to recover tile");
+        } */
+
+        // Initialization
+        $personalBoard = $player->getPersonalBoard();
+        $mainBoard = $boardTile->getMainBoardGLM();
+        $lastPosition = $player->getPawn()->getPosition();
+        $newPosition = $boardTile->getPosition();
+
+        // Here assign tile --> Creation of player tile
+        $playerTile = new PlayerTileGLM();
+        $playerTile->setTile($boardTile->getTile());
+        $playerTile->setPersonalBoard($personalBoard);
+        $personalBoard->addPlayerTile($playerTile);
+
+        // Set new position of pawn's player and update
+        $player->getPawn()->setPosition($newPosition);
+        $this->entityManager->persist($player);
+
+        // Update
+        $this->entityManager->persist($playerTile);
+        $this->entityManager->persist($personalBoard);
+
+        // Manage main board and update
+        $mainBoard->removeBoardTile($boardTile);
+        $mainBoard->setLastPosition($lastPosition);
+        $this->entityManager->persist($mainBoard);
+        $this->entityManager->flush();
+
+        // Return last position of player
+    }
 
     /**
      * Return a board tile that position is equal to parameter else null

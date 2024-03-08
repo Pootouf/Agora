@@ -27,6 +27,9 @@ class MainBoardGLM extends Component
     #[ORM\OneToOne(mappedBy: 'mainBoard', cascade: ['persist', 'remove'])]
     private ?GameGLM $gameGLM = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $lastPosition = null;
+
     public function __construct()
     {
         $this->boardTiles = new ArrayCollection();
@@ -149,6 +152,18 @@ class MainBoardGLM extends Component
         }
 
         $this->gameGLM = $gameGLM;
+
+        return $this;
+    }
+
+    public function getLastPosition(): ?int
+    {
+        return $this->lastPosition;
+    }
+
+    public function setLastPosition(?int $lastPosition): static
+    {
+        $this->lastPosition = $lastPosition;
 
         return $this;
     }
