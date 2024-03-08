@@ -262,7 +262,20 @@ class MainBoardGLMTest extends TestCase
         $this->assertSame($this->mainBoardGLM, $game->getMainBoard());
     }
 
+    public function testSetLastPosition() : void
+    {
+        // GIVEN
 
+        $lastPosition = 7;
+
+        // WHEN
+
+        $this->mainBoardGLM->setLastPosition($lastPosition);
+
+        // THEN
+
+        $this->assertSame($lastPosition, $this->mainBoardGLM->getLastPosition());
+    }
     protected function setUp(): void
     {
         $this->mainBoardGLM = new MainBoardGLM();
