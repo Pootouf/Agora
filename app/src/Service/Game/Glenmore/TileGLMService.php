@@ -264,6 +264,7 @@ class TileGLMService
         foreach ($buyBonus as $bonus) {
             $playerTileResource = new PlayerTileResourceGLM();
             $playerTileResource->setPlayerTileGLM($playerTileGLM);
+            $playerTileResource->setPlayer($playerTileGLM->getPersonalBoard()->getPlayerGLM());
             $playerTileResource->setResource($bonus->getResource());
             $playerTileResource->setQuantity($bonus->getAmount());
             $this->entityManager->persist($playerTileResource);
@@ -281,6 +282,7 @@ class TileGLMService
                 $playerTileResource = new PlayerTileResourceGLM();
                 $playerTileResource->setQuantity($cardBonus->getAmount());
                 $playerTileResource->setResource($resource);
+                $playerTileResource->setPlayer($playerTileGLM->getPersonalBoard()->getPlayerGLM());
                 $this->entityManager->persist($playerTileResource);
                 $playerTileGLM->addPlayerTileResource($playerTileResource);
                 $this->entityManager->persist($playerTileGLM);
