@@ -3,3 +3,41 @@ This section displays the ranking with a view of the other players' possessions
 @param :
 @return :
 #}
+
+{# Glenmore Logo #}
+<div id="logo" class="w-full h-[10%] landscape:1/6  lg:h-1/5 justify-center flex">
+    <img class="" src="{{ asset('resourcesGames/Glenmore/glenmore.png') }}" alt="glenmore logo">
+</div>
+
+<div>
+    {% for p in game.players %}
+
+        {% set colorPawn = p.pawn.color %}
+        <div class="bg-emerald-900
+                        border-solid border-[1px] border-[white] rounded-2xl
+                        h-[23.5%] landscape:md:h-1/4 landscape:lg:h-[23.5%]
+                        mx-3 landscape:mx-2 lg:mx-5
+                        my-6 landscape:my-2
+                        text-3xl py-2">
+            <div class="w-full h-[12%] landscape:h-1/5
+                            pt-2 landscape:pt-1
+                            flex justify-around justify-between">
+                <button {{ stimulus_action('glenmore', 'personalBoardTiles', 'click')
+                        }}
+                        {% if isSpectator %}
+                            disabled
+                        {% endif %}
+                        class=""
+                >
+                    <img class="h-8 landscape:h-5 landscape:lg:h-7"
+                         src="{{ asset("resourcesGames/utils/return-arrow.svg") }}"
+                         alt="return arrow">
+                </button>
+                <p class="landscape:ml-3 landscape:text-sm landscape:lg:text-lg text-white">{{ p.username }}</p>
+                <div class="flex landscape:mr-2">
+                    <p class="mr-1 landscape:text-base landscape:lg:text-lg text-white">{{ p.points }}</p>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
