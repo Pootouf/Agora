@@ -29,18 +29,18 @@ class TileGLMService
             return 1;
         }
         $this->removeTilesOfBrokenChain($mainBoardGLM);
-        $player = $this->GLMService->getActivePlayer($mainBoardGLM->getGameGLM());
+        $player = $this->GLMService->getActivePlayer($mainBoardGLM ->getGameGLM());
         $playerPosition = $player->getPawn()->getPosition();
-        $pointerPosition = ($playerPosition - 2);
+        $pointerPosition = $playerPosition - 2;
         if($pointerPosition < 0){
-            $pointerPosition = GlenmoreParameters::$NUMBER_OF_TILES_ON_BOARD - $pointerPosition;
+            $pointerPosition = GlenmoreParameters::$NUMBER_OF_TILES_ON_BOARD + $pointerPosition;
         }
         $count = 0;
         while ($this->getTileInPosition($mainBoardGLM, $pointerPosition) == null){
+            $pointerPosition -= 1;
             $count += 1;
-            $pointerPosition = ($pointerPosition - 1);
             if($pointerPosition < 0){
-                $pointerPosition = GlenmoreParameters::$NUMBER_OF_TILES_ON_BOARD - $pointerPosition;
+                $pointerPosition = GlenmoreParameters::$NUMBER_OF_TILES_ON_BOARD + $pointerPosition;
             }
         }
         return $count;
@@ -136,20 +136,17 @@ class TileGLMService
      * @param MainBoardGLM $mainBoardGLM
      * @return bool
      */
-    public function isChainBroken(MainBoardGLM $mainBoardGLM): bool
+    private function isChainBroken(MainBoardGLM $mainBoardGLM): bool
     {
         $player = $this->GLMService->getActivePlayer($mainBoardGLM->getGameGLM());
         $playerPosition = $player->getPawn()->getPosition();
-        $positionBehindPlayer = ($playerPosition - 1) %
-            GlenmoreParameters::$NUMBER_OF_TILES_ON_BOARD;
+        $positionBehindPlayer = $playerPosition - 1;
         if($positionBehindPlayer == -1){
             $positionBehindPlayer = GlenmoreParameters::$NUMBER_OF_TILES_ON_BOARD - 1;
         }
         $mainBoardTiles = $mainBoardGLM->getBoardTiles();
-        foreach ($mainBoardTiles as $boardTile){
-            if($boardTile->getPosition() == $positionBehindPlayer){
-                return true;
-            }
+        if($this->getTileInPosition($mainBoardGLM, $positionBehindPlayer) != null){
+            return true;
         }
         return false;
     }
@@ -197,7 +194,7 @@ class TileGLMService
      * @param $position
      * @return BoardTileGLM|null
      */
-    private function getTileInPosition(MainBoardGLM $mainBoardGLM, $position): BoardTileGLM | null
+    public function getTileInPosition(MainBoardGLM $mainBoardGLM, $position): ?BoardTileGLM
     {
         $mainBoardTiles = $mainBoardGLM->getBoardTiles();
         foreach ($mainBoardTiles as $boardTile){
@@ -218,17 +215,17 @@ class TileGLMService
     {
         $player = $this->GLMService->getActivePlayer($mainBoardGLM->getGameGLM());
         $playerPosition = $player->getPawn()->getPosition();
-        $pointerPosition = ($playerPosition - 1) %
-            GlenmoreParameters::$NUMBER_OF_TILES_ON_BOARD;
+        $pointerPosition = $playerPosition - 1;
+        if($pointerPosition == -1){
+            $pointerPosition = GlenmoreParameters::$NUMBER_OF_TILES_ON_BOARD - 1;
+        }
         $mainBoardTiles = $mainBoardGLM->getBoardTiles();
-        while ($this->getTileInPosition($mainBoardGLM, $pointerPosition) != null){
-           foreach ($mainBoardTiles as $boardTile){
-               if($boardTile->getPosition() == $pointerPosition){
-                   $mainBoardGLM->removeBoardTile($boardTile);
-               }
+        while (($tile = $this->getTileInPosition($mainBoardGLM, $pointerPosition)) != null){
+           $mainBoardGLM->removeBoardTile($tile);
+           $pointerPosition -= 1;
+           if($pointerPosition == -1){
+               $pointerPosition = GlenmoreParameters::$NUMBER_OF_TILES_ON_BOARD - 1;
            }
-           $pointerPosition = ($pointerPosition - 1) %
-               GlenmoreParameters::$NUMBER_OF_TILES_ON_BOARD;
            $this->entityManager->persist($mainBoardGLM);
         }
         $this->entityManager->flush();

@@ -148,7 +148,7 @@ class GLMServiceTest extends TestCase
         $this->assertEquals($expectedResult, $result);
     }
 
-    /*public function testGetAmountOfTileToReplaceWhenChainIsNotBroken()
+    public function testGetAmountOfTileToReplaceWhenChainIsNotBroken()
     {
         // GIVEN
         $game = $this->createGame(2);
@@ -159,12 +159,18 @@ class GLMServiceTest extends TestCase
         $playerGLMRepository = $this->createMock(PlayerGLMRepository::class);
         $tileGLMService = new TileGLMService($entityManager, $GLMService,
             $playerGLMRepository);
+        $boardTiles = $game->getMainBoard()->getBoardTiles();
+        foreach ($boardTiles as $boardTile){
+            if($boardTile->getPosition() == 12){
+                $game->getMainBoard()->removeBoardTile($boardTile);
+            }
+        }
         $expectedResult = 1;
         // WHEN
         $result = $tileGLMService->getAmountOfTileToReplace($game->getMainBoard());
         // THEN
         $this->assertEquals($expectedResult, $result);
-    }*/
+    }
 
     private function createGame(int $nbOfPlayers): GameGLM
     {
@@ -232,7 +238,7 @@ class GLMServiceTest extends TestCase
             $playerTileResource->setQuantity(1);
         }
 
-        for ($i = $nbOfPlayers; $i < GlenmoreParameters::$NUMBER_OF_TILES_ON_BOARD; ++$i) {
+        for ($i = $nbOfPlayers; $i < GlenmoreParameters::$NUMBER_OF_TILES_ON_BOARD - 1; ++$i) {
             $drawTiles = $mainBoard->getDrawTiles();
             $level = 0;
             for ($j = GlenmoreParameters::$TILE_LEVEL_ZERO; $j <= GlenmoreParameters::$TILE_LEVEL_THREE; ++$j) {
@@ -246,7 +252,6 @@ class GLMServiceTest extends TestCase
             $tile = $draw->getTiles()->first();
             $mainBoardTile = new BoardTileGLM();
             $mainBoardTile->setTile($tile);
-            $mainBoardTile->setMainBoardGLM($mainBoard);
             $mainBoardTile->setPosition($i);
             $mainBoard->addBoardTile($mainBoardTile);
             $draw->removeTile($tile);

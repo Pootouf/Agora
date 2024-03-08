@@ -132,7 +132,27 @@ class GLMServiceIntegrationTest extends KernelTestCase
         }
         $entityManager->flush();
         $expectedResult = 3;
+        // WHEN
+        $result = $tileGLMService->getAmountOfTileToReplace($game->getMainBoard());
+        // THEN
+        $this->assertEquals($expectedResult, $result);
+    }
 
+    public function testGetAmountOfTileToReplaceWhenChainIsNotBroken()
+    {
+        // GIVEN
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $tileGLMService = static ::getContainer()->get(TileGLMService::class);
+        $game = $this->createGame(2);
+        $boardTiles = $game->getMainBoard()->getBoardTiles();
+        foreach ($boardTiles as $boardTile){
+            if($boardTile->getPosition() == 12){
+                $game->getMainBoard()->removeBoardTile($boardTile);
+            }
+        }
+        $entityManager->persist($game->getMainBoard());
+        $entityManager->flush();
+        $expectedResult = 1;
         // WHEN
         $result = $tileGLMService->getAmountOfTileToReplace($game->getMainBoard());
         // THEN
