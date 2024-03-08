@@ -51,4 +51,14 @@ export default class extends Controller {
         const node = placeholder.firstElementChild;
         tree.appendChild(node);
     }
+
+    async selectTile(tile)  {
+        let url = tile.params.url;
+        const response = await fetch(url);
+        let tree = document.getElementById("index_glenmore");
+        let placeholder = document.createElement("div");
+        placeholder.innerHTML = await response.text();
+        const node = placeholder.firstElementChild;
+        tree.appendChild(node);
+    }
 }
