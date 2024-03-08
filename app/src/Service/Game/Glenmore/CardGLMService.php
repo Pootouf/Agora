@@ -232,6 +232,7 @@ class CardGLMService
         $resource = $this->resourceGLMRepository->findOneBy(["type" => GlenmoreParameters::$WHISKY_RESOURCE]);
         $playerTileResource = new PlayerTileResourceGLM();
         $playerTileResource->setResource($resource);
+        $playerTileResource->setPlayer($playerTileGLM->getPersonalBoard()->getPlayerGLM());
         $playerTileResource->setQuantity($amount);
         $playerTileResource->setPlayerTileGLM($playerTileGLM);
         $this->entityManager->persist($playerTileResource);

@@ -256,6 +256,7 @@ class GLMService
             $playerTile->setCoordY(0);
             $playerTileResource = new PlayerTileResourceGLM();
             $playerTileResource->setResource($villager);
+            $playerTileResource->setPlayer($player);
             $playerTileResource->setQuantity(1);
             $playerTile->addPlayerTileResource($playerTileResource);
             $player->getPersonalBoard()->addPlayerTile($playerTile);

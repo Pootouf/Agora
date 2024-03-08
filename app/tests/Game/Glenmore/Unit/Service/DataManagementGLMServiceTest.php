@@ -199,6 +199,7 @@ class DataManagementGLMServiceTest extends TestCase
             $playerTile->setPersonalBoard($personalBoard);
             $playerTileResource = new PlayerTileResourceGLM();
             $playerTileResource->setPlayerTileGLM($playerTile);
+            $playerTileResource->setPlayer($player);
             $villager = new ResourceGLM();
             $villager->setType(GlenmoreParameters::$VILLAGER_RESOURCE);
             $playerTileResource->setResource($villager);
