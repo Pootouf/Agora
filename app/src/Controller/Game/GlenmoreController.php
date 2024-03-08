@@ -3,10 +3,12 @@
 namespace App\Controller\Game;
 
 use App\Entity\Game\DTO\Glenmore\BoardBoxGLM;
+use App\Entity\Game\Glenmore\BoardTileGLM;
 use App\Entity\Game\Glenmore\GameGLM;
 use App\Entity\Game\Glenmore\GlenmoreParameters;
 use App\Entity\Game\Glenmore\PlayerGLM;
 use App\Entity\Game\Glenmore\PlayerTileGLM;
+use App\Entity\Game\Glenmore\TileGLM;
 use App\Repository\Game\Glenmore\PlayerTileGLMRepository;
 use App\Service\Game\Glenmore\DataManagementGLMService;
 use App\Service\Game\Glenmore\GLMService;
@@ -14,6 +16,7 @@ use App\Service\Game\Glenmore\TileGLMService;
 use App\Service\Game\MessageService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -70,5 +73,26 @@ class GlenmoreController extends AbstractController
         ]);
     }
 
+    #[Route('game/glenmore/{idGame}/selectTileOnMainBoard/{idTile}', name: 'app_game_glenmore_select_tile_on_mainboard')]
+    public function selectTileOnMainBoard(
+        #[MapEntity(id: 'idGame')] GameGLM $game,
+        #[MapEntity(id: 'idTile')] BoardTileGLM $tile
+    )  : Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+        }
+        if ($this->service->getActivePlayer($game) !== $player) {
+            return new Response("Not player's turn", Response::HTTP_FORBIDDEN);
+        }
+        try {
+            $this->tileGLMService->assignTileToPlayer($tile, $player);
+        } catch (Exception $e) {
+            echo $e->getMessage();
+            return new Response("can't select this tile", Response::HTTP_FORBIDDEN);
+        }
+        return new Response('player selected this tile', Response::HTTP_OK);
+    }
 
 }
