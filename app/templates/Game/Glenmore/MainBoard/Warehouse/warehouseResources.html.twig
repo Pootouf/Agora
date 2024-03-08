@@ -1,0 +1,87 @@
+{#
+This section displays the warehouse of the main board, with available resources
+@param : game
+@return : display warehouse resources
+#}
+
+{% set resourcesTable = game.mainBoard.warehouse.warehouseLine %}
+
+<div class="grid grid-cols-4 grid-rows-5 max-h-full inline-flex justify-center items-center gap-1 mb-1">
+    {% for resourceLine in resourcesTable %}
+        <div class="flex items-center justify-center h-full w-full max-h-full">
+            <img class="items-center aspect-auto justify-center max-h-full "
+                 src="{{
+                 asset('resourcesGames/Glenmore/ResourcesProduction/'
+                     ~ resourceLine.resource.color ~'.png')
+                 }}"
+                 alt="{{ resourceLine.resource.color }}"
+            />
+        </div>
+
+        {% if resourceLine.coinNumber == 0 %}
+            <div class="flex justify-center items-center h-full w-full">
+                <span class="bg-yellow-600 rounded-full w-12 h-12 flex items-center justify-center text-xl">1</span>
+            </div>
+        {% else  %}
+            <div class="relative justify-center items-center aspect-auto my-auto p-auto
+                            max-h-full w-full h-full">
+                <div class="h-full flex items-center justify-center">
+                    <img class="items-center aspect-auto justify-center m-auto
+                                max-h-full"
+                         src="{{ asset('resourcesGames/Glenmore/money.png') }}" alt="money"/>
+                    <span
+                            class="absolute -top-2 -right-2 inline-flex items-center justify-center w-6 h-6 text-xs
+                                    font-bold text-white
+                                           bg-red-500 border-2 border-white rounded-full top-2 end-1 dark:border-gray-900"
+                    >
+                        1
+                    </span>
+                </div>
+            </div>
+        {% endif %}
+        {% if resourceLine.coinNumber == 3 %}
+        <div class="relative justify-center items-center aspect-auto my-auto p-auto
+                            max-h-full">
+            <div class="h-full flex items-center justify-center">
+                <img class="items-center aspect-auto justify-center m-auto
+                                max-h-full"
+                     src="{{ asset('resourcesGames/Glenmore/money.png') }}" alt="money"/>
+                <span
+                        class="absolute -top-2 -right-2 inline-flex items-center justify-center w-6 h-6 text-xs
+                                    font-bold text-white
+                                           bg-red-500 border-2 border-white rounded-full top-2 end-1 dark:border-gray-900"
+                >
+                    2
+                </span>
+            </div>
+        </div>
+        {% else %}
+            <div class="flex justify-center items-center h-full w-full">
+                <span class="bg-yellow-600 rounded-full w-12 h-12 flex items-center justify-center text-xl">2</span>
+            </div>
+        {% endif %}
+
+        {% if resourceLine.coinNumber == 6 %}
+            <div class="relative justify-center items-center aspect-auto my-auto p-auto
+                            max-h-full">
+                <div class="h-full flex items-center justify-center">
+                    <img class="items-center aspect-auto justify-center m-auto
+                                max-h-full"
+                         src="{{ asset('resourcesGames/Glenmore/money.png') }}" alt="money"/>
+                    <span
+                            class="absolute -top-2 -right-2 inline-flex items-center justify-center w-6 h-6 text-xs
+                                    font-bold text-white
+                                           bg-red-500 border-2 border-white rounded-full top-2 end-1 dark:border-gray-900"
+                    >
+                    2
+                </span>
+                </div>
+            </div>
+        {% else %}
+            <div class="flex justify-center items-center h-full w-full">
+                <span class="bg-yellow-600 rounded-full w-12 h-12 flex items-center justify-center text-xl">3</span>
+            </div>
+        {% endif %}
+
+    {% endfor %}
+</div>
