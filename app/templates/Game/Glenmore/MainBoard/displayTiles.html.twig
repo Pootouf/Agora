@@ -6,8 +6,8 @@ This section displays the tiles for the main board with players' pawns on it
 <div hidden class="bg-red-600 bg-white-600 bg-blue-600 bg-green-600 bg-yellow-600"></div>
 
 <div class="h-full w-full grid grid-rows-4 grid-cols-5 pb-[1rem] gap-1">
-    <div class="col-start-2 row-start-2 col-span-3 row-span-2 bg-green-500">
-        {{ include('Game/Glenmore/MainBoard/warehouse.html.twig') }}
+    <div class="col-start-2 row-start-2 col-span-3 row-span-2 bg-green-500 flex">
+        {{ include('Game/Glenmore/MainBoard/Warehouse/warehouse.html.twig') }}
     </div>
     {% for row in boardTiles %}
         {% for box in row %}
