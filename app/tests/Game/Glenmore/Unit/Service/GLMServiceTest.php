@@ -302,6 +302,50 @@ class GLMServiceTest extends TestCase
         $this->assertSame($expectedResult, $result);
     }
 
+    public function testCalculatePointsAtEndOfGameWithOnlyMoney() : void
+    {
+        // GIVEN
+        $game = $this->createGame(5);
+        $players = $game->getPlayers();
+        for ($i = 0; $i < 5; ++$i) {
+            $personalBoard = $players->get($i)->getPersonalBoard();
+            $personalBoard->setMoney($i);
+        }
+        $expectedResult = [0, 1, 2, 3, 4];
+        //WHEN
+        $this->GLMService->calculatePointsAtEndOfGame($game);
+        //THEN
+        $result = [$players->get(0)->getPoints(),
+            $players->get(1)->getPoints(),
+            $players->get(2)->getPoints(),
+            $players->get(3)->getPoints(),
+            $players->get(4)->getPoints()];
+        $this->assertSame($expectedResult, $result);
+    }
+
+    public function testCalculatePointsAtEndOfGameWithMoneyAndDifferencesOfTiles() : void
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $players = $game->getPlayers();
+
+        $personalBoard = $players->get(0)->getPersonalBoard();
+        $personalBoard->setMoney(15);
+        $players->get(1)->getPersonalBoard()->setMoney(0);
+        for ($i = 0; $i < 4; ++$i) {
+            $playerTile = new PlayerTileGLM();
+            $personalBoard->addPlayerTile($playerTile);
+        }
+
+        $expectedResult = [3, 0];
+        //WHEN
+        $this->GLMService->calculatePointsAtEndOfGame($game);
+        //THEN
+        $result = [$players->get(0)->getPoints(),
+            $players->get(1)->getPoints()];
+        $this->assertSame($expectedResult, $result);
+    }
+
     public function testManageEndOfRoundShouldReturnExceptionBecauseTooHigh() : void
     {
         //GIVEN

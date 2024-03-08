@@ -208,8 +208,7 @@ class GLMService
         $this->cardGLMService->applyDuartCastle($gameGLM);
         $this->cardGLMService->applyLochMorar($gameGLM);
 
-        $playersMoneyAmount = $this->getSortedListMoney($gameGLM);
-        $this->computePoints($playersMoneyAmount);
+        $this->computePointsWithMoney($gameGLM);
 
         $playersTileAmount = $this->getSortedListTile($gameGLM);
         $this->retrievePoints($playersTileAmount);
@@ -440,27 +439,6 @@ class GLMService
     }
 
     /**
-     * getSortedListMoney : returns sorted list of (players, resourceAmount) by amount of money
-     *
-     * @param GameGLM $gameGLM
-     * @return array
-     */
-    private function getSortedListMoney(GameGLM $gameGLM): array
-    {
-        $players = $gameGLM->getPlayers();
-        $result = array();
-        foreach ($players as $player) {
-            $personalBoard = $player->getPersonalBoard();
-            $playerResource = $personalBoard->getMoney();
-            $result[] = array($player, $playerResource);
-        }
-        usort($result, function($x, $y) {
-            return $x[1] - $y[1];
-        });
-        return $result;
-    }
-
-    /**
      * getSortedListTile : returns sorted list of (players, resourceAmount) by amount of tile
      *
      * @param GameGLM $gameGLM
@@ -499,6 +477,23 @@ class GLMService
             $this->entityManager->persist($player);
         }
     }
+
+    /**
+     * computePointsWithMoney : adds to each player one point for each money coin he owns
+     *
+     * @param GameGLM $gameGLM
+     * @return void
+     */
+    private function computePointsWithMoney(GameGLM $gameGLM): void
+    {
+        $players = $gameGLM->getPlayers();
+        foreach ($players as $player) {
+            $resourceAmount = $player->getPersonalBoard()->getMoney();
+            $player->setPoints($player->getPoints() + $resourceAmount);
+            $this->entityManager->persist($player);
+        }
+    }
+
 
     /**
      * retrievePoints : removes points to each player
