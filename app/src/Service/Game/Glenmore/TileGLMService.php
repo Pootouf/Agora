@@ -35,21 +35,30 @@ class TileGLMService
      * @param MainBoardGLM $mainBoardGLM
      * @return int
      */
+    /**
+     * getAmountOfTileToReplace : returns the amount of tiles to replace
+     * @param MainBoardGLM $mainBoardGLM
+     * @return int
+     */
     public function getAmountOfTileToReplace(MainBoardGLM $mainBoardGLM): int
     {
         if(!$this->isChainBroken($mainBoardGLM)){
             return 1;
         }
         $this->removeTilesOfBrokenChain($mainBoardGLM);
-        $player = $this->GLMService->getActivePlayer($mainBoardGLM->getGameGLM());
+        $player = $this->GLMService->getActivePlayer($mainBoardGLM ->getGameGLM());
         $playerPosition = $player->getPawn()->getPosition();
-        $pointerPosition = ($playerPosition - 2) %
-            GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD;
+        $pointerPosition = $playerPosition - 2;
+        if($pointerPosition < 0){
+            $pointerPosition = GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD + $pointerPosition;
+        }
         $count = 0;
         while ($this->getTileInPosition($mainBoardGLM, $pointerPosition) == null){
+            $pointerPosition -= 1;
             $count += 1;
-            $pointerPosition = ($pointerPosition - 1) %
-                GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD;
+            if($pointerPosition < 0){
+                $pointerPosition = GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD + $pointerPosition;
+            }
         }
         return $count;
     }
@@ -344,13 +353,12 @@ class TileGLMService
     {
         $player = $this->GLMService->getActivePlayer($mainBoardGLM->getGameGLM());
         $playerPosition = $player->getPawn()->getPosition();
-        $positionBehindPlayer = ($playerPosition - 1) %
-            GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD;
-        $mainBoardTiles = $mainBoardGLM->getBoardTiles();
-        foreach ($mainBoardTiles as $boardTile){
-            if($boardTile->getPosition() == $positionBehindPlayer){
-                return true;
-            }
+        $positionBehindPlayer = $playerPosition - 1;
+        if($positionBehindPlayer == -1){
+            $positionBehindPlayer = GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD - 1;
+        }
+        if($this->getTileInPosition($mainBoardGLM, $positionBehindPlayer) != null){
+            return true;
         }
         return false;
     }
@@ -419,18 +427,18 @@ class TileGLMService
     {
         $player = $this->GLMService->getActivePlayer($mainBoardGLM->getGameGLM());
         $playerPosition = $player->getPawn()->getPosition();
-        $pointerPosition = ($playerPosition - 1) %
-            GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD;
+        $pointerPosition = $playerPosition - 1;
+        if($pointerPosition == -1){
+            $pointerPosition = GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD - 1;
+        }
         $mainBoardTiles = $mainBoardGLM->getBoardTiles();
-        while ($this->getTileInPosition($mainBoardGLM, $pointerPosition) != null){
-           foreach ($mainBoardTiles as $boardTile){
-               if($boardTile->getPosition() == $pointerPosition){
-                   $mainBoardGLM->removeBoardTile($boardTile);
-               }
-           }
-           $pointerPosition = ($pointerPosition - 1) %
-               GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD;
-           $this->entityManager->persist($mainBoardGLM);
+        while (($tile = $this->getTileInPosition($mainBoardGLM, $pointerPosition)) != null){
+            $mainBoardGLM->removeBoardTile($tile);
+            $pointerPosition -= 1;
+            if($pointerPosition == -1){
+                $pointerPosition = GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD - 1;
+            }
+            $this->entityManager->persist($mainBoardGLM);
         }
         $this->entityManager->flush();
     }

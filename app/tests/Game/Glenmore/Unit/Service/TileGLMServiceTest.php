@@ -339,6 +339,60 @@ class TileGLMServiceTest extends TestCase
     }
     */
 
+    public function testGetAmountOfTileToReplaceWhenChainIsNotBroken()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $GLMService = $this->createMock(GLMService::class);
+        $GLMService->method('getActivePlayer')->willReturn($firstPlayer);
+        $resourceGLMRepository = $this->createMock(ResourceGLMRepository::class);
+        $playerTileGLMRepository = $this->createMock(PlayerTileGLMRepository::class);
+        $cardGLMService = $this->createMock(CardGLMService::class);
+        $playerTileResourceGLMRepository = $this->createMock(PlayerTileResourceGLMRepository::class);
+        $tileGLMService = new TileGLMService($entityManager, $GLMService, $resourceGLMRepository,
+            $playerTileResourceGLMRepository ,$playerTileGLMRepository, $cardGLMService);
+        $boardTiles = $game->getMainBoard()->getBoardTiles();
+        foreach ($boardTiles as $boardTile){
+            if($boardTile->getPosition() == 12){
+                $game->getMainBoard()->removeBoardTile($boardTile);
+            }
+        }
+        $expectedResult = 1;
+        // WHEN
+        $result = $tileGLMService->getAmountOfTileToReplace($game->getMainBoard());
+        // THEN
+        $this->assertEquals($expectedResult, $result);
+    }
+
+    public function testGetAmountOfTileToReplaceWhenChainIsBroken()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $GLMService = $this->createMock(GLMService::class);
+        $GLMService->method('getActivePlayer')->willReturn($firstPlayer);
+        $resourceGLMRepository = $this->createMock(ResourceGLMRepository::class);
+        $playerTileGLMRepository = $this->createMock(PlayerTileGLMRepository::class);
+        $cardGLMService = $this->createMock(CardGLMService::class);
+        $playerTileResourceGLMRepository = $this->createMock(PlayerTileResourceGLMRepository::class);
+        $tileGLMService = new TileGLMService($entityManager, $GLMService, $resourceGLMRepository,
+            $playerTileResourceGLMRepository ,$playerTileGLMRepository, $cardGLMService);
+        $boardTiles = $game->getMainBoard()->getBoardTiles();
+        foreach ($boardTiles as $boardTile){
+            if($boardTile->getPosition() == 10){
+                $boardTile->setPosition(13);
+            }
+        }
+        $expectedResult = 3;
+        // WHEN
+        $result = $tileGLMService->getAmountOfTileToReplace($game->getMainBoard());
+        // THEN
+        $this->assertEquals($expectedResult, $result);
+    }
+
 
     private function createGame(int $nbOfPlayers): GameGLM
     {

@@ -254,6 +254,49 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $this->assertFalse($result);
     }
 
+    public function testGetAmountOfTileToReplaceWhenChainIsNotBroken()
+    {
+        // GIVEN
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $tileGLMService = static ::getContainer()->get(TileGLMService::class);
+        $game = $this->createGame(2);
+        $boardTiles = $game->getMainBoard()->getBoardTiles();
+        foreach ($boardTiles as $boardTile){
+            if($boardTile->getPosition() == 12){
+                $game->getMainBoard()->removeBoardTile($boardTile);
+            }
+        }
+        $entityManager->persist($game->getMainBoard());
+        $entityManager->flush();
+        $expectedResult = 1;
+        // WHEN
+        $result = $tileGLMService->getAmountOfTileToReplace($game->getMainBoard());
+        // THEN
+        $this->assertEquals($expectedResult, $result);
+    }
+
+    public function testGetAmountOfTileToReplaceWhenChainIsBroken()
+    {
+        // GIVEN
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $tileGLMService = static ::getContainer()->get(TileGLMService::class);
+        $game = $this->createGame(2);
+        $boardTiles = $game->getMainBoard()->getBoardTiles();
+        foreach ($boardTiles as $boardTile){
+            if($boardTile->getPosition() == 10){
+                $boardTile->setPosition(13);
+                $entityManager->persist($boardTile);
+                $entityManager->persist($game->getMainBoard());
+            }
+        }
+        $entityManager->flush();
+        $expectedResult = 3;
+        // WHEN
+        $result = $tileGLMService->getAmountOfTileToReplace($game->getMainBoard());
+        // THEN
+        $this->assertEquals($expectedResult, $result);
+    }
+
 
     private function createGame(int $nbOfPlayers) : GameGLM
     {
@@ -338,10 +381,12 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
             $tile = $draw->getTiles()->first();
             $mainBoardTile = new BoardTileGLM();
             $mainBoardTile->setTile($tile);
+            $mainBoard->addBoardTile($mainBoardTile);
             $mainBoardTile->setMainBoardGLM($mainBoard);
             $mainBoardTile->setPosition($i);
             $entityManager->persist($mainBoardTile);
             $draw->removeTile($tile);
+            $entityManager->persist($mainBoard);
             $entityManager->persist($draw);
         }
         $firstPlayer = $game->getPlayers()->first();
