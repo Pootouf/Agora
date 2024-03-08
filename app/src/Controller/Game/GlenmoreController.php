@@ -89,7 +89,6 @@ class GlenmoreController extends AbstractController
         try {
             $this->tileGLMService->assignTileToPlayer($tile, $player);
         } catch (Exception $e) {
-            echo $e->getMessage();
             return new Response("can't select this tile", Response::HTTP_FORBIDDEN);
         }
         return new Response('player selected this tile', Response::HTTP_OK);
