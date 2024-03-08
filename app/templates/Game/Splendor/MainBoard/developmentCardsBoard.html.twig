@@ -34,7 +34,7 @@
                             max-h-full"
                >
                    <img id="drawCards_{{ i }}_portrait"
-                        class="items-center aspect-auto justify-center rounded-lg shadow-black shadow-lg m-auto
+                        class="landscape:hidden items-center aspect-auto justify-center rounded-lg shadow-black shadow-lg m-auto
                                 max-h-full"
                         src="{{ asset('resourcesGames/Splendor/Images/cardLevel' ~ i ~ '.png') }}"
                         alt='{{ 'cardLevel' ~ i ~ '.png' }}'
@@ -68,7 +68,7 @@
 </div>
 
 {# Display development cards #}
-<div class="flex grid grid-rows-3 grid-cols-4 h-full w-9/12 z-4">
+<div id="development_cards" class="flex grid grid-rows-3 grid-cols-4 h-full w-9/12 z-4">
     {% for i in 3..1 %}
         {% for card in rows[i - 1].developmentCards|filter(card => card.level == i) %}
             <div class="h-full p-2 w-full" id="card_{{ card.id }}">
@@ -91,8 +91,8 @@
                                     items-center justify-center rounded-lg {{ 'shadow-' ~ shadowColor }}
                                     shadow-lg max-h-full
                                     {% if isSpectator %}transform hover:-translate-y-20{% endif %}
-                                    {{ card.id }}lol{{ takenCard }}
-                                    {% if card.id == takenCard %} portrait:invisible landscape:invisible {% endif %}"
+                                    {% if card.id == takenCard %} portrait:opacity-0 landscape:opacity-0 {% endif %}"
+
 
                              src="{{
                                     asset('resourcesGames/Splendor/Images/DevelopmentCards/'

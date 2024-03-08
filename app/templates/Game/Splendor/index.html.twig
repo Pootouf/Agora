@@ -48,21 +48,19 @@
         const eventSourceTokens = new EventSource("{{ mercure(path)|escape('js') }}");
         eventSourceTokens.onmessage = event => {
             animationQueue.addToQueue(() => {
-                console.log("token");
                 let mainBoard = document.getElementById('tokens');
                 mainBoard.innerHTML = event.data;
-                animationQueue.executeNextInQueue()
+                setTimeout(() => animationQueue.executeNextInQueue(), 100)
             });
         }
 
         {% set path = path('app_game_show_spl', {'id': game.id}) ~ 'developmentCards' ~ player.id %}
         const eventSourceDevelopmentCards = new EventSource("{{ mercure(path)|escape('js') }}");
         eventSourceDevelopmentCards.onmessage = event => {
-            animationQueue.addToQueue(() => {
-                console.log("developmentCards");
+            animationQueue.addToQueue(async () => {
                 let mainBoard = document.getElementById('developmentCards');
                 mainBoard.innerHTML = event.data;
-                animationQueue.executeNextInQueue()
+                setTimeout(() => animationQueue.executeNextInQueue(), 200);
             });
         }
 
@@ -70,7 +68,6 @@
         const eventSourceNobleTiles = new EventSource("{{ mercure(path)|escape('js') }}");
         eventSourceNobleTiles.onmessage = event => {
             animationQueue.addToQueue(() => {
-                console.log("nobleTiles");
                 let mainBoard = document.getElementById('nobleTiles');
                 mainBoard.innerHTML = event.data;
                 animationQueue.executeNextInQueue()
@@ -81,7 +78,6 @@
         const eventSourceReservedCards = new EventSource("{{ mercure(path)|escape('js') }}");
         eventSourceReservedCards.onmessage = event => {
             animationQueue.addToQueue(() => {
-                console.log("reservedCards");
                 let mainBoard = document.getElementById('reservedCards');
                 mainBoard.innerHTML = event.data;
                 animationQueue.executeNextInQueue()
@@ -92,7 +88,6 @@
         const eventSourceRanking = new EventSource("{{ mercure(path)|escape('js') }}");
         eventSourceRanking.onmessage = event => {
             animationQueue.addToQueue(() => {
-                console.log("ranking");
                 let ranking = document.getElementById('ranking');
                 ranking.innerHTML = event.data;
                 animationQueue.executeNextInQueue()
@@ -111,13 +106,13 @@
         const eventSourceTakenTokens = new EventSource("{{ mercure(path)|escape('js') }}");
         eventSourceTakenTokens.onmessage = event => {
             animationQueue.addToQueue(() => {
-                console.log("animTakenTokens");
                 let username = event.data.split('__')[0];
                 let tokens = event.data.split('__')[1].split('_');
                 setTimeout(() => {
-                    const rowsAnimations = tokens.map(token => moveTakingToken(token, username));
-                    Promise.all(rowsAnimations).then(() => animationQueue.executeNextInQueue());
-                }, 2000);
+                    Promise.all(tokens.map(token => moveTakingToken(token, username))).then(
+                            () => animationQueue.executeNextInQueue()
+                    );
+                }, 500);
             })
         }
     </script>
@@ -128,11 +123,10 @@
         const eventSourceTakenCard = new EventSource("{{ mercure(path)|escape('js') }}");
         eventSourceTakenCard.onmessage = event => {
             animationQueue.addToQueue(() => {
-                console.log("animTakenCard");
                 let username = event.data.split('__')[0];
                 let devCard = event.data.split('__')[1];
 
-                moveDevCard(devCard, username);
+                moveDevCard(devCard, username).then(() => animationQueue.executeNextInQueue());
             })
         }
     </script>
@@ -143,14 +137,12 @@
         const eventSourceTakenCardFromDraw = new EventSource("{{ mercure(path)|escape('js') }}");
         eventSourceTakenCardFromDraw.onmessage = event => {
             animationQueue.addToQueue(() => {
-                console.log("animTakenCardFromDraw");
                 let drawLevel = event.data.split('__')[0];
                 let devCard = event.data.split('__')[1];
 
-                console.log(drawLevel, devCard)
 
-                const movesAnimations = [moveDrawToDevCard(drawLevel, devCard, 'landscape'),];
-                    //moveDrawToDevCard(drawLevel, devCard, 'portrait')];
+                const movesAnimations = [moveDrawToDevCard(drawLevel, devCard, 'landscape'),
+                    moveDrawToDevCard(drawLevel, devCard, 'portrait')];
 
                 Promise.all(movesAnimations).then(() => animationQueue.executeNextInQueue());
             })
@@ -163,7 +155,6 @@
         const eventSourceReturnedTokens = new EventSource("{{ mercure(path)|escape('js') }}");
         eventSourceReturnedTokens.onmessage = event => {
             animationQueue.addToQueue(() => {
-                console.log("animReturnedTokens");
                 let username = event.data.split('__')[0];
                 if(event.data.split('__')[1].trim() === '') {
                     animationQueue.executeNextInQueue();
@@ -173,7 +164,7 @@
                 setTimeout(() => {
                     const movesAnimations = tokens.map(token => moveReturnedToken(token, username));
                     Promise.all(movesAnimations).then(() => animationQueue.executeNextInQueue());
-                }, 2000);
+                }, 500);
             })
         }
     </script>
@@ -184,13 +175,12 @@
         const eventSourceNobleMove = new EventSource("{{ mercure(path)|escape('js') }}");
         eventSourceNobleMove.onmessage = event => {
             animationQueue.addToQueue(() => {
-                console.log("animNoble");
                 let username = event.data.split('__')[0];
                 let nobles = event.data.split('__')[1].split('_');
                 setTimeout(() => {
                     const movesAnimations = nobles.map(noble => moveNobleTile(noble, username));
                     Promise.all(movesAnimations).then(() => animationQueue.executeNextInQueue());
-                }, 2000);
+                }, 500);
             })
         }
     </script>
@@ -201,9 +191,11 @@
         const eventSourceReservedDrawCard = new EventSource("{{ mercure(path)|escape('js') }}");
         eventSourceReservedDrawCard.onmessage = event => {
             animationQueue.addToQueue(() => {
-                let username = event.data.split('__')[0];
-                let card = event.data.split('__')[1];
-                moveDrawCard(card, username)
+                const username = event.data.split('__')[0];
+                const card = event.data.split('__')[1];
+                const movesAnimations = [moveDrawCard(card, username, 'portrait'),
+                    moveDrawCard(card, username, 'landscape')];
+                Promise.all(movesAnimations).then(() => animationQueue.executeNextInQueue());
             })
         }
     </script>

@@ -185,15 +185,15 @@ class SplendorController extends AbstractController
              $reserved = true;
          }
          try {
-             $returnedDatas = $this->SPLService->buyCard($player, $card);
+             $returnedData = $this->SPLService->buyCard($player, $card);
          } catch (Exception $e) {
              return new Response("Can't buy this card : ".$e->getMessage(), Response::HTTP_FORBIDDEN);
          }
          if (!$reserved) {
-             $this->publishAnimTakenCard($game, $player->getUsername(), $card, $returnedDatas["newDevCard"]);
+             $this->publishAnimTakenCard($game, $player->getUsername(), $card, $returnedData["newDevCard"]);
          }
+         $this->publishAnimReturnedTokens($game, $player->getUsername(), $returnedData["retrievePlayerMoney"]);
          $this->manageEndOfRound($game);
-         $this->publishAnimReturnedTokens($game, $player->getUsername(), $returnedDatas["retrievePlayerMoney"]);
          $nobleTileId = $this->SPLService->addBuyableNobleTilesToPlayer($game, $player);
 
          if ($nobleTileId != -1){
@@ -220,14 +220,16 @@ class SplendorController extends AbstractController
          if (!$this->SPLService->canPlayerReserveCard($game, $card)) {
              return new Response("Can't reserve this card", Response::HTTP_FORBIDDEN);
          }
-         $cardFromDraw = null;
          try {
-             $cardFromDraw = $this->SPLService->reserveCard($player, $card);
+             $returnedData = $this->SPLService->reserveCard($player, $card);
          } catch (Exception $e) {
              return new Response("Can't reserve this card : " . $e->getMessage(), Response::HTTP_FORBIDDEN);
          }
-         if ($cardFromDraw != null) {
-             $this->publishAnimTakenCard($game, $player->getUsername(), $card, $cardFromDraw);
+         if ($returnedData["cardFromDraw"] != null) {
+             $this->publishAnimTakenCard($game, $player->getUsername(), $card, $returnedData["cardFromDraw"]);
+         }
+         if ($returnedData["isJokerTaken"]) {
+             $this->publishAnimTakenJoker($game, $player->getUsername());
          }
 
          $this->manageEndOfRound($game);
@@ -252,12 +254,15 @@ class SplendorController extends AbstractController
              return new Response("Can't reserve this card", Response::HTTP_FORBIDDEN);
          }
          try {
-             $this->SPLService->reserveCard($player, $card);
+             $returnedData = $this->SPLService->reserveCard($player, $card);
          } catch (Exception $e) {
              return new Response("Can't reserve this card : " . $e->getMessage(), Response::HTTP_FORBIDDEN);
          }
+         if ($returnedData["isJokerTaken"]) {
+             $this->publishAnimTakenJoker($game, $player->getUsername());
+         }
          $this->manageEndOfRound($game);
-         $this->publishAnimCardOnDraw($game, $player->getUsername(), $card->getId());
+         $this->publishAnimCardOnDraw($game, $player->getUsername(), $level);
          return new Response('Card reserved', Response::HTTP_OK);
      }
 
@@ -587,5 +592,14 @@ class SplendorController extends AbstractController
                 new Response($selectedCard->getLevel() . '__' . $newDevCard->getId())
             );
         }
+    }
+
+    private function publishAnimTakenJoker(GameSPL $game, string $player): void
+    {
+
+        $this->publishService->publish(
+            $this->generateUrl('app_game_show_spl', ['id' => $game->getId()]).'animTakenTokens',
+            new Response($player . '__gold')
+        );
     }
 }

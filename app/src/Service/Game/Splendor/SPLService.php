@@ -350,6 +350,10 @@ class SPLService
         foreach ($levelThreeCards as $card) {
             $drawCardLevelThree->addDevelopmentCard($card);
         }
+        foreach ($game->getPlayers() as $player) {
+            $player->setTurnOfPlayer(false);
+            $this->entityManager->persist($player);
+        }
         $firstPlayer = $game->getPlayers()->first();
         $firstPlayer->setTurnOfPlayer(true);
         $this->entityManager->persist($firstPlayer);
@@ -365,10 +369,10 @@ class SPLService
      * reserveCard : a player reserve a development card
      * @param PlayerSPL $player
      * @param DevelopmentCardsSPL $card
-     * @return void
+     * @return array
      * @throws Exception
      */
-    public function reserveCard(PlayerSPL $player, DevelopmentCardsSPL $card) : DevelopmentCardsSPL
+    public function reserveCard(PlayerSPL $player, DevelopmentCardsSPL $card) : array
     {
         if (!$this->canReserveCard($player, $card))
         {
@@ -400,11 +404,13 @@ class SPLService
         } else {
             $cardFromDraw = $this->manageRow($mainBoard, $card);
         }
-
-        $this->manageJokerToken($player);
+        $returnedData = array(
+            "isJokerTaken" => $this->manageJokerToken($player),
+            "cardFromDraw" => $cardFromDraw,
+        );
 
         $this->entityManager->flush();
-        return $cardFromDraw;
+        return $returnedData;
     }
 
     /**
@@ -634,7 +640,7 @@ class SPLService
         $this->entityManager->persist($discardsAtLevel);
     }
 
-    private function manageJokerToken(PlayerSPL $player): void
+    private function manageJokerToken(PlayerSPL $player): bool
     {
         $personalBoard = $player->getPersonalBoard();
         $tokens = $personalBoard->getTokens();
@@ -650,8 +656,10 @@ class SPLService
                 $mainBoard->removeToken($joker);
                 $this->entityManager->persist($personalBoard);
                 $this->entityManager->persist($mainBoard);
+                return true;
             }
         }
+        return false;
     }
 
     private function getNumberOfTokenAtColorAtMainBoard(MainBoardSPL $mainBoard, string $color) : int

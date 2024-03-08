@@ -141,7 +141,6 @@ function moveTakingToken(tokenId, playerUsername) {
 			}
 		).addEventListener("finish", () => {
 			movingTokenElement.remove();
-			tokenFinalPositionElement.classList.remove('invisible');
 			resolve();
 		});
 	});
@@ -212,7 +211,7 @@ function moveDrawCard(cardId, playerUsername, face) {
 		let cardFinalPositionShape = cardFinalPositionElement.getBoundingClientRect();
 
 		let movingCardElement = drawCardElement.cloneNode(true);
-		movingCardElement.id = 'movingcard_' + cardId;
+		movingCardElement.id = 'movingcard_' + cardId + '_' + face;
 		movingCardElement.classList.add('absolute');
 		animationContainer.appendChild(movingCardElement);
 
@@ -314,25 +313,27 @@ function moveDevCard(cardId, playerUsername) {
 
 function moveDrawToDevCard(drawCardId, devCardId, face) {
 	return new Promise(resolve => {
-		console.log(face)
 		let cardFinalPositionElement = document.getElementById('image_card_' + devCardId);
 		let drawCardElement = document.getElementById('drawCards_' + drawCardId + '_' + face);
 
-		console.log(cardFinalPositionElement, drawCardElement);
+
 
 		let cardFinalPositionShape = cardFinalPositionElement.getBoundingClientRect();
 		let discardCardShape = drawCardElement.getBoundingClientRect();
 
-		console.log(cardFinalPositionShape, discardCardShape);
+
 
 		let movingCardElement = document.getElementById('flip_card').cloneNode(true);
 		movingCardElement.id = 'movingcard_' + devCardId + '_' + face;
 		movingCardElement.classList.remove(face + ':invisible');
 
 		let frontImage = drawCardElement.cloneNode(true);
+		frontImage.id = 'frontmovingface_' + face;
 		let backImage = cardFinalPositionElement.cloneNode(true);
+		backImage.id = 'backmovingface_' + face;
 		frontImage.classList.add('size-full');
 		backImage.classList.add('size-full');
+		backImage.classList.remove(face + ':opacity-0')
 
 		movingCardElement.querySelector('.spl-front').append(frontImage)
 		movingCardElement.querySelector('.spl-back').append(backImage)
@@ -352,7 +353,7 @@ function moveDrawToDevCard(drawCardId, devCardId, face) {
 				{
 					transform: "translate(" + cardFinalPositionShape.x + "px, " + cardFinalPositionShape.y + "px)",
 					width: cardFinalPositionShape.width + "px",
-					height: discardCardShape.height + "px",
+					height: cardFinalPositionShape.height + "px",
 				},
 			],
 			{
@@ -360,9 +361,7 @@ function moveDrawToDevCard(drawCardId, devCardId, face) {
 				fill: "forwards", // Stay at the final position
 			}
 		).addEventListener("finish", () => {
-			console.log("Animation 1 finish");
 			setTimeout(function () {
-				console.log("Animation 2 finish");
 				movingCardElement.querySelector('.spl-card').animate(
 					[
 						{transform : "rotateY(0deg)"},
@@ -373,9 +372,11 @@ function moveDrawToDevCard(drawCardId, devCardId, face) {
 						fill: "forwards", // Stay at the final position
 					}
 				).addEventListener("finish", () => {
-					cardFinalPositionElement.classList.remove(face + ':invisible');
-					movingCardElement.remove();
-					setTimeout(() => resolve(), 1000);
+					cardFinalPositionElement.classList.remove(face + ':opacity-0');
+					setTimeout(() => {
+						movingCardElement.remove();
+						resolve();
+					}, 500);
 				});
 			}, 500)
 		});
