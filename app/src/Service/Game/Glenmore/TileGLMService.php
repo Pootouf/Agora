@@ -116,7 +116,6 @@ class TileGLMService
 
     /**
      * canPlaceTile: return true if the player can place the selected tile at the chosen emplacement
-     *
      * @param int $x the coord x of the wanted emplacement
      * @param int $y the coord y of the wanted emplacement
      * @param TileGLM $tile
@@ -151,6 +150,61 @@ class TileGLMService
                         $tileUpLeft, $tileUpRight, $tileDownLeft, $tileDownRight]
                 )
             );
+    }
+
+    /**
+     * canBuyTile: return true if the player can buy the tile
+     * @param TileGLM $tile
+     * @param PlayerGLM $player
+     * @return bool
+     */
+    public function canBuyTile(TileGLM $tile, PlayerGLM $player) : bool
+    {
+        $globalResources = $player->getPlayerTileResourceGLMs();
+        foreach ($tile->getBuyPrice() as $buyPrice) {
+            $resourceTile = $buyPrice->getResource();
+            $priceTile = $buyPrice->getPrice();
+            $resourcesOfPlayerLikeResourceTile = $globalResources->filter(
+                function (PlayerTileResourceGLM $playerTileResource) use ($resourceTile) {
+                    return $playerTileResource->getResource()->getId() == $resourceTile->getId();
+                }
+            );
+            $quantity = 0;
+            foreach ($resourcesOfPlayerLikeResourceTile as $resource) {
+                $quantity += $resource->getQuantity();
+            }
+            if ($quantity < $priceTile) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+
+    public function buyTile(TileGLM $tile, PlayerGLM $player) : void
+    {
+        $globalResources = $player->getPlayerTileResourceGLMs();
+        foreach ($tile->getBuyPrice() as $buyPrice) {
+            $resourceTile = $buyPrice->getResource();
+            $priceTile = $buyPrice->getPrice();
+            $resourcesOfPlayerLikeResourceTile = $globalResources->filter(
+                function (PlayerTileResourceGLM $playerTileResource) use ($resourceTile) {
+                    return $playerTileResource->getResource()->getId() == $resourceTile->getId();
+                }
+            );
+            foreach ($resourcesOfPlayerLikeResourceTile as $resource) {
+                if ($resource->getQuantity() > $priceTile) {
+                    $resource->setQuantity($resource->getQuantity() - $priceTile);
+                    $priceTile = 0;
+                } else {
+                    $priceTile -= $resource->getQuantity();
+                    $this->entityManager->remove($resource);
+                }
+                if ($priceTile == 0) {
+                    break;
+                }
+            }
+        }
     }
 
     /**
