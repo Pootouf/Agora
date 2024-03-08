@@ -19,6 +19,10 @@ class PlayerTileResourceGLM extends Component
     #[ORM\ManyToOne(inversedBy: 'playerTileResource')]
     #[ORM\JoinColumn(nullable: false)]
     private ?PlayerTileGLM $playerTileGLM = null;
+
+    #[ORM\ManyToOne(inversedBy: 'playerTileResourceGLMs')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?PlayerGLM $player = null;
     public function getResource(): ?ResourceGLM
     {
         return $this->resource;
@@ -51,6 +55,18 @@ class PlayerTileResourceGLM extends Component
     public function setPlayerTileGLM(?PlayerTileGLM $playerTileGLM): static
     {
         $this->playerTileGLM = $playerTileGLM;
+
+        return $this;
+    }
+
+    public function getPlayer(): ?PlayerGLM
+    {
+        return $this->player;
+    }
+
+    public function setPlayer(?PlayerGLM $player): static
+    {
+        $this->player = $player;
 
         return $this;
     }
