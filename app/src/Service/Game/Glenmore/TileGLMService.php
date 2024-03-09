@@ -245,16 +245,31 @@ class TileGLMService
             if($this->hasPlayerEnoughResourcesToActivate($tileGLM, $playerGLM) &&
                 $this->hasEnoughPlaceToActivate($tileGLM)){
                 $this->givePlayerActivationBonus($tileGLM, $playerGLM);
+                $this->entityManager->persist($tileGLM);
             }
         } else {
-            $playerMaximumItemsToExchange = $this->getMaximumTypeItemsToExchange($playerGLM);
-            $tileMaximumItemsToExchange = $tileGLM->getTile()->getActivationBonus()->count();
-            $itemToExchange = $playerMaximumItemsToExchange;
-            if($tileMaximumItemsToExchange < $playerMaximumItemsToExchange){
-                $itemToExchange = $tileMaximumItemsToExchange;
+            $selectedResources = $playerGLM->getPersonalBoard()->getSelectedResources();
+            $resourcesTypes = new ArrayCollection();
+            foreach ($selectedResources as $selectedResource){
+                if(!$resourcesTypes->contains($selectedResource->getResource()->getType())){
+                    $resourcesTypes->add($selectedResource->getResource()->getType());
+                }
             }
-
+            $resourcesTypesCount = $resourcesTypes->count();
+            $activationCostsLevels = $tileGLM->getTile()->getActivationPrice()->count();
+            $selectedLevel = min($resourcesTypesCount, $activationCostsLevels);
+            $activationBonus = $tileGLM->getTile()->getActivationBonus()->get($selectedLevel - 1);
+            $playerGLM->setPoints($playerGLM->getPoints() + $activationBonus->getAmount());
+            foreach ($selectedResources as $selectedResource){
+                if($resourcesTypes->contains($selectedResource->getResource()->getType())){
+                    $playerGLM->getPersonalBoard()->removeSelectedResource($selectedResource);
+                    $this->entityManager->persist($playerGLM->getPersonalBoard());
+                    $resourcesTypes->remove($selectedResource->getResource()->getType());
+                }
+            }
         }
+        $tileGLM->setActivated(true);
+        $this->entityManager->flush();
     }
 
 
@@ -337,36 +352,25 @@ class TileGLMService
         $this->entityManager->flush();
     }
 
-    private function getMaximumTypeItemsToExchange(PlayerGLM $playerGLM): int
-    {
-        $resourcesTypes = new ArrayCollection();
-        $playerTiles = $playerGLM->getPersonalBoard()->getPlayerTiles();
-        foreach ($playerTiles as $playerTile){
-            $resources = $playerTile->getPlayerTileResource();
-            foreach ($resources as $resource){
-                if(!$resourcesTypes->contains($resource->getResource()->getType())){
-                    $resourcesTypes->add($resource->getResource()->getType());
-                }
-            }
-        }
-        return $resourcesTypes->count();
-    }
-
+    /**
+     * hasPlayerEnoughResourcesToActivate : checks if player has enough resources to activate
+     *      the tile
+     * @param PlayerTileGLM $playerTileGLM
+     * @param PlayerGLM $playerGLM
+     * @return bool
+     */
     private function hasPlayerEnoughResourcesToActivate(PlayerTileGLM $playerTileGLM, PlayerGLM $playerGLM): bool
     {
         $tileGLM = $playerTileGLM->getTile();
         $activationPrices = $tileGLM->getActivationPrice();
-        $playerTiles = $playerGLM->getPersonalBoard()->getPlayerTiles();
+        $selectedResources = $playerGLM->getPersonalBoard()->getSelectedResources();
         foreach ($activationPrices as $activationPrice){
             $resourceType = $activationPrice->getResource();
             $resourceAmount = $activationPrice->getPrice();
             $playerResourceCount = 0;
-            foreach ($playerTiles as $playerTile){
-                $resourcesOnTile = $playerTile->getPlayerTileResource();
-                foreach ($resourcesOnTile as $resource){
-                    if($resource->getResource()->getType() == $resourceType){
-                        $playerResourceCount += 1;
-                    }
+            foreach ($selectedResources as $selectedResource){
+                if($selectedResource->getResource()->getType() == $resourceType){
+                    $playerResourceCount += $selectedResource->getQuantity();
                 }
             }
             if($playerResourceCount < $resourceAmount){
@@ -376,6 +380,11 @@ class TileGLMService
         return true;
     }
 
+    /**
+     * hasEnoughPlaceToActivate : checks if tiles can contain new resources
+     * @param PlayerTileGLM $playerTileGLM
+     * @return bool
+     */
     private function hasEnoughPlaceToActivate(PlayerTileGLM $playerTileGLM): bool
     {
         $tileGLM = $playerTileGLM->getTile();
@@ -546,8 +555,14 @@ class TileGLMService
         $this->entityManager->flush();
     }
 
-
-    private function givePlayerActivationBonus(PlayerTileGLM $playerTileGLM): void
+    /**
+     * givePlayerActivationBonus : gives to player his activation bonus
+     * @param PlayerTileGLM $playerTileGLM
+     * @param PlayerGLM $playerGLM
+     * @return void
+     * @throws \Exception
+     */
+    private function givePlayerActivationBonus(PlayerTileGLM $playerTileGLM, PlayerGLM $playerGLM): void
     {
         $tileGLM = $playerTileGLM->getTile();
         $activationBonusResources = $tileGLM->getActivationBonus();
@@ -557,6 +572,22 @@ class TileGLMService
             $playerTileGLM->addPlayerTileResource($playerTileResource);
             $this->entityManager->persist($playerTileGLM);
         }
+        $selectedResources = $playerGLM->getPersonalBoard()->getSelectedResources();
+        $activationPrices = $playerTileGLM->getTile()->getActivationPrice();
+        foreach ($activationPrices as $activationPrice){
+            $activationCost = $activationPrice->getPrice();
+            foreach ($selectedResources as $selectedResource) {
+                if($selectedResource->getResource()->getType() == $activationPrice->getResource()->getType()
+                    && $activationCost > 0){
+                    $playerGLM->getPersonalBoard()->removeSelectedResource($selectedResource);
+                    $activationCost -= 1;
+                }
+            }
+            if($activationCost > 0){
+                throw new \Exception("Not enough resources to activate");
+            }
+        }
+        $this->entityManager->persist($activationPrices);
         $this->entityManager->flush();
     }
 
