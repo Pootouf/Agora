@@ -2,11 +2,11 @@
 
 namespace App\Entity\Game\Glenmore;
 
-use App\Repository\Game\Glenmore\SelectedResourceGLMRepository;
+use App\Repository\Game\Glenmore\CreatedResourceRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: SelectedResourceGLMRepository::class)]
-class SelectedResourceGLM
+#[ORM\Entity(repositoryClass: CreatedResourceRepository::class)]
+class CreatedResource
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -20,13 +20,9 @@ class SelectedResourceGLM
     #[ORM\Column]
     private ?int $quantity = null;
 
-    #[ORM\ManyToOne(inversedBy: 'selectedResources')]
+    #[ORM\ManyToOne(inversedBy: 'createdResources')]
     #[ORM\JoinColumn(nullable: false)]
     private ?PersonalBoardGLM $personalBoardGLM = null;
-
-    #[ORM\ManyToOne(inversedBy: 'selectedResources')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?PlayerTileGLM $playerTile = null;
 
     public function getId(): ?int
     {
@@ -65,18 +61,6 @@ class SelectedResourceGLM
     public function setPersonalBoardGLM(?PersonalBoardGLM $personalBoardGLM): static
     {
         $this->personalBoardGLM = $personalBoardGLM;
-
-        return $this;
-    }
-
-    public function getPlayerTile(): ?PlayerTileGLM
-    {
-        return $this->playerTile;
-    }
-
-    public function setPlayerTile(?PlayerTileGLM $playerTile): static
-    {
-        $this->playerTile = $playerTile;
 
         return $this;
     }
