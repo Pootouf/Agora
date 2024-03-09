@@ -233,6 +233,7 @@ class TileGLMService
             }
             $this->cardGLMService->buyCardManagement($playerTileGLM);
         }
+        $this->giveAllMovementPoints($playerTileGLM);
         $this->entityManager->persist($personalBoard);
         $this->entityManager->flush();
     }
@@ -556,6 +557,37 @@ class TileGLMService
             $playerTileGLM->addPlayerTileResource($playerTileResource);
             $this->entityManager->persist($playerTileGLM);
         }
+        $this->entityManager->flush();
+    }
+
+    /**
+     * giveAllMovementPoints : for each tile having a movement activation bonus, gives the resource
+     *  to the player;
+     * @param PlayerTileGLM $playerTileGLM
+     * @return void
+     */
+    private function giveAllMovementPoints(PlayerTileGLM $playerTileGLM) : void
+    {
+        $personalBoard = $playerTileGLM->getPersonalBoard();
+        $tiles = new ArrayCollection();
+        $tiles->add($playerTileGLM);
+        foreach ($playerTileGLM->getAdjacentTiles() as $adjacentTile) {
+            $tiles->add($adjacentTile);
+        }
+        foreach ($tiles as $adjacentTile) {
+            if ($adjacentTile->getTile()->getType() === GlenmoreParameters::$TILE_TYPE_CASTLE
+                || $adjacentTile->getTile()->getType() === GlenmoreParameters::$TILE_TYPE_VILLAGE) {
+                $resource = $this->resourceGLMRepository->findOneBy(["type" => GlenmoreParameters::$MOVEMENT_RESOURCE]);
+                $playerTileResource = new PlayerTileResourceGLM();
+                $playerTileResource->setPlayerTileGLM($adjacentTile);
+                $playerTileResource->setResource($resource);
+                $playerTileResource->setQuantity(1);
+                $this->entityManager->persist($playerTileResource);
+                $adjacentTile->addPlayerTileResource($playerTileResource);
+                $adjacentTile->setActivated(true);
+            }
+        }
+        $this->entityManager->persist($personalBoard);
         $this->entityManager->flush();
     }
 }
