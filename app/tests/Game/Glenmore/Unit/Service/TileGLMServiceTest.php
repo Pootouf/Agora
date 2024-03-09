@@ -379,8 +379,19 @@ class TileGLMServiceTest extends TestCase
         $x = $playerTileAlreadyInPersonalBoard->getCoordX();
         $y = $playerTileAlreadyInPersonalBoard->getCoordY();
         $entityManager = $this->createMock(EntityManagerInterface::class);
-        $mock = $this->getMockBuilder('TileGLMService')
-            ->setConstructorArgs(array($entityManager))
+        $tileGLMRepository = $this->createMock(TileGLMRepository::class);
+        $drawTilesGLMRepository = $this->createMock(DrawTilesGLMRepository::class);
+        $resourceGLMRepository = $this->createMock(ResourceGLMRepository::class);
+        $playerGLMRepository = $this->createMock(PlayerGLMRepository::class);
+        $playerTileGLMRepository = $this->createMock(PlayerTileGLMRepository::class);
+        $playerTileResourceGLMRepository = $this->createMock(PlayerTileResourceGLMRepository::class);
+        $cardGLMService = new CardGLMService($entityManager, $resourceGLMRepository);
+        $GLMService = new GLMService($entityManager, $tileGLMRepository, $drawTilesGLMRepository,
+            $resourceGLMRepository, $playerGLMRepository, $cardGLMService);
+        $mock = $this->getMockBuilder(TileGLMService::class)
+            ->setConstructorArgs(array($entityManager, $GLMService, $resourceGLMRepository,
+                $playerTileResourceGLMRepository, $playerTileGLMRepository, $cardGLMService))
+            ->onlyMethods(['canPlaceTile'])
             ->getMock();
         $mock->method('canPlaceTile')->willReturn(true);
 
