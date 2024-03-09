@@ -30,10 +30,14 @@ class PersonalBoardGLM extends Component
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
     private ?BoardTileGLM $selectedTile = null;
 
+    #[ORM\OneToMany(targetEntity: SelectedResourceGLM::class, mappedBy: 'personalBoardGLM', orphanRemoval: true)]
+    private Collection $selectedResources;
+
     public function __construct()
     {
         $this->playerTiles = new ArrayCollection();
         $this->playerCardGLM = new ArrayCollection();
+        $this->selectedResources = new ArrayCollection();
     }
 
     public function getLeaderCount(): ?int
@@ -145,6 +149,36 @@ class PersonalBoardGLM extends Component
     public function setSelectedTile(?BoardTileGLM $selectedTile): static
     {
         $this->selectedTile = $selectedTile;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, SelectedResourceGLM>
+     */
+    public function getSelectedResources(): Collection
+    {
+        return $this->selectedResources;
+    }
+
+    public function addSelectedResource(SelectedResourceGLM $selectedResource): static
+    {
+        if (!$this->selectedResources->contains($selectedResource)) {
+            $this->selectedResources->add($selectedResource);
+            $selectedResource->setPersonalBoardGLM($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSelectedResource(SelectedResourceGLM $selectedResource): static
+    {
+        if ($this->selectedResources->removeElement($selectedResource)) {
+            // set the owning side to null (unless already changed)
+            if ($selectedResource->getPersonalBoardGLM() === $this) {
+                $selectedResource->setPersonalBoardGLM(null);
+            }
+        }
 
         return $this;
     }
