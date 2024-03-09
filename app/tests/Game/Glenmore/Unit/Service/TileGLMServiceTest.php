@@ -29,6 +29,7 @@ use App\Service\Game\AbstractGameManagerService;
 use App\Service\Game\Glenmore\CardGLMService;
 use App\Service\Game\Glenmore\GLMService;
 use App\Service\Game\Glenmore\TileGLMService;
+use Doctrine\DBAL\Exception;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 
@@ -215,8 +216,13 @@ class TileGLMServiceTest extends TestCase
         $firstPlayer = $game->getPlayers()->first();
         $secondPlayer = $game->getPlayers()->get(2);
         $boardTile = $mainBoard->getBoardTiles()->last();
+        $firstPlayerTile = new PlayerTileGLM();
+        $firstPlayerTile->setTile($boardTile->getTile());
+        $mainBoard->removeBoardTile($boardTile);
 
-        $lastPosition = $this->tileGLMService->assignTileToPlayer($boardTile, $firstPlayer);
+        $firstPlayer->getPersonalBoard()->setSelectedTile($boardTile);
+        $firstPlayer->getPersonalBoard()->addPlayerTile($firstPlayerTile);
+        $lastPosition = $mainBoard->getLastPosition();
         $lastPosition -= 1;
         if ($lastPosition < 0) {
             $lastPosition += GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD;
@@ -245,14 +251,12 @@ class TileGLMServiceTest extends TestCase
 
         // WHEN
 
-        $lastPosition = $this->tileGLMService->assignTileToPlayer($boardTile, $player);
+        $this->tileGLMService->assignTileToPlayer($boardTile, $player);
 
         // THEN
 
-        $this->assertEquals($boardTile->getTile(),
-            $personalBoard->getPlayerTiles()->last()->getTile());
-        $this->assertNotContains($boardTile, $mainBoard->getBoardTiles());
-        $this->assertNotEquals($player->getPawn()->getPosition(), $lastPosition);
+        $this->assertSame($boardTile, $personalBoard->getSelectedTile());
+        $this->assertContains($boardTile, $mainBoard->getBoardTiles());
     }
 
     /*
@@ -339,6 +343,124 @@ class TileGLMServiceTest extends TestCase
     }
     */
 
+    public function testSetPlaceTileWhenTileNotYetSelected() : void
+    {
+
+        // GIVEN
+
+        $nbOfPlayer = 4;
+        $game = $this->createGame($nbOfPlayer);
+        $player = $game->getPlayers()->first();
+        //$player->setTurnOfPlayer(true);
+
+        // WHEN
+
+        $this->expectException(Exception::class);
+
+        // THEN
+
+        $this->tileGLMService->setPlaceTileAlreadySelected($player, 0, 1);
+    }
+
+    public function testSetPlaceTileWhenTileIsSelectedAndCanPlaceTile() : void
+    {
+        // GIVEN
+
+        $nbPlayers = 4;
+        $game = $this->createGame($nbPlayers);
+        $player = $game->getPlayers()->first();
+        $personalBoard = $player->getPersonalBoard();
+        $mainBoard = $game->getMainBoard();
+
+        $tileSelected = $mainBoard->getBoardTiles()->first();
+        $personalBoard->setSelectedTile($tileSelected);
+        $lastPosition = $player->getPawn()->getPosition();
+        $playerTileAlreadyInPersonalBoard = $personalBoard->getPlayerTiles()->first();
+        $x = $playerTileAlreadyInPersonalBoard->getCoordX();
+        $y = $playerTileAlreadyInPersonalBoard->getCoordY();
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $tileGLMRepository = $this->createMock(TileGLMRepository::class);
+        $drawTilesGLMRepository = $this->createMock(DrawTilesGLMRepository::class);
+        $resourceGLMRepository = $this->createMock(ResourceGLMRepository::class);
+        $playerGLMRepository = $this->createMock(PlayerGLMRepository::class);
+        $playerTileGLMRepository = $this->createMock(PlayerTileGLMRepository::class);
+        $playerTileResourceGLMRepository = $this->createMock(PlayerTileResourceGLMRepository::class);
+        $cardGLMService = new CardGLMService($entityManager, $resourceGLMRepository);
+        $GLMService = new GLMService($entityManager, $tileGLMRepository, $drawTilesGLMRepository,
+            $resourceGLMRepository, $playerGLMRepository, $cardGLMService);
+        $mock = $this->getMockBuilder(TileGLMService::class)
+            ->setConstructorArgs(array($entityManager, $GLMService, $resourceGLMRepository,
+                $playerTileResourceGLMRepository, $playerTileGLMRepository, $cardGLMService))
+            ->onlyMethods(['canPlaceTile'])
+            ->getMock();
+        $mock->method('canPlaceTile')->willReturn(true);
+
+        // WHEN
+
+        $mock->setPlaceTileAlreadySelected($player, $x + 1, $y + 1);
+
+        // THEN
+
+        $this->assertEquals($tileSelected->getTile(),
+            $personalBoard->getPlayerTiles()->last()->getTile());
+        $this->assertNotContains($tileSelected, $mainBoard->getBoardTiles());
+        $this->assertNotEquals($player->getPawn()->getPosition(), $lastPosition);
+    }
+
+    public function testGetAmountOfTileToReplaceWhenChainIsNotBroken()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $GLMService = $this->createMock(GLMService::class);
+        $GLMService->method('getActivePlayer')->willReturn($firstPlayer);
+        $resourceGLMRepository = $this->createMock(ResourceGLMRepository::class);
+        $playerTileGLMRepository = $this->createMock(PlayerTileGLMRepository::class);
+        $cardGLMService = $this->createMock(CardGLMService::class);
+        $playerTileResourceGLMRepository = $this->createMock(PlayerTileResourceGLMRepository::class);
+        $tileGLMService = new TileGLMService($entityManager, $GLMService, $resourceGLMRepository,
+            $playerTileResourceGLMRepository ,$playerTileGLMRepository, $cardGLMService);
+        $boardTiles = $game->getMainBoard()->getBoardTiles();
+        foreach ($boardTiles as $boardTile){
+            if($boardTile->getPosition() == 12){
+                $game->getMainBoard()->removeBoardTile($boardTile);
+            }
+        }
+        $expectedResult = 1;
+        // WHEN
+        $result = $tileGLMService->getAmountOfTileToReplace($game->getMainBoard());
+        // THEN
+        $this->assertEquals($expectedResult, $result);
+    }
+
+    public function testGetAmountOfTileToReplaceWhenChainIsBroken()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $GLMService = $this->createMock(GLMService::class);
+        $GLMService->method('getActivePlayer')->willReturn($firstPlayer);
+        $resourceGLMRepository = $this->createMock(ResourceGLMRepository::class);
+        $playerTileGLMRepository = $this->createMock(PlayerTileGLMRepository::class);
+        $cardGLMService = $this->createMock(CardGLMService::class);
+        $playerTileResourceGLMRepository = $this->createMock(PlayerTileResourceGLMRepository::class);
+        $tileGLMService = new TileGLMService($entityManager, $GLMService, $resourceGLMRepository,
+            $playerTileResourceGLMRepository ,$playerTileGLMRepository, $cardGLMService);
+        $boardTiles = $game->getMainBoard()->getBoardTiles();
+        foreach ($boardTiles as $boardTile){
+            if($boardTile->getPosition() == 10){
+                $boardTile->setPosition(13);
+            }
+        }
+        $expectedResult = 3;
+        // WHEN
+        $result = $tileGLMService->getAmountOfTileToReplace($game->getMainBoard());
+        // THEN
+        $this->assertEquals($expectedResult, $result);
+    }
+
 
     private function createGame(int $nbOfPlayers): GameGLM
     {
@@ -407,14 +529,20 @@ class TileGLMServiceTest extends TestCase
             $startTile = new TileGLM();
             $startTile->setName(GlenmoreParameters::$TILE_NAME_START_VILLAGE);
             $startTile->setType(GlenmoreParameters::$TILE_TYPE_VILLAGE);
+            $startTile->setContainingRiver(true);
+            $startTile->setContainingRiver(true);
             $playerTile->setTile($startTile);
             $playerTile->setPersonalBoard($personalBoard);
+            $playerTile->setCoordX(0);
+            $playerTile->setCoordY(0);
             $playerTileResource = new PlayerTileResourceGLM();
             $playerTileResource->setPlayerTileGLM($playerTile);
             $villager = new ResourceGLM();
             $villager->setType(GlenmoreParameters::$VILLAGER_RESOURCE);
             $playerTileResource->setResource($villager);
             $playerTileResource->setQuantity(1);
+            $playerTile->addPlayerTileResource($playerTileResource);
+            $personalBoard->addPlayerTile($playerTile);
         }
 
         for ($i = $nbOfPlayers; $i < GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD; ++$i) {
