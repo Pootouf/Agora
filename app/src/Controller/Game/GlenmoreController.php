@@ -8,6 +8,7 @@ use App\Entity\Game\Glenmore\GameGLM;
 use App\Entity\Game\Glenmore\GlenmoreParameters;
 use App\Entity\Game\Glenmore\PlayerGLM;
 use App\Entity\Game\Glenmore\PlayerTileGLM;
+use App\Entity\Game\Glenmore\PlayerTileResourceGLM;
 use App\Entity\Game\Glenmore\TileGLM;
 use App\Repository\Game\Glenmore\PlayerTileGLMRepository;
 use App\Service\Game\Glenmore\DataManagementGLMService;
@@ -42,7 +43,7 @@ class GlenmoreController extends AbstractController
             $player = $game->getPlayers()->get(0);
             $isSpectator = true;
         } else {
-            //$needToPlay = $player->isTurnOfPlayer();
+            $needToPlay = $player->isTurnOfPlayer();
         }
         $messages = $this->messageService->receiveMessage($game->getId());
         return $this->render('/Game/Glenmore/index.html.twig', [
@@ -59,6 +60,11 @@ class GlenmoreController extends AbstractController
             'boardTiles' => $this->dataManagementGLMService->organizeMainBoardRows(
                 $this->dataManagementGLMService->createBoardBoxes($game)),
             'whiskyCount' => $this->dataManagementGLMService->getWhiskyCount($player),
+            'activatedResourceSelection' => false,
+            'selectedResources' => null,
+            'activatedNewResourceAcquisition' => false,
+            'chosenNewResources' => null,
+            'activatedMovementPhase' => false,
             'messages' => $messages,
         ]);
     }
@@ -108,7 +114,104 @@ class GlenmoreController extends AbstractController
             'selectedTile' => $tile,
             'game' => $game,
             'player' => $player,
+            'activatedResourceSelection' => false, //TODO : depends of the tile,
+            'selectedResources' => null,
+            'activatedNewResourceAcquisition' => false,
+            'chosenNewResources' => null,
+            'activatedMovementPhase' => true,
         ]);
     }
 
+    #[Route('game/glenmore/{idGame}/select/{idTile}/resource/{idPlayerTileResource}', name: 'app_game_glenmore_select_resource')]
+    public function selectResource(
+        #[MapEntity(id: 'idGame')] GameGLM $game,
+        #[MapEntity(id: 'idPlayerTileResource')] PlayerTileResourceGLM $resourceGLM,
+        #[MapEntity(id: 'idTile')] PlayerTileGLM $tile
+    )  : Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+        }
+        return $this->render('/Game/Glenmore/PersonalBoard/selectTile.html.twig', [
+            'selectedTile' => $tile,
+            'game' => $game,
+            'player' => $player,
+            'activatedResourceSelection' => false, //TODO : depends of the tile,
+            'selectedResources' => null,
+            'activatedNewResourceAcquisition' => false,
+            'chosenNewResources' => null,
+            'activatedMovementPhase' => false
+        ]);
+    }
+
+    #[Route('game/glenmore/{idGame}/remove/{idTile}/villager/{idPlayerTileResource}', name: 'app_game_glenmore_remove_villager')]
+    public function removeVillager(
+        #[MapEntity(id: 'idGame')] GameGLM $game,
+        #[MapEntity(id: 'idPlayerTileResource')] PlayerTileResourceGLM $resourceGLM,
+        #[MapEntity(id: 'idTile')] PlayerTileGLM $tile
+    )  : Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+        }
+        return $this->render('/Game/Glenmore/PersonalBoard/selectTile.html.twig', [
+            'selectedTile' => $tile,
+            'game' => $game,
+            'player' => $player,
+            'activatedResourceSelection' => false, //TODO : depends of the tile,
+            'selectedResources' => null,
+            'activatedNewResourceAcquisition' => false,
+            'chosenNewResources' => null,
+            'activatedMovementPhase' => false
+        ]);
+    }
+
+    #[Route('game/glenmore/{idGame}/activate/{idTile}', name: 'app_game_glenmore_activate_tile')]
+    public function activateTile(
+        #[MapEntity(id: 'idGame')] GameGLM $game,
+        #[MapEntity(id: 'idTile')] PlayerTileGLM $tile
+    )  : Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+        }
+        return $this->render('/Game/Glenmore/PersonalBoard/selectTile.html.twig', [
+            'selectedTile' => $tile,
+            'game' => $game,
+            'player' => $player,
+            'activatedResourceSelection' => false, //TODO : depends of the tile,
+            'selectedResources' => null,
+            'activatedNewResourceAcquisition' => false,
+            'chosenNewResources' => null,
+            'activatedMovementPhase' => false
+        ]);
+    }
+
+    #[Route('game/glenmore/{idGame}/move/{idTile}/villager/{idPlayerTileResource}/direction/{dir}',
+            name: 'app_game_glenmore_move_villager')]
+    public function moveVillager(
+        #[MapEntity(id: 'idGame')] GameGLM $game,
+        #[MapEntity(id: 'idPlayerTileResource')] PlayerTileResourceGLM $resourceGLM,
+        #[MapEntity(id: 'idTile')] PlayerTileGLM $tile,
+        int $dir
+    )  : Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+        }
+        return $this->render('/Game/Glenmore/PersonalBoard/selectTile.html.twig', [
+            'selectedTile' => $tile,
+            'game' => $game,
+            'player' => $player,
+            'activatedResourceSelection' => false, //TODO : depends of the tile,
+            'selectedResources' => null,
+            'activatedNewResourceAcquisition' => false,
+            'chosenNewResources' => null,
+            'activatedMovementPhase' => false
+        ]);
+    }
 }
