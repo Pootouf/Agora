@@ -30,6 +30,8 @@ class TileGLMService
                                 private readonly PlayerTileGLMRepository $playerTileGLMRepository,
                                 private readonly CardGLMService $cardGLMService){}
 
+
+
     /**
      * getAmountOfTileToReplace : returns the amount of tiles to replace
      * @param MainBoardGLM $mainBoardGLM
@@ -86,6 +88,9 @@ class TileGLMService
     public function getActivableTiles(PlayerTileGLM $playerTileGLM) : ArrayCollection
     {
         $activableTiles = new ArrayCollection();
+        if (!$playerTileGLM->isActivated()) {
+            $activableTiles->add($playerTileGLM);
+        }
         $personalBoard = $playerTileGLM->getPersonalBoard();
         $lastTile = $personalBoard->getPlayerTiles()->last()->getTile();
         $card = $lastTile->getCard();
@@ -102,7 +107,7 @@ class TileGLMService
         }
 
         // if every tile has been activated
-        if ($adjacentTiles->isEmpty()) {
+        if ($activableTiles->isEmpty()) {
             $activableTiles = $this->cardGLMService->applyLochNess($personalBoard);
         }
 
@@ -230,6 +235,76 @@ class TileGLMService
         }
         $this->entityManager->persist($personalBoard);
         $this->entityManager->flush();
+    }
+
+    public function activateBonus(PlayerTileGLM $tileGLM, PlayerGLM $playerGLM): void
+    {
+        $tile = $tileGLM->getTile();
+        if($tile->getType() != GlenmoreParameters::$TILE_NAME_FAIR){
+            if($this->hasPlayerEnoughResourcesToActivate($tileGLM, $playerGLM) &&
+                $this->hasEnoughPlaceToActivate($tileGLM)){
+                $this->givePlayerActivationBonus($tileGLM, $playerGLM);
+            }
+        } else {
+            $playerMaximumItemsToExchange = $this->getMaximumTypeItemsToExchange($playerGLM);
+            $tileMaximumItemsToExchange = $tileGLM->getTile()->getActivationBonus()->count();
+            $itemToExchange = $playerMaximumItemsToExchange;
+            if($tileMaximumItemsToExchange < $playerMaximumItemsToExchange){
+                $itemToExchange = $tileMaximumItemsToExchange;
+            }
+
+        }
+    }
+
+    private function getMaximumTypeItemsToExchange(PlayerGLM $playerGLM): int
+    {
+        $resourcesTypes = new ArrayCollection();
+        $playerTiles = $playerGLM->getPersonalBoard()->getPlayerTiles();
+        foreach ($playerTiles as $playerTile){
+            $resources = $playerTile->getPlayerTileResource();
+            foreach ($resources as $resource){
+                if(!$resourcesTypes->contains($resource->getResource()->getType())){
+                    $resourcesTypes->add($resource->getResource()->getType());
+                }
+            }
+        }
+        return $resourcesTypes->count();
+    }
+
+    private function hasPlayerEnoughResourcesToActivate(PlayerTileGLM $playerTileGLM, PlayerGLM $playerGLM): bool
+    {
+        $tileGLM = $playerTileGLM->getTile();
+        $activationPrices = $tileGLM->getActivationPrice();
+        $playerTiles = $playerGLM->getPersonalBoard()->getPlayerTiles();
+        foreach ($activationPrices as $activationPrice){
+            $resourceType = $activationPrice->getResource();
+            $resourceAmount = $activationPrice->getPrice();
+            $playerResourceCount = 0;
+            foreach ($playerTiles as $playerTile){
+                $resourcesOnTile = $playerTile->getPlayerTileResource();
+                foreach ($resourcesOnTile as $resource){
+                    if($resource->getResource()->getType() == $resourceType){
+                        $playerResourceCount += 1;
+                    }
+                }
+            }
+            if($playerResourceCount < $resourceAmount){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private function hasEnoughPlaceToActivate(PlayerTileGLM $playerTileGLM): bool
+    {
+        $tileGLM = $playerTileGLM->getTile();
+        $bonusResources = $tileGLM->getActivationBonus();
+        $count = 0;
+        foreach ($bonusResources as $bonusResource){
+            $count += $bonusResource->getAmount();
+        }
+        return ($playerTileGLM->getPlayerTileResource()->count() + $count) <
+            GlenmoreParameters::$MAX_RESOURCES_PER_TILE;
     }
 
     /**
@@ -466,6 +541,20 @@ class TileGLMService
                 $pointerPosition = GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD - 1;
             }
             $this->entityManager->persist($mainBoardGLM);
+        }
+        $this->entityManager->flush();
+    }
+
+
+    private function givePlayerActivationBonus(PlayerTileGLM $playerTileGLM): void
+    {
+        $tileGLM = $playerTileGLM->getTile();
+        $activationBonusResources = $tileGLM->getActivationBonus();
+        foreach ($activationBonusResources as $activationBonusResource){
+            $playerTileResource = new PlayerTileResourceGLM();
+            $playerTileResource->setResource($activationBonusResource->getResource());
+            $playerTileGLM->addPlayerTileResource($playerTileResource);
+            $this->entityManager->persist($playerTileGLM);
         }
         $this->entityManager->flush();
     }
