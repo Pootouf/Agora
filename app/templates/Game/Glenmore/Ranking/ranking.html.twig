@@ -32,7 +32,7 @@ This section displays the ranking with a view of the other players' possessions
                             pt-2 landscape:pt-1
                             flex justify-around justify-between">
                 {# Button to see other player's personal board #}
-                <button {{ stimulus_action('glenmore', 'togglePersonalBoardRank', 'click', {'open': true})
+                <button {{ stimulus_action('glenmore', 'togglePersonalBoard', 'click', {'open': true})
                         }}
                         {% if isSpectator %}
                             disabled
