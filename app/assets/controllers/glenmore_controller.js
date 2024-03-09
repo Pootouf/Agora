@@ -61,4 +61,14 @@ export default class extends Controller {
         const node = placeholder.firstElementChild;
         tree.appendChild(node);
     }
+
+    async selectResource(resource)  {
+        let url = resource.params.url;
+        const response = await fetch(url);
+    }
+
+    async activateTile(tile)  {
+        let url = tile.params.url;
+        const response = await fetch(url);
+    }
 }
