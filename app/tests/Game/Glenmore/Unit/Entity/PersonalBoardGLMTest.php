@@ -9,6 +9,7 @@ use App\Entity\Game\Glenmore\PersonalBoardGLM;
 use App\Entity\Game\Glenmore\PlayerCardGLM;
 use App\Entity\Game\Glenmore\PlayerGLM;
 use App\Entity\Game\Glenmore\PlayerTileGLM;
+use App\Entity\Game\Glenmore\SelectedResourceGLM;
 use PHPUnit\Framework\TestCase;
 
 class PersonalBoardGLMTest extends TestCase
@@ -24,6 +25,7 @@ class PersonalBoardGLMTest extends TestCase
         $this->assertTrue($this->personalBoardGLM->getId() >= 0);
         $this->assertNotNull($this->personalBoardGLM->getPlayerCardGLM());
         $this->assertNotNull($this->personalBoardGLM->getPlayerTiles());
+        $this->assertNotNull($this->personalBoardGLM->getSelectedResources());
     }
 
     public function testSetLeaderCount() : void
@@ -219,6 +221,74 @@ class PersonalBoardGLMTest extends TestCase
         // THEN
 
         $this->assertSame($selectedTile, $this->personalBoardGLM->getSelectedTile());
+    }
+
+    public function testAddSelectedResourceNotYetAdded() : void
+    {
+        // GIVEN
+
+        $selectedResource = new SelectedResourceGLM();
+
+        // WHEN
+
+        $this->personalBoardGLM->addSelectedResource($selectedResource);
+
+        // THEN
+        $this->assertContains($selectedResource, $this->personalBoardGLM->getSelectedResources());
+        $this->assertSame($this->personalBoardGLM, $selectedResource->getPersonalBoardGLM());
+    }
+
+    public function testAddSelectedResourceAlreadyAdded() : void
+    {
+        // GIVEN
+
+        $selectedResource = new SelectedResourceGLM();
+        $this->personalBoardGLM->addSelectedResource($selectedResource);
+        $length = $this->personalBoardGLM->getSelectedResources()->count();
+
+        // WHEN
+
+        $this->personalBoardGLM->addSelectedResource($selectedResource);
+
+        // THEN
+
+        $this->assertSame($this->personalBoardGLM->getSelectedResources()->count(), $length);
+    }
+
+    public function testRemoveSelectedResourceNotYetRemoved() : void
+    {
+        // GIVEN
+
+        $selectedResource = new SelectedResourceGLM();
+        $this->personalBoardGLM->addSelectedResource($selectedResource);
+
+
+        // WHEN
+
+        $this->personalBoardGLM->removeSelectedResource($selectedResource);
+
+        // THEN
+
+        $this->assertNotContains($selectedResource, $this->personalBoardGLM->getSelectedResources());
+        $this->assertNull($selectedResource->getPersonalBoardGLM());
+    }
+
+    public function testRemoveSelectedResourceAlreadyRemoved() : void
+    {
+        // GIVEN
+
+        $selectedResource = new SelectedResourceGLM();
+        $this->personalBoardGLM->addSelectedResource($selectedResource);
+        $this->personalBoardGLM->removeSelectedResource($selectedResource);
+        $length = $this->personalBoardGLM->getSelectedResources()->count();
+
+        // WHEN
+
+        $this->personalBoardGLM->removeSelectedResource($selectedResource);
+
+        // THEN
+
+        $this->assertSame($length, $this->personalBoardGLM->getSelectedResources()->count());
     }
 
     protected function setUp(): void

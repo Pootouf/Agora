@@ -33,11 +33,15 @@ class PersonalBoardGLM extends Component
     #[ORM\OneToMany(targetEntity: SelectedResourceGLM::class, mappedBy: 'personalBoardGLM', orphanRemoval: true)]
     private Collection $selectedResources;
 
+    #[ORM\OneToMany(targetEntity: CreatedResourceGLM::class, mappedBy: 'personalBoardGLM', orphanRemoval: true)]
+    private Collection $createdResources;
+
     public function __construct()
     {
         $this->playerTiles = new ArrayCollection();
         $this->playerCardGLM = new ArrayCollection();
         $this->selectedResources = new ArrayCollection();
+        $this->createdResources = new ArrayCollection();
     }
 
     public function getLeaderCount(): ?int
@@ -177,6 +181,36 @@ class PersonalBoardGLM extends Component
             // set the owning side to null (unless already changed)
             if ($selectedResource->getPersonalBoardGLM() === $this) {
                 $selectedResource->setPersonalBoardGLM(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CreatedResourceGLM>
+     */
+    public function getCreatedResources(): Collection
+    {
+        return $this->createdResources;
+    }
+
+    public function addCreatedResource(CreatedResourceGLM $createdResource): static
+    {
+        if (!$this->createdResources->contains($createdResource)) {
+            $this->createdResources->add($createdResource);
+            $createdResource->setPersonalBoardGLM($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCreatedResource(CreatedResourceGLM $createdResource): static
+    {
+        if ($this->createdResources->removeElement($createdResource)) {
+            // set the owning side to null (unless already changed)
+            if ($createdResource->getPersonalBoardGLM() === $this) {
+                $createdResource->setPersonalBoardGLM(null);
             }
         }
 
