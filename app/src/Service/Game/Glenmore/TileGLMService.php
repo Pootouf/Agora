@@ -106,6 +106,9 @@ class TileGLMService
     public function getActivableTiles(PlayerTileGLM $playerTileGLM) : ArrayCollection
     {
         $activableTiles = new ArrayCollection();
+        if (!$playerTileGLM->isActivated()) {
+            $activableTiles->add($playerTileGLM);
+        }
         $personalBoard = $playerTileGLM->getPersonalBoard();
         $lastTile = $personalBoard->getPlayerTiles()->last()->getTile();
         $card = $lastTile->getCard();
@@ -122,7 +125,7 @@ class TileGLMService
         }
 
         // if every tile has been activated
-        if ($adjacentTiles->isEmpty()) {
+        if ($activableTiles->isEmpty()) {
             $activableTiles = $this->cardGLMService->applyLochNess($personalBoard);
         }
 
