@@ -2,6 +2,7 @@
 
 namespace App\Tests\Game\Glenmore\Unit\Entity;
 
+use App\Entity\Game\Glenmore\BoardTileGLM;
 use App\Entity\Game\Glenmore\CardGLM;
 use App\Entity\Game\Glenmore\GameGLM;
 use App\Entity\Game\Glenmore\PersonalBoardGLM;
@@ -203,6 +204,21 @@ class PersonalBoardGLMTest extends TestCase
 
         // THEN
         $this->assertSame($length, $this->personalBoardGLM->getPlayerCardGLM()->count());
+    }
+
+    public function testSetSelectedTile() : void
+    {
+        // GIVEN
+
+        $selectedTile = new BoardTileGLM();
+
+        // WHEN
+
+        $this->personalBoardGLM->setSelectedTile($selectedTile);
+
+        // THEN
+
+        $this->assertSame($selectedTile, $this->personalBoardGLM->getSelectedTile());
     }
 
     protected function setUp(): void
