@@ -129,7 +129,7 @@ class BoardController extends AbstractController
         return $this->redirectToRoute('app_dashboard_tables');
     }
     //    Get all game where connected user participate
-    #[\Symfony\Component\Routing\Attribute\Route('/dashboard/user', name: 'app_dashboard_user', methods: ['GET'])]
+    #[Route('/dashboard/user', name: 'app_dashboard_user', methods: ['GET'])]
     public function boardsUser(Request $request, BoardRepository $boardRepository): Response
     {
 //        check if we have a connected user

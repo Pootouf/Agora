@@ -74,7 +74,7 @@ class GameController extends AbstractController
 //            Add game as favorite game
             $user->addFavoriteGame($game);
             $entityManager->flush();
-            $this->addFlash('successfavorite', 'Le jeu a été ajouté à vos favoris.');
+            $this->addFlash('successfavorite', 'Le jeu '. $game->getLabel() . ' a été ajouté à vos favoris.');
         }else{
             $this->addFlash('user_connection', 'Le joueur n\'est pas connecté.');
         }
