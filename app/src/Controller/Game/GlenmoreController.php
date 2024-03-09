@@ -102,4 +102,14 @@ class GlenmoreController extends AbstractController
         return new Response('player selected this tile', Response::HTTP_OK);
     }
 
+    #[Route('game/glenmore/{idGame}/displayPersonalBoard', name: 'app_game_glenmore_display_player_personal_board')]
+    public function displayPersonalBoard(
+        #[MapEntity(id: 'idGame')] GameGLM $gameGLM): Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($gameGLM, $this->getUser()->getUsername());
+        return $this->render('Game/Glenmore/PersonalBoard/personalBoard.html.twig', [
+            'player' => $player->getPersonalBoard(),
+        ]);
+    }
+
 }
