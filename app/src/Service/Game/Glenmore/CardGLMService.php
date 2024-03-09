@@ -2,6 +2,7 @@
 
 namespace App\Service\Game\Glenmore;
 
+use App\Entity\Game\Glenmore\CreatedResourceGLM;
 use App\Entity\Game\Glenmore\GameGLM;
 use App\Entity\Game\Glenmore\GlenmoreParameters;
 use App\Entity\Game\Glenmore\PersonalBoardGLM;
@@ -160,36 +161,36 @@ class CardGLMService
      */
     public function selectResourceForLochLochy(PlayerGLM $playerGLM, ResourceGLM $resourceGLM) : void
     {
-        $selectedResources = $playerGLM->getPersonalBoard()->getSelectedResources();
-        if ($selectedResources->count() >= 2) {
+        $createdResources = $playerGLM->getPersonalBoard()->getCreatedResources();
+        if ($createdResources->count() >= 2) {
             throw new Exception("can't pick more resources");
         }
-        if ($selectedResources->count() == 1) {
-            $selectedResource = $selectedResources->first();
-            if ($selectedResource->getResource()->getColor() === $resourceGLM->getColor()) {
-                $selectedResource->setQuantity($selectedResource->getQuantity() + 1);
-                $this->entityManager->persist($selectedResource);
+        if ($createdResources->count() == 1) {
+            $createdResource = $createdResources->first();
+            if ($createdResource->getResource()->getColor() === $resourceGLM->getColor()) {
+                $createdResource->setQuantity($createdResource->getQuantity() + 1);
+                $this->entityManager->persist($createdResource);
             }
         } else {
-            $selectedResource = new SelectedResourceGLM();
-            $selectedResource->setResource($resourceGLM);
-            $selectedResource->setQuantity(1);
-            $selectedResource->setPersonalBoardGLM($playerGLM->getPersonalBoard());
-            $this->entityManager->persist($selectedResource);
-            $playerGLM->getPersonalBoard()->addSelectedResource($selectedResource);
+            $createdResource = new CreatedResourceGLM();
+            $createdResource->setResource($resourceGLM);
+            $createdResource->setQuantity(1);
+            $createdResource->setPersonalBoardGLM($playerGLM->getPersonalBoard());
+            $this->entityManager->persist($createdResource);
+            $playerGLM->getPersonalBoard()->addCreatedResource($createdResource);
         }
         $this->entityManager->persist($playerGLM->getPersonalBoard());
         $this->entityManager->flush();
     }
 
     /**
-     * clearSelectedResources : clear all selected resources by the player
+     * clearCreatedResources : clear all created resources by the player
      * @param PlayerGLM $playerGLM
      * @return void
      */
-    public function clearSelectedResources(PlayerGLM $playerGLM) : void
+    public function clearCreatedResources(PlayerGLM $playerGLM) : void
     {
-        $playerGLM->getPersonalBoard()->getSelectedResources()->clear();
+        $playerGLM->getPersonalBoard()->getCreatedResources()->clear();
         $this->entityManager->persist($playerGLM->getPersonalBoard());
         $this->entityManager->flush();
     }
@@ -203,23 +204,23 @@ class CardGLMService
      */
     public function validateTakingOfResourcesForLochLochy(PlayerGLM $playerGLM) : void
     {
-        $selectedResources = $playerGLM->getPersonalBoard()->getSelectedResources();
+        $createdResources = $playerGLM->getPersonalBoard()->getCreatedResources();
         $tile = null;
         foreach ($playerGLM->getPersonalBoard()->getPlayerTiles() as $playerTile) {
             if ($playerTile->getTile()->getName() === GlenmoreParameters::$CARD_LOCH_LOCHY) {
                 $tile = $playerTile;
             }
         }
-        foreach ($selectedResources as $selectedResource) {
+        foreach ($createdResources as $createdResource) {
             $playerResource = new PlayerTileResourceGLM();
-            $playerResource->setResource($selectedResource->getResource());
-            $playerResource->setQuantity($selectedResource->getQuantity());
+            $playerResource->setResource($createdResource->getResource());
+            $playerResource->setQuantity($createdResource->getQuantity());
             $playerResource->setPlayerTileGLM($tile);
             $this->entityManager->persist($playerResource);
             $tile->addPlayerTileResource($playerResource);
             $this->entityManager->persist($tile);
         }
-        $this->clearSelectedResources($playerGLM);
+        $this->clearCreatedResources($playerGLM);
     }
 
     /**
