@@ -2,27 +2,27 @@
 
 namespace App\Repository\Game\Glenmore;
 
-use App\Entity\Game\Glenmore\CreatedResource;
+use App\Entity\Game\Glenmore\CreatedResourceGLM;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<CreatedResource>
+ * @extends ServiceEntityRepository<CreatedResourceGLM>
  *
- * @method CreatedResource|null find($id, $lockMode = null, $lockVersion = null)
- * @method CreatedResource|null findOneBy(array $criteria, array $orderBy = null)
- * @method CreatedResource[]    findAll()
- * @method CreatedResource[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method CreatedResourceGLM|null find($id, $lockMode = null, $lockVersion = null)
+ * @method CreatedResourceGLM|null findOneBy(array $criteria, array $orderBy = null)
+ * @method CreatedResourceGLM[]    findAll()
+ * @method CreatedResourceGLM[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class CreatedResourceRepository extends ServiceEntityRepository
+class CreatedResourceGLMRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, CreatedResource::class);
+        parent::__construct($registry, CreatedResourceGLM::class);
     }
 
     //    /**
-    //     * @return CreatedResource[] Returns an array of CreatedResource objects
+    //     * @return CreatedResourceGLM[] Returns an array of CreatedResourceGLM objects
     //     */
     //    public function findByExampleField($value): array
     //    {
@@ -36,7 +36,7 @@ class CreatedResourceRepository extends ServiceEntityRepository
     //        ;
     //    }
 
-    //    public function findOneBySomeField($value): ?CreatedResource
+    //    public function findOneBySomeField($value): ?CreatedResourceGLM
     //    {
     //        return $this->createQueryBuilder('c')
     //            ->andWhere('c.exampleField = :val')

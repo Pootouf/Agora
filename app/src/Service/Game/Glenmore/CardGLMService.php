@@ -2,7 +2,7 @@
 
 namespace App\Service\Game\Glenmore;
 
-use App\Entity\Game\Glenmore\CreatedResource;
+use App\Entity\Game\Glenmore\CreatedResourceGLM;
 use App\Entity\Game\Glenmore\GameGLM;
 use App\Entity\Game\Glenmore\GlenmoreParameters;
 use App\Entity\Game\Glenmore\PersonalBoardGLM;
@@ -172,7 +172,7 @@ class CardGLMService
                 $this->entityManager->persist($createdResource);
             }
         } else {
-            $createdResource = new CreatedResource();
+            $createdResource = new CreatedResourceGLM();
             $createdResource->setResource($resourceGLM);
             $createdResource->setQuantity(1);
             $createdResource->setPersonalBoardGLM($playerGLM->getPersonalBoard());

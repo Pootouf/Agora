@@ -33,7 +33,7 @@ class PersonalBoardGLM extends Component
     #[ORM\OneToMany(targetEntity: SelectedResourceGLM::class, mappedBy: 'personalBoardGLM', orphanRemoval: true)]
     private Collection $selectedResources;
 
-    #[ORM\OneToMany(targetEntity: CreatedResource::class, mappedBy: 'personalBoardGLM', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: CreatedResourceGLM::class, mappedBy: 'personalBoardGLM', orphanRemoval: true)]
     private Collection $createdResources;
 
     public function __construct()
@@ -188,14 +188,14 @@ class PersonalBoardGLM extends Component
     }
 
     /**
-     * @return Collection<int, CreatedResource>
+     * @return Collection<int, CreatedResourceGLM>
      */
     public function getCreatedResources(): Collection
     {
         return $this->createdResources;
     }
 
-    public function addCreatedResource(CreatedResource $createdResource): static
+    public function addCreatedResource(CreatedResourceGLM $createdResource): static
     {
         if (!$this->createdResources->contains($createdResource)) {
             $this->createdResources->add($createdResource);
@@ -205,7 +205,7 @@ class PersonalBoardGLM extends Component
         return $this;
     }
 
-    public function removeCreatedResource(CreatedResource $createdResource): static
+    public function removeCreatedResource(CreatedResourceGLM $createdResource): static
     {
         if ($this->createdResources->removeElement($createdResource)) {
             // set the owning side to null (unless already changed)

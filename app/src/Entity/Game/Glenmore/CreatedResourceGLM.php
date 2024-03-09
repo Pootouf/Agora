@@ -2,11 +2,11 @@
 
 namespace App\Entity\Game\Glenmore;
 
-use App\Repository\Game\Glenmore\CreatedResourceRepository;
+use App\Repository\Game\Glenmore\CreatedResourceGLMRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: CreatedResourceRepository::class)]
-class CreatedResource
+#[ORM\Entity(repositoryClass: CreatedResourceGLMRepository::class)]
+class CreatedResourceGLM
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
