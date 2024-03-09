@@ -13,6 +13,7 @@ use App\Repository\Game\Glenmore\PlayerTileGLMRepository;
 use App\Service\Game\Glenmore\DataManagementGLMService;
 use App\Service\Game\Glenmore\GLMService;
 use App\Service\Game\Glenmore\TileGLMService;
+use App\Service\Game\LogService;
 use App\Service\Game\MessageService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -29,7 +30,8 @@ class GlenmoreController extends AbstractController
     public function __construct(private GLMService $service,
                                 private MessageService $messageService,
                                 private DataManagementGLMService $dataManagementGLMService,
-                                private TileGLMService $tileGLMService)
+                                private TileGLMService $tileGLMService,
+                                private LogService $logService)
     {}
 
     #[Route('/game/glenmore/{id}', name: 'app_game_show_glm')]
@@ -88,9 +90,15 @@ class GlenmoreController extends AbstractController
         }
         try {
             $this->tileGLMService->assignTileToPlayer($tile, $player);
-        } catch (Exception $e) {
-            return new Response("can't select this tile", Response::HTTP_FORBIDDEN);
+        } catch (Exception) {
+            $message = $player->getUsername() . " tried to choose tile " . $tile->getTile()->getId()
+                . " but could not afford it";
+            $this->logService->sendPlayerLog($game, $player, $message);
+            return new Response("can't afford this tile", Response::HTTP_FORBIDDEN);
         }
+        // TODO Publish management
+        $message = $player->getUsername() . " chose tile " . $tile->getTile()->getId();
+        $this->logService->sendPlayerLog($game, $player, $message);
         return new Response('player selected this tile', Response::HTTP_OK);
     }
 
