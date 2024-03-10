@@ -17,9 +17,13 @@ This section displays the player tile resources and possible actions
 {% set WEST = 6 %}
 {% set NORTH_WEST = 7 %}
 
+
+{% set PRODUCTION_TYPE = ['brown', 'green', 'grey', 'white', 'yellow'] %}
+
 {# Variable definition #}
 {% set resources = selectedTile.playerTileResource %}
 {% set villager = null %}
+{% set productionCount = 0 %}
 
 <div id="selectedTileActions"
      class="absolute top-0 left-0 w-full h-full bg-black bg-opacity-70 flex z-50 text-white items-center justify-center">
@@ -41,6 +45,9 @@ This section displays the player tile resources and possible actions
                     />
                 </div>
                 {% set villager = playerResource %}
+
+            {% elseif playerResource.resource.type == PRODUCTION %}
+                {% set productionCount = productionCount + 1 %}
             {% endif %}
         {% endfor %}
 
@@ -96,7 +103,7 @@ This section displays the player tile resources and possible actions
                                     })
                                 }}
                         >
-                            <span class="bg-green-700 p-1 rounded-lg mt-2 rotate-[225deg] whitespace-nowrap">
+                            <span class="bg-green-700 p-1 rounded-lg mt-2 rotate-45 whitespace-nowrap">
                                 Sud-Ouest
                             </span>
                         </button>
@@ -146,7 +153,7 @@ This section displays the player tile resources and possible actions
                                     })
                                 }}
                         >
-                            <span class="bg-green-700 p-1 rounded-lg -rotate-[225deg] whitespace-nowrap">Sud-Est</span>
+                            <span class="bg-green-700 p-1 rounded-lg -rotate-45 whitespace-nowrap">Sud-Est</span>
                         </button>
                     </div>
                     <button class="w-6 flex items-center justify-center"
@@ -162,10 +169,17 @@ This section displays the player tile resources and possible actions
             </div>
             {% endif %}
 
-        {# Display the productions #}
-            <div class="{% if not activatedResourceSelection %} hidden {% endif %} grid grid-rows-4 grid-cols-1 gap-1 ">
-                <span class="border-white border-2 bg-green-700 text-white text-lg flex items-center border-solid text-center">
-                    Choisir les ressources à utiliser
+            {# Display the productions possessed by the player and selection of them if resource selection is active #}
+            <div class="grid grid-rows-4 grid-cols-1 gap-1 ">
+                <span class="{% if productionCount == 0 %} hidden {% endif %}
+                                border-white border-2 bg-green-700
+                                text-white text-lg flex items-center border-solid text-center"
+                >
+                    {% if not activatedResourceSelection %}
+                        Ressources sur la tuile
+                    {% else %}
+                        Choisir les ressources à utiliser
+                    {% endif %}
                 </span>
 
                 {% for playerResource in resources %}
@@ -177,7 +191,12 @@ This section displays the player tile resources and possible actions
                                         {idGame: game.id, idPlayerTileResource : playerResource.id, idTile : selectedTile.id})
                                     })
                                 }}
-                                class="flex items-center justify-center w-full h-full">
+                                class="{% for selectedResource in selectedResources %}
+                                            {% if playerResource == selectedResource %}
+                                                opacity-25
+                                            {% endif %}
+                                        {% endfor %}
+                                flex items-center justify-center w-full h-full">
                             <img class="max-h-full"
                                  src="{{
                                  asset('resourcesGames/Glenmore/ResourcesProduction/'
@@ -187,11 +206,56 @@ This section displays the player tile resources and possible actions
                             />
                         </button>
                     {% endif %}
-
                 {% endfor %}
             </div>
-        </div>
 
+            {# Display the new resources the player must select to have them #}
+            {% if activatedNewResourceAcquisition %}
+                <div class="grid grid-rows-3 grid-cols-1 gap-1 ">
+                    <span class="border-white border-2 bg-green-700
+                                text-white text-lg flex items-center border-solid text-center justify-center">
+                        Choisir les nouvelles ressources à récupérer
+                    </span>
+                    <div class="flex justify-center items-center w-full h-full">
+                        {% for colorResource in PRODUCTION_TYPE %}
+                            <button
+                                    {{ stimulus_action('glenmore', 'selectNewResourceAcquisition', 'click',
+                                        {url:path('app_game_glenmore_select_new_resource_acquisition',
+                                            {idGame: game.id, idTile : selectedTile.id, resource: colorResource})
+                                        })
+                                    }}
+                                    class="{% for chosenResource in chosenNewResources %}
+                                                {% if playerResource == chosenResource %}
+                                                    opacity-25
+                                                {% endif %}
+                                            {% endfor %}
+                                    flex items-center justify-center">
+                                <img class="max-h-full"
+                                     src="{{
+                                     asset('resourcesGames/Glenmore/ResourcesProduction/'
+                                         ~ colorResource ~'.png')
+                                     }}"
+                                     alt="{{ colorResource }}"
+                                />
+                            </button>
+                        {% endfor %}
+                    </div>
+                    <div class="flex items-center justify-center">
+                        <button
+                                {{ stimulus_action('glenmore', 'activateTile', 'click',
+                                    {url:path('app_game_glenmore_activate_tile',
+                                        {idGame: game.id, idPlayerTileResource : villager.id, idTile : selectedTile.id})
+                                    })
+                                }}
+                                class="bg-[#8F901F] py-2 px-3 m-1 rounded-lg text-2xl
+                                    flex items-center justify-center"
+                        >
+                            Valider le choix
+                        </button>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
         <div class="relative flex flex-row p-5">
             {# Display villager option #}
 
