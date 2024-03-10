@@ -538,6 +538,7 @@ class TileGLMService
                 $villager = $tileResource->getResource();
                 $tileResource->setQuantity($tileResource->getQuantity() - 1);
                 $this->entityManager->persist($tileResource);
+                $this->entityManager->flush();
                 return $villager;
             }
         }
@@ -895,6 +896,7 @@ class TileGLMService
             $newTile->addPlayerTileResource($tileResource);
             $this->entityManager->persist($newTile);
         }
+        $this->entityManager->flush();
     }
 
     /**
@@ -911,6 +913,7 @@ class TileGLMService
                if ($tileResource->getResource()->getType() === GlenmoreParameters::$MOVEMENT_RESOURCE) {
                    $tileResource->setQuantity($tileResource->getQuantity() - 1);
                    $this->entityManager->persist($tileResource);
+                   $this->entityManager->flush();
                    return;
                }
             }
