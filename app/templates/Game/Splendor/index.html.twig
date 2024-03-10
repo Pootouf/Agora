@@ -73,16 +73,17 @@
                 animationQueue.executeNextInQueue()
             });
         }
-
-        {% set path = path('app_game_show_spl', {'id': game.id}) ~ 'reservedCards' ~ player.id %}
-        const eventSourceReservedCards = new EventSource("{{ mercure(path)|escape('js') }}");
-        eventSourceReservedCards.onmessage = event => {
-            animationQueue.addToQueue(() => {
-                let mainBoard = document.getElementById('reservedCards');
-                mainBoard.innerHTML = event.data;
-                animationQueue.executeNextInQueue()
-            });
-        }
+        {% if not isSpectator %}
+            {% set path = path('app_game_show_spl', {'id': game.id}) ~ 'reservedCards' ~ player.id %}
+            const eventSourceReservedCards = new EventSource("{{ mercure(path)|escape('js') }}");
+            eventSourceReservedCards.onmessage = event => {
+                animationQueue.addToQueue(() => {
+                    let mainBoard = document.getElementById('reservedCards');
+                    mainBoard.innerHTML = event.data;
+                    animationQueue.executeNextInQueue()
+                });
+            }
+        {% endif %}
 
         {% set path = path('app_game_show_spl', {'id': game.id}) ~ 'ranking' %}
         const eventSourceRanking = new EventSource("{{ mercure(path)|escape('js') }}");
