@@ -25,7 +25,7 @@ class SelectedResourceGLM
     private ?PersonalBoardGLM $personalBoardGLM = null;
 
     #[ORM\ManyToOne(inversedBy: 'selectedResources')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?PlayerTileGLM $playerTile = null;
 
     public function getId(): ?int
