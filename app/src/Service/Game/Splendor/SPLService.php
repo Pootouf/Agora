@@ -437,6 +437,7 @@ class SPLService
 
     /**
      * endRoundOfPlayer : ends player's round and gives it to next player
+     * @param GameSPL $gameSPL
      * @param PlayerSPL $playerSPL
      * @return void
      */

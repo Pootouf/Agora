@@ -371,7 +371,7 @@ class SplendorController extends AbstractController
      }
 
     /**
-     * publishDevelopmentCards : send a mercure notification to update the development cards for a spectator
+     * publishDevelopmentCards : send a mercure notification to update the development cards for players and spectators
      * @param GameSPL $game
      * @param int|null $selectedCard
      * @return void
@@ -379,9 +379,11 @@ class SplendorController extends AbstractController
     private function publishDevelopmentCards(GameSPL $game, int $selectedCard = null): void
     {
         foreach ($game->getPlayers() as $player) {
-            $this->publishDevelopmentCardsWithSelectedOptions($game, $player, false, $player->isTurnOfPlayer(), $selectedCard);
+            $this->publishDevelopmentCardsWithSelectedOptions($game, $player, false,
+                $player->isTurnOfPlayer(), $selectedCard);
         }
-        $this->publishDevelopmentCardsWithSelectedOptions($game, null, true, false, $selectedCard);
+        $this->publishDevelopmentCardsWithSelectedOptions($game, null, true,
+            false, $selectedCard);
     }
 
     /**
@@ -589,6 +591,14 @@ class SplendorController extends AbstractController
         );
     }
 
+    /**
+     * publishAnimTakenCard: publish animations of taking a development card in mainboard
+     * @param GameSPL $game
+     * @param string $player
+     * @param DevelopmentCardsSPL $selectedCard
+     * @param DevelopmentCardsSPL $newDevCard
+     * @return void
+     */
     private function publishAnimTakenCard(GameSPL $game, string $player, DevelopmentCardsSPL $selectedCard,
                                           DevelopmentCardsSPL $newDevCard): void
     {
@@ -609,9 +619,14 @@ class SplendorController extends AbstractController
         }
     }
 
+    /**
+     * publishAnimTakenJoker: publish the animation of taking a joker
+     * @param GameSPL $game
+     * @param string $player
+     * @return void
+     */
     private function publishAnimTakenJoker(GameSPL $game, string $player): void
     {
-
         $this->publishService->publish(
             $this->generateUrl('app_game_show_spl', ['id' => $game->getId()]).'animTakenTokens',
             new Response($player . '__gold')

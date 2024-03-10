@@ -31,10 +31,12 @@
             {% block chat %}
                 {{ include('/Game/Utils/chat.html.twig') }}
             {% endblock %}
-	        <div id="notificationsStorage" class="hidden">
-		        {{ include('/Game/Splendor/componentStorage.html.twig') }}
-	        </div>
-	        <div id="notificationsContainer" class="absolute space-y-2 landscape:sm:w-[27%] portrait:w-[30%] landscape:lg:w-[20%] bottom-0 right-0 "></div>
+	        {% block notification %}
+                {{ include('/Game/Utils/notification.html.twig') }}
+            {% endblock %}
+            {% block cardReversal %}
+                {{ include('/Game/Splendor/cardReversal.html.twig') }}
+            {% endblock %}
         </div>
     </div>
 
@@ -43,6 +45,7 @@
     <script type="text/javascript" src="{{ asset('resourcesGames/utils/animationQueue.js') }}"></script>
     <script type="text/javascript" src="{{ asset('resourcesGames/Splendor/animation.js') }}"></script>
 
+    {# NOTIFICATION MANAGEMENT #}
     <script>
         {% set path = path('app_game_show_spl', {'id': game.id}) ~ 'token' ~ player.id %}
         const eventSourceTokens = new EventSource("{{ mercure(path)|escape('js') }}");
@@ -105,7 +108,7 @@
         {% endif %}
     </script>
 
-    {# TAKEN TOKENS MANAGEMENT#}
+    {# TOKENS MANAGEMENT#}
     <script>
         {% set path = path('app_game_show_spl', {'id': game.id}) ~ 'animTakenTokens' %}
         const eventSourceTakenTokens = new EventSource("{{ mercure(path)|escape('js') }}");
@@ -117,6 +120,26 @@
                     Promise.all(tokens.map(token => moveTakingToken(token, username))).then(
                             () => animationQueue.executeNextInQueue()
                     );
+                }, 500);
+            })
+        }
+    </script>
+
+    {# RETURNED TOKENS MANAGEMENT#}
+    <script>
+        {% set path = path('app_game_show_spl', {'id': game.id}) ~ 'animReturnedTokens' %}
+        const eventSourceReturnedTokens = new EventSource("{{ mercure(path)|escape('js') }}");
+        eventSourceReturnedTokens.onmessage = event => {
+            animationQueue.addToQueue(() => {
+                let username = event.data.split('__')[0];
+                if(event.data.split('__')[1].trim() === '') {
+                    animationQueue.executeNextInQueue();
+                    return;
+                }
+                let tokens = event.data.split('__')[1].split('_');
+                setTimeout(() => {
+                    const movesAnimations = tokens.map(token => moveReturnedToken(token, username));
+                    Promise.all(movesAnimations).then(() => animationQueue.executeNextInQueue());
                 }, 500);
             })
         }
@@ -154,26 +177,6 @@
         }
     </script>
 
-    {# RETURNED TOKENS MANAGEMENT#}
-    <script>
-        {% set path = path('app_game_show_spl', {'id': game.id}) ~ 'animReturnedTokens' %}
-        const eventSourceReturnedTokens = new EventSource("{{ mercure(path)|escape('js') }}");
-        eventSourceReturnedTokens.onmessage = event => {
-            animationQueue.addToQueue(() => {
-                let username = event.data.split('__')[0];
-                if(event.data.split('__')[1].trim() === '') {
-                    animationQueue.executeNextInQueue();
-                    return;
-                }
-                let tokens = event.data.split('__')[1].split('_');
-                setTimeout(() => {
-                    const movesAnimations = tokens.map(token => moveReturnedToken(token, username));
-                    Promise.all(movesAnimations).then(() => animationQueue.executeNextInQueue());
-                }, 500);
-            })
-        }
-    </script>
-
     {# MOVING NOBLE MANAGEMENT#}
     <script>
         {% set path = path('app_game_show_spl', {'id': game.id}) ~ 'animNoble' %}
@@ -205,6 +208,7 @@
         }
     </script>
 
+    {# SELECTED CARD CLOSURE MANAGEMENT #}
     <script>
         function closeWindow() {
             let window = document.getElementById('selectedCardActions');

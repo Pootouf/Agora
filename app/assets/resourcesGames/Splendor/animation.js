@@ -38,6 +38,12 @@ function showEndgame() {
 	}).then(() => animationQueue.executeNextInQueue())
 }
 
+/**
+ * Animate the move of a noble tile to a specific player in ranking
+ * @param cardId                Id of the noble tile
+ * @param playerUsername        Player who is visited by the noble
+ * @returns {Promise<unknown>}  Promise of the animation
+ */
 function moveNobleTile(cardId, playerUsername) {
 	return new Promise(resolve => {
 		let cardFinalPositionElement = document.getElementById(playerUsername);
@@ -93,6 +99,12 @@ function moveNobleTile(cardId, playerUsername) {
 	});
 }
 
+/**
+ * Animate the move of taken token to a specific player in ranking
+ * @param tokenId               Id of the token
+ * @param playerUsername        Player's username who receive the token
+ * @returns {Promise<unknown>}  Promise of the animation
+ */
 function moveTakingToken(tokenId, playerUsername) {
 	return new Promise(resolve => {
 		let tokenFinalPositionElement = document.getElementById(playerUsername);
@@ -146,8 +158,12 @@ function moveTakingToken(tokenId, playerUsername) {
 	});
 }
 
-
-
+/**
+ * Animate the move of returned token from a specific player in ranking to draw tokens
+ * @param tokenId               Id of the token
+ * @param playerUsername        Player's username who receive the token
+ * @returns {Promise<unknown>}  Promise of the animation
+ */
 function moveReturnedToken(tokenId, playerUsername) {
 	return new Promise(resolve => {
 		let tokenFinalPositionElement = document.getElementById(playerUsername);
@@ -202,6 +218,13 @@ function moveReturnedToken(tokenId, playerUsername) {
 	});
 }
 
+/**
+ * Animate the move of a draw card to a specific player in ranking
+ * @param cardId                Id of the draw card
+ * @param playerUsername        Player's username who receive the card
+ * @param face                  Screen orientation for drawCardElement
+ * @returns {Promise<unknown>}  Promise of the animation
+ */
 function moveDrawCard(cardId, playerUsername, face) {
 	return new Promise(resolve => {
 		let cardFinalPositionElement = document.getElementById(playerUsername);
@@ -256,6 +279,12 @@ function moveDrawCard(cardId, playerUsername, face) {
 	});
 }
 
+/**
+ * Animate the move of a development card in mainboard to a specific player in ranking
+ * @param cardId                Id of the development card
+ * @param playerUsername        Player's username who receive the card
+ * @returns {Promise<unknown>}  Promise of the animation
+ */
 function moveDevCard(cardId, playerUsername) {
 	return new Promise(resolve => {
 		let cardFinalPositionElement = document.getElementById(playerUsername);
@@ -311,6 +340,13 @@ function moveDevCard(cardId, playerUsername) {
 	});
 }
 
+/**
+ * Animate the move and reversal of a development card (hidden side) in draw to mainboard (face reveal)
+ * @param drawCardId            Id of the draw card
+ * @param devCardId             Id of the development card
+ * @param face                  Screen orientation for drawCardElement
+ * @returns {Promise<unknown>}  Promise of the animation
+ */
 function moveDrawToDevCard(drawCardId, devCardId, face) {
 	return new Promise(resolve => {
 		let cardFinalPositionElement = document.getElementById('image_card_' + devCardId);

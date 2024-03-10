@@ -9,7 +9,7 @@ class GameNotification {
 	/**
 	 * Create a notification
 	 * @param duration Expiration delay before a notification auto-delete
-	 * @param iconName ID of an SVG located in componentStorage.html.twig
+	 * @param iconName ID of an SVG located in notification.html.twig
 	 * @param message Main text of the notification
 	 * @param description Secondary text of the notification
 	 * @param loadingBarColor Color for the loadingBar
