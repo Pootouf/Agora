@@ -297,6 +297,101 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $this->assertEquals($expectedResult, $result);
     }
 
+    public function testGetActiveDrawTileAtTheBeginningShouldBeLevelOne() : void
+    {
+        //GIVEN
+        $tileGLMService = static ::getContainer()->get(TileGLMService::class);
+        $game = $this->createGame(5);
+        $expectedLevel = 1;
+        //WHEN
+        $drawTile = $tileGLMService->getActiveDrawTile($game);
+        //THEN
+        $this->assertSame($expectedLevel, $drawTile->getLevel());
+    }
+
+    public function testGetActiveDrawTileShouldBeLevelTwo() : void
+    {
+        //GIVEN
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $tileGLMService = static ::getContainer()->get(TileGLMService::class);
+        $game = $this->createGame(5);
+        $expectedLevel = 2;
+        $drawLevelOne = $game->getMainBoard()->getDrawTiles()->get(1);
+        $drawLevelOne->getTiles()->clear();
+        $entityManager->persist($drawLevelOne);
+        $entityManager->persist($game->getMainBoard());
+        $entityManager->flush();
+        //WHEN
+        $drawTile = $tileGLMService->getActiveDrawTile($game);
+        //THEN
+        $this->assertSame($expectedLevel, $drawTile->getLevel());
+    }
+
+    public function testGetActiveDrawWhenLevelTwoIsEmptyButNotLevelOne() : void
+    {
+        //GIVEN
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $tileGLMService = static ::getContainer()->get(TileGLMService::class);
+        $game = $this->createGame(5);
+        $expectedLevel = 1;
+        $drawLevelTwo = $game->getMainBoard()->getDrawTiles()->get(2);
+        $drawLevelTwo->getTiles()->clear();
+        $entityManager->persist($drawLevelTwo);
+        $entityManager->persist($game->getMainBoard());
+        $entityManager->flush();
+        //WHEN
+        $drawTile = $tileGLMService->getActiveDrawTile($game);
+        //THEN
+        $this->assertSame($expectedLevel, $drawTile->getLevel());
+    }
+
+    public function testGetActiveDrawShouldBeThree() : void
+    {
+        //GIVEN
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $tileGLMService = static ::getContainer()->get(TileGLMService::class);
+        $game = $this->createGame(5);
+        $expectedLevel = 3;
+        $drawLevelOne = $game->getMainBoard()->getDrawTiles()->get(1);
+        $drawLevelOne->getTiles()->clear();
+        $entityManager->persist($drawLevelOne);
+        $entityManager->persist($game->getMainBoard());
+        $drawLevelTwo = $game->getMainBoard()->getDrawTiles()->get(2);
+        $drawLevelTwo->getTiles()->clear();
+        $entityManager->persist($drawLevelTwo);
+        $entityManager->persist($game->getMainBoard());
+        $entityManager->flush();
+        //WHEN
+        $drawTile = $tileGLMService->getActiveDrawTile($game);
+        //THEN
+        $this->assertSame($expectedLevel, $drawTile->getLevel());
+    }
+
+    public function testGetActiveDrawShouldBeNull() : void
+    {
+        //GIVEN
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $tileGLMService = static ::getContainer()->get(TileGLMService::class);
+        $game = $this->createGame(5);
+        $drawLevelOne = $game->getMainBoard()->getDrawTiles()->get(1);
+        $drawLevelOne->getTiles()->clear();
+        $entityManager->persist($drawLevelOne);
+        $entityManager->persist($game->getMainBoard());
+        $drawLevelTwo = $game->getMainBoard()->getDrawTiles()->get(2);
+        $drawLevelTwo->getTiles()->clear();
+        $entityManager->persist($drawLevelTwo);
+        $entityManager->persist($game->getMainBoard());
+        $drawLevelThree = $game->getMainBoard()->getDrawTiles()->get(3);
+        $drawLevelThree->getTiles()->clear();
+        $entityManager->persist($drawLevelThree);
+        $entityManager->persist($game->getMainBoard());
+        $entityManager->flush();
+        //WHEN
+        $drawTile = $tileGLMService->getActiveDrawTile($game);
+        //THEN
+        $this->assertNull($drawTile);
+    }
+
 
     private function createGame(int $nbOfPlayers) : GameGLM
     {
