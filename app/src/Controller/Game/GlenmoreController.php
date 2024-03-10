@@ -102,4 +102,43 @@ class GlenmoreController extends AbstractController
         return new Response('player selected this tile', Response::HTTP_OK);
     }
 
+
+    /**
+     * manageEndOfRound : at the end of a player's round, replace the good number of tiles, proceeds
+     *  to count points if needed. Finally, ends the game if the game must end
+     * @param GameGLM $gameGLM
+     * @return void
+     */
+    private function manageEndOfRound(GameGLM $gameGLM) : void
+    {
+        $activePlayer = $this->service->getActivePlayer($gameGLM);
+        $mainBoard = $gameGLM->getMainBoard();
+        $this->service->endRoundOfPlayer($gameGLM, $activePlayer, $mainBoard->getLastPosition());
+        $newPlayer = $this->service->getActivePlayer($gameGLM);
+        $amountOfTilesToReplace = $this->tileGLMService->getAmountOfTileToReplace($mainBoard);
+        $drawTiles = $this->tileGLMService->getActiveDrawTile($gameGLM);
+        $oldLevel = $drawTiles->getLevel();
+        $newLevel = $oldLevel;
+        for ($i = 0; $i < $amountOfTilesToReplace; ++$i) {
+            $this->tileGLMService->placeNewTile($newPlayer, $drawTiles);
+            $drawTiles = $this->tileGLMService->getActiveDrawTile($gameGLM);
+            $newLevel = $drawTiles->getLevel();
+        }
+        if ($newLevel > $oldLevel) {
+            $this->service->manageEndOfRound($gameGLM, $newLevel);
+        }
+        if ($this->service->isGameEnded($gameGLM)) {
+            // TODO PUBLISH WINNER(S)
+            $winners = $this->service->getWinner($gameGLM);
+            $message = "";
+            foreach ($winners as $winner) {
+                $message .=  $winner->getUsername() . " ";
+            }
+            $message .= " won the game " . $gameGLM->getId();
+            $this->logService->sendSystemLog($gameGLM, $message);
+        } else {
+            // TODO SOME PUBLISH
+        }
+    }
+
 }
