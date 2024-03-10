@@ -782,6 +782,7 @@ class TileGLMService
                 || $adjacentTile->getTile()->getType() === GlenmoreParameters::$TILE_TYPE_VILLAGE) {
                 $resource = $this->resourceGLMRepository->findOneBy(["type" => GlenmoreParameters::$MOVEMENT_RESOURCE]);
                 $playerTileResource = new PlayerTileResourceGLM();
+                $playerTileResource->setPlayer($playerTileGLM->getPersonalBoard()->getPlayerGLM());
                 $playerTileResource->setPlayerTileGLM($adjacentTile);
                 $playerTileResource->setResource($resource);
                 $playerTileResource->setQuantity(1);
