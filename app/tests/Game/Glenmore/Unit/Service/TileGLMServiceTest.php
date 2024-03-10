@@ -461,6 +461,73 @@ class TileGLMServiceTest extends TestCase
         $this->assertEquals($expectedResult, $result);
     }
 
+    public function testGetActiveDrawTileAtTheBeginningShouldBeLevelOne() : void
+    {
+        //GIVEN
+        $game = $this->createGame(5);
+        $expectedLevel = 1;
+        //WHEN
+        $drawTile = $this->tileGLMService->getActiveDrawTile($game);
+        //THEN
+        $this->assertSame($expectedLevel, $drawTile->getLevel());
+    }
+
+    public function testGetActiveDrawTileShouldBeLevelTwo() : void
+    {
+        //GIVEN
+        $game = $this->createGame(5);
+        $expectedLevel = 2;
+        $drawLevelOne = $game->getMainBoard()->getDrawTiles()->get(1);
+        $drawLevelOne->getTiles()->clear();
+        //WHEN
+        $drawTile = $this->tileGLMService->getActiveDrawTile($game);
+        //THEN
+        $this->assertSame($expectedLevel, $drawTile->getLevel());
+    }
+
+    public function testGetActiveDrawWhenLevelTwoIsEmptyButNotLevelOne() : void
+    {
+        //GIVEN
+        $game = $this->createGame(5);
+        $expectedLevel = 1;
+        $drawLevelTwo = $game->getMainBoard()->getDrawTiles()->get(2);
+        $drawLevelTwo->getTiles()->clear();
+        //WHEN
+        $drawTile = $this->tileGLMService->getActiveDrawTile($game);
+        //THEN
+        $this->assertSame($expectedLevel, $drawTile->getLevel());
+    }
+
+    public function testGetActiveDrawShouldBeThree() : void
+    {
+        //GIVEN
+        $game = $this->createGame(5);
+        $expectedLevel = 3;
+        $drawLevelOne = $game->getMainBoard()->getDrawTiles()->get(1);
+        $drawLevelOne->getTiles()->clear();
+        $drawLevelTwo = $game->getMainBoard()->getDrawTiles()->get(2);
+        $drawLevelTwo->getTiles()->clear();
+        //WHEN
+        $drawTile = $this->tileGLMService->getActiveDrawTile($game);
+        //THEN
+        $this->assertSame($expectedLevel, $drawTile->getLevel());
+    }
+
+    public function testGetActiveDrawShouldBeNull() : void
+    {
+        //GIVEN
+        $game = $this->createGame(5);
+        $drawLevelOne = $game->getMainBoard()->getDrawTiles()->get(1);
+        $drawLevelOne->getTiles()->clear();
+        $drawLevelTwo = $game->getMainBoard()->getDrawTiles()->get(2);
+        $drawLevelTwo->getTiles()->clear();
+        $drawLevelThree = $game->getMainBoard()->getDrawTiles()->get(3);
+        $drawLevelThree->getTiles()->clear();
+        //WHEN
+        $drawTile = $this->tileGLMService->getActiveDrawTile($game);
+        //THEN
+        $this->assertNull($drawTile);
+    }
 
     private function createGame(int $nbOfPlayers): GameGLM
     {
@@ -473,7 +540,7 @@ class TileGLMServiceTest extends TestCase
             $draw = new DrawTilesGLM();
             $draw->setLevel($i);
             $draw->setMainBoardGLM($mainBoard);
-            for ($j = 1; $j <= 15; ++$j) {
+            for ($j = 1; $j <= 8; ++$j) {
                 $tile = new TileGLM();
                 $tile->setLevel($j);
                 if ($j % 5 == 0) {

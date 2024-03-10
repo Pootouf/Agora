@@ -122,6 +122,9 @@ class GlenmoreController extends AbstractController
         for ($i = 0; $i < $amountOfTilesToReplace; ++$i) {
             $this->tileGLMService->placeNewTile($newPlayer, $drawTiles);
             $drawTiles = $this->tileGLMService->getActiveDrawTile($gameGLM);
+            if ($drawTiles == null) {
+                break;
+            }
             $newLevel = $drawTiles->getLevel();
         }
         if ($newLevel > $oldLevel) {
