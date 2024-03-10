@@ -72,7 +72,7 @@ class CardGLMService
             }
             if ($mustActivate) {
                 foreach ($personalBoard->getPlayerTiles() as $playerTile) {
-                    if(!$playerTile->isActivated() && $playerTile->getTile()->getActivationBonus() != null) {
+                    if(!$playerTile->isActivated() && !$playerTile->getTile()->getActivationBonus()->isEmpty()) {
                         $activableTiles->add($playerTile);
                     }
                 }
