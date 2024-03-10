@@ -71,4 +71,14 @@ export default class extends Controller {
         let url = tile.params.url;
         const response = await fetch(url);
     }
+
+    async removeVillager(tile)  {
+        let url = tile.params.url;
+        const response = await fetch(url);
+    }
+
+    async moveVillager(tile)  {
+        let url = tile.params.url;
+        const response = await fetch(url);
+    }
 }

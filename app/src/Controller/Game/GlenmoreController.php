@@ -194,7 +194,6 @@ class GlenmoreController extends AbstractController
             name: 'app_game_glenmore_move_villager')]
     public function moveVillager(
         #[MapEntity(id: 'idGame')] GameGLM $game,
-        #[MapEntity(id: 'idPlayerTileResource')] PlayerTileResourceGLM $resourceGLM,
         #[MapEntity(id: 'idTile')] PlayerTileGLM $tile,
         int $dir
     )  : Response
