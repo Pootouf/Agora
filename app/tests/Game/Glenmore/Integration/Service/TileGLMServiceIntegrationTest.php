@@ -418,9 +418,9 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $playerTile2->setCoordX(0);
         $playerTile2->setCoordY(0);
         $playerTile2->setPersonalBoard($firstPlayer->getPersonalBoard());
-        $playerTile2->addAdjacentTile($playerTile);
+        $playerTile2->addAdjacentTile($playerTile, 0);
         $entityManager->persist($playerTile2);
-        $playerTile->addAdjacentTile($playerTile2);
+        $playerTile->addAdjacentTile($playerTile2, 0);
         $entityManager->persist($playerTile);
         $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile);
         $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile2);
@@ -456,9 +456,9 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $playerTile2->setCoordX(0);
         $playerTile2->setCoordY(0);
         $playerTile2->setPersonalBoard($firstPlayer->getPersonalBoard());
-        $playerTile2->addAdjacentTile($playerTile);
+        $playerTile2->addAdjacentTile($playerTile, 0);
         $entityManager->persist($playerTile2);
-        $playerTile->addAdjacentTile($playerTile2);
+        $playerTile->addAdjacentTile($playerTile2, 0);
         $entityManager->persist($playerTile);
         $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile);
         $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile2);
@@ -494,9 +494,9 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $playerTile2->setCoordX(0);
         $playerTile2->setCoordY(0);
         $playerTile2->setPersonalBoard($firstPlayer->getPersonalBoard());
-        $playerTile2->addAdjacentTile($playerTile);
+        $playerTile2->addAdjacentTile($playerTile, 0);
         $entityManager->persist($playerTile2);
-        $playerTile->addAdjacentTile($playerTile2);
+        $playerTile->addAdjacentTile($playerTile2, 0);
         $entityManager->persist($playerTile);
         $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile);
         $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile2);
