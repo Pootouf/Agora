@@ -11,7 +11,9 @@ use App\Entity\Game\Glenmore\PlayerCardGLM;
 use App\Entity\Game\Glenmore\PlayerGLM;
 use App\Entity\Game\Glenmore\PlayerTileGLM;
 use App\Entity\Game\Glenmore\PlayerTileResourceGLM;
+use App\Entity\Game\Glenmore\ResourceGLM;
 use App\Entity\Game\Glenmore\SelectedResourceGLM;
+use App\Entity\Game\Glenmore\TileBuyCostGLM;
 use App\Entity\Game\Glenmore\TileGLM;
 use App\Repository\Game\Glenmore\PlayerGLMRepository;
 use App\Repository\Game\Glenmore\PlayerTileGLMRepository;
@@ -179,6 +181,37 @@ class TileGLMService
             }
         }
         return true;
+    }
+
+
+    /**
+     * selectResourcesFromTileToBuy: select a resources from a tile to use to buy the selectedTile of the player
+     * @param PlayerTileGLM $playerTileGLM
+     * @param ResourceGLM $resource
+     * @return void
+     * @throws \Exception if the selectedResources can't be used to buy the tile
+     */
+    public function selectResourcesFromTileToBuy(PlayerTileGLM $playerTileGLM, ResourceGLM $resource) : void
+    {
+        $personalBoard = $playerTileGLM->getPersonalBoard();
+        $selectedTile = $personalBoard->getSelectedTile();
+        $this->addSelectedResourcesFromTileWithCost($playerTileGLM, $resource, $selectedTile->getTile()->getBuyPrice());
+    }
+
+
+    /**
+     * selectResourcesFromTileToActivate: select a resources from a tile to use to activate the selectedTile of the player
+     * @param PlayerTileGLM $playerTileGLM
+     * @param ResourceGLM $resource
+     * @return void
+     * @throws \Exception if the selectedResources can't be used to activate the tile
+     */
+    public function selectResourcesFromTileToActivate(PlayerTileGLM $playerTileGLM, ResourceGLM $resource) : void
+    {
+        $personalBoard = $playerTileGLM->getPersonalBoard();
+        $selectedTile = $personalBoard->getSelectedTile();
+        $this->addSelectedResourcesFromTileWithCost($playerTileGLM, $resource,
+            $selectedTile->getTile()->getActivationPrice());
     }
 
 
@@ -615,6 +648,57 @@ class TileGLMService
             }
         }
         return null;
+    }
+
+    /**
+     * addSelectedResourcesFromTileWithCost: create a selected resources from the playerTile with the selected resource,
+     *                                       if it's coherent with the cost
+     * @param PlayerTileGLM $playerTileGLM
+     * @param ResourceGLM $resource
+     * @param Collection<TileBuyCostGLM> $cost cost of the tile
+     * @return void
+     * @throws \Exception if the selected resources can't be used to buy the tile
+     */
+    public function addSelectedResourcesFromTileWithCost(PlayerTileGLM $playerTileGLM, ResourceGLM $resource, Collection $cost) : void
+    {
+        $personalBoard = $playerTileGLM->getPersonalBoard();
+        $selectedResources = $personalBoard->getSelectedResources();
+        $selectedResourcesLikeResource = $selectedResources->filter(
+            function (SelectedResourceGLM $selectedResourceGLM) use ($resource) {
+                return $selectedResourceGLM->getResource()->getId() == $resource->getId();
+            });
+
+        $numberOfSelectedResources = 0;
+        foreach ($selectedResourcesLikeResource as $selectedResourceLikeResource) {
+            $numberOfSelectedResources += $selectedResourceLikeResource->getQuantity();
+        }
+
+        $priceCost = $cost->filter(
+            function (TileBuyCostGLM $buyCost) use ($resource) {
+                return $buyCost->getResource()->getId() == $resource->getId();
+            })->first()->getPrice();
+        if ($numberOfSelectedResources >= $priceCost) {
+            throw new \Exception('Impossible to choose this resource');
+        }
+
+        $selectedResourceWithSamePlayerTile = $selectedResourcesLikeResource->filter(
+            function (SelectedResourceGLM $selectedResourceGLM) use ($playerTileGLM) {
+                return $selectedResourceGLM->getPlayerTile()->getId() == $playerTileGLM->getId();
+            }
+        )->first();
+
+        if (!$selectedResourceWithSamePlayerTile) {
+            $selectedResource = new SelectedResourceGLM();
+            $selectedResource->setPlayerTile($playerTileGLM);
+            $selectedResource->setResource($resource);
+            $selectedResource->setQuantity(1);
+        } else {
+            $selectedResourceWithSamePlayerTile
+                ->setQuantity($selectedResourceWithSamePlayerTile->getQuantity() + 1);
+        }
+
+        $this->entityManager->persist($selectedResourceWithSamePlayerTile);
+        $this->entityManager->flush();
     }
 
     /**
