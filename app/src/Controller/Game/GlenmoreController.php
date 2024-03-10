@@ -55,7 +55,7 @@ class GlenmoreController extends AbstractController
             'needToPlay' => $needToPlay,
             'isGameFinished' => $this->service->isGameEnded($game),
             'selectedTile' => null,
-            'adjacentTiles' => null,
+            'activableTiles' => null,
             'potentialNeighbours' => null,
             'currentDrawTile' => $this->tileGLMService->getActiveDrawTile($game),
             'personalBoardTiles' => $this->dataManagementGLMService->organizePersonalBoardRows($player),
@@ -129,7 +129,7 @@ class GlenmoreController extends AbstractController
             'selectedResources' => null,
             'activatedNewResourceAcquisition' => false,
             'chosenNewResources' => null,
-            'activatedMovementPhase' => true,
+            'activatedMovementPhase' => false,
         ]);
     }
 
@@ -157,7 +157,7 @@ class GlenmoreController extends AbstractController
         ]);
     }
 
-    #[Route('game/glenmore/{idGame}/select/{idTile}/resource/{resource}',
+    #[Route('game/glenmore/{idGame}/select/{idTile}/resource/acquisition/{resource}',
             name: 'app_game_glenmore_select_new_resource_acquisition')]
     public function selectNewResourceAcquisition(
         #[MapEntity(id: 'idGame')] GameGLM $game,
@@ -227,6 +227,18 @@ class GlenmoreController extends AbstractController
         ]);
     }
 
+    #[Route('game/glenmore/{idGame}/end/activation', name: 'app_game_glenmore_end_activate_tile')]
+    public function endTileActivation(
+        #[MapEntity(id: 'idGame')] GameGLM $game
+    )  : Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+        }
+        return new Response('player ended activation of his tiles', Response::HTTP_OK);
+    }
+
     #[Route('game/glenmore/{idGame}/move/{idTile}/villager/direction/{dir}',
             name: 'app_game_glenmore_move_villager')]
     public function moveVillager(
@@ -251,7 +263,8 @@ class GlenmoreController extends AbstractController
         ]);
     }
 
-    #[Route('game/glenmore/{idGame}/activate/{idTile}', name: 'app_game_glenmore_validate_new_resources_acquisition')]
+    #[Route('game/glenmore/{idGame}/validate/{idTile}/resource/acquisition',
+            name: 'app_game_glenmore_validate_new_resources_acquisition')]
     public function validateNewResourcesAcquisition(
         #[MapEntity(id: 'idGame')] GameGLM $game,
         #[MapEntity(id: 'idTile')] PlayerTileGLM $tile
@@ -271,6 +284,68 @@ class GlenmoreController extends AbstractController
             'chosenNewResources' => null,
             'activatedMovementPhase' => false
         ]);
+    }
+
+    #[Route('game/glenmore/{idGame}/cancel/{idTile}/resource/acquisition',
+            name: 'app_game_glenmore_cancel_new_resources_acquisition')]
+    public function cancelNewResourcesAcquisition(
+        #[MapEntity(id: 'idGame')] GameGLM $game,
+        #[MapEntity(id: 'idTile')] PlayerTileGLM $tile
+    )  : Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+        }
+        return $this->render('/Game/Glenmore/PersonalBoard/selectTile.html.twig', [
+            'selectedTile' => $tile,
+            'game' => $game,
+            'player' => $player,
+            'activatedResourceSelection' => false, //TODO : depends of the tile,
+            'selectedResources' => null,
+            'activatedNewResourceAcquisition' => false,
+            'chosenNewResources' => null,
+            'activatedMovementPhase' => false
+        ]);
+    }
+
+    #[Route('game/glenmore/{idGame}/validate/resources/selection',
+            name: 'app_game_glenmore_validate_resources_selection')]
+    public function validateResourcesSelection(
+        #[MapEntity(id: 'idGame')] GameGLM $game
+    )  : Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+        }
+        return new Response('player selected resources', Response::HTTP_OK);
+    }
+
+    #[Route('game/glenmore/{idGame}/cancel/resources/selection',
+        name: 'app_game_glenmore_cancel_resources_selection')]
+    public function cancelResourcesSelection(
+        #[MapEntity(id: 'idGame')] GameGLM $game
+    )  : Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+        }
+        return new Response('player cancel his selection', Response::HTTP_OK);
+    }
+
+    #[Route('game/glenmore/{idGame}/end/player/round', name: 'app_game_glenmore_end_player_round')]
+    public function endPlayerRound(
+        #[MapEntity(id: 'idGame')] GameGLM $game
+    )  : Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+        }
+        $this->manageEndOfRound($game);
+        return new Response('player ended activation of his tiles', Response::HTTP_OK);
     }
 
     /**
