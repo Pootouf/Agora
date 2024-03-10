@@ -481,9 +481,24 @@ class SplendorController extends AbstractController
      */
     private function publishRanking(GameSPL $game): void
     {
+        foreach ($game->getPlayers() as $player) {
+            $response = $this->render('Game/Splendor/Ranking/ranking.html.twig', [
+                'ranking' => $this->SPLService->getRanking($game),
+                'game' => $game,
+                'player' => $player,
+                'isSpectator' => false,
+            ]);
+
+            $this->publishService->publish(
+                $this->generateUrl('app_game_show_spl', ['id' => $game->getId()]).'ranking'.$player->getUsername(),
+                $response);
+        }
+
         $response = $this->render('Game/Splendor/Ranking/ranking.html.twig', [
             'ranking' => $this->SPLService->getRanking($game),
             'game' => $game,
+            'player' => $game->getPlayers()->get(0),
+            'isSpectator' => true,
         ]);
 
         $this->publishService->publish(
