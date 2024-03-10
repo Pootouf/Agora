@@ -447,6 +447,33 @@ class TileGLMService
     }
 
     /**
+     * removeVillager : removes a villager from a tile, it becomes a leader
+     *
+     * @param PlayerTileGLM $playerTileGLM
+     * @return void
+     * @throws \Exception
+     */
+    public function removeVillager(PlayerTileGLM $playerTileGLM) : void
+    {
+        if (!$this->doesTileContainsVillager($playerTileGLM)) {
+            throw new \Exception("no villager placed on this tile");
+        }
+        $player = $playerTileGLM->getPersonalBoard()->getPlayerGLM();
+        $movementPoint = $this->getMovementPoints($player);
+        if ($movementPoint == 0) {
+            throw new \Exception("no more movement points");
+        }
+
+        // removes villager from the tile
+        $this->retrieveVillagerFromTile($playerTileGLM);
+        $personalBoard = $player->getPersonalBoard();
+        $personalBoard->setLeaderCount($personalBoard->getLeaderCount() + 1);
+        $this->entityManager->persist($personalBoard);
+        // removes a movement point from the player
+        $this->lowerMovementPoints($player);
+    }
+
+    /**
      * Assign tile for player when conditions are verified
      * @param BoardTileGLM $boardTile
      * @param PlayerGLM $player
@@ -852,15 +879,29 @@ class TileGLMService
         foreach ($tiles as $adjacentTile) {
             if ($adjacentTile->getTile()->getType() === GlenmoreParameters::$TILE_TYPE_CASTLE
                 || $adjacentTile->getTile()->getType() === GlenmoreParameters::$TILE_TYPE_VILLAGE) {
+                $exists = false;
                 $resource = $this->resourceGLMRepository->findOneBy(["type" => GlenmoreParameters::$MOVEMENT_RESOURCE]);
-                $playerTileResource = new PlayerTileResourceGLM();
-                $playerTileResource->setPlayer($playerTileGLM->getPersonalBoard()->getPlayerGLM());
-                $playerTileResource->setPlayerTileGLM($adjacentTile);
-                $playerTileResource->setResource($resource);
-                $playerTileResource->setQuantity(1);
-                $this->entityManager->persist($playerTileResource);
-                $adjacentTile->addPlayerTileResource($playerTileResource);
-                $adjacentTile->setActivated(true);
+                foreach ($adjacentTile->getPlayerTileResource() as $tileResource) {
+                    if ($tileResource->getResource()->getType() === GlenmoreParameters::$MOVEMENT_RESOURCE) {
+                        $tileResource->setQuantity(1);
+                        $this->entityManager->persist($tileResource);
+                        $adjacentTile->addPlayerTileResource($tileResource);
+                        $exists = true;
+                        $adjacentTile->setActivated(true);
+                        $this->entityManager->persist($adjacentTile);
+                    }
+                }
+                if (!$exists) {
+                    $playerTileResource = new PlayerTileResourceGLM();
+                    $playerTileResource->setPlayer($playerTileGLM->getPersonalBoard()->getPlayerGLM());
+                    $playerTileResource->setPlayerTileGLM($adjacentTile);
+                    $playerTileResource->setResource($resource);
+                    $playerTileResource->setQuantity(1);
+                    $this->entityManager->persist($playerTileResource);
+                    $adjacentTile->addPlayerTileResource($playerTileResource);
+                    $adjacentTile->setActivated(true);
+                    $this->entityManager->persist($adjacentTile);
+                }
             }
         }
         $this->entityManager->persist($personalBoard);
