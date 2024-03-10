@@ -78,10 +78,10 @@ class PlayerTileGLM extends Component
         return $this->adjacentTiles;
     }
 
-    public function addAdjacentTile(self $adjacentTile): static
+    public function addAdjacentTile(self $adjacentTile, int $direction): static
     {
         if (!$this->adjacentTiles->contains($adjacentTile)) {
-            $this->adjacentTiles->add($adjacentTile);
+            $this->adjacentTiles->set($direction, $adjacentTile);
         }
 
         return $this;

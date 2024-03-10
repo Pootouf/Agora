@@ -547,8 +547,8 @@ class TileGLMServiceTest extends TestCase
         $playerTile2 = new PlayerTileGLM();
         $playerTile2->setTile($tile);
         $playerTile2->setActivated(false);
-        $playerTile2->addAdjacentTile($playerTile);
-        $playerTile->addAdjacentTile($playerTile2);
+        $playerTile2->addAdjacentTile($playerTile, 0);
+        $playerTile->addAdjacentTile($playerTile2, 0);
         $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile);
         $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile2);
         $expectedResult = new ArrayCollection([$playerTile, $playerTile2]);
@@ -574,8 +574,8 @@ class TileGLMServiceTest extends TestCase
         $playerTile2 = new PlayerTileGLM();
         $playerTile2->setTile($tile);
         $playerTile2->setActivated(false);
-        $playerTile2->addAdjacentTile($playerTile);
-        $playerTile->addAdjacentTile($playerTile2);
+        $playerTile2->addAdjacentTile($playerTile, 0);
+        $playerTile->addAdjacentTile($playerTile2, 0);
         $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile);
         $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile2);
         $expectedResult = new ArrayCollection([$playerTile2]);
@@ -602,8 +602,8 @@ class TileGLMServiceTest extends TestCase
         $tile2 = new TileGLM();
         $playerTile2->setTile($tile2);
         $playerTile2->setActivated(false);
-        $playerTile2->addAdjacentTile($playerTile);
-        $playerTile->addAdjacentTile($playerTile2);
+        $playerTile2->addAdjacentTile($playerTile, 0);
+        $playerTile->addAdjacentTile($playerTile2, 0);
         $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile);
         $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile2);
         $expectedResult = new ArrayCollection([$playerTile]);
@@ -654,8 +654,8 @@ class TileGLMServiceTest extends TestCase
         $playerTile2 = new PlayerTileGLM();
         $playerTile2->setTile($tile);
         $playerTile2->setActivated(true);
-        $playerTile2->addAdjacentTile($playerTile);
-        $playerTile->addAdjacentTile($playerTile2);
+        $playerTile2->addAdjacentTile($playerTile, 0);
+        $playerTile->addAdjacentTile($playerTile2, 0);
         $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile);
         $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile2);
         //WHEN
