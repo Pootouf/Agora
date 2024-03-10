@@ -53,6 +53,7 @@ class GameGLMTest extends TestCase
         // THEN
 
         $this->assertSame($length, $this->gameGLM->getPlayers()->count());
+        $this->assertSame($this->gameGLM, $player->getGameGLM());
     }
 
     public function testRemovePlayerYetNotRemoved() : void
@@ -69,6 +70,7 @@ class GameGLMTest extends TestCase
         // THEN
 
         $this->assertNotContains($player, $this->gameGLM->getPlayers());
+        $this->assertNull($player->getGameGLM());
     }
 
     public function testRemovePlayerAlreadyRemoved() : void
@@ -87,6 +89,7 @@ class GameGLMTest extends TestCase
         // THEN
 
         $this->assertSame($length, $this->gameGLM->getPlayers()->count());
+        $this->assertNull($player->getGameGLM());
     }
 
     public function testSetMainBoard() : void

@@ -34,7 +34,7 @@ class CardGLMTest extends TestCase
         $this->assertSame($name, $this->cardGLM->getName());
     }
 
-    public function testSetBonus() : void
+    public function testSetBonusWhenBonusIsNotNull() : void
     {
         // GIVEN
 
@@ -47,6 +47,17 @@ class CardGLMTest extends TestCase
         // THEN
 
         $this->assertSame($bonus, $this->cardGLM->getBonus());
+    }
+
+    public function testSetBonusWhenBonusIsNull() : void
+    {
+        // WHEN
+
+        $this->cardGLM->setBonus(null);
+
+        // THEN
+
+        $this->assertNull($this->cardGLM->getBonus());
     }
 
     protected function setUp() : void

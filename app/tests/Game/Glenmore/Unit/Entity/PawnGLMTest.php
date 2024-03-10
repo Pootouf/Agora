@@ -36,11 +36,11 @@ class PawnGLMTest extends TestCase
         $this->assertSame($position, $this->pawnGLM->getPosition());
     }
 
-    public function testSetPlayerGLM() : void
+    public function testSetPlayerGLMWhenPawnIsNotSetInPlayer() : void
     {
         // GIVEN
 
-        $player = new PlayerGLM("Blabla", new GameGLM());
+        $player = new PlayerGLM("user", new GameGLM());
 
         // WHEN
 
@@ -49,6 +49,24 @@ class PawnGLMTest extends TestCase
         // THEN
 
         $this->assertSame($player, $this->pawnGLM->getPlayerGLM());
+        $this->assertSame($player->getPawn(), $this->pawnGLM);
+    }
+
+    public function testSetPlayerGLMWhenPawnIsSetInPlayer() : void
+    {
+        // GIVEN
+
+        $player = new PlayerGLM("user", new GameGLM());
+        $player->setPawn($this->pawnGLM);
+
+        // WHEN
+
+        $this->pawnGLM->setPlayerGLM($player);
+
+        // THEN
+
+        $this->assertSame($player, $this->pawnGLM->getPlayerGLM());
+        $this->assertSame($player->getPawn(), $this->pawnGLM);
     }
 
     public function testSetMainBoard() : void

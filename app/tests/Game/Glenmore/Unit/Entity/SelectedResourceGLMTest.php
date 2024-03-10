@@ -3,6 +3,7 @@
 namespace App\Tests\Game\Glenmore\Unit\Entity;
 
 use App\Entity\Game\Glenmore\PersonalBoardGLM;
+use App\Entity\Game\Glenmore\PlayerTileGLM;
 use App\Entity\Game\Glenmore\ResourceGLM;
 use App\Entity\Game\Glenmore\SelectedResourceGLM;
 use PHPUnit\Framework\TestCase;
@@ -64,6 +65,21 @@ class SelectedResourceGLMTest extends TestCase
         // THEN
 
         $this->assertSame($personal, $this->selectedResourceGLM->getPersonalBoardGLM());
+    }
+
+    public function testSetPlayerTile() : void
+    {
+        // GIVEN
+
+        $playerTile = new PlayerTileGLM();
+
+        // WHEN
+
+        $this->selectedResourceGLM->setPlayerTile($playerTile);
+
+        // THEN
+
+        $this->assertSame($playerTile, $this->selectedResourceGLM->getPlayerTile());
     }
 
     protected function setUp(): void
