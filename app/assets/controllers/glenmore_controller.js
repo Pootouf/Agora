@@ -52,36 +52,9 @@ export default class extends Controller {
         tree.appendChild(node);
     }
 
-    displayBoard(isOpening) {
-        const open = isOpening.params.open;
-        const openedPersonalBoard = document.getElementById("openedPersonalBoardPlayer");
-        const closedPersonalBoard = document.getElementById("closedPersonalBoardPlayer");
-        const Timing = {
-            duration: 600,
-            iterations: 1,
-        }
-        if (open) {
-            const hidden = document.createAttribute("hidden");
-            closedPersonalBoard.setAttributeNode(hidden);
-            openedPersonalBoard.removeAttribute("hidden");
-            const openingSliding = [
-                { transform: "translateX(40rem)"},
-                { transform: "translateX(0rem)"}
-            ]
-            openedPersonalBoard.animate(openingSliding,Timing);
-
-            let personalBoard = document.getElementById('tileBoard');
-            personalBoard.scrollTop = personalBoard.scrollHeight;
-        } else {
-            const hidden = document.createAttribute("hidden");
-            closedPersonalBoard.removeAttribute("hidden");
-            const closingSliding = [
-                { transform: "translateX(0rem)"},
-                { transform: "translateX(40rem)"}
-            ]
-            openedPersonalBoard.animate(closingSliding,Timing).addEventListener("finish",
-                () => openedPersonalBoard.setAttributeNode(hidden));
-        }
+    async displayPlayerBoard(board) {
+        let url = board.params.url;
+        const response = await fetch(url);
     }
 
 }

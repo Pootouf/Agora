@@ -9,16 +9,6 @@ This section displays the ranking with a view of the other players' possessions
     <img class="" src="{{ asset('resourcesGames/Glenmore/glenmore.png') }}" alt="glenmore logo">
 </div>
 
-<div id="closedPersonalBoardPlayer" class="bg-[#888060] inline-block
-                                    absolute bottom-0 z-9 rounded-tr-2xl"
-        {{ stimulus_controller('glenmore') }}
->
-    <div class="flex justify-center align-center w-full h-full cursor-pointer"
-            {{ stimulus_action('glenmore', 'displayBoard', 'click', { 'open': true}) }}>
-        <img src="{{ asset('resourcesGames/utils/arrow_up.svg') }}" alt="arrow" class="h-8 landscape:h-4 mt-1 mr-2">
-    </div>
-</div>
-
 <div>
     {% for p in game.players %}
 
@@ -29,7 +19,7 @@ This section displays the ranking with a view of the other players' possessions
         {% set colorPawn = p.pawn.color %}
 
         {# Display the player's informations #}
-        <div id="openedPersonalBoardPlayer" class= "border-solid border-[1px] border-[white] rounded-2xl
+        <div class= "border-solid border-[1px] border-[white] rounded-2xl
                     h-[23.5%] landscape:md:h-1/4 landscape:lg:h-[23.5%]
                     mx-3 landscape:mx-2 lg:mx-5
                     my-6 landscape:my-2
@@ -43,12 +33,10 @@ This section displays the ranking with a view of the other players' possessions
                             pt-2 landscape:pt-1
                             flex justify-around justify-between">
                 {# Button to see other player's personal board #}
-                <button {{ stimulus_action('glenmore', 'displayBoard', 'click',
-                            {'open': false})
+                <button {{ stimulus_action('glenmore', 'displayPlayerBoard', 'click',
+                            {url:path('app_game_glenmore_display_player_personal_board',
+                                {idGame: game.id, idPlayer: p.id})})
                         }}
-                        {% if isSpectator %}
-                            disabled
-                        {% endif %}
                         class=""
                 >
                     <img class="h-5 -rotate-90 -ml-3"
