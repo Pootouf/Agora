@@ -7,6 +7,7 @@ use App\Entity\Game\Glenmore\DrawTilesGLM;
 use App\Entity\Game\Glenmore\GameGLM;
 use App\Entity\Game\Glenmore\GlenmoreParameters;
 use App\Entity\Game\Glenmore\MainBoardGLM;
+use App\Entity\Game\Glenmore\PersonalBoardGLM;
 use App\Entity\Game\Glenmore\PlayerCardGLM;
 use App\Entity\Game\Glenmore\PlayerGLM;
 use App\Entity\Game\Glenmore\PlayerTileGLM;
@@ -183,6 +184,69 @@ class TileGLMService
         return true;
     }
 
+    /**
+     * giveBuyBonus : once bought and placed, the playerTile gives bonus to its player
+     * @param PlayerTileGLM $playerTileGLM
+     * @return int
+     */
+    public function giveBuyBonus(PlayerTileGLM $playerTileGLM) : int
+    {
+        $tile = $playerTileGLM->getTile();
+        $personalBoard = $playerTileGLM->getPersonalBoard();
+        $buyBonus = $tile->getBuyBonus();
+        foreach ($buyBonus as $bonus) {
+            $playerTileResource = new PlayerTileResourceGLM();
+            $playerTileResource->setPlayerTileGLM($playerTileGLM);
+            $playerTileResource->setPlayer($playerTileGLM->getPersonalBoard()->getPlayerGLM());
+            $playerTileResource->setResource($bonus->getResource());
+            $playerTileResource->setQuantity($bonus->getAmount());
+            $this->entityManager->persist($playerTileResource);
+            $playerTileGLM->addPlayerTileResource($playerTileResource);
+            $this->entityManager->persist($playerTileGLM);
+        }
+        $card = $tile->getCard();
+        if ($card != null) {
+            $playerCard = new PlayerCardGLM($personalBoard, $card);
+            $this->entityManager->persist($playerCard);
+            $personalBoard->addPlayerCardGLM($playerCard);
+            $cardBonus = $card->getBonus();
+            if ($cardBonus != null) {
+                $resource = $cardBonus->getResource();
+                $playerTileResource = new PlayerTileResourceGLM();
+                $playerTileResource->setQuantity($cardBonus->getAmount());
+                $playerTileResource->setResource($resource);
+                $playerTileResource->setPlayer($playerTileGLM->getPersonalBoard()->getPlayerGLM());
+                $this->entityManager->persist($playerTileResource);
+                $playerTileGLM->addPlayerTileResource($playerTileResource);
+                $this->entityManager->persist($playerTileGLM);
+            }
+            return $this->cardGLMService->buyCardManagement($playerTileGLM);
+        }
+        $this->giveAllMovementPoints($playerTileGLM);
+        $this->entityManager->persist($personalBoard);
+        $this->entityManager->flush();
+        return 0;
+    }
+
+    /**
+     * getMovementPoints : returns total movement points of a player
+     * @param PlayerGLM $playerGLM
+     * @return int
+     */
+    public function getMovementPoints(PlayerGLM $playerGLM) : int {
+        $personalBoard = $playerGLM->getPersonalBoard();
+        $tiles = $personalBoard->getPlayerTiles();
+        $movementPoint = 0;
+        foreach ($tiles as $tile) {
+            foreach ($tile->getPlayerTileResource() as $tileResource) {
+                if ($tileResource->getResource()->getType() === GlenmoreParameters::$MOVEMENT_RESOURCE) {
+                    ++$movementPoint;
+                }
+            }
+        }
+        return $movementPoint;
+    }
+
 
     /**
      * selectResourcesFromTileToBuy: select a resources from a tile to use to buy the selectedTile of the player
@@ -316,50 +380,6 @@ class TileGLMService
         $this->entityManager->flush();
     }
 
-    /**
-     * giveBuyBonus : once bought and placed, the playerTile gives bonus to its player
-     * @param PlayerTileGLM $playerTileGLM
-     * @return int
-     */
-    public function giveBuyBonus(PlayerTileGLM $playerTileGLM) : int
-    {
-        $tile = $playerTileGLM->getTile();
-        $personalBoard = $playerTileGLM->getPersonalBoard();
-        $buyBonus = $tile->getBuyBonus();
-        foreach ($buyBonus as $bonus) {
-            $playerTileResource = new PlayerTileResourceGLM();
-            $playerTileResource->setPlayerTileGLM($playerTileGLM);
-            $playerTileResource->setPlayer($playerTileGLM->getPersonalBoard()->getPlayerGLM());
-            $playerTileResource->setResource($bonus->getResource());
-            $playerTileResource->setQuantity($bonus->getAmount());
-            $this->entityManager->persist($playerTileResource);
-            $playerTileGLM->addPlayerTileResource($playerTileResource);
-            $this->entityManager->persist($playerTileGLM);
-        }
-        $card = $tile->getCard();
-        if ($card != null) {
-            $playerCard = new PlayerCardGLM($personalBoard, $card);
-            $this->entityManager->persist($playerCard);
-            $personalBoard->addPlayerCardGLM($playerCard);
-            $cardBonus = $card->getBonus();
-            if ($cardBonus != null) {
-                $resource = $cardBonus->getResource();
-                $playerTileResource = new PlayerTileResourceGLM();
-                $playerTileResource->setQuantity($cardBonus->getAmount());
-                $playerTileResource->setResource($resource);
-                $playerTileResource->setPlayer($playerTileGLM->getPersonalBoard()->getPlayerGLM());
-                $this->entityManager->persist($playerTileResource);
-                $playerTileGLM->addPlayerTileResource($playerTileResource);
-                $this->entityManager->persist($playerTileGLM);
-            }
-            return $this->cardGLMService->buyCardManagement($playerTileGLM);
-        }
-        $this->giveAllMovementPoints($playerTileGLM);
-        $this->entityManager->persist($personalBoard);
-        $this->entityManager->flush();
-        return 0;
-    }
-
     public function activateBonus(PlayerTileGLM $tileGLM, PlayerGLM $playerGLM): void
     {
         $tile = $tileGLM->getTile();
@@ -394,7 +414,37 @@ class TileGLMService
         $this->entityManager->flush();
     }
 
+    /**
+     * moveVillager : moves a villager, placed on the tile, towards the direction
+     *
+     * @param PlayerTileGLM $playerTileGLM
+     * @param int           $direction
+     * @return void
+     * @throws \Exception
+     */
+    public function moveVillager(PlayerTileGLM $playerTileGLM, int $direction) : void
+    {
+        $adjacentTiles = $playerTileGLM->getAdjacentTiles();
+        if ($adjacentTiles->get($direction) == null) {
+            throw new \Exception("no tile in this direction");
+        }
 
+        if (!$this->doesTileContainsVillager($playerTileGLM)) {
+            throw new \Exception("no villager placed on this tile");
+        }
+        $player = $playerTileGLM->getPersonalBoard()->getPlayerGLM();
+        $movementPoint = $this->getMovementPoints($player);
+        if ($movementPoint == 0) {
+            throw new \Exception("no more movement points");
+        }
+        // removes villager from the tile
+        $villager = $this->retrieveVillagerFromTile($playerTileGLM);
+        $newTile = $adjacentTiles->get($direction);
+        // places villager onto wanted tile
+        $this->placeVillagerOntoTile($villager, $newTile);
+        // removes a movement point from the player
+        $this->lowerMovementPoints($player);
+    }
 
     /**
      * Assign tile for player when conditions are verified
@@ -473,6 +523,25 @@ class TileGLMService
         $this->entityManager->persist($player->getPawn());
         $this->entityManager->persist($player);
         $this->entityManager->flush();
+    }
+
+    /**
+     * retrieveVillagerFromTile : returns one villager from the tile and removes it
+     * @param PlayerTileGLM $playerTileGLM
+     * @return ResourceGLM
+     */
+    private function retrieveVillagerFromTile(PlayerTileGLM $playerTileGLM) : ?ResourceGLM
+    {
+        $tileResources = $playerTileGLM->getPlayerTileResource();
+        foreach ($tileResources as $tileResource) {
+            if ($tileResource->getResource()->getType() === GlenmoreParameters::$VILLAGER_RESOURCE) {
+                $villager = $tileResource->getResource();
+                $tileResource->setQuantity($tileResource->getQuantity() - 1);
+                $this->entityManager->persist($tileResource);
+                return $villager;
+            }
+        }
+        return null;
     }
 
     /**
@@ -795,5 +864,56 @@ class TileGLMService
         }
         $this->entityManager->persist($personalBoard);
         $this->entityManager->flush();
+    }
+
+    /**
+     * placeVillagerOntoNewTile : places the resource villager onto the tile
+     * @param ResourceGLM   $villager
+     * @param PlayerTileGLM $newTile
+     * @return void
+     */
+    private function placeVillagerOntoTile(ResourceGLM $villager, PlayerTileGLM $newTile) : void
+    {
+        $player = $newTile->getPersonalBoard()->getPlayerGLM();
+        $tileResources = $newTile->getPlayerTileResource();
+        $found = false;
+        foreach ($tileResources as $tileResource) {
+            if ($tileResource->getResource()->getType() === GlenmoreParameters::$VILLAGER_RESOURCE) {
+                $tileResource->setQuantity($tileResource->getQuantity() + 1);
+                $this->entityManager->persist($tileResource);
+                $found = true;
+                break;
+            }
+        }
+        if (!$found) {
+            $tileResource = new PlayerTileResourceGLM();
+            $tileResource->setResource($villager);
+            $tileResource->setPlayerTileGLM($newTile);
+            $tileResource->setPlayer($player);
+            $tileResource->setQuantity(1);
+            $this->entityManager->persist($tileResource);
+            $newTile->addPlayerTileResource($tileResource);
+            $this->entityManager->persist($newTile);
+        }
+    }
+
+    /**
+     * lowerMovementPoints : removes one movement point from the player
+     * @param PlayerGLM|null $player
+     * @return void
+     */
+    private function lowerMovementPoints(?PlayerGLM $player) : void
+    {
+        $personalBoard = $player->getPersonalBoard();
+        $tiles = $personalBoard->getPlayerTiles();
+        foreach ($tiles as $playerTile) {
+            foreach ($playerTile->getPlayerTileResource() as $tileResource) {
+               if ($tileResource->getResource()->getType() === GlenmoreParameters::$MOVEMENT_RESOURCE) {
+                   $tileResource->setQuantity($tileResource->getQuantity() - 1);
+                   $this->entityManager->persist($tileResource);
+                   return;
+               }
+            }
+        }
     }
 }
