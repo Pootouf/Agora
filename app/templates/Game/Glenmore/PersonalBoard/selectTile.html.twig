@@ -170,9 +170,9 @@ This section displays the player tile resources and possible actions
             {% endif %}
 
             {# Display the productions possessed by the player and selection of them if resource selection is active #}
+            {% if productionCount != 0 %}
             <div class="grid grid-rows-4 grid-cols-1 gap-1 ">
-                <span class="{% if productionCount == 0 %} hidden {% endif %}
-                                border-white border-2 bg-green-700
+                <span class="border-white border-2 bg-green-700
                                 text-white text-lg flex items-center border-solid text-center"
                 >
                     {% if not activatedResourceSelection %}
@@ -208,10 +208,11 @@ This section displays the player tile resources and possible actions
                     {% endif %}
                 {% endfor %}
             </div>
+            {% endif %}
 
             {# Display the new resources the player must select to have them #}
             {% if activatedNewResourceAcquisition %}
-                <div class="grid grid-rows-3 grid-cols-1 gap-1 ">
+                <div class="grid grid-rows-4 grid-cols-1 gap-1 ">
                     <span class="border-white border-2 bg-green-700
                                 text-white text-lg flex items-center border-solid text-center justify-center">
                         Choisir les nouvelles ressources à récupérer
@@ -242,15 +243,28 @@ This section displays the player tile resources and possible actions
                     </div>
                     <div class="flex items-center justify-center">
                         <button
-                                {{ stimulus_action('glenmore', 'activateTile', 'click',
-                                    {url:path('app_game_glenmore_activate_tile',
-                                        {idGame: game.id, idPlayerTileResource : villager.id, idTile : selectedTile.id})
+                                {{ stimulus_action('glenmore', 'validateNewResourcesAcquisition', 'click',
+                                    {url:path('app_game_glenmore_validate_new_resources_acquisition',
+                                        {idGame: game.id, idTile : selectedTile.id})
                                     })
                                 }}
-                                class="bg-[#8F901F] py-2 px-3 m-1 rounded-lg text-2xl
+                                class="bg-[#8F901F] py-2 px-3 rounded-lg text-2xl
                                     flex items-center justify-center"
                         >
                             Valider le choix
+                        </button>
+                    </div>
+                    <div class="flex items-center justify-center">
+                        <button
+                                {{ stimulus_action('glenmore', 'cancelNewResourcesAcquisition', 'click',
+                                    {url:path('app_game_glenmore_cancel_new_resources_acquisition',
+                                        {idGame: game.id, idTile : selectedTile.id})
+                                    })
+                                }}
+                                class="bg-[#8F901F] py-2 px-3 mb-5 rounded-lg text-2xl
+                                    flex items-center justify-center"
+                        >
+                            Annuler le choix
                         </button>
                     </div>
                 </div>
