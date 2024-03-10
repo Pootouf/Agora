@@ -319,9 +319,9 @@ class TileGLMService
     /**
      * giveBuyBonus : once bought and placed, the playerTile gives bonus to its player
      * @param PlayerTileGLM $playerTileGLM
-     * @return void
+     * @return int
      */
-    public function giveBuyBonus(PlayerTileGLM $playerTileGLM) : void
+    public function giveBuyBonus(PlayerTileGLM $playerTileGLM) : int
     {
         $tile = $playerTileGLM->getTile();
         $personalBoard = $playerTileGLM->getPersonalBoard();
@@ -352,11 +352,12 @@ class TileGLMService
                 $playerTileGLM->addPlayerTileResource($playerTileResource);
                 $this->entityManager->persist($playerTileGLM);
             }
-            $this->cardGLMService->buyCardManagement($playerTileGLM);
+            return $this->cardGLMService->buyCardManagement($playerTileGLM);
         }
         $this->giveAllMovementPoints($playerTileGLM);
         $this->entityManager->persist($personalBoard);
         $this->entityManager->flush();
+        return 0;
     }
 
     public function activateBonus(PlayerTileGLM $tileGLM, PlayerGLM $playerGLM): void
@@ -392,6 +393,7 @@ class TileGLMService
         $tileGLM->setActivated(true);
         $this->entityManager->flush();
     }
+
 
 
     /**
