@@ -2,7 +2,6 @@
 
 namespace App\Tests\Game\Glenmore\Unit\Entity;
 
-use App\Entity\Game\Glenmore\GlenmoreParameters;
 use App\Entity\Game\Glenmore\ResourceGLM;
 use App\Entity\Game\Glenmore\TileBuyCostGLM;
 use PHPUnit\Framework\TestCase;

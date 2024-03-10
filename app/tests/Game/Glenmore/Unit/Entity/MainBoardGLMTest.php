@@ -56,6 +56,7 @@ class MainBoardGLMTest extends TestCase
 
         // THEN
 
+        $this->assertContains($boardTile, $this->mainBoardGLM->getBoardTiles());
         $this->assertSame($length, $this->mainBoardGLM->getBoardTiles()->count());
     }
 
@@ -91,6 +92,7 @@ class MainBoardGLMTest extends TestCase
 
         // THEN
 
+        $this->assertNotContains($boardTile, $this->mainBoardGLM->getBoardTiles());
         $this->assertSame($length, $this->mainBoardGLM->getBoardTiles()->count());
     }
 
@@ -124,6 +126,7 @@ class MainBoardGLMTest extends TestCase
 
         // THEN
 
+        $this->assertContains($drawTile, $this->mainBoardGLM->getDrawTiles());
         $this->assertSame($length, $this->mainBoardGLM->getDrawTiles()->count());
     }
 
@@ -159,6 +162,7 @@ class MainBoardGLMTest extends TestCase
 
         // THEN
 
+        $this->assertNotContains($drawTile, $this->mainBoardGLM->getBoardTiles());
         $this->assertSame($length, $this->mainBoardGLM->getDrawTiles()->count());
     }
 
@@ -207,6 +211,7 @@ class MainBoardGLMTest extends TestCase
 
         // THEN
 
+        $this->assertContains($pawn, $this->mainBoardGLM->getPawns());
         $this->assertSame($length, $this->mainBoardGLM->getPawns()->count());
     }
 
@@ -242,15 +247,32 @@ class MainBoardGLMTest extends TestCase
 
         // THEN
 
+        $this->assertNotContains($pawn, $this->mainBoardGLM->getPawns());
         $this->assertSame($length,  $this->mainBoardGLM->getPawns()->count());
     }
 
-
-    public function testSetGame() : void
+    public function testSetGameWhenMainBoardIsNotSetInGame() : void
     {
         // GIVEN
 
         $game = new GameGLM();
+
+        // WHEN
+
+        $this->mainBoardGLM->setGameGLM($game);
+
+        // THEN
+
+        $this->assertSame($game, $this->mainBoardGLM->getGameGLM());
+        $this->assertSame($this->mainBoardGLM, $game->getMainBoard());
+    }
+
+    public function testSetGameWhenMainBoardIsSetInGame() : void
+    {
+        // GIVEN
+
+        $game = new GameGLM();
+        $game->setMainBoard($this->mainBoardGLM);
 
         // WHEN
 
@@ -276,6 +298,7 @@ class MainBoardGLMTest extends TestCase
 
         $this->assertSame($lastPosition, $this->mainBoardGLM->getLastPosition());
     }
+
     protected function setUp(): void
     {
         $this->mainBoardGLM = new MainBoardGLM();

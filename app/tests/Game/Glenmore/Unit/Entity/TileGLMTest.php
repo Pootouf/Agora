@@ -13,7 +13,6 @@ use PHPUnit\Framework\TestCase;
 
 class TileGLMTest extends TestCase
 {
-
     private TileGLM $tileGLM;
 
     public function testInit() {
@@ -58,6 +57,7 @@ class TileGLMTest extends TestCase
         // THEN
 
         $this->assertSame($length, $this->tileGLM->getBuyPrice()->count());
+        $this->assertContains($tileBuyCost, $this->tileGLM->getBuyPrice());
     }
 
     public function testRemoveBuyPrice() : void
@@ -106,6 +106,7 @@ class TileGLMTest extends TestCase
         // THEN
 
         $this->assertSame($length, $this->tileGLM->getBuyBonus()->count());
+        $this->assertContains($tileBuyBonus, $this->tileGLM->getBuyBonus());
     }
 
     public function testRemoveBuyBonus() : void
@@ -154,6 +155,7 @@ class TileGLMTest extends TestCase
         // THEN
 
         $this->assertSame($length, $this->tileGLM->getActivationPrice()->count());
+        $this->assertContains($tileActivationCost, $this->tileGLM->getActivationPrice());
     }
 
     public function testRemoveActivationPrice() : void
@@ -202,6 +204,7 @@ class TileGLMTest extends TestCase
         // THEN
 
         $this->assertSame($length, $this->tileGLM->getActivationBonus()->count());
+        $this->assertContains($tileActivationBonus, $this->tileGLM->getActivationBonus());
     }
 
     public function testRemoveActivationBonus() : void

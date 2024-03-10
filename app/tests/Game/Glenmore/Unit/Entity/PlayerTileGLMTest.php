@@ -5,6 +5,7 @@ namespace App\Tests\Game\Glenmore\Unit\Entity;
 use App\Entity\Game\Glenmore\PersonalBoardGLM;
 use App\Entity\Game\Glenmore\PlayerTileGLM;
 use App\Entity\Game\Glenmore\PlayerTileResourceGLM;
+use App\Entity\Game\Glenmore\SelectedResourceGLM;
 use App\Entity\Game\Glenmore\TileGLM;
 use PHPUnit\Framework\TestCase;
 
@@ -21,6 +22,7 @@ class PlayerTileGLMTest extends TestCase
         $this->assertTrue($this->playerTileGLM->getId() >= 0);
         $this->assertNotNull($this->playerTileGLM->getAdjacentTiles());
         $this->assertNotNull($this->playerTileGLM->getPlayerTileResource());
+        $this->assertNotNull($this->playerTileGLM->getSelectedResources());
     }
 
     public function testSetPersonalBoard() : void
@@ -82,6 +84,7 @@ class PlayerTileGLMTest extends TestCase
 
         // THEN
 
+        $this->assertContains($playerTile, $this->playerTileGLM->getAdjacentTiles());
         $this->assertSame($length, $this->playerTileGLM->getAdjacentTiles()->count());
     }
 
@@ -131,6 +134,7 @@ class PlayerTileGLMTest extends TestCase
 
         // THEN
 
+        $this->assertContains($playerTileResource, $this->playerTileGLM->getPlayerTileResource());
         $this->assertSame($length, $this->playerTileGLM->getPlayerTileResource()->count());
     }
 
@@ -166,6 +170,7 @@ class PlayerTileGLMTest extends TestCase
 
         // THEN
 
+        $this->assertNotContains($playerTileResource, $this->playerTileGLM->getPlayerTileResource());
         $this->assertSame($length, $this->playerTileGLM->getPlayerTileResource()->count());
     }
 
@@ -208,6 +213,76 @@ class PlayerTileGLMTest extends TestCase
         // THEN
 
         $this->assertTrue($this->playerTileGLM->isActivated());
+    }
+
+    public function testAddSelectedResourceYetNotAdded() : void
+    {
+        // GIVEN
+
+        $selectedResource = new SelectedResourceGLM();
+
+        // WHEN
+
+        $this->playerTileGLM->addSelectedResource($selectedResource);
+
+        // THEN
+
+        $this->assertContains($selectedResource, $this->playerTileGLM->getSelectedResources());
+        $this->assertSame($this->playerTileGLM, $selectedResource->getPlayerTile());
+    }
+
+    public function testAddSelectedResourceAlreadyAdded() : void
+    {
+        // GIVEN
+
+        $selectedResource = new SelectedResourceGLM();
+        $this->playerTileGLM->addSelectedResource($selectedResource);
+        $length = $this->playerTileGLM->getSelectedResources()->count();
+
+        // WHEN
+
+        $this->playerTileGLM->addSelectedResource($selectedResource);
+
+        // THEN
+
+        $this->assertContains($selectedResource, $this->playerTileGLM->getSelectedResources());
+        $this->assertSame($length, $this->playerTileGLM->getSelectedResources()->count());
+    }
+
+    public function testRemoveSelectedResourceYetNotRemoved() : void
+    {
+        // GIVEN
+
+        $selectedResource = new SelectedResourceGLM();
+        $this->playerTileGLM->addSelectedResource($selectedResource);
+
+        // WHEN
+
+        $this->playerTileGLM->removeSelectedResource($selectedResource);
+
+        // THEN
+
+        $this->assertNotContains($selectedResource, $this->playerTileGLM->getSelectedResources());
+        $this->assertNull($selectedResource->getPlayerTile());
+    }
+
+    public function testRemoveSelectedResourceAlreadyRemoved() : void
+    {
+        // GIVEN
+
+        $selectedResource = new SelectedResourceGLM();
+        $this->playerTileGLM->addSelectedResource($selectedResource);
+        $this->playerTileGLM->removeSelectedResource($selectedResource);
+        $length = $this->playerTileGLM->getSelectedResources()->count();
+
+        // WHEN
+
+        $this->playerTileGLM->removeSelectedResource($selectedResource);
+
+        // THEN
+
+        $this->assertNotContains($selectedResource, $this->playerTileGLM->getSelectedResources());
+        $this->assertSame($length, $this->playerTileGLM->getSelectedResources()->count());
     }
 
     protected function setUp(): void

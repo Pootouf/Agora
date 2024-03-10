@@ -20,7 +20,8 @@ class ResourceGLMTest extends TestCase
         $this->assertTrue($this->resourceGLM->getId() >= 0);
     }
 
-    public function testSetType() {
+    public function testSetType()
+    {
         // GIVEN
 
         $type = GlenmoreParameters::$HAT_RESOURCE;

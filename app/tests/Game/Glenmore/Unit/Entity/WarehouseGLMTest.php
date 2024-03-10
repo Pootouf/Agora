@@ -69,6 +69,7 @@ class WarehouseGLMTest extends TestCase
         // THEN
 
         $this->assertSame($length, $this->warehouseGLM->getWarehouseLine()->count());
+        $this->assertSame($this->warehouseGLM, $warehouseLine->getWarehouseGLM());
     }
 
     public function testRemoveWarehouseLineNotYetRemoved() : void
@@ -103,6 +104,7 @@ class WarehouseGLMTest extends TestCase
         // THEN
 
         $this->assertSame($length, $this->warehouseGLM->getWarehouseLine()->count());
+        $this->assertNull($warehouseLine->getWarehouseGLM());
     }
 
     protected function setUp() : void
