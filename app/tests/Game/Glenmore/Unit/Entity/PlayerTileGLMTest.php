@@ -63,7 +63,7 @@ class PlayerTileGLMTest extends TestCase
 
         // WHEN
 
-        $this->playerTileGLM->addAdjacentTile($playerTile);
+        $this->playerTileGLM->addAdjacentTile($playerTile, 0);
 
         // THEN
 
@@ -75,12 +75,12 @@ class PlayerTileGLMTest extends TestCase
         // GIVEN
 
         $playerTile = new PlayerTileGLM();
-        $this->playerTileGLM->addAdjacentTile($playerTile);
+        $this->playerTileGLM->addAdjacentTile($playerTile, 0);
         $length = $this->playerTileGLM->getAdjacentTiles()->count();
 
         // WHEN
 
-        $this->playerTileGLM->addAdjacentTile($playerTile);
+        $this->playerTileGLM->addAdjacentTile($playerTile, 0);
 
         // THEN
 
@@ -93,7 +93,7 @@ class PlayerTileGLMTest extends TestCase
         // GIVEN
 
         $playerTile = new PlayerTileGLM();
-        $this->playerTileGLM->addAdjacentTile($playerTile);
+        $this->playerTileGLM->addAdjacentTile($playerTile, 0);
 
         // WHEN
 
