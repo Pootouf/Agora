@@ -9,7 +9,7 @@ services:
       - --api.insecure=true
       - --providers.docker
     ports:
-      - '80:80'
+      - '85:80'
       - '443:443'
       # The Web UI (enabled by --api.insecure=true)
       - '8080:8080'

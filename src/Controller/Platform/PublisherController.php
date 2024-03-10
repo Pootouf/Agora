@@ -19,24 +19,16 @@ use Symfony\Component\Routing\Attribute\Route;
 class PublisherController extends AbstractController
 {
 
-    #[Route('/publisher/send', name: 'app_publisher')]
-    public function publish(HubInterface $hub): Response
-    {
-        $update = new Update(
-            'https://example.com/books/1',
-            json_encode(['status' => 'OutOfStock'])
-        );
-
-        $hub->publish($update);
-
-        return $this->redirectToRoute('app_notification_receive');
-    }
     #[Route('/notifications', name: 'app_notification_receive')]
-    public function notificationsByReceiver(Security $security): Response
+    public function notificationsByReceiver(Security $security, EntityManagerInterface $entityManager): Response
     {
         if($security->getUser()){
             $user = $security->getUser();
-            $notifications = $user->getNotifications();
+            $notifications = $entityManager->getRepository(Notification::class)
+                ->findBy(
+                    ['receiver' => $user],
+                    ['createdAt' => 'DESC']
+                );
         }else{
             $notifications = null;
         }
@@ -48,6 +40,7 @@ class PublisherController extends AbstractController
     #[Route('/notifications/send', name: 'app_notification_send')]
     public function notificationsSender(Request $request, EntityManagerInterface $entityManager, HubInterface $hub): Response
     {
+        // Create a notification
         $notification = new Notification();
         $form = $this->createFormBuilder($notification)
             ->add('receiver', EntityType::class, [
@@ -65,16 +58,16 @@ class PublisherController extends AbstractController
             ->getForm();
 
         $form->handleRequest($request);
-
+        // Send notification and make a real time object
         if ($form->isSubmitted() && $form->isValid()) {
             $notification->setIsRead(false);
             $entityManager->persist($notification);
             $entityManager->flush();
-
+//            Send a update with mercure for real time interaction
             $update = new Update(
                 'agora/notifications/'. $notification->getReceiver()->getId(),
                 json_encode(['content' => $notification->getContent(),
-                    'date' => $notification->getCreatedAt() ])
+                    'date' => $notification->getCreatedAt()->format('Y-m-d H:i:s.u')])
             );
 
             $hub->publish($update);

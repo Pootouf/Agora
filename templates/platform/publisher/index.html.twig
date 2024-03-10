@@ -5,38 +5,32 @@
 {% block body %}
 
 <div class="example-wrapper">
-    <h1>Envoi avec mercure</h1>
+    <h1>Mes notifications</h1>
     <br>
-    <a href="{{ path("app_publisher") }}" > Publier </a>
 </div>
+    <hr>
     <div id="notification-frame">
         {% for notification in notifications %}
             <div class="notification">
                 <p>{{ notification.content }}</p>
-                <p>{{ notification.createdAt|date('Y-m-d H:i:s') }}</p>
+                <p> -- Date: {{ notification.createdAt|date('Y-m-d H:i:s') }}</p>
             </div>
         {% endfor %}
     </div>
 
     <script>
-        const eventSource = new EventSource("{{ mercure('https://example.com/books/1')|escape('js') }}");
-        eventSource.onmessage = event => {
-            // Will be called every time an update is published by the server
-            console.log(JSON.parse(event.data));
-        }
         const userId = "{{ app.user.id }}";
         const eventSource1 = new EventSource("{{ mercure('agora/notifications/' ~ app.user.id)|escape('js') }}");
         eventSource1.onmessage = event => {
             const data = JSON.parse(event.data);
             updateNotificationFrame(data);
-            // console.log(data);
         }
         function updateNotificationFrame(data) {
             const notificationDiv = document.createElement('div');
             notificationDiv.classList.add('notification');
             notificationDiv.innerHTML = `
         <p>${data.content}</p>
-        <p>${new Date(data.date)}</p>
+        <p> -- Date: ${new Date(data.date).toISOString()}</p>
     `;
             // document.getElementById('notification-frame').appendChild(notificationDiv);
             const notificationFrame = document.getElementById('notification-frame');
