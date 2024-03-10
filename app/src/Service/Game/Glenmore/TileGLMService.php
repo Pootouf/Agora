@@ -11,6 +11,7 @@ use App\Entity\Game\Glenmore\PlayerCardGLM;
 use App\Entity\Game\Glenmore\PlayerGLM;
 use App\Entity\Game\Glenmore\PlayerTileGLM;
 use App\Entity\Game\Glenmore\PlayerTileResourceGLM;
+use App\Entity\Game\Glenmore\SelectedResourceGLM;
 use App\Entity\Game\Glenmore\TileGLM;
 use App\Repository\Game\Glenmore\PlayerGLMRepository;
 use App\Repository\Game\Glenmore\PlayerTileGLMRepository;
@@ -181,23 +182,53 @@ class TileGLMService
     }
 
 
+    /**
+     * buyTile: remove the selected resources from the player to buy the tile
+     * @param TileGLM $tile
+     * @param PlayerGLM $player
+     * @return void
+     * @throws \Exception if invalid amount of selected resources
+     */
     public function buyTile(TileGLM $tile, PlayerGLM $player) : void
     {
-        $globalResources = $player->getPlayerTileResourceGLMs();
+        $globalResources = $player->getPersonalBoard()->getSelectedResources();
+        foreach ($tile->getBuyPrice() as $buyPrice) {
+            $priceTile = $buyPrice->getPrice();
+            $resource = $buyPrice->getResource();
+            $selectedResourcesOfSameResource = $globalResources->filter(function (SelectedResourceGLM $selectedResourceGLM) use ($resource) {
+               return $selectedResourceGLM->getResource()->getId() == $resource->getId();
+            });
+            if ($selectedResourcesOfSameResource->count() != $priceTile) {
+                throw new \Exception('Invalid amount of selected resources');
+            }
+        }
         foreach ($tile->getBuyPrice() as $buyPrice) {
             $resourceTile = $buyPrice->getResource();
             $priceTile = $buyPrice->getPrice();
             $resourcesOfPlayerLikeResourceTile = $globalResources->filter(
-                function (PlayerTileResourceGLM $playerTileResource) use ($resourceTile) {
-                    return $playerTileResource->getResource()->getId() == $resourceTile->getId();
+                function (SelectedResourceGLM $selectedResourceGLM) use ($resourceTile) {
+                    return $selectedResourceGLM->getResource()->getId() == $resourceTile->getId();
                 }
             );
             foreach ($resourcesOfPlayerLikeResourceTile as $resource) {
+                $playerTile = $resource->getPlayerTile();
                 if ($resource->getQuantity() > $priceTile) {
                     $resource->setQuantity($resource->getQuantity() - $priceTile);
+                    $playerTileResource = $playerTile->getPlayerTileResource()->filter(
+                        function (PlayerTileResourceGLM $playerTileResourceGLM) use ($resource) {
+                            return $playerTileResourceGLM->getResource()->getId() == $resource->getResource()->getId();
+                    })->first();
+                    $playerTileResource->setQuantity($resource->getQuantity() - $priceTile);
+                    $this->entityManager->persist($playerTileResource);
                     $priceTile = 0;
                 } else {
                     $priceTile -= $resource->getQuantity();
+                    $player->getPersonalBoard()->removeSelectedResource($resource);
+                    $playerTileResource = $playerTile->getPlayerTileResource()->filter(
+                        function (PlayerTileResourceGLM $playerTileResourceGLM) use ($resource) {
+                            return $playerTileResourceGLM->getResource()->getId() == $resource->getResource()->getId();
+                        })->first();
+                    $this->entityManager->remove($playerTileResource);
                     $this->entityManager->remove($resource);
                 }
                 if ($priceTile == 0) {
@@ -205,6 +236,7 @@ class TileGLMService
                 }
             }
         }
+        $this->entityManager->flush();
     }
 
     /**
