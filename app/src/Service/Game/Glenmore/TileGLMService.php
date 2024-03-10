@@ -88,7 +88,7 @@ class TileGLMService
     public function getActivableTiles(PlayerTileGLM $playerTileGLM) : ArrayCollection
     {
         $activableTiles = new ArrayCollection();
-        if (!$playerTileGLM->isActivated()) {
+        if (!$playerTileGLM->isActivated() && !$playerTileGLM->getTile()->getActivationBonus()->isEmpty()) {
             $activableTiles->add($playerTileGLM);
         }
         $personalBoard = $playerTileGLM->getPersonalBoard();
@@ -101,7 +101,7 @@ class TileGLMService
             $adjacentTiles = $playerTileGLM->getAdjacentTiles();
         }
         foreach ($adjacentTiles as $adjacentTile) {
-            if (!$adjacentTile->isActivated() && $adjacentTile->getTile()->getActivationBonus() != null) {
+            if (!$adjacentTile->isActivated() && !$adjacentTile->getTile()->getActivationBonus()->isEmpty()) {
                 $activableTiles->add($adjacentTile);
             }
         }
