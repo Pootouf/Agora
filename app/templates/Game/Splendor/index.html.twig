@@ -103,8 +103,9 @@
         }
 
         {% if needToPlay %}
-        alert("It's your turn to play ! " +
-            "Buy or reserve a card, or take 2 same color tokens, or even 3 different colors tokens !");
+        new GameNotification(10, 'C\'est votre tour !', 'Jouez votre meilleur coup !', 'ringing', 'yellow');
+        {% else %}
+        new GameNotification(5, 'C\'est au tour d\'un autre joueur !', '', 'info', 'green');
         {% endif %}
     </script>
 
@@ -214,6 +215,27 @@
             let window = document.getElementById('selectedCardActions');
             window.remove();
         }
+    </script>
+
+    {# NOTIFICATION MANAGEMENT #}
+    <script>
+
+        {% if isSpectator %}
+            {% set path = path('app_game_show_spl', {'id': game.id}) ~ 'notification' %}
+        {% else %}
+            {% set path = path('app_game_show_spl', {'id': game.id}) ~ 'notification' ~ player.username %}
+        {% endif %}
+            const eventSourceNotification = new EventSource("{{ mercure(path)|escape('js') }}");
+            eventSourceNotification.onmessage = event => {
+                animationQueue.addToQueue(() => {
+                    console.log('notif')
+                    let data = event.data.split('_');
+                    if (data.length >= 5 ) {
+                        new GameNotification(Number(data[0]), data[1], data[2], data[3], data[4]);
+                    }
+                    animationQueue.executeNextInQueue();
+                })
+            }
     </script>
 
     {# END OF GAME MANAGEMENT #}
