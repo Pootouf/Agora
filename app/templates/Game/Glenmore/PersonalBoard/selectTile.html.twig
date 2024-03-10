@@ -1,7 +1,8 @@
 {#
 This section displays the player tile resources and possible actions
-@param : player, selectedTile
-@return :
+@param : player, selectedTile, game, activatedResourceSelection, selectedResources, activatedNewResourceAcquisition,
+        chosenNewResources, activatedMovementPhase
+@return : display the possible actions regarding the tile depending on the player's round phase
 #}
 
 {# Constants definition, same as in GlenmoreParameters for better transmission in the controller#}
@@ -44,6 +45,8 @@ This section displays the player tile resources and possible actions
         {% endfor %}
 
         {# Display the tile regarding the phase of the player's round #}
+
+            {# When it is not movement phase, display only the tile #}
             {% if not activatedMovementPhase or villager == null %}
                 <div class="flex items-center justify-center">
                     <img id='image_tile_{{ selectedTile.id }}'
@@ -55,26 +58,107 @@ This section displays the player tile resources and possible actions
                          alt="{{ 'selectedTile' ~ selectedTile.tile.id }}"
                     >
                 </div>
+
+            {# When it is movement phase, display direction the villager can go around the tile #}
             {% else %}
-            <div class="flex items-center justify-center">
-                <button class="w-6 flex items-center justify-center">
-                    <span class="-rotate-90 whitespace-nowrap">Déplacer le villageois vers la gauche</span>
-                </button>
-                <div class="flex-1 flex flex-col">
-                    <button class="h-6 whitespace-nowrap">Déplacer le villageois vers le haut</button>
-                    <img id='image_tile_{{ selectedTile.id }}'
-                         class="flex-1 items-center justify-center rounded-lg shadow-black shadow-lg max-h-full"
-                         src="{{
-                         asset('resourcesGames/Glenmore/BoardTiles/'
-                             ~ selectedTile.tile.id ~ '.svg')
-                         }}"
-                         alt="{{ 'selectedTile' ~ selectedTile.tile.id }}"
+            <div class="flex flex-col pl-3 justify-center items-center">
+                <span class="text-xl m-8 whitespace-nowrap">Déplacer le villageois vers :</span>
+                <div class="relative flex items-center justify-center">
+
+                    <button class="w-6 flex items-center justify-center"
+                            {{ stimulus_action('glenmore', 'moveVillager', 'click',
+                                {url:path('app_game_glenmore_move_villager',
+                                    {idGame: game.id, idTile : selectedTile.id, dir: WEST})
+                                })
+                            }}
                     >
-                    <button class="h-6 whitespace-nowrap">Déplacer le villageois vers le bas</button>
+                        <span class="bg-green-700 p-1 mr-2 rounded-lg -rotate-90 whitespace-nowrap">
+                            Ouest
+                        </span>
+                    </button>
+
+                    <div class="flex-1 flex flex-col">
+                        <button class="absolute left-0 w-6 flex items-center justify-center"
+                                {{ stimulus_action('glenmore', 'moveVillager', 'click',
+                                    {url:path('app_game_glenmore_move_villager',
+                                        {idGame: game.id, idTile : selectedTile.id, dir: NORTH_WEST})
+                                    })
+                                }}
+                        >
+                            <span class="bg-green-700 p-1 rounded-lg -rotate-45 whitespace-nowrap">
+                                Nord-Ouest
+                            </span>
+                        </button>
+                        <button class=" absolute bottom-0 left-0 w-6 flex items-center justify-center"
+                                {{ stimulus_action('glenmore', 'moveVillager', 'click',
+                                    {url:path('app_game_glenmore_move_villager',
+                                        {idGame: game.id, idTile : selectedTile.id, dir: SOUTH_WEST})
+                                    })
+                                }}
+                        >
+                            <span class="bg-green-700 p-1 rounded-lg mt-2 rotate-[225deg] whitespace-nowrap">
+                                Sud-Ouest
+                            </span>
+                        </button>
+                        <button class="h-6 flex items-center justify-center"
+                                {{ stimulus_action('glenmore', 'moveVillager', 'click',
+                                    {url:path('app_game_glenmore_move_villager',
+                                        {idGame: game.id, idTile : selectedTile.id, dir: NORTH})
+                                    })
+                                }}
+                        >
+                            <span class="bg-green-700 p-1 rounded-lg mb-2 whitespace-nowrap">
+                                Nord
+                            </span>
+                        </button>
+                        <img id='image_tile_{{ selectedTile.id }}'
+                             class="flex-1 items-center justify-center rounded-lg shadow-black shadow-lg max-h-full"
+                             src="{{
+                             asset('resourcesGames/Glenmore/BoardTiles/'
+                                 ~ selectedTile.tile.id ~ '.svg')
+                             }}"
+                             alt="{{ 'selectedTile' ~ selectedTile.tile.id }}"
+                        >
+                        <button class="h-6 flex items-center justify-center"
+                                {{ stimulus_action('glenmore', 'moveVillager', 'click',
+                                    {url:path('app_game_glenmore_move_villager',
+                                        {idGame: game.id, idTile : selectedTile.id, dir: SOUTH})
+                                    })
+                                }}
+                        >
+                            <span class="bg-green-700 p-1 rounded-lg mt-2 whitespace-nowrap">
+                                Sud
+                            </span>
+                        </button>
+                        <button class=" absolute right-0 w-6 flex items-center justify-center"
+                                {{ stimulus_action('glenmore', 'moveVillager', 'click',
+                                    {url:path('app_game_glenmore_move_villager',
+                                        {idGame: game.id, idTile : selectedTile.id, dir: NORTH_EAST})
+                                    })
+                                }}
+                        >
+                            <span class="bg-green-700 p-1 rounded-lg rotate-45 whitespace-nowrap">Nord-Est</span>
+                        </button>
+                        <button class=" absolute bottom-0 right-0 w-6 flex items-center justify-center"
+                                {{ stimulus_action('glenmore', 'moveVillager', 'click',
+                                    {url:path('app_game_glenmore_move_villager',
+                                        {idGame: game.id, idTile : selectedTile.id, dir: SOUTH_EAST})
+                                    })
+                                }}
+                        >
+                            <span class="bg-green-700 p-1 rounded-lg -rotate-[225deg] whitespace-nowrap">Sud-Est</span>
+                        </button>
+                    </div>
+                    <button class="w-6 flex items-center justify-center"
+                            {{ stimulus_action('glenmore', 'moveVillager', 'click',
+                                {url:path('app_game_glenmore_move_villager',
+                                    {idGame: game.id, idTile : selectedTile.id, dir: EAST})
+                                })
+                            }}
+                    >
+                        <span class="bg-green-700 p-1 rounded-lg ml-2 rotate-90 whitespace-nowrap">Est</span>
+                    </button>
                 </div>
-                <button class="w-6 flex items-center justify-center">
-                    <span class="rotate-90 whitespace-nowrap">Déplacer le villageois vers la droite</span>
-                </button>
             </div>
             {% endif %}
 
@@ -119,7 +203,7 @@ This section displays the player tile resources and possible actions
                                     {idGame: game.id, idPlayerTileResource : villager.id, idTile : selectedTile.id})
                                 })
                             }}
-                            class="bg-[#8F901F] py-2 px-3 m-1 rounded-lg text-2xl
+                            class="bg-[#8F901F] py-2 px-3 m-1 rounded-lg sm:text-lg text-2xl
                                     flex items-center justify-center w-full h-full">
                         Retirer le villageois du plateau
                     </button>
