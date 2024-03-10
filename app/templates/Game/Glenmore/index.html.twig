@@ -12,16 +12,19 @@
                     {{ include('/Game/Glenmore/endGameScreenResult.html.twig') }}
             {% endblock %}
             {% block ranking %}
-            <div id="ranking" class="absolute bg-gradient-to-b from-[#4C6E9Bff] to-[#20222Dff] w-[25%] h-3/4 right-0">
+            <div id="ranking" class="absolute bg-gradient-to-b from-[#4C6E9Bff] to-[#20222Dff] w-[25%] h-3/5 right-0">
                 {{  include('/Game/Glenmore/Ranking/ranking.html.twig') }}
             </div>
             {% endblock %}
             {% block drawTileIndicator %}
                 <div id="drawTileIndicator"
-                     class="absolute bottom-0 flex justify-center items-center
-                     bg-gradient-to-b from-[#4C6E9Bff] to-[#20222Dff] w-[25%] h-1/4 right-0">
+                     class="absolute bottom-[20%] flex justify-center items-center
+                     bg-gradient-to-b from-[#4C6E9Bff] to-[#20222Dff] w-[25%] h-1/5 right-0">
                     {{  include('/Game/Glenmore/MainBoard/drawTileIndicator.html.twig') }}
                 </div>
+            {% endblock %}
+            {% block playerRound %}
+                {{ include('Game/Glenmore/MainBoard/playerRoundManagement.html.twig') }}
             {% endblock %}
             {% block mainBoard %}
                 <div id="mainBoard" class="flow float-start w-[75%]

@@ -81,4 +81,34 @@ export default class extends Controller {
         let url = tile.params.url;
         const response = await fetch(url);
     }
+
+    async validateNewResourcesAcquisition(tile)  {
+        let url = tile.params.url;
+        const response = await fetch(url);
+    }
+
+    async cancelNewResourcesAcquisition(tile)  {
+        let url = tile.params.url;
+        const response = await fetch(url);
+    }
+
+    async validateResourcesSelection(tile)  {
+        let url = tile.params.url;
+        const response = await fetch(url);
+    }
+
+    async cancelResourcesSelection(tile)  {
+        let url = tile.params.url;
+        const response = await fetch(url);
+    }
+
+    async endRoundPlayer(player)  {
+        let url = player.params.url;
+        const response = await fetch(url);
+    }
+
+    async endActivationTilesPhase(player)  {
+        let url = player.params.url;
+        const response = await fetch(url);
+    }
 }
