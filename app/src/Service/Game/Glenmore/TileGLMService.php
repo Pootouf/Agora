@@ -240,7 +240,7 @@ class TileGLMService
         foreach ($tiles as $tile) {
             foreach ($tile->getPlayerTileResource() as $tileResource) {
                 if ($tileResource->getResource()->getType() === GlenmoreParameters::$MOVEMENT_RESOURCE) {
-                    ++$movementPoint;
+                    $movementPoint += $tileResource->getQuantity();
                 }
             }
         }
