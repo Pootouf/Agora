@@ -388,4 +388,18 @@ class GlenmoreController extends AbstractController
             // TODO SOME PUBLISH
         }
     }
+
+    #[Route('game/glenmore/{idGame}/displayPersonalBoard/{idPlayer}', name: 'app_game_glenmore_display_player_personal_board')]
+    public function displayPlayerPersonalBoard(
+        #[MapEntity(id: 'idGame')] GameGLM $gameGLM,
+        #[MapEntity(id: 'idPlayer')] PlayerGLM $playerGLM): Response
+    {
+        return $this->render('Game/Glenmore/PersonalBoard/personalBoard.html.twig', [
+            'isSpectator' => true,
+            'player' => $playerGLM,
+            'personalBoardTiles' => $this->dataManagementGLMService->organizePersonalBoardRows($playerGLM),
+            'whiskyCount' => $this->dataManagementGLMService->getWhiskyCount($playerGLM),
+        ]);
+    }
+
 }
