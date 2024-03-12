@@ -380,12 +380,21 @@ class TileGLMService
         $this->entityManager->flush();
     }
 
+    /**
+     * activateBonus : activate a tile and give player his resources
+     * @param PlayerTileGLM $tileGLM
+     * @param PlayerGLM $playerGLM
+     * @return void
+     * @throws \Exception
+     */
     public function activateBonus(PlayerTileGLM $tileGLM, PlayerGLM $playerGLM): void
     {
         $tile = $tileGLM->getTile();
+        if(!$this->hasPlayerEnoughResourcesToActivate($tileGLM, $playerGLM)){
+            throw new \Exception("NOT ENOUGH RESOURCES");
+        }
         if($tile->getType() != GlenmoreParameters::$TILE_NAME_FAIR){
-            if($this->hasPlayerEnoughResourcesToActivate($tileGLM, $playerGLM) &&
-                $this->hasEnoughPlaceToActivate($tileGLM)){
+            if($this->hasEnoughPlaceToActivate($tileGLM)){
                 $this->givePlayerActivationBonus($tileGLM, $playerGLM);
                 $this->entityManager->persist($tileGLM);
             }
@@ -642,9 +651,17 @@ class TileGLMService
             $resourceType = $activationPrice->getResource();
             $resourceAmount = $activationPrice->getPrice();
             $playerResourceCount = 0;
-            foreach ($selectedResources as $selectedResource){
-                if($selectedResource->getResource()->getType() == $resourceType){
-                    $playerResourceCount += $selectedResource->getQuantity();
+            if($resourceType->getType() == GlenmoreParameters::$PRODUCTION_RESOURCE){
+                foreach ($selectedResources as $selectedResource){
+                    if($selectedResource->getResource()->getColor() == $resourceType->getColor()){
+                        $playerResourceCount += $selectedResource->getQuantity();
+                    }
+                }
+            } else {
+                foreach ($selectedResources as $selectedResource){
+                    if($selectedResource->getResource()->getType() == $resourceType){
+                        $playerResourceCount += $selectedResource->getQuantity();
+                    }
                 }
             }
             if($playerResourceCount < $resourceAmount){
