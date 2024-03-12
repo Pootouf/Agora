@@ -871,6 +871,39 @@ class TileGLMServiceTest extends TestCase
         $this->tileGLMService->activateBonus($playerTile, $firstPlayer);
     }
 
+    public function testActivateTileWhenTooMuchResourcesOnTile()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $tile = new TileGLM();
+        $playerTile = new PlayerTileGLM();
+        $resource = new ResourceGLM();
+        $playerTileResource = new PlayerTileResourceGLM();
+        $playerTileResource->setResource($resource);
+        $playerTileResource->setQuantity(GlenmoreParameters::$MAX_RESOURCES_PER_TILE);
+        $playerTile->addPlayerTileResource($playerTileResource);
+        $playerTile->setTile($tile);
+        $activationPrice = new TileActivationCostGLM();
+        $resourcePrice = new ResourceGLM();
+        $resourcePrice->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
+        $resourcePrice->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $activationPrice->setResource($resourcePrice);
+        $activationPrice->setPrice(2);
+        $tile->addActivationPrice($activationPrice);
+        $playerResource = new ResourceGLM();
+        $playerResource->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
+        $playerResource->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $selectedResource = new SelectedResourceGLM();
+        $selectedResource->setResource($playerResource);
+        $selectedResource->setQuantity(3);
+        $firstPlayer->getPersonalBoard()->addSelectedResource($selectedResource);
+        // THEN
+        $this->expectException("Exception");
+        // WHEN
+        $this->tileGLMService->activateBonus($playerTile, $firstPlayer);
+    }
+
     private function createGame(int $nbOfPlayers): GameGLM
     {
         $game = new GameGLM();
