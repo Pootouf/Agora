@@ -19,6 +19,7 @@ use App\Entity\Game\Glenmore\WarehouseGLM;
 use App\Repository\Game\Glenmore\ResourceGLMRepository;
 use App\Repository\Game\Glenmore\TileGLMRepository;
 use App\Service\Game\AbstractGameManagerService;
+use App\Service\Game\Glenmore\GLMService;
 use App\Service\Game\Glenmore\TileGLMService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
@@ -583,6 +584,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         //GIVEN
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);
         $tileGLMService = static ::getContainer()->get(TileGLMService::class);
+        $glmService = static::getContainer()->get(GLMService::class);
         $tileGLMRepository = static::getContainer()->get(TileGLMRepository::class);
         $game = $this->createGame(2);
         $firstPlayer = $game->getPlayers()->first();
@@ -601,10 +603,11 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
             $entityManager->persist($firstPlayer->getPersonalBoard());
             $entityManager->flush();
             $tileGLMService->giveBuyBonus($playerTile);
+            $glmService->endRoundOfPlayer($game, $firstPlayer, 0);
         }
-        $expectedResult = 2;
+        $expectedResult = 1;
         //WHEN
-        $result = $tileGLMService->getMovementPoints($firstPlayer);
+        $result = $tileGLMService->getMovementPoints($firstPlayer->getPersonalBoard()->getPlayerTiles()->last());
         //THEN
         $this->assertSame($expectedResult, $result);
     }
@@ -614,6 +617,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         //GIVEN
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);
         $tileGLMService = static ::getContainer()->get(TileGLMService::class);
+        $glmService = static::getContainer()->get(GLMService::class);
         $tileGLMRepository = static::getContainer()->get(TileGLMRepository::class);
         $game = $this->createGame(2);
         $firstPlayer = $game->getPlayers()->first();
@@ -633,10 +637,11 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
             $entityManager->persist($firstPlayer->getPersonalBoard());
             $entityManager->flush();
             $tileGLMService->giveBuyBonus($playerTile);
+            $glmService->endRoundOfPlayer($game, $firstPlayer, 0);
         }
         $expectedResult = 1;
         //WHEN
-        $result = $tileGLMService->getMovementPoints($firstPlayer);
+        $result = $tileGLMService->getMovementPoints($firstPlayer->getPersonalBoard()->getPlayerTiles()->last());
         //THEN
         $this->assertSame($expectedResult, $result);
     }
@@ -646,6 +651,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         //GIVEN
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);
         $tileGLMService = static ::getContainer()->get(TileGLMService::class);
+        $glmService = static::getContainer()->get(GLMService::class);
         $tileGLMRepository = static::getContainer()->get(TileGLMRepository::class);
         $game = $this->createGame(2);
         $firstPlayer = $game->getPlayers()->first();
@@ -666,14 +672,51 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
             $entityManager->persist($firstPlayer->getPersonalBoard());
             $entityManager->flush();
             $tileGLMService->giveBuyBonus($playerTile);
+            $glmService->endRoundOfPlayer($game, $firstPlayer, 0);
         }
-        $expectedResult = 2;
+        $expectedResult = 0;
         //WHEN
-        $result = $tileGLMService->getMovementPoints($firstPlayer);
+        $result = $tileGLMService->getMovementPoints($firstPlayer->getPersonalBoard()->getPlayerTiles()->last());
         //THEN
         $this->assertSame($expectedResult, $result);
     }
 
+    public function testGetMovementPointsWithTwoTilesAdjacent() : void
+    {
+        //GIVEN
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $tileGLMService = static ::getContainer()->get(TileGLMService::class);
+        $glmService = static::getContainer()->get(GLMService::class);
+        $tileGLMRepository = static::getContainer()->get(TileGLMRepository::class);
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $tile1 = $tileGLMRepository->findOneBy(["id" => 68]);
+        $tile2 = $tileGLMRepository->findOneBy(["id" => 69]);
+        $tiles = [$tile1, $tile2];
+        for ($i = 1; $i <= 2; ++$i) {
+            $playerTile = new PlayerTileGLM();
+            $playerTile->setTile($tiles[$i - 1]);
+            $playerTile->setCoordX($i);
+            $playerTile->setCoordY($i);
+            $playerTile->setActivated(false);
+            $playerTile->setPersonalBoard($firstPlayer->getPersonalBoard());
+            $entityManager->persist($playerTile);
+            if ($i == 2) {
+                $playerTile->addAdjacentTile($firstPlayer->getPersonalBoard()->getPlayerTiles()->get(1), 0);
+                $firstPlayer->getPersonalBoard()->getPlayerTiles()->get(1)->addAdjacentTile($playerTile, 4);
+            }
+            $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile);
+            $entityManager->persist($firstPlayer->getPersonalBoard());
+            $entityManager->flush();
+            $tileGLMService->giveBuyBonus($playerTile);
+            $glmService->endRoundOfPlayer($game, $firstPlayer, 0);
+        }
+        $expectedResult = 2;
+        //WHEN
+        $result = $tileGLMService->getMovementPoints($firstPlayer->getPersonalBoard()->getPlayerTiles()->last());
+        //THEN
+        $this->assertSame($expectedResult, $result);
+    }
 
     private function createGame(int $nbOfPlayers) : GameGLM
     {
@@ -741,6 +784,9 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
             $playerTileResource->setResource($villager);
             $playerTileResource->setQuantity(1);
             $entityManager->persist($playerTileResource);
+            $playerTile->addPlayerTileResource($playerTileResource);
+            $entityManager->persist($playerTile);
+            $personalBoard->addPlayerTile($playerTile);
             $entityManager->persist($personalBoard);
             $entityManager->persist($player);
         }

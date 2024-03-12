@@ -40,6 +40,8 @@ class TileGLMServiceTest extends TestCase
 
     private TileGLMService $tileGLMService;
 
+    private GLMService $GLMService;
+
     protected function setUp(): void
     {
         $entityManager = $this->createMock(EntityManagerInterface::class);
@@ -50,9 +52,9 @@ class TileGLMServiceTest extends TestCase
         $playerTileGLMRepository = $this->createMock(PlayerTileGLMRepository::class);
         $playerTileResourceGLMRepository = $this->createMock(PlayerTileResourceGLMRepository::class);
         $cardGLMService = new CardGLMService($entityManager, $resourceGLMRepository);
-        $GLMService = new GLMService($entityManager, $tileGLMRepository, $drawTilesGLMRepository,
+        $this->GLMService = $GLMService = new GLMService($entityManager, $tileGLMRepository, $drawTilesGLMRepository,
             $resourceGLMRepository, $playerGLMRepository, $cardGLMService);
-        $this->tileGLMService = new TileGLMService($entityManager, $GLMService
+        $this->tileGLMService = new TileGLMService($entityManager, $this->GLMService
             , $resourceGLMRepository, $playerTileResourceGLMRepository, $playerTileGLMRepository,
             $cardGLMService);
     }
@@ -681,10 +683,11 @@ class TileGLMServiceTest extends TestCase
             $playerTileResource->setQuantity(1);
             $playerTile->addPlayerTileResource($playerTileResource);
             $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile);
+            $this->GLMService->endRoundOfPlayer($game, $firstPlayer, 0);
         }
-        $expectedResult = 2;
+        $expectedResult = 1;
         //WHEN
-        $result = $this->tileGLMService->getMovementPoints($firstPlayer);
+        $result = $this->tileGLMService->getMovementPoints($firstPlayer->getPersonalBoard()->getPlayerTiles()->last());
         //THEN
         $this->assertSame($expectedResult, $result);
     }
@@ -706,10 +709,11 @@ class TileGLMServiceTest extends TestCase
             $playerTileResource->setQuantity($i);
             $playerTile->addPlayerTileResource($playerTileResource);
             $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile);
+            $this->GLMService->endRoundOfPlayer($game, $firstPlayer, 0);
         }
-        $expectedResult = 3;
+        $expectedResult = 2;
         //WHEN
-        $result = $this->tileGLMService->getMovementPoints($firstPlayer);
+        $result = $this->tileGLMService->getMovementPoints($firstPlayer->getPersonalBoard()->getPlayerTiles()->last());
         //THEN
         $this->assertSame($expectedResult, $result);
     }
@@ -738,14 +742,52 @@ class TileGLMServiceTest extends TestCase
             $playerTileResource->setQuantity($i);
             $playerTile->addPlayerTileResource($playerTileResource);
             $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile);
+            $this->GLMService->endRoundOfPlayer($game, $firstPlayer, 0);
         }
         $tile = new TileGLM();
         $playerTile = new PlayerTileGLM();
         $playerTile->setTile($tile);
         $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile);
+        $expectedResult = 0;
+        //WHEN
+        $result = $this->tileGLMService->getMovementPoints($firstPlayer->getPersonalBoard()->getPlayerTiles()->last());
+        //THEN
+        $this->assertSame($expectedResult, $result);
+    }
+
+    public function testGetMovementPointsWithTwoTilesAdjacent() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        for ($i = 1; $i <= 2; ++$i) {
+            $tile = new TileGLM();
+            $playerTile = new PlayerTileGLM();
+            $playerTile->setTile($tile);
+            $resource = new ResourceGLM();
+            $resource->setType(GlenmoreParameters::$MOVEMENT_RESOURCE);
+            $playerTileResource = new PlayerTileResourceGLM();
+            $playerTileResource->setResource($resource);
+            $playerTileResource->setPlayerTileGLM($playerTile);
+            $playerTileResource->setQuantity($i);
+            $playerTile->addPlayerTileResource($playerTileResource);
+            $resource = new ResourceGLM();
+            $resource->setType(GlenmoreParameters::$WHISKY_RESOURCE);
+            $playerTileResource = new PlayerTileResourceGLM();
+            $playerTileResource->setResource($resource);
+            $playerTileResource->setPlayerTileGLM($playerTile);
+            $playerTileResource->setQuantity($i);
+            $playerTile->addPlayerTileResource($playerTileResource);
+            if ($i == 2) {
+                $playerTile->addAdjacentTile($firstPlayer->getPersonalBoard()->getPlayerTiles()->get(1), 0);
+                $firstPlayer->getPersonalBoard()->getPlayerTiles()->get(1)->addAdjacentTile($playerTile, 4);
+            }
+            $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile);
+            $this->GLMService->endRoundOfPlayer($game, $firstPlayer, 0);
+        }
         $expectedResult = 3;
         //WHEN
-        $result = $this->tileGLMService->getMovementPoints($firstPlayer);
+        $result = $this->tileGLMService->getMovementPoints($firstPlayer->getPersonalBoard()->getPlayerTiles()->last());
         //THEN
         $this->assertSame($expectedResult, $result);
     }
