@@ -3,18 +3,8 @@
 namespace App\Entity\Platform;
 
 use App\Repository\Platform\NotificationRepository;
-use ApiPlatform\Metadata\ApiResource;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ApiResource(
-    mercure: [
-        'private' => true,
-        'topics' => [
-            '@=iri(object)',
-            '@=iri(object.getReceiver()) ~ "/notifications/" ~ escape(iri(object))',
-        ],
-    ],
-)]
 #[ORM\Entity(repositoryClass: NotificationRepository::class)]
 class Notification
 {
