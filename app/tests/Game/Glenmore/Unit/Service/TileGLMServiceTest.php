@@ -15,7 +15,9 @@ use App\Entity\Game\Glenmore\PlayerGLM;
 use App\Entity\Game\Glenmore\PlayerTileGLM;
 use App\Entity\Game\Glenmore\PlayerTileResourceGLM;
 use App\Entity\Game\Glenmore\ResourceGLM;
+use App\Entity\Game\Glenmore\SelectedResourceGLM;
 use App\Entity\Game\Glenmore\TileActivationBonusGLM;
+use App\Entity\Game\Glenmore\TileActivationCostGLM;
 use App\Entity\Game\Glenmore\TileBuyBonusGLM;
 use App\Entity\Game\Glenmore\TileGLM;
 use App\Entity\Game\Glenmore\WarehouseGLM;
@@ -790,6 +792,55 @@ class TileGLMServiceTest extends TestCase
         $result = $this->tileGLMService->getMovementPoints($firstPlayer->getPersonalBoard()->getPlayerTiles()->last());
         //THEN
         $this->assertSame($expectedResult, $result);
+    }
+
+    public function testActivateTileWhenNotEnoughResources() : void
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $tile = new TileGLM();
+        $playerTile = new PlayerTileGLM();
+        $playerTile->setTile($tile);
+        $activationPrice = new TileActivationCostGLM();
+        $resourcePrice = new ResourceGLM();
+        $resourcePrice->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
+        $resourcePrice->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $activationPrice->setResource($resourcePrice);
+        $activationPrice->setPrice(2);
+        $tile->addActivationPrice($activationPrice);
+        // THEN
+        $this->expectException("Exception");
+        // WHEN
+        $this->tileGLMService->activateBonus($playerTile, $firstPlayer);
+    }
+
+    public function testActivateTileWhenNotEnoughResourcesOfGoodType()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $tile = new TileGLM();
+        $playerTile = new PlayerTileGLM();
+        $playerTile->setTile($tile);
+        $activationPrice = new TileActivationCostGLM();
+        $resourcePrice = new ResourceGLM();
+        $resourcePrice->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
+        $resourcePrice->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $activationPrice->setResource($resourcePrice);
+        $activationPrice->setPrice(2);
+        $tile->addActivationPrice($activationPrice);
+        $playerResource = new ResourceGLM();
+        $playerResource->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
+        $playerResource->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $selectedResource = new SelectedResourceGLM();
+        $selectedResource->setResource($playerResource);
+        $selectedResource->setQuantity(1);
+        $firstPlayer->getPersonalBoard()->addSelectedResource($selectedResource);
+        // THEN
+        $this->expectException("Exception");
+        // WHEN
+        $this->tileGLMService->activateBonus($playerTile, $firstPlayer);
     }
 
     private function createGame(int $nbOfPlayers): GameGLM
