@@ -230,12 +230,15 @@ class TileGLMService
 
     /**
      * getMovementPoints : returns total movement points of a player
-     * @param PlayerGLM $playerGLM
+     * @param PlayerTileGLM $playerTileGLM
      * @return int
      */
-    public function getMovementPoints(PlayerGLM $playerGLM) : int {
-        $personalBoard = $playerGLM->getPersonalBoard();
-        $tiles = $personalBoard->getPlayerTiles();
+    public function getMovementPoints(PlayerTileGLM $playerTileGLM) : int {
+        $tiles = new ArrayCollection();
+        $tiles->add($playerTileGLM);
+        foreach ($playerTileGLM->getAdjacentTiles() as $adjacentTile) {
+            $tiles->add($adjacentTile);
+        }
         $movementPoint = 0;
         foreach ($tiles as $tile) {
             foreach ($tile->getPlayerTileResource() as $tileResource) {
@@ -433,7 +436,7 @@ class TileGLMService
             throw new \Exception("no villager placed on this tile");
         }
         $player = $playerTileGLM->getPersonalBoard()->getPlayerGLM();
-        $movementPoint = $this->getMovementPoints($player);
+        $movementPoint = $this->getMovementPoints($playerTileGLM);
         if ($movementPoint == 0) {
             throw new \Exception("no more movement points");
         }
@@ -459,7 +462,7 @@ class TileGLMService
             throw new \Exception("no villager placed on this tile");
         }
         $player = $playerTileGLM->getPersonalBoard()->getPlayerGLM();
-        $movementPoint = $this->getMovementPoints($player);
+        $movementPoint = $this->getMovementPoints($playerTileGLM);
         if ($movementPoint == 0) {
             throw new \Exception("no more movement points");
         }
