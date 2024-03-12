@@ -843,6 +843,34 @@ class TileGLMServiceTest extends TestCase
         $this->tileGLMService->activateBonus($playerTile, $firstPlayer);
     }
 
+    public function testActivateTileWhenEnoughResourcesButWrongType()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $tile = new TileGLM();
+        $playerTile = new PlayerTileGLM();
+        $playerTile->setTile($tile);
+        $activationPrice = new TileActivationCostGLM();
+        $resourcePrice = new ResourceGLM();
+        $resourcePrice->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
+        $resourcePrice->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $activationPrice->setResource($resourcePrice);
+        $activationPrice->setPrice(2);
+        $tile->addActivationPrice($activationPrice);
+        $playerResource = new ResourceGLM();
+        $playerResource->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
+        $playerResource->setColor(GlenmoreParameters::$COLOR_BROWN);
+        $selectedResource = new SelectedResourceGLM();
+        $selectedResource->setResource($playerResource);
+        $selectedResource->setQuantity(3);
+        $firstPlayer->getPersonalBoard()->addSelectedResource($selectedResource);
+        // THEN
+        $this->expectException("Exception");
+        // WHEN
+        $this->tileGLMService->activateBonus($playerTile, $firstPlayer);
+    }
+
     private function createGame(int $nbOfPlayers): GameGLM
     {
         $game = new GameGLM();
