@@ -11,6 +11,7 @@ use App\Entity\Game\Glenmore\PlayerTileGLM;
 use App\Entity\Game\Glenmore\PlayerTileResourceGLM;
 use App\Entity\Game\Glenmore\TileGLM;
 use App\Repository\Game\Glenmore\PlayerTileGLMRepository;
+use App\Service\Game\Glenmore\CardGLMService;
 use App\Service\Game\Glenmore\DataManagementGLMService;
 use App\Service\Game\Glenmore\GLMService;
 use App\Service\Game\Glenmore\TileGLMService;
@@ -32,6 +33,7 @@ class GlenmoreController extends AbstractController
                                 private MessageService $messageService,
                                 private DataManagementGLMService $dataManagementGLMService,
                                 private TileGLMService $tileGLMService,
+                                private CardGLMService $cardGLMService,
                                 private LogService $logService)
     {}
 
@@ -200,6 +202,10 @@ class GlenmoreController extends AbstractController
         if ($player == null) {
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
         }
+        if($tile->getTile()->getName() === GlenmoreParameters::$CARD_LOCH_LOCHY) {
+            // TODO get resource from the string ?
+            //$this->cardGLMService->selectResourceForLochLochy($player, $resource);
+        }
         return $this->render('/Game/Glenmore/PersonalBoard/selectTile.html.twig', [
             'selectedTile' => $tile,
             'game' => $game,
@@ -224,6 +230,11 @@ class GlenmoreController extends AbstractController
         if ($player == null) {
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
         }
+        try {
+            $this->tileGLMService->removeVillager($tile);
+        } catch (\Exception) {
+            return new Response('Invalid move', Response::HTTP_FORBIDDEN);
+        }
         return $this->render('/Game/Glenmore/PersonalBoard/selectTile.html.twig', [
             'selectedTile' => $tile,
             'game' => $game,
@@ -245,6 +256,11 @@ class GlenmoreController extends AbstractController
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+        }
+        try {
+            $this->tileGLMService->activateBonus($tile, $player);
+        } catch (\Exception) {
+            return new Response('could not activate this tile', Response::HTTP_FORBIDDEN);
         }
         return $this->render('/Game/Glenmore/PersonalBoard/selectTile.html.twig', [
             'selectedTile' => $tile,
@@ -282,6 +298,12 @@ class GlenmoreController extends AbstractController
         if ($player == null) {
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
         }
+        try {
+            $this->tileGLMService->moveVillager($tile, $dir);
+        } catch (\Exception) {
+            return new Response('Could not move a villager from this tile to 
+                targeted one');
+        }
         return $this->render('/Game/Glenmore/PersonalBoard/selectTile.html.twig', [
             'selectedTile' => $tile,
             'game' => $game,
@@ -305,6 +327,9 @@ class GlenmoreController extends AbstractController
         if ($player == null) {
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
         }
+        if($tile->getTile()->getName() === GlenmoreParameters::$CARD_LOCH_LOCHY) {
+            $this->cardGLMService->validateTakingOfResourcesForLochLochy($player);
+        }
         return $this->render('/Game/Glenmore/PersonalBoard/selectTile.html.twig', [
             'selectedTile' => $tile,
             'game' => $game,
@@ -327,6 +352,9 @@ class GlenmoreController extends AbstractController
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+        }
+        if($tile->getTile()->getName() === GlenmoreParameters::$CARD_LOCH_LOCHY) {
+            $this->cardGLMService->clearCreatedResources($player);
         }
         return $this->render('/Game/Glenmore/PersonalBoard/selectTile.html.twig', [
             'selectedTile' => $tile,
