@@ -116,4 +116,10 @@ export default class extends Controller {
         let url = tile.params.url;
         const response = await fetch(url);
     }
+
+    async displayPlayerBoard(board) {
+        let url = board.params.url;
+        const response = await fetch(url);
+    }
+
 }

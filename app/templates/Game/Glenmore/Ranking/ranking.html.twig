@@ -26,17 +26,17 @@ This section displays the ranking with a view of the other players' possessions
                     text-3xl py-2
                     {% if colorPawn == 'red' %}bg-[#910016]{% elseif colorPawn == 'yellow' %}bg-[#e3d400]
                     {% elseif colorPawn == 'blue' %}bg-[#1105f5]{% elseif colorPawn == 'white' %}bg-[#ffffff]
-                    {% else %}bg-[#045900]{% endif %}">
+                    {% else %}bg-[#045900]{% endif %}"
+                {{ stimulus_controller('glenmore') }}>
 
             <div class="w-full h-[12%] landscape:h-1/5
                             pt-2 landscape:pt-1
                             flex justify-around justify-between">
                 {# Button to see other player's personal board #}
-                <button {{ stimulus_action('glenmore', 'togglePersonalBoard', 'click', {'open': true})
+                <button {{ stimulus_action('glenmore', 'displayPlayerBoard', 'click',
+                            {url:path('app_game_glenmore_display_player_personal_board',
+                                {idGame: game.id, idPlayer: p.id})})
                         }}
-                        {% if isSpectator %}
-                            disabled
-                        {% endif %}
                         class=""
                 >
                     <img class="h-5 -rotate-90 -ml-3"

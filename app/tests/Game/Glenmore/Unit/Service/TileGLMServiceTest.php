@@ -664,6 +664,92 @@ class TileGLMServiceTest extends TestCase
         $this->assertEmpty($result);
     }
 
+    public function testGetMovementPointsWithTwoTilesOfOne() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $tile = new TileGLM();
+        for ($i = 0; $i < 2; ++$i) {
+            $playerTile = new PlayerTileGLM();
+            $playerTile->setTile($tile);
+            $resource = new ResourceGLM();
+            $resource->setType(GlenmoreParameters::$MOVEMENT_RESOURCE);
+            $playerTileResource = new PlayerTileResourceGLM();
+            $playerTileResource->setResource($resource);
+            $playerTileResource->setPlayerTileGLM($playerTile);
+            $playerTileResource->setQuantity(1);
+            $playerTile->addPlayerTileResource($playerTileResource);
+            $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile);
+        }
+        $expectedResult = 2;
+        //WHEN
+        $result = $this->tileGLMService->getMovementPoints($firstPlayer);
+        //THEN
+        $this->assertSame($expectedResult, $result);
+    }
+
+    public function testGetMovementPointsWithTwoTilesOfDifferent() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        for ($i = 1; $i <= 2; ++$i) {
+            $tile = new TileGLM();
+            $playerTile = new PlayerTileGLM();
+            $playerTile->setTile($tile);
+            $resource = new ResourceGLM();
+            $resource->setType(GlenmoreParameters::$MOVEMENT_RESOURCE);
+            $playerTileResource = new PlayerTileResourceGLM();
+            $playerTileResource->setResource($resource);
+            $playerTileResource->setPlayerTileGLM($playerTile);
+            $playerTileResource->setQuantity($i);
+            $playerTile->addPlayerTileResource($playerTileResource);
+            $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile);
+        }
+        $expectedResult = 3;
+        //WHEN
+        $result = $this->tileGLMService->getMovementPoints($firstPlayer);
+        //THEN
+        $this->assertSame($expectedResult, $result);
+    }
+
+    public function testGetMovementPointsWithTwoTilesOfDifferentAndTwoOthersEmpty() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        for ($i = 0; $i <= 2; ++$i) {
+            $tile = new TileGLM();
+            $playerTile = new PlayerTileGLM();
+            $playerTile->setTile($tile);
+            $resource = new ResourceGLM();
+            $resource->setType(GlenmoreParameters::$MOVEMENT_RESOURCE);
+            $playerTileResource = new PlayerTileResourceGLM();
+            $playerTileResource->setResource($resource);
+            $playerTileResource->setPlayerTileGLM($playerTile);
+            $playerTileResource->setQuantity($i);
+            $playerTile->addPlayerTileResource($playerTileResource);
+            $resource = new ResourceGLM();
+            $resource->setType(GlenmoreParameters::$WHISKY_RESOURCE);
+            $playerTileResource = new PlayerTileResourceGLM();
+            $playerTileResource->setResource($resource);
+            $playerTileResource->setPlayerTileGLM($playerTile);
+            $playerTileResource->setQuantity($i);
+            $playerTile->addPlayerTileResource($playerTileResource);
+            $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile);
+        }
+        $tile = new TileGLM();
+        $playerTile = new PlayerTileGLM();
+        $playerTile->setTile($tile);
+        $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile);
+        $expectedResult = 3;
+        //WHEN
+        $result = $this->tileGLMService->getMovementPoints($firstPlayer);
+        //THEN
+        $this->assertSame($expectedResult, $result);
+    }
+
     private function createGame(int $nbOfPlayers): GameGLM
     {
         $game = new GameGLM();

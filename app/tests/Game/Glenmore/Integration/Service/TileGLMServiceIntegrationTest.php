@@ -578,6 +578,102 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $this->assertEmpty($result);
     }
 
+    public function testGetMovementPointsWithTwoTilesOfOne() : void
+    {
+        //GIVEN
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $tileGLMService = static ::getContainer()->get(TileGLMService::class);
+        $tileGLMRepository = static::getContainer()->get(TileGLMRepository::class);
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $tile1 = $tileGLMRepository->findOneBy(["id" => 68]);
+        $tile2 = $tileGLMRepository->findOneBy(["id" => 69]);
+        $tiles = [$tile1, $tile2];
+        for ($i = 0; $i < 2; ++$i) {
+            $playerTile = new PlayerTileGLM();
+            $playerTile->setTile($tiles[$i]);
+            $playerTile->setCoordX($i);
+            $playerTile->setCoordY($i);
+            $playerTile->setActivated(false);
+            $playerTile->setPersonalBoard($firstPlayer->getPersonalBoard());
+            $entityManager->persist($playerTile);
+            $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile);
+            $entityManager->persist($firstPlayer->getPersonalBoard());
+            $entityManager->flush();
+            $tileGLMService->giveBuyBonus($playerTile);
+        }
+        $expectedResult = 2;
+        //WHEN
+        $result = $tileGLMService->getMovementPoints($firstPlayer);
+        //THEN
+        $this->assertSame($expectedResult, $result);
+    }
+
+    public function testGetMovementPointsWithSameTile() : void
+    {
+        //GIVEN
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $tileGLMService = static ::getContainer()->get(TileGLMService::class);
+        $tileGLMRepository = static::getContainer()->get(TileGLMRepository::class);
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $tile1 = $tileGLMRepository->findOneBy(["id" => 68]);
+        $tiles = [$tile1];
+        for ($i = 0; $i < 2; ++$i) {
+            $playerTile = new PlayerTileGLM();
+            $playerTile->setTile($tiles[0]);
+            $playerTile->setCoordX($i);
+            $playerTile->setCoordY($i);
+            $playerTile->setActivated(false);
+            $playerTile->setPersonalBoard($firstPlayer->getPersonalBoard());
+            $entityManager->persist($playerTile);
+            if ($i == 0) {
+                $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile);
+            }
+            $entityManager->persist($firstPlayer->getPersonalBoard());
+            $entityManager->flush();
+            $tileGLMService->giveBuyBonus($playerTile);
+        }
+        $expectedResult = 1;
+        //WHEN
+        $result = $tileGLMService->getMovementPoints($firstPlayer);
+        //THEN
+        $this->assertSame($expectedResult, $result);
+    }
+
+    public function testGetMovementPointsWithTwoTilesOfDifferentAndOneNoMovement() : void
+    {
+        //GIVEN
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $tileGLMService = static ::getContainer()->get(TileGLMService::class);
+        $tileGLMRepository = static::getContainer()->get(TileGLMRepository::class);
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $tile1 = $tileGLMRepository->findOneBy(["id" => 68]);
+        $tile2 = $tileGLMRepository->findOneBy(["id" => 69]);
+        $tile3 = $tileGLMRepository->findOneBy(["id" => 67]);
+
+        $tiles = [$tile1, $tile2, $tile3];
+        for ($i = 0; $i <= 2; ++$i) {
+            $playerTile = new PlayerTileGLM();
+            $playerTile->setTile($tiles[$i]);
+            $playerTile->setCoordX($i);
+            $playerTile->setCoordY($i);
+            $playerTile->setActivated(false);
+            $playerTile->setPersonalBoard($firstPlayer->getPersonalBoard());
+            $entityManager->persist($playerTile);
+            $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile);
+            $entityManager->persist($firstPlayer->getPersonalBoard());
+            $entityManager->flush();
+            $tileGLMService->giveBuyBonus($playerTile);
+        }
+        $expectedResult = 2;
+        //WHEN
+        $result = $tileGLMService->getMovementPoints($firstPlayer);
+        //THEN
+        $this->assertSame($expectedResult, $result);
+    }
+
 
     private function createGame(int $nbOfPlayers) : GameGLM
     {
