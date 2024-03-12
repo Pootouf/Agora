@@ -53,7 +53,6 @@ class WarehouseLineGLMTest extends TestCase
 
     public function testSetCoinNumber() : void
     {
-
         // GIVEN
 
         $coin = 5;
@@ -69,7 +68,6 @@ class WarehouseLineGLMTest extends TestCase
 
     public function testSetWarehouse() : void
     {
-
         // GIVEN
 
         $warehouse = new WarehouseGLM();

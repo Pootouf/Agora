@@ -35,10 +35,14 @@ class PlayerTileGLM extends Component
     #[ORM\Column]
     private ?bool $activated = false;
 
+    #[ORM\OneToMany(targetEntity: SelectedResourceGLM::class, mappedBy: 'playerTile', orphanRemoval: true)]
+    private Collection $selectedResources;
+
     public function __construct()
     {
         $this->adjacentTiles = new ArrayCollection();
         $this->playerTileResource = new ArrayCollection();
+        $this->selectedResources = new ArrayCollection();
     }
 
     public function getPersonalBoard(): ?PersonalBoardGLM
@@ -74,10 +78,10 @@ class PlayerTileGLM extends Component
         return $this->adjacentTiles;
     }
 
-    public function addAdjacentTile(self $adjacentTile): static
+    public function addAdjacentTile(self $adjacentTile, int $direction): static
     {
         if (!$this->adjacentTiles->contains($adjacentTile)) {
-            $this->adjacentTiles->add($adjacentTile);
+            $this->adjacentTiles->set($direction, $adjacentTile);
         }
 
         return $this;
@@ -152,6 +156,36 @@ class PlayerTileGLM extends Component
     public function setActivated(bool $activated): static
     {
         $this->activated = $activated;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, SelectedResourceGLM>
+     */
+    public function getSelectedResources(): Collection
+    {
+        return $this->selectedResources;
+    }
+
+    public function addSelectedResource(SelectedResourceGLM $selectedResource): static
+    {
+        if (!$this->selectedResources->contains($selectedResource)) {
+            $this->selectedResources->add($selectedResource);
+            $selectedResource->setPlayerTile($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSelectedResource(SelectedResourceGLM $selectedResource): static
+    {
+        if ($this->selectedResources->removeElement($selectedResource)) {
+            // set the owning side to null (unless already changed)
+            if ($selectedResource->getPlayerTile() === $this) {
+                $selectedResource->setPlayerTile(null);
+            }
+        }
 
         return $this;
     }

@@ -9,7 +9,6 @@ use PHPUnit\Framework\TestCase;
 
 class PlayerCardGLMTest extends TestCase
 {
-
     private PlayerCardGLM $playerCardGLM;
 
     public function testInit() : void
@@ -23,7 +22,7 @@ class PlayerCardGLMTest extends TestCase
         $this->assertNotNull($this->playerCardGLM->getCard());
     }
 
-    public function testSetPersonalBoard() : void
+    public function testSetPersonalBoardWhenIsNotNull() : void
     {
         // GIVEN
 
@@ -38,7 +37,17 @@ class PlayerCardGLMTest extends TestCase
         $this->assertSame($personalBoard, $this->playerCardGLM->getPersonalBoard());
     }
 
-    public function testSetCard() : void
+    public function testSetPersonalBoardWhenIsNull() : void
+    {
+        // WHEN
+
+        $this->playerCardGLM->setPersonalBoard(null);
+
+        // THEN
+        $this->assertNull($this->playerCardGLM->getPersonalBoard());
+    }
+
+    public function testSetCardWhenIsNotNull() : void
     {
         // GIVEN
 
@@ -51,6 +60,17 @@ class PlayerCardGLMTest extends TestCase
         // THEN
 
         $this->assertSame($card, $this->playerCardGLM->getCard());
+    }
+
+    public function testSetCardWhenIsNull() : void
+    {
+        // WHEN
+
+        $this->playerCardGLM->setCard(null);
+
+        // THEN
+
+        $this->assertNull($this->playerCardGLM->getCard());
     }
 
     protected function setUp(): void

@@ -151,6 +151,7 @@ class DataManagementGLMServiceIntegrationTest extends KernelTestCase
             $entityManager->persist($playerTile);
             $playerTileResource = new PlayerTileResourceGLM();
             $playerTileResource->setPlayerTileGLM($playerTile);
+            $playerTileResource->setPlayer($player);
             $playerTileResource->setResource($villager);
             $playerTileResource->setQuantity(1);
             $entityManager->persist($playerTileResource);

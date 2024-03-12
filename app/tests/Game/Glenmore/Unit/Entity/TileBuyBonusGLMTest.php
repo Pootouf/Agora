@@ -3,7 +3,6 @@
 namespace App\Tests\Game\Glenmore\Unit\Entity;
 
 use App\Entity\Game\Glenmore\ResourceGLM;
-use App\Entity\Game\Glenmore\TileActivationBonusGLM;
 use App\Entity\Game\Glenmore\TileBuyBonusGLM;
 use PHPUnit\Framework\TestCase;
 

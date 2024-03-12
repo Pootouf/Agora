@@ -2,17 +2,21 @@
 
 namespace App\Service\Game\Glenmore;
 
+use App\Entity\Game\Glenmore\CreatedResourceGLM;
 use App\Entity\Game\Glenmore\GameGLM;
 use App\Entity\Game\Glenmore\GlenmoreParameters;
 use App\Entity\Game\Glenmore\PersonalBoardGLM;
+use App\Entity\Game\Glenmore\PlayerGLM;
 use App\Entity\Game\Glenmore\PlayerTileGLM;
 use App\Entity\Game\Glenmore\PlayerTileResourceGLM;
 use App\Entity\Game\Glenmore\ResourceGLM;
+use App\Entity\Game\Glenmore\SelectedResourceGLM;
 use App\Entity\Game\Glenmore\TileBuyBonusGLM;
 use App\Repository\Game\Glenmore\ResourceGLMRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 
 class CardGLMService
 {
@@ -68,7 +72,7 @@ class CardGLMService
             }
             if ($mustActivate) {
                 foreach ($personalBoard->getPlayerTiles() as $playerTile) {
-                    if(!$playerTile->isActivated() && $playerTile->getTile()->getActivationBonus() != null) {
+                    if(!$playerTile->isActivated() && !$playerTile->getTile()->getActivationBonus()->isEmpty()) {
                         $activableTiles->add($playerTile);
                     }
                 }
@@ -81,9 +85,9 @@ class CardGLMService
     /**
      * buyCardManagement : applies effect of the card associated to playerTile
      * @param PlayerTileGLM $playerTileGLM
-     * @return void
+     * @return int -1 if Loch Lochy was bought, 0 else
      */
-    public function buyCardManagement(PlayerTileGLM $playerTileGLM) : void
+    public function buyCardManagement(PlayerTileGLM $playerTileGLM) : int
     {
         $tile = $playerTileGLM->getTile();
         $personalBoard = $playerTileGLM->getPersonalBoard();
@@ -102,14 +106,14 @@ class CardGLMService
                 $this->applyArmadaleCastle($personalBoard);
                 break;
             case GlenmoreParameters::$CARD_LOCH_LOCHY:
-                $this->applyLochLochy($playerTileGLM);
-                break;
+                return $this->applyLochLochy($playerTileGLM);
             case GlenmoreParameters::$CARD_CASTLE_MOIL:
                 $this->applyCastleMoil($playerTileGLM);
                 break;
             default:
                 break;
         }
+        return 0;
     }
 
     /**
@@ -148,6 +152,76 @@ class CardGLMService
             GlenmoreParameters::$TILE_TYPE_GREEN, GlenmoreParameters::$LOCH_MORAR_POINTS);
     }
 
+    /**
+     * selectResourceForLochLochy : for Loch Lochy, player picks resources
+     * @param PlayerGLM   $playerGLM
+     * @param ResourceGLM $resourceGLM
+     * @return void
+     * @throws Exception
+     */
+    public function selectResourceForLochLochy(PlayerGLM $playerGLM, ResourceGLM $resourceGLM) : void
+    {
+        $createdResources = $playerGLM->getPersonalBoard()->getCreatedResources();
+        if ($createdResources->count() >= 2) {
+            throw new Exception("can't pick more resources");
+        }
+        if ($createdResources->count() == 1) {
+            $createdResource = $createdResources->first();
+            if ($createdResource->getResource()->getColor() === $resourceGLM->getColor()) {
+                $createdResource->setQuantity($createdResource->getQuantity() + 1);
+                $this->entityManager->persist($createdResource);
+            }
+        } else {
+            $createdResource = new CreatedResourceGLM();
+            $createdResource->setResource($resourceGLM);
+            $createdResource->setQuantity(1);
+            $createdResource->setPersonalBoardGLM($playerGLM->getPersonalBoard());
+            $this->entityManager->persist($createdResource);
+            $playerGLM->getPersonalBoard()->addCreatedResource($createdResource);
+        }
+        $this->entityManager->persist($playerGLM->getPersonalBoard());
+        $this->entityManager->flush();
+    }
+
+    /**
+     * clearCreatedResources : clear all created resources by the player
+     * @param PlayerGLM $playerGLM
+     * @return void
+     */
+    public function clearCreatedResources(PlayerGLM $playerGLM) : void
+    {
+        $playerGLM->getPersonalBoard()->getCreatedResources()->clear();
+        $this->entityManager->persist($playerGLM->getPersonalBoard());
+        $this->entityManager->flush();
+    }
+
+    /**
+     * validateTakingOfResourcesForLochLochy : for each resource selected, place it on Loch Lochy tile,
+     *  then clears his collection of resources
+     *
+     * @param PlayerGLM $playerGLM
+     * @return void
+     */
+    public function validateTakingOfResourcesForLochLochy(PlayerGLM $playerGLM) : void
+    {
+        $createdResources = $playerGLM->getPersonalBoard()->getCreatedResources();
+        $tile = null;
+        foreach ($playerGLM->getPersonalBoard()->getPlayerTiles() as $playerTile) {
+            if ($playerTile->getTile()->getName() === GlenmoreParameters::$CARD_LOCH_LOCHY) {
+                $tile = $playerTile;
+            }
+        }
+        foreach ($createdResources as $createdResource) {
+            $playerResource = new PlayerTileResourceGLM();
+            $playerResource->setResource($createdResource->getResource());
+            $playerResource->setQuantity($createdResource->getQuantity());
+            $playerResource->setPlayerTileGLM($tile);
+            $this->entityManager->persist($playerResource);
+            $tile->addPlayerTileResource($playerResource);
+            $this->entityManager->persist($tile);
+        }
+        $this->clearCreatedResources($playerGLM);
+    }
 
     /**
      * applyEndGameCard : applies effect of special cards for points count at the end of the game.
@@ -232,6 +306,7 @@ class CardGLMService
         $resource = $this->resourceGLMRepository->findOneBy(["type" => GlenmoreParameters::$WHISKY_RESOURCE]);
         $playerTileResource = new PlayerTileResourceGLM();
         $playerTileResource->setResource($resource);
+        $playerTileResource->setPlayer($playerTileGLM->getPersonalBoard()->getPlayerGLM());
         $playerTileResource->setQuantity($amount);
         $playerTileResource->setPlayerTileGLM($playerTileGLM);
         $this->entityManager->persist($playerTileResource);
@@ -276,9 +351,14 @@ class CardGLMService
         $this->entityManager->flush();
     }
 
-    private function applyLochLochy(PlayerTileGLM $playerTileGLM) : void
+    /**
+     * applyLochLochy : returns an integer to indicate to the controller to publish a Mercure notif
+     * @param PlayerTileGLM $playerTileGLM
+     * @return int
+     */
+    private function applyLochLochy(PlayerTileGLM $playerTileGLM) : int
     {
-        // TODO
+        return -1;
     }
 
 }

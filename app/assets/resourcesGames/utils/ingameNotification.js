@@ -9,12 +9,12 @@ class GameNotification {
 	/**
 	 * Create a notification
 	 * @param duration Expiration delay before a notification auto-delete
-	 * @param iconName ID of an SVG located in notificationsStorage.html.twig
+	 * @param iconName ID of an SVG located in notification.html.twig
 	 * @param message Main text of the notification
 	 * @param description Secondary text of the notification
 	 * @param loadingBarColor Color for the loadingBar
 	 */
-	constructor(duration, iconName = 'info', message, description, loadingBarColor = 'green') {
+	constructor(duration, message, description, iconName = 'info', loadingBarColor = 'green') {
 		this.id = GameNotification.nextId++;
 		this.element = document.getElementById('notif_template').cloneNode(true);
 		this.element.id = this.id;
@@ -84,5 +84,4 @@ class GameNotification {
 
 document.addEventListener('DOMContentLoaded', function() {
 	GameNotification.notificationsContainer = document.getElementById('notificationsContainer');
-	new GameNotification(10, 'info', 'Notification test', 'Ceci est un test', 'red');
 });

@@ -171,6 +171,10 @@ class GLMService
         $nextPlayer->setTurnOfPlayer(true);
         foreach ($nextPlayer->getPersonalBoard()->getPlayerTiles() as $playerTile) {
             $playerTile->setActivated(false);
+            if ($playerTile->getTile()->getType() === GlenmoreParameters::$TILE_TYPE_CASTLE
+                || $playerTile->getTile()->getType() === GlenmoreParameters::$TILE_TYPE_VILLAGE) {
+                $this->clearMovementPoints($playerTile);
+            }
             $this->entityManager->persist($playerTile);
             $this->entityManager->persist($nextPlayer->getPersonalBoard());
         }
@@ -256,6 +260,7 @@ class GLMService
             $playerTile->setCoordY(0);
             $playerTileResource = new PlayerTileResourceGLM();
             $playerTileResource->setResource($villager);
+            $playerTileResource->setPlayer($player);
             $playerTileResource->setQuantity(1);
             $playerTile->addPlayerTileResource($playerTileResource);
             $player->getPersonalBoard()->addPlayerTile($playerTile);
@@ -532,5 +537,25 @@ class GLMService
                 ($coinNumber == GlenmoreParameters::$COIN_NEEDED_FOR_RESOURCE_THREE ? 3 : 0));
         $warehouseLine->setQuantity($quantity);
         $this->entityManager->persist($warehouseLine);
+    }
+
+    /**
+     * clearMovementPoints : given a tile of type village or castle, clears remaining movement points
+     *  at the end of player's round
+     * @param PlayerTileGLM $playerTileGLM
+     * @return void
+     */
+    private function clearMovementPoints(PlayerTileGLM $playerTileGLM) : void
+    {
+        $playerTileResources = $playerTileGLM->getPlayerTileResource();
+        $movement = $this->resourceGLMRepository->findOneBy(["type" => GlenmoreParameters::$MOVEMENT_RESOURCE]);
+        foreach ($playerTileResources as $playerTileResource) {
+            if ($playerTileResource->getResource() === $movement) {
+                $playerTileResource->setQuantity(0);
+                $this->entityManager->persist($playerTileResource);
+            }
+        }
+        $this->entityManager->persist($playerTileGLM);
+        $this->entityManager->flush();
     }
 }

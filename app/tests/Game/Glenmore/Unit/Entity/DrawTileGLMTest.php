@@ -43,6 +43,7 @@ class DrawTileGLMTest extends TestCase
         $tile = new TileGLM();
 
         // WHEN
+
         $this->drawTilesGLM->addTile($tile);
 
         // THEN

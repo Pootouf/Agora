@@ -10,7 +10,6 @@ use PHPUnit\Framework\TestCase;
 
 class PlayerGLMTest extends TestCase
 {
-
     private PlayerGLM $playerGLM;
 
     public function testInit() : void
@@ -24,7 +23,8 @@ class PlayerGLMTest extends TestCase
         $this->assertSame("user", $this->playerGLM->getUsername());
     }
 
-    public function testSetPersonalBoard() : void {
+    public function testSetPersonalBoard() : void
+    {
         // GIVEN
 
         $personalBoard = new PersonalBoardGLM();

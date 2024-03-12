@@ -8,6 +8,7 @@ use App\Entity\Game\Glenmore\PlayerGLM;
 use App\Entity\Game\Glenmore\PlayerTileGLM;
 use App\Entity\Game\Glenmore\PlayerTileResourceGLM;
 use App\Entity\Game\Glenmore\ResourceGLM;
+use App\Entity\Game\Glenmore\SelectedResourceGLM;
 use App\Entity\Game\Glenmore\WarehouseGLM;
 use App\Entity\Game\Glenmore\WarehouseLineGLM;
 use App\Repository\Game\Glenmore\PlayerGLMRepository;
@@ -17,9 +18,7 @@ use Doctrine\ORM\EntityManagerInterface;
 class WarehouseGLMService
 {
 
-    public function __construct(private EntityManagerInterface $entityManager,
-                                private GLMService $GLMService,
-                                private PlayerGLMRepository $playerGLMRepository){}
+    public function __construct(private EntityManagerInterface $entityManager){}
 
 
     /**
@@ -74,6 +73,37 @@ class WarehouseGLMService
         $this->entityManager->flush();
     }
 
+
+    public function buyResourceFromWarehouse(PlayerGLM $player, ResourceGLM $resource): void
+    {
+        $warehouse = $player->getGameGLM()->getMainBoard()->getWarehouse();
+        $warehouseLine = $this->getWarehouseLineOfResource(
+            $warehouse,
+            $resource
+        );
+        if ($warehouseLine == null) throw new Exception("Unable to buy the resource, not a valid type");
+        $moneyOnWarehouseLine = GlenmoreParameters::$MONEY_FROM_QUANTITY[$warehouseLine->getQuantity()];
+        if ($moneyOnWarehouseLine >= GlenmoreParameters::$MAX_TRADE) throw new Exception('No resource to buy');
+
+        $moneyOfPlayer = $player->getPersonalBoard()->getMoney();
+        $moneyNeeded = GlenmoreParameters::$MONEY_FROM_QUANTITY[$warehouseLine->getQuantity() + 1];
+        if ($moneyOfPlayer < $moneyNeeded) throw new \Exception('Not enough money to buy resource');
+
+        $selectedResource = new SelectedResourceGLM();
+        $selectedResource->setResource($resource);
+        $selectedResource->setPersonalBoardGLM($player->getPersonalBoard());
+        $selectedResource->setQuantity(1);
+        $this->entityManager->persist($selectedResource);
+
+        $player->getPersonalBoard()->setMoney($moneyOfPlayer - $moneyNeeded);
+        $this->entityManager->persist($player->getPersonalBoard());
+
+        $this->manageWarehouseLine($warehouseLine, $moneyNeeded, true);
+        $this->entityManager->flush();
+
+    }
+
+
     /**
      * Return the price of a resource
      * @param WarehouseGLM $warehouse
@@ -127,13 +157,12 @@ class WarehouseGLMService
 
     private function manageWarehouseLine(WarehouseLineGLM $warehouseLine, int $money, bool $isPurchasable) : void
     {
-        switch ($isPurchasable)
-        {
-            case true:
-                return; // TODO Etienne
-            case false:
-                $warehouseLine->setQuantity($warehouseLine->getQuantity() - 1);
-                $warehouseLine->setCoinNumber($warehouseLine->getCoinNumber() - $money);
+        if ($isPurchasable) {
+            $warehouseLine->setQuantity($warehouseLine->getQuantity() + 1);
+            $warehouseLine->setCoinNumber($warehouseLine->getCoinNumber() + $money);
+        } else {
+            $warehouseLine->setQuantity($warehouseLine->getQuantity() - 1);
+            $warehouseLine->setCoinNumber($warehouseLine->getCoinNumber() - $money);
         }
         $this->entityManager->persist($warehouseLine);
     }

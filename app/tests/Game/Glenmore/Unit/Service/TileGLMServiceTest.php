@@ -15,6 +15,7 @@ use App\Entity\Game\Glenmore\PlayerGLM;
 use App\Entity\Game\Glenmore\PlayerTileGLM;
 use App\Entity\Game\Glenmore\PlayerTileResourceGLM;
 use App\Entity\Game\Glenmore\ResourceGLM;
+use App\Entity\Game\Glenmore\TileActivationBonusGLM;
 use App\Entity\Game\Glenmore\TileBuyBonusGLM;
 use App\Entity\Game\Glenmore\TileGLM;
 use App\Entity\Game\Glenmore\WarehouseGLM;
@@ -29,6 +30,8 @@ use App\Service\Game\AbstractGameManagerService;
 use App\Service\Game\Glenmore\CardGLMService;
 use App\Service\Game\Glenmore\GLMService;
 use App\Service\Game\Glenmore\TileGLMService;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\DBAL\Exception;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 
@@ -215,8 +218,13 @@ class TileGLMServiceTest extends TestCase
         $firstPlayer = $game->getPlayers()->first();
         $secondPlayer = $game->getPlayers()->get(2);
         $boardTile = $mainBoard->getBoardTiles()->last();
+        $firstPlayerTile = new PlayerTileGLM();
+        $firstPlayerTile->setTile($boardTile->getTile());
+        $mainBoard->removeBoardTile($boardTile);
 
-        $lastPosition = $this->tileGLMService->assignTileToPlayer($boardTile, $firstPlayer);
+        $firstPlayer->getPersonalBoard()->setSelectedTile($boardTile);
+        $firstPlayer->getPersonalBoard()->addPlayerTile($firstPlayerTile);
+        $lastPosition = $mainBoard->getLastPosition();
         $lastPosition -= 1;
         if ($lastPosition < 0) {
             $lastPosition += GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD;
@@ -245,14 +253,12 @@ class TileGLMServiceTest extends TestCase
 
         // WHEN
 
-        $lastPosition = $this->tileGLMService->assignTileToPlayer($boardTile, $player);
+        $this->tileGLMService->assignTileToPlayer($boardTile, $player);
 
         // THEN
 
-        $this->assertEquals($boardTile->getTile(),
-            $personalBoard->getPlayerTiles()->last()->getTile());
-        $this->assertNotContains($boardTile, $mainBoard->getBoardTiles());
-        $this->assertNotEquals($player->getPawn()->getPosition(), $lastPosition);
+        $this->assertSame($boardTile, $personalBoard->getSelectedTile());
+        $this->assertContains($boardTile, $mainBoard->getBoardTiles());
     }
 
     /*
@@ -339,6 +345,70 @@ class TileGLMServiceTest extends TestCase
     }
     */
 
+    public function testSetPlaceTileWhenTileNotYetSelected() : void
+    {
+
+        // GIVEN
+
+        $nbOfPlayer = 4;
+        $game = $this->createGame($nbOfPlayer);
+        $player = $game->getPlayers()->first();
+        //$player->setTurnOfPlayer(true);
+
+        // WHEN
+
+        $this->expectException(Exception::class);
+
+        // THEN
+
+        $this->tileGLMService->setPlaceTileAlreadySelected($player, 0, 1);
+    }
+
+    public function testSetPlaceTileWhenTileIsSelectedAndCanPlaceTile() : void
+    {
+        // GIVEN
+
+        $nbPlayers = 4;
+        $game = $this->createGame($nbPlayers);
+        $player = $game->getPlayers()->first();
+        $personalBoard = $player->getPersonalBoard();
+        $mainBoard = $game->getMainBoard();
+
+        $tileSelected = $mainBoard->getBoardTiles()->first();
+        $personalBoard->setSelectedTile($tileSelected);
+        $lastPosition = $player->getPawn()->getPosition();
+        $playerTileAlreadyInPersonalBoard = $personalBoard->getPlayerTiles()->first();
+        $x = $playerTileAlreadyInPersonalBoard->getCoordX();
+        $y = $playerTileAlreadyInPersonalBoard->getCoordY();
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $tileGLMRepository = $this->createMock(TileGLMRepository::class);
+        $drawTilesGLMRepository = $this->createMock(DrawTilesGLMRepository::class);
+        $resourceGLMRepository = $this->createMock(ResourceGLMRepository::class);
+        $playerGLMRepository = $this->createMock(PlayerGLMRepository::class);
+        $playerTileGLMRepository = $this->createMock(PlayerTileGLMRepository::class);
+        $playerTileResourceGLMRepository = $this->createMock(PlayerTileResourceGLMRepository::class);
+        $cardGLMService = new CardGLMService($entityManager, $resourceGLMRepository);
+        $GLMService = new GLMService($entityManager, $tileGLMRepository, $drawTilesGLMRepository,
+            $resourceGLMRepository, $playerGLMRepository, $cardGLMService);
+        $mock = $this->getMockBuilder(TileGLMService::class)
+            ->setConstructorArgs(array($entityManager, $GLMService, $resourceGLMRepository,
+                $playerTileResourceGLMRepository, $playerTileGLMRepository, $cardGLMService))
+            ->onlyMethods(['canPlaceTile'])
+            ->getMock();
+        $mock->method('canPlaceTile')->willReturn(true);
+
+        // WHEN
+
+        $mock->setPlaceTileAlreadySelected($player, $x + 1, $y + 1);
+
+        // THEN
+
+        $this->assertEquals($tileSelected->getTile(),
+            $personalBoard->getPlayerTiles()->last()->getTile());
+        $this->assertNotContains($tileSelected, $mainBoard->getBoardTiles());
+        $this->assertNotEquals($player->getPawn()->getPosition(), $lastPosition);
+    }
+
     public function testGetAmountOfTileToReplaceWhenChainIsNotBroken()
     {
         // GIVEN
@@ -393,6 +463,292 @@ class TileGLMServiceTest extends TestCase
         $this->assertEquals($expectedResult, $result);
     }
 
+    public function testGetActiveDrawTileAtTheBeginningShouldBeLevelOne() : void
+    {
+        //GIVEN
+        $game = $this->createGame(5);
+        $expectedLevel = 1;
+        //WHEN
+        $drawTile = $this->tileGLMService->getActiveDrawTile($game);
+        //THEN
+        $this->assertSame($expectedLevel, $drawTile->getLevel());
+    }
+
+    public function testGetActiveDrawTileShouldBeLevelTwo() : void
+    {
+        //GIVEN
+        $game = $this->createGame(5);
+        $expectedLevel = 2;
+        $drawLevelOne = $game->getMainBoard()->getDrawTiles()->get(1);
+        $drawLevelOne->getTiles()->clear();
+        //WHEN
+        $drawTile = $this->tileGLMService->getActiveDrawTile($game);
+        //THEN
+        $this->assertSame($expectedLevel, $drawTile->getLevel());
+    }
+
+    public function testGetActiveDrawWhenLevelTwoIsEmptyButNotLevelOne() : void
+    {
+        //GIVEN
+        $game = $this->createGame(5);
+        $expectedLevel = 1;
+        $drawLevelTwo = $game->getMainBoard()->getDrawTiles()->get(2);
+        $drawLevelTwo->getTiles()->clear();
+        //WHEN
+        $drawTile = $this->tileGLMService->getActiveDrawTile($game);
+        //THEN
+        $this->assertSame($expectedLevel, $drawTile->getLevel());
+    }
+
+    public function testGetActiveDrawShouldBeThree() : void
+    {
+        //GIVEN
+        $game = $this->createGame(5);
+        $expectedLevel = 3;
+        $drawLevelOne = $game->getMainBoard()->getDrawTiles()->get(1);
+        $drawLevelOne->getTiles()->clear();
+        $drawLevelTwo = $game->getMainBoard()->getDrawTiles()->get(2);
+        $drawLevelTwo->getTiles()->clear();
+        //WHEN
+        $drawTile = $this->tileGLMService->getActiveDrawTile($game);
+        //THEN
+        $this->assertSame($expectedLevel, $drawTile->getLevel());
+    }
+
+    public function testGetActiveDrawShouldBeNull() : void
+    {
+        //GIVEN
+        $game = $this->createGame(5);
+        $drawLevelOne = $game->getMainBoard()->getDrawTiles()->get(1);
+        $drawLevelOne->getTiles()->clear();
+        $drawLevelTwo = $game->getMainBoard()->getDrawTiles()->get(2);
+        $drawLevelTwo->getTiles()->clear();
+        $drawLevelThree = $game->getMainBoard()->getDrawTiles()->get(3);
+        $drawLevelThree->getTiles()->clear();
+        //WHEN
+        $drawTile = $this->tileGLMService->getActiveDrawTile($game);
+        //THEN
+        $this->assertNull($drawTile);
+    }
+
+    public function testGetActivableTilesWithTwoAdjacentTilesNotActivatedWithBonus() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $tile = new TileGLM();
+        $bonus = new TileActivationBonusGLM();
+        $resource = new ResourceGLM();
+        $bonus->setResource($resource);
+        $tile->addActivationBonus($bonus);
+        $playerTile = new PlayerTileGLM();
+        $playerTile->setTile($tile);
+        $playerTile->setActivated(false);
+        $playerTile2 = new PlayerTileGLM();
+        $playerTile2->setTile($tile);
+        $playerTile2->setActivated(false);
+        $playerTile2->addAdjacentTile($playerTile, 0);
+        $playerTile->addAdjacentTile($playerTile2, 0);
+        $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile);
+        $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile2);
+        $expectedResult = new ArrayCollection([$playerTile, $playerTile2]);
+        //WHEN
+        $result = $this->tileGLMService->getActivableTiles($playerTile2);
+        //THEN
+        $this->assertEquals($expectedResult, $result);
+    }
+
+    public function testGetActivableTilesWithTwoAdjacentTilesFirstActivatedWithBonus() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $tile = new TileGLM();
+        $bonus = new TileActivationBonusGLM();
+        $resource = new ResourceGLM();
+        $bonus->setResource($resource);
+        $tile->addActivationBonus($bonus);
+        $playerTile = new PlayerTileGLM();
+        $playerTile->setTile($tile);
+        $playerTile->setActivated(true);
+        $playerTile2 = new PlayerTileGLM();
+        $playerTile2->setTile($tile);
+        $playerTile2->setActivated(false);
+        $playerTile2->addAdjacentTile($playerTile, 0);
+        $playerTile->addAdjacentTile($playerTile2, 0);
+        $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile);
+        $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile2);
+        $expectedResult = new ArrayCollection([$playerTile2]);
+        //WHEN
+        $result = $this->tileGLMService->getActivableTiles($playerTile2);
+        //THEN
+        $this->assertEquals($expectedResult, $result);
+    }
+
+    public function testGetActivableTilesWithTwoAdjacentTilesNotActivatedNewHasNoBonus() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $tile = new TileGLM();
+        $bonus = new TileActivationBonusGLM();
+        $resource = new ResourceGLM();
+        $bonus->setResource($resource);
+        $tile->addActivationBonus($bonus);
+        $playerTile = new PlayerTileGLM();
+        $playerTile->setTile($tile);
+        $playerTile->setActivated(false);
+        $playerTile2 = new PlayerTileGLM();
+        $tile2 = new TileGLM();
+        $playerTile2->setTile($tile2);
+        $playerTile2->setActivated(false);
+        $playerTile2->addAdjacentTile($playerTile, 0);
+        $playerTile->addAdjacentTile($playerTile2, 0);
+        $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile);
+        $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile2);
+        $expectedResult = new ArrayCollection([$playerTile]);
+        //WHEN
+        $result = $this->tileGLMService->getActivableTiles($playerTile2);
+        //THEN
+        $this->assertEquals($expectedResult, $result);
+    }
+
+    public function testGetActivableTilesWithTilesNotAdjacentNotActivatedWithBonus() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $tile = new TileGLM();
+        $bonus = new TileActivationBonusGLM();
+        $resource = new ResourceGLM();
+        $bonus->setResource($resource);
+        $tile->addActivationBonus($bonus);
+        $playerTile = new PlayerTileGLM();
+        $playerTile->setTile($tile);
+        $playerTile->setActivated(false);
+        $playerTile2 = new PlayerTileGLM();
+        $playerTile2->setTile($tile);
+        $playerTile2->setActivated(false);
+        $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile);
+        $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile2);
+        $expectedResult = new ArrayCollection([$playerTile2]);
+        //WHEN
+        $result = $this->tileGLMService->getActivableTiles($playerTile2);
+        //THEN
+        $this->assertEquals($expectedResult, $result);
+    }
+
+    public function testGetActivableTilesWithTilesAdjacentActivatedWithBonus() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $tile = new TileGLM();
+        $bonus = new TileActivationBonusGLM();
+        $resource = new ResourceGLM();
+        $bonus->setResource($resource);
+        $tile->addActivationBonus($bonus);
+        $playerTile = new PlayerTileGLM();
+        $playerTile->setTile($tile);
+        $playerTile->setActivated(true);
+        $playerTile2 = new PlayerTileGLM();
+        $playerTile2->setTile($tile);
+        $playerTile2->setActivated(true);
+        $playerTile2->addAdjacentTile($playerTile, 0);
+        $playerTile->addAdjacentTile($playerTile2, 0);
+        $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile);
+        $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile2);
+        //WHEN
+        $result = $this->tileGLMService->getActivableTiles($playerTile2);
+        //THEN
+        $this->assertEmpty($result);
+    }
+
+    public function testGetMovementPointsWithTwoTilesOfOne() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $tile = new TileGLM();
+        for ($i = 0; $i < 2; ++$i) {
+            $playerTile = new PlayerTileGLM();
+            $playerTile->setTile($tile);
+            $resource = new ResourceGLM();
+            $resource->setType(GlenmoreParameters::$MOVEMENT_RESOURCE);
+            $playerTileResource = new PlayerTileResourceGLM();
+            $playerTileResource->setResource($resource);
+            $playerTileResource->setPlayerTileGLM($playerTile);
+            $playerTileResource->setQuantity(1);
+            $playerTile->addPlayerTileResource($playerTileResource);
+            $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile);
+        }
+        $expectedResult = 2;
+        //WHEN
+        $result = $this->tileGLMService->getMovementPoints($firstPlayer);
+        //THEN
+        $this->assertSame($expectedResult, $result);
+    }
+
+    public function testGetMovementPointsWithTwoTilesOfDifferent() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        for ($i = 1; $i <= 2; ++$i) {
+            $tile = new TileGLM();
+            $playerTile = new PlayerTileGLM();
+            $playerTile->setTile($tile);
+            $resource = new ResourceGLM();
+            $resource->setType(GlenmoreParameters::$MOVEMENT_RESOURCE);
+            $playerTileResource = new PlayerTileResourceGLM();
+            $playerTileResource->setResource($resource);
+            $playerTileResource->setPlayerTileGLM($playerTile);
+            $playerTileResource->setQuantity($i);
+            $playerTile->addPlayerTileResource($playerTileResource);
+            $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile);
+        }
+        $expectedResult = 3;
+        //WHEN
+        $result = $this->tileGLMService->getMovementPoints($firstPlayer);
+        //THEN
+        $this->assertSame($expectedResult, $result);
+    }
+
+    public function testGetMovementPointsWithTwoTilesOfDifferentAndTwoOthersEmpty() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        for ($i = 0; $i <= 2; ++$i) {
+            $tile = new TileGLM();
+            $playerTile = new PlayerTileGLM();
+            $playerTile->setTile($tile);
+            $resource = new ResourceGLM();
+            $resource->setType(GlenmoreParameters::$MOVEMENT_RESOURCE);
+            $playerTileResource = new PlayerTileResourceGLM();
+            $playerTileResource->setResource($resource);
+            $playerTileResource->setPlayerTileGLM($playerTile);
+            $playerTileResource->setQuantity($i);
+            $playerTile->addPlayerTileResource($playerTileResource);
+            $resource = new ResourceGLM();
+            $resource->setType(GlenmoreParameters::$WHISKY_RESOURCE);
+            $playerTileResource = new PlayerTileResourceGLM();
+            $playerTileResource->setResource($resource);
+            $playerTileResource->setPlayerTileGLM($playerTile);
+            $playerTileResource->setQuantity($i);
+            $playerTile->addPlayerTileResource($playerTileResource);
+            $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile);
+        }
+        $tile = new TileGLM();
+        $playerTile = new PlayerTileGLM();
+        $playerTile->setTile($tile);
+        $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile);
+        $expectedResult = 3;
+        //WHEN
+        $result = $this->tileGLMService->getMovementPoints($firstPlayer);
+        //THEN
+        $this->assertSame($expectedResult, $result);
+    }
 
     private function createGame(int $nbOfPlayers): GameGLM
     {
@@ -405,7 +761,7 @@ class TileGLMServiceTest extends TestCase
             $draw = new DrawTilesGLM();
             $draw->setLevel($i);
             $draw->setMainBoardGLM($mainBoard);
-            for ($j = 1; $j <= 15; ++$j) {
+            for ($j = 1; $j <= 8; ++$j) {
                 $tile = new TileGLM();
                 $tile->setLevel($j);
                 if ($j % 5 == 0) {
@@ -461,14 +817,21 @@ class TileGLMServiceTest extends TestCase
             $startTile = new TileGLM();
             $startTile->setName(GlenmoreParameters::$TILE_NAME_START_VILLAGE);
             $startTile->setType(GlenmoreParameters::$TILE_TYPE_VILLAGE);
+            $startTile->setContainingRiver(true);
+            $startTile->setContainingRiver(true);
             $playerTile->setTile($startTile);
             $playerTile->setPersonalBoard($personalBoard);
+            $playerTile->setCoordX(0);
+            $playerTile->setCoordY(0);
             $playerTileResource = new PlayerTileResourceGLM();
             $playerTileResource->setPlayerTileGLM($playerTile);
+            $playerTileResource->setPlayer($player);
             $villager = new ResourceGLM();
             $villager->setType(GlenmoreParameters::$VILLAGER_RESOURCE);
             $playerTileResource->setResource($villager);
             $playerTileResource->setQuantity(1);
+            $playerTile->addPlayerTileResource($playerTileResource);
+            $personalBoard->addPlayerTile($playerTile);
         }
 
         for ($i = $nbOfPlayers; $i < GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD; ++$i) {
