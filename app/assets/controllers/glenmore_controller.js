@@ -111,4 +111,9 @@ export default class extends Controller {
         let url = player.params.url;
         const response = await fetch(url);
     }
+
+    async buyTile(tile) {
+        let url = tile.params.url;
+        const response = await fetch(url);
+    }
 }
