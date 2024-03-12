@@ -163,6 +163,7 @@ class GLMServiceIntegrationTest extends KernelTestCase
         $playerTile->setTile($tile);
         $entityManager->persist($playerTile);
         $playerTileResource = new PlayerTileResourceGLM();
+        $playerTileResource->setPlayer($lastPlayer);
         $resource = $resourceGLMRepository->findOneBy(["id" => 1]);
         $playerTileResource->setResource($resource);
         $playerTileResource->setQuantity(2);
@@ -180,6 +181,7 @@ class GLMServiceIntegrationTest extends KernelTestCase
         $playerTile->setTile($tile);
         $entityManager->persist($playerTile);
         $playerTileResource = new PlayerTileResourceGLM();
+        $playerTileResource->setPlayer($firstPlayer);
         $resource = $resourceGLMRepository->findOneBy(["type" => GlenmoreParameters::$WHISKY_RESOURCE]);
         $playerTileResource->setResource($resource);
         $playerTileResource->setQuantity(3);
@@ -217,6 +219,7 @@ class GLMServiceIntegrationTest extends KernelTestCase
         $playerTile->setTile($tile);
         $entityManager->persist($playerTile);
         $playerTileResource = new PlayerTileResourceGLM();
+        $playerTileResource->setPlayer($lastPlayer);
         $resource = $resourceGLMRepository->findOneBy(["id" => 1]);
         $playerTileResource->setResource($resource);
         $playerTileResource->setQuantity(2);
@@ -234,6 +237,7 @@ class GLMServiceIntegrationTest extends KernelTestCase
         $playerTile->setTile($tile);
         $entityManager->persist($playerTile);
         $playerTileResource = new PlayerTileResourceGLM();
+        $playerTileResource->setPlayer($firstPlayer);
         $resource = $resourceGLMRepository->findOneBy(["type" => GlenmoreParameters::$PRODUCTION_RESOURCE]);
         $playerTileResource->setResource($resource);
         $playerTileResource->setQuantity(1);
@@ -249,6 +253,7 @@ class GLMServiceIntegrationTest extends KernelTestCase
         $playerTile->setTile($tile);
         $entityManager->persist($playerTile);
         $playerTileResource = new PlayerTileResourceGLM();
+        $playerTileResource->setPlayer($firstPlayer);
         $resource = $resourceGLMRepository->findOneBy(["type" => GlenmoreParameters::$PRODUCTION_RESOURCE]);
         $playerTileResource->setResource($resource);
         $playerTileResource->setQuantity(1);
@@ -286,6 +291,7 @@ class GLMServiceIntegrationTest extends KernelTestCase
             $startTile = $tileRepository->findOneBy(["id" => 68]);
             $tile->setTile($startTile);
             $tileResource = new PlayerTileResourceGLM();
+            $tileResource->setPlayer($players[1]);
             $resource = $resourceRepository->findOneBy(["id" => 6]);
             $tileResource->setResource($resource);
             $tileResource->setQuantity($i);
@@ -326,6 +332,7 @@ class GLMServiceIntegrationTest extends KernelTestCase
         $tile->setCoordX(0);
         $tile->setTile($startTile);
         $tileResource = new PlayerTileResourceGLM();
+        $tileResource->setPlayer($players[1]);
         $resource = $resourceRepository->findOneBy(["id" => 6]);
         $tileResource->setResource($resource);
         $tileResource->setQuantity(0);
@@ -345,6 +352,7 @@ class GLMServiceIntegrationTest extends KernelTestCase
         $tile->setCoordX(0);
         $tile->setTile($startTile);
         $tileResource = new PlayerTileResourceGLM();
+        $tileResource->setPlayer($players[1]);
         $resource = $resourceRepository->findOneBy(["id" => 7]);
         $tileResource->setResource($resource);
         $tileResource->setQuantity(1);
@@ -541,6 +549,7 @@ class GLMServiceIntegrationTest extends KernelTestCase
             $entityManager->persist($playerTile);
             $playerTileResource = new PlayerTileResourceGLM();
             $playerTileResource->setPlayerTileGLM($playerTile);
+            $playerTileResource->setPlayer($player);
             $playerTileResource->setResource($villager);
             $playerTileResource->setQuantity(1);
             $entityManager->persist($playerTileResource);

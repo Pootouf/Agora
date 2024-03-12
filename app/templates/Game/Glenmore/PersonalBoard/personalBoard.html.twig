@@ -4,11 +4,12 @@ This section displays the personal board of a player
 @return :
 #}
 
-<div id="closedPersonalBoard" class="bg-[#888060] w-[3/4] landscape:w-[75%] inline-block h-[3rem] landscape:h-fit
+<div id="closedPersonalBoard" class="bg-[#888060] w-[3/4] w-[75%] inline-block h-[3rem] h-fit
                                     lg:h-fit absolute bottom-0 z-9 rounded-tr-2xl"
         {{ stimulus_controller('glenmore') }}
 >
-    <div class="flex justify-center align-center w-full h-full cursor-pointer"
+    <div class="flex landscape:justify-center portrait:justify-end portrait:align-right
+                landscape:align-center w-full h-full cursor-pointer"
             {{ stimulus_action('glenmore', 'togglePersonalBoard', 'click', { 'open': true}) }}>
         <img src="{{ asset('resourcesGames/utils/arrow_up.svg') }}" alt="arrow up" class="h-8 landscape:h-4 mt-1 mr-2">
         <p class="text-5xl landscape:text-base">Plateau personnel</p>

@@ -34,7 +34,7 @@ class TileActivationBonusGLMTest extends TestCase
         $this->assertSame($this->tileActivationBonusGLM->getResource(), $resource);
     }
 
-    public function test() : void
+    public function testSetAmount() : void
     {
         // GIVEN
 

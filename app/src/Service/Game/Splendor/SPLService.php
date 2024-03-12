@@ -350,6 +350,10 @@ class SPLService
         foreach ($levelThreeCards as $card) {
             $drawCardLevelThree->addDevelopmentCard($card);
         }
+        foreach ($game->getPlayers() as $player) {
+            $player->setTurnOfPlayer(false);
+            $this->entityManager->persist($player);
+        }
         $firstPlayer = $game->getPlayers()->first();
         $firstPlayer->setTurnOfPlayer(true);
         $this->entityManager->persist($firstPlayer);
@@ -365,10 +369,10 @@ class SPLService
      * reserveCard : a player reserve a development card
      * @param PlayerSPL $player
      * @param DevelopmentCardsSPL $card
-     * @return void
+     * @return array
      * @throws Exception
      */
-    public function reserveCard(PlayerSPL $player, DevelopmentCardsSPL $card) : void
+    public function reserveCard(PlayerSPL $player, DevelopmentCardsSPL $card) : array
     {
         if (!$this->canReserveCard($player, $card))
         {
@@ -393,17 +397,20 @@ class SPLService
         $personalBoard->addPlayerCard($playerCard);
         $this->entityManager->persist($playerCard);
         $this->entityManager->persist($personalBoard);
-
+        $cardFromDraw = null;
         if ($from === SplendorParameters::$COMES_OF_THE_DISCARDS)
         {
             $this->manageDiscard($mainBoard, $card);
         } else {
-            $this->manageRow($mainBoard, $card);
+            $cardFromDraw = $this->manageRow($mainBoard, $card);
         }
-
-        $this->manageJokerToken($player);
+        $returnedData = array(
+            "isJokerTaken" => $this->manageJokerToken($player),
+            "cardFromDraw" => $cardFromDraw,
+        );
 
         $this->entityManager->flush();
+        return $returnedData;
     }
 
     /**
@@ -430,6 +437,7 @@ class SPLService
 
     /**
      * endRoundOfPlayer : ends player's round and gives it to next player
+     * @param GameSPL $gameSPL
      * @param PlayerSPL $playerSPL
      * @return void
      */
@@ -478,6 +486,7 @@ class SPLService
 
             $retrievePlayerMoney = $this->retrievePlayerMoney($playerSPL, $developmentCardsSPL);
 
+            $newDevCardInRow = null;
             if($playerCardSPL->isIsReserved()) {
                 $playerCardSPL->setIsReserved(false);
                 $this->entityManager->persist($playerCardSPL);
@@ -494,17 +503,20 @@ class SPLService
                 $levelDraw = $mainBoard->getDrawCards()->get($levelCard - 1);
 
                 if ($levelDraw->getDevelopmentCards()->count() > 0) {
-                    $row->addDevelopmentCard($levelDraw->getDevelopmentCards()->first());
+                    $newDevCardInRow = $levelDraw->getDevelopmentCards()->first();
+                $row->addDevelopmentCard($levelDraw->getDevelopmentCards()->first());
                     //Remove the new card from draw
                     $levelDraw->removeDevelopmentCard($levelDraw->getDevelopmentCards()->first());
                     $this->entityManager->persist($levelDraw);
                 }
-
                 $this->entityManager->persist($row);
             }
 
             $this->calculatePrestigePoints($playerSPL);
-            return $retrievePlayerMoney;
+            return array(
+                "retrievePlayerMoney" => $retrievePlayerMoney,
+                "newDevCard" => $newDevCardInRow,
+            );
         } else {
             throw new Exception('Not enough money to buy this card');
         }
@@ -599,7 +611,7 @@ class SPLService
         return $card === $testCard;
     }
 
-    private function manageRow(MainBoardSPL $mainBoard, DevelopmentCardsSPL $card): void
+    private function manageRow(MainBoardSPL $mainBoard, DevelopmentCardsSPL $card): DevelopmentCardsSPL
     {
         $level = $card->getLevel() - 1;
         $row = $mainBoard->getRowsSPL()->get($level);
@@ -609,6 +621,7 @@ class SPLService
         $discardsOfLevel = $mainBoard->getDrawCards()->get($level);
         $cardsInDiscard = $discardsOfLevel->getDevelopmentCards();
         $numberOfCard = $cardsInDiscard->count();
+        $discard = null;
         if ($numberOfCard > 0)
         {
             $discard = $cardsInDiscard->get($numberOfCard - 1);
@@ -617,6 +630,7 @@ class SPLService
             $this->entityManager->persist($discardsOfLevel);
         }
         $this->entityManager->persist($row);
+        return $discard;
     }
 
     private function manageDiscard(MainBoardSPL $mainBoard, DevelopmentCardsSPL $card): void
@@ -627,7 +641,7 @@ class SPLService
         $this->entityManager->persist($discardsAtLevel);
     }
 
-    private function manageJokerToken(PlayerSPL $player): void
+    private function manageJokerToken(PlayerSPL $player): bool
     {
         $personalBoard = $player->getPersonalBoard();
         $tokens = $personalBoard->getTokens();
@@ -643,8 +657,10 @@ class SPLService
                 $mainBoard->removeToken($joker);
                 $this->entityManager->persist($personalBoard);
                 $this->entityManager->persist($mainBoard);
+                return true;
             }
         }
+        return false;
     }
 
     private function getNumberOfTokenAtColorAtMainBoard(MainBoardSPL $mainBoard, string $color) : int

@@ -2,7 +2,6 @@
 
 namespace App\Tests\Game\Glenmore\Unit\Entity;
 
-use App\Entity\Game\Glenmore\PlayerGLM;
 use App\Entity\Game\Glenmore\PlayerTileGLM;
 use App\Entity\Game\Glenmore\PlayerTileResourceGLM;
 use App\Entity\Game\Glenmore\ResourceGLM;
@@ -24,7 +23,6 @@ class PlayerTileResourceGLMTest extends TestCase
     public function testSetResource() : void
     {
         // GIVEN
-
 
         $resource = new ResourceGLM();
 

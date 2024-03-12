@@ -8,7 +8,6 @@ use PHPUnit\Framework\TestCase;
 
 class TileActivationCostGLMTest extends TestCase
 {
-
     private TileActivationCostGLM $tileActivationCostGLM;
 
     public function testInit() : void
