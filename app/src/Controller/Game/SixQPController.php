@@ -281,7 +281,7 @@ class SixQPController extends AbstractController
     private function publishChosenCards(GameSixQP $game): void
     {
         $chosenCards = $this->chosenCardSixQPRepository->findBy(['game' => $game->getId()]);
-        $response = $this->render('Game/Six_qp/chosenCards.html.twig',
+        $response = $this->render('Game/Six_qp/MainBoard/chosenCards.html.twig',
             [
                 'chosenCards' => $chosenCards,
                 'playerNumbers' => $game->getPlayerSixQPs()->count(),
@@ -320,7 +320,7 @@ class SixQPController extends AbstractController
 
     private function publishMainBoard(GameSixQP $game, ?ChosenCardSixQP $chosenCardSixQP, bool $isNewRound = false): void
     {
-        $response =  $this->render('Game/Six_qp/mainBoard.html.twig',
+        $response =  $this->render('Game/Six_qp/MainBoard/mainBoard.html.twig',
             [
                 'rows' => $game->getRowSixQPs(),
                 'game' => $game,

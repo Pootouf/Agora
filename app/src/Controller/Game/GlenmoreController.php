@@ -67,6 +67,7 @@ class GlenmoreController extends AbstractController
             'activatedNewResourceAcquisition' => false,
             'chosenNewResources' => null,
             'activatedMovementPhase' => false,
+            'buyingTile' => $player->getPersonalBoard()->getSelectedTile(),
             'messages' => $messages,
         ]);
     }
@@ -108,6 +109,36 @@ class GlenmoreController extends AbstractController
         $message = $player->getUsername() . " chose tile " . $tile->getTile()->getId();
         $this->logService->sendPlayerLog($game, $player, $message);
         return new Response('player selected this tile', Response::HTTP_OK);
+    }
+
+    #[Route('game/glenmore/{idGame}/select/tile/mainBoard/{idTile}',
+        name: 'app_game_glenmore_select_tile_on_mainboard')]
+    public function putTileOnPersonalBoard(
+        #[MapEntity(id: 'idGame')] GameGLM $game,
+        int $coordX,
+        int $coordY
+    )  : Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+        }
+        if ($this->service->getActivePlayer($game) !== $player) {
+            return new Response("Not player's turn", Response::HTTP_FORBIDDEN);
+        }
+        try {
+            $this->tileGLMService->setPlaceTileAlreadySelected($player, $coordX, $coordY);
+        } catch (Exception $e) {
+            $message = $player->getUsername() . " tried to put tile "
+                . $player->getPersonalBoard()->getSelectedTile()->getId()
+                . " but could not afford it";
+            $this->logService->sendPlayerLog($game, $player, $message);
+            return new Response("can't place this tile", Response::HTTP_FORBIDDEN);
+        }
+        // TODO Publish management
+        $message = $player->getUsername() . " put tile " . $player->getPersonalBoard()->getSelectedTile()->getId();
+        $this->logService->sendPlayerLog($game, $player, $message);
+        return new Response('player put this tile', Response::HTTP_OK);
     }
 
     #[Route('game/glenmore/{idGame}/select/tile/personalBoard/{idTile}',
