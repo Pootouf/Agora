@@ -24,6 +24,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Exception;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 
 class TileGLMService
 {
@@ -32,7 +33,8 @@ class TileGLMService
                                 private readonly ResourceGLMRepository $resourceGLMRepository,
                                 private readonly PlayerTileResourceGLMRepository $playerTileResourceGLMRepository,
                                 private readonly PlayerTileGLMRepository $playerTileGLMRepository,
-                                private readonly CardGLMService $cardGLMService){}
+                                private readonly CardGLMService $cardGLMService,
+                                private LoggerInterface $logger){}
 
 
 
@@ -129,19 +131,19 @@ class TileGLMService
     public function canPlaceTile(int $x, int $y, TileGLM $tile, PlayerGLM $player): bool
     {
         //Recovery of the adjacent tiles
-        $tileLeft = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x - 1, 'coord_Y' => $y
+        $tileLeft = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x, 'coord_Y' => $y - 1
             , 'personalBoard' => $player->getPersonalBoard()]);
-        $tileRight = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x + 1, 'coord_Y' => $y
+        $tileRight = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x, 'coord_Y' => $y + 1
             , 'personalBoard' => $player->getPersonalBoard()]);
-        $tileUp = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x, 'coord_Y' => $y - 1
+        $tileUp = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x - 1, 'coord_Y' => $y
             , 'personalBoard' => $player->getPersonalBoard()]);
-        $tileDown = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x, 'coord_Y' => $y + 1
+        $tileDown = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x + 1, 'coord_Y' => $y
             , 'personalBoard' => $player->getPersonalBoard()]);
         $tileUpLeft = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x - 1, 'coord_Y' => $y - 1
             , 'personalBoard' => $player->getPersonalBoard()]);
-        $tileUpRight = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x + 1, 'coord_Y' => $y - 1
+        $tileUpRight = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x - 1, 'coord_Y' => $y + 1
             , 'personalBoard' => $player->getPersonalBoard()]);
-        $tileDownLeft = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x - 1, 'coord_Y' => $y + 1
+        $tileDownLeft = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x + 1, 'coord_Y' => $y - 1
             , 'personalBoard' => $player->getPersonalBoard()]);
         $tileDownRight = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x + 1, 'coord_Y' => $y + 1
             , 'personalBoard' => $player->getPersonalBoard()]);
@@ -495,12 +497,9 @@ class TileGLMService
      */
     public function assignTileToPlayer(BoardTileGLM $boardTile, PlayerGLM $player) : void
     {
-        // Check if condition for assign tile - TODO Write condition for buy tile
-        /* if (!$this->checkCanBuyTile($player, $tile))
-        {
+        if (!$this->canBuyTile($boardTile->getTile(), $player)) {
             throw new Exception("Unable to buy tile");
-        } */
-
+        }
         // Initialization
         $personalBoard = $player->getPersonalBoard();
 
@@ -512,9 +511,10 @@ class TileGLMService
 
     /**
      * Place a selected tile in personal board's player at position (abscissa, ordinate)
+     *
      * @param PlayerGLM $player
-     * @param int $abscissa
-     * @param int $ordinate
+     * @param int       $abscissa
+     * @param int       $ordinate
      * @return void
      * @throws Exception
      */
@@ -539,7 +539,7 @@ class TileGLMService
             throw new Exception("Unable to place tile");
         }
 
-        // TODO take all resource's player for buy tile
+        $this->buyTile($tileSelected->getTile(), $player);
 
         // Here assign tile --> Creation of player tile and manage personal board
         $adjacentTiles = $this->getTilesAround($abscissa, $ordinate, $player);
@@ -555,16 +555,15 @@ class TileGLMService
         // Manage main board
         $mainBoard->removeBoardTile($tileSelected);
         $mainBoard->setLastPosition($lastPosition);
-
         // Set new position of pawn's player
         $player->getPawn()->setPosition($newPosition);
-
         // Update
         $this->entityManager->persist($personalBoard);
         $this->entityManager->persist($mainBoard);
         $this->entityManager->persist($player->getPawn());
         $this->entityManager->persist($player);
         $this->entityManager->flush();
+        $this->logger->critical($player->getPawn()->getPosition());
     }
 
     /**
@@ -577,22 +576,22 @@ class TileGLMService
     private function getTilesAround(int $x, int $y, PlayerGLM $player) : ArrayCollection
     {
         $result = new ArrayCollection();
-        $tileLeft = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x - 1, 'coord_Y' => $y
+        $tileLeft = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x, 'coord_Y' => $y - 1
             , 'personalBoard' => $player->getPersonalBoard()]);
         if ($tileLeft != null) {
             $result->set(GlenmoreParameters::$WEST, $tileLeft);
         }
-        $tileRight = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x + 1, 'coord_Y' => $y
+        $tileRight = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x, 'coord_Y' => $y + 1
             , 'personalBoard' => $player->getPersonalBoard()]);
         if ($tileRight != null) {
             $result->set(GlenmoreParameters::$EAST, $tileRight);
         }
-        $tileUp = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x, 'coord_Y' => $y - 1
+        $tileUp = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x - 1, 'coord_Y' => $y
             , 'personalBoard' => $player->getPersonalBoard()]);
         if ($tileUp != null) {
             $result->set(GlenmoreParameters::$NORTH, $tileUp);
         }
-        $tileDown = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x, 'coord_Y' => $y + 1
+        $tileDown = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x + 1, 'coord_Y' => $y
             , 'personalBoard' => $player->getPersonalBoard()]);
         if ($tileDown != null) {
             $result->set(GlenmoreParameters::$SOUTH, $tileDown);
@@ -602,12 +601,12 @@ class TileGLMService
         if ($tileUpLeft != null) {
             $result->set(GlenmoreParameters::$NORTH_WEST, $tileUpLeft);
         }
-        $tileUpRight = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x + 1, 'coord_Y' => $y - 1
+        $tileUpRight = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x - 1, 'coord_Y' => $y + 1
             , 'personalBoard' => $player->getPersonalBoard()]);
         if ($tileUpRight != null) {
             $result->set(GlenmoreParameters::$NORTH_EAST, $tileUpRight);
         }
-        $tileDownLeft = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x - 1, 'coord_Y' => $y + 1
+        $tileDownLeft = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x + 1, 'coord_Y' => $y - 1
             , 'personalBoard' => $player->getPersonalBoard()]);
         if ($tileDownLeft != null) {
             $result->set(GlenmoreParameters::$SOUTH_WEST, $tileDownLeft);

@@ -57,6 +57,8 @@ class GlenmoreController extends AbstractController
             $needToPlay = $player->isTurnOfPlayer();
         }
         $messages = $this->messageService->receiveMessage($game->getId());
+        $activePlayer = $this->service->getActivePlayer($game);
+        $personalBoard = $activePlayer->getPersonalBoard();
         return $this->render('/Game/Glenmore/index.html.twig', [
             'game' => $game,
             'player' => $player,
@@ -64,7 +66,7 @@ class GlenmoreController extends AbstractController
             'needToPlay' => $needToPlay,
             'isGameFinished' => $this->service->isGameEnded($game),
             'selectedTile' => null,
-            'activableTiles' => null,
+            'activableTiles' => $this->tileGLMService->getActivableTiles($personalBoard->getPlayerTiles()->last()),
             'potentialNeighbours' => null,
             'currentDrawTile' => $this->tileGLMService->getActiveDrawTile($game),
             'personalBoardTiles' => $this->dataManagementGLMService->organizePersonalBoardRows($player),
