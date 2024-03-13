@@ -396,7 +396,7 @@ class TileGLMService
         if(!$this->hasEnoughPlaceToActivate($tileGLM)) {
             throw new \Exception("NOT ENOUGH PLACE ON TILE");
         }
-        if($tile->getType() != GlenmoreParameters::$TILE_NAME_FAIR){
+        if($tile->getType() != GlenmoreParameters::$TILE_TYPE_BROWN){
             $this->givePlayerActivationBonus($tileGLM, $playerGLM);
             $this->entityManager->persist($tileGLM);
         } else {
@@ -683,7 +683,9 @@ class TileGLMService
         $bonusResources = $tileGLM->getActivationBonus();
         $bonusCount = 0;
         foreach ($bonusResources as $bonusResource){
-            $bonusCount += $bonusResource->getAmount();
+            if($bonusResource->getResource()->getType() == GlenmoreParameters::$PRODUCTION_RESOURCE){
+                $bonusCount += $bonusResource->getAmount();
+            }
         }
         $playerResourceCount = 0;
         $resourcesOnTile = $playerTileGLM->getPlayerTileResource();
