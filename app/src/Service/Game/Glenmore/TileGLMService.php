@@ -7,6 +7,7 @@ use App\Entity\Game\Glenmore\DrawTilesGLM;
 use App\Entity\Game\Glenmore\GameGLM;
 use App\Entity\Game\Glenmore\GlenmoreParameters;
 use App\Entity\Game\Glenmore\MainBoardGLM;
+use App\Entity\Game\Glenmore\PawnGLM;
 use App\Entity\Game\Glenmore\PersonalBoardGLM;
 use App\Entity\Game\Glenmore\PlayerCardGLM;
 use App\Entity\Game\Glenmore\PlayerGLM;
@@ -356,7 +357,7 @@ class TileGLMService
         $posTile = $currentPosition;
 
         // Search last position busy by a tile
-        while ($this->getBoardTilesAtPosition($mainBoard, $posTile) == null)
+        while ($this->getBoardTilesAtPosition($mainBoard, $posTile) == null && $this->getPawnsAtPosition($player, $mainBoard, $posTile) == null)
         {
             $posTile -= 1;
             if ($posTile < 0) {
@@ -803,7 +804,7 @@ class TileGLMService
      * @param int $position
      * @return BoardTileGLM|null
      */
-    private function getBoardTilesAtPosition(MainBoardGLM $mainBoard, int $position): ?BoardTileGLM
+    private function getBoardTilesAtPosition(MainBoardGLM $mainBoard, int $position): BoardTileGLM|null
     {
         $boardTiles = $mainBoard->getBoardTiles();
         foreach ($boardTiles as $boardTile) {
@@ -814,6 +815,32 @@ class TileGLMService
         }
         return null;
     }
+
+    /**
+     * Return a pawn that position is equal to parameter else null
+     * @param PlayerGLM $playerGLM
+     * @param MainBoardGLM $mainBoard
+     * @param int $position
+     * @return BoardTileGLM|null
+     */
+    private function getPawnsAtPosition(PlayerGLM $playerGLM, MainBoardGLM $mainBoard, int $position): PawnGLM|null
+    {
+       $pawns = new ArrayCollection();
+       foreach ($mainBoard->getPawns() as $pawn) {
+           if ($pawn->getPlayerGLM() !== $playerGLM) {
+               $pawns->add($pawn);
+           }
+       }
+        foreach ($pawns as $pawn) {
+            $this->logger->critical($pawn->getColor());
+            if ($pawn->getPosition() == $position)
+            {
+                return $pawn;
+            }
+        }
+        return null;
+    }
+
 
     /**
      * getTileInPosition : return BoardTileGLM in position $position,

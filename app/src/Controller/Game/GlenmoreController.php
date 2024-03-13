@@ -244,6 +244,9 @@ class GlenmoreController extends AbstractController
         if ($player == null) {
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
         }
+        if ($this->service->getActivePlayer($game) !== $player) {
+            return new Response("Not player's turn", Response::HTTP_FORBIDDEN);
+        }
         try {
             $this->tileGLMService->removeVillager($tile);
         } catch (\Exception) {
@@ -270,6 +273,9 @@ class GlenmoreController extends AbstractController
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+        }
+        if ($this->service->getActivePlayer($game) !== $player) {
+            return new Response("Not player's turn", Response::HTTP_FORBIDDEN);
         }
         try {
             $this->tileGLMService->activateBonus($tile, $player);
@@ -311,6 +317,9 @@ class GlenmoreController extends AbstractController
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+        }
+        if ($this->service->getActivePlayer($game) !== $player) {
+            return new Response("Not player's turn", Response::HTTP_FORBIDDEN);
         }
         try {
             $this->tileGLMService->moveVillager($tile, $dir);
