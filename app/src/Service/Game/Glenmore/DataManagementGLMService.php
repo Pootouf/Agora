@@ -3,6 +3,7 @@
 namespace App\Service\Game\Glenmore;
 
 use App\Entity\Game\DTO\Glenmore\BoardBoxGLM;
+use App\Entity\Game\DTO\Glenmore\PersonalBoardBoxGLM;
 use App\Entity\Game\Glenmore\GameGLM;
 use App\Entity\Game\Glenmore\GlenmoreParameters;
 use App\Entity\Game\Glenmore\PlayerGLM;
@@ -137,9 +138,11 @@ class DataManagementGLMService
         $result = new ArrayCollection();
 
         $miny = $this->playerTileGLMRepository->
-        findOneBy(['personalBoard' => $playerGLM->getPersonalBoard()], ['coord_Y' => 'ASC'])->getCoordY(); // renvoie startTile, bien
+        findOneBy(['personalBoard' => $playerGLM->getPersonalBoard()], ['coord_Y' => 'ASC'])->getCoordY();
         $maxy = $this->playerTileGLMRepository->
-        findOneBy(['personalBoard' => $playerGLM->getPersonalBoard()], ['coord_Y' => 'DESC'])->getCoordY(); // alors autant suis d'accord, mais du coup pourquoi ça vient pas du code ?
+        findOneBy(['personalBoard' => $playerGLM->getPersonalBoard()], ['coord_Y' => 'DESC'])->getCoordY();
+        $minx = $this->playerTileGLMRepository->
+        findOneBy(['personalBoard' => $playerGLM->getPersonalBoard()], ['coord_X' => 'ASC'])->getCoordX();
 
         //Sorting by x coord and then by y coord
         $tiles = $playerGLM->getPersonalBoard()->getPlayerTiles()->toArray();
@@ -151,24 +154,26 @@ class DataManagementGLMService
         $previousTile = $tiles[0];
         $currentLine = new ArrayCollection();
         $y = $miny;
+        $x = $minx;
         foreach ($tiles as $tile) {
             // Move to the next line
             if ($previousTile->getCoordX() < $tile->getCoordX()) {
                 // Fill the gaps up to y max coord
                 while ($y <= $maxy) {
-                    $currentLine->add(null);
+                    $currentLine->add(new PersonalBoardBoxGLM(null, $x, $y));
                     $y++;
                 }
                 $y = $miny;
                 $result->add($currentLine);
+                $x++;
                 $currentLine = new ArrayCollection();
             }
             // Fill the gaps up to the next y coord
             while ($y < $tile->getCoordY()) {
-                $currentLine->add(null);
+                $currentLine->add(new PersonalBoardBoxGLM(null, $x, $y));
                 $y++;
             }
-            $currentLine->add($tile);
+            $currentLine->add(new PersonalBoardBoxGLM($tile, $x, $y));
             $previousTile = $tile;
             $y++;
         }
