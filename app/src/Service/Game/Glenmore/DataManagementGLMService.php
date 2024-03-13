@@ -11,6 +11,7 @@ use App\Entity\Game\Splendor\SplendorParameters;
 use App\Repository\Game\Glenmore\PlayerTileGLMRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Psr\Log\LoggerInterface;
 
 
 /**
@@ -137,12 +138,16 @@ class DataManagementGLMService
     {
         $result = new ArrayCollection();
 
+        // Change min and max y & x for adding extra empty tile (one empty line at the start of the board, one empty
+        //  tile at each side of the line)
         $miny = $this->playerTileGLMRepository->
-        findOneBy(['personalBoard' => $playerGLM->getPersonalBoard()], ['coord_Y' => 'ASC'])->getCoordY();
+        findOneBy(['personalBoard' => $playerGLM->getPersonalBoard()], ['coord_Y' => 'ASC'])->getCoordY() - 1;
         $maxy = $this->playerTileGLMRepository->
-        findOneBy(['personalBoard' => $playerGLM->getPersonalBoard()], ['coord_Y' => 'DESC'])->getCoordY();
+        findOneBy(['personalBoard' => $playerGLM->getPersonalBoard()], ['coord_Y' => 'DESC'])->getCoordY() + 1;
         $minx = $this->playerTileGLMRepository->
-        findOneBy(['personalBoard' => $playerGLM->getPersonalBoard()], ['coord_X' => 'ASC'])->getCoordX();
+        findOneBy(['personalBoard' => $playerGLM->getPersonalBoard()], ['coord_X' => 'ASC'])->getCoordX() - 1;
+        $maxx = $this->playerTileGLMRepository->
+            findOneBy(['personalBoard' => $playerGLM->getPersonalBoard()], ['coord_X' => 'DESC'])->getCoordX() + 1;
 
         //Sorting by x coord and then by y coord
         $tiles = $playerGLM->getPersonalBoard()->getPlayerTiles()->toArray();
@@ -151,13 +156,13 @@ class DataManagementGLMService
             return $value == 0 ? $tile1->getCoordY() - $tile2->getCoordY() : $value;
         });
 
-        $previousTile = $tiles[0];
+        $previousX = $minx;
         $currentLine = new ArrayCollection();
         $y = $miny;
         $x = $minx;
         foreach ($tiles as $tile) {
             // Move to the next line
-            if ($previousTile->getCoordX() < $tile->getCoordX()) {
+            if ($previousX < $tile->getCoordX()) {
                 // Fill the gaps up to y max coord
                 while ($y <= $maxy) {
                     $currentLine->add(new PersonalBoardBoxGLM(null, $x, $y));
@@ -167,6 +172,7 @@ class DataManagementGLMService
                 $result->add($currentLine);
                 $x++;
                 $currentLine = new ArrayCollection();
+
             }
             // Fill the gaps up to the next y coord
             while ($y < $tile->getCoordY()) {
@@ -174,10 +180,26 @@ class DataManagementGLMService
                 $y++;
             }
             $currentLine->add(new PersonalBoardBoxGLM($tile, $x, $y));
-            $previousTile = $tile;
+            $previousX = $tile->getCoordX();
+            $y++;
+        }
+        // Complete the last added line until max y
+        while ($y <= $maxy) {
+            $currentLine->add(new PersonalBoardBoxGLM(null, $x, $y));
             $y++;
         }
         $result->add($currentLine);
+        // Add an empty tile row at the end of the board
+        while($x < $maxx) {
+            $currentLine = new ArrayCollection();
+            $y = $miny;
+            while($y <= $maxy) {
+                $currentLine->add(new PersonalBoardBoxGLM(null, $x, $y));
+                $y++;
+            }
+            $x++;
+            $result->add($currentLine);
+        }
         return $result;
     }
 }

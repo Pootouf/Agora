@@ -14,17 +14,10 @@ This section displays the player's disposition of tiles
 <h2 class="font-bold border-double border-2 w-fit">Tuiles personnelles</h2>
 
 <div class="overflow-y-scroll overflow-x-scroll h-full w-full">
-    <div class="gap-1 grid grid-rows-{{ personalBoardTiles|length + 2 }}
-                grid-cols-{{ personalBoardTiles|first|length + 2 }}"
+    <div class="gap-1 grid grid-rows-{{ personalBoardTiles|length }}
+                grid-cols-{{ personalBoardTiles|first|length }}"
     >
-        {# Placement of an empty row at the top of the board #}
-        {% for playerTile in personalBoardTiles|first  %}
-            <span class="w-full h-full bg-blue-500"></span>
-        {% endfor %}
         {% for row in personalBoardTiles %}
-
-            {# Placement of an empty space at the beginning of each row #}
-            <span class="w-full h-full bg-blue-500"></span>
             {% for personalBox in row %}
 
                 {# Display for empty space #}
@@ -76,14 +69,6 @@ This section displays the player's disposition of tiles
                     </button>
                 {% endif %}
             {% endfor %}
-
-            {# Placement of an empty space at the end of each row #}
-            <span class="w-full h-full bg-blue-500"></span>
-        {% endfor %}
-
-        {# Placement of an empty row at the bottom of the board #}
-        {% for playerTile in personalBoardTiles|last  %}
-            <span class="w-full h-full bg-blue-500"></span>
         {% endfor %}
     </div>
 </div>
