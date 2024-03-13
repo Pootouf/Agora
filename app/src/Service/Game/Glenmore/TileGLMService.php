@@ -403,8 +403,8 @@ class TileGLMService
             $selectedResources = $playerGLM->getPersonalBoard()->getSelectedResources();
             $resourcesTypes = new ArrayCollection();
             foreach ($selectedResources as $selectedResource){
-                if(!$resourcesTypes->contains($selectedResource->getResource()->getType())){
-                    $resourcesTypes->add($selectedResource->getResource()->getType());
+                if(!$resourcesTypes->contains($selectedResource->getResource()->getColor())){
+                    $resourcesTypes->add($selectedResource->getResource()->getColor());
                 }
             }
             $resourcesTypesCount = $resourcesTypes->count();
@@ -413,12 +413,13 @@ class TileGLMService
             $activationBonus = $tileGLM->getTile()->getActivationBonus()->get($selectedLevel - 1);
             $playerGLM->setPoints($playerGLM->getPoints() + $activationBonus->getAmount());
             foreach ($selectedResources as $selectedResource){
-                if($resourcesTypes->contains($selectedResource->getResource()->getType())){
+                if($resourcesTypes->contains($selectedResource->getResource()->getColor())){
                     $playerGLM->getPersonalBoard()->removeSelectedResource($selectedResource);
                     $this->entityManager->persist($playerGLM->getPersonalBoard());
-                    $resourcesTypes->remove($selectedResource->getResource()->getType());
+                    $resourcesTypes->remove($selectedResource->getResource()->getColor());
                 }
             }
+            $this->entityManager->persist($playerGLM);
         }
         $tileGLM->setActivated(true);
         $this->entityManager->flush();
