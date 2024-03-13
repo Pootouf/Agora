@@ -170,7 +170,7 @@ class BoardController extends AbstractController
 
         $boards = $boardRepository->searchBoards($data);
 
-        return $this->render('platform/dashboard_tables/index.html.twig', [
+        return $this->render('platform/dashboard/tables.html.twig', [
             'boards' => $boards,
             'searchboard' => $form->createView(),
         ]);
@@ -193,7 +193,7 @@ class BoardController extends AbstractController
         $form->handleRequest($request);
         $boards = $boardRepository->searchBoardsByGame($data, $game);
 
-        return $this->render('platform/dashboard_tables/index.html.twig', [
+        return $this->render('platform/dashboard/tables.html.twig', [
             'boards' => $boards,
             'searchboard' => $form->createView(),
         ]);
