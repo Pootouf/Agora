@@ -111,8 +111,8 @@ class GlenmoreController extends AbstractController
         return new Response('player selected this tile', Response::HTTP_OK);
     }
 
-    #[Route('game/glenmore/{idGame}/select/tile/mainBoard/{idTile}',
-        name: 'app_game_glenmore_select_tile_on_mainboard')]
+    #[Route('game/glenmore/{idGame}/select/tile/mainBoard/{coordX}/{coordY}',
+        name: 'app_game_glenmore_put_tile_on_personal_board')]
     public function putTileOnPersonalBoard(
         #[MapEntity(id: 'idGame')] GameGLM $game,
         int $coordX,
