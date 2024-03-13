@@ -806,13 +806,11 @@ class TileGLMService
     private function getBoardTilesAtPosition(MainBoardGLM $mainBoard, int $position): ?BoardTileGLM
     {
         $boardTiles = $mainBoard->getBoardTiles();
-        for ($i = 0; $i < count($boardTiles); $i++)
-        {
-           $boardTile = $boardTiles->get($i);
-           if ($boardTile->getPosition() == $position)
-           {
+        foreach ($boardTiles as $boardTile) {
+            if ($boardTile->getPosition() == $position)
+            {
                return $boardTile;
-           }
+            }
         }
         return null;
     }
