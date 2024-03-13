@@ -273,9 +273,7 @@ class GLMService
         $game->getPlayers()->first()->setTurnOfPlayer(true);
         $position = 0;
         foreach ($game->getPlayers() as $player) {
-            $pawn = new PawnGLM();
-            $pawn->setPlayerGLM($player);
-            $pawn->setColor(GlenmoreParameters::$COLOR_FROM_POSITION[$position]);
+            $pawn = $player->getPawn();
             $pawn->setPosition($position);
             $game->getMainBoard()->addPawn($pawn);
             $this->entityManager->persist($pawn);
