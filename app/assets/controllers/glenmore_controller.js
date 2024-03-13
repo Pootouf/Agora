@@ -88,12 +88,18 @@ export default class extends Controller {
     }
 
     async buyTile(tile) {
+        personalBoard.togglePersonalBoard(true);
         let url = tile.params.url;
         const response = await fetch(url);
     }
 
     async displayPlayerBoard(board) {
         let url = board.params.url;
+        const response = await fetch(url);
+    }
+
+    async putTileInPersonalBoard(tile){
+        let url = tile.params.url;
         const response = await fetch(url);
     }
 

@@ -1030,7 +1030,7 @@ class TileGLMService
             if ($adjacentTiles->get($i) !== null) {
                 $playerTile->addAdjacentTile($adjacentTiles->get($i), $i);
                 $this->entityManager->persist($playerTile);
-                $adjacentTiles->get($i)->set(($i + 4) % 8, $playerTile);
+                $adjacentTiles->get($i)->addAdjacentTile($playerTile, ($i + 4) % 8);
                 $this->entityManager->persist($adjacentTiles->get($i));
             }
         }

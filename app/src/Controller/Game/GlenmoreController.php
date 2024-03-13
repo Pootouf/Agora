@@ -131,15 +131,12 @@ class GlenmoreController extends AbstractController
         try {
             $this->tileGLMService->setPlaceTileAlreadySelected($player, $coordX, $coordY);
         } catch (Exception $e) {
-            $message = $player->getUsername() . " tried to put tile "
-                . $player->getPersonalBoard()->getSelectedTile()->getId()
-                . " but could not afford it";
-            $this->logService->sendPlayerLog($game, $player, $message);
+            //$this->logService->sendPlayerLog($game, $player, $message);
             return new Response("can't place this tile", Response::HTTP_FORBIDDEN);
         }
         // TODO Publish management
-        $message = $player->getUsername() . " put tile " . $player->getPersonalBoard()->getSelectedTile()->getId();
-        $this->logService->sendPlayerLog($game, $player, $message);
+//        $message = $player->getUsername() . " put tile " . $player->getPersonalBoard()->getSelectedTile()->getId();
+//        $this->logService->sendPlayerLog($game, $player, $message);
         return new Response('player put this tile', Response::HTTP_OK);
     }
 

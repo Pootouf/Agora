@@ -22,7 +22,12 @@ This section displays the player's disposition of tiles
 
                 {# Display for empty space #}
                 {% if personalBox.playerTile == null %}
-                    <span class="w-full h-full bg-gray-500"></span>
+                    <button type="button" class="w-full h-full bg-gray-500"
+                    {{ stimulus_action('glenmore','putTileInPersonalBoard','click',
+                        {url: path('app_game_glenmore_put_tile_on_personal_board',
+                            {idGame: game.id, coordX: personalBox.coordX, coordY: personalBox.coordY})
+                        })
+                    }}></button>
 
                 {# Display for tile #}
                 {% else %}
