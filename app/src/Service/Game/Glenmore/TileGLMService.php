@@ -932,10 +932,13 @@ class TileGLMService
         foreach ($activationPrices as $activationPrice){
             $activationCost = $activationPrice->getPrice();
             foreach ($selectedResources as $selectedResource) {
-                if($selectedResource->getResource()->getType() == $activationPrice->getResource()->getType()
+                if($selectedResource->getResource()->getColor() == $activationPrice->getResource()->getColor()
                     && $activationCost > 0){
-                    $playerGLM->getPersonalBoard()->removeSelectedResource($selectedResource);
-                    $activationCost -= $selectedResource->getQuantity();
+                    while ($selectedResource->getQuantity() > 0 && $activationCost > 0){
+                        $activationCost -= 1;
+                        $selectedResource->setQuantity($selectedResource->getQuantity() - 1);
+                        $this->entityManager->persist($selectedResource);
+                    }
                     $this->entityManager->persist($playerGLM->getPersonalBoard());
                 }
             }
