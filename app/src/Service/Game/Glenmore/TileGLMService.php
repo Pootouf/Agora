@@ -366,7 +366,9 @@ class TileGLMService
 
         // Search next position relative to the position found
         $posTile += 1;
-        $posTile %= GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD;
+        if ($posTile == GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD) {
+            $posTile = 0;
+        }
 
         // Manage draw tile and update
         $tile = $drawTiles->getTiles()->last();
@@ -898,7 +900,6 @@ class TileGLMService
         if($pointerPosition == -1){
             $pointerPosition = GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD - 1;
         }
-        $mainBoardTiles = $mainBoardGLM->getBoardTiles();
         while (($tile = $this->getTileInPosition($mainBoardGLM, $pointerPosition)) != null){
             $mainBoardGLM->removeBoardTile($tile);
             $pointerPosition -= 1;
@@ -906,6 +907,7 @@ class TileGLMService
                 $pointerPosition = GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD - 1;
             }
             $this->entityManager->persist($mainBoardGLM);
+            $this->entityManager->remove($tile);
         }
         $this->entityManager->flush();
     }

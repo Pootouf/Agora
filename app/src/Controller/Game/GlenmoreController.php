@@ -2,7 +2,6 @@
 
 namespace App\Controller\Game;
 
-use App\Entity\Game\DTO\Glenmore\BoardBoxGLM;
 use App\Entity\Game\Glenmore\BoardTileGLM;
 use App\Entity\Game\Glenmore\GameGLM;
 use App\Entity\Game\Glenmore\GlenmoreParameters;
@@ -39,6 +38,7 @@ class GlenmoreController extends AbstractController
                                 private TileGLMService $tileGLMService,
                                 private CardGLMService $cardGLMService,
                                 private LogService $logService,
+                                private LoggerInterface $logger,
                                 private BoardTileGLMRepository $boardTileGLMRepository,
                                 private ResourceGLMRepository $resourceGLMRepository,
                                 private PublishService $publishService)
@@ -98,7 +98,7 @@ class GlenmoreController extends AbstractController
             name: 'app_game_glenmore_select_tile_on_mainboard')]
     public function selectTileOnMainBoard(
         #[MapEntity(id: 'idGame')] GameGLM $game,
-        #[MapEntity(id: 'idTile')] TileGLM $tile
+        #[MapEntity(id: 'idTile')] BoardTileGLM $tile
     )  : Response
     {
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
@@ -108,17 +108,16 @@ class GlenmoreController extends AbstractController
         if ($this->service->getActivePlayer($game) !== $player) {
             return new Response("Not player's turn", Response::HTTP_FORBIDDEN);
         }
-        $boardTile = $this->boardTileGLMRepository->findOneBy(["tile" => $tile->getId()]);
         try {
-            $this->tileGLMService->assignTileToPlayer($boardTile, $player);
+            $this->tileGLMService->assignTileToPlayer($tile, $player);
         } catch (Exception) {
-            $message = $player->getUsername() . " tried to choose tile " . $boardTile->getId()
+            $message = $player->getUsername() . " tried to choose tile " . $tile->getId()
                 . " but could not afford it";
             $this->logService->sendPlayerLog($game, $player, $message);
             return new Response("can't afford this tile", Response::HTTP_FORBIDDEN);
         }
         // TODO Publish management
-        $message = $player->getUsername() . " chose tile " . $boardTile->getId();
+        $message = $player->getUsername() . " chose tile " . $tile->getId();
         $this->logService->sendPlayerLog($game, $player, $message);
         return new Response('player selected this tile', Response::HTTP_OK);
     }
