@@ -905,7 +905,7 @@ class TileGLMServiceTest extends TestCase
         $this->tileGLMService->activateBonus($playerTile, $firstPlayer);
     }
 
-    public function testActivateTileWhenTileNotOfTypeFairAndNeedNoResources()
+    public function testActivateTileWhenTileNotOfTypeBrownAndNeedNoResources()
     {
         // GIVEN
         $game = $this->createGame(2);
@@ -938,9 +938,10 @@ class TileGLMServiceTest extends TestCase
             $resourceArray->add($resource->getResource());
         }
         $this->assertContainsEquals($bonusResource ,$resourceArray);
+        $this->assertTrue($playerTile->isActivated());
     }
 
-    public function testActivateTileWhenTileNotOfTypeFairAndNeedResources()
+    public function testActivateTileWhenTileNotOfTypeBrownAndNeedResources()
     {
         // GIVEN
         $game = $this->createGame(2);
@@ -980,6 +981,48 @@ class TileGLMServiceTest extends TestCase
             $resourceArray->add($resource->getResource());
         }
         $this->assertContainsEquals($bonusResource ,$resourceArray);
+        $this->assertTrue($playerTile->isActivated());
+    }
+
+    public function testActivateTileWhenTileOfTypeBrownWithOneCase()
+    {
+        // GIVEN
+        $pointsToGive = 5;
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $tile = new TileGLM();
+        $tile->setType(GlenmoreParameters::$TILE_TYPE_BROWN);
+        $activationPrice = new TileActivationCostGLM();
+        $resourcePrice = new ResourceGLM();
+        $resourcePrice->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
+        $resourcePrice->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $activationPrice->setResource($resourcePrice);
+        $activationPrice->setPrice(2);
+        $tile->addActivationPrice($activationPrice);
+        $tileBonus = new TileActivationBonusGLM();
+        $bonusResource = new ResourceGLM();
+        $bonusResource->setType(GlenmoreParameters::$POINT_RESOURCE);
+        $bonusResource->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $tileBonus->setResource($bonusResource);
+        $tileBonus->setAmount($pointsToGive);
+        $tile->addActivationBonus($tileBonus);
+        $playerTile = new PlayerTileGLM();
+        $playerTile->setTile($tile);
+        $playerResource = new ResourceGLM();
+        $playerResource->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
+        $playerResource->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $selectedResource = new SelectedResourceGLM();
+        $selectedResource->setResource($playerResource);
+        $selectedResource->setQuantity(3);
+        $firstPlayer->getPersonalBoard()->addSelectedResource($selectedResource);
+        $resourceToTest = new PlayerTileResourceGLM();
+        $resourceToTest->setResource($bonusResource);
+        $expectedPoints = $pointsToGive;
+        // WHEN
+        $this->tileGLMService->activateBonus($playerTile, $firstPlayer);
+        // THEN
+        $this->assertEquals($expectedPoints, $firstPlayer->getPoints());
+        $this->assertTrue($playerTile->isActivated());
     }
 
     private function createGame(int $nbOfPlayers): GameGLM
