@@ -536,7 +536,7 @@ class GLMService
      * @param array $tilesLevelOne
      * @return void
      */
-    private function initializeNewTile(GameGLM $game, int $position, array $tilesLevelZero, array $tilesLevelOne) : void
+    private function initializeNewTile(GameGLM $game, int $position, array &$tilesLevelZero, array &$tilesLevelOne) : void
     {
         $tile = new BoardTileGLM();
         $gameTile = null;
@@ -559,7 +559,7 @@ class GLMService
      * @param ResourceGLM $villager
      * @return void
      */
-    private function initializePlayerBoard(PlayerGLM $player, array $startVillages, ResourceGLM $villager) : void
+    private function initializePlayerBoard(PlayerGLM $player, array &$startVillages, ResourceGLM $villager) : void
     {
         $tile = array_pop($startVillages);
         $playerTile = new PlayerTileGLM();
@@ -645,10 +645,10 @@ class GLMService
      * @param DrawTilesGLM $drawLevelThree
      * @return void
      */
-    private function initializeDraws(array $tilesLevelZero,
-                                     array $tilesLevelOne,
-                                     array $tilesLevelTwo,
-                                     array $tilesLevelThree,
+    private function initializeDraws(array &$tilesLevelZero,
+                                     array &$tilesLevelOne,
+                                     array &$tilesLevelTwo,
+                                     array &$tilesLevelThree,
                                      DrawTilesGLM $drawLevelZero,
                                      DrawTilesGLM $drawLevelOne,
                                      DrawTilesGLM $drawLevelTwo,
