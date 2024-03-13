@@ -29,6 +29,9 @@ class PlayerGLM extends Player
     #[ORM\OneToMany(targetEntity: PlayerTileResourceGLM::class, mappedBy: 'player', orphanRemoval: true)]
     private Collection $playerTileResourceGLMs;
 
+    #[ORM\Column]
+    private ?bool $bot = false;
+
     public function __construct(string $username, GameGLM $game)
     {
         $this->username = $username;
@@ -110,6 +113,18 @@ class PlayerGLM extends Player
                 $playerTileResourceGLM->setPlayer(null);
             }
         }
+
+        return $this;
+    }
+
+    public function isBot(): ?bool
+    {
+        return $this->bot;
+    }
+
+    public function setBot(bool $bot): static
+    {
+        $this->bot = $bot;
 
         return $this;
     }

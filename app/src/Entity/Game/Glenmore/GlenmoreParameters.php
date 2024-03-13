@@ -126,4 +126,9 @@ class GlenmoreParameters {
     public static int $COIN_NEEDED_FOR_RESOURCE_TWO = 2;
     public static int $COIN_NEEDED_FOR_RESOURCE_THREE = 3;
 
+
+    //BOT SECTION
+    public static int $MINIMUM_NUMBER_PLAYER_FOR_NO_BOT = 4;
+    public static string $BOT_NAME = 'bot';
+
 }
