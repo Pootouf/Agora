@@ -837,9 +837,10 @@ class TileGLMServiceTest extends TestCase
         $tile = new TileGLM();
         $playerTile = new PlayerTileGLM();
         $resource = new ResourceGLM();
+        $resource->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
         $playerTileResource = new PlayerTileResourceGLM();
         $playerTileResource->setResource($resource);
-        $playerTileResource->setQuantity(GlenmoreParameters::$MAX_RESOURCES_PER_TILE);
+        $playerTileResource->setQuantity(GlenmoreParameters::$MAX_RESOURCES_PER_TILE + 1);
         $playerTile->addPlayerTileResource($playerTileResource);
         $playerTile->setTile($tile);
         $activationPrice = new TileActivationCostGLM();
@@ -881,6 +882,48 @@ class TileGLMServiceTest extends TestCase
         $playerResource = new ResourceGLM();
         $playerResource->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
         $playerResource->setColor(GlenmoreParameters::$COLOR_BROWN);
+        $selectedResource = new SelectedResourceGLM();
+        $selectedResource->setResource($playerResource);
+        $selectedResource->setQuantity(3);
+        $firstPlayer->getPersonalBoard()->addSelectedResource($selectedResource);
+        $resourceToTest = new PlayerTileResourceGLM();
+        $resourceToTest->setResource($bonusResource);
+        // WHEN
+        $this->tileGLMService->activateBonus($playerTile, $firstPlayer);
+        // THEN
+        $resourceArray = new ArrayCollection();
+        foreach ($playerTile->getPlayerTileResource() as $resource){
+            $resourceArray->add($resource->getResource());
+        }
+        $this->assertContainsEquals($bonusResource ,$resourceArray);
+    }
+
+    public function testActivateTileWhenTileNotOfTypeFairAndNeedResources()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $tile = new TileGLM();
+        $tile->setType(GlenmoreParameters::$TILE_TYPE_GREEN);
+        $activationPrice = new TileActivationCostGLM();
+        $resourcePrice = new ResourceGLM();
+        $resourcePrice->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
+        $resourcePrice->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $activationPrice->setResource($resourcePrice);
+        $activationPrice->setPrice(2);
+        $tile->addActivationPrice($activationPrice);
+        $tileBonus = new TileActivationBonusGLM();
+        $bonusResource = new ResourceGLM();
+        $bonusResource->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
+        $bonusResource->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $tileBonus->setResource($bonusResource);
+        $tileBonus->setAmount(1);
+        $tile->addActivationBonus($tileBonus);
+        $playerTile = new PlayerTileGLM();
+        $playerTile->setTile($tile);
+        $playerResource = new ResourceGLM();
+        $playerResource->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
+        $playerResource->setColor(GlenmoreParameters::$COLOR_GREEN);
         $selectedResource = new SelectedResourceGLM();
         $selectedResource->setResource($playerResource);
         $selectedResource->setQuantity(3);

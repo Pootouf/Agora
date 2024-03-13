@@ -681,12 +681,19 @@ class TileGLMService
     {
         $tileGLM = $playerTileGLM->getTile();
         $bonusResources = $tileGLM->getActivationBonus();
-        $count = 0;
+        $bonusCount = 0;
         foreach ($bonusResources as $bonusResource){
-            $count += $bonusResource->getAmount();
+            $bonusCount += $bonusResource->getAmount();
         }
-        return ($playerTileGLM->getPlayerTileResource()->count() + $count) <
-            GlenmoreParameters::$MAX_RESOURCES_PER_TILE;
+        $playerResourceCount = 0;
+        $resourcesOnTile = $playerTileGLM->getPlayerTileResource();
+        foreach ($resourcesOnTile as $resourceOnTile){
+            if($resourceOnTile->getResource()->getType() == GlenmoreParameters::$PRODUCTION_RESOURCE) {
+                $playerResourceCount += $resourceOnTile->getQuantity();
+            }
+        }
+        $totalCount = $bonusCount + $playerResourceCount;
+        return $totalCount <= GlenmoreParameters::$MAX_RESOURCES_PER_TILE;
     }
 
     /**
@@ -926,12 +933,12 @@ class TileGLMService
                 if($selectedResource->getResource()->getType() == $activationPrice->getResource()->getType()
                     && $activationCost > 0){
                     $playerGLM->getPersonalBoard()->removeSelectedResource($selectedResource);
-                    $activationCost -= 1;
+                    $activationCost -= $selectedResource->getQuantity();
                     $this->entityManager->persist($playerGLM->getPersonalBoard());
                 }
             }
             if($activationCost > 0){
-                throw new \Exception("Not enough resources to activate");
+                throw new \Exception("Error : Not enough resources to activate");
             }
         }
         $this->entityManager->flush();
