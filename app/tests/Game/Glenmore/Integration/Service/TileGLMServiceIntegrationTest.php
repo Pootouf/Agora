@@ -13,7 +13,9 @@ use App\Entity\Game\Glenmore\PlayerGLM;
 use App\Entity\Game\Glenmore\PlayerTileGLM;
 use App\Entity\Game\Glenmore\PlayerTileResourceGLM;
 use App\Entity\Game\Glenmore\ResourceGLM;
+use App\Entity\Game\Glenmore\SelectedResourceGLM;
 use App\Entity\Game\Glenmore\TileActivationBonusGLM;
+use App\Entity\Game\Glenmore\TileActivationCostGLM;
 use App\Entity\Game\Glenmore\TileGLM;
 use App\Entity\Game\Glenmore\WarehouseGLM;
 use App\Repository\Game\Glenmore\ResourceGLMRepository;
@@ -717,6 +719,460 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         //THEN
         $this->assertSame($expectedResult, $result);
     }
+
+    public function testActivateTileWhenNotEnoughResources() : void
+    {
+        // GIVEN
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $tileGLMService = static ::getContainer()->get(TileGLMService::class);
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $tile = new TileGLM();
+        $playerTile = new PlayerTileGLM();
+        $playerTile->setTile($tile);
+        $tile->setType(GlenmoreParameters::$TILE_TYPE_GREEN);
+        $tile->setName("TEST");
+        $tile->setContainingRoad(false);
+        $tile->setContainingRiver(false);
+        $tile->setLevel(GlenmoreParameters::$TILE_LEVEL_ONE);
+        $playerTile->setCoordY(0);
+        $playerTile->setCoordX(0);
+        $playerTile->setActivated(false);
+        $playerTile->setPersonalBoard($firstPlayer->getPersonalBoard());
+        $entityManager->persist($playerTile);
+        $resourcePrice = new ResourceGLM();
+        $resourcePrice->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
+        $resourcePrice->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $entityManager->persist($resourcePrice);
+        $activationPrice = new TileActivationCostGLM();
+        $activationPrice->setResource($resourcePrice);
+        $activationPrice->setPrice(2);
+        $entityManager->persist($activationPrice);
+        $tile->addActivationPrice($activationPrice);
+        $entityManager->persist($tile);
+        $entityManager->flush();
+        // THEN
+        $this->expectException("Exception");
+        // WHEN
+        $tileGLMService->activateBonus($playerTile, $firstPlayer);
+    }
+
+    public function testActivateTileWhenNotEnoughResourcesOfGoodType() : void
+    {
+        // GIVEN
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $tileGLMService = static ::getContainer()->get(TileGLMService::class);
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $tile = new TileGLM();
+        $playerTile = new PlayerTileGLM();
+        $playerTile->setTile($tile);
+        $tile->setType(GlenmoreParameters::$TILE_TYPE_GREEN);
+        $tile->setName("TEST2");
+        $tile->setContainingRoad(false);
+        $tile->setContainingRiver(false);
+        $tile->setLevel(GlenmoreParameters::$TILE_LEVEL_TWO);
+        $playerTile->setCoordY(0);
+        $playerTile->setCoordX(1);
+        $playerTile->setActivated(false);
+        $playerTile->setPersonalBoard($firstPlayer->getPersonalBoard());
+        $resourcePrice = new ResourceGLM();
+        $resourcePrice->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
+        $resourcePrice->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $activationPrice = new TileActivationCostGLM();
+        $activationPrice->setResource($resourcePrice);
+        $activationPrice->setPrice(2);
+        $tile->addActivationPrice($activationPrice);
+        $playerResource = new ResourceGLM();
+        $playerResource->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
+        $playerResource->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $selectedResource = new SelectedResourceGLM();
+        $selectedResource->setResource($playerResource);
+        $selectedResource->setQuantity(1);
+        $selectedResource->setPlayerTile($playerTile);
+        $firstPlayer->getPersonalBoard()->addSelectedResource($selectedResource);
+        $entityManager->persist($firstPlayer->getPersonalBoard());
+        $entityManager->persist($tile);
+        $entityManager->persist($playerTile);
+        $entityManager->persist($resourcePrice);
+        $entityManager->persist($activationPrice);
+        $entityManager->persist($selectedResource);
+        $entityManager->persist($playerResource);
+        $entityManager->flush();
+        // THEN
+        $this->expectException("Exception");
+        // WHEN
+        $tileGLMService->activateBonus($playerTile, $firstPlayer);
+    }
+
+    public function testActivateTileWhenEnoughResourcesButWrongType() : void
+    {
+        // GIVEN
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $tileGLMService = static ::getContainer()->get(TileGLMService::class);
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $tile = new TileGLM();
+        $playerTile = new PlayerTileGLM();
+        $playerTile->setTile($tile);
+        $tile->setType(GlenmoreParameters::$TILE_TYPE_GREEN);
+        $tile->setName("TEST2");
+        $tile->setContainingRoad(false);
+        $tile->setContainingRiver(false);
+        $tile->setLevel(GlenmoreParameters::$TILE_LEVEL_TWO);
+        $playerTile->setCoordY(0);
+        $playerTile->setCoordX(1);
+        $playerTile->setActivated(false);
+        $playerTile->setPersonalBoard($firstPlayer->getPersonalBoard());
+        $resourcePrice = new ResourceGLM();
+        $resourcePrice->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
+        $resourcePrice->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $activationPrice = new TileActivationCostGLM();
+        $activationPrice->setResource($resourcePrice);
+        $activationPrice->setPrice(2);
+        $tile->addActivationPrice($activationPrice);
+        $playerResource = new ResourceGLM();
+        $playerResource->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
+        $playerResource->setColor(GlenmoreParameters::$COLOR_BROWN);
+        $selectedResource = new SelectedResourceGLM();
+        $selectedResource->setResource($playerResource);
+        $selectedResource->setQuantity(2);
+        $selectedResource->setPlayerTile($playerTile);
+        $firstPlayer->getPersonalBoard()->addSelectedResource($selectedResource);
+        $entityManager->persist($firstPlayer->getPersonalBoard());
+        $entityManager->persist($tile);
+        $entityManager->persist($playerTile);
+        $entityManager->persist($resourcePrice);
+        $entityManager->persist($activationPrice);
+        $entityManager->persist($selectedResource);
+        $entityManager->persist($playerResource);
+        $entityManager->flush();
+        // THEN
+        $this->expectException("Exception");
+        // WHEN
+        $tileGLMService->activateBonus($playerTile, $firstPlayer);
+    }
+
+    public function testActivateTileWhenTooMuchResourcesOnTile() : void
+    {
+        // GIVEN
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $tileGLMService = static ::getContainer()->get(TileGLMService::class);
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $tile = new TileGLM();
+        $playerTile = new PlayerTileGLM();
+        $resource = new ResourceGLM();
+        $resource->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
+        $resource->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $entityManager->persist($resource);
+        $playerTileResource = new PlayerTileResourceGLM();
+        $playerTileResource->setResource($resource);
+        $playerTileResource->setPlayer($firstPlayer);
+        $playerTileResource->setPlayerTileGLM($playerTile);
+        $playerTileResource->setQuantity(GlenmoreParameters::$MAX_RESOURCES_PER_TILE);
+        $entityManager->persist($playerTileResource);
+        $playerTile->addPlayerTileResource($playerTileResource);
+
+        $playerTile->setTile($tile);
+        $tile->setType(GlenmoreParameters::$TILE_TYPE_GREEN);
+        $tile->setName("TEST2");
+        $tile->setContainingRoad(false);
+        $tile->setContainingRiver(false);
+        $tile->setLevel(GlenmoreParameters::$TILE_LEVEL_TWO);
+        $playerTile->setCoordY(0);
+        $playerTile->setCoordX(1);
+        $playerTile->setActivated(false);
+        $playerTile->setPersonalBoard($firstPlayer->getPersonalBoard());
+        $resourcePrice = new ResourceGLM();
+        $resourcePrice->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
+        $resourcePrice->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $activationPrice = new TileActivationCostGLM();
+        $activationPrice->setResource($resourcePrice);
+        $activationPrice->setPrice(2);
+        $tile->addActivationPrice($activationPrice);
+        $playerResource = new ResourceGLM();
+        $playerResource->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
+        $playerResource->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $selectedResource = new SelectedResourceGLM();
+        $selectedResource->setResource($playerResource);
+        $selectedResource->setQuantity(1);
+        $selectedResource->setPlayerTile($playerTile);
+        $firstPlayer->getPersonalBoard()->addSelectedResource($selectedResource);
+        $entityManager->persist($firstPlayer->getPersonalBoard());
+        $entityManager->persist($tile);
+        $entityManager->persist($playerTile);
+        $entityManager->persist($resourcePrice);
+        $entityManager->persist($activationPrice);
+        $entityManager->persist($selectedResource);
+        $entityManager->persist($playerResource);
+        $entityManager->flush();
+        // THEN
+        $this->expectException("Exception");
+        // WHEN
+        $tileGLMService->activateBonus($playerTile, $firstPlayer);
+    }
+
+    public function testActivateTileWhenTileNotOfTypeBrownAndNeedNoResources() : void
+    {
+        // GIVEN
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $tileGLMService = static ::getContainer()->get(TileGLMService::class);
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $tile = new TileGLM();
+        $tile->setType(GlenmoreParameters::$TILE_TYPE_GREEN);
+        $tileBonus = new TileActivationBonusGLM();
+        $bonusResource = new ResourceGLM();
+        $bonusResource->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
+        $bonusResource->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $entityManager->persist($bonusResource);
+        $tileBonus->setResource($bonusResource);
+        $tileBonus->setAmount(1);
+        $entityManager->persist($tileBonus);
+        $tile->addActivationBonus($tileBonus);
+        $entityManager->persist($tile);
+        $playerTile = new PlayerTileGLM();
+        $playerTile->setTile($tile);
+        $tile->setName("TEST");
+        $tile->setContainingRoad(false);
+        $tile->setContainingRiver(false);
+        $tile->setLevel(GlenmoreParameters::$TILE_LEVEL_ONE);
+        $entityManager->persist($tile);
+        $playerTile->setCoordY(0);
+        $playerTile->setCoordX(0);
+        $playerTile->setActivated(false);
+        $playerTile->setPersonalBoard($firstPlayer->getPersonalBoard());
+        $entityManager->persist($playerTile);
+        $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile);
+        $entityManager->persist($firstPlayer->getPersonalBoard());
+        $entityManager->flush();
+        // WHEN
+        $tileGLMService->activateBonus($playerTile, $firstPlayer);
+        //THEN
+        $resourceArray = new ArrayCollection();
+        foreach ($playerTile->getPlayerTileResource() as $resource){
+            $resourceArray->add($resource->getResource());
+        }
+        $this->assertContainsEquals($bonusResource ,$resourceArray);
+        $this->assertTrue($playerTile->isActivated());
+    }
+
+    public function testActivateTileWhenTileNotOfTypeBrownAndNeedResources() : void
+    {
+        // GIVEN
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $tileGLMService = static ::getContainer()->get(TileGLMService::class);
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $tile = new TileGLM();
+        $tile->setType(GlenmoreParameters::$TILE_TYPE_GREEN);
+        $tileBonus = new TileActivationBonusGLM();
+        $bonusResource = new ResourceGLM();
+        $bonusResource->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
+        $bonusResource->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $entityManager->persist($bonusResource);
+        $tileBonus->setResource($bonusResource);
+        $tileBonus->setAmount(1);
+        $entityManager->persist($tileBonus);
+        $tile->addActivationBonus($tileBonus);
+        $resourcePrice = new ResourceGLM();
+        $resourcePrice->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
+        $resourcePrice->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $entityManager->persist($resourcePrice);
+        $activationPrice = new TileActivationCostGLM();
+        $activationPrice->setResource($resourcePrice);
+        $activationPrice->setPrice(2);
+        $entityManager->persist($activationPrice);
+        $tile->addActivationPrice($activationPrice);
+        $playerTile = new PlayerTileGLM();
+        $playerTile->setTile($tile);
+        $tile->setName("TEST");
+        $tile->setContainingRoad(false);
+        $tile->setContainingRiver(false);
+        $tile->setLevel(GlenmoreParameters::$TILE_LEVEL_ONE);
+        $entityManager->persist($tile);
+        $playerResource = new ResourceGLM();
+        $playerResource->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
+        $playerResource->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $entityManager->persist($playerResource);
+        $selectedResource = new SelectedResourceGLM();
+        $selectedResource->setResource($playerResource);
+        $selectedResource->setQuantity(2);
+        $selectedResource->setPlayerTile($playerTile);
+        $entityManager->persist($selectedResource);
+        $firstPlayer->getPersonalBoard()->addSelectedResource($selectedResource);
+        $playerTile->setCoordY(0);
+        $playerTile->setCoordX(0);
+        $playerTile->setActivated(false);
+        $playerTile->setPersonalBoard($firstPlayer->getPersonalBoard());
+        $entityManager->persist($playerTile);
+        $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile);
+        $entityManager->persist($firstPlayer->getPersonalBoard());
+        $entityManager->flush();
+        $expectedResourcesCount = $selectedResource->getQuantity() - $activationPrice->getPrice();
+        // WHEN
+        $tileGLMService->activateBonus($playerTile, $firstPlayer);
+        //THEN
+        $resourceArray = new ArrayCollection();
+        foreach ($playerTile->getPlayerTileResource() as $resource){
+            $resourceArray->add($resource->getResource());
+        }
+        $this->assertContainsEquals($bonusResource ,$resourceArray);
+        $this->assertEquals($expectedResourcesCount, $selectedResource->getQuantity());
+        $this->assertTrue($playerTile->isActivated());
+    }
+
+    public function testActivateTileWhenTileOfTypeBrownWithOneCase() : void
+    {
+        // GIVEN
+        $pointsToGive = 5;
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $tileGLMService = static ::getContainer()->get(TileGLMService::class);
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $tile = new TileGLM();
+        $tile->setType(GlenmoreParameters::$TILE_TYPE_BROWN);
+        $tileBonus = new TileActivationBonusGLM();
+        $bonusResource = new ResourceGLM();
+        $bonusResource->setType(GlenmoreParameters::$POINT_RESOURCE);
+        $bonusResource->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $entityManager->persist($bonusResource);
+        $tileBonus->setResource($bonusResource);
+        $tileBonus->setAmount($pointsToGive);
+        $entityManager->persist($tileBonus);
+        $tile->addActivationBonus($tileBonus);
+        $resourcePrice = new ResourceGLM();
+        $resourcePrice->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
+        $resourcePrice->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $entityManager->persist($resourcePrice);
+        $activationPrice = new TileActivationCostGLM();
+        $activationPrice->setResource($resourcePrice);
+        $activationPrice->setPrice(2);
+        $entityManager->persist($activationPrice);
+        $tile->addActivationPrice($activationPrice);
+        $playerTile = new PlayerTileGLM();
+        $playerTile->setTile($tile);
+        $tile->setName("TEST");
+        $tile->setContainingRoad(false);
+        $tile->setContainingRiver(false);
+        $tile->setLevel(GlenmoreParameters::$TILE_LEVEL_ONE);
+        $entityManager->persist($tile);
+        $playerResource = new ResourceGLM();
+        $playerResource->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
+        $playerResource->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $entityManager->persist($playerResource);
+        $selectedResource = new SelectedResourceGLM();
+        $selectedResource->setResource($playerResource);
+        $selectedResource->setQuantity(2);
+        $selectedResource->setPlayerTile($playerTile);
+        $entityManager->persist($selectedResource);
+        $firstPlayer->getPersonalBoard()->addSelectedResource($selectedResource);
+        $playerTile->setCoordY(0);
+        $playerTile->setCoordX(0);
+        $playerTile->setActivated(false);
+        $playerTile->setPersonalBoard($firstPlayer->getPersonalBoard());
+        $entityManager->persist($playerTile);
+        $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile);
+        $entityManager->persist($firstPlayer->getPersonalBoard());
+        $entityManager->flush();
+        $expectedPoints = $pointsToGive;
+        // WHEN
+        $tileGLMService->activateBonus($playerTile, $firstPlayer);
+        //THEN
+        $this->assertEquals($expectedPoints, $firstPlayer->getPoints());
+        $this->assertTrue($playerTile->isActivated());
+    }
+
+    /*public function testActivateTileWhenTileOfTypeBrownWithMultipleCase() : void
+    {
+        // GIVEN
+        $pointsToGive = 3;
+        $pointsToGive2 = 5;
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $tileGLMService = static ::getContainer()->get(TileGLMService::class);
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $tile = new TileGLM();
+        $tile->setType(GlenmoreParameters::$TILE_TYPE_BROWN);
+        $tileBonus = new TileActivationBonusGLM();
+        $bonusResource = new ResourceGLM();
+        $bonusResource->setType(GlenmoreParameters::$POINT_RESOURCE);
+        $bonusResource->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $entityManager->persist($bonusResource);
+        $tileBonus->setResource($bonusResource);
+        $tileBonus->setAmount($pointsToGive);
+        $entityManager->persist($tileBonus);
+        $tile->addActivationBonus($tileBonus);
+        $tileBonus2 = new TileActivationBonusGLM();
+        $bonusResource2 = new ResourceGLM();
+        $bonusResource2->setType(GlenmoreParameters::$POINT_RESOURCE);
+        $bonusResource2->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $entityManager->persist($bonusResource2);
+        $tileBonus2->setResource($bonusResource2);
+        $tileBonus2->setAmount($pointsToGive2);
+        $entityManager->persist($tileBonus2);
+        $tile->addActivationBonus($tileBonus2);
+        $resourcePrice = new ResourceGLM();
+        $resourcePrice->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
+        $resourcePrice->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $entityManager->persist($resourcePrice);
+        $activationPrice = new TileActivationCostGLM();
+        $activationPrice->setResource($resourcePrice);
+        $activationPrice->setPrice(0);
+        $entityManager->persist($activationPrice);
+        $tile->addActivationPrice($activationPrice);
+        $resourcePrice2 = new ResourceGLM();
+        $resourcePrice2->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
+        $resourcePrice2->setColor(GlenmoreParameters::$COLOR_BROWN);
+        $entityManager->persist($resourcePrice2);
+        $activationPrice2 = new TileActivationCostGLM();
+        $activationPrice2->setResource($resourcePrice2);
+        $activationPrice2->setPrice(0);
+        $entityManager->persist($activationPrice2);
+        $tile->addActivationPrice($activationPrice2);
+        $playerTile = new PlayerTileGLM();
+        $playerTile->setTile($tile);
+        $tile->setName("TEST");
+        $tile->setContainingRoad(false);
+        $tile->setContainingRiver(false);
+        $tile->setLevel(GlenmoreParameters::$TILE_LEVEL_ONE);
+        $entityManager->persist($tile);
+        $playerResource = new ResourceGLM();
+        $playerResource->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
+        $playerResource->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $playerResource2 = new ResourceGLM();
+        $playerResource2->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
+        $playerResource2->setColor(GlenmoreParameters::$COLOR_BROWN);
+        $entityManager->persist($playerResource2);
+        $entityManager->persist($playerResource);
+        $selectedResource = new SelectedResourceGLM();
+        $selectedResource->setResource($playerResource);
+        $selectedResource->setQuantity(2);
+        $selectedResource->setPlayerTile($playerTile);
+        $entityManager->persist($selectedResource);
+        $selectedResource2 = new SelectedResourceGLM();
+        $selectedResource2->setResource($playerResource);
+        $selectedResource2->setQuantity(2);
+        $selectedResource2->setPlayerTile($playerTile);
+        $entityManager->persist($selectedResource2);
+        $firstPlayer->getPersonalBoard()->addSelectedResource($selectedResource);
+        $firstPlayer->getPersonalBoard()->addSelectedResource($selectedResource2);
+        $playerTile->setCoordY(0);
+        $playerTile->setCoordX(0);
+        $playerTile->setActivated(false);
+        $playerTile->setPersonalBoard($firstPlayer->getPersonalBoard());
+        $entityManager->persist($playerTile);
+        $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile);
+        $entityManager->persist($firstPlayer->getPersonalBoard());
+        $entityManager->flush();
+        $expectedPoints = $pointsToGive;
+        // WHEN
+        $tileGLMService->activateBonus($playerTile, $firstPlayer);
+        //THEN
+        $this->assertEquals($expectedPoints, $firstPlayer->getPoints());
+        $this->assertTrue($playerTile->isActivated());
+    }*/
 
     private function createGame(int $nbOfPlayers) : GameGLM
     {
