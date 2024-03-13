@@ -53,10 +53,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\ManyToMany(targetEntity: Board::class, mappedBy: 'listUsers')]
     private Collection $boards;
 
+    #[ORM\ManyToMany(targetEntity: self::class)]
+    private Collection $contacts;
+
     public function __construct()
     {
         $this->boards = new ArrayCollection();
         $this->favoriteGames = new ArrayCollection();
+        $this->contacts = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -207,6 +211,30 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function removeFavoriteGame(Game $favoriteGames): static
     {
         $this->favoriteGames->removeElement($favoriteGames);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, self>
+     */
+    public function getContacts(): Collection
+    {
+        return $this->contacts;
+    }
+
+    public function addContact(self $contact): static
+    {
+        if (!$this->contacts->contains($contact)) {
+            $this->contacts->add($contact);
+        }
+
+        return $this;
+    }
+
+    public function removeContact(self $contact): static
+    {
+        $this->contacts->removeElement($contact);
 
         return $this;
     }
