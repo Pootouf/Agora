@@ -973,6 +973,7 @@ class TileGLMServiceTest extends TestCase
         $firstPlayer->getPersonalBoard()->addSelectedResource($selectedResource);
         $resourceToTest = new PlayerTileResourceGLM();
         $resourceToTest->setResource($bonusResource);
+        $expectedSelectedResourceCount = $selectedResource->getQuantity() - $activationPrice->getPrice();
         // WHEN
         $this->tileGLMService->activateBonus($playerTile, $firstPlayer);
         // THEN
@@ -981,6 +982,7 @@ class TileGLMServiceTest extends TestCase
             $resourceArray->add($resource->getResource());
         }
         $this->assertContainsEquals($bonusResource ,$resourceArray);
+        $this->assertEquals($expectedSelectedResourceCount, $selectedResource->getQuantity());
         $this->assertTrue($playerTile->isActivated());
     }
 

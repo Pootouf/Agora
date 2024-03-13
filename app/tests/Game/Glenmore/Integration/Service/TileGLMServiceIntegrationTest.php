@@ -1010,6 +1010,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile);
         $entityManager->persist($firstPlayer->getPersonalBoard());
         $entityManager->flush();
+        $expectedResourcesCount = $selectedResource->getQuantity() - $activationPrice->getPrice();
         // WHEN
         $tileGLMService->activateBonus($playerTile, $firstPlayer);
         //THEN
@@ -1018,6 +1019,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
             $resourceArray->add($resource->getResource());
         }
         $this->assertContainsEquals($bonusResource ,$resourceArray);
+        $this->assertEquals($expectedResourcesCount, $selectedResource->getQuantity());
         $this->assertTrue($playerTile->isActivated());
     }
 
