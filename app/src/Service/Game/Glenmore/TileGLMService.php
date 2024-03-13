@@ -911,7 +911,10 @@ class TileGLMService
         $activationBonusResources = $tileGLM->getActivationBonus();
         foreach ($activationBonusResources as $activationBonusResource){
             $playerTileResource = new PlayerTileResourceGLM();
+            $playerTileResource->setQuantity($activationBonusResource->getAmount());
+            $playerTileResource->setPlayer($playerGLM);
             $playerTileResource->setResource($activationBonusResource->getResource());
+            $this->entityManager->persist($playerTileResource);
             $playerTileGLM->addPlayerTileResource($playerTileResource);
             $this->entityManager->persist($playerTileGLM);
         }
@@ -924,13 +927,13 @@ class TileGLMService
                     && $activationCost > 0){
                     $playerGLM->getPersonalBoard()->removeSelectedResource($selectedResource);
                     $activationCost -= 1;
+                    $this->entityManager->persist($playerGLM->getPersonalBoard());
                 }
             }
             if($activationCost > 0){
                 throw new \Exception("Not enough resources to activate");
             }
         }
-        $this->entityManager->persist($activationPrices);
         $this->entityManager->flush();
     }
 

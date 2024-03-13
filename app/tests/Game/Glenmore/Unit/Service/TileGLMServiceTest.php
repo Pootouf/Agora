@@ -862,6 +862,41 @@ class TileGLMServiceTest extends TestCase
         $this->tileGLMService->activateBonus($playerTile, $firstPlayer);
     }
 
+    public function testActivateTileWhenTileNotOfTypeFairAndNeedNoResources()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $tile = new TileGLM();
+        $tile->setType(GlenmoreParameters::$TILE_TYPE_GREEN);
+        $tileBonus = new TileActivationBonusGLM();
+        $bonusResource = new ResourceGLM();
+        $bonusResource->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
+        $bonusResource->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $tileBonus->setResource($bonusResource);
+        $tileBonus->setAmount(1);
+        $tile->addActivationBonus($tileBonus);
+        $playerTile = new PlayerTileGLM();
+        $playerTile->setTile($tile);
+        $playerResource = new ResourceGLM();
+        $playerResource->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
+        $playerResource->setColor(GlenmoreParameters::$COLOR_BROWN);
+        $selectedResource = new SelectedResourceGLM();
+        $selectedResource->setResource($playerResource);
+        $selectedResource->setQuantity(3);
+        $firstPlayer->getPersonalBoard()->addSelectedResource($selectedResource);
+        $resourceToTest = new PlayerTileResourceGLM();
+        $resourceToTest->setResource($bonusResource);
+        // WHEN
+        $this->tileGLMService->activateBonus($playerTile, $firstPlayer);
+        // THEN
+        $resourceArray = new ArrayCollection();
+        foreach ($playerTile->getPlayerTileResource() as $resource){
+            $resourceArray->add($resource->getResource());
+        }
+        $this->assertContainsEquals($bonusResource ,$resourceArray);
+    }
+
     private function createGame(int $nbOfPlayers): GameGLM
     {
         $game = new GameGLM();
