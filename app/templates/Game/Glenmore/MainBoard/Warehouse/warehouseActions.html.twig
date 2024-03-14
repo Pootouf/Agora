@@ -1,0 +1,79 @@
+{#
+This section displays the warehouse actions
+@param : game, player, selectedWarehouseProduction, isMoneyWarehouseSelected
+@return : display warehouse action
+#}
+
+{% set lastMoneySpace = selectedWarehouseProduction.coinNumber %}
+{% if lastMoneySpace == 6 %}
+    {% set lastMoneySpace = 3 %}
+{% elseif lastMoneySpace == 3 %}
+    {% set lastMoneySpace = 2 %}
+{% else %}
+    {% set lastMoneySpace = 1 %}
+{% endif %}
+
+{% set nextNeededMoneyAmount = 0 %}
+{% if lastMoneySpace == 3 %}
+    {% set nextNeededMoneyAmount = 3 %}
+{% elseif lastMoneySpace == 1 %}
+    {% set nextNeededMoneyAmount = 2 %}
+{% else %}
+    {% set nextNeededMoneyAmount = 0 %}
+{% endif %}
+
+<div id="selectedWarehouseResource"
+     class="absolute top-0 left-0 w-full h-full bg-black bg-opacity-70 flex z-50 text-white items-center justify-center">
+    <div class="bg-slate-900 p-5 rounded-lg flex flex-col justify-center items-center">
+        {% if isMoneyWarehouseSelected %}
+            <h2>Voulez-vous vendre une ressource pour récupérer {{ lastMoneySpace }} pièces ? </h2>
+        {% else %}
+            <h2>Voulez-vous acheter une ressource en dépensant {{ nextNeededMoneyAmount }} pièces ? </h2>
+        {% endif %}
+
+        <div class="flex items-center justify-center h-full w-full max-h-full">
+            <img class="items-center aspect-auto justify-center max-h-full "
+                 src="{{
+                 asset('resourcesGames/Glenmore/ResourcesProduction/'
+                     ~ selectedWarehouseProduction.resource.color ~'.png')
+                 }}"
+                 alt="{{ selectedWarehouseProduction.resource.color }}"
+            />
+        </div>
+
+        <div class="flex items-center justify-center h-full w-full max-h-full">
+            {% if not isMoneyWarehouseSelected %}
+                <button
+                        {{ stimulus_action('glenmore', 'buyResourceFromWarehouse', 'click',
+                            {url:path('app_game_glenmore_buy_resource_warehouse_production_on_mainboard',
+                                {idGame: game.id, idResourceLine : selectedWarehouseProduction.id})
+                            })
+                        }}
+                        class="bg-[#8F901F] py-2 px-3 m-1 rounded-lg text-2xl
+                                        flex items-center justify-center w-full h-full"
+                >
+                    Acheter la ressource
+                </button>
+            {% else  %}
+                <button
+                        {{ stimulus_action('glenmore', 'sellResourceFromWarehouse', 'click',
+                            {url:path('app_game_glenmore_sell_resource_warehouse_production_on_mainboard',
+                                {idGame: game.id, idResourceLine : selectedWarehouseProduction.id})
+                            })
+                        }}
+                        class="bg-[#8F901F] py-2 px-3 m-1 rounded-lg text-2xl
+                                    flex items-center justify-center w-full h-full"
+                >
+                    Vendre la ressource
+                </button>
+            {% endif %}
+            <button id="return_board" onclick="closeSelectedWarehouseResource()"
+                    class="rounded-lg bg-[#8F901F] py-2 px-3 m-1 text-2xl right-0 bottom-1 items-center"
+            >
+                <img src="{{ asset('resourcesGames/utils/return-arrow.svg') }}" id="returnArrow"
+                     alt="return on board"
+                     class="h-8 max-h-full">
+            </button>
+        </div>
+    </div>
+</div>
