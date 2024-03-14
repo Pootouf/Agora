@@ -25,7 +25,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Exception;
 use Doctrine\ORM\EntityManagerInterface;
-use Psr\Log\LoggerInterface;
 
 class TileGLMService
 {
@@ -34,8 +33,7 @@ class TileGLMService
                                 private readonly ResourceGLMRepository $resourceGLMRepository,
                                 private readonly PlayerTileResourceGLMRepository $playerTileResourceGLMRepository,
                                 private readonly PlayerTileGLMRepository $playerTileGLMRepository,
-                                private readonly CardGLMService $cardGLMService,
-                                private readonly LoggerInterface $logger){}
+                                private readonly CardGLMService $cardGLMService){}
 
 
 
@@ -1017,9 +1015,6 @@ class TileGLMService
                 $tileResource->setQuantity($tileResource->getQuantity() + 1);
                 $this->entityManager->persist($tileResource);
                 $this->entityManager->persist($newTile);
-                $this->logger->critical($tileResource->getQuantity(). " ");
-                $this->logger->critical($tileResource->getId(). " ");
-                $this->logger->critical($newTile->getId());
                 $found = true;
                 break;
             }
