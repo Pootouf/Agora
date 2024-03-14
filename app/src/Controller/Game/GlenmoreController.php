@@ -11,12 +11,14 @@ use App\Entity\Game\Glenmore\PlayerTileResourceGLM;
 use App\Entity\Game\Glenmore\TileGLM;
 use App\Entity\Game\Splendor\GameSPL;
 use App\Repository\Game\Glenmore\BoardTileGLMRepository;
+use App\Entity\Game\Glenmore\WarehouseLineGLM;
 use App\Repository\Game\Glenmore\PlayerTileGLMRepository;
 use App\Repository\Game\Glenmore\ResourceGLMRepository;
 use App\Service\Game\Glenmore\CardGLMService;
 use App\Service\Game\Glenmore\DataManagementGLMService;
 use App\Service\Game\Glenmore\GLMService;
 use App\Service\Game\Glenmore\TileGLMService;
+use App\Service\Game\Glenmore\WarehouseGLMService;
 use App\Service\Game\LogService;
 use App\Service\Game\MessageService;
 use App\Service\Game\PublishService;
@@ -41,7 +43,9 @@ class GlenmoreController extends AbstractController
                                 private LoggerInterface $logger,
                                 private BoardTileGLMRepository $boardTileGLMRepository,
                                 private ResourceGLMRepository $resourceGLMRepository,
-                                private PublishService $publishService)
+                                private PublishService $publishService,
+                                private WarehouseGLMService $warehouseGLMService,
+                                )
     {}
 
     #[Route('/game/glenmore/{id}', name: 'app_game_show_glm')]
@@ -78,6 +82,8 @@ class GlenmoreController extends AbstractController
             'activatedNewResourceAcquisition' => false,
             'chosenNewResources' => null,
             'activatedMovementPhase' => false,
+            'selectedWarehouseProduction' => null,
+            'isWarehouseMoneySelected' => false,
             'buyingTile' => $player->getPersonalBoard()->getSelectedTile(),
             'messages' => $messages,
         ]);
@@ -92,6 +98,95 @@ class GlenmoreController extends AbstractController
         return $this->render('Game/Glenmore/PersonalBoard/displayPropertyCards.html.twig', [
             'player' => $player,
         ]);
+    }
+
+    #[Route('game/glenmore/{idGame}/select/money/warehouse/production/mainBoard/{idResourceLine}',
+        name: 'app_game_glenmore_select_money_warehouse_production_on_mainboard')]
+    public function selectMoneyWarehouseProductionOnMainBoard(
+        #[MapEntity(id: 'idGame')] GameGLM $game,
+        #[MapEntity(id: 'idResourceLine')] WarehouseLineGLM $line
+    )  : Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        return $this->render('Game/Glenmore/MainBoard/Warehouse/warehouseActions.html.twig', [
+            'player' => $player,
+            'game' => $game,
+            'selectedWarehouseProduction' => $line,
+            'isMoneyWarehouseSelected' => true
+        ]);
+    }
+
+    #[Route('game/glenmore/{idGame}/select/resource/warehouse/production/mainBoard/{idResourceLine}',
+        name: 'app_game_glenmore_select_resource_warehouse_production_on_mainboard')]
+    public function selectResourceWarehouseProductionOnMainBoard(
+        #[MapEntity(id: 'idGame')] GameGLM $game,
+        #[MapEntity(id: 'idResourceLine')] WarehouseLineGLM $line
+    )  : Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        return $this->render('Game/Glenmore/MainBoard/Warehouse/warehouseActions.html.twig', [
+            'player' => $player,
+            'game' => $game,
+            'selectedWarehouseProduction' => $line,
+            'isMoneyWarehouseSelected' => false
+        ]);
+    }
+
+    #[Route('game/glenmore/{idGame}/buy/resource/warehouse/production/mainBoard/{idResourceLine}',
+        name: 'app_game_glenmore_buy_resource_warehouse_production_on_mainboard')]
+    public function buyResourceWarehouseProductionOnMainBoard(
+        #[MapEntity(id: 'idGame')] GameGLM $game,
+        #[MapEntity(id: 'idResourceLine')] WarehouseLineGLM $line
+    )  : Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+        }
+        if ($this->service->getActivePlayer($game) !== $player) {
+            return new Response("Not player's turn", Response::HTTP_FORBIDDEN);
+        }
+        try {
+            $this->warehouseGLMService->buyResourceFromWarehouse($player, $line->getResource());
+        } catch (Exception $e) {
+            echo($e->getMessage());
+            $message = $player->getUsername() . " tried to buy resource " . $line->getResource()->getId()
+                . " but could not afford it";
+            //$this->logService->sendPlayerLog($game, $player, $message);
+            return new Response("can't afford this resource", Response::HTTP_FORBIDDEN);
+        }
+        // TODO Publish management
+        $message = $player->getUsername() . " chose resource " . $line->getResource()->getId();
+        //$this->logService->sendPlayerLog($game, $player, $message);
+        return new Response('player bought this resource', Response::HTTP_OK);
+    }
+
+    #[Route('game/glenmore/{idGame}/sell/resource/warehouse/production/mainBoard/{idResourceLine}',
+        name: 'app_game_glenmore_sell_resource_warehouse_production_on_mainboard')]
+    public function sellResourceWarehouseProductionOnMainBoard(
+        #[MapEntity(id: 'idGame')] GameGLM $game,
+        #[MapEntity(id: 'idResourceLine')] WarehouseLineGLM $line
+    )  : Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+        }
+        if ($this->service->getActivePlayer($game) !== $player) {
+            return new Response("Not player's turn", Response::HTTP_FORBIDDEN);
+        }
+        try {
+            $this->warehouseGLMService->sellResource($player, $line->getResource());
+        } catch (Exception) {
+            $message = $player->getUsername() . " tried to sell resource " . $line->getResource()->getId()
+                . " but could not do it";
+            $this->logService->sendPlayerLog($game, $player, $message);
+            return new Response("can't sell this resource", Response::HTTP_FORBIDDEN);
+        }
+        // TODO Publish management
+        $message = $player->getUsername() . " chose resource " . $line->getResource()->getId();
+        $this->logService->sendPlayerLog($game, $player, $message);
+        return new Response('player sold this resource', Response::HTTP_OK);
     }
 
     #[Route('game/glenmore/{idGame}/select/tile/mainBoard/{idTile}',
