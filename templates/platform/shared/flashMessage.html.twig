@@ -1,17 +1,20 @@
 {% set flashMessages = app.flashes() %}
 {% if flashMessages is not empty %}
 	{% for type, messages in flashMessages %}
-		{% set color = 'blue' %}
-		{% if type == 'success' %}
-			{% set color = 'green' %}
-		{% elseif type == 'warning' %}
-			{% set color = 'yellow' %}
-		{% elseif type == 'danger' %}
-			{% set color = 'red' %}
-		{% endif %}
-		<div id="flashList" class="rounded-md bg-{{ color }}-50 pt-4">
-			{% for message in messages %}
-				<div class="FlashMsg flex p-4 pt-0">
+		{% set color %}
+			{% if type == 'success' %}
+				green
+			{% elseif type == 'warning' %}
+				yellow
+			{% elseif type == 'danger' %}
+				red
+			{% else %}
+				blue
+			{% endif %}
+		{% endset %}
+		{% for message in messages %}
+			<div class="FlashMsg rounded-md bg-{{ color }}-50 pt-4">
+				<div class="flex p-4 pt-0">
 					<div class="flex-shrink-0">
 						{% if type == 'success' %}
 							<svg class="h-5 w-5 text-success" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -45,8 +48,8 @@
 						</div>
 					</div>
 				</div>
-			{% endfor %}
-		</div>
+			</div>
+		{% endfor %}
 	{% endfor %}
 
 	<script>
@@ -57,13 +60,6 @@
 
 			// Supprimer le message flash du DOM
 			flashMessage.remove();
-
-			// Vérifier si d'autres messages flash sont présents
-			let flashContainer = document.getElementById('flashList');
-			if (!flashContainer.querySelector('.FlashMsg')) {
-				// Si aucun autre message flash n'est présent, supprimer le conteneur
-				flashContainer.remove();
-			}
 		}
 	</script>
 {% endif %}
