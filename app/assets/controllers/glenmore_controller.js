@@ -1,4 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
+import personalBoard from "../scripts/Glenmore/personalBoard.js";
 
 /*
  * This is an example Stimulus controller!
@@ -10,36 +11,10 @@ import { Controller } from '@hotwired/stimulus';
  * Delete this file or adapt it for your use!
  */
 export default class extends Controller {
-    togglePersonalBoard(isOpening) {
-        const open = isOpening.params.open;
-        const openedPersonalBoard = document.getElementById("openedPersonalBoard");
-        const closedPersonalBoard = document.getElementById("closedPersonalBoard");
-        const Timing = {
-            duration: 600,
-            iterations: 1,
-        }
-        if (open) {
-            const hidden = document.createAttribute("hidden");
-            closedPersonalBoard.setAttributeNode(hidden);
-            openedPersonalBoard.removeAttribute("hidden");
-            const openingSliding = [
-                { transform: "translateY(40rem)"},
-                { transform: "translateY(0rem)"}
-            ]
-            openedPersonalBoard.animate(openingSliding,Timing);
 
-            let personalBoard = document.getElementById('tileBoard');
-            personalBoard.scrollTop = personalBoard.scrollHeight;
-        } else {
-            const hidden = document.createAttribute("hidden");
-            closedPersonalBoard.removeAttribute("hidden");
-            const closingSliding = [
-                { transform: "translateY(0rem)"},
-                { transform: "translateY(40rem)"}
-            ]
-            openedPersonalBoard.animate(closingSliding,Timing).addEventListener("finish",
-                () => openedPersonalBoard.setAttributeNode(hidden));
-        }
+    togglePersonalBoard(isOpening) {
+        let open = isOpening.params.open;
+        personalBoard.togglePersonalBoard(open);
     }
 
     async displayPropertyCards(board) {
@@ -112,9 +87,51 @@ export default class extends Controller {
         const response = await fetch(url);
     }
 
+    async buyTile(tile) {
+        let url = tile.params.url;
+        const response = await fetch(url);
+        if (response.status === 200) {
+            personalBoard.togglePersonalBoard(true);
+        }
+    }
+
     async displayPlayerBoard(board) {
         let url = board.params.url;
         const response = await fetch(url);
     }
 
+    async putTileInPersonalBoard(tile){
+        let url = tile.params.url;
+        const response = await fetch(url);
+    }
+
+    async selectResourceWarehouseProductionOnMainBoard(resourceLine) {
+        let url = resourceLine.params.url;
+        const response = await fetch(url);
+        let tree = document.getElementById("index_glenmore");
+        let placeholder = document.createElement("div");
+        placeholder.innerHTML = await response.text();
+        const node = placeholder.firstElementChild;
+        tree.appendChild(node);
+    }
+
+    async selectMoneyWarehouseProductionOnMainBoard(resourceLine) {
+        let url = resourceLine.params.url;
+        const response = await fetch(url);
+        let tree = document.getElementById("index_glenmore");
+        let placeholder = document.createElement("div");
+        placeholder.innerHTML = await response.text();
+        const node = placeholder.firstElementChild;
+        tree.appendChild(node);
+    }
+
+    async buyResourceFromWarehouse(resourceLine) {
+        let url = resourceLine.params.url;
+        const response = await fetch(url);
+    }
+
+    async sellResourceFromWarehouse(resourceLine) {
+        let url = resourceLine.params.url;
+        const response = await fetch(url);
+    }
 }

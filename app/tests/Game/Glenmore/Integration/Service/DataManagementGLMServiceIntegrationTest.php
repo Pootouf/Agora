@@ -2,6 +2,7 @@
 
 namespace App\Tests\Game\Glenmore\Integration\Service;
 
+use App\Entity\Game\DTO\Glenmore\PersonalBoardBoxGLM;
 use App\Entity\Game\Glenmore\BoardTileGLM;
 use App\Entity\Game\Glenmore\DrawTilesGLM;
 use App\Entity\Game\Glenmore\GameGLM;
@@ -79,14 +80,58 @@ class DataManagementGLMServiceIntegrationTest extends KernelTestCase
         $entityManager->persist($tile2);
         $entityManager->persist($personalBoard);
 
-        $row1 = new ArrayCollection([null, $tile2, null]);
-        $row2 = new ArrayCollection([$startTile, null, $tile1]);
+        $row0 = new ArrayCollection([
+            new PersonalBoardBoxGLM(null, $tile2->getCoordX() - 1, $tile2->getCoordY() - 2),
+            new PersonalBoardBoxGLM(null, $tile2->getCoordX() - 1, $tile2->getCoordY() - 1),
+            new PersonalBoardBoxGLM(null, $tile2->getCoordX() - 1, $tile2->getCoordY()),
+            new PersonalBoardBoxGLM(null, $tile2->getCoordX() - 1, $tile2->getCoordY() + 1),
+            new PersonalBoardBoxGLM(null, $tile2->getCoordX() - 1, $tile2->getCoordY() + 2)
+        ]);
+        $row1 = new ArrayCollection([
+            new PersonalBoardBoxGLM(null, $tile2->getCoordX(), $tile2->getCoordY() - 2),
+            new PersonalBoardBoxGLM(null, $tile2->getCoordX(), $tile2->getCoordY() - 1),
+            new PersonalBoardBoxGLM($tile2, $tile2->getCoordX(), $tile2->getCoordY()),
+            new PersonalBoardBoxGLM(null, $tile2->getCoordX(), $tile2->getCoordY() + 1),
+            new PersonalBoardBoxGLM(null, $tile2->getCoordX(), $tile2->getCoordY() + 2)
+        ]);
+        $row2 = new ArrayCollection([
+            new PersonalBoardBoxGLM(null, $startTile->getCoordX(), $startTile->getCoordY() - 1),
+            new PersonalBoardBoxGLM($startTile, $startTile->getCoordX(), $startTile->getCoordY()),
+            new PersonalBoardBoxGLM(null, $startTile->getCoordX(), $startTile->getCoordY() + 1),
+            new PersonalBoardBoxGLM($tile1, $tile1->getCoordX(), $tile1->getCoordY()),
+            new PersonalBoardBoxGLM(null, $tile1->getCoordX(), $tile1->getCoordY() + 1)
+        ]);
+        $row3 = new ArrayCollection([
+            new PersonalBoardBoxGLM(null, $tile1->getCoordX() + 1, $tile1->getCoordY() - 3),
+            new PersonalBoardBoxGLM(null, $tile1->getCoordX() + 1, $tile1->getCoordY() - 2),
+            new PersonalBoardBoxGLM(null, $tile1->getCoordX() + 1, $tile1->getCoordY() - 1),
+            new PersonalBoardBoxGLM(null, $tile1->getCoordX() + 1, $tile1->getCoordY()),
+            new PersonalBoardBoxGLM(null, $tile1->getCoordX() + 1, $tile1->getCoordY() + 1)
+        ]);
         $entityManager->flush();
         //WHEN
         $result = $dataManagementGLMService->organizePersonalBoardRows($firstPlayer);
         //THEN
-        $this->assertEquals($row1, $result->get(0));
-        $this->assertEquals($row2, $result->get(1));
+        for($i = 0; $i < $row0->count(); $i++) {
+            $this->assertEquals($row0->get($i)->getPlayerTile(), $result->get(0)->get($i)->getPlayerTile());
+            $this->assertEquals($row0->get($i)->getCoordX(), $result->get(0)->get($i)->getCoordX());
+            $this->assertEquals($row0->get($i)->getCoordY(), $result->get(0)->get($i)->getCoordY());
+        }
+        for($i = 0; $i < $row1->count(); $i++) {
+            $this->assertEquals($row1->get($i)->getPlayerTile(), $result->get(1)->get($i)->getPlayerTile());
+            $this->assertEquals($row0->get($i)->getCoordX(), $result->get(0)->get($i)->getCoordX());
+            $this->assertEquals($row0->get($i)->getCoordY(), $result->get(0)->get($i)->getCoordY());
+        }
+        for($i = 0; $i < $row2->count(); $i++) {
+            $this->assertEquals($row2->get($i)->getPlayerTile(), $result->get(2)->get($i)->getPlayerTile());
+            $this->assertEquals($row0->get($i)->getCoordX(), $result->get(0)->get($i)->getCoordX());
+            $this->assertEquals($row0->get($i)->getCoordY(), $result->get(0)->get($i)->getCoordY());
+        }
+        for($i = 0; $i < $row3->count(); $i++) {
+            $this->assertEquals($row3->get($i)->getPlayerTile(), $result->get(3)->get($i)->getPlayerTile());
+            $this->assertEquals($row0->get($i)->getCoordX(), $result->get(0)->get($i)->getCoordX());
+            $this->assertEquals($row0->get($i)->getCoordY(), $result->get(0)->get($i)->getCoordY());
+        }
     }
 
     private function createGame(int $nbOfPlayers) : GameGLM

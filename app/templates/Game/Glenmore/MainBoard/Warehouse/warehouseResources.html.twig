@@ -4,6 +4,7 @@ This section displays the warehouse of the main board, with available resources
 @return : display warehouse resources
 #}
 
+{# Variable declaration #}
 {% set resourcesTable = game.mainBoard.warehouse.warehouseLine %}
 
 <div class="grid grid-cols-4 grid-rows-5 max-h-full inline-flex justify-center items-center gap-1 mb-1">
@@ -19,11 +20,24 @@ This section displays the warehouse of the main board, with available resources
         </div>
 
         {% if resourceLine.coinNumber == 0 %}
-            <div class="flex justify-center items-center h-full w-full">
+            <button {% if not needToPlay or isSpectator %}disabled{% endif %}
+                    {{ stimulus_action('glenmore', 'selectResourceWarehouseProductionOnMainBoard', 'click',
+                        {url:path('app_game_glenmore_select_resource_warehouse_production_on_mainboard',
+                            {idGame: game.id, idResourceLine: resourceLine.id })
+                        })
+                    }}
+                    class="flex justify-center items-center h-full w-full"
+            >
                 <span class="bg-yellow-600 rounded-full w-12 h-12 flex items-center justify-center text-xl">1</span>
-            </div>
+            </button>
         {% else  %}
-            <div class="relative justify-center items-center aspect-auto my-auto p-auto
+            <button {% if not needToPlay or isSpectator %}disabled{% endif %}
+                    {{ stimulus_action('glenmore', 'selectMoneyWarehouseProductionOnMainBoard', 'click',
+                        {url:path('app_game_glenmore_select_money_warehouse_production_on_mainboard',
+                            {idGame: game.id, idResourceLine: resourceLine.id })
+                        })
+                    }}
+                    class="relative justify-center items-center aspect-auto my-auto p-auto
                             max-h-full w-full h-full">
                 <div class="h-full flex items-center justify-center">
                     <img class="items-center aspect-auto justify-center m-auto
@@ -37,11 +51,18 @@ This section displays the warehouse of the main board, with available resources
                         1
                     </span>
                 </div>
-            </div>
+            </button>
         {% endif %}
         {% if resourceLine.coinNumber == 3 %}
-        <div class="relative justify-center items-center aspect-auto my-auto p-auto
-                            max-h-full">
+        <button {% if not needToPlay or isSpectator %}disabled{% endif %}
+                {{ stimulus_action('glenmore', 'selectMoneyWarehouseProductionOnMainBoard', 'click',
+                    {url:path('app_game_glenmore_select_money_warehouse_production_on_mainboard',
+                        {idGame: game.id, idResourceLine: resourceLine.id })
+                    })
+                }}
+                class="relative justify-center items-center aspect-auto my-auto p-auto
+                            max-h-full w-full h-full"
+        >
             <div class="h-full flex items-center justify-center">
                 <img class="items-center aspect-auto justify-center m-auto
                                 max-h-full"
@@ -54,16 +75,29 @@ This section displays the warehouse of the main board, with available resources
                     2
                 </span>
             </div>
-        </div>
+        </button>
         {% else %}
-            <div class="flex justify-center items-center h-full w-full">
+            <button {% if not needToPlay or isSpectator %}disabled{% endif %}
+                    {{ stimulus_action('glenmore', 'selectResourceWarehouseProductionOnMainBoard', 'click',
+                        {url:path('app_game_glenmore_select_resource_warehouse_production_on_mainboard',
+                            {idGame: game.id, idResourceLine: resourceLine.id })
+                        })
+                    }}
+                    class="flex justify-center items-center h-full w-full">
                 <span class="bg-yellow-600 rounded-full w-12 h-12 flex items-center justify-center text-xl">2</span>
-            </div>
+            </button>
         {% endif %}
 
         {% if resourceLine.coinNumber == 6 %}
-            <div class="relative justify-center items-center aspect-auto my-auto p-auto
-                            max-h-full">
+            <button {% if not needToPlay or isSpectator %}disabled{% endif %}
+                    {{ stimulus_action('glenmore', 'selectMoneyWarehouseProductionOnMainBoard', 'click',
+                        {url:path('app_game_glenmore_select_money_warehouse_production_on_mainboard',
+                            {idGame: game.id, idResourceLine: resourceLine.id })
+                        })
+                    }}
+                    class="relative justify-center items-center aspect-auto my-auto p-auto
+                            max-h-full w-full h-full"
+            >
                 <div class="h-full flex items-center justify-center">
                     <img class="items-center aspect-auto justify-center m-auto
                                 max-h-full"
@@ -76,11 +110,17 @@ This section displays the warehouse of the main board, with available resources
                     2
                 </span>
                 </div>
-            </div>
+            </button>
         {% else %}
-            <div class="flex justify-center items-center h-full w-full">
+            <button {% if not needToPlay or isSpectator %}disabled{% endif %}
+                    {{ stimulus_action('glenmore', 'selectResourceWarehouseProductionOnMainBoard', 'click',
+                        {url:path('app_game_glenmore_select_resource_warehouse_production_on_mainboard',
+                            {idGame: game.id, idResourceLine: resourceLine.id })
+                        })
+                    }}
+                    class="flex justify-center items-center h-full w-full">
                 <span class="bg-yellow-600 rounded-full w-12 h-12 flex items-center justify-center text-xl">3</span>
-            </div>
+            </button>
         {% endif %}
 
     {% endfor %}

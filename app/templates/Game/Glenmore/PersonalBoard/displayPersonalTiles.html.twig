@@ -14,28 +14,26 @@ This section displays the player's disposition of tiles
 <h2 class="font-bold border-double border-2 w-fit">Tuiles personnelles</h2>
 
 <div class="overflow-y-scroll overflow-x-scroll h-full w-full">
-    <div class="gap-1 grid grid-rows-{{ personalBoardTiles|length + 2 }}
-                grid-cols-{{ personalBoardTiles|first|length + 2 }}"
+    <div class="gap-1 grid grid-rows-{{ personalBoardTiles|length }}
+                grid-cols-{{ personalBoardTiles|first|length }}"
     >
-        {# Placement of an empty row at the top of the board #}
-        {% for i in 0..personalBoardTiles|first|length + 1  %}
-            <span class="w-full h-full bg-blue-500"></span>
-        {% endfor %}
         {% for row in personalBoardTiles %}
-
-            {# Placement of an empty space at the beginning of each row #}
-            <span class="w-full h-full bg-blue-500"></span>
-            {% for tile in row %}
+            {% for personalBox in row %}
 
                 {# Display for empty space #}
-                {% if tile == null %}
-                    <span class="w-full h-full bg-gray-500"></span>
+                {% if personalBox.playerTile == null %}
+                    <button type="button" class="w-full h-full bg-gray-500"
+                    {{ stimulus_action('glenmore','putTileInPersonalBoard','click',
+                        {url: path('app_game_glenmore_put_tile_on_personal_board',
+                            {idGame: game.id, coordX: personalBox.coordX, coordY: personalBox.coordY})
+                        })
+                    }}></button>
 
                 {# Display for tile #}
                 {% else %}
                     <button {{ stimulus_action('glenmore', 'selectTile', 'click',
                                 {url:path('app_game_glenmore_select_tile_on_personalboard',
-                                    {idGame: game.id, idTile: tile.id})
+                                    {idGame: game.id, idTile: personalBox.playerTile.id})
                                 })
                             }}
                             {% if isSpectator %}
@@ -44,14 +42,14 @@ This section displays the player's disposition of tiles
                             class="relative flex justify-center items-center h-full w-full">
                         <img
                                 class="aspect-auto max-h-full"
-                                src="{{ asset('resourcesGames/Glenmore/BoardTiles/' ~ tile.tile.id ~ '.svg')
+                                src="{{ asset('resourcesGames/Glenmore/BoardTiles/' ~ personalBox.playerTile.tile.id ~ '.svg')
                                 }}"
-                                alt="{{ tile.id }}"
+                                alt="{{ personalBox.playerTile.tile.id }}"
                         />
 
                         {# Resources display #}
                         {% set productionPlacement = 0 %}
-                        {% for playerResource in tile.playerTileResource %}
+                        {% for playerResource in personalBox.playerTile.playerTileResource %}
 
                             {# Placement of the villager #}
                             {% if playerResource.resource.type == VILLAGER %}
@@ -76,14 +74,6 @@ This section displays the player's disposition of tiles
                     </button>
                 {% endif %}
             {% endfor %}
-
-            {# Placement of an empty space at the end of each row #}
-            <span class="w-full h-full bg-blue-500"></span>
-        {% endfor %}
-
-        {# Placement of an empty row at the bottom of the board #}
-        {% for i in 0..personalBoardTiles|first|length + 1  %}
-            <span class="w-full h-full bg-blue-500"></span>
         {% endfor %}
     </div>
 </div>

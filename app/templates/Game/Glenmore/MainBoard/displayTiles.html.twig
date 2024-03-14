@@ -15,14 +15,17 @@ This section displays the tiles for the main board with players' pawns on it
                 <span class="w-full h-full bg-gray-500"></span>
             {% endif %}
             {% if box.hasTile %}
-                <div class="flex justify-center items-center h-full w-full">
+                <button type="button" class="flex justify-center items-center h-full w-full"
+                {{ stimulus_action('glenmore','buyTile','click',
+                    {url: path('app_game_glenmore_select_tile_on_mainboard', {idGame: game.id, idTile: box.tile.id})}) }}
+                >
                     <img
                          class="aspect-auto max-h-full"
-                         src="{{ asset('resourcesGames/Glenmore/BoardTiles/' ~ box.tile.id ~ '.svg')
+                         src="{{ asset('resourcesGames/Glenmore/BoardTiles/' ~ box.tile.tile.id ~ '.svg')
                               }}"
                          alt="{{ box.tile.id }}"
                     />
-                </div>
+                </button>
             {% endif %}
             {% if box.hasPawn %}
             <div class=" flex items-center justify-center bg-gray-500 space-x-8">

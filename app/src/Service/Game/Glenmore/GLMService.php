@@ -588,9 +588,7 @@ class GLMService
      */
     private function initializePawn(PlayerGLM $player, GameGLM $game, int $position) : void
     {
-        $pawn = new PawnGLM();
-        $pawn->setPlayerGLM($player);
-        $pawn->setColor(GlenmoreParameters::$COLOR_FROM_POSITION[$position]);
+        $pawn = $player->getPawn();
         $pawn->setPosition($position);
         $game->getMainBoard()->addPawn($pawn);
         $this->entityManager->persist($pawn);
