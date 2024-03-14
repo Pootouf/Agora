@@ -11,8 +11,8 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-#[UniqueEntity(fields: ['email'], message: 'There is already an account with this email')]
-#[UniqueEntity(fields: ['username'], message: 'There is already an account with this username')]
+#[UniqueEntity(fields: ['email'], message: 'Nous avons déjà enrigistré un compte avec cet email')]
+#[UniqueEntity(fields: ['username'], message: 'Nous avons déjà enrigistré un compte avec ce nom d\'utilisateur')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -21,6 +21,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 180, unique: true)]
+    #[Assert\Email(
+        message: "L'adresse email '{{ value }}' n'est pas valide."
+    )]
     private ?string $email = null;
 
     #[ORM\Column]
@@ -37,8 +40,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\Length(
         min: 4,
         max: 20,
-        minMessage: 'Your first name must be at least {{ limit }} characters long',
-        maxMessage: 'Your first name cannot be longer than {{ limit }} characters',
+        minMessage: 'Votre mot de passe doit être composé au moins de {{ limit }} caractères',
+        maxMessage: 'Votre mot de passe doit être composé au plus de {{ limit }} caractères',
     )]
     private ?string $username = null;
 
