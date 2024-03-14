@@ -2,7 +2,6 @@
 
 namespace App\Controller\Game;
 
-use App\Entity\Game\DTO\Glenmore\BoardBoxGLM;
 use App\Entity\Game\Glenmore\BoardTileGLM;
 use App\Entity\Game\Glenmore\GameGLM;
 use App\Entity\Game\Glenmore\GlenmoreParameters;
@@ -10,8 +9,11 @@ use App\Entity\Game\Glenmore\PlayerGLM;
 use App\Entity\Game\Glenmore\PlayerTileGLM;
 use App\Entity\Game\Glenmore\PlayerTileResourceGLM;
 use App\Entity\Game\Glenmore\TileGLM;
+use App\Entity\Game\Splendor\GameSPL;
+use App\Repository\Game\Glenmore\BoardTileGLMRepository;
 use App\Entity\Game\Glenmore\WarehouseLineGLM;
 use App\Repository\Game\Glenmore\PlayerTileGLMRepository;
+use App\Repository\Game\Glenmore\ResourceGLMRepository;
 use App\Service\Game\Glenmore\CardGLMService;
 use App\Service\Game\Glenmore\DataManagementGLMService;
 use App\Service\Game\Glenmore\GLMService;
@@ -19,6 +21,7 @@ use App\Service\Game\Glenmore\TileGLMService;
 use App\Service\Game\Glenmore\WarehouseGLMService;
 use App\Service\Game\LogService;
 use App\Service\Game\MessageService;
+use App\Service\Game\PublishService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Exception;
@@ -36,8 +39,13 @@ class GlenmoreController extends AbstractController
                                 private DataManagementGLMService $dataManagementGLMService,
                                 private TileGLMService $tileGLMService,
                                 private CardGLMService $cardGLMService,
+                                private LogService $logService,
+                                private LoggerInterface $logger,
+                                private BoardTileGLMRepository $boardTileGLMRepository,
+                                private ResourceGLMRepository $resourceGLMRepository,
+                                private PublishService $publishService,
                                 private WarehouseGLMService $warehouseGLMService,
-                                private LogService $logService)
+                                )
     {}
 
     #[Route('/game/glenmore/{id}', name: 'app_game_show_glm')]
@@ -53,6 +61,8 @@ class GlenmoreController extends AbstractController
             $needToPlay = $player->isTurnOfPlayer();
         }
         $messages = $this->messageService->receiveMessage($game->getId());
+        $activePlayer = $this->service->getActivePlayer($game);
+        $personalBoard = $activePlayer->getPersonalBoard();
         return $this->render('/Game/Glenmore/index.html.twig', [
             'game' => $game,
             'player' => $player,
@@ -60,7 +70,7 @@ class GlenmoreController extends AbstractController
             'needToPlay' => $needToPlay,
             'isGameFinished' => $this->service->isGameEnded($game),
             'selectedTile' => null,
-            'activableTiles' => null,
+            'activableTiles' => $this->tileGLMService->getActivableTiles($personalBoard->getPlayerTiles()->last()),
             'potentialNeighbours' => null,
             'currentDrawTile' => $this->tileGLMService->getActiveDrawTile($game),
             'personalBoardTiles' => $this->dataManagementGLMService->organizePersonalBoardRows($player),
@@ -196,13 +206,13 @@ class GlenmoreController extends AbstractController
         try {
             $this->tileGLMService->assignTileToPlayer($tile, $player);
         } catch (Exception) {
-            $message = $player->getUsername() . " tried to choose tile " . $tile->getTile()->getId()
+            $message = $player->getUsername() . " tried to choose tile " . $tile->getId()
                 . " but could not afford it";
             $this->logService->sendPlayerLog($game, $player, $message);
             return new Response("can't afford this tile", Response::HTTP_FORBIDDEN);
         }
         // TODO Publish management
-        $message = $player->getUsername() . " chose tile " . $tile->getTile()->getId();
+        $message = $player->getUsername() . " chose tile " . $tile->getId();
         $this->logService->sendPlayerLog($game, $player, $message);
         return new Response('player selected this tile', Response::HTTP_OK);
     }
@@ -227,6 +237,10 @@ class GlenmoreController extends AbstractController
         } catch (Exception $e) {
             //$this->logService->sendPlayerLog($game, $player, $message);
             return new Response("can't place this tile", Response::HTTP_FORBIDDEN);
+        }
+        $playerTile = $player->getPersonalBoard()->getPlayerTiles()->last();
+        if ($this->tileGLMService->giveBuyBonus($playerTile) == -1) {
+             $this->publishCreateResource($playerTile);
         }
         // TODO Publish management
 //        $message = $player->getUsername() . " put tile " . $player->getPersonalBoard()->getSelectedTile()->getId();
@@ -293,9 +307,13 @@ class GlenmoreController extends AbstractController
         if ($player == null) {
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
         }
+        $production_resource = $this->resourceGLMRepository->findOneBy(["type" => $resource]);
         if($tile->getTile()->getName() === GlenmoreParameters::$CARD_LOCH_LOCHY) {
-            // TODO get resource from the string ?
-            //$this->cardGLMService->selectResourceForLochLochy($player, $resource);
+            try {
+                $this->cardGLMService->selectResourceForLochLochy($player, $production_resource);
+            } catch (\Exception) {
+                return new Response('can not select more resource', Response::HTTP_FORBIDDEN);
+            }
         }
         return $this->render('/Game/Glenmore/PersonalBoard/selectTile.html.twig', [
             'selectedTile' => $tile,
@@ -320,6 +338,9 @@ class GlenmoreController extends AbstractController
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+        }
+        if ($this->service->getActivePlayer($game) !== $player) {
+            return new Response("Not player's turn", Response::HTTP_FORBIDDEN);
         }
         try {
             $this->tileGLMService->removeVillager($tile);
@@ -347,6 +368,9 @@ class GlenmoreController extends AbstractController
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+        }
+        if ($this->service->getActivePlayer($game) !== $player) {
+            return new Response("Not player's turn", Response::HTTP_FORBIDDEN);
         }
         try {
             $this->tileGLMService->activateBonus($tile, $player);
@@ -388,6 +412,9 @@ class GlenmoreController extends AbstractController
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+        }
+        if ($this->service->getActivePlayer($game) !== $player) {
+            return new Response("Not player's turn", Response::HTTP_FORBIDDEN);
         }
         try {
             $this->tileGLMService->moveVillager($tile, $dir);
@@ -550,6 +577,25 @@ class GlenmoreController extends AbstractController
             'personalBoardTiles' => $this->dataManagementGLMService->organizePersonalBoardRows($playerGLM),
             'whiskyCount' => $this->dataManagementGLMService->getWhiskyCount($playerGLM),
         ]);
+    }
+
+    /**
+     * publishCreateResource : send a mercure notification with information regarding the creation of resource
+     * @param PlayerTileGLM $playerTileGLM
+     * @return void
+     */
+    private function publishCreateResource(PlayerTileGLM $playerTileGLM) : void
+    {
+        $player = $playerTileGLM->getPersonalBoard()->getPlayerGLM();
+        $game = $player->getGameGLM();
+        // TODO
+        $response = $this->render('',
+        []
+        );
+        $this->publishService->publish(
+            $this->generateUrl('app_game_show_glm',
+                ['id' => $game->getId()]).'createResource' . $player->getId(),
+                $response);
     }
 
 }

@@ -2,11 +2,9 @@
 
 namespace App\Entity\Game\DTO\Glenmore;
 
+use App\Entity\Game\Glenmore\BoardTileGLM;
 use App\Entity\Game\Glenmore\PawnGLM;
-use App\Entity\Game\Glenmore\TileGLM;
 use Exception;
-use phpDocumentor\Reflection\Types\Boolean;
-use PHPUnit\Framework\InvalidArgumentException;
 
 /**
  * A representation of board's box for the main board of Glenmore.
@@ -16,12 +14,12 @@ class BoardBoxGLM
 {
 
     private ?PawnGLM $pawn = null;
-    private ?TileGLM $tile = null;
+    private ?BoardTileGLM $tile = null;
 
     /**
      * @throws Exception
      */
-    public function __construct(?TileGLM $tile, ?PawnGLM $pawn)
+    public function __construct(?BoardTileGLM $tile, ?PawnGLM $pawn)
     {
         if($pawn != null && $tile != null) {
             throw new Exception("Wrong parameters number");
@@ -64,9 +62,9 @@ class BoardBoxGLM
 
     /**
      * getTile : return the tile presents on the board's box
-     * @return ?TileGLM
+     * @return ?BoardTileGLM
      */
-    public function getTile() : ?TileGLM
+    public function getTile() : ?BoardTileGLM
     {
         return $this->tile;
     }
