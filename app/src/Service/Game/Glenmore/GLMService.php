@@ -208,7 +208,7 @@ class GLMService
         $players = $gameGLM->getPlayers();
         foreach ($players as $player) {
             $player->setTurnOfPlayer(false);
-            $player->setRoundPhase(GlenmoreParameters::$BUYING_PHASE);
+            $player->setRoundPhase(GlenmoreParameters::$STABLE_PHASE);
             $this->entityManager->persist($player);
         }
         $nextPlayer = null;

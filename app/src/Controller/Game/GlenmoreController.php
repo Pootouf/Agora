@@ -242,6 +242,7 @@ class GlenmoreController extends AbstractController
             //$this->logService->sendPlayerLog($game, $player, $message);
             return new Response("can't place this tile", Response::HTTP_FORBIDDEN);
         }
+        $this->service->setPhase($player, GlenmoreParameters::$ACTIVATION_PHASE);
         $playerTile = $player->getPersonalBoard()->getPlayerTiles()->last();
         if ($this->tileGLMService->giveBuyBonus($playerTile) == -1) {
              $this->publishCreateResource($playerTile);
@@ -267,11 +268,13 @@ class GlenmoreController extends AbstractController
             'selectedTile' => $tile,
             'game' => $game,
             'player' => $player,
-            'activatedResourceSelection' => false, //TODO : depends of the tile,
+            'activatedBuyingPhase' => $this->service->isInBuyingPhase($player),
+            'activatedActivationPhase' => $this->service->isInActivationPhase($player),
+            'activatedSellingPhase' => $this->service->isInSellingPhase($player),
             'selectedResources' => null,
             'activatedNewResourceAcquisition' => false,
             'chosenNewResources' => null,
-            'activatedMovementPhase' => false,
+            'activatedMovementPhase' => $this->service->isInMovementPhase($player),
         ]);
     }
 
@@ -303,11 +306,13 @@ class GlenmoreController extends AbstractController
             'selectedTile' => $tile,
             'game' => $game,
             'player' => $player,
-            'activatedResourceSelection' => false, //TODO : depends of the tile,
+            'activatedBuyingPhase' => $this->service->isInBuyingPhase($player),
+            'activatedActivationPhase' => $this->service->isInActivationPhase($player),
+            'activatedSellingPhase' => $this->service->isInSellingPhase($player),
             'selectedResources' => null,
             'activatedNewResourceAcquisition' => false,
             'chosenNewResources' => null,
-            'activatedMovementPhase' => false
+            'activatedMovementPhase' => $this->service->isInMovementPhase($player)
         ]);
     }
 
@@ -335,11 +340,13 @@ class GlenmoreController extends AbstractController
             'selectedTile' => $tile,
             'game' => $game,
             'player' => $player,
-            'activatedResourceSelection' => false, //TODO : depends of the tile,
+            'activatedBuyingPhase' => $this->service->isInBuyingPhase($player),
+            'activatedActivationPhase' => $this->service->isInActivationPhase($player),
+            'activatedSellingPhase' => $this->service->isInSellingPhase($player),
             'selectedResources' => null,
             'activatedNewResourceAcquisition' => false,
             'chosenNewResources' => null,
-            'activatedMovementPhase' => false
+            'activatedMovementPhase' => $this->service->isInMovementPhase($player)
         ]);
     }
 
@@ -367,11 +374,13 @@ class GlenmoreController extends AbstractController
             'selectedTile' => $tile,
             'game' => $game,
             'player' => $player,
-            'activatedResourceSelection' => false, //TODO : depends of the tile,
+            'activatedBuyingPhase' => $this->service->isInBuyingPhase($player),
+            'activatedActivationPhase' => $this->service->isInActivationPhase($player),
+            'activatedSellingPhase' => $this->service->isInSellingPhase($player),
             'selectedResources' => null,
             'activatedNewResourceAcquisition' => false,
             'chosenNewResources' => null,
-            'activatedMovementPhase' => false
+            'activatedMovementPhase' => $this->service->isInMovementPhase($player)
         ]);
     }
 
@@ -386,9 +395,16 @@ class GlenmoreController extends AbstractController
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
         }
         $this->tileGLMService->chooseTileToActivate($tile);
-        $this->service->setPhase($player, GlenmoreParameters::$ACTIVATION_PHASE);
         if ($this->service->getActivePlayer($game) !== $player) {
             return new Response("Not player's turn", Response::HTTP_FORBIDDEN);
+        }
+        if($this->tileGLMService->hasActivationCost($tile)) {
+            try {
+                $this->tileGLMService->activateBonus($tile, $player);
+            } catch (\Exception $e) {
+            }
+        } else {
+            $this->service->setPhase($player, GlenmoreParameters::$ACTIVATION_PHASE);
         }
         $movementPhase = $this->service->isInMovementPhase($player);
         $activationPhase = $this->service->isInActivationPhase($player);
@@ -437,7 +453,9 @@ class GlenmoreController extends AbstractController
         $this->service->setPhase($player, GlenmoreParameters::$MOVEMENT_PHASE);
         return $this->render('/Game/Glenmore/MainBoard/playerRoundManagement.html.twig', [
             'game' => $game,
-            'activatedResourceSelection' => false,
+            'activatedBuyingPhase' => $this->service->isInBuyingPhase($player),
+            'activatedActivationPhase' => $this->service->isInActivationPhase($player),
+            'activatedSellingPhase' => $this->service->isInSellingPhase($player),
             'activatedNewResourceAcquisition' => false,
             'activatedMovementPhase' => true
         ]);
@@ -460,19 +478,21 @@ class GlenmoreController extends AbstractController
         }
         try {
             $this->tileGLMService->moveVillager($tile, $dir);
-        } catch (\Exception) {
+        } catch (\Exception $e) {
             return new Response('Could not move a villager from this tile to 
-                targeted one');
+                targeted one ' . $e->getMessage());
         }
         return $this->render('/Game/Glenmore/PersonalBoard/selectTile.html.twig', [
             'selectedTile' => $tile,
             'game' => $game,
             'player' => $player,
-            'activatedResourceSelection' => false, //TODO : depends of the tile,
+            'activatedBuyingPhase' => $this->service->isInBuyingPhase($player),
+            'activatedActivationPhase' => $this->service->isInActivationPhase($player),
+            'activatedSellingPhase' => $this->service->isInSellingPhase($player),
             'selectedResources' => null,
             'activatedNewResourceAcquisition' => false,
             'chosenNewResources' => null,
-            'activatedMovementPhase' => false
+            'activatedMovementPhase' => $this->service->isInMovementPhase($player)
         ]);
     }
 
@@ -494,11 +514,13 @@ class GlenmoreController extends AbstractController
             'selectedTile' => $tile,
             'game' => $game,
             'player' => $player,
-            'activatedResourceSelection' => false, //TODO : depends of the tile,
+            'activatedBuyingPhase' => $this->service->isInBuyingPhase($player),
+            'activatedActivationPhase' => $this->service->isInActivationPhase($player),
+            'activatedSellingPhase' => $this->service->isInSellingPhase($player),
             'selectedResources' => null,
             'activatedNewResourceAcquisition' => false,
             'chosenNewResources' => null,
-            'activatedMovementPhase' => false
+            'activatedMovementPhase' => $this->service->isInMovementPhase($player)
         ]);
     }
 
@@ -520,11 +542,13 @@ class GlenmoreController extends AbstractController
             'selectedTile' => $tile,
             'game' => $game,
             'player' => $player,
-            'activatedResourceSelection' => false, //TODO : depends of the tile,
+            'activatedBuyingPhase' => $this->service->isInBuyingPhase($player),
+            'activatedActivationPhase' => $this->service->isInActivationPhase($player),
+            'activatedSellingPhase' => $this->service->isInSellingPhase($player),
             'selectedResources' => null,
             'activatedNewResourceAcquisition' => false,
             'chosenNewResources' => null,
-            'activatedMovementPhase' => false
+            'activatedMovementPhase' => $this->service->isInMovementPhase($player)
         ]);
     }
 

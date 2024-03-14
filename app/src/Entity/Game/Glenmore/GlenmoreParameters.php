@@ -14,9 +14,10 @@ class GlenmoreParameters {
 
     // PLAYER ROUND PHASE
 
-    public static int $BUYING_PHASE = 0;
-    public static int $ACTIVATION_PHASE = 1;
-    public static int $MOVEMENT_PHASE = 2;
+    public static int $STABLE_PHASE = 0;
+    public static int $BUYING_PHASE = 1;
+    public static int $ACTIVATION_PHASE = 2;
+    public static int $MOVEMENT_PHASE = 3;
     public static int $SELLING_PHASE = 4;
 
     // MAINBOARD BOXES

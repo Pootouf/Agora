@@ -25,6 +25,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Exception;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 
 class TileGLMService
 {
@@ -33,7 +34,8 @@ class TileGLMService
                                 private readonly ResourceGLMRepository $resourceGLMRepository,
                                 private readonly PlayerTileResourceGLMRepository $playerTileResourceGLMRepository,
                                 private readonly PlayerTileGLMRepository $playerTileGLMRepository,
-                                private readonly CardGLMService $cardGLMService){}
+                                private readonly CardGLMService $cardGLMService,
+                                private readonly LoggerInterface $logger){}
 
 
 
@@ -64,6 +66,16 @@ class TileGLMService
             }
         }
         return $count;
+    }
+
+    /**
+     * hasActivationCost : return if the player tile has an activation cost (need resources selection from the player)
+     * @param PlayerTileGLM $tileGLM
+     * @return bool
+     */
+    public function hasActivationCost(PlayerTileGLM $tileGLM) : bool
+    {
+        return $tileGLM->getTile()->getActivationPrice()->isEmpty();
     }
 
     /**
@@ -116,7 +128,10 @@ class TileGLMService
         if ($activableTiles->isEmpty()) {
             $activableTiles = $this->cardGLMService->applyLochNess($personalBoard);
         }
-
+        // if there is no activable tiles even after Loch Ness
+        if($activableTiles->isEmpty()) {
+            $this->GLMService->setPhase($personalBoard->getPlayerGLM(), GlenmoreParameters::$MOVEMENT_PHASE);
+        }
         return $activableTiles;
     }
 
@@ -438,7 +453,7 @@ class TileGLMService
     public function chooseTileToActivate(PlayerTileGLM $tileGLM) : void
     {
         $personalBoard = $tileGLM->getPersonalBoard();
-        $personalBoard->setActivatedTile($tileGLM->getTile());
+        $personalBoard->setActivatedTile($tileGLM);
         $this->entityManager->persist($personalBoard);
         $this->entityManager->flush();
     }
@@ -453,9 +468,10 @@ class TileGLMService
      */
     public function moveVillager(PlayerTileGLM $playerTileGLM, int $direction) : void
     {
-        $adjacentTiles = $playerTileGLM->getAdjacentTiles();
-        if ($adjacentTiles->get($direction) == null) {
-            throw new \Exception("no tile in this direction");
+        $targetedTile = $this->getTargetedTile($playerTileGLM, $direction);
+
+        if($targetedTile == null) {
+            throw new \Exception("no targeted tile in this direction");
         }
 
         if (!$this->doesTileContainsVillager($playerTileGLM)) {
@@ -468,9 +484,8 @@ class TileGLMService
         }
         // removes villager from the tile
         $villager = $this->retrieveVillagerFromTile($playerTileGLM);
-        $newTile = $adjacentTiles->get($direction);
         // places villager onto wanted tile
-        $this->placeVillagerOntoTile($villager, $newTile);
+        $this->placeVillagerOntoTile($villager, $targetedTile);
         // removes a movement point from the player
         $this->lowerMovementPoints($player);
     }
@@ -559,16 +574,15 @@ class TileGLMService
         $this->buyTile($tileSelected->getTile(), $player);
 
         // Here assign tile --> Creation of player tile and manage personal board
-        $adjacentTiles = $this->getTilesAround($abscissa, $ordinate, $player);
         $playerTile = new PlayerTileGLM();
         $playerTile->setTile($tileSelected->getTile());
         $playerTile->setPersonalBoard($personalBoard);
         $playerTile->setCoordX($abscissa);
         $playerTile->setCoordY($ordinate);
         $this->entityManager->persist($playerTile);
+        $this->manageAdjacentTiles($abscissa, $ordinate, $player, $playerTile);
         $personalBoard->addPlayerTile($playerTile);
         $personalBoard->setBuyingTile(null);
-        $this->manageAdjacentTiles($playerTile, $adjacentTiles);
         // Manage main board
         $mainBoard->removeBoardTile($tileSelected);
         $mainBoard->setLastPosition($lastPosition);
@@ -580,59 +594,6 @@ class TileGLMService
         $this->entityManager->persist($player->getPawn());
         $this->entityManager->persist($player);
         $this->entityManager->flush();
-    }
-
-    /**
-     * getTilesAround : returns every PlayerTile around coordinates
-     * @param int       $x
-     * @param int       $y
-     * @param PlayerGLM $player
-     * @return ArrayCollection<Int, PlayerTileGLM>
-     */
-    private function getTilesAround(int $x, int $y, PlayerGLM $player) : ArrayCollection
-    {
-        $result = new ArrayCollection();
-        $tileLeft = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x, 'coord_Y' => $y - 1
-            , 'personalBoard' => $player->getPersonalBoard()]);
-        if ($tileLeft != null) {
-            $result->set(GlenmoreParameters::$WEST, $tileLeft);
-        }
-        $tileRight = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x, 'coord_Y' => $y + 1
-            , 'personalBoard' => $player->getPersonalBoard()]);
-        if ($tileRight != null) {
-            $result->set(GlenmoreParameters::$EAST, $tileRight);
-        }
-        $tileUp = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x - 1, 'coord_Y' => $y
-            , 'personalBoard' => $player->getPersonalBoard()]);
-        if ($tileUp != null) {
-            $result->set(GlenmoreParameters::$NORTH, $tileUp);
-        }
-        $tileDown = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x + 1, 'coord_Y' => $y
-            , 'personalBoard' => $player->getPersonalBoard()]);
-        if ($tileDown != null) {
-            $result->set(GlenmoreParameters::$SOUTH, $tileDown);
-        }
-        $tileUpLeft = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x - 1, 'coord_Y' => $y - 1
-            , 'personalBoard' => $player->getPersonalBoard()]);
-        if ($tileUpLeft != null) {
-            $result->set(GlenmoreParameters::$NORTH_WEST, $tileUpLeft);
-        }
-        $tileUpRight = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x - 1, 'coord_Y' => $y + 1
-            , 'personalBoard' => $player->getPersonalBoard()]);
-        if ($tileUpRight != null) {
-            $result->set(GlenmoreParameters::$NORTH_EAST, $tileUpRight);
-        }
-        $tileDownLeft = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x + 1, 'coord_Y' => $y - 1
-            , 'personalBoard' => $player->getPersonalBoard()]);
-        if ($tileDownLeft != null) {
-            $result->set(GlenmoreParameters::$SOUTH_WEST, $tileDownLeft);
-        }
-        $tileDownRight = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x + 1, 'coord_Y' => $y + 1
-            , 'personalBoard' => $player->getPersonalBoard()]);
-        if ($tileDownRight != null) {
-            $result->set(GlenmoreParameters::$SOUTH_EAST, $tileDownRight);
-        }
-        return $result;
     }
 
     /**
@@ -1078,20 +1039,96 @@ class TileGLMService
     }
 
     /**
-     * manageAdjacentTiles : creates adjacent links between the new playerTile and the old adjacentTiles
-     * @param PlayerTileGLM   $playerTile
-     * @param ArrayCollection $adjacentTiles
+     * getTargetedTile : return the tile targeted with the direction passed
+     * @param PlayerTileGLM $playerTileGLM
+     * @param int $direction
+     * @return ?PlayerTileGLM
+     * @throws \Exception
+     */
+    private function getTargetedTile(PlayerTileGLM $playerTileGLM, int $direction) : ?PlayerTileGLM
+    {
+        $tileX = $playerTileGLM->getCoordX();
+        $tileY = $playerTileGLM->getCoordY();
+        switch ($direction) {
+            case GlenmoreParameters::$NORTH :
+                return $this->playerTileGLMRepository->findOneBy(['coord_X' => $tileX - 1, 'coord_Y' => $tileY]);
+            case GlenmoreParameters::$SOUTH :
+                return $this->playerTileGLMRepository->findOneBy(['coord_X' => $tileX + 1, 'coord_Y' => $tileY]);
+            case GlenmoreParameters::$EAST :
+                return $this->playerTileGLMRepository->findOneBy(['coord_X' => $tileX, 'coord_Y' => $tileY + 1]);
+            case GlenmoreParameters::$WEST :
+                return $this->playerTileGLMRepository->findOneBy(['coord_X' => $tileX, 'coord_Y' => $tileY - 1]);
+            case GlenmoreParameters::$NORTH_WEST :
+                return $this->playerTileGLMRepository->findOneBy(['coord_X' => $tileX - 1, 'coord_Y' => $tileY - 1]);
+            case GlenmoreParameters::$NORTH_EAST :
+                return $this->playerTileGLMRepository->findOneBy(['coord_X' => $tileX - 1, 'coord_Y' => $tileY + 1]);
+            case GlenmoreParameters::$SOUTH_WEST :
+                return $this->playerTileGLMRepository->findOneBy(['coord_X' => $tileX + 1, 'coord_Y' => $tileY - 1]);
+            case GlenmoreParameters::$SOUTH_EAST :
+                return $this->playerTileGLMRepository->findOneBy(['coord_X' => $tileX + 1, 'coord_Y' => $tileY + 1]);
+            default:
+                throw new \Exception('Unexpected value');
+        }
+    }
+
+    /**
+     * getTilesAround : returns every PlayerTile around coordinates
+     * @param int $x
+     * @param int $y
+     * @param PlayerGLM $player
+     * @param PlayerTileGLM $playerTileGLM
      * @return void
      */
-    private function manageAdjacentTiles(PlayerTileGLM $playerTile, ArrayCollection $adjacentTiles) : void
+    private function manageAdjacentTiles(int $x, int $y, PlayerGLM $player, PlayerTileGLM $playerTileGLM) : void
     {
-        for ($i = GlenmoreParameters::$NORTH; $i <= GlenmoreParameters::$NORTH_WEST; ++$i) {
-            if ($adjacentTiles->get($i) !== null) {
-                $playerTile->addAdjacentTile($adjacentTiles->get($i), $i);
-                $this->entityManager->persist($playerTile);
-                $adjacentTiles->get($i)->addAdjacentTile($playerTile, ($i + 4) % 8);
-                $this->entityManager->persist($adjacentTiles->get($i));
-            }
+        $result = new ArrayCollection();
+        $tileLeft = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x, 'coord_Y' => $y - 1
+            , 'personalBoard' => $player->getPersonalBoard()]);
+        if ($tileLeft != null) {
+            $result->set(GlenmoreParameters::$WEST, $tileLeft);
+        }
+        $tileRight = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x, 'coord_Y' => $y + 1
+            , 'personalBoard' => $player->getPersonalBoard()]);
+        if ($tileRight != null) {
+            $result->set(GlenmoreParameters::$EAST, $tileRight);
+        }
+        $tileUp = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x - 1, 'coord_Y' => $y
+            , 'personalBoard' => $player->getPersonalBoard()]);
+        if ($tileUp != null) {
+            $result->set(GlenmoreParameters::$NORTH, $tileUp);
+        }
+        $tileDown = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x + 1, 'coord_Y' => $y
+            , 'personalBoard' => $player->getPersonalBoard()]);
+        if ($tileDown != null) {
+            $result->set(GlenmoreParameters::$SOUTH, $tileDown);
+        }
+        $tileUpLeft = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x - 1, 'coord_Y' => $y - 1
+            , 'personalBoard' => $player->getPersonalBoard()]);
+        if ($tileUpLeft != null) {
+            $result->set(GlenmoreParameters::$NORTH_WEST, $tileUpLeft);
+        }
+        $tileUpRight = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x - 1, 'coord_Y' => $y + 1
+            , 'personalBoard' => $player->getPersonalBoard()]);
+        if ($tileUpRight != null) {
+            $result->set(GlenmoreParameters::$NORTH_EAST, $tileUpRight);
+        }
+        $tileDownLeft = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x + 1, 'coord_Y' => $y - 1
+            , 'personalBoard' => $player->getPersonalBoard()]);
+        if ($tileDownLeft != null) {
+            $result->set(GlenmoreParameters::$SOUTH_WEST, $tileDownLeft);
+        }
+        $tileDownRight = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x + 1, 'coord_Y' => $y + 1
+            , 'personalBoard' => $player->getPersonalBoard()]);
+        if ($tileDownRight != null) {
+            $result->set(GlenmoreParameters::$SOUTH_EAST, $tileDownRight);
+        }
+        $i = 0;
+        foreach($result as $tile) {
+            $tile->addAdjacentTile($playerTileGLM, $i);
+            $playerTileGLM->addAdjacentTile($tile, $i);
+            ++$i;
+            $this->entityManager->persist($playerTileGLM);
+            $this->entityManager->persist($tile);
         }
         $this->entityManager->flush();
     }

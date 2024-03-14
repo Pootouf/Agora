@@ -5,7 +5,7 @@ This section displays the player options regarding his round
 @return : display the possible actions regarding the player's round phases
 #}
 
-{% if activatedResourceSelection %}
+{% if activatedBuyingPhase or activatedActivationPhase or activatedSellingPhase %}
     <div class="bg-gradient-to-b from-[#4C6E9Bff] to-[#20222Dff]
                                 absolute bottom-0 flex justify-center items-center
                                  w-[25%] h-1/5 right-0">
