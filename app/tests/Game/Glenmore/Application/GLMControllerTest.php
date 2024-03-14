@@ -14,6 +14,8 @@ use App\Service\Game\Glenmore\WarehouseGLMService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\Response;
+
 
 class GLMControllerTest extends WebTestCase
 {
@@ -31,6 +33,18 @@ class GLMControllerTest extends WebTestCase
     private DataManagementGLMService $dataManagementGLMService;
     private TileGLMService $tileGLMService;
     private WarehouseGLMService $warehouseGLMService;
+
+    public function testPlayersHaveAccessToGame(): void
+    {
+        //GIVEN
+        $gameId = $this->initializeGameWithFivePlayers();
+        $url = "/game/glenmore/" . $gameId;
+        //WHEN
+        $this->client->request("GET", $url);
+        // THEN
+        $this->assertResponseStatusCodeSame(Response::HTTP_OK,
+            $this->client->getResponse());
+    }
 
     private function initializeGameWithFivePlayers() : int
     {
