@@ -41,7 +41,7 @@ class BoardController extends AbstractController
         $this->gameViewerService = $gameViewerService;
         $this->security= $security;
     }
-    #[Route('/boardCreation/{game_id}', name: 'app_board_create', requirements: ['game_id' => '\d+'], methods: ['GET', 'POST', 'HEAD'])]
+    #[Route('/dashboard/boardCreation/{game_id}', name: 'app_board_create', requirements: ['game_id' => '\d+'], methods: ['GET', 'POST', 'HEAD'])]
     public function create(Request $request, $game_id): Response
     {
         //Find the game with the id passed in parameters
@@ -74,7 +74,7 @@ class BoardController extends AbstractController
 
             return $this->redirectToRoute('app_home');
         }
-        return $this->render('platform/game/boardRegister.html.twig', [
+        return $this->render('platform/dashboard/games/boardRegister.html.twig', [
             'game' => $game,
             'form' => $form->createView()
         ]);
@@ -147,7 +147,7 @@ class BoardController extends AbstractController
 //        $boards = $boardRepository->searchBoards($data);
 
 
-        return $this->render('platform/dashboard_tables/index.html.twig', [
+        return $this->render('platform/dashboard/tables.html.twig', [
             'boards' => $boards,
             'searchboard' => $form->createView(),
         ]);
@@ -170,7 +170,7 @@ class BoardController extends AbstractController
 
         $boards = $boardRepository->searchBoards($data);
 
-        return $this->render('platform/dashboard_tables/index.html.twig', [
+        return $this->render('platform/dashboard/tables.html.twig', [
             'boards' => $boards,
             'searchboard' => $form->createView(),
         ]);
@@ -193,7 +193,7 @@ class BoardController extends AbstractController
         $form->handleRequest($request);
         $boards = $boardRepository->searchBoardsByGame($data, $game);
 
-        return $this->render('platform/dashboard_tables/index.html.twig', [
+        return $this->render('platform/dashboard/tables.html.twig', [
             'boards' => $boards,
             'searchboard' => $form->createView(),
         ]);
@@ -210,5 +210,12 @@ class BoardController extends AbstractController
         return $this->redirectToRoute($route, ['id' => $board->getPartyId()]);
     }
 
+    #[Route('/dashboard/history', name: 'app_board_history')]
+    public function index(): Response
+    {
+        return $this->render('platform/dashboard/history.html.twig', [
+            'controller_name' => 'BoardController',
+        ]);
+    }
 
 }
