@@ -17,7 +17,7 @@ class PlayerTileResourceGLM extends Component
     private ?int $quantity = null;
 
     #[ORM\ManyToOne(inversedBy: 'playerTileResource')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?PlayerTileGLM $playerTileGLM = null;
 
     #[ORM\ManyToOne(inversedBy: 'playerTileResourceGLMs')]
