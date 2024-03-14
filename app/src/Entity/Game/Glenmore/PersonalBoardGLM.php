@@ -27,14 +27,17 @@ class PersonalBoardGLM extends Component
     #[ORM\OneToMany(targetEntity: PlayerCardGLM::class, mappedBy: 'personalBoard', orphanRemoval: true)]
     private Collection $playerCardGLM;
 
-    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
-    private ?BoardTileGLM $selectedTile = null;
-
     #[ORM\OneToMany(targetEntity: SelectedResourceGLM::class, mappedBy: 'personalBoardGLM', orphanRemoval: true)]
     private Collection $selectedResources;
 
     #[ORM\OneToMany(targetEntity: CreatedResourceGLM::class, mappedBy: 'personalBoardGLM', orphanRemoval: true)]
     private Collection $createdResources;
+
+    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
+    private ?BoardTileGLM $buyingTile = null;
+
+    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
+    private ?PlayerTileGLM $activatedTile = null;
 
     public function __construct()
     {
@@ -145,18 +148,6 @@ class PersonalBoardGLM extends Component
         return $this;
     }
 
-    public function getSelectedTile(): ?BoardTileGLM
-    {
-        return $this->selectedTile;
-    }
-
-    public function setSelectedTile(?BoardTileGLM $selectedTile): static
-    {
-        $this->selectedTile = $selectedTile;
-
-        return $this;
-    }
-
     /**
      * @return Collection<int, SelectedResourceGLM>
      */
@@ -213,6 +204,30 @@ class PersonalBoardGLM extends Component
                 $createdResource->setPersonalBoardGLM(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getBuyingTile(): ?BoardTileGLM
+    {
+        return $this->buyingTile;
+    }
+
+    public function setBuyingTile(?BoardTileGLM $buyingTile): static
+    {
+        $this->buyingTile = $buyingTile;
+
+        return $this;
+    }
+
+    public function getActivatedTile(): ?PlayerTileGLM
+    {
+        return $this->activatedTile;
+    }
+
+    public function setActivatedTile(?PlayerTileGLM $activatedTile): static
+    {
+        $this->activatedTile = $activatedTile;
 
         return $this;
     }

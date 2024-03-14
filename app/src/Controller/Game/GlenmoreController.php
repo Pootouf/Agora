@@ -40,8 +40,6 @@ class GlenmoreController extends AbstractController
                                 private TileGLMService $tileGLMService,
                                 private CardGLMService $cardGLMService,
                                 private LogService $logService,
-                                private LoggerInterface $logger,
-                                private BoardTileGLMRepository $boardTileGLMRepository,
                                 private ResourceGLMRepository $resourceGLMRepository,
                                 private PublishService $publishService,
                                 private WarehouseGLMService $warehouseGLMService,
@@ -64,6 +62,9 @@ class GlenmoreController extends AbstractController
         $activePlayer = $this->service->getActivePlayer($game);
         $personalBoard = $activePlayer->getPersonalBoard();
         $movementPhase = $this->service->isInMovementPhase($activePlayer);
+        $activationPhase = $this->service->isInActivationPhase($activePlayer);
+        $buyingPhase = $this->service->isInBuyingPhase($activePlayer);
+        $sellingPhase = $this->service->isInSellingPhase($activePlayer);
         return $this->render('/Game/Glenmore/index.html.twig', [
             'game' => $game,
             'player' => $player,
@@ -78,14 +79,16 @@ class GlenmoreController extends AbstractController
             'boardTiles' => $this->dataManagementGLMService->organizeMainBoardRows(
                 $this->dataManagementGLMService->createBoardBoxes($game)),
             'whiskyCount' => $this->dataManagementGLMService->getWhiskyCount($player),
-            'activatedResourceSelection' => false,
+            'activatedBuyingPhase' => $buyingPhase,
+            'activatedActivationPhase' => $activationPhase,
+            'activatedSellingPhase' => $sellingPhase,
+            'activatedMovementPhase' => $movementPhase,
             'selectedResources' => null,
             'activatedNewResourceAcquisition' => false,
             'chosenNewResources' => null,
-            'activatedMovementPhase' => $movementPhase,
             'selectedWarehouseProduction' => null,
             'isWarehouseMoneySelected' => false,
-            'buyingTile' => $player->getPersonalBoard()->getSelectedTile(),
+            'buyingTile' => $player->getPersonalBoard()->getBuyingTile(),
             'messages' => $messages,
         ]);
     }
@@ -284,6 +287,18 @@ class GlenmoreController extends AbstractController
         if ($player == null) {
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
         }
+        $phase = $player->getRoundPhase();
+        if ($phase == GlenmoreParameters::$BUYING_PHASE) {
+            try {
+                $this->tileGLMService->selectResourcesFromTileToBuy($tile, $resourceGLM->getResource());
+            } catch (\Exception $e) {
+            }
+        } else if ($phase == GlenmoreParameters::$ACTIVATION_PHASE) {
+            try {
+                $this->tileGLMService->selectResourcesFromTileToActivate($tile, $resourceGLM->getResource());
+            } catch (\Exception $e) {
+            }
+        }
         return $this->render('/Game/Glenmore/PersonalBoard/selectTile.html.twig', [
             'selectedTile' => $tile,
             'game' => $game,
@@ -370,24 +385,44 @@ class GlenmoreController extends AbstractController
         if ($player == null) {
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
         }
+        $this->tileGLMService->chooseTileToActivate($tile);
+        $this->service->setPhase($player, GlenmoreParameters::$ACTIVATION_PHASE);
         if ($this->service->getActivePlayer($game) !== $player) {
             return new Response("Not player's turn", Response::HTTP_FORBIDDEN);
         }
-        try {
-            $this->tileGLMService->activateBonus($tile, $player);
-        } catch (\Exception) {
-            return new Response('could not activate this tile', Response::HTTP_FORBIDDEN);
-        }
+        $movementPhase = $this->service->isInMovementPhase($player);
+        $activationPhase = $this->service->isInActivationPhase($player);
+        $buyingPhase = $this->service->isInBuyingPhase($player);
+        $sellingPhase = $this->service->isInSellingPhase($player);
         return $this->render('/Game/Glenmore/PersonalBoard/selectTile.html.twig', [
             'selectedTile' => $tile,
             'game' => $game,
             'player' => $player,
-            'activatedResourceSelection' => false, //TODO : depends of the tile,
+            'activatedBuyingPhase' => $buyingPhase,
+            'activatedActivationPhase' => $activationPhase,
+            'activatedSellingPhase' => $sellingPhase,
+            'activatedMovementPhase' => $movementPhase,
             'selectedResources' => null,
             'activatedNewResourceAcquisition' => false,
             'chosenNewResources' => null,
-            'activatedMovementPhase' => false
         ]);
+    }
+
+    #[Route('game/glenmore/{idGame}/validate/activation', name: 'app_game_glenmore_validate_activation_tile')]
+    public function validateActivationTile(
+        #[MapEntity(id: 'idGame')] GameGLM $game,
+    )  : Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+        }
+        $tile = $player->getPersonalBoard()->getActivatedTile();
+        try {
+            $this->tileGLMService->activateBonus($tile, $player);
+        } catch (\Exception $e) {
+        }
+        return new Response("tile was activated", Response::HTTP_OK);
     }
 
     #[Route('game/glenmore/{idGame}/end/activation', name: 'app_game_glenmore_end_activate_tile')]
@@ -399,7 +434,7 @@ class GlenmoreController extends AbstractController
         if ($player == null) {
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
         }
-        $this->service->setMovementPhase($player, GlenmoreParameters::$MOVEMENT_PHASE);
+        $this->service->setPhase($player, GlenmoreParameters::$MOVEMENT_PHASE);
         return $this->render('/Game/Glenmore/MainBoard/playerRoundManagement.html.twig', [
             'game' => $game,
             'activatedResourceSelection' => false,

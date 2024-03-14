@@ -17,6 +17,7 @@ class GlenmoreParameters {
     public static int $BUYING_PHASE = 0;
     public static int $ACTIVATION_PHASE = 1;
     public static int $MOVEMENT_PHASE = 2;
+    public static int $SELLING_PHASE = 4;
 
     // MAINBOARD BOXES
     public static int $NUMBER_OF_BOXES_ON_BOARD = 14;

@@ -122,13 +122,62 @@ class GLMService
         return $result;
     }
 
-    public function isInMovementPhase(PlayerGLM $playerGLM) {
+    /**
+     * isInMovementPhase : indicates if player is in movement phase
+     * @param PlayerGLM $playerGLM
+     * @return bool
+     */
+    public function isInMovementPhase(PlayerGLM $playerGLM): bool
+    {
         $phase = $playerGLM->getRoundPhase();
         if ($phase == GlenmoreParameters::$MOVEMENT_PHASE) {
             return true;
         }
         return false;
     }
+
+    /**
+     * isInBuyingPhase : indicates if player is in buying phase
+     * @param PlayerGLM $playerGLM
+     * @return bool
+     */
+    public function isInBuyingPhase(PlayerGLM $playerGLM): bool
+    {
+        $phase = $playerGLM->getRoundPhase();
+        if ($phase == GlenmoreParameters::$BUYING_PHASE) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * isInSellingPhase : indicates if player is in selling phase
+     * @param PlayerGLM $playerGLM
+     * @return bool
+     */
+    public function isInSellingPhase(PlayerGLM $playerGLM): bool
+    {
+        $phase = $playerGLM->getRoundPhase();
+        if ($phase == GlenmoreParameters::$SELLING_PHASE) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * isInActivationPhase : indicates if player is in activation phase
+     * @param PlayerGLM $playerGLM
+     * @return bool
+     */
+    public function isInActivationPhase(PlayerGLM $playerGLM): bool
+    {
+        $phase = $playerGLM->getRoundPhase();
+        if ($phase == GlenmoreParameters::$ACTIVATION_PHASE) {
+            return true;
+        }
+        return false;
+    }
+
 
     /**
      * manageEndOfRound : proceeds to count players' points depending on draw tiles level
@@ -196,12 +245,12 @@ class GLMService
     }
 
     /**
-     * setMovementPhase : set player's phase into selected phase
+     * setPhase : set player's phase into selected phase
      * @param PlayerGLM $playerGLM
      * @param int       $phase
      * @return void
      */
-    public function setMovementPhase(PlayerGLM $playerGLM, int $phase)
+    public function setPhase(PlayerGLM $playerGLM, int $phase) : void
     {
         $playerGLM->setRoundPhase($phase);
         $this->entityManager->persist($playerGLM);

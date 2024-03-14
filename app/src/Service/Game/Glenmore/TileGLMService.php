@@ -25,7 +25,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Exception;
 use Doctrine\ORM\EntityManagerInterface;
-use Psr\Log\LoggerInterface;
 
 class TileGLMService
 {
@@ -34,9 +33,7 @@ class TileGLMService
                                 private readonly ResourceGLMRepository $resourceGLMRepository,
                                 private readonly PlayerTileResourceGLMRepository $playerTileResourceGLMRepository,
                                 private readonly PlayerTileGLMRepository $playerTileGLMRepository,
-                                private readonly CardGLMService $cardGLMService,
-                                private LoggerInterface $logger
-                                ){}
+                                private readonly CardGLMService $cardGLMService){}
 
 
 
@@ -66,7 +63,6 @@ class TileGLMService
                 $pointerPosition += GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD;
             }
         }
-        $this->logger->critical('number to replace : ' . $count);
         return $count;
     }
 
@@ -269,13 +265,14 @@ class TileGLMService
     public function selectResourcesFromTileToBuy(PlayerTileGLM $playerTileGLM, ResourceGLM $resource) : void
     {
         $personalBoard = $playerTileGLM->getPersonalBoard();
-        $selectedTile = $personalBoard->getSelectedTile();
+        $selectedTile = $personalBoard->getBuyingTile();
         $this->addSelectedResourcesFromTileWithCost($playerTileGLM, $resource, $selectedTile->getTile()->getBuyPrice());
     }
 
 
     /**
-     * selectResourcesFromTileToActivate: select a resources from a tile to use to activate the selectedTile of the player
+     * selectResourcesFromTileToActivate: select a resources from a tile to use to activate the selectedTile of the
+     * player
      * @param PlayerTileGLM $playerTileGLM
      * @param ResourceGLM $resource
      * @return void
@@ -284,7 +281,7 @@ class TileGLMService
     public function selectResourcesFromTileToActivate(PlayerTileGLM $playerTileGLM, ResourceGLM $resource) : void
     {
         $personalBoard = $playerTileGLM->getPersonalBoard();
-        $selectedTile = $personalBoard->getSelectedTile();
+        $selectedTile = $personalBoard->getBuyingTile();
         $this->addSelectedResourcesFromTileWithCost($playerTileGLM, $resource,
             $selectedTile->getTile()->getActivationPrice());
     }
@@ -385,7 +382,6 @@ class TileGLMService
         $boardTile = new BoardTileGLM();
         $boardTile->setTile($tile);
         $boardTile->setPosition($posTile);
-        $this->logger->critical('position : ' . $posTile);
         $boardTile->setMainBoardGLM($mainBoard);
         $mainBoard->addBoardTile($boardTile);
         $this->entityManager->persist($boardTile);
@@ -436,6 +432,14 @@ class TileGLMService
             $this->entityManager->persist($playerGLM);
         }
         $tileGLM->setActivated(true);
+        $this->entityManager->flush();
+    }
+
+    public function chooseTileToActivate(PlayerTileGLM $tileGLM) : void
+    {
+        $personalBoard = $tileGLM->getPersonalBoard();
+        $personalBoard->setActivatedTile($tileGLM->getTile());
+        $this->entityManager->persist($personalBoard);
         $this->entityManager->flush();
     }
 
@@ -509,14 +513,14 @@ class TileGLMService
         if (!$this->canBuyTile($boardTile->getTile(), $player)) {
             throw new Exception("Unable to buy tile");
         }
-        if ($player->getPersonalBoard()->getSelectedTile() != null) {
+        if ($player->getPersonalBoard()->getBuyingTile() != null) {
             throw new Exception("Already bought a tile");
         }
         // Initialization
         $personalBoard = $player->getPersonalBoard();
 
         // Manage personal board and update
-        $personalBoard->setSelectedTile($boardTile);
+        $personalBoard->setBuyingTile($boardTile);
         $this->entityManager->persist($personalBoard);
         $this->entityManager->flush();
     }
@@ -533,7 +537,7 @@ class TileGLMService
      */
     public function setPlaceTileAlreadySelected(PlayerGLM $player, int $abscissa, int $ordinate) : void
     {
-        if ($player->getPersonalBoard()->getSelectedTile() == null)
+        if ($player->getPersonalBoard()->getBuyingTile() == null)
         {
             throw new Exception("Unable to place tile");
         }
@@ -541,14 +545,14 @@ class TileGLMService
         // Initialization
         $personalBoard = $player->getPersonalBoard();
         $mainBoard = $player->getGameGLM()->getMainBoard();
-        $tileSelected = $personalBoard->getSelectedTile();
+        $tileSelected = $personalBoard->getBuyingTile();
         $lastPosition = $player->getPawn()->getPosition();
         $newPosition = $tileSelected->getPosition();
 
         // Check if condition for assign tile
         if (!$this->canPlaceTile($abscissa, $ordinate, $tileSelected->getTile(), $player))
         {
-            $personalBoard->setSelectedTile(null);
+            $personalBoard->setBuyingTile(null);
             throw new Exception("Unable to place tile");
         }
 
@@ -563,7 +567,7 @@ class TileGLMService
         $playerTile->setCoordY($ordinate);
         $this->entityManager->persist($playerTile);
         $personalBoard->addPlayerTile($playerTile);
-        $personalBoard->setSelectedTile(null);
+        $personalBoard->setBuyingTile(null);
         $this->manageAdjacentTiles($playerTile, $adjacentTiles);
         // Manage main board
         $mainBoard->removeBoardTile($tileSelected);
@@ -793,20 +797,6 @@ class TileGLMService
         }
         return false;
     }
-
-    /*  TODO check can buy tile
-        /**
-         * checks if player can take tile :
-         *      - If player have all resources
-         * @param BoardTileGLM $tile
-         * @param PlayerGLM $player
-         * @return bool
-         *
-     private function checkCanBuyTile(PlayerGLM $player, BoardTileGLM $tile) : bool
-    {
-        return $this->canBuyTile($tile, $player)
-            && $this->canPlaceTileOnPersonalBoard($tile, $player);
-    }*/
 
     /**
      * Return a board tile that position is equal to parameter else null

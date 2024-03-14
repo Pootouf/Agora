@@ -159,6 +159,7 @@ class DataManagementGLMServiceIntegrationTest extends KernelTestCase
 
         for ($i = 0; $i < $nbOfPlayers; $i++) {
             $player = new PlayerGLM('test', $game);
+            $player->setRoundPhase(0);
             $player->setGameGLM($game);
             $player->setTurnOfPlayer(false);
             $player->setPoints(0);
