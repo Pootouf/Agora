@@ -114,15 +114,23 @@ class DataManagementGLMServiceIntegrationTest extends KernelTestCase
         //THEN
         for($i = 0; $i < $row0->count(); $i++) {
             $this->assertEquals($row0->get($i)->getPlayerTile(), $result->get(0)->get($i)->getPlayerTile());
+            $this->assertEquals($row0->get($i)->getCoordX(), $result->get(0)->get($i)->getCoordX());
+            $this->assertEquals($row0->get($i)->getCoordY(), $result->get(0)->get($i)->getCoordY());
         }
         for($i = 0; $i < $row1->count(); $i++) {
             $this->assertEquals($row1->get($i)->getPlayerTile(), $result->get(1)->get($i)->getPlayerTile());
+            $this->assertEquals($row0->get($i)->getCoordX(), $result->get(0)->get($i)->getCoordX());
+            $this->assertEquals($row0->get($i)->getCoordY(), $result->get(0)->get($i)->getCoordY());
         }
         for($i = 0; $i < $row2->count(); $i++) {
             $this->assertEquals($row2->get($i)->getPlayerTile(), $result->get(2)->get($i)->getPlayerTile());
+            $this->assertEquals($row0->get($i)->getCoordX(), $result->get(0)->get($i)->getCoordX());
+            $this->assertEquals($row0->get($i)->getCoordY(), $result->get(0)->get($i)->getCoordY());
         }
         for($i = 0; $i < $row3->count(); $i++) {
             $this->assertEquals($row3->get($i)->getPlayerTile(), $result->get(3)->get($i)->getPlayerTile());
+            $this->assertEquals($row0->get($i)->getCoordX(), $result->get(0)->get($i)->getCoordX());
+            $this->assertEquals($row0->get($i)->getCoordY(), $result->get(0)->get($i)->getCoordY());
         }
     }
 
