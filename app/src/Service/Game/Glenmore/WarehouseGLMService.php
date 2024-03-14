@@ -11,6 +11,7 @@ use App\Entity\Game\Glenmore\ResourceGLM;
 use App\Entity\Game\Glenmore\SelectedResourceGLM;
 use App\Entity\Game\Glenmore\WarehouseGLM;
 use App\Entity\Game\Glenmore\WarehouseLineGLM;
+use App\Entity\Game\Glenmore\WarehousePlayerResourceGLM;
 use App\Repository\Game\Glenmore\PlayerGLMRepository;
 use Doctrine\DBAL\Exception;
 use Doctrine\ORM\EntityManagerInterface;
@@ -100,12 +101,11 @@ class WarehouseGLMService
             throw new Exception('Not enough money to buy resource');
         }
 
-        $selectedResource = new SelectedResourceGLM();
-        $selectedResource->setPlayerTile(null);
-        $selectedResource->setResource($resource);
-        $selectedResource->setPersonalBoardGLM($player->getPersonalBoard());
-        $selectedResource->setQuantity(1);
-        $this->entityManager->persist($selectedResource);
+        $warehouseResource = new WarehousePlayerResourceGLM();
+        $warehouseResource->setResource($resource);
+        $warehouseResource->setPersonalBoardGLM($player->getPersonalBoard());
+        $warehouseResource->setQuantity(1);
+        $this->entityManager->persist($warehouseResource);
 
         $player->getPersonalBoard()->setMoney($moneyOfPlayer - $moneyNeeded);
         $this->entityManager->persist($player->getPersonalBoard());

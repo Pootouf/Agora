@@ -36,12 +36,16 @@ class PersonalBoardGLM extends Component
     #[ORM\OneToMany(targetEntity: CreatedResourceGLM::class, mappedBy: 'personalBoardGLM', orphanRemoval: true)]
     private Collection $createdResources;
 
+    #[ORM\OneToMany(targetEntity: WarehousePlayerResourceGLM::class, mappedBy: 'personalBoardGLM', orphanRemoval: true)]
+    private Collection $warehousePlayerResources;
+
     public function __construct()
     {
         $this->playerTiles = new ArrayCollection();
         $this->playerCardGLM = new ArrayCollection();
         $this->selectedResources = new ArrayCollection();
         $this->createdResources = new ArrayCollection();
+        $this->warehousePlayerResources = new ArrayCollection();
     }
 
     public function getLeaderCount(): ?int
@@ -211,6 +215,36 @@ class PersonalBoardGLM extends Component
             // set the owning side to null (unless already changed)
             if ($createdResource->getPersonalBoardGLM() === $this) {
                 $createdResource->setPersonalBoardGLM(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, WarehousePlayerResourceGLM>
+     */
+    public function getWarehousePlayerResources(): Collection
+    {
+        return $this->warehousePlayerResources;
+    }
+
+    public function addWarehousePlayerResource(WarehousePlayerResourceGLM $warehousePlayerResource): static
+    {
+        if (!$this->warehousePlayerResources->contains($warehousePlayerResource)) {
+            $this->warehousePlayerResources->add($warehousePlayerResource);
+            $warehousePlayerResource->setPersonalBoardGLM($this);
+        }
+
+        return $this;
+    }
+
+    public function removeWarehousePlayerResource(WarehousePlayerResourceGLM $warehousePlayerResource): static
+    {
+        if ($this->warehousePlayerResources->removeElement($warehousePlayerResource)) {
+            // set the owning side to null (unless already changed)
+            if ($warehousePlayerResource->getPersonalBoardGLM() === $this) {
+                $warehousePlayerResource->setPersonalBoardGLM(null);
             }
         }
 
