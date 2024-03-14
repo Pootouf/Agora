@@ -240,8 +240,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             $this->notifications->add($notification);
             $notification->setReceiver($this);
         }
+        return $this;
     }
-
+    /**
      * @return Collection<int, self>
      */
     public function getContacts(): Collection
@@ -266,6 +267,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 $notification->setReceiver(null);
             }
         }
+        return $this;
     }
 
     public function removeContact(self $contact): static
