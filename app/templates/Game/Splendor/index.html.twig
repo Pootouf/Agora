@@ -246,7 +246,6 @@
         eventSourceEndOfGame.onmessage = event => {
             animationQueue.addToQueue(() => {
                 gameFinished(event.data, "{{ not isSpectator ? player.username }}")
-                animationQueue.executeNextInQueue()
             })
         }
 
