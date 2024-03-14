@@ -22,14 +22,14 @@ class GameController extends AbstractController
      *
      * @return Response  HTTP response: list of games page
     */
-    #[Route('/games', name: 'app_games')]
+    #[Route('/dashboard/games', name: 'app_games')]
     public function index(EntityManagerInterface $entityManager): Response
     {
         $gameRepository = $entityManager->getRepository(Game::class);
 
         $games = $gameRepository->findAll();
 
-        return $this->render('platform/game/games.html.twig', [
+        return $this->render('platform/dashboard/games/games.html.twig', [
             'controller_name' => 'GameController',
             'games' => $games,
         ]);
