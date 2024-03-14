@@ -2,6 +2,8 @@
 
 namespace App\Tests\Game\Glenmore\Unit\Entity;
 
+use App\Entity\Game\Glenmore\GameGLM;
+use App\Entity\Game\Glenmore\PlayerGLM;
 use App\Entity\Game\Glenmore\PlayerTileGLM;
 use App\Entity\Game\Glenmore\PlayerTileResourceGLM;
 use App\Entity\Game\Glenmore\ResourceGLM;
@@ -63,6 +65,21 @@ class PlayerTileResourceGLMTest extends TestCase
         // THEN
 
         $this->assertSame($playerTile, $this->playerTileResourceGLM->getPlayerTileGLM());
+    }
+
+    public function testSetPlayer() : void
+    {
+        // GIVEN
+
+        $player = new PlayerGLM("user", new GameGLM());
+
+        // WHEN
+
+        $this->playerTileResourceGLM->setPlayer($player);
+
+        // THEN
+
+        $this->assertSame($player, $this->playerTileResourceGLM->getPlayer());
     }
 
     protected function setUp(): void
