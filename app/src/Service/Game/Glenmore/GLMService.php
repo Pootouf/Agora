@@ -208,8 +208,11 @@ class GLMService
         $players = $gameGLM->getPlayers();
         foreach ($players as $player) {
             $player->setTurnOfPlayer(false);
+            $player->getPersonalBoard()->setActivatedTile(null);
+            $player->getPersonalBoard()->setBuyingTile(null);
             $player->setRoundPhase(GlenmoreParameters::$STABLE_PHASE);
             $this->entityManager->persist($player);
+            $this->entityManager->persist($player->getPersonalBoard());
         }
         $nextPlayer = null;
         $pointerPosition = $startPosition + 1;

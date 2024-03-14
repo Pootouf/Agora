@@ -367,7 +367,7 @@ class GlenmoreController extends AbstractController
         }
         try {
             $this->tileGLMService->removeVillager($tile);
-        } catch (\Exception) {
+        } catch (Exception) {
             return new Response('Invalid move', Response::HTTP_FORBIDDEN);
         }
         return $this->render('/Game/Glenmore/PersonalBoard/selectTile.html.twig', [
@@ -478,9 +478,9 @@ class GlenmoreController extends AbstractController
         }
         try {
             $this->tileGLMService->moveVillager($tile, $dir);
-        } catch (\Exception $e) {
+        } catch (Exception) {
             return new Response('Could not move a villager from this tile to 
-                targeted one ' . $e->getMessage());
+                targeted one ');
         }
         return $this->render('/Game/Glenmore/PersonalBoard/selectTile.html.twig', [
             'selectedTile' => $tile,
