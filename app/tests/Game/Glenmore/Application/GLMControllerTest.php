@@ -46,6 +46,24 @@ class GLMControllerTest extends WebTestCase
             $this->client->getResponse());
     }
 
+    public function testIsSpectator() : void
+    {
+        //GIVEN
+        $gameId = $this->initializeGameWithFivePlayers();
+        $game = $this->gameGLMRepository->findOneById($gameId);
+        $mainBoard = $game->getMainBoard();
+        $tile = $mainBoard->getBoardTiles()->first();
+        $tileId = $tile->getId();
+        $newUrl = "/game/glenmore/" . $gameId . "/select/tile/mainBoard/" . $tileId;
+        $user6 = $this->gameUserRepository->findOneByUsername("test5");
+        $this->client->loginUser($user6);
+        //WHEN
+        $this->client->request("GET", $newUrl);
+        //THEN
+        $this->assertEquals(Response::HTTP_FORBIDDEN,
+            $this->client->getResponse()->getStatusCode());
+    }
+
     private function initializeGameWithFivePlayers() : int
     {
         $this->client = static::createClient();
