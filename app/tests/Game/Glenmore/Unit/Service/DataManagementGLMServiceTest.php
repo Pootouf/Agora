@@ -66,7 +66,7 @@ class DataManagementGLMServiceTest extends TestCase
         $this->assertSame($result, $expectedResult);
     }
 
-    /*public function testCreateBoardBoxes() : void
+    public function testCreateBoardBoxes() : void
     {
         //GIVEN
         $game = $this->createGame(2);
@@ -74,12 +74,18 @@ class DataManagementGLMServiceTest extends TestCase
         $expectedResult = new ArrayCollection();
         for ($i = 0; $i < 2; ++$i) {
             $pawn = $game->getPlayers()->get($i)->getPawn();
-            $box = new BoardBoxGLM(null, $pawn);
+            try {
+                $box = new BoardBoxGLM(null, $pawn);
+            } catch (\Exception $e) {
+            }
             $expectedResult->add($box);
         }
         for ($i = 2; $i < GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD - 1; ++$i) {
-            $tile = $game->getMainBoard()->getBoardTiles()->get($i - 2)->getTile();
-            $box = new BoardBoxGLM($tile, null);
+            $tile = $game->getMainBoard()->getBoardTiles()->get($i - 2);
+            try {
+                $box = new BoardBoxGLM($tile, null);
+            } catch (\Exception $e) {
+            }
             $expectedResult->add($box);
         }
         $box = new BoardBoxGLM(null, null);
@@ -89,7 +95,7 @@ class DataManagementGLMServiceTest extends TestCase
         //THEN
         $this->assertEquals($expectedResult, $result);
         $this->assertSame($expectedLength, $result->count());
-    }*/
+    }
 
     public function testOrganizeMainBoardRows() : void
     {
