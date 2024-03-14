@@ -4,6 +4,7 @@ namespace App\Service\Game\Glenmore;
 
 use App\Entity\Game\Glenmore\PersonalBoardGLM;
 use App\Entity\Game\Glenmore\TileGLM;
+use App\Repository\Game\Glenmore\BoardTileGLMRepository;
 use App\Repository\Game\Glenmore\PlayerTileGLMRepository;
 use App\Repository\Game\Glenmore\PlayerTileResourceGLMRepository;
 use App\Service\Game\Glenmore\CardGLMService;
@@ -22,6 +23,7 @@ use App\Repository\Game\Glenmore\DrawTilesGLMRepository;
 use App\Repository\Game\Glenmore\PlayerGLMRepository;
 use App\Repository\Game\Glenmore\ResourceGLMRepository;
 use App\Repository\Game\Glenmore\TileGLMRepository;
+use App\Service\Game\LogService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
@@ -32,9 +34,12 @@ class GLMService
 {
     public function __construct(private readonly EntityManagerInterface $entityManager,
         private readonly TileGLMRepository $tileGLMRepository,
+        private readonly TileGLMService $tileGLMService,
+        private readonly LogService $logService,
         private readonly DrawTilesGLMRepository $drawTilesGLMRepository,
         private readonly ResourceGLMRepository $resourceGLMRepository,
         private readonly PlayerGLMRepository $playerGLMRepository,
+        private readonly BoardTileGLMRepository $boardTileGLMRepository,
         private readonly CardGLMService $cardGLMService)
     {}
 
@@ -125,13 +130,59 @@ class GLMService
 
 
     /**
+     * manageEndOfRound : at the end of a player's round, replace the good number of tiles, proceeds
+     *  to count points if needed. Finally, ends the game if the game must end
+     * @param GameGLM $gameGLM
+     * @return void
+     * @throws Exception
+     */
+    public function manageEndOfRound(GameGLM $gameGLM) : void
+    {
+        $activePlayer = $this->getActivePlayer($gameGLM);
+        $mainBoard = $gameGLM->getMainBoard();
+
+        $this->endRoundOfPlayer($gameGLM, $activePlayer, $mainBoard->getLastPosition());
+
+        $newPlayer = $this->getActivePlayer($gameGLM);
+        $amountOfTilesToReplace = $this->tileGLMService->getAmountOfTileToReplace($mainBoard);
+        $drawTiles = $this->tileGLMService->getActiveDrawTile($gameGLM);
+        $oldLevel = $drawTiles->getLevel();
+        $newLevel = $oldLevel;
+
+        for ($i = 0; $i < $amountOfTilesToReplace; ++$i) {
+            $this->tileGLMService->placeNewTile($newPlayer, $drawTiles);
+            $drawTiles = $this->tileGLMService->getActiveDrawTile($gameGLM);
+            if ($drawTiles == null) {
+                break;
+            }
+            $newLevel = $drawTiles->getLevel();
+        }
+        if ($newLevel > $oldLevel) {
+            $this->calculatePoints($gameGLM, $newLevel);
+        }
+        if ($this->isGameEnded($gameGLM)) {
+            // TODO RETURN CODE TO PUBLISH WINNERS
+            $winners = $this->getWinner($gameGLM);
+            $message = "";
+            foreach ($winners as $winner) {
+                $message .=  $winner->getUsername() . " ";
+            }
+            $message .= " won the game " . $gameGLM->getId();
+            $this->logService->sendSystemLog($gameGLM, $message);
+        } else {
+            // TODO RETURN CODE TO PUBLISH
+        }
+    }
+
+
+    /**
      * manageEndOfRound : proceeds to count players' points depending on draw tiles level
      * @param GameGLM $gameGLM
      * @param int     $drawLevel
      * @return void
      * @throws Exception
      */
-    public function manageEndOfRound(GameGLM $gameGLM, int $drawLevel) : void
+    public function calculatePoints(GameGLM $gameGLM, int $drawLevel) : void
     {
         switch ($drawLevel) {
             case 1:
@@ -180,6 +231,11 @@ class GLMService
             $this->entityManager->persist($nextPlayer->getPersonalBoard());
         }
         $this->entityManager->persist($nextPlayer);
+
+        if ($nextPlayer->isBot()) {
+            $this->manageBotAction($nextPlayer);
+        }
+
         $this->entityManager->flush();
     }
 
@@ -660,5 +716,47 @@ class GLMService
         $this->entityManager->persist($drawLevelOne);
         $this->entityManager->persist($drawLevelTwo);
         $this->entityManager->persist($drawLevelThree);
+    }
+
+    /**
+     * manageBotAction: manage the movement of the dice of the bot on the mainBoard
+     * @param PlayerGLM $bot
+     * @return void
+     * @throws Exception
+     */
+    private function manageBotAction(PlayerGLM $bot): void
+    {
+        $randomValue = rand(1, 6);
+        $finalValue = 0;
+        switch ($randomValue) {
+            case 1 :
+            case 2 :
+            case 3 : $finalValue = 1;
+                break;
+            case 4 :
+            case 5 : $finalValue = 2;
+                break;
+            case 6 : $finalValue = 3;
+        }
+
+        $position = $bot->getPawn()->getPosition();
+        $bot->getPawn()->setPosition($bot->getPawn()->getPosition() + $finalValue);
+        $pawns = $bot->getGameGLM()->getMainBoard()->getPawns();
+        while ($pawns->filter(function (PawnGLM $pawn) use ($bot) {
+            return $pawn->getId() != $bot->getPawn()->getId()
+                && $pawn->getPosition() == $bot->getPawn()->getPosition();
+        })->count() > 0) {
+            $bot->getPawn()->setPosition($bot->getPawn()->getPosition() + 1);
+        }
+        $bot->getGameGLM()->getMainBoard()->setLastPosition($position);
+        $tile = $this->boardTileGLMRepository->findOneBy([
+            'mainBoardGLM' => $bot->getGameGLM()->getMainBoard(),
+            'position' => $bot->getPawn()->getPosition()
+        ]);
+        $this->entityManager->remove($tile);
+        $this->entityManager->persist($bot->getPawn());
+        $this->entityManager->persist($bot->getGameGLM()->getMainBoard());
+        $this->entityManager->flush();
+        $this->manageEndOfRound($bot->getGameGLM());
     }
 }

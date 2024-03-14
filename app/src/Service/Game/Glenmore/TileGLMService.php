@@ -28,9 +28,10 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class TileGLMService
 {
+
     public function __construct(private readonly EntityManagerInterface $entityManager,
-                                private readonly GLMService $GLMService,
                                 private readonly ResourceGLMRepository $resourceGLMRepository,
+                                private readonly PlayerGLMRepository $playerGLMRepository,
                                 private readonly PlayerTileResourceGLMRepository $playerTileResourceGLMRepository,
                                 private readonly PlayerTileGLMRepository $playerTileGLMRepository,
                                 private readonly CardGLMService $cardGLMService,
@@ -770,7 +771,7 @@ class TileGLMService
      */
     private function isChainBroken(MainBoardGLM $mainBoardGLM): bool
     {
-        $player = $this->GLMService->getActivePlayer($mainBoardGLM->getGameGLM());
+        $player = $this->getActivePlayer($mainBoardGLM->getGameGLM());
         $playerPosition = $player->getPawn()->getPosition();
         $positionBehindPlayer = $playerPosition - 1;
         if($positionBehindPlayer == -1){
@@ -795,6 +796,12 @@ class TileGLMService
         return $this->canBuyTile($tile, $player)
             && $this->canPlaceTileOnPersonalBoard($tile, $player);
     }*/
+
+    private function getActivePlayer(GameGLM $gameGLM): PlayerGLM
+    {
+        return $this->playerGLMRepository->findOneBy(["gameGLM" => $gameGLM->getId(),
+            "turnOfPlayer" => true]);
+    }
 
     /**
      * Return a board tile that position is equal to parameter else null
@@ -916,7 +923,7 @@ class TileGLMService
      */
     private function removeTilesOfBrokenChain(MainBoardGLM $mainBoardGLM): void
     {
-        $player = $this->GLMService->getActivePlayer($mainBoardGLM->getGameGLM());
+        $player = $this->getActivePlayer($mainBoardGLM->getGameGLM());
         $playerPosition = $player->getPawn()->getPosition();
         $pointerPosition = $playerPosition - 1;
         if($pointerPosition == -1){

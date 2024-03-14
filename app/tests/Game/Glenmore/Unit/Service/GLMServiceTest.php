@@ -354,7 +354,7 @@ class GLMServiceTest extends TestCase
         //THEN
         $this->expectException(\Exception::class);
         //WHEN
-        $this->GLMService->manageEndOfRound($game, $drawLevel);
+        $this->GLMService->calculatePoints($game, $drawLevel);
     }
 
     public function testManageEndOfRoundShouldReturnExceptionBecauseTooLow() : void
@@ -365,7 +365,7 @@ class GLMServiceTest extends TestCase
         //THEN
         $this->expectException(\Exception::class);
         //WHEN
-        $this->GLMService->manageEndOfRound($game, $drawLevel);
+        $this->GLMService->calculatePoints($game, $drawLevel);
     }
 
     public function testManageEndOfRoundForLevelTwo() : void
@@ -376,7 +376,7 @@ class GLMServiceTest extends TestCase
         //THEN
         $this->expectNotToPerformAssertions();
         //WHEN
-        $this->GLMService->manageEndOfRound($game, $drawLevel);
+        $this->GLMService->calculatePoints($game, $drawLevel);
     }
 
     public function testManageEndOfRoundForLevelThree() : void
@@ -387,7 +387,7 @@ class GLMServiceTest extends TestCase
         //THEN
         $this->expectNotToPerformAssertions();
         //WHEN
-        $this->GLMService->manageEndOfRound($game, $drawLevel);
+        $this->GLMService->calculatePoints($game, $drawLevel);
     }
 
     private function createGame(int $nbOfPlayers): GameGLM
