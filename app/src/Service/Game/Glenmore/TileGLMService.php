@@ -25,7 +25,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Exception;
 use Doctrine\ORM\EntityManagerInterface;
-use Psr\Log\LoggerInterface;
 
 class TileGLMService
 {
@@ -35,7 +34,7 @@ class TileGLMService
                                 private readonly PlayerTileResourceGLMRepository $playerTileResourceGLMRepository,
                                 private readonly PlayerTileGLMRepository $playerTileGLMRepository,
                                 private readonly CardGLMService $cardGLMService,
-                                private LoggerInterface $logger){}
+                                ){}
 
 
 
@@ -566,7 +565,6 @@ class TileGLMService
         $this->entityManager->persist($player->getPawn());
         $this->entityManager->persist($player);
         $this->entityManager->flush();
-        $this->logger->critical($player->getPawn()->getPosition());
     }
 
     /**
@@ -832,7 +830,6 @@ class TileGLMService
            }
        }
         foreach ($pawns as $pawn) {
-            $this->logger->critical($pawn->getColor());
             if ($pawn->getPosition() == $position)
             {
                 return $pawn;

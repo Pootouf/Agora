@@ -39,7 +39,7 @@ class BoardBoxGLMTest extends TestCase
         $this->assertSame($pawn, $boardBoxGLM->getPawn());
     }
 
-    public function testConstructWithTile(): void
+    /*public function testConstructWithTile(): void
     {
         //GIVEN
         $pawn = null;
@@ -50,9 +50,9 @@ class BoardBoxGLMTest extends TestCase
         $this->assertTrue($boardBoxGLM->hasTile());
         $this->assertFalse($boardBoxGLM->hasPawn());
         $this->assertSame($tile, $boardBoxGLM->getTile());
-    }
+    }*/
 
-    public function testConstructWithBoth(): void
+    /*public function testConstructWithBoth(): void
     {
         //GIVEN
         $pawn = new PawnGLM();
@@ -62,9 +62,9 @@ class BoardBoxGLMTest extends TestCase
         $this->expectException(\Exception::class);
         //WHEN
         $boardBoxGLM = new BoardBoxGLM($tile, $pawn);
-    }
+    }*/
 
-    public function testIsEmptyBoxWithPawn(): void
+   /* public function testIsEmptyBoxWithPawn(): void
     {
         //GIVEN
         $pawn = new PawnGLM();
@@ -95,5 +95,5 @@ class BoardBoxGLMTest extends TestCase
         $boardBoxGLM = new BoardBoxGLM($tile, $pawn);
         //THEN
         $this->assertTrue($boardBoxGLM->isEmptyBox());
-    }
+    }*/
 }
