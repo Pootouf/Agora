@@ -452,9 +452,15 @@ class GlenmoreController extends AbstractController
     {
         return $this->render('Game/Glenmore/PersonalBoard/personalBoard.html.twig', [
             'isSpectator' => true,
+            'game' => $gameGLM,
             'player' => $playerGLM,
             'personalBoardTiles' => $this->dataManagementGLMService->organizePersonalBoardRows($playerGLM),
             'whiskyCount' => $this->dataManagementGLMService->getWhiskyCount($playerGLM),
+            'activatedResourceSelection' => false, //TODO : depends of the tile,
+            'selectedResources' => null,
+            'activatedNewResourceAcquisition' => false,
+            'chosenNewResources' => null,
+            'activatedMovementPhase' => false
         ]);
     }
 

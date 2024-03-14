@@ -33,7 +33,7 @@ This section displays the ranking with a view of the other players' possessions
                             pt-2 landscape:pt-1
                             flex justify-around justify-between">
                 {# Button to see other player's personal board #}
-                <button {{ stimulus_action('glenmore', 'displayPlayerBoard', 'click',
+                <button {{ stimulus_action('glenmore', 'displayPlayerPersonalBoard', 'click',
                             {url:path('app_game_glenmore_display_player_personal_board',
                                 {idGame: game.id, idPlayer: p.id})})
                         }}
@@ -57,3 +57,28 @@ This section displays the ranking with a view of the other players' possessions
         </div>
     {% endfor %}
 </div>
+
+{#<div id="openedPersonalBoard" class="bg-[#888060] w-full h-full lg:w-[75%] lg:h-full absolute bottom-0 z-5
+                            lg:rounded-tr-2xl z-9
+                            overflow-y-hidden" hidden
+        {{ stimulus_controller('glenmore') }}
+>
+    <div class="h-1/30 w-full flex justify-center cursor-pointer text-5xl landscape:text-2xl lg:text-base"
+            {{ stimulus_action('glenmore', 'displayPlayerPersonalBoard', 'click',
+                {url:path('app_game_glenmore_display_player_personal_board',
+                    {idGame: game.id, idPlayer: player.id})}) }}>
+        <img src="{{ asset('resourcesGames/utils/arrow_up.svg') }}" id="openArrow"
+             alt="arrow up" class="h-10 landscape:h-6 lg:h-4 rotate-180 mt-1 mr-2">
+        <p>Fermer</p>
+    </div>
+    <div class="flex justify-center pt-2 pb-2 w-full h-[75%]">
+        <div id="tileBoard" class="w-5/6 h-full rounded-2xl p-1 bg-yellow-600">
+            #}{# include('Game/Glenmore/PersonalBoard/displayPersonalTiles.html.twig') #}{#
+        </div>
+    </div>
+    <div class="flex justify-center w-full pb-2 h-[25%]">
+        <div id="resourcesBoard" class="w-5/6 h-5/6 rounded-2xl p-1 bg-gray-500">
+            #}{# include('Game/Glenmore/PersonalBoard/displayPlayerResources.html.twig') #}{#
+        </div>
+    </div>
+</div>#}

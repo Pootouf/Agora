@@ -93,7 +93,8 @@ export default class extends Controller {
         const response = await fetch(url);
     }
 
-    async displayPlayerBoard(board) {
+    async displayPlayerPersonalBoard(board) {
+        personalBoard.togglePersonalBoard(true);
         let url = board.params.url;
         const response = await fetch(url);
     }
