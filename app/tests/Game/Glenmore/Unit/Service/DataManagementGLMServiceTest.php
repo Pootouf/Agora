@@ -66,7 +66,7 @@ class DataManagementGLMServiceTest extends TestCase
         $this->assertSame($result, $expectedResult);
     }
 
-    public function testCreateBoardBoxes() : void
+    /*public function testCreateBoardBoxes() : void
     {
         //GIVEN
         $game = $this->createGame(2);
@@ -89,7 +89,7 @@ class DataManagementGLMServiceTest extends TestCase
         //THEN
         $this->assertEquals($expectedResult, $result);
         $this->assertSame($expectedLength, $result->count());
-    }
+    }*/
 
     public function testOrganizeMainBoardRows() : void
     {

@@ -105,4 +105,33 @@ export default class extends Controller {
         const response = await fetch(url);
     }
 
+    async selectResourceWarehouseProductionOnMainBoard(resourceLine) {
+        let url = resourceLine.params.url;
+        const response = await fetch(url);
+        let tree = document.getElementById("index_glenmore");
+        let placeholder = document.createElement("div");
+        placeholder.innerHTML = await response.text();
+        const node = placeholder.firstElementChild;
+        tree.appendChild(node);
+    }
+
+    async selectMoneyWarehouseProductionOnMainBoard(resourceLine) {
+        let url = resourceLine.params.url;
+        const response = await fetch(url);
+        let tree = document.getElementById("index_glenmore");
+        let placeholder = document.createElement("div");
+        placeholder.innerHTML = await response.text();
+        const node = placeholder.firstElementChild;
+        tree.appendChild(node);
+    }
+
+    async buyResourceFromWarehouse(resourceLine) {
+        let url = resourceLine.params.url;
+        const response = await fetch(url);
+    }
+
+    async sellResourceFromWarehouse(resourceLine) {
+        let url = resourceLine.params.url;
+        const response = await fetch(url);
+    }
 }

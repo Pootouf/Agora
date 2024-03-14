@@ -7,6 +7,7 @@ use App\Entity\Game\Glenmore\DrawTilesGLM;
 use App\Entity\Game\Glenmore\GameGLM;
 use App\Entity\Game\Glenmore\GlenmoreParameters;
 use App\Entity\Game\Glenmore\MainBoardGLM;
+use App\Entity\Game\Glenmore\PawnGLM;
 use App\Entity\Game\Glenmore\PersonalBoardGLM;
 use App\Entity\Game\Glenmore\PlayerCardGLM;
 use App\Entity\Game\Glenmore\PlayerGLM;
@@ -32,7 +33,8 @@ class TileGLMService
                                 private readonly ResourceGLMRepository $resourceGLMRepository,
                                 private readonly PlayerTileResourceGLMRepository $playerTileResourceGLMRepository,
                                 private readonly PlayerTileGLMRepository $playerTileGLMRepository,
-                                private readonly CardGLMService $cardGLMService){}
+                                private readonly CardGLMService $cardGLMService,
+                                ){}
 
 
 
@@ -129,19 +131,19 @@ class TileGLMService
     public function canPlaceTile(int $x, int $y, TileGLM $tile, PlayerGLM $player): bool
     {
         //Recovery of the adjacent tiles
-        $tileLeft = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x - 1, 'coord_Y' => $y
+        $tileLeft = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x, 'coord_Y' => $y - 1
             , 'personalBoard' => $player->getPersonalBoard()]);
-        $tileRight = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x + 1, 'coord_Y' => $y
+        $tileRight = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x, 'coord_Y' => $y + 1
             , 'personalBoard' => $player->getPersonalBoard()]);
-        $tileUp = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x, 'coord_Y' => $y - 1
+        $tileUp = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x - 1, 'coord_Y' => $y
             , 'personalBoard' => $player->getPersonalBoard()]);
-        $tileDown = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x, 'coord_Y' => $y + 1
+        $tileDown = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x + 1, 'coord_Y' => $y
             , 'personalBoard' => $player->getPersonalBoard()]);
         $tileUpLeft = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x - 1, 'coord_Y' => $y - 1
             , 'personalBoard' => $player->getPersonalBoard()]);
-        $tileUpRight = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x + 1, 'coord_Y' => $y - 1
+        $tileUpRight = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x - 1, 'coord_Y' => $y + 1
             , 'personalBoard' => $player->getPersonalBoard()]);
-        $tileDownLeft = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x - 1, 'coord_Y' => $y + 1
+        $tileDownLeft = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x + 1, 'coord_Y' => $y - 1
             , 'personalBoard' => $player->getPersonalBoard()]);
         $tileDownRight = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x + 1, 'coord_Y' => $y + 1
             , 'personalBoard' => $player->getPersonalBoard()]);
@@ -354,7 +356,7 @@ class TileGLMService
         $posTile = $currentPosition;
 
         // Search last position busy by a tile
-        while ($this->getBoardTilesAtPosition($mainBoard, $posTile) == null)
+        while ($this->getBoardTilesAtPosition($mainBoard, $posTile) == null && $this->getPawnsAtPosition($player, $mainBoard, $posTile) == null)
         {
             $posTile -= 1;
             if ($posTile < 0) {
@@ -364,7 +366,9 @@ class TileGLMService
 
         // Search next position relative to the position found
         $posTile += 1;
-        $posTile %= GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD;
+        if ($posTile == GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD) {
+            $posTile = 0;
+        }
 
         // Manage draw tile and update
         $tile = $drawTiles->getTiles()->last();
@@ -383,21 +387,31 @@ class TileGLMService
         $this->entityManager->flush();
     }
 
+    /**
+     * activateBonus : activate a tile and give player his resources
+     * @param PlayerTileGLM $tileGLM
+     * @param PlayerGLM $playerGLM
+     * @return void
+     * @throws \Exception
+     */
     public function activateBonus(PlayerTileGLM $tileGLM, PlayerGLM $playerGLM): void
     {
         $tile = $tileGLM->getTile();
-        if($tile->getType() != GlenmoreParameters::$TILE_NAME_FAIR){
-            if($this->hasPlayerEnoughResourcesToActivate($tileGLM, $playerGLM) &&
-                $this->hasEnoughPlaceToActivate($tileGLM)){
-                $this->givePlayerActivationBonus($tileGLM, $playerGLM);
-                $this->entityManager->persist($tileGLM);
-            }
+        if(!$this->hasPlayerEnoughResourcesToActivate($tileGLM, $playerGLM)){
+            throw new \Exception("NOT ENOUGH RESOURCES");
+        }
+        if(!$this->hasEnoughPlaceToActivate($tileGLM)) {
+            throw new \Exception("NOT ENOUGH PLACE ON TILE");
+        }
+        if($tile->getType() != GlenmoreParameters::$TILE_TYPE_BROWN){
+            $this->givePlayerActivationBonus($tileGLM, $playerGLM);
+            $this->entityManager->persist($tileGLM);
         } else {
             $selectedResources = $playerGLM->getPersonalBoard()->getSelectedResources();
             $resourcesTypes = new ArrayCollection();
             foreach ($selectedResources as $selectedResource){
-                if(!$resourcesTypes->contains($selectedResource->getResource()->getType())){
-                    $resourcesTypes->add($selectedResource->getResource()->getType());
+                if(!$resourcesTypes->contains($selectedResource->getResource()->getColor())){
+                    $resourcesTypes->add($selectedResource->getResource()->getColor());
                 }
             }
             $resourcesTypesCount = $resourcesTypes->count();
@@ -406,12 +420,13 @@ class TileGLMService
             $activationBonus = $tileGLM->getTile()->getActivationBonus()->get($selectedLevel - 1);
             $playerGLM->setPoints($playerGLM->getPoints() + $activationBonus->getAmount());
             foreach ($selectedResources as $selectedResource){
-                if($resourcesTypes->contains($selectedResource->getResource()->getType())){
+                if($resourcesTypes->contains($selectedResource->getResource()->getColor())){
                     $playerGLM->getPersonalBoard()->removeSelectedResource($selectedResource);
                     $this->entityManager->persist($playerGLM->getPersonalBoard());
-                    $resourcesTypes->remove($selectedResource->getResource()->getType());
+                    $resourcesTypes->remove($selectedResource->getResource()->getColor());
                 }
             }
+            $this->entityManager->persist($playerGLM);
         }
         $tileGLM->setActivated(true);
         $this->entityManager->flush();
@@ -484,12 +499,9 @@ class TileGLMService
      */
     public function assignTileToPlayer(BoardTileGLM $boardTile, PlayerGLM $player) : void
     {
-        // Check if condition for assign tile - TODO Write condition for buy tile
-        /* if (!$this->checkCanBuyTile($player, $tile))
-        {
+        if (!$this->canBuyTile($boardTile->getTile(), $player)) {
             throw new Exception("Unable to buy tile");
-        } */
-
+        }
         // Initialization
         $personalBoard = $player->getPersonalBoard();
 
@@ -501,9 +513,10 @@ class TileGLMService
 
     /**
      * Place a selected tile in personal board's player at position (abscissa, ordinate)
+     *
      * @param PlayerGLM $player
-     * @param int $abscissa
-     * @param int $ordinate
+     * @param int       $abscissa
+     * @param int       $ordinate
      * @return void
      * @throws Exception
      */
@@ -528,7 +541,7 @@ class TileGLMService
             throw new Exception("Unable to place tile");
         }
 
-        // TODO take all resource's player for buy tile
+        $this->buyTile($tileSelected->getTile(), $player);
 
         // Here assign tile --> Creation of player tile and manage personal board
         $adjacentTiles = $this->getTilesAround($abscissa, $ordinate, $player);
@@ -544,10 +557,8 @@ class TileGLMService
         // Manage main board
         $mainBoard->removeBoardTile($tileSelected);
         $mainBoard->setLastPosition($lastPosition);
-
         // Set new position of pawn's player
         $player->getPawn()->setPosition($newPosition);
-
         // Update
         $this->entityManager->persist($personalBoard);
         $this->entityManager->persist($mainBoard);
@@ -566,22 +577,22 @@ class TileGLMService
     private function getTilesAround(int $x, int $y, PlayerGLM $player) : ArrayCollection
     {
         $result = new ArrayCollection();
-        $tileLeft = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x - 1, 'coord_Y' => $y
+        $tileLeft = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x, 'coord_Y' => $y - 1
             , 'personalBoard' => $player->getPersonalBoard()]);
         if ($tileLeft != null) {
             $result->set(GlenmoreParameters::$WEST, $tileLeft);
         }
-        $tileRight = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x + 1, 'coord_Y' => $y
+        $tileRight = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x, 'coord_Y' => $y + 1
             , 'personalBoard' => $player->getPersonalBoard()]);
         if ($tileRight != null) {
             $result->set(GlenmoreParameters::$EAST, $tileRight);
         }
-        $tileUp = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x, 'coord_Y' => $y - 1
+        $tileUp = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x - 1, 'coord_Y' => $y
             , 'personalBoard' => $player->getPersonalBoard()]);
         if ($tileUp != null) {
             $result->set(GlenmoreParameters::$NORTH, $tileUp);
         }
-        $tileDown = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x, 'coord_Y' => $y + 1
+        $tileDown = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x + 1, 'coord_Y' => $y
             , 'personalBoard' => $player->getPersonalBoard()]);
         if ($tileDown != null) {
             $result->set(GlenmoreParameters::$SOUTH, $tileDown);
@@ -591,12 +602,12 @@ class TileGLMService
         if ($tileUpLeft != null) {
             $result->set(GlenmoreParameters::$NORTH_WEST, $tileUpLeft);
         }
-        $tileUpRight = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x + 1, 'coord_Y' => $y - 1
+        $tileUpRight = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x - 1, 'coord_Y' => $y + 1
             , 'personalBoard' => $player->getPersonalBoard()]);
         if ($tileUpRight != null) {
             $result->set(GlenmoreParameters::$NORTH_EAST, $tileUpRight);
         }
-        $tileDownLeft = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x - 1, 'coord_Y' => $y + 1
+        $tileDownLeft = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x + 1, 'coord_Y' => $y - 1
             , 'personalBoard' => $player->getPersonalBoard()]);
         if ($tileDownLeft != null) {
             $result->set(GlenmoreParameters::$SOUTH_WEST, $tileDownLeft);
@@ -645,9 +656,17 @@ class TileGLMService
             $resourceType = $activationPrice->getResource();
             $resourceAmount = $activationPrice->getPrice();
             $playerResourceCount = 0;
-            foreach ($selectedResources as $selectedResource){
-                if($selectedResource->getResource()->getType() == $resourceType){
-                    $playerResourceCount += $selectedResource->getQuantity();
+            if($resourceType->getType() == GlenmoreParameters::$PRODUCTION_RESOURCE){
+                foreach ($selectedResources as $selectedResource){
+                    if($selectedResource->getResource()->getColor() == $resourceType->getColor()){
+                        $playerResourceCount += $selectedResource->getQuantity();
+                    }
+                }
+            } else {
+                foreach ($selectedResources as $selectedResource){
+                    if($selectedResource->getResource()->getType() == $resourceType){
+                        $playerResourceCount += $selectedResource->getQuantity();
+                    }
                 }
             }
             if($playerResourceCount < $resourceAmount){
@@ -666,12 +685,21 @@ class TileGLMService
     {
         $tileGLM = $playerTileGLM->getTile();
         $bonusResources = $tileGLM->getActivationBonus();
-        $count = 0;
+        $bonusCount = 0;
         foreach ($bonusResources as $bonusResource){
-            $count += $bonusResource->getAmount();
+            if($bonusResource->getResource()->getType() == GlenmoreParameters::$PRODUCTION_RESOURCE){
+                $bonusCount += $bonusResource->getAmount();
+            }
         }
-        return ($playerTileGLM->getPlayerTileResource()->count() + $count) <
-            GlenmoreParameters::$MAX_RESOURCES_PER_TILE;
+        $playerResourceCount = 0;
+        $resourcesOnTile = $playerTileGLM->getPlayerTileResource();
+        foreach ($resourcesOnTile as $resourceOnTile){
+            if($resourceOnTile->getResource()->getType() == GlenmoreParameters::$PRODUCTION_RESOURCE) {
+                $playerResourceCount += $resourceOnTile->getQuantity();
+            }
+        }
+        $totalCount = $bonusCount + $playerResourceCount;
+        return $totalCount <= GlenmoreParameters::$MAX_RESOURCES_PER_TILE;
     }
 
     /**
@@ -774,19 +802,42 @@ class TileGLMService
      * @param int $position
      * @return BoardTileGLM|null
      */
-    private function getBoardTilesAtPosition(MainBoardGLM $mainBoard, int $position): ?BoardTileGLM
+    private function getBoardTilesAtPosition(MainBoardGLM $mainBoard, int $position): BoardTileGLM|null
     {
         $boardTiles = $mainBoard->getBoardTiles();
-        for ($i = 0; $i < count($boardTiles); $i++)
-        {
-           $boardTile = $boardTiles->get($i);
-           if ($boardTile->getPosition() == $position)
-           {
+        foreach ($boardTiles as $boardTile) {
+            if ($boardTile->getPosition() == $position)
+            {
                return $boardTile;
-           }
+            }
         }
         return null;
     }
+
+    /**
+     * Return a pawn that position is equal to parameter else null
+     * @param PlayerGLM $playerGLM
+     * @param MainBoardGLM $mainBoard
+     * @param int $position
+     * @return BoardTileGLM|null
+     */
+    private function getPawnsAtPosition(PlayerGLM $playerGLM, MainBoardGLM $mainBoard, int $position): PawnGLM|null
+    {
+       $pawns = new ArrayCollection();
+       foreach ($mainBoard->getPawns() as $pawn) {
+           if ($pawn->getPlayerGLM() !== $playerGLM) {
+               $pawns->add($pawn);
+           }
+       }
+        foreach ($pawns as $pawn) {
+            if ($pawn->getPosition() == $position)
+            {
+                return $pawn;
+            }
+        }
+        return null;
+    }
+
 
     /**
      * getTileInPosition : return BoardTileGLM in position $position,
@@ -871,7 +922,6 @@ class TileGLMService
         if($pointerPosition == -1){
             $pointerPosition = GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD - 1;
         }
-        $mainBoardTiles = $mainBoardGLM->getBoardTiles();
         while (($tile = $this->getTileInPosition($mainBoardGLM, $pointerPosition)) != null){
             $mainBoardGLM->removeBoardTile($tile);
             $pointerPosition -= 1;
@@ -879,6 +929,7 @@ class TileGLMService
                 $pointerPosition = GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD - 1;
             }
             $this->entityManager->persist($mainBoardGLM);
+            $this->entityManager->remove($tile);
         }
         $this->entityManager->flush();
     }
@@ -896,7 +947,10 @@ class TileGLMService
         $activationBonusResources = $tileGLM->getActivationBonus();
         foreach ($activationBonusResources as $activationBonusResource){
             $playerTileResource = new PlayerTileResourceGLM();
+            $playerTileResource->setQuantity($activationBonusResource->getAmount());
+            $playerTileResource->setPlayer($playerGLM);
             $playerTileResource->setResource($activationBonusResource->getResource());
+            $this->entityManager->persist($playerTileResource);
             $playerTileGLM->addPlayerTileResource($playerTileResource);
             $this->entityManager->persist($playerTileGLM);
         }
@@ -905,17 +959,20 @@ class TileGLMService
         foreach ($activationPrices as $activationPrice){
             $activationCost = $activationPrice->getPrice();
             foreach ($selectedResources as $selectedResource) {
-                if($selectedResource->getResource()->getType() == $activationPrice->getResource()->getType()
+                if($selectedResource->getResource()->getColor() == $activationPrice->getResource()->getColor()
                     && $activationCost > 0){
-                    $playerGLM->getPersonalBoard()->removeSelectedResource($selectedResource);
-                    $activationCost -= 1;
+                    while ($selectedResource->getQuantity() > 0 && $activationCost > 0){
+                        $activationCost -= 1;
+                        $selectedResource->setQuantity($selectedResource->getQuantity() - 1);
+                        $this->entityManager->persist($selectedResource);
+                    }
+                    $this->entityManager->persist($playerGLM->getPersonalBoard());
                 }
             }
             if($activationCost > 0){
-                throw new \Exception("Not enough resources to activate");
+                throw new \Exception("Error : Not enough resources to activate");
             }
         }
-        $this->entityManager->persist($activationPrices);
         $this->entityManager->flush();
     }
 

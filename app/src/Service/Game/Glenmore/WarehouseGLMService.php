@@ -22,7 +22,7 @@ class WarehouseGLMService
 
 
     /**
-     * A player sell one resource when conditions are verified
+     * sellResource : A player sells one resource when conditions are verified
      * @param PlayerGLM $player
      * @param ResourceGLM $resource
      * @return void
@@ -73,7 +73,13 @@ class WarehouseGLMService
         $this->entityManager->flush();
     }
 
-
+    /**
+     * buyResourceFromWarehouse : A player buys one resource when conditions are satisfied
+     * @param PlayerGLM $player
+     * @param ResourceGLM $resource
+     * @return void
+     * @throws Exception
+     */
     public function buyResourceFromWarehouse(PlayerGLM $player, ResourceGLM $resource): void
     {
         $warehouse = $player->getGameGLM()->getMainBoard()->getWarehouse();
@@ -81,15 +87,21 @@ class WarehouseGLMService
             $warehouse,
             $resource
         );
-        if ($warehouseLine == null) throw new Exception("Unable to buy the resource, not a valid type");
-        $moneyOnWarehouseLine = GlenmoreParameters::$MONEY_FROM_QUANTITY[$warehouseLine->getQuantity()];
-        if ($moneyOnWarehouseLine >= GlenmoreParameters::$MAX_TRADE) throw new Exception('No resource to buy');
+        if ($warehouseLine == null) {
+            throw new Exception("Unable to buy the resource, not a valid type");
+        }
+        if ($warehouseLine->getQuantity() >= GlenmoreParameters::$MAX_TRADE) {
+            throw new Exception('No resource to buy');
+        }
 
         $moneyOfPlayer = $player->getPersonalBoard()->getMoney();
         $moneyNeeded = GlenmoreParameters::$MONEY_FROM_QUANTITY[$warehouseLine->getQuantity() + 1];
-        if ($moneyOfPlayer < $moneyNeeded) throw new \Exception('Not enough money to buy resource');
+        if ($moneyOfPlayer < $moneyNeeded) {
+            throw new Exception('Not enough money to buy resource');
+        }
 
         $selectedResource = new SelectedResourceGLM();
+        $selectedResource->setPlayerTile(null);
         $selectedResource->setResource($resource);
         $selectedResource->setPersonalBoardGLM($player->getPersonalBoard());
         $selectedResource->setQuantity(1);

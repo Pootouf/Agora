@@ -64,7 +64,7 @@ class SixQPGameManagerService extends AbstractGameManagerService
         if($game->isLaunched()) {
             return SixQPGameManagerService::$ERROR_GAME_ALREADY_LAUNCHED;
         }
-        if (count($game->getPlayerSixQPs()) >= 10) {
+        if (count($game->getPlayerSixQPs()) >= SixQPParameters::$MAX_NUMBER_OF_PLAYER) {
             return SixQPGameManagerService::$ERROR_INVALID_NUMBER_OF_PLAYER;
         }
         if ($this->playerSixQPRepository->findOneBy(
@@ -138,7 +138,8 @@ class SixQPGameManagerService extends AbstractGameManagerService
             return SixQPGameManagerService::$ERROR_INVALID_GAME;
         }
         $numberOfPlayers = count($game->getPlayerSixQPs());
-        if ($numberOfPlayers > 10 || $numberOfPlayers < 2) {
+        if ($numberOfPlayers > SixQPParameters::$MAX_NUMBER_OF_PLAYER
+            || $numberOfPlayers < SixQPParameters::$MIN_NUMBER_OF_PLAYER) {
             return SixQPGameManagerService::$ERROR_INVALID_NUMBER_OF_PLAYER;
         }
         $game->setLaunched(true);
