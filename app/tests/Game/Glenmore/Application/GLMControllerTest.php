@@ -64,6 +64,53 @@ class GLMControllerTest extends WebTestCase
             $this->client->getResponse()->getStatusCode());
     }
 
+    // TODO uncomment
+    /*public function testBuyResourceWhenPlayerIsNotActive() : void
+    {
+        // GIVEN
+        $gameId = $this->initializeGameWithFivePlayers();
+        $game = $this->gameGLMRepository->findOneById($gameId);
+        $lastPlayer = $game->getPlayers()->last();
+        $warehouse = $game->getMainBoard()->getWarehouse();
+        $warehouseLine = $warehouse->getWarehouseLine()->first();
+        $warehouseLineId = $warehouseLine->getId();
+        $newUrl = "/game/glenmore/" . $gameId . "/buy/resource/warehouse/production/mainBoard/" . $warehouseLineId;
+        $user4 = $this->gameGLMRepository->findOneByUsername("test4");
+        $this->client->loginUser($user4);
+        // WHEN
+        $this->client->request("GET", $newUrl);
+        // THEN
+        $this->assertEquals(Response::HTTP_FORBIDDEN,
+            $this->client->getResponse()->getStatusCode());
+    }*/
+
+    public function testValidateResourceSelectionWhenPlayerIsNull() : void
+    {
+        //GIVEN
+        $gameId = $this->initializeGameWithFivePlayers();
+        $newUrl = 'game/glenmore/' . $gameId . '/validate/resources/selection';
+        $user6 = $this->gameUserRepository->findOneByUsername("test5");
+        $this->client->loginUser($user6);
+        //WHEN
+        $this->client->request("GET", $newUrl);
+        //THEN
+        $this->assertEquals(Response::HTTP_FORBIDDEN,
+            $this->client->getResponse()->getStatusCode());
+    }
+
+    public function testValidateResourceSelectionShouldReturnHTTPOK() : void
+    {
+        //GIVEN
+        $gameId = $this->initializeGameWithFivePlayers();
+        $newUrl = 'game/glenmore/' . $gameId . '/validate/resources/selection';
+        $user0 = $this->gameUserRepository->findOneByUsername("test0");
+        //WHEN
+        $this->client->request("GET", $newUrl);
+        //THEN
+        $this->assertEquals(Response::HTTP_OK,
+            $this->client->getResponse()->getStatusCode());
+    }
+
     private function initializeGameWithFivePlayers() : int
     {
         $this->client = static::createClient();
