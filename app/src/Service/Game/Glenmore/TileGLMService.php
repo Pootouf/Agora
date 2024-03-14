@@ -25,6 +25,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Exception;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 
 class TileGLMService
 {
@@ -34,6 +35,7 @@ class TileGLMService
                                 private readonly PlayerTileResourceGLMRepository $playerTileResourceGLMRepository,
                                 private readonly PlayerTileGLMRepository $playerTileGLMRepository,
                                 private readonly CardGLMService $cardGLMService,
+                                private LoggerInterface $logger
                                 ){}
 
 
@@ -53,16 +55,18 @@ class TileGLMService
         $playerPosition = $player->getPawn()->getPosition();
         $pointerPosition = $playerPosition - 2;
         if($pointerPosition < 0){
-            $pointerPosition = GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD + $pointerPosition;
+            $pointerPosition += GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD;
         }
         $count = 0;
-        while ($this->getTileInPosition($mainBoardGLM, $pointerPosition) == null){
+        while ($this->getTileInPosition($mainBoardGLM, $pointerPosition) == null
+        && $this->getPawnsAtPosition($player, $mainBoardGLM, $pointerPosition) == null){
             $pointerPosition -= 1;
             $count += 1;
             if($pointerPosition < 0){
-                $pointerPosition = GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD + $pointerPosition;
+                $pointerPosition += GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD;
             }
         }
+        $this->logger->critical('number to replace : ' . $count);
         return $count;
     }
 
@@ -211,6 +215,7 @@ class TileGLMService
             $playerCard = new PlayerCardGLM($personalBoard, $card);
             $this->entityManager->persist($playerCard);
             $personalBoard->addPlayerCardGLM($playerCard);
+            $this->entityManager->persist($personalBoard);
             $cardBonus = $card->getBonus();
             if ($cardBonus != null) {
                 $resource = $cardBonus->getResource();
@@ -222,6 +227,7 @@ class TileGLMService
                 $playerTileGLM->addPlayerTileResource($playerTileResource);
                 $this->entityManager->persist($playerTileGLM);
             }
+            $this->entityManager->flush();
             return $this->cardGLMService->buyCardManagement($playerTileGLM);
         }
         $this->giveAllMovementPoints($playerTileGLM);
@@ -354,7 +360,7 @@ class TileGLMService
         $mainBoard = $player->getGameGLM()->getMainBoard();
         $currentPosition = $player->getPawn()->getPosition();
         $posTile = $currentPosition;
-
+        $posTile -= 1;
         // Search last position busy by a tile
         while ($this->getBoardTilesAtPosition($mainBoard, $posTile) == null && $this->getPawnsAtPosition($player, $mainBoard, $posTile) == null)
         {
@@ -379,6 +385,7 @@ class TileGLMService
         $boardTile = new BoardTileGLM();
         $boardTile->setTile($tile);
         $boardTile->setPosition($posTile);
+        $this->logger->critical('position : ' . $posTile);
         $boardTile->setMainBoardGLM($mainBoard);
         $mainBoard->addBoardTile($boardTile);
         $this->entityManager->persist($boardTile);
@@ -502,6 +509,9 @@ class TileGLMService
         if (!$this->canBuyTile($boardTile->getTile(), $player)) {
             throw new Exception("Unable to buy tile");
         }
+        if ($player->getPersonalBoard()->getSelectedTile() != null) {
+            throw new Exception("Already bought a tile");
+        }
         // Initialization
         $personalBoard = $player->getPersonalBoard();
 
@@ -519,6 +529,7 @@ class TileGLMService
      * @param int       $ordinate
      * @return void
      * @throws Exception
+     * @throws \Exception
      */
     public function setPlaceTileAlreadySelected(PlayerGLM $player, int $abscissa, int $ordinate) : void
     {
@@ -622,8 +633,9 @@ class TileGLMService
 
     /**
      * retrieveVillagerFromTile : returns one villager from the tile and removes it
+     *
      * @param PlayerTileGLM $playerTileGLM
-     * @return ResourceGLM
+     * @return ResourceGLM|null
      */
     private function retrieveVillagerFromTile(PlayerTileGLM $playerTileGLM) : ?ResourceGLM
     {
@@ -929,7 +941,7 @@ class TileGLMService
                 $pointerPosition = GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD - 1;
             }
             $this->entityManager->persist($mainBoardGLM);
-            $this->entityManager->remove($tile);
+           // $this->entityManager->remove($tile);
         }
         $this->entityManager->flush();
     }

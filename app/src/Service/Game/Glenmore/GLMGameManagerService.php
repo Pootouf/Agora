@@ -93,6 +93,7 @@ class GLMGameManagerService extends AbstractGameManagerService
         $pawn->setColor(GlenmoreParameters::$COLOR_FROM_POSITION[$game->getPlayers()->count()]);
         $pawn->setMainBoardGLM($game->getMainBoard());
         $player->setPawn($pawn);
+        $player->setRoundPhase(GlenmoreParameters::$BUYING_PHASE);
         $personalBoard = new PersonalBoardGLM();
         $personalBoard->setLeaderCount(0);
         $personalBoard->setMoney(0);

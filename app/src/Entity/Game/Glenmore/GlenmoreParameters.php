@@ -12,6 +12,12 @@ class GlenmoreParameters {
     // MONEY GIVEN AT START OF THE GAME
     public static int $START_MONEY = 6;
 
+    // PLAYER ROUND PHASE
+
+    public static int $BUYING_PHASE = 0;
+    public static int $ACTIVATION_PHASE = 1;
+    public static int $MOVEMENT_PHASE = 2;
+
     // MAINBOARD BOXES
     public static int $NUMBER_OF_BOXES_ON_BOARD = 14;
 

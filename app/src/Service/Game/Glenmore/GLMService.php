@@ -122,6 +122,13 @@ class GLMService
         return $result;
     }
 
+    public function isInMovementPhase(PlayerGLM $playerGLM) {
+        $phase = $playerGLM->getRoundPhase();
+        if ($phase == GlenmoreParameters::$MOVEMENT_PHASE) {
+            return true;
+        }
+        return false;
+    }
 
     /**
      * manageEndOfRound : proceeds to count players' points depending on draw tiles level
@@ -152,16 +159,22 @@ class GLMService
         $players = $gameGLM->getPlayers();
         foreach ($players as $player) {
             $player->setTurnOfPlayer(false);
+            $player->setRoundPhase(GlenmoreParameters::$BUYING_PHASE);
             $this->entityManager->persist($player);
         }
         $nextPlayer = null;
         $pointerPosition = $startPosition + 1;
+        $found = false;
         while ($nextPlayer == null && $startPosition != $pointerPosition) {
             foreach ($players as $player) {
                 $playerPosition = $player->getPawn()->getPosition();
                 if ($playerPosition == $pointerPosition) {
                     $nextPlayer = $player;
+                    $found = true;
                 }
+            }
+            if ($found) {
+                break;
             }
             $pointerPosition = ($pointerPosition + 1) % GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD;
         }
@@ -179,6 +192,19 @@ class GLMService
             $this->entityManager->persist($nextPlayer->getPersonalBoard());
         }
         $this->entityManager->persist($nextPlayer);
+        $this->entityManager->flush();
+    }
+
+    /**
+     * setMovementPhase : set player's phase into selected phase
+     * @param PlayerGLM $playerGLM
+     * @param int       $phase
+     * @return void
+     */
+    public function setMovementPhase(PlayerGLM $playerGLM, int $phase)
+    {
+        $playerGLM->setRoundPhase($phase);
+        $this->entityManager->persist($playerGLM);
         $this->entityManager->flush();
     }
 

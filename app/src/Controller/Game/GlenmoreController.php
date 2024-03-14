@@ -63,6 +63,7 @@ class GlenmoreController extends AbstractController
         $messages = $this->messageService->receiveMessage($game->getId());
         $activePlayer = $this->service->getActivePlayer($game);
         $personalBoard = $activePlayer->getPersonalBoard();
+        $movementPhase = $this->service->isInMovementPhase($activePlayer);
         return $this->render('/Game/Glenmore/index.html.twig', [
             'game' => $game,
             'player' => $player,
@@ -81,7 +82,7 @@ class GlenmoreController extends AbstractController
             'selectedResources' => null,
             'activatedNewResourceAcquisition' => false,
             'chosenNewResources' => null,
-            'activatedMovementPhase' => false,
+            'activatedMovementPhase' => $movementPhase,
             'selectedWarehouseProduction' => null,
             'isWarehouseMoneySelected' => false,
             'buyingTile' => $player->getPersonalBoard()->getSelectedTile(),
@@ -398,7 +399,13 @@ class GlenmoreController extends AbstractController
         if ($player == null) {
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
         }
-        return new Response('player ended activation of his tiles', Response::HTTP_OK);
+        $this->service->setMovementPhase($player, GlenmoreParameters::$MOVEMENT_PHASE);
+        return $this->render('/Game/Glenmore/MainBoard/playerRoundManagement.html.twig', [
+            'game' => $game,
+            'activatedResourceSelection' => false,
+            'activatedNewResourceAcquisition' => false,
+            'activatedMovementPhase' => true
+        ]);
     }
 
     #[Route('game/glenmore/{idGame}/move/{idTile}/villager/direction/{dir}',
@@ -528,8 +535,10 @@ class GlenmoreController extends AbstractController
     /**
      * manageEndOfRound : at the end of a player's round, replace the good number of tiles, proceeds
      *  to count points if needed. Finally, ends the game if the game must end
+     *
      * @param GameGLM $gameGLM
      * @return void
+     * @throws \Exception
      */
     private function manageEndOfRound(GameGLM $gameGLM) : void
     {
