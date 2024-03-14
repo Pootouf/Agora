@@ -25,7 +25,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Exception;
 use Doctrine\ORM\EntityManagerInterface;
-use Psr\Log\LoggerInterface;
 
 class TileGLMService
 {
@@ -34,8 +33,7 @@ class TileGLMService
                                 private readonly ResourceGLMRepository $resourceGLMRepository,
                                 private readonly PlayerTileResourceGLMRepository $playerTileResourceGLMRepository,
                                 private readonly PlayerTileGLMRepository $playerTileGLMRepository,
-                                private readonly CardGLMService $cardGLMService,
-                                private readonly LoggerInterface $logger){}
+                                private readonly CardGLMService $cardGLMService){}
 
 
 
@@ -306,7 +304,7 @@ class TileGLMService
     public function selectResourcesFromTileToActivate(PlayerTileGLM $playerTileGLM, ResourceGLM $resource) : void
     {
         $personalBoard = $playerTileGLM->getPersonalBoard();
-        $selectedTile = $personalBoard->getBuyingTile();
+        $selectedTile = $personalBoard->getActivatedTile();
         $this->addSelectedResourcesFromTileWithCost($playerTileGLM, $resource,
             $selectedTile->getTile()->getActivationPrice());
     }
@@ -474,23 +472,22 @@ class TileGLMService
      * @param PlayerTileGLM $playerTileGLM
      * @param int           $direction
      * @return void
-     * @throws \Exception
+     * @throws Exception
      */
     public function moveVillager(PlayerTileGLM $playerTileGLM, int $direction) : void
     {
         $targetedTile = $this->getTargetedTile($playerTileGLM, $direction);
-
         if($targetedTile == null) {
-            throw new \Exception("no targeted tile in this direction");
+            throw new Exception("no targeted tile in this direction");
         }
 
         if (!$this->doesTileContainsVillager($playerTileGLM)) {
-            throw new \Exception("no villager placed on this tile");
+            throw new Exception("no villager placed on this tile");
         }
         $player = $playerTileGLM->getPersonalBoard()->getPlayerGLM();
         $movementPoint = $this->getMovementPoints($playerTileGLM);
-        if ($movementPoint == 0) {
-            throw new \Exception("no more movement points");
+        if ($movementPoint <= 0) {
+            throw new Exception("no more movement points");
         }
         // removes villager from the tile
         $villager = $this->retrieveVillagerFromTile($playerTileGLM);
@@ -505,17 +502,21 @@ class TileGLMService
      *
      * @param PlayerTileGLM $playerTileGLM
      * @return void
-     * @throws \Exception
+     * @throws Exception
      */
     public function removeVillager(PlayerTileGLM $playerTileGLM) : void
     {
         if (!$this->doesTileContainsVillager($playerTileGLM)) {
-            throw new \Exception("no villager placed on this tile");
+            throw new Exception("no villager placed on this tile");
+        }
+        $personalBoard = $playerTileGLM->getPersonalBoard();
+        if ($this->getVillagerCount($personalBoard) <= GlenmoreParameters::$MIN_VILLAGER_PER_VILLAGE) {
+            throw new Exception("not enough villager on player's village");
         }
         $player = $playerTileGLM->getPersonalBoard()->getPlayerGLM();
         $movementPoint = $this->getMovementPoints($playerTileGLM);
         if ($movementPoint == 0) {
-            throw new \Exception("no more movement points");
+            throw new Exception("no more movement points");
         }
 
         // removes villager from the tile
@@ -736,6 +737,19 @@ class TileGLMService
         $villager = $this->resourceGLMRepository->findOneBy(['type' => GlenmoreParameters::$VILLAGER_RESOURCE]);
         return $this->playerTileResourceGLMRepository->findOneBy(['resource' => $villager->getId(),
                 'playerTileGLM' => $playerTile->getId()]) != null;
+    }
+
+    /**
+     * @param PersonalBoardGLM $personalBoardGLM
+     * @return int
+     */
+    private function getVillagerCount(PersonalBoardGLM $personalBoardGLM) : int
+    {
+        $player = $personalBoardGLM->getPlayerGLM();
+        $villager = $this->resourceGLMRepository->findOneBy(['type' => GlenmoreParameters::$VILLAGER_RESOURCE]);
+        $villagers =  $this->playerTileResourceGLMRepository->findBy(['resource' => $villager->getId(),
+                'player' => $player->getId()]);
+        return count($villagers);
     }
 
     /**
@@ -1009,9 +1023,10 @@ class TileGLMService
         $tileResources = $newTile->getPlayerTileResource();
         $found = false;
         foreach ($tileResources as $tileResource) {
-            if ($tileResource->getResource()->getType() === GlenmoreParameters::$VILLAGER_RESOURCE) {
+            if ($tileResource->getResource() === $villager) {
                 $tileResource->setQuantity($tileResource->getQuantity() + 1);
                 $this->entityManager->persist($tileResource);
+                $this->entityManager->persist($newTile);
                 $found = true;
                 break;
             }
@@ -1055,31 +1070,32 @@ class TileGLMService
      * @param PlayerTileGLM $playerTileGLM
      * @param int $direction
      * @return ?PlayerTileGLM
-     * @throws \Exception
+     * @throws Exception
      */
     private function getTargetedTile(PlayerTileGLM $playerTileGLM, int $direction) : ?PlayerTileGLM
     {
         $tileX = $playerTileGLM->getCoordX();
         $tileY = $playerTileGLM->getCoordY();
+        $personalBoard = $playerTileGLM->getPersonalBoard();
         switch ($direction) {
             case GlenmoreParameters::$NORTH :
-                return $this->playerTileGLMRepository->findOneBy(['coord_X' => $tileX - 1, 'coord_Y' => $tileY]);
+                return $this->playerTileGLMRepository->findOneBy(['coord_X' => $tileX - 1, 'coord_Y' => $tileY, 'personalBoard' => $personalBoard->getId()]);
             case GlenmoreParameters::$SOUTH :
-                return $this->playerTileGLMRepository->findOneBy(['coord_X' => $tileX + 1, 'coord_Y' => $tileY]);
+                return $this->playerTileGLMRepository->findOneBy(['coord_X' => $tileX + 1, 'coord_Y' => $tileY, 'personalBoard' => $personalBoard->getId()]);
             case GlenmoreParameters::$EAST :
-                return $this->playerTileGLMRepository->findOneBy(['coord_X' => $tileX, 'coord_Y' => $tileY + 1]);
+                return $this->playerTileGLMRepository->findOneBy(['coord_X' => $tileX, 'coord_Y' => $tileY + 1, 'personalBoard' => $personalBoard->getId()]);
             case GlenmoreParameters::$WEST :
-                return $this->playerTileGLMRepository->findOneBy(['coord_X' => $tileX, 'coord_Y' => $tileY - 1]);
+                return $this->playerTileGLMRepository->findOneBy(['coord_X' => $tileX, 'coord_Y' => $tileY - 1, 'personalBoard' => $personalBoard->getId()]);
             case GlenmoreParameters::$NORTH_WEST :
-                return $this->playerTileGLMRepository->findOneBy(['coord_X' => $tileX - 1, 'coord_Y' => $tileY - 1]);
+                return $this->playerTileGLMRepository->findOneBy(['coord_X' => $tileX - 1, 'coord_Y' => $tileY - 1, 'personalBoard' => $personalBoard->getId()]);
             case GlenmoreParameters::$NORTH_EAST :
-                return $this->playerTileGLMRepository->findOneBy(['coord_X' => $tileX - 1, 'coord_Y' => $tileY + 1]);
+                return $this->playerTileGLMRepository->findOneBy(['coord_X' => $tileX - 1, 'coord_Y' => $tileY + 1, 'personalBoard' => $personalBoard->getId()]);
             case GlenmoreParameters::$SOUTH_WEST :
-                return $this->playerTileGLMRepository->findOneBy(['coord_X' => $tileX + 1, 'coord_Y' => $tileY - 1]);
+                return $this->playerTileGLMRepository->findOneBy(['coord_X' => $tileX + 1, 'coord_Y' => $tileY - 1, 'personalBoard' => $personalBoard->getId()]);
             case GlenmoreParameters::$SOUTH_EAST :
-                return $this->playerTileGLMRepository->findOneBy(['coord_X' => $tileX + 1, 'coord_Y' => $tileY + 1]);
+                return $this->playerTileGLMRepository->findOneBy(['coord_X' => $tileX + 1, 'coord_Y' => $tileY + 1, 'personalBoard' => $personalBoard->getId()]);
             default:
-                throw new \Exception('Unexpected value');
+                throw new Exception('Unexpected value');
         }
     }
 

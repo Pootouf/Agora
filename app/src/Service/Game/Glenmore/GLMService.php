@@ -25,7 +25,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
-use Psr\Log\LoggerInterface;
 
 class GLMService
 {
@@ -208,10 +207,13 @@ class GLMService
         $players = $gameGLM->getPlayers();
         foreach ($players as $player) {
             $player->setTurnOfPlayer(false);
+            $player->getPersonalBoard()->setActivatedTile(null);
+            $player->getPersonalBoard()->setBuyingTile(null);
             $player->setRoundPhase(GlenmoreParameters::$STABLE_PHASE);
             $player->getPersonalBoard()->setActivatedTile(null);
             $player->getPersonalBoard()->setBuyingTile(null);
             $this->entityManager->persist($player);
+            $this->entityManager->persist($player->getPersonalBoard());
         }
         $nextPlayer = null;
         $pointerPosition = $startPosition + 1;

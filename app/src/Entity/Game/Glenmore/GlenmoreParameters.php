@@ -39,6 +39,9 @@ class GlenmoreParameters {
     // VILLAGERS COLOR
     public static string $COLOR_BLACK = "black";
 
+    // MINIMUM VILLAGER COUNT PER VILLAGE
+    public static int $MIN_VILLAGER_PER_VILLAGE = 1;
+
     // PRODUCTION RESOURCES COLOR (not yet defined)
     public static string $COLOR_BROWN = "brown";
     public static string $COLOR_GREY = "grey";
