@@ -59,11 +59,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Notification::class, mappedBy: 'receiver')]
     private Collection $notifications;
 
+    #[ORM\ManyToMany(targetEntity: self::class)]
+    private Collection $contacts;
+
+
     public function __construct()
     {
         $this->boards = new ArrayCollection();
         $this->favoriteGames = new ArrayCollection();
+
         $this->notifications = new ArrayCollection();
+
+        $this->contacts = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -219,6 +226,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
+
      * @return Collection<int, Notification>
      */
     public function getNotifications(): Collection
@@ -232,6 +240,20 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             $this->notifications->add($notification);
             $notification->setReceiver($this);
         }
+    }
+
+     * @return Collection<int, self>
+     */
+    public function getContacts(): Collection
+    {
+        return $this->contacts;
+    }
+
+    public function addContact(self $contact): static
+    {
+        if (!$this->contacts->contains($contact)) {
+            $this->contacts->add($contact);
+        }
 
         return $this;
     }
@@ -244,6 +266,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 $notification->setReceiver(null);
             }
         }
+    }
+
+    public function removeContact(self $contact): static
+    {
+        $this->contacts->removeElement($contact);
 
         return $this;
     }
