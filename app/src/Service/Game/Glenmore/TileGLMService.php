@@ -75,7 +75,17 @@ class TileGLMService
      */
     public function hasActivationCost(PlayerTileGLM $tileGLM) : bool
     {
-        return $tileGLM->getTile()->getActivationPrice()->isEmpty();
+        return !$tileGLM->getTile()->getActivationPrice()->isEmpty();
+    }
+
+    /**
+     * hasBuyCost : return if the player need to select resources for buying tile
+     * @param BoardTileGLM $tileGLM
+     * @return bool
+     */
+    public function hasBuyCost(BoardTileGLM $tileGLM) : bool
+    {
+        return !$tileGLM->getTile()->getBuyPrice()->isEmpty();
     }
 
     /**
@@ -846,7 +856,8 @@ class TileGLMService
         $priceCost = $cost->filter(
             function (TileBuyCostGLM $buyCost) use ($resource) {
                 return $buyCost->getResource()->getId() == $resource->getId();
-            })->first()->getPrice();
+            })->first();
+        $priceCost = !$priceCost ? 0 : $priceCost->getPrice();
         if ($numberOfSelectedResources >= $priceCost) {
             throw new \Exception('Impossible to choose this resource');
         }
@@ -856,18 +867,19 @@ class TileGLMService
                 return $selectedResourceGLM->getPlayerTile()->getId() == $playerTileGLM->getId();
             }
         )->first();
-
         if (!$selectedResourceWithSamePlayerTile) {
             $selectedResource = new SelectedResourceGLM();
             $selectedResource->setPlayerTile($playerTileGLM);
             $selectedResource->setResource($resource);
             $selectedResource->setQuantity(1);
+            $selectedResource->setPersonalBoardGLM($playerTileGLM->getPersonalBoard());
+            $this->entityManager->persist($selectedResource);
         } else {
             $selectedResourceWithSamePlayerTile
                 ->setQuantity($selectedResourceWithSamePlayerTile->getQuantity() + 1);
+            $this->entityManager->persist($selectedResourceWithSamePlayerTile);
         }
 
-        $this->entityManager->persist($selectedResourceWithSamePlayerTile);
         $this->entityManager->flush();
     }
 

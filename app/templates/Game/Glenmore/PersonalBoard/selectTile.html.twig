@@ -177,19 +177,17 @@ This section displays the player tile resources and possible actions
                 <span class="border-white border-2 bg-green-700
                                 text-white text-lg flex items-center border-solid text-center"
                 >
-                    {% if not activatedResourceSelection or selectedTile.tile.name == CARD_LOCH_NESS %}
-                        Ressources sur la tuile
-                    {% else %}
+                    {% if activatedResourceSelection or activatedSellingPhase or selectedTile.tile.name == CARD_LOCH_NESS %}
                         Choisir les ressources à utiliser
+                    {% else %}
+                        Ressources sur la tuile
                     {% endif %}
                 </span>
 
                 {% for playerResource in resources %}
 
                     {% if playerResource.resource.type == PRODUCTION %}
-                        <button {% if not activatedBuyingPhase or
-                                      not activatedActivationPhase or
-                                      not activatedSellingPhase %}
+                        <button {% if not activatedResourceSelection and not activatedSellingPhase %}
                                     disabled
                                 {% endif %}
                                 {{ stimulus_action('glenmore', 'selectResource', 'click',

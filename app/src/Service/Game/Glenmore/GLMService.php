@@ -209,6 +209,8 @@ class GLMService
         foreach ($players as $player) {
             $player->setTurnOfPlayer(false);
             $player->setRoundPhase(GlenmoreParameters::$STABLE_PHASE);
+            $player->getPersonalBoard()->setActivatedTile(null);
+            $player->getPersonalBoard()->setBuyingTile(null);
             $this->entityManager->persist($player);
         }
         $nextPlayer = null;
@@ -231,6 +233,7 @@ class GLMService
             throw new Exception("Next player unreachable");
         }
         $nextPlayer->setTurnOfPlayer(true);
+        $nextPlayer->setRoundPhase(GlenmoreParameters::$BUYING_PHASE);
         foreach ($nextPlayer->getPersonalBoard()->getPlayerTiles() as $playerTile) {
             $playerTile->setActivated(false);
             if ($playerTile->getTile()->getType() === GlenmoreParameters::$TILE_TYPE_CASTLE
