@@ -47,17 +47,13 @@ class TileGLMServiceTest extends TestCase
     protected function setUp(): void
     {
         $entityManager = $this->createMock(EntityManagerInterface::class);
-        $tileGLMRepository = $this->createMock(TileGLMRepository::class);
-        $drawTilesGLMRepository = $this->createMock(DrawTilesGLMRepository::class);
         $resourceGLMRepository = $this->createMock(ResourceGLMRepository::class);
         $playerGLMRepository = $this->createMock(PlayerGLMRepository::class);
         $playerTileGLMRepository = $this->createMock(PlayerTileGLMRepository::class);
         $playerTileResourceGLMRepository = $this->createMock(PlayerTileResourceGLMRepository::class);
         $cardGLMService = new CardGLMService($entityManager, $resourceGLMRepository);
-        $this->GLMService = new GLMService($entityManager, $tileGLMRepository, $drawTilesGLMRepository,
-            $resourceGLMRepository, $playerGLMRepository, $cardGLMService);
-        $this->tileGLMService = new TileGLMService($entityManager, $this->GLMService
-            , $resourceGLMRepository, $playerTileResourceGLMRepository, $playerTileGLMRepository,
+        $this->tileGLMService = new TileGLMService($entityManager
+            , $resourceGLMRepository, $playerGLMRepository, $playerTileResourceGLMRepository, $playerTileGLMRepository,
             $cardGLMService);
     }
 

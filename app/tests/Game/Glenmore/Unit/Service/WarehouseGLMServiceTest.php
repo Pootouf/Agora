@@ -33,14 +33,7 @@ class WarehouseGLMServiceTest extends TestCase
     protected function setUp(): void
     {
         $entityManager = $this->createMock(EntityManagerInterface::class);
-        $tileGLMRepository = $this->createMock(TileGLMRepository::class);
-        $drawTilesGLMRepository = $this->createMock(DrawTilesGLMRepository::class);
-        $resourceGLMRepository = $this->createMock(ResourceGLMRepository::class);
-        $playerGLMRepository = $this->createMock(PlayerGLMRepository::class);
-        $cardGLMService = new CardGLMService($entityManager, $resourceGLMRepository);
-        $GLMService = new GLMService($entityManager, $tileGLMRepository, $drawTilesGLMRepository,
-            $resourceGLMRepository, $playerGLMRepository, $cardGLMService);
-        $this->warehouseGLMService = new WarehouseGLMService($entityManager, $GLMService, $playerGLMRepository);
+        $this->warehouseGLMService = new WarehouseGLMService($entityManager);
     }
 
     public function testResourceSaleWhenPlayerHaveNotThisResource() : void
