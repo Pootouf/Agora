@@ -4,22 +4,27 @@ This section displays the warehouse actions
 @return : display warehouse action
 #}
 
-{% set lastMoneySpace = selectedWarehouseProduction.coinNumber %}
-{% if lastMoneySpace == 6 %}
+{% set moneyAmount = selectedWarehouseProduction.coinNumber %}
+{% set lastMoneySpace = 0 %}
+{% if moneyAmount == 6 %}
     {% set lastMoneySpace = 3 %}
-{% elseif lastMoneySpace == 3 %}
+{% elseif moneyAmount == 3 %}
     {% set lastMoneySpace = 2 %}
-{% else %}
+{% elseif moneyAmount == 1 %}
     {% set lastMoneySpace = 1 %}
+{% else %}
+    {% set lastMoneySpace = 0 %}
 {% endif %}
 
 {% set nextNeededMoneyAmount = 0 %}
 {% if lastMoneySpace == 3 %}
-    {% set nextNeededMoneyAmount = 3 %}
+    {% set nextNeededMoneyAmount = 0 %}
 {% elseif lastMoneySpace == 1 %}
     {% set nextNeededMoneyAmount = 2 %}
+{% elseif lastMoneySpace == 0 %}
+    {% set nextNeededMoneyAmount = 1 %}
 {% else %}
-    {% set nextNeededMoneyAmount = 0 %}
+    {% set nextNeededMoneyAmount = 3 %}
 {% endif %}
 
 <div id="selectedWarehouseResource"
