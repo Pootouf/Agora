@@ -505,9 +505,11 @@ class GlenmoreController extends AbstractController
                 $this->tileGLMService->setPlaceTileAlreadySelected($player,
                     $player->getPersonalBoard()->getBuyingTile()->getCoordX(),
                     $player->getPersonalBoard()->getBuyingTile()->getCoordY());
-            } catch (\Doctrine\DBAL\Exception $e) {
+            } catch (Exception $e) {
                 return new Response('player has not selected needed resources', Response::HTTP_FORBIDDEN);
             }
+            $this->service->setPhase($player, GlenmoreParameters::$ACTIVATION_PHASE);
+            $player->setActivatedResourceSelection(false);
         }
         return new Response('player selected resources', Response::HTTP_OK);
     }

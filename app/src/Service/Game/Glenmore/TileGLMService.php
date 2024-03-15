@@ -24,7 +24,7 @@ use App\Repository\Game\Glenmore\PlayerTileResourceGLMRepository;
 use App\Repository\Game\Glenmore\ResourceGLMRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\DBAL\Exception;
+use Exception;
 use Doctrine\ORM\EntityManagerInterface;
 
 class TileGLMService
@@ -599,7 +599,7 @@ class TileGLMService
             $this->buyTile($tileSelected->getTile(), $player);
         } catch(Exception $e) {
             $personalBoard->getBuyingTile()->setCoordX($abscissa);
-            $personalBoard->getBuyingTile()->setCoordX($ordinate);
+            $personalBoard->getBuyingTile()->setCoordY($ordinate);
             $this->entityManager->persist($personalBoard->getBuyingTile());
             $this->entityManager->flush();
             throw new \Exception('Invalid amount of selected resources');
