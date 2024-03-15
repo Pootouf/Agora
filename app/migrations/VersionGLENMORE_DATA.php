@@ -246,7 +246,7 @@ final class VersionGLENMORE_DATA extends AbstractMigration
         // Insertion of tile 5
 
         $this->connection->insert('tile_activation_bonus_glm',
-            ['id' => 5, "help_id" => null, 'amount' => 1, 'resource_id' => 6]
+            ['id' => 5, "help_id" => null, 'amount' => 1, 'resource_id' => 5]
         );
 
         $this->connection->insert('tile_glm',
@@ -277,7 +277,7 @@ final class VersionGLENMORE_DATA extends AbstractMigration
         // Insertion of tile 7
 
         $this->connection->insert('tile_activation_bonus_glm',
-            ['id' => 7, "help_id" => null, 'amount' => 1, 'resource_id' => 1]
+            ['id' => 7, "help_id" => null, 'amount' => 1, 'resource_id' => 2]
         );
 
         $this->connection->insert('tile_glm',

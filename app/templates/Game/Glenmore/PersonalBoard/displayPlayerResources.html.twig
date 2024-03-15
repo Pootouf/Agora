@@ -26,8 +26,8 @@ This section displays the player resources like whisky, leaders, total number of
                >
                 {{ leaderCount }}
             </span>
-               {% if player.personalBoard.selectedTile != null and activatedResourceSelection %}
-                   {% if player.personalBoard.selectedTile.tile.name == CARD_LOCH_NESS %}
+               {% if player.personalBoard.buyingTile != null and activatedBuyingPhase %}
+                   {% if player.personalBoard.buyingTile.tile.name == CARD_LOCH_NESS %}
                    <div class="absolute flex items-center justify-center left-0 bottom-1">
                        <button
                                {{ stimulus_action('glenmore', 'selectResource', 'click',
@@ -35,7 +35,7 @@ This section displays the player resources like whisky, leaders, total number of
                                        {
                                            idGame: game.id,
                                            idPlayerTileResource : playerResource.id,
-                                           idTile : player.personalBoard.selectedTile.tile.id
+                                           idTile : player.personalBoard.buyingTile.tile.id
                                        })
                                    })
                                }}

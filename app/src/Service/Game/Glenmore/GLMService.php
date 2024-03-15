@@ -28,7 +28,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
-use Psr\Log\LoggerInterface;
 
 class GLMService
 {
@@ -128,6 +127,62 @@ class GLMService
         return $result;
     }
 
+    /**
+     * isInMovementPhase : indicates if player is in movement phase
+     * @param PlayerGLM $playerGLM
+     * @return bool
+     */
+    public function isInMovementPhase(PlayerGLM $playerGLM): bool
+    {
+        $phase = $playerGLM->getRoundPhase();
+        if ($phase == GlenmoreParameters::$MOVEMENT_PHASE) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * isInBuyingPhase : indicates if player is in buying phase
+     * @param PlayerGLM $playerGLM
+     * @return bool
+     */
+    public function isInBuyingPhase(PlayerGLM $playerGLM): bool
+    {
+        $phase = $playerGLM->getRoundPhase();
+        if ($phase == GlenmoreParameters::$BUYING_PHASE) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * isInSellingPhase : indicates if player is in selling phase
+     * @param PlayerGLM $playerGLM
+     * @return bool
+     */
+    public function isInSellingPhase(PlayerGLM $playerGLM): bool
+    {
+        $phase = $playerGLM->getRoundPhase();
+        if ($phase == GlenmoreParameters::$SELLING_PHASE) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * isInActivationPhase : indicates if player is in activation phase
+     * @param PlayerGLM $playerGLM
+     * @return bool
+     */
+    public function isInActivationPhase(PlayerGLM $playerGLM): bool
+    {
+        $phase = $playerGLM->getRoundPhase();
+        if ($phase == GlenmoreParameters::$ACTIVATION_PHASE) {
+            return true;
+        }
+        return false;
+    }
+
 
     /**
      * manageEndOfRound : at the end of a player's round, replace the good number of tiles, proceeds
@@ -204,16 +259,27 @@ class GLMService
         $players = $gameGLM->getPlayers();
         foreach ($players as $player) {
             $player->setTurnOfPlayer(false);
+            $player->getPersonalBoard()->setActivatedTile(null);
+            $player->getPersonalBoard()->setBuyingTile(null);
+            $player->setRoundPhase(GlenmoreParameters::$STABLE_PHASE);
+            $player->getPersonalBoard()->setActivatedTile(null);
+            $player->getPersonalBoard()->setBuyingTile(null);
             $this->entityManager->persist($player);
+            $this->entityManager->persist($player->getPersonalBoard());
         }
         $nextPlayer = null;
         $pointerPosition = $startPosition + 1;
+        $found = false;
         while ($nextPlayer == null && $startPosition != $pointerPosition) {
             foreach ($players as $player) {
                 $playerPosition = $player->getPawn()->getPosition();
                 if ($playerPosition == $pointerPosition) {
                     $nextPlayer = $player;
+                    $found = true;
                 }
+            }
+            if ($found) {
+                break;
             }
             $pointerPosition = ($pointerPosition + 1) % GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD;
         }
@@ -221,6 +287,7 @@ class GLMService
             throw new Exception("Next player unreachable");
         }
         $nextPlayer->setTurnOfPlayer(true);
+        $nextPlayer->setRoundPhase(GlenmoreParameters::$BUYING_PHASE);
         foreach ($nextPlayer->getPersonalBoard()->getPlayerTiles() as $playerTile) {
             $playerTile->setActivated(false);
             if ($playerTile->getTile()->getType() === GlenmoreParameters::$TILE_TYPE_CASTLE
@@ -236,6 +303,19 @@ class GLMService
             $this->manageBotAction($nextPlayer);
         }
 
+        $this->entityManager->flush();
+    }
+
+    /**
+     * setPhase : set player's phase into selected phase
+     * @param PlayerGLM $playerGLM
+     * @param int       $phase
+     * @return void
+     */
+    public function setPhase(PlayerGLM $playerGLM, int $phase) : void
+    {
+        $playerGLM->setRoundPhase($phase);
+        $this->entityManager->persist($playerGLM);
         $this->entityManager->flush();
     }
 

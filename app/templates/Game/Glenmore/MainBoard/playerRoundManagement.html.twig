@@ -4,71 +4,75 @@ This section displays the player options regarding his round
          activatedMovementPhase
 @return : display the possible actions regarding the player's round phases
 #}
+{% if needToPlay %}
+    {% if activatedResourceSelection or activatedSellingPhase %}
+        <div class="bg-gradient-to-b from-[#4C6E9Bff] to-[#20222Dff]
+                                    absolute bottom-0 flex justify-center items-center
+                                     w-[25%] h-1/5 right-0">
+            <div class="flex items-center justify-center">
+                <button
+                        {{ stimulus_action('glenmore', 'validateResourcesSelection', 'click',
+                            {url:path('app_game_glenmore_validate_resources_selection',
+                                {idGame: game.id})
+                            })
+                        }}
+                        class="bg-[#8F901F] py-2 px-3 m-1 rounded-lg text-2xl
+                                            flex items-center justify-center"
+                >
+                    Valider le choix
+                </button>
 
-{% if activatedResourceSelection %}
-    <div class="bg-gradient-to-b from-[#4C6E9Bff] to-[#20222Dff]
-                                absolute bottom-0 flex justify-center items-center
-                                 w-[25%] h-1/5 right-0">
-        <div class="flex items-center justify-center">
-            <button
-                    {{ stimulus_action('glenmore', 'validateResourcesSelection', 'click',
-                        {url:path('app_game_glenmore_validate_resources_selection',
-                            {idGame: game.id})
-                        })
-                    }}
-                    class="bg-[#8F901F] py-2 px-3 m-1 rounded-lg text-2xl
-                                        flex items-center justify-center"
-            >
-                Valider le choix
-            </button>
-
-            <button
-                    {{ stimulus_action('glenmore', 'cancelResourcesSelection', 'click',
-                        {url:path('app_game_glenmore_cancel_resources_selection',
-                            {idGame: game.id})
-                        })
-                    }}
-                    class="bg-[#8F901F] py-2 px-3 m-1 rounded-lg text-2xl
-                                        flex items-center justify-center"
-            >
-                Annuler le choix
-            </button>
+                <button
+                        {{ stimulus_action('glenmore', 'cancelResourcesSelection', 'click',
+                            {url:path('app_game_glenmore_cancel_resources_selection',
+                                {idGame: game.id})
+                            })
+                        }}
+                        class="bg-[#8F901F] py-2 px-3 m-1 rounded-lg text-2xl
+                                            flex items-center justify-center"
+                >
+                    Annuler le choix
+                </button>
+            </div>
         </div>
-    </div>
-{% elseif not activatedMovementPhase and activableTiles is not empty %}
-    <div class="bg-gradient-to-b from-[#4C6E9Bff] to-[#20222Dff]
-                                        absolute bottom-0 flex justify-center items-center
-                                         w-[25%] h-1/5 right-0">
-        <div class="flex items-center justify-center">
-            <button
-                    {{ stimulus_action('glenmore', 'endActivationTilesPhase', 'click',
-                        {url:path('app_game_glenmore_validate_resources_selection',
-                            {idGame: game.id})
-                        })
-                    }}
-                    class="bg-[#8F901F] py-2 px-3 m-1 rounded-lg text-2xl
-                                                flex items-center justify-center"
-            >
-                Valider l'activation des tuiles
-            </button>
+    {% elseif not activatedMovementPhase and activatedActivationPhase and not activatedResourceSelection
+                and activableTiles is not empty %}
+        <div class="bg-gradient-to-b from-[#4C6E9Bff] to-[#20222Dff]
+                                            absolute bottom-0 flex justify-center items-center
+                                             w-[25%] h-1/5 right-0">
+            <div class="flex items-center justify-center">
+                <button
+                        {{ stimulus_action('glenmore', 'endActivationTilesPhase', 'click',
+                            {url:path('app_game_glenmore_end_activate_tile',
+                                {idGame: game.id})
+                            })
+                        }}
+                        class="bg-[#8F901F] py-2 px-3 m-1 rounded-lg text-2xl
+                                                    flex items-center justify-center"
+                >
+                    Valider l'activation des tuiles
+                </button>
+            </div>
         </div>
-    </div>
-{% else %}
-    <div class="bg-gradient-to-b from-[#4C6E9Bff] to-[#20222Dff]
-                                        absolute bottom-0 flex justify-center items-center
-                                         w-[25%] h-1/5 right-0">
-        <div class="flex items-center justify-center">
-            <button
-                    {{ stimulus_action('glenmore', 'endRoundPlayer', 'click',
-                        {url:path('app_game_glenmore_end_player_round',
-                            {idGame: game.id})
-                        })
-                    }}
-                    class="bg-[#8F901F] py-2 px-3 m-1 rounded-lg text-2xl
-                                                flex items-center justify-center"
-            >
-                Finir le tour
-            </button>
+    {% else %}
+        <div
+                class="bg-gradient-to-b from-[#4C6E9Bff] to-[#20222Dff]
+                                            absolute bottom-0 flex justify-center items-center
+                                             w-[25%] h-1/5 right-0">
+            <div class="flex items-center justify-center">
+                <button
+                        {% if activatedBuyingPhase %} disabled {% endif %}
+                        {{ stimulus_action('glenmore', 'endRoundPlayer', 'click',
+                            {url:path('app_game_glenmore_end_player_round',
+                                {idGame: game.id})
+                            })
+                        }}
+                        class="bg-[#8F901F] py-2 px-3 m-1 rounded-lg text-2xl
+                                                    flex items-center justify-center"
+                >
+                    Finir le tour
+                </button>
+            </div>
         </div>
-    </div>
+    {% endif %}
 {% endif %}

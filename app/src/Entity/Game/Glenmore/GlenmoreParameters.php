@@ -12,6 +12,14 @@ class GlenmoreParameters {
     // MONEY GIVEN AT START OF THE GAME
     public static int $START_MONEY = 6;
 
+    // PLAYER ROUND PHASE
+
+    public static int $STABLE_PHASE = 0;
+    public static int $BUYING_PHASE = 1;
+    public static int $ACTIVATION_PHASE = 2;
+    public static int $MOVEMENT_PHASE = 3;
+    public static int $SELLING_PHASE = 4;
+
     // MAINBOARD BOXES
     public static int $NUMBER_OF_BOXES_ON_BOARD = 14;
 
@@ -30,6 +38,9 @@ class GlenmoreParameters {
 
     // VILLAGERS COLOR
     public static string $COLOR_BLACK = "black";
+
+    // MINIMUM VILLAGER COUNT PER VILLAGE
+    public static int $MIN_VILLAGER_PER_VILLAGE = 1;
 
     // PRODUCTION RESOURCES COLOR (not yet defined)
     public static string $COLOR_BROWN = "brown";

@@ -24,7 +24,8 @@ use App\Service\Game\MessageService;
 use App\Service\Game\PublishService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\DBAL\Exception;
+use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -40,11 +41,12 @@ class GlenmoreController extends AbstractController
                                 private TileGLMService $tileGLMService,
                                 private CardGLMService $cardGLMService,
                                 private LogService $logService,
-                                private LoggerInterface $logger,
                                 private BoardTileGLMRepository $boardTileGLMRepository,
                                 private ResourceGLMRepository $resourceGLMRepository,
                                 private PublishService $publishService,
                                 private WarehouseGLMService $warehouseGLMService,
+                                private LoggerInterface $logger,
+                                private EntityManagerInterface $entityManager,
                                 )
     {}
 
@@ -63,6 +65,10 @@ class GlenmoreController extends AbstractController
         $messages = $this->messageService->receiveMessage($game->getId());
         $activePlayer = $this->service->getActivePlayer($game);
         $personalBoard = $activePlayer->getPersonalBoard();
+        $movementPhase = $this->service->isInMovementPhase($activePlayer);
+        $activationPhase = $this->service->isInActivationPhase($activePlayer);
+        $buyingPhase = $this->service->isInBuyingPhase($activePlayer);
+        $sellingPhase = $this->service->isInSellingPhase($activePlayer);
         return $this->render('/Game/Glenmore/index.html.twig', [
             'game' => $game,
             'player' => $player,
@@ -77,14 +83,17 @@ class GlenmoreController extends AbstractController
             'boardTiles' => $this->dataManagementGLMService->organizeMainBoardRows(
                 $this->dataManagementGLMService->createBoardBoxes($game)),
             'whiskyCount' => $this->dataManagementGLMService->getWhiskyCount($player),
-            'activatedResourceSelection' => false,
-            'selectedResources' => null,
+            'activatedBuyingPhase' => $buyingPhase,
+            'activatedActivationPhase' => $activationPhase,
+            'activatedSellingPhase' => $sellingPhase,
+            'activatedMovementPhase' => $movementPhase,
+            'activatedResourceSelection' => $player->isActivatedResourceSelection(),
+            'selectedResources' => $player->getPersonalBoard()->getSelectedResources(),
             'activatedNewResourceAcquisition' => false,
-            'chosenNewResources' => null,
-            'activatedMovementPhase' => false,
+            'chosenNewResources' => $player->getPersonalBoard()->getCreatedResources(),
             'selectedWarehouseProduction' => null,
             'isWarehouseMoneySelected' => false,
-            'buyingTile' => $player->getPersonalBoard()->getSelectedTile(),
+            'buyingTile' => $player->getPersonalBoard()->getBuyingTile(),
             'messages' => $messages,
         ]);
     }
@@ -203,13 +212,22 @@ class GlenmoreController extends AbstractController
         if ($this->service->getActivePlayer($game) !== $player) {
             return new Response("Not player's turn", Response::HTTP_FORBIDDEN);
         }
+        if($this->tileGLMService->hasBuyCost($tile)) {
+            $player->setActivatedResourceSelection(true);
+            $player->setRoundPhase(GlenmoreParameters::$BUYING_PHASE);
+        } else {
+            $player->setRoundPhase(GlenmoreParameters::$ACTIVATION_PHASE);
+            $player->setActivatedResourceSelection(false);
+        }
+        $this->entityManager->persist($player);
+        $this->entityManager->flush();
         try {
             $this->tileGLMService->assignTileToPlayer($tile, $player);
-        } catch (Exception) {
+        } catch (Exception $e) {
             $message = $player->getUsername() . " tried to choose tile " . $tile->getId()
                 . " but could not afford it";
             $this->logService->sendPlayerLog($game, $player, $message);
-            return new Response("can't afford this tile", Response::HTTP_FORBIDDEN);
+            return new Response("can't afford this tile" . $e->getMessage(), Response::HTTP_FORBIDDEN);
         }
         // TODO Publish management
         $message = $player->getUsername() . " chose tile " . $tile->getId();
@@ -238,6 +256,10 @@ class GlenmoreController extends AbstractController
             //$this->logService->sendPlayerLog($game, $player, $message);
             return new Response("can't place this tile", Response::HTTP_FORBIDDEN);
         }
+        $this->service->setPhase($player, GlenmoreParameters::$ACTIVATION_PHASE);
+        $player->setActivatedResourceSelection(false);
+        $this->entityManager->persist($player);
+        $this->entityManager->flush();
         $playerTile = $player->getPersonalBoard()->getPlayerTiles()->last();
         if ($this->tileGLMService->giveBuyBonus($playerTile) == -1) {
              $this->publishCreateResource($playerTile);
@@ -263,11 +285,14 @@ class GlenmoreController extends AbstractController
             'selectedTile' => $tile,
             'game' => $game,
             'player' => $player,
-            'activatedResourceSelection' => false, //TODO : depends of the tile,
-            'selectedResources' => null,
+            'activatedBuyingPhase' => $this->service->isInBuyingPhase($player),
+            'activatedActivationPhase' => $this->service->isInActivationPhase($player),
+            'activatedSellingPhase' => $this->service->isInSellingPhase($player),
+            'selectedResources' => $player->getPersonalBoard()->getSelectedResources(),
+            'activatedResourceSelection' => $player->isActivatedResourceSelection(),
             'activatedNewResourceAcquisition' => false,
-            'chosenNewResources' => null,
-            'activatedMovementPhase' => false,
+            'chosenNewResources' => $player->getPersonalBoard()->getCreatedResources(),
+            'activatedMovementPhase' => $this->service->isInMovementPhase($player),
         ]);
     }
 
@@ -283,16 +308,20 @@ class GlenmoreController extends AbstractController
         if ($player == null) {
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
         }
-        return $this->render('/Game/Glenmore/PersonalBoard/selectTile.html.twig', [
-            'selectedTile' => $tile,
-            'game' => $game,
-            'player' => $player,
-            'activatedResourceSelection' => false, //TODO : depends of the tile,
-            'selectedResources' => null,
-            'activatedNewResourceAcquisition' => false,
-            'chosenNewResources' => null,
-            'activatedMovementPhase' => false
-        ]);
+        $phase = $player->getRoundPhase();
+        if ($phase == GlenmoreParameters::$BUYING_PHASE) {
+            try {
+                $this->tileGLMService->selectResourcesFromTileToBuy($tile, $resourceGLM->getResource());
+            } catch (\Exception $e) {
+                return new Response($e->getMessage(), Response::HTTP_UNAVAILABLE_FOR_LEGAL_REASONS);
+            }
+        } else if ($phase == GlenmoreParameters::$ACTIVATION_PHASE) {
+            try {
+                $this->tileGLMService->selectResourcesFromTileToActivate($tile, $resourceGLM->getResource());
+            } catch (\Exception $e) {
+            }
+        }
+        return new Response('a new resource has been selected', Response::HTTP_OK);
     }
 
     #[Route('game/glenmore/{idGame}/select/{idTile}/resource/acquisition/{resource}',
@@ -315,16 +344,7 @@ class GlenmoreController extends AbstractController
                 return new Response('can not select more resource', Response::HTTP_FORBIDDEN);
             }
         }
-        return $this->render('/Game/Glenmore/PersonalBoard/selectTile.html.twig', [
-            'selectedTile' => $tile,
-            'game' => $game,
-            'player' => $player,
-            'activatedResourceSelection' => false, //TODO : depends of the tile,
-            'selectedResources' => null,
-            'activatedNewResourceAcquisition' => false,
-            'chosenNewResources' => null,
-            'activatedMovementPhase' => false
-        ]);
+        return new Response($player->getUsername()." selected a resource" ,Response::HTTP_OK);
     }
 
     #[Route('game/glenmore/{idGame}/remove/{idTile}/villager/{idPlayerTileResource}',
@@ -344,19 +364,10 @@ class GlenmoreController extends AbstractController
         }
         try {
             $this->tileGLMService->removeVillager($tile);
-        } catch (\Exception) {
+        } catch (Exception) {
             return new Response('Invalid move', Response::HTTP_FORBIDDEN);
         }
-        return $this->render('/Game/Glenmore/PersonalBoard/selectTile.html.twig', [
-            'selectedTile' => $tile,
-            'game' => $game,
-            'player' => $player,
-            'activatedResourceSelection' => false, //TODO : depends of the tile,
-            'selectedResources' => null,
-            'activatedNewResourceAcquisition' => false,
-            'chosenNewResources' => null,
-            'activatedMovementPhase' => false
-        ]);
+        return new Response('villager has been removed', Response::HTTP_OK);
     }
 
     #[Route('game/glenmore/{idGame}/activate/{idTile}', name: 'app_game_glenmore_activate_tile')]
@@ -369,24 +380,43 @@ class GlenmoreController extends AbstractController
         if ($player == null) {
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
         }
+        $this->tileGLMService->chooseTileToActivate($tile);
         if ($this->service->getActivePlayer($game) !== $player) {
             return new Response("Not player's turn", Response::HTTP_FORBIDDEN);
         }
+        if(!$this->tileGLMService->hasActivationCost($tile)) {
+            $player->setActivatedResourceSelection(false);
+            try {
+                $this->tileGLMService->activateBonus($tile, $player);
+            } catch (\Exception $e) {
+            }
+        } else {
+            $this->service->setPhase($player, GlenmoreParameters::$ACTIVATION_PHASE);
+            $player->setActivatedResourceSelection(true);
+        }
+        $this->entityManager->persist($player);
+        $this->entityManager->flush();
+        return new Response('tile was activated', Response::HTTP_OK);
+    }
+
+    #[Route('game/glenmore/{idGame}/validate/activation', name: 'app_game_glenmore_validate_activation_tile')]
+    public function validateActivationTile(
+        #[MapEntity(id: 'idGame')] GameGLM $game,
+    )  : Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+        }
+        $tile = $player->getPersonalBoard()->getActivatedTile();
         try {
             $this->tileGLMService->activateBonus($tile, $player);
-        } catch (\Exception) {
-            return new Response('could not activate this tile', Response::HTTP_FORBIDDEN);
+        } catch (\Exception $e) {
         }
-        return $this->render('/Game/Glenmore/PersonalBoard/selectTile.html.twig', [
-            'selectedTile' => $tile,
-            'game' => $game,
-            'player' => $player,
-            'activatedResourceSelection' => false, //TODO : depends of the tile,
-            'selectedResources' => null,
-            'activatedNewResourceAcquisition' => false,
-            'chosenNewResources' => null,
-            'activatedMovementPhase' => false
-        ]);
+        $player->setActivatedResourceSelection(false);
+        $this->entityManager->persist($player);
+        $this->entityManager->flush();
+        return new Response("tile was activated", Response::HTTP_OK);
     }
 
     #[Route('game/glenmore/{idGame}/end/activation', name: 'app_game_glenmore_end_activate_tile')]
@@ -398,7 +428,8 @@ class GlenmoreController extends AbstractController
         if ($player == null) {
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
         }
-        return new Response('player ended activation of his tiles', Response::HTTP_OK);
+        $this->service->setPhase($player, GlenmoreParameters::$MOVEMENT_PHASE);
+        return new Response($player->getUsername().' has ended activation phase', Response::HTTP_OK);
     }
 
     #[Route('game/glenmore/{idGame}/move/{idTile}/villager/direction/{dir}',
@@ -418,20 +449,11 @@ class GlenmoreController extends AbstractController
         }
         try {
             $this->tileGLMService->moveVillager($tile, $dir);
-        } catch (\Exception) {
+        } catch (Exception) {
             return new Response('Could not move a villager from this tile to 
-                targeted one');
+                targeted one ');
         }
-        return $this->render('/Game/Glenmore/PersonalBoard/selectTile.html.twig', [
-            'selectedTile' => $tile,
-            'game' => $game,
-            'player' => $player,
-            'activatedResourceSelection' => false, //TODO : depends of the tile,
-            'selectedResources' => null,
-            'activatedNewResourceAcquisition' => false,
-            'chosenNewResources' => null,
-            'activatedMovementPhase' => false
-        ]);
+        return new Response('the villager has been moved', Response::HTTP_OK);
     }
 
     #[Route('game/glenmore/{idGame}/validate/{idTile}/resource/acquisition',
@@ -448,16 +470,8 @@ class GlenmoreController extends AbstractController
         if($tile->getTile()->getName() === GlenmoreParameters::$CARD_LOCH_LOCHY) {
             $this->cardGLMService->validateTakingOfResourcesForLochLochy($player);
         }
-        return $this->render('/Game/Glenmore/PersonalBoard/selectTile.html.twig', [
-            'selectedTile' => $tile,
-            'game' => $game,
-            'player' => $player,
-            'activatedResourceSelection' => false, //TODO : depends of the tile,
-            'selectedResources' => null,
-            'activatedNewResourceAcquisition' => false,
-            'chosenNewResources' => null,
-            'activatedMovementPhase' => false
-        ]);
+        return new Response($player->getUsername().' has ended new resources acquisition phase',
+            Response::HTTP_OK);
     }
 
     #[Route('game/glenmore/{idGame}/cancel/{idTile}/resource/acquisition',
@@ -474,16 +488,7 @@ class GlenmoreController extends AbstractController
         if($tile->getTile()->getName() === GlenmoreParameters::$CARD_LOCH_LOCHY) {
             $this->cardGLMService->clearCreatedResources($player);
         }
-        return $this->render('/Game/Glenmore/PersonalBoard/selectTile.html.twig', [
-            'selectedTile' => $tile,
-            'game' => $game,
-            'player' => $player,
-            'activatedResourceSelection' => false, //TODO : depends of the tile,
-            'selectedResources' => null,
-            'activatedNewResourceAcquisition' => false,
-            'chosenNewResources' => null,
-            'activatedMovementPhase' => false
-        ]);
+        return new Response('the chosen resources have been canceled', Response::HTTP_OK);
     }
 
     #[Route('game/glenmore/{idGame}/validate/resources/selection',

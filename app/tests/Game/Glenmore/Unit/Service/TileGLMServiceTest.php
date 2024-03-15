@@ -222,7 +222,7 @@ class TileGLMServiceTest extends TestCase
         $firstPlayerTile->setTile($boardTile->getTile());
         $mainBoard->removeBoardTile($boardTile);
 
-        $firstPlayer->getPersonalBoard()->setSelectedTile($boardTile);
+        $firstPlayer->getPersonalBoard()->setBuyingTile($boardTile);
         $firstPlayer->getPersonalBoard()->addPlayerTile($firstPlayerTile);
         $lastPosition = $mainBoard->getLastPosition();
         $lastPosition -= 1;
@@ -257,7 +257,7 @@ class TileGLMServiceTest extends TestCase
 
         // THEN
 
-        $this->assertSame($boardTile, $personalBoard->getSelectedTile());
+        $this->assertSame($boardTile, $personalBoard->getBuyingTile());
         $this->assertContains($boardTile, $mainBoard->getBoardTiles());
     }
 
@@ -375,7 +375,7 @@ class TileGLMServiceTest extends TestCase
         $mainBoard = $game->getMainBoard();
 
         $tileSelected = $mainBoard->getBoardTiles()->first();
-        $personalBoard->setSelectedTile($tileSelected);
+        $personalBoard->setBuyingTile($tileSelected);
         $lastPosition = $player->getPawn()->getPosition();
         $playerTileAlreadyInPersonalBoard = $personalBoard->getPlayerTiles()->first();
         $x = $playerTileAlreadyInPersonalBoard->getCoordX();
