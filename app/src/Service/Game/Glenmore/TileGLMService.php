@@ -791,7 +791,7 @@ class TileGLMService
      * @param GameGLM $gameGLM
      * @return PlayerGLM
      */
-    private function getActivePlayer(GameGLM $gameGLM): PlayerGLM
+    public function getActivePlayer(GameGLM $gameGLM): PlayerGLM
     {
         return $this->playerGLMRepository->findOneBy(["gameGLM" => $gameGLM->getId(),
             "turnOfPlayer" => true]);

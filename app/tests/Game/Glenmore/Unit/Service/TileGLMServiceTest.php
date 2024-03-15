@@ -22,6 +22,7 @@ use App\Entity\Game\Glenmore\TileBuyBonusGLM;
 use App\Entity\Game\Glenmore\TileGLM;
 use App\Entity\Game\Glenmore\WarehouseGLM;
 use App\Entity\Game\Glenmore\WarehouseLineGLM;
+use App\Repository\Game\Glenmore\BoardTileGLMRepository;
 use App\Repository\Game\Glenmore\DrawTilesGLMRepository;
 use App\Repository\Game\Glenmore\PlayerGLMRepository;
 use App\Repository\Game\Glenmore\PlayerTileGLMRepository;
@@ -32,6 +33,7 @@ use App\Service\Game\AbstractGameManagerService;
 use App\Service\Game\Glenmore\CardGLMService;
 use App\Service\Game\Glenmore\GLMService;
 use App\Service\Game\Glenmore\TileGLMService;
+use App\Service\Game\LogService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Exception;
 use Doctrine\ORM\EntityManagerInterface;
@@ -51,10 +53,18 @@ class TileGLMServiceTest extends TestCase
         $playerGLMRepository = $this->createMock(PlayerGLMRepository::class);
         $playerTileGLMRepository = $this->createMock(PlayerTileGLMRepository::class);
         $playerTileResourceGLMRepository = $this->createMock(PlayerTileResourceGLMRepository::class);
+        $tileGlMRepository = $this->createMock(TileGLMRepository::class);
+        $boardTileRepo = $this->createMock(BoardTileGLMRepository::class);
+
+        $drawTilesRepo = $this->createMock(DrawTilesGLMRepository::class);
         $cardGLMService = new CardGLMService($entityManager, $resourceGLMRepository);
+        $logService = new LogService($entityManager);
         $this->tileGLMService = new TileGLMService($entityManager
             , $resourceGLMRepository, $playerGLMRepository, $playerTileResourceGLMRepository, $playerTileGLMRepository,
             $cardGLMService);
+        $cardGLMService = new CardGLMService($entityManager, $resourceGLMRepository);
+        $this->GLMService = new GLMService($entityManager, $tileGlMRepository, $this->tileGLMService,
+           $logService, $drawTilesRepo, $resourceGLMRepository, $playerGLMRepository, $boardTileRepo, $cardGLMService);
     }
 
     public function testGiveBuyBonusWithSimpleProductionTile() : void
@@ -388,10 +398,8 @@ class TileGLMServiceTest extends TestCase
         $playerTileGLMRepository = $this->createMock(PlayerTileGLMRepository::class);
         $playerTileResourceGLMRepository = $this->createMock(PlayerTileResourceGLMRepository::class);
         $cardGLMService = new CardGLMService($entityManager, $resourceGLMRepository);
-        $GLMService = new GLMService($entityManager, $tileGLMRepository, $drawTilesGLMRepository,
-            $resourceGLMRepository, $playerGLMRepository, $cardGLMService);
         $mock = $this->getMockBuilder(TileGLMService::class)
-            ->setConstructorArgs(array($entityManager, $GLMService, $resourceGLMRepository,
+            ->setConstructorArgs(array($entityManager, $resourceGLMRepository, $playerGLMRepository,
                 $playerTileResourceGLMRepository, $playerTileGLMRepository, $cardGLMService))
             ->onlyMethods(['canPlaceTile'])
             ->getMock();
@@ -415,14 +423,19 @@ class TileGLMServiceTest extends TestCase
         $game = $this->createGame(2);
         $firstPlayer = $game->getPlayers()->first();
         $entityManager = $this->createMock(EntityManagerInterface::class);
-        $GLMService = $this->createMock(GLMService::class);
-        $GLMService->method('getActivePlayer')->willReturn($firstPlayer);
+        $playerGLMRepository = $this->createMock(PlayerGLMRepository::class);
         $resourceGLMRepository = $this->createMock(ResourceGLMRepository::class);
         $playerTileGLMRepository = $this->createMock(PlayerTileGLMRepository::class);
         $cardGLMService = $this->createMock(CardGLMService::class);
         $playerTileResourceGLMRepository = $this->createMock(PlayerTileResourceGLMRepository::class);
-        $tileGLMService = new TileGLMService($entityManager, $GLMService, $resourceGLMRepository,
-            $playerTileResourceGLMRepository ,$playerTileGLMRepository, $cardGLMService);
+
+        $mock = $this->getMockBuilder(TileGLMService::class)
+            ->setConstructorArgs(array($entityManager, $resourceGLMRepository, $playerGLMRepository,
+                $playerTileResourceGLMRepository, $playerTileGLMRepository, $cardGLMService))
+            ->onlyMethods(['getActivePlayer'])
+            ->getMock();
+        $mock->method('getActivePlayer')->willReturn($firstPlayer);
+
         $boardTiles = $game->getMainBoard()->getBoardTiles();
         foreach ($boardTiles as $boardTile){
             if($boardTile->getPosition() == 12){
@@ -431,7 +444,7 @@ class TileGLMServiceTest extends TestCase
         }
         $expectedResult = 1;
         // WHEN
-        $result = $tileGLMService->getAmountOfTileToReplace($game->getMainBoard());
+        $result = $mock->getAmountOfTileToReplace($game->getMainBoard());
         // THEN
         $this->assertEquals($expectedResult, $result);
     }
@@ -442,14 +455,17 @@ class TileGLMServiceTest extends TestCase
         $game = $this->createGame(2);
         $firstPlayer = $game->getPlayers()->first();
         $entityManager = $this->createMock(EntityManagerInterface::class);
-        $GLMService = $this->createMock(GLMService::class);
-        $GLMService->method('getActivePlayer')->willReturn($firstPlayer);
+        $playerGLMRepository = $this->createMock(PlayerGLMRepository::class);
         $resourceGLMRepository = $this->createMock(ResourceGLMRepository::class);
         $playerTileGLMRepository = $this->createMock(PlayerTileGLMRepository::class);
         $cardGLMService = $this->createMock(CardGLMService::class);
         $playerTileResourceGLMRepository = $this->createMock(PlayerTileResourceGLMRepository::class);
-        $tileGLMService = new TileGLMService($entityManager, $GLMService, $resourceGLMRepository,
-            $playerTileResourceGLMRepository ,$playerTileGLMRepository, $cardGLMService);
+        $mock = $this->getMockBuilder(TileGLMService::class)
+            ->setConstructorArgs(array($entityManager, $resourceGLMRepository, $playerGLMRepository,
+                $playerTileResourceGLMRepository, $playerTileGLMRepository, $cardGLMService))
+            ->onlyMethods(['getActivePlayer'])
+            ->getMock();
+        $mock->method('getActivePlayer')->willReturn($firstPlayer);
         $boardTiles = $game->getMainBoard()->getBoardTiles();
         foreach ($boardTiles as $boardTile){
             if($boardTile->getPosition() == 10){
@@ -458,7 +474,7 @@ class TileGLMServiceTest extends TestCase
         }
         $expectedResult = 3;
         // WHEN
-        $result = $tileGLMService->getAmountOfTileToReplace($game->getMainBoard());
+        $result = $mock->getAmountOfTileToReplace($game->getMainBoard());
         // THEN
         $this->assertEquals($expectedResult, $result);
     }
