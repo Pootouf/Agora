@@ -19,6 +19,7 @@ use App\Entity\Game\Glenmore\TileBuyBonusGLM;
 use App\Entity\Game\Glenmore\TileGLM;
 use App\Entity\Game\Glenmore\WarehouseGLM;
 use App\Entity\Game\Glenmore\WarehouseLineGLM;
+use App\Repository\Game\Glenmore\BoardTileGLMRepository;
 use App\Repository\Game\Glenmore\CardGLMRepository;
 use App\Repository\Game\Glenmore\DrawTilesGLMRepository;
 use App\Repository\Game\Glenmore\PlayerGLMRepository;
@@ -39,6 +40,7 @@ use App\Service\Game\Glenmore\DataManagementGLMService;
 use App\Service\Game\Glenmore\GLMService;
 use App\Service\Game\Glenmore\TileGLMService;
 use App\Service\Game\Glenmore\WarehouseGLMService;
+use App\Service\Game\LogService;
 use App\Service\Game\Splendor\SPLService;
 use App\Service\Game\Splendor\TokenSPLService;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -58,9 +60,18 @@ class GLMServiceTest extends TestCase
         $drawTilesGLMRepository = $this->createMock(DrawTilesGLMRepository::class);
         $resourceGLMRepository = $this->createMock(ResourceGLMRepository::class);
         $playerGLMRepository = $this->createMock(PlayerGLMRepository::class);
+        $boardTileGLMRepository = $this->createMock(BoardTileGLMRepository::class);
+        $playerTileResourceGLMRepository = $this->createMock(PlayerTileResourceGLMRepository::class);
+        $playerTileGLMRepository = $this->createMock(PlayerTileGLMRepository::class);
+
         $cardGLMService = new CardGLMService($entityManager, $resourceGLMRepository);
-        $this->GLMService = new GLMService($entityManager, $tileGLMRepository, $drawTilesGLMRepository,
-            $resourceGLMRepository, $playerGLMRepository, $cardGLMService);
+        $tileGLMService = new TileGLMService($entityManager, $resourceGLMRepository,
+                                            $playerGLMRepository, $playerTileResourceGLMRepository,
+                                            $playerTileGLMRepository, $cardGLMService);
+        $logService = new LogService($entityManager);
+        $this->GLMService = new GLMService($entityManager, $tileGLMRepository,
+            $tileGLMService, $logService, $drawTilesGLMRepository,
+            $resourceGLMRepository, $playerGLMRepository, $boardTileGLMRepository, $cardGLMService);
     }
 
     public function testDoNotSkipPlayerTurnWhenPlayerIsStillTheLastInChain()
@@ -354,7 +365,7 @@ class GLMServiceTest extends TestCase
         //THEN
         $this->expectException(\Exception::class);
         //WHEN
-        $this->GLMService->manageEndOfRound($game, $drawLevel);
+        $this->GLMService->calculatePoints($game, $drawLevel);
     }
 
     public function testManageEndOfRoundShouldReturnExceptionBecauseTooLow() : void
@@ -365,7 +376,7 @@ class GLMServiceTest extends TestCase
         //THEN
         $this->expectException(\Exception::class);
         //WHEN
-        $this->GLMService->manageEndOfRound($game, $drawLevel);
+        $this->GLMService->calculatePoints($game, $drawLevel);
     }
 
     public function testManageEndOfRoundForLevelTwo() : void
@@ -376,7 +387,7 @@ class GLMServiceTest extends TestCase
         //THEN
         $this->expectNotToPerformAssertions();
         //WHEN
-        $this->GLMService->manageEndOfRound($game, $drawLevel);
+        $this->GLMService->calculatePoints($game, $drawLevel);
     }
 
     public function testManageEndOfRoundForLevelThree() : void
@@ -387,7 +398,7 @@ class GLMServiceTest extends TestCase
         //THEN
         $this->expectNotToPerformAssertions();
         //WHEN
-        $this->GLMService->manageEndOfRound($game, $drawLevel);
+        $this->GLMService->calculatePoints($game, $drawLevel);
     }
 
     private function createGame(int $nbOfPlayers): GameGLM

@@ -28,9 +28,10 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class TileGLMService
 {
+
     public function __construct(private readonly EntityManagerInterface $entityManager,
-                                private readonly GLMService $GLMService,
                                 private readonly ResourceGLMRepository $resourceGLMRepository,
+                                private readonly PlayerGLMRepository $playerGLMRepository,
                                 private readonly PlayerTileResourceGLMRepository $playerTileResourceGLMRepository,
                                 private readonly PlayerTileGLMRepository $playerTileGLMRepository,
                                 private readonly CardGLMService $cardGLMService){}
@@ -48,7 +49,7 @@ class TileGLMService
             return 1;
         }
         $this->removeTilesOfBrokenChain($mainBoardGLM);
-        $player = $this->GLMService->getActivePlayer($mainBoardGLM ->getGameGLM());
+        $player = $this->getActivePlayer($mainBoardGLM ->getGameGLM());
         $playerPosition = $player->getPawn()->getPosition();
         $pointerPosition = $playerPosition - 2;
         if($pointerPosition < 0){
@@ -138,7 +139,9 @@ class TileGLMService
         }
         // if there is no activable tiles even after Loch Ness
         if($activableTiles->isEmpty()) {
-            $this->GLMService->setPhase($personalBoard->getPlayerGLM(), GlenmoreParameters::$MOVEMENT_PHASE);
+            $personalBoard->getPlayerGLM()->setRoundPhase(GlenmoreParameters::$MOVEMENT_PHASE);
+            $this->entityManager->persist($personalBoard->getPlayerGLM());
+            $this->entityManager->flush();
         }
         return $activableTiles;
     }
@@ -771,7 +774,7 @@ class TileGLMService
      */
     private function isChainBroken(MainBoardGLM $mainBoardGLM): bool
     {
-        $player = $this->GLMService->getActivePlayer($mainBoardGLM->getGameGLM());
+        $player = $this->getActivePlayer($mainBoardGLM->getGameGLM());
         $playerPosition = $player->getPawn()->getPosition();
         $positionBehindPlayer = $playerPosition - 1;
         if($positionBehindPlayer == -1){
@@ -781,6 +784,17 @@ class TileGLMService
             return true;
         }
         return false;
+    }
+
+    /**
+     * getActivePlayer : return the player who needs to play
+     * @param GameGLM $gameGLM
+     * @return PlayerGLM
+     */
+    public function getActivePlayer(GameGLM $gameGLM): PlayerGLM
+    {
+        return $this->playerGLMRepository->findOneBy(["gameGLM" => $gameGLM->getId(),
+            "turnOfPlayer" => true]);
     }
 
     /**
@@ -905,7 +919,7 @@ class TileGLMService
      */
     private function removeTilesOfBrokenChain(MainBoardGLM $mainBoardGLM): void
     {
-        $player = $this->GLMService->getActivePlayer($mainBoardGLM->getGameGLM());
+        $player = $this->getActivePlayer($mainBoardGLM->getGameGLM());
         $playerPosition = $player->getPawn()->getPosition();
         $pointerPosition = $playerPosition - 1;
         if($pointerPosition == -1){
@@ -918,7 +932,7 @@ class TileGLMService
                 $pointerPosition = GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD - 1;
             }
             $this->entityManager->persist($mainBoardGLM);
-           // $this->entityManager->remove($tile);
+            $this->entityManager->remove($tile);
         }
         $this->entityManager->flush();
     }

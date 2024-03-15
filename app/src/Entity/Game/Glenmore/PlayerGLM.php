@@ -30,6 +30,9 @@ class PlayerGLM extends Player
     private Collection $playerTileResourceGLMs;
 
     #[ORM\Column]
+    private ?bool $bot = false;
+
+    #[ORM\Column]
     private ?int $roundPhase = null;
 
     #[ORM\Column]
@@ -140,6 +143,18 @@ class PlayerGLM extends Player
     public function setActivatedResourceSelection(bool $activatedResourceSelection): static
     {
         $this->activatedResourceSelection = $activatedResourceSelection;
+
+        return $this;
+    }
+
+    public function isBot(): ?bool
+    {
+        return $this->bot;
+    }
+
+    public function setBot(bool $bot): static
+    {
+        $this->bot = $bot;
 
         return $this;
     }

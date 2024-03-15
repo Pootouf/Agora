@@ -141,6 +141,13 @@ class GLMGameManagerService extends AbstractGameManagerService
             return GLMGameManagerService::$ERROR_INVALID_GAME;
         }
         foreach ($game->getPlayers() as $player) {
+            foreach ($player->getPlayerTileResourceGLMs() as $playerTileResourceGLM) {
+                $this->entityManager->remove($playerTileResourceGLM);
+            }
+            foreach ($player->getPersonalBoard()->getPlayerTiles() as $tile) {
+                $this->entityManager->remove($tile);
+            }
+            $this->entityManager->remove($player->getPersonalBoard());
             $this->entityManager->remove($player);
         }
         $this->logService->sendSystemLog($game, "game " . $game->getId() . "ended");

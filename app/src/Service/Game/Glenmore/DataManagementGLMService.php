@@ -193,11 +193,11 @@ class DataManagementGLMService
         while($x < $maxx) {
             $currentLine = new ArrayCollection();
             $y = $miny;
+            $x++;
             while($y <= $maxy) {
                 $currentLine->add(new PersonalBoardBoxGLM(null, $x, $y));
                 $y++;
             }
-            $x++;
             $result->add($currentLine);
         }
         return $result;
