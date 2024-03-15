@@ -659,6 +659,7 @@ class GLMService
         $this->entityManager->persist($dice);
         $bot->setPawn($dice);
         $bot->setPoints(0);
+        $bot->setRoundPhase(GlenmoreParameters::$STABLE_PHASE);
         $game->addPlayer($bot);
         $this->entityManager->persist($bot);
         $this->entityManager->persist($game);

@@ -1,7 +1,7 @@
 {#
 This section displays the ranking with a view of the other players' possessions
-@param :
-@return :
+@param : game
+@return : display the score of the players with an access to their personal board
 #}
 
 {# Glenmore Logo #}
@@ -32,6 +32,7 @@ This section displays the ranking with a view of the other players' possessions
             <div class="w-full h-[12%] landscape:h-1/5
                             pt-2 landscape:pt-1
                             flex justify-around justify-between">
+                {% if not p.isBot %}
                 {# Button to see other player's personal board #}
                 <button {{ stimulus_action('glenmore', 'displayPlayerBoard', 'click',
                             {url:path('app_game_glenmore_display_player_personal_board',
@@ -43,6 +44,9 @@ This section displays the ranking with a view of the other players' possessions
                              src="{{ asset("resourcesGames/utils/arrow_up.svg") }}"
                          alt="arrow">
                 </button>
+                {% else %}
+                    <span class="h-5 -ml3"></span>
+                {% endif %}
                 {# Display the player's username with a specific color if the background is dark or light #}
                 <p class="landscape:ml-3 landscape:text-sm landscape:lg:text-lg
                         {% if colorPawn == 'white' or colorPawn == 'yellow' %}text-black{% else %}

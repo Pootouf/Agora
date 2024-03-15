@@ -41,11 +41,9 @@ class GlenmoreController extends AbstractController
                                 private TileGLMService $tileGLMService,
                                 private CardGLMService $cardGLMService,
                                 private LogService $logService,
-                                private BoardTileGLMRepository $boardTileGLMRepository,
                                 private ResourceGLMRepository $resourceGLMRepository,
                                 private PublishService $publishService,
                                 private WarehouseGLMService $warehouseGLMService,
-                                private LoggerInterface $logger,
                                 private EntityManagerInterface $entityManager,
                                 )
     {}
