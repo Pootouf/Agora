@@ -847,9 +847,9 @@ class TileGLMService
     {
        $pawns = new ArrayCollection();
        foreach ($mainBoard->getPawns() as $pawn) {
-           if ($pawn->getPlayerGLM() !== $playerGLM) {
+           //if ($pawn->getPlayerGLM() !== $playerGLM) {
                $pawns->add($pawn);
-           }
+           //}
        }
         foreach ($pawns as $pawn) {
             if ($pawn->getPosition() == $position)

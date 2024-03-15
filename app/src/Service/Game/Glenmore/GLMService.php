@@ -28,6 +28,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
+use Psr\Log\LoggerInterface;
 
 class GLMService
 {
@@ -39,7 +40,8 @@ class GLMService
         private readonly ResourceGLMRepository $resourceGLMRepository,
         private readonly PlayerGLMRepository $playerGLMRepository,
         private readonly BoardTileGLMRepository $boardTileGLMRepository,
-        private readonly CardGLMService $cardGLMService)
+        private readonly CardGLMService $cardGLMService,
+        )
     {}
 
 
@@ -227,6 +229,9 @@ class GLMService
         } else {
             // TODO RETURN CODE TO PUBLISH
         }
+        if ($newPlayer->isBot()) {
+            $this->manageEndOfRound($gameGLM);
+        }
     }
 
 
@@ -399,7 +404,7 @@ class GLMService
             $position++;
         }
         if ($game->getPlayers()->count() < GlenmoreParameters::$MINIMUM_NUMBER_PLAYER_FOR_NO_BOT) {
-            $this->initializeBot($game, $position);
+            $this->initializeBot($game, $position, $startVillages, $villager);
             $position++;
         }
         while ($position < GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD - 1) {
@@ -642,7 +647,7 @@ class GLMService
      * @param int $position
      * @return void
      */
-    private function initializeBot(GameGLM $game, int $position) : void
+    private function initializeBot(GameGLM $game, int $position, array &$startVillages, ResourceGLM $villager) : void
     {
         $bot = new PlayerGLM(GlenmoreParameters::$BOT_NAME, $game);
         $bot->setBot(true);
@@ -656,11 +661,15 @@ class GLMService
         $dice->setDice(true);
         $dice->setPosition($position);
         $dice->setMainBoardGLM($game->getMainBoard());
+        $dice->setPlayerGLM($bot);
         $this->entityManager->persist($dice);
         $bot->setPawn($dice);
         $bot->setPoints(0);
         $bot->setRoundPhase(GlenmoreParameters::$STABLE_PHASE);
         $game->addPlayer($bot);
+        $game->getMainBoard()->addPawn($dice);
+        $this->initializePlayerBoard($bot, $startVillages, $villager);
+        $this->entityManager->persist($game->getMainBoard());
         $this->entityManager->persist($bot);
         $this->entityManager->persist($game);
     }
@@ -822,12 +831,19 @@ class GLMService
 
         $position = $bot->getPawn()->getPosition();
         $bot->getPawn()->setPosition($bot->getPawn()->getPosition() + $finalValue);
+        if ($bot->getPawn()->getPosition() >= GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD) {
+            $bot->getPawn()->setPosition(0);
+        }
+
         $pawns = $bot->getGameGLM()->getMainBoard()->getPawns();
         while ($pawns->filter(function (PawnGLM $pawn) use ($bot) {
             return $pawn->getId() != $bot->getPawn()->getId()
                 && $pawn->getPosition() == $bot->getPawn()->getPosition();
         })->count() > 0) {
             $bot->getPawn()->setPosition($bot->getPawn()->getPosition() + 1);
+            if ($bot->getPawn()->getPosition() >= GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD) {
+                $bot->getPawn()->setPosition(0);
+            }
         }
         $bot->getGameGLM()->getMainBoard()->setLastPosition($position);
         $tile = $this->boardTileGLMRepository->findOneBy([
@@ -838,6 +854,6 @@ class GLMService
         $this->entityManager->persist($bot->getPawn());
         $this->entityManager->persist($bot->getGameGLM()->getMainBoard());
         $this->entityManager->flush();
-        $this->manageEndOfRound($bot->getGameGLM());
+
     }
 }
