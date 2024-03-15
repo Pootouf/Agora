@@ -450,17 +450,12 @@ class GlenmoreController extends AbstractController
         #[MapEntity(id: 'idGame')] GameGLM $gameGLM,
         #[MapEntity(id: 'idPlayer')] PlayerGLM $playerGLM): Response
     {
-        return $this->render('Game/Glenmore/PersonalBoard/personalBoard.html.twig', [
+        return $this->render('Game/Glenmore/MainBoard/playerPersonalBoard.html.twig', [
             'isSpectator' => true,
             'game' => $gameGLM,
             'player' => $playerGLM,
             'personalBoardTiles' => $this->dataManagementGLMService->organizePersonalBoardRows($playerGLM),
             'whiskyCount' => $this->dataManagementGLMService->getWhiskyCount($playerGLM),
-            'activatedResourceSelection' => false, //TODO : depends of the tile,
-            'selectedResources' => null,
-            'activatedNewResourceAcquisition' => false,
-            'chosenNewResources' => null,
-            'activatedMovementPhase' => false
         ]);
     }
 
