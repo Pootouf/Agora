@@ -39,8 +39,7 @@ class TileGLMService
                                 private readonly PlayerTileResourceGLMRepository $playerTileResourceGLMRepository,
                                 private readonly PlayerTileGLMRepository $playerTileGLMRepository,
                                 private readonly CardGLMService $cardGLMService,
-                                private readonly SelectedResourceGLMRepository $selectedResourceGLMRepository,
-                                private readonly LoggerInterface $logger){}
+                                private readonly SelectedResourceGLMRepository $selectedResourceGLMRepository){}
 
 
 
@@ -669,7 +668,6 @@ class TileGLMService
         $tileGLM = $playerTileGLM->getTile();
         $activationPrices = $tileGLM->getActivationPrice();
         $selectedResources = $playerGLM->getPersonalBoard()->getSelectedResources();
-        $this->logger->critical($selectedResources->count());
         foreach ($activationPrices as $activationPrice){
             $resourceType = $activationPrice->getResource();
             $resourceAmount = $activationPrice->getPrice();
@@ -910,7 +908,6 @@ class TileGLMService
             $numberOfSelectedResources += $selectedResourceLikeResource->getQuantity();
         }
         $player = $personalBoard->getPlayerGLM();
-        $this->logger->critical("c");
 
         if ($player->getRoundPhase() == GlenmoreParameters::$BUYING_PHASE) {
             $priceCost = $cost->filter(
@@ -941,7 +938,6 @@ class TileGLMService
         $selectedResourceWithSamePlayerTile = $this->selectedResourceGLMRepository
             ->findOneBy(["playerTile" => $playerTileGLM->getId(), "resource" => $resource->getId()]);
         if ($selectedResourceWithSamePlayerTile == null) {
-            $this->logger->critical("a");
             $selectedResource = new SelectedResourceGLM();
             $selectedResource->setPlayerTile($playerTileGLM);
             $selectedResource->setResource($resource);
@@ -949,7 +945,6 @@ class TileGLMService
             $selectedResource->setPersonalBoardGLM($playerTileGLM->getPersonalBoard());
            $this->entityManager->persist($selectedResource);
         } else {
-            $this->logger->critical("b");
             $selectedResourceWithSamePlayerTile
                 ->setQuantity($selectedResourceWithSamePlayerTile->getQuantity() + 1);
             $this->entityManager->persist($selectedResourceWithSamePlayerTile);
