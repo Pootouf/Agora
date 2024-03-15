@@ -39,8 +39,7 @@ class TileGLMService
                                 private readonly PlayerTileResourceGLMRepository $playerTileResourceGLMRepository,
                                 private readonly PlayerTileGLMRepository $playerTileGLMRepository,
                                 private readonly CardGLMService $cardGLMService,
-                                private readonly SelectedResourceGLMRepository $selectedResourceGLMRepository,
-                                private readonly LoggerInterface $logger){}
+                                private readonly SelectedResourceGLMRepository $selectedResourceGLMRepository){}
 
 
 
@@ -455,7 +454,6 @@ class TileGLMService
                 // }
             }
             $resourcesTypesCount = $resourcesTypes->count();
-            $this->logger->critical($resourcesTypesCount);
             $activationCostsLevels = $tileGLM->getTile()->getActivationPrice()->count();
             $selectedLevel = min($resourcesTypesCount, $activationCostsLevels);
             $activationBonus = $tileGLM->getTile()->getActivationBonus()->get($selectedLevel - 1);
