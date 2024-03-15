@@ -427,6 +427,9 @@ class GLMService
         $players = $gameGLM->getPlayers();
         $result = array();
         foreach ($players as $player) {
+            if ($player->isBot()) {
+                continue;
+            }
             $personalBoard = $player->getPersonalBoard();
             $playerTiles = $personalBoard->getPlayerTiles();
             $playerResource = 0;
@@ -479,6 +482,9 @@ class GLMService
         $players = $gameGLM->getPlayers();
         $result = array();
         foreach ($players as $player) {
+            if ($player->isBot()) {
+                continue;
+            }
             $personalBoard = $player->getPersonalBoard();
             $leaderCount = $personalBoard->getLeaderCount();
             $playerResource = $this->cardGLMService->applyCastleOfMey($personalBoard, $leaderCount);
@@ -509,6 +515,9 @@ class GLMService
         $players = $gameGLM->getPlayers();
         $result = array();
         foreach ($players as $player) {
+            if ($player->isBot()) {
+                continue;
+            }
             $personalBoard = $player->getPersonalBoard();
             $playerResource = $personalBoard->getPlayerCardGLM()->count();
             $result[] = array($player, $playerResource);
@@ -530,6 +539,9 @@ class GLMService
         $players = $gameGLM->getPlayers();
         $result = array();
         foreach ($players as $player) {
+            if ($player->isBot()) {
+                continue;
+            }
             $personalBoard = $player->getPersonalBoard();
             $playerResource = $personalBoard->getPlayerTiles()->count();
             $result[] = array($player, $playerResource);
@@ -569,6 +581,9 @@ class GLMService
     {
         $players = $gameGLM->getPlayers();
         foreach ($players as $player) {
+            if ($player->isBot()) {
+                continue;
+            }
             $resourceAmount = $player->getPersonalBoard()->getMoney();
             $player->setPoints($player->getPoints() + $resourceAmount);
             $this->entityManager->persist($player);
