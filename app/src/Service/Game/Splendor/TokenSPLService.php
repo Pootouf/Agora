@@ -103,7 +103,8 @@ class TokenSPLService
      */
     public function takeToken(PlayerSPL $playerSPL, TokenSPL $tokenSPL): void
     {
-        if ($playerSPL->getPersonalBoard()->getTokens()->count() >= 10) {
+        if ($playerSPL->getPersonalBoard()->getTokens()->count()
+            + $playerSPL->getPersonalBoard()->getSelectedTokens()->count() >= 10) {
             throw new Exception("Can't pick up more tokens");
         }
         $tokensPickable = $this->canChooseTwoTokens($playerSPL, $tokenSPL);
