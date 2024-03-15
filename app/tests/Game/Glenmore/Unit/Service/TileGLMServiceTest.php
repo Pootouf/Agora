@@ -3,6 +3,7 @@
 namespace App\Tests\Game\Glenmore\Unit\Service;
 
 use App\Entity\Game\Glenmore\BoardTileGLM;
+use App\Entity\Game\Glenmore\BuyingTileGLM;
 use App\Entity\Game\Glenmore\CardGLM;
 use App\Entity\Game\Glenmore\DrawTilesGLM;
 use App\Entity\Game\Glenmore\GameGLM;
@@ -35,7 +36,7 @@ use App\Service\Game\Glenmore\GLMService;
 use App\Service\Game\Glenmore\TileGLMService;
 use App\Service\Game\LogService;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\DBAL\Exception;
+use Exception;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 
@@ -228,11 +229,13 @@ class TileGLMServiceTest extends TestCase
         $firstPlayer = $game->getPlayers()->first();
         $secondPlayer = $game->getPlayers()->get(2);
         $boardTile = $mainBoard->getBoardTiles()->last();
+        $buyingTile = new BuyingTileGLM();
+        $buyingTile->setBoardTile($boardTile);
         $firstPlayerTile = new PlayerTileGLM();
         $firstPlayerTile->setTile($boardTile->getTile());
         $mainBoard->removeBoardTile($boardTile);
 
-        $firstPlayer->getPersonalBoard()->setBuyingTile($boardTile);
+        $firstPlayer->getPersonalBoard()->setBuyingTile($buyingTile);
         $firstPlayer->getPersonalBoard()->addPlayerTile($firstPlayerTile);
         $lastPosition = $mainBoard->getLastPosition();
         $lastPosition -= 1;
@@ -260,14 +263,13 @@ class TileGLMServiceTest extends TestCase
         $player = $game->getPlayers()->first();
         $personalBoard = $player->getPersonalBoard();
         $boardTile = $mainBoard->getBoardTiles()->last();
-
         // WHEN
 
         $this->tileGLMService->assignTileToPlayer($boardTile, $player);
 
         // THEN
 
-        $this->assertSame($boardTile, $personalBoard->getBuyingTile());
+        $this->assertSame($boardTile, $personalBoard->getBuyingTile()->getBoardTile());
         $this->assertContains($boardTile, $mainBoard->getBoardTiles());
     }
 
@@ -385,7 +387,9 @@ class TileGLMServiceTest extends TestCase
         $mainBoard = $game->getMainBoard();
 
         $tileSelected = $mainBoard->getBoardTiles()->first();
-        $personalBoard->setBuyingTile($tileSelected);
+        $buyingTile = new BuyingTileGLM();
+        $buyingTile->setBoardTile($tileSelected);
+        $personalBoard->setBuyingTile($buyingTile);
         $lastPosition = $player->getPawn()->getPosition();
         $playerTileAlreadyInPersonalBoard = $personalBoard->getPlayerTiles()->first();
         $x = $playerTileAlreadyInPersonalBoard->getCoordX();
