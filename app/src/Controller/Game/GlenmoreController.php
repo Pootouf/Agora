@@ -252,7 +252,7 @@ class GlenmoreController extends AbstractController
             $this->tileGLMService->setPlaceTileAlreadySelected($player, $coordX, $coordY);
         } catch (Exception $e) {
             //$this->logService->sendPlayerLog($game, $player, $message);
-            return new Response("can't place this tile", Response::HTTP_FORBIDDEN);
+            return new Response("can't place this tile" . $e, Response::HTTP_FORBIDDEN);
         }
         $this->service->setPhase($player, GlenmoreParameters::$ACTIVATION_PHASE);
         $player->setActivatedResourceSelection(false);
@@ -499,6 +499,16 @@ class GlenmoreController extends AbstractController
         if ($player == null) {
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
         }
+        $playerPhase = $player->getRoundPhase();
+        if ($playerPhase == GlenmoreParameters::$BUYING_PHASE) {
+            try {
+                $this->tileGLMService->setPlaceTileAlreadySelected($player,
+                    $player->getPersonalBoard()->getBuyingTile()->getCoordX(),
+                    $player->getPersonalBoard()->getBuyingTile()->getCoordY());
+            } catch (\Doctrine\DBAL\Exception $e) {
+                return new Response('player has not selected needed resources', Response::HTTP_FORBIDDEN);
+            }
+        }
         return new Response('player selected resources', Response::HTTP_OK);
     }
 
@@ -512,6 +522,7 @@ class GlenmoreController extends AbstractController
         if ($player == null) {
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
         }
+        $this->tileGLMService->clearResourceSelection($player);
         return new Response('player cancel his selection', Response::HTTP_OK);
     }
 

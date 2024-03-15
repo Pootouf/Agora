@@ -34,10 +34,10 @@ class PersonalBoardGLM extends Component
     private Collection $createdResources;
 
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
-    private ?BoardTileGLM $buyingTile = null;
-
-    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
     private ?PlayerTileGLM $activatedTile = null;
+
+    #[ORM\OneToOne(inversedBy: 'personalBoardGLM', cascade: ['persist', 'remove'])]
+    private ?BuyingTileGLM $buyingTile = null;
 
     public function __construct()
     {
@@ -208,18 +208,6 @@ class PersonalBoardGLM extends Component
         return $this;
     }
 
-    public function getBuyingTile(): ?BoardTileGLM
-    {
-        return $this->buyingTile;
-    }
-
-    public function setBuyingTile(?BoardTileGLM $buyingTile): static
-    {
-        $this->buyingTile = $buyingTile;
-
-        return $this;
-    }
-
     public function getActivatedTile(): ?PlayerTileGLM
     {
         return $this->activatedTile;
@@ -228,6 +216,18 @@ class PersonalBoardGLM extends Component
     public function setActivatedTile(?PlayerTileGLM $activatedTile): static
     {
         $this->activatedTile = $activatedTile;
+
+        return $this;
+    }
+
+    public function getBuyingTile(): ?BuyingTileGLM
+    {
+        return $this->buyingTile;
+    }
+
+    public function setBuyingTile(?BuyingTileGLM $buyingTile): static
+    {
+        $this->buyingTile = $buyingTile;
 
         return $this;
     }

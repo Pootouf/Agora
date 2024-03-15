@@ -3,6 +3,7 @@
 namespace App\Service\Game\Glenmore;
 
 use App\Entity\Game\Glenmore\BoardTileGLM;
+use App\Entity\Game\Glenmore\BuyingTileGLM;
 use App\Entity\Game\Glenmore\DrawTilesGLM;
 use App\Entity\Game\Glenmore\GameGLM;
 use App\Entity\Game\Glenmore\GlenmoreParameters;
@@ -292,7 +293,8 @@ class TileGLMService
     {
         $personalBoard = $playerTileGLM->getPersonalBoard();
         $selectedTile = $personalBoard->getBuyingTile();
-        $this->addSelectedResourcesFromTileWithCost($playerTileGLM, $resource, $selectedTile->getTile()->getBuyPrice());
+        $this->addSelectedResourcesFromTileWithCost($playerTileGLM, $resource,
+            $selectedTile->getBoardTile()->getTile()->getBuyPrice());
     }
 
 
@@ -549,8 +551,13 @@ class TileGLMService
         $personalBoard = $player->getPersonalBoard();
 
         // Manage personal board and update
-        $personalBoard->setBuyingTile($boardTile);
+        $buyingTile = new BuyingTileGLM();
+        $buyingTile->setBoardTile($boardTile);
+        $personalBoard->setBuyingTile($buyingTile);
+        $buyingTile->setPersonalBoardGLM($personalBoard);
         $this->entityManager->persist($personalBoard);
+        $this->entityManager->persist($boardTile);
+        $this->entityManager->persist($buyingTile);
         $this->entityManager->flush();
     }
 
@@ -574,18 +581,29 @@ class TileGLMService
         // Initialization
         $personalBoard = $player->getPersonalBoard();
         $mainBoard = $player->getGameGLM()->getMainBoard();
-        $tileSelected = $personalBoard->getBuyingTile();
+        $tileSelected = $personalBoard->getBuyingTile()->getBoardTile();
         $lastPosition = $player->getPawn()->getPosition();
         $newPosition = $tileSelected->getPosition();
 
         // Check if condition for assign tile
         if (!$this->canPlaceTile($abscissa, $ordinate, $tileSelected->getTile(), $player))
         {
+            $buyingTile = $personalBoard->getBuyingTile();
+            $this->entityManager->persist($personalBoard);
             $personalBoard->setBuyingTile(null);
+            $this->entityManager->remove($buyingTile);
+            $this->entityManager->flush();
             throw new Exception("Unable to place tile");
         }
-
-        $this->buyTile($tileSelected->getTile(), $player);
+        try {
+            $this->buyTile($tileSelected->getTile(), $player);
+        } catch(Exception $e) {
+            $personalBoard->getBuyingTile()->setCoordX($abscissa);
+            $personalBoard->getBuyingTile()->setCoordX($ordinate);
+            $this->entityManager->persist($personalBoard->getBuyingTile());
+            $this->entityManager->flush();
+            throw new \Exception('Invalid amount of selected resources');
+        }
 
         // Here assign tile --> Creation of player tile and manage personal board
         $playerTile = new PlayerTileGLM();
@@ -596,14 +614,17 @@ class TileGLMService
         $this->entityManager->persist($playerTile);
         $this->manageAdjacentTiles($abscissa, $ordinate, $player, $playerTile);
         $personalBoard->addPlayerTile($playerTile);
-        $personalBoard->setBuyingTile(null);
         // Manage main board
         $mainBoard->removeBoardTile($tileSelected);
         $mainBoard->setLastPosition($lastPosition);
         // Set new position of pawn's player
         $player->getPawn()->setPosition($newPosition);
         // Update
+        $this->entityManager->remove($tileSelected);
+        $buyingTile = $personalBoard->getBuyingTile();
         $this->entityManager->persist($personalBoard);
+        $personalBoard->setBuyingTile(null);
+        $this->entityManager->remove($buyingTile);
         $this->entityManager->persist($mainBoard);
         $this->entityManager->persist($player->getPawn());
         $this->entityManager->persist($player);
@@ -908,6 +929,18 @@ class TileGLMService
             $this->entityManager->persist($selectedResourceWithSamePlayerTile);
         }
 
+        $this->entityManager->flush();
+    }
+
+    /**
+     * clearResourceSelection : clear the collection of selected resources of the player
+     * @param PlayerGLM $playerGLM
+     * @return void
+     */
+    public function clearResourceSelection(PlayerGLM $playerGLM) : void
+    {
+        $playerGLM->getPersonalBoard()->getSelectedResources()->clear();
+        $this->entityManager->persist($playerGLM->getPersonalBoard());
         $this->entityManager->flush();
     }
 
