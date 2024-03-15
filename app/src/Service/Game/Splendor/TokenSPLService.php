@@ -93,7 +93,6 @@ class TokenSPLService
         });
     }
 
-
     /**
      * takeToken : player takes a token from the mainBoard
      *
@@ -140,7 +139,8 @@ class TokenSPLService
         $selectedTokensNb = $selectedTokens->count();
         $firstToken = $selectedTokens->first()->getToken();
         $lastToken = $selectedTokens->last()->getToken();
-        if ($tokensNb + $selectedTokensNb == 10
+        if ($tokensNb + $selectedTokensNb == SplendorParameters::$PLAYER_MAX_TOKEN
+                || !$this->canSelectTokenOfOtherColors($playerSPL->getGameSPL(), $selectedTokens)
             || $selectedTokensNb == 3
             || $selectedTokensNb == 2 && $firstToken->getColor() == $lastToken->getColor()
         ) {
@@ -279,6 +279,28 @@ class TokenSPLService
         }
 
 
+    }
+
+    /**
+     * canSelectTokenOfOtherColors: return true if there is at least one color of token
+     *              available except the selected tokens
+     * @param GameSPL $game
+     * @param Collection $tokens
+     * @return bool
+     */
+    private function canSelectTokenOfOtherColors(GameSPL $game, Collection $tokens)
+    {
+        $selectedColors = $tokens->map(function (TokenSPL $token) {
+            return $token->getColor();
+        });
+        $colors = $game->getMainBoard()->getTokens()->map(
+            function (TokenSPL $tokenSPL) {
+                return $tokenSPL->getColor();
+            }
+            )->filter(function (String $color) use ($selectedColors) {
+                return !$selectedColors->contains($color);
+        });
+        return $colors->count() > 0;
     }
 
     /**
