@@ -53,7 +53,7 @@ class GameController extends AbstractController
             throw $this->createNotFoundException('Le jeu n\'existe pas');
         }
 
-        return $this->render('platform/game/description.html.twig', [
+        return $this->render('platform/dashboard/games/description.html.twig', [
             'game' => $game,
         ]);
     }
