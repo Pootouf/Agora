@@ -272,7 +272,7 @@ class GLMService
             $this->entityManager->persist($player->getPersonalBoard());
         }
         $nextPlayer = null;
-        $pointerPosition = $startPosition + 1;
+        $pointerPosition = ($startPosition + 1) % GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD;
         $found = false;
         while ($nextPlayer == null && $startPosition != $pointerPosition) {
             foreach ($players as $player) {

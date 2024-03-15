@@ -16,16 +16,19 @@ use App\Entity\Game\Glenmore\PlayerTileGLM;
 use App\Entity\Game\Glenmore\PlayerTileResourceGLM;
 use App\Entity\Game\Glenmore\ResourceGLM;
 use App\Entity\Game\Glenmore\SelectedResourceGLM;
+use App\Entity\Game\Glenmore\TileActivationCostGLM;
 use App\Entity\Game\Glenmore\TileBuyCostGLM;
 use App\Entity\Game\Glenmore\TileGLM;
 use App\Repository\Game\Glenmore\PlayerGLMRepository;
 use App\Repository\Game\Glenmore\PlayerTileGLMRepository;
 use App\Repository\Game\Glenmore\PlayerTileResourceGLMRepository;
 use App\Repository\Game\Glenmore\ResourceGLMRepository;
+use App\Repository\Game\Glenmore\SelectedResourceGLMRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Exception;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 
 class TileGLMService
 {
@@ -35,7 +38,9 @@ class TileGLMService
                                 private readonly PlayerGLMRepository $playerGLMRepository,
                                 private readonly PlayerTileResourceGLMRepository $playerTileResourceGLMRepository,
                                 private readonly PlayerTileGLMRepository $playerTileGLMRepository,
-                                private readonly CardGLMService $cardGLMService){}
+                                private readonly CardGLMService $cardGLMService,
+                                private readonly SelectedResourceGLMRepository $selectedResourceGLMRepository,
+                                private readonly LoggerInterface $logger){}
 
 
 
@@ -664,6 +669,7 @@ class TileGLMService
         $tileGLM = $playerTileGLM->getTile();
         $activationPrices = $tileGLM->getActivationPrice();
         $selectedResources = $playerGLM->getPersonalBoard()->getSelectedResources();
+        $this->logger->critical($selectedResources->count());
         foreach ($activationPrices as $activationPrice){
             $resourceType = $activationPrice->getResource();
             $resourceAmount = $activationPrice->getPrice();
@@ -681,11 +687,12 @@ class TileGLMService
                     }
                 }
             }
-            if($playerResourceCount < $resourceAmount){
-                return false;
+
+            if($playerResourceCount >= $resourceAmount){
+                return true;
             }
         }
-        return true;
+        return false;
     }
 
     /**
@@ -890,6 +897,7 @@ class TileGLMService
      */
     public function addSelectedResourcesFromTileWithCost(PlayerTileGLM $playerTileGLM, ResourceGLM $resource, Collection $cost) : void
     {
+
         $personalBoard = $playerTileGLM->getPersonalBoard();
         $selectedResources = $personalBoard->getSelectedResources();
         $selectedResourcesLikeResource = $selectedResources->filter(
@@ -901,29 +909,47 @@ class TileGLMService
         foreach ($selectedResourcesLikeResource as $selectedResourceLikeResource) {
             $numberOfSelectedResources += $selectedResourceLikeResource->getQuantity();
         }
+        $player = $personalBoard->getPlayerGLM();
+        $this->logger->critical("c");
 
-        $priceCost = $cost->filter(
-            function (TileBuyCostGLM $buyCost) use ($resource) {
-                return $buyCost->getResource()->getId() == $resource->getId();
-            })->first();
-        $priceCost = !$priceCost ? 0 : $priceCost->getPrice();
-        if ($numberOfSelectedResources >= $priceCost) {
-            throw new \Exception('Impossible to choose this resource');
+        if ($player->getRoundPhase() == GlenmoreParameters::$BUYING_PHASE) {
+            $priceCost = $cost->filter(
+                function(TileBuyCostGLM $buyCost) use ($resource) {
+                    return $buyCost->getResource()->getId() == $resource->getId();
+                })->first();
+            $priceCost = !$priceCost ? 0 : $priceCost->getPrice();
+            if ($numberOfSelectedResources >= $priceCost) {
+                throw new \Exception('Impossible to choose this resource');
+            }
+        } else if ($player->getRoundPhase() == GlenmoreParameters::$ACTIVATION_PHASE) {
+            $activationCost = $cost->filter(
+                function(TileActivationCostGLM $activationCost) use ($resource) {
+                    return $activationCost->getResource()->getId() == $resource->getId();
+                })->first();
+            $activationCost = !$activationCost ? 0 : $activationCost->getPrice();
+            if ($numberOfSelectedResources >= $activationCost) {
+                throw new \Exception('Impossible to choose this resource');
+            }
         }
 
-        $selectedResourceWithSamePlayerTile = $selectedResourcesLikeResource->filter(
+        /*$selectedResourceWithSamePlayerTile = $selectedResourcesLikeResource->filter(
             function (SelectedResourceGLM $selectedResourceGLM) use ($playerTileGLM) {
                 return $selectedResourceGLM->getPlayerTile()->getId() == $playerTileGLM->getId();
             }
-        )->first();
-        if (!$selectedResourceWithSamePlayerTile) {
+        )->first();*/
+
+        $selectedResourceWithSamePlayerTile = $this->selectedResourceGLMRepository
+            ->findOneBy(["playerTile" => $playerTileGLM->getId(), "resource" => $resource->getId()]);
+        if ($selectedResourceWithSamePlayerTile == null) {
+            $this->logger->critical("a");
             $selectedResource = new SelectedResourceGLM();
             $selectedResource->setPlayerTile($playerTileGLM);
             $selectedResource->setResource($resource);
             $selectedResource->setQuantity(1);
             $selectedResource->setPersonalBoardGLM($playerTileGLM->getPersonalBoard());
-            $this->entityManager->persist($selectedResource);
+           $this->entityManager->persist($selectedResource);
         } else {
+            $this->logger->critical("b");
             $selectedResourceWithSamePlayerTile
                 ->setQuantity($selectedResourceWithSamePlayerTile->getQuantity() + 1);
             $this->entityManager->persist($selectedResourceWithSamePlayerTile);
