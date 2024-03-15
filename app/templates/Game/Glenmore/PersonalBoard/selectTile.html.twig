@@ -196,7 +196,8 @@ This section displays the player tile resources and possible actions
                                     })
                                 }}
                                 class="{% for selectedResource in selectedResources %}
-                                            {% if playerResource == selectedResource %}
+                                            {% if playerResource.resource == selectedResource.resource and
+                                                    playerResource.quantity == selectedResource.quantity %}
                                                 opacity-25
                                             {% endif %}
                                         {% endfor %}

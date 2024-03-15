@@ -15,7 +15,11 @@ This section displays the tiles for the main board with players' pawns on it
                 <span class="w-full h-full bg-gray-500"></span>
             {% endif %}
             {% if box.hasTile %}
-                <button type="button" class="flex justify-center items-center h-full w-full"
+                <button type="button"
+                        {% if not needToPlay %}
+                            disabled
+                        {% endif %}
+                        class="flex justify-center items-center h-full w-full"
                 {{ stimulus_action('glenmore','buyTile','click',
                     {url: path('app_game_glenmore_select_tile_on_mainboard', {idGame: game.id, idTile: box.tile.id})}) }}
                 >
