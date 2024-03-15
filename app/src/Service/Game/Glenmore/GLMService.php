@@ -41,7 +41,7 @@ class GLMService
         private readonly PlayerGLMRepository $playerGLMRepository,
         private readonly BoardTileGLMRepository $boardTileGLMRepository,
         private readonly CardGLMService $cardGLMService,
-        private readonly LoggerInterface $logger)
+        )
     {}
 
 
