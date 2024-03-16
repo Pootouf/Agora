@@ -3,64 +3,69 @@
 {% block title %}Agora - Glenmore{% endblock %}
 
 {% block body %}
-    <div class="h-screen w-screen overflow-hidden absolute" {{ stimulus_controller('glenmore') }}>
-        <div id="index_glenmore" class="h-full w-full static overflow-hidden">
-            {% block nav %}
-                {{ include('/Game/Utils/navigation.html.twig') }}
-            {% endblock %}
-            {% block endGame %}
-                    {{ include('/Game/Glenmore/endGameScreenResult.html.twig') }}
-            {% endblock %}
-            {% block ranking %}
-            <div id="ranking" class="absolute bg-gradient-to-b from-[#4C6E9Bff] to-[#20222Dff] w-[25%] h-3/5 right-0">
-                {{  include('/Game/Glenmore/Ranking/ranking.html.twig') }}
-            </div>
-            {% endblock %}
-            {% block drawTileIndicator %}
-                <div id="drawTileIndicator"
-                     class="absolute bottom-[20%] flex justify-center items-center
+	<div class="h-screen w-screen overflow-hidden absolute" {{ stimulus_controller('glenmore') }}>
+		<div id="index_glenmore" class="h-full w-full static overflow-hidden">
+			{% block nav %}
+				{{ include('/Game/Utils/navigation.html.twig') }}
+			{% endblock %}
+			{% block endGame %}
+				{{ include('/Game/Glenmore/endGameScreenResult.html.twig') }}
+			{% endblock %}
+			{% block ranking %}
+				<div id="ranking"
+				     class="absolute bg-gradient-to-b from-[#4C6E9Bff] to-[#20222Dff] w-[25%] h-3/5 right-0">
+					{{ include('/Game/Glenmore/Ranking/ranking.html.twig') }}
+				</div>
+			{% endblock %}
+			{% block drawTileIndicator %}
+				<div id="drawTileIndicator"
+				     class="absolute bottom-[20%] flex justify-center items-center
                      bg-gradient-to-b from-[#4C6E9Bff] to-[#20222Dff] w-[25%] h-1/5 right-0">
-                    {{  include('/Game/Glenmore/MainBoard/drawTileIndicator.html.twig') }}
-                </div>
-            {% endblock %}
-            {% block playerRound %}
-                {{ include('Game/Glenmore/MainBoard/playerRoundManagement.html.twig') }}
-            {% endblock %}
-            {% block mainBoard %}
-                <div id="mainBoard" class="flow float-start w-[75%]
+					{{ include('/Game/Glenmore/MainBoard/drawTileIndicator.html.twig') }}
+				</div>
+			{% endblock %}
+			{% block playerRound %}
+				{{ include('Game/Glenmore/MainBoard/playerRoundManagement.html.twig') }}
+			{% endblock %}
+			{% block mainBoard %}
+				<div id="mainBoard" class="flow float-start w-[75%]
                         h-full">
-                    {{ include('/Game/Glenmore/MainBoard/mainBoard.html.twig') }}
-                </div>
-            {% endblock %}
-            {% block personalBoard %}
-                {% if not isSpectator %}
-                <div id="personalBoard" class="flow float-start w-[75%] h-full">
-                    {{ include('/Game/Glenmore/PersonalBoard/personalBoard.html.twig') }}
-                </div>
-                {% endif %}
-            {% endblock %}
-            {% block chat %}
-                {{ include('/Game/Utils/chat.html.twig') }}
-            {% endblock %}
-        </div>
-    </div>
-    <script>
-        {% if needToPlay %}
-        alert("A toi de jouer ! ");
-        {% endif %}
-    </script>
-    <script>
-        function closePropertyCardsDisplayWindow() {
-            let window = document.getElementById('propertyCardsDisplay');
-            window.remove();
-        }
-        function closeSelectedTileWindow() {
-            let window = document.getElementById('selectedTileActions');
-            window.remove();
-        }
+					{{ include('/Game/Glenmore/MainBoard/mainBoard.html.twig') }}
+				</div>
+			{% endblock %}
+			{% block personalBoard %}
+				{% if not isSpectator %}
+					<div id="personalBoard" class="flow float-start w-[75%] h-full">
+						{{ include('/Game/Glenmore/PersonalBoard/personalBoard.html.twig') }}
+					</div>
+					<div id="playerPersonalBoard" class="flow float-start w-[75%] h-full">
+						{{ include('Game/Glenmore/MainBoard/playerPersonalBoard.html.twig') }}
+					</div>
+				{% endif %}
+			{% endblock %}
+			{% block chat %}
+				{{ include('/Game/Utils/chat.html.twig') }}
+			{% endblock %}
+		</div>
+	</div>
+	<script>
+		{% if needToPlay %}
+		alert("A toi de jouer ! ");
+		{% endif %}
+	</script>
+	<script>
+		function closePropertyCardsDisplayWindow() {
+			let window = document.getElementById('propertyCardsDisplay');
+			window.remove();
+		}
+
+		function closeSelectedTileWindow() {
+			let window = document.getElementById('selectedTileActions');
+			window.remove();
+		}
         function closeSelectedWarehouseResource() {
             let window = document.getElementById('selectedWarehouseResource');
             window.remove();
         }
-    </script>
+	</script>
 {% endblock %}
