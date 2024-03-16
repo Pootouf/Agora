@@ -39,7 +39,8 @@ class TileGLMService
                                 private readonly PlayerTileResourceGLMRepository $playerTileResourceGLMRepository,
                                 private readonly PlayerTileGLMRepository $playerTileGLMRepository,
                                 private readonly CardGLMService $cardGLMService,
-                                private readonly SelectedResourceGLMRepository $selectedResourceGLMRepository){}
+                                private readonly SelectedResourceGLMRepository $selectedResourceGLMRepository,
+                                private readonly LoggerInterface $logger){}
 
 
 
@@ -427,10 +428,13 @@ class TileGLMService
      * @param PlayerTileGLM $tileGLM
      * @param PlayerGLM $playerGLM
      * @return void
-     * @throws \Exception
+     * @throws Exception
      */
-    public function activateBonus(PlayerTileGLM $tileGLM, PlayerGLM $playerGLM): void
+    public function activateBonus(PlayerTileGLM $tileGLM, PlayerGLM $playerGLM, ArrayCollection $activableTiles): void
     {
+        if (!$activableTiles->contains($tileGLM)) {
+            throw new \Exception("can't activate this tile");
+        }
         $tile = $tileGLM->getTile();
         if(!$this->hasPlayerEnoughResourcesToActivate($tileGLM, $playerGLM)){
             throw new \Exception("NOT ENOUGH RESOURCES");
@@ -446,11 +450,12 @@ class TileGLMService
             $selectedResources = $playerGLM->getPersonalBoard()->getSelectedResources();
             $resourcesTypes = new ArrayCollection();
             foreach ($selectedResources as $selectedResource){
-                if(!$resourcesTypes->contains($selectedResource->getResource()->getColor())){
+               // if($resourcesTypes->contains($selectedResource->getResource()->getColor())){
                     $resourcesTypes->add($selectedResource->getResource()->getColor());
-                }
+                // }
             }
             $resourcesTypesCount = $resourcesTypes->count();
+            $this->logger->critical($resourcesTypesCount);
             $activationCostsLevels = $tileGLM->getTile()->getActivationPrice()->count();
             $selectedLevel = min($resourcesTypesCount, $activationCostsLevels);
             $activationBonus = $tileGLM->getTile()->getActivationBonus()->get($selectedLevel - 1);
@@ -465,6 +470,7 @@ class TileGLMService
             $this->entityManager->persist($playerGLM);
         }
         $tileGLM->setActivated(true);
+        $this->entityManager->persist($tileGLM);
         $this->entityManager->flush();
     }
 
