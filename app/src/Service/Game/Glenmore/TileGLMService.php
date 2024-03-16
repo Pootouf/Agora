@@ -515,6 +515,7 @@ class TileGLMService
                 }
             }
         }
+        $this->entityManager->persist($tileGLM);
         $this->entityManager->flush();
     }
 
