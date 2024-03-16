@@ -40,8 +40,7 @@ class GLMService
         private readonly ResourceGLMRepository $resourceGLMRepository,
         private readonly PlayerGLMRepository $playerGLMRepository,
         private readonly BoardTileGLMRepository $boardTileGLMRepository,
-        private readonly CardGLMService $cardGLMService,
-        )
+        private readonly CardGLMService $cardGLMService)
     {}
 
 
@@ -837,19 +836,18 @@ class GLMService
             case 1 :
             case 2 :
             case 3 : $finalValue = 1;
-                break;
+            break;
             case 4 :
             case 5 : $finalValue = 2;
-                break;
+            break;
             case 6 : $finalValue = 3;
         }
 
         $position = $bot->getPawn()->getPosition();
         $bot->getPawn()->setPosition($bot->getPawn()->getPosition() + $finalValue);
-        if ($bot->getPawn()->getPosition() >= GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD) {
+       if ($bot->getPawn()->getPosition() >= GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD) {
             $bot->getPawn()->setPosition(0);
         }
-
         $pawns = $bot->getGameGLM()->getMainBoard()->getPawns();
         while ($pawns->filter(function (PawnGLM $pawn) use ($bot) {
             return $pawn->getId() != $bot->getPawn()->getId()
@@ -860,13 +858,13 @@ class GLMService
                 $bot->getPawn()->setPosition(0);
             }
         }
-        $bot->getGameGLM()->getMainBoard()->setLastPosition($position);
+        $this->entityManager->persist($bot->getPawn());
         $tile = $this->boardTileGLMRepository->findOneBy([
-            'mainBoardGLM' => $bot->getGameGLM()->getMainBoard(),
+            'mainBoardGLM' => $bot->getGameGLM()->getMainBoard()->getId(),
             'position' => $bot->getPawn()->getPosition()
         ]);
         $this->entityManager->remove($tile);
-        $this->entityManager->persist($bot->getPawn());
+        $bot->getGameGLM()->getMainBoard()->setLastPosition($position);
         $this->entityManager->persist($bot->getGameGLM()->getMainBoard());
         $this->entityManager->flush();
 
