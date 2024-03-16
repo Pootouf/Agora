@@ -44,7 +44,7 @@ class GlenmoreController extends AbstractController
                                 private ResourceGLMRepository $resourceGLMRepository,
                                 private PublishService $publishService,
                                 private WarehouseGLMService $warehouseGLMService,
-                                private EntityManagerInterface $entityManager,
+                                private EntityManagerInterface $entityManager
                                 )
     {}
 
