@@ -435,6 +435,7 @@ class TileGLMService
         if(!$this->hasPlayerEnoughResourcesToActivate($tileGLM, $playerGLM)){
             throw new \Exception("NOT ENOUGH RESOURCES");
         }
+
         if(!$this->hasEnoughPlaceToActivate($tileGLM)) {
             throw new \Exception("NOT ENOUGH PLACE ON TILE");
         }
@@ -665,6 +666,9 @@ class TileGLMService
      */
     private function hasPlayerEnoughResourcesToActivate(PlayerTileGLM $playerTileGLM, PlayerGLM $playerGLM): bool
     {
+        if (!$this->hasActivationCost($playerTileGLM)) {
+            return true;
+        }
         $tileGLM = $playerTileGLM->getTile();
         $activationPrices = $tileGLM->getActivationPrice();
         $selectedResources = $playerGLM->getPersonalBoard()->getSelectedResources();
@@ -829,7 +833,7 @@ class TileGLMService
      * @param int $position
      * @return BoardTileGLM|null
      */
-    private function getBoardTilesAtPosition(MainBoardGLM $mainBoard, int $position): BoardTileGLM|null
+    public function getBoardTilesAtPosition(MainBoardGLM $mainBoard, int $position): BoardTileGLM|null
     {
         $boardTiles = $mainBoard->getBoardTiles();
         foreach ($boardTiles as $boardTile) {
