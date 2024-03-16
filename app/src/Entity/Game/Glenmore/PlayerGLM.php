@@ -29,6 +29,15 @@ class PlayerGLM extends Player
     #[ORM\OneToMany(targetEntity: PlayerTileResourceGLM::class, mappedBy: 'player', orphanRemoval: true)]
     private Collection $playerTileResourceGLMs;
 
+    #[ORM\Column]
+    private ?bool $bot = false;
+
+    #[ORM\Column]
+    private ?int $roundPhase = null;
+
+    #[ORM\Column]
+    private ?bool $activatedResourceSelection = false;
+
     public function __construct(string $username, GameGLM $game)
     {
         $this->username = $username;
@@ -110,6 +119,42 @@ class PlayerGLM extends Player
                 $playerTileResourceGLM->setPlayer(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getRoundPhase(): ?int
+    {
+        return $this->roundPhase;
+    }
+
+    public function setRoundPhase(int $roundPhase): static
+    {
+        $this->roundPhase = $roundPhase;
+
+        return $this;
+    }
+
+    public function isActivatedResourceSelection(): ?bool
+    {
+        return $this->activatedResourceSelection;
+    }
+
+    public function setActivatedResourceSelection(bool $activatedResourceSelection): static
+    {
+        $this->activatedResourceSelection = $activatedResourceSelection;
+
+        return $this;
+    }
+
+    public function isBot(): ?bool
+    {
+        return $this->bot;
+    }
+
+    public function setBot(bool $bot): static
+    {
+        $this->bot = $bot;
 
         return $this;
     }

@@ -217,7 +217,7 @@ class PersonalBoardGLMTest extends TestCase
         $this->assertSame($length, $this->personalBoardGLM->getPlayerCardGLM()->count());
     }
 
-    public function testSetSelectedTile() : void
+    public function testSetBuyingTile() : void
     {
         // GIVEN
 
@@ -225,11 +225,11 @@ class PersonalBoardGLMTest extends TestCase
 
         // WHEN
 
-        $this->personalBoardGLM->setSelectedTile($selectedTile);
+        $this->personalBoardGLM->setBuyingTile($selectedTile);
 
         // THEN
 
-        $this->assertSame($selectedTile, $this->personalBoardGLM->getSelectedTile());
+        $this->assertSame($selectedTile, $this->personalBoardGLM->getBuyingTile());
     }
 
     public function testAddSelectedResourceNotYetAdded() : void

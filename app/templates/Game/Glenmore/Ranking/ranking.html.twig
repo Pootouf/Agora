@@ -1,7 +1,7 @@
 {#
 This section displays the ranking with a view of the other players' possessions
-@param :
-@return :
+@param : game
+@return : display the score of the players with an access to their personal board
 #}
 
 {# Glenmore Logo #}
@@ -32,8 +32,8 @@ This section displays the ranking with a view of the other players' possessions
 			<div class="w-full h-[12%] landscape:h-1/5
                             pt-2 landscape:pt-1
                             flex justify-around justify-between">
-				{# Button to see other player's personal board #}
-				{% if p.username != player.username %}
+                {# Button to see other player's personal board #}
+				{% if p.username != player.username and not p.isBot %}
 					<button {{ stimulus_action('glenmore', 'displayPlayerPersonalBoard', 'click',
 						{url:path('app_game_glenmore_display_player_personal_board',
 							{idGame: game.id, idPlayer: p.id}), open: true}) }}

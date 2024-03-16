@@ -60,7 +60,7 @@ class DataManagementGLMService
             foreach($tiles as $tile) {
                 if($tile->getPosition() == $i) {
                     try {
-                        $boardBoxes->add(new BoardBoxGLM($tile->getTile(), null));
+                        $boardBoxes->add(new BoardBoxGLM($tile, null));
                     } catch (\Exception $e) {
                         //Can't append here with a null argument
                     }
@@ -193,11 +193,11 @@ class DataManagementGLMService
         while($x < $maxx) {
             $currentLine = new ArrayCollection();
             $y = $miny;
+            $x++;
             while($y <= $maxy) {
                 $currentLine->add(new PersonalBoardBoxGLM(null, $x, $y));
                 $y++;
             }
-            $x++;
             $result->add($currentLine);
         }
         return $result;

@@ -52,7 +52,7 @@ This section displays the player's disposition of tiles
                         {% for playerResource in personalBox.playerTile.playerTileResource %}
 
                             {# Placement of the villager #}
-                            {% if playerResource.resource.type == VILLAGER %}
+                            {% if playerResource.resource.type == VILLAGER and playerResource.quantity > 0 %}
                                 <img class="absolute items-center aspect-auto justify-center
                                             max-h-full"
                                     src="{{ asset('resourcesGames/Glenmore/figure.png') }}" alt="leader"
