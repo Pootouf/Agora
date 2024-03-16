@@ -15,15 +15,16 @@
 			</div>
 			<div class="mx-auto max-w-2xl py-32">
 				<div class="text-center">
-					{% for message in app.flashes("success") %}
-						<div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4" role="alert">
-							<p class="font-bold">{{ message }}</p>
-						</div>
-					{% endfor %}
-					{% for message in app.flashes("warning") %}
-						<div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4" role="alert">
-							<p class="font-bold">{{ message }}</p>
-						</div>
+					{% for messages in app.flashes %}
+						{% for message in messages %}
+							<div class="relative isolate rounded-md flex items-center gap-x-6 overflow-hidden bg-success px-6 py-2.5 sm:px-3.5 sm:before:flex-1">
+								<div class="flex w-full justify-center flash-success">
+									<p class="text-sm leading-6 text-gray-900">
+										{{ message }}
+									</p>
+								</div>
+							</div>
+						{% endfor %}
 					{% endfor %}
 					<h1 class="text-4xl tracking-tight text-gray-900 sm:text-6xl">Lorem ipsum lorem ipsum</h1>
 					<p class="mt-6 text-lg leading-8 text-gray-600">Anim aute id magna aliqua ad ad non deserunt sunt. Qui irure qui lorem cupidatat commodo. Elit sunt amet fugiat veniam occaecat fugiat aliqua.</p>
