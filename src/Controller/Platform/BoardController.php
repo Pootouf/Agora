@@ -165,9 +165,7 @@ class BoardController extends AbstractController
 
 
         $data = new SearchData();
-        $form = $this->createForm(SearchBoardType::class, $data, [
-            'action' => $this->generateUrl('app_dashboard_tables') 
-        ]);
+        $form = $this->createForm(SearchBoardType::class, $data);
         $form->handleRequest($request);
 
         $boards = $boardRepository->searchBoards($data);
