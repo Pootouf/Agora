@@ -39,8 +39,7 @@ class TileGLMService
                                 private readonly PlayerTileResourceGLMRepository $playerTileResourceGLMRepository,
                                 private readonly PlayerTileGLMRepository $playerTileGLMRepository,
                                 private readonly CardGLMService $cardGLMService,
-                                private readonly SelectedResourceGLMRepository $selectedResourceGLMRepository,
-                                private readonly LoggerInterface $logger){}
+                                private readonly SelectedResourceGLMRepository $selectedResourceGLMRepository){}
 
 
 
@@ -425,8 +424,10 @@ class TileGLMService
 
     /**
      * activateBonus : activate a tile and give player his resources
-     * @param PlayerTileGLM $tileGLM
-     * @param PlayerGLM $playerGLM
+     *
+     * @param PlayerTileGLM   $tileGLM
+     * @param PlayerGLM       $playerGLM
+     * @param ArrayCollection $activableTiles
      * @return void
      * @throws Exception
      */
@@ -455,34 +456,37 @@ class TileGLMService
                 // }
             }
             $resourcesTypesCount = $resourcesTypes->count();
-            $this->logger->critical($resourcesTypesCount);
+            //$this->logger->critical($resourcesTypesCount);
             $activationCostsLevels = $tileGLM->getTile()->getActivationPrice()->count();
             $selectedLevel = min($resourcesTypesCount, $activationCostsLevels);
             $activationBonus = $tileGLM->getTile()->getActivationBonus()->get($selectedLevel - 1);
             $playerGLM->setPoints($playerGLM->getPoints() + $activationBonus->getAmount());
-            foreach ($selectedResources as $selectedResource){
+            /*foreach ($selectedResources as $selectedResource){
                 if($resourcesTypes->contains($selectedResource->getResource()->getColor())){
                     $playerGLM->getPersonalBoard()->removeSelectedResource($selectedResource);
                     $this->entityManager->persist($playerGLM->getPersonalBoard());
                     $resourcesTypes->remove($selectedResource->getResource()->getColor());
                 }
-            }
+            }*/
             $this->entityManager->persist($playerGLM);
         }
         $tileGLM->setActivated(true);
         $this->entityManager->persist($tileGLM);
+
         $player = $tileGLM->getPersonalBoard()->getPlayerGLM();
         $globalResources = $player->getPersonalBoard()->getSelectedResources();
-        foreach ($tile->getActivationPrice() as $buyPrice) {
+        /*foreach ($tile->getActivationPrice() as $buyPrice) {
             $priceTile = $buyPrice->getPrice();
             $resource = $buyPrice->getResource();
             $selectedResourcesOfSameResource = $globalResources->filter(function (SelectedResourceGLM $selectedResourceGLM) use ($resource) {
                 return $selectedResourceGLM->getResource()->getId() == $resource->getId();
             });
+            $this->logger->critical('price :' . $priceTile);
+            $this->logger->critical('selected :' . $selectedResourcesOfSameResource->count());
             if ($selectedResourcesOfSameResource->count() != $priceTile) {
                 throw new \Exception('Invalid amount of selected resources');
             }
-        }
+        }*/
         foreach ($tile->getActivationPrice() as $buyPrice) {
             $resourceTile = $buyPrice->getResource();
             $priceTile = $buyPrice->getPrice();
@@ -646,8 +650,8 @@ class TileGLMService
         if (!$this->canPlaceTile($abscissa, $ordinate, $tileSelected->getTile(), $player))
         {
             $buyingTile = $personalBoard->getBuyingTile();
-            $this->entityManager->persist($personalBoard);
             $personalBoard->setBuyingTile(null);
+            $this->entityManager->persist($personalBoard);
             $this->entityManager->remove($buyingTile);
             $this->entityManager->flush();
             throw new Exception("Unable to place tile");

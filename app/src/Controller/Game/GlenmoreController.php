@@ -511,7 +511,7 @@ class GlenmoreController extends AbstractController
             } catch (Exception $e) {
                 return new Response('player has not selected needed resources', Response::HTTP_FORBIDDEN);
             }
-            $this->service->setPhase($player, GlenmoreParameters::$ACTIVATION_PHASE);
+            $this->service->setPhase($player, GlenmoreParameters::$STABLE_PHASE);
             $player->setActivatedResourceSelection(false);
             $this->entityManager->persist($player);
         } else if ($playerPhase == GlenmoreParameters::$ACTIVATION_PHASE) {

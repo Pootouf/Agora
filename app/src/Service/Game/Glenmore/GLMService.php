@@ -214,7 +214,7 @@ class GLMService
             $newLevel = $drawTiles->getLevel();
         }
         if ($newLevel > $oldLevel) {
-            $this->calculatePoints($gameGLM, $newLevel);
+            $this->calculatePoints($gameGLM, $oldLevel);
         }
         if ($this->isGameEnded($gameGLM)) {
             // TODO RETURN CODE TO PUBLISH WINNERS
