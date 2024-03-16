@@ -43,8 +43,15 @@ class DashboardController extends AbstractController
     #[Route('/dashboard/settings', name: 'app_dashboard_settings')]
     public function settings(): Response
     {
+
+        $user = $this->getUser();
+        $username = $user->getUsername();
+        $email = $user->getEmail();
+
         return $this->render('platform/dashboard/settings.html.twig', [
             'controller_name' => 'DashboardController',
+            'username' => $username,
+            'email' => $email,
         ]);
     }
 }

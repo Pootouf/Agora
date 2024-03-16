@@ -1,7 +1,7 @@
 {% extends 'platform/base.html.twig' %}
 
 {% block title %}
-	Description : Jeux 1
+	Description : {{ game.getName }}
 {% endblock %}
 
 {% block body %}
@@ -28,17 +28,62 @@
 							<h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">{{game.name}}</h5>
 						</a>
 						</br>
-						<p class="mb-3 font-normal text-gray-700 dark:text-gray-400">{{ game.getDescrRule }}</p>
+<p class="mb-3 font-normal text-gray-700 dark:text-gray-400">
+    <strong>Description :</strong>
+    <br>
+    Le jeu du <strong>6 Qui Prend</strong> est un jeu de cartes simple et amusant, idéal pour les débutants. 
+
+    <br><br>
+
+    <strong>Règles du Jeu :</strong>
+    <br>
+    Le but du jeu est de collecter le moins de <strong>têtes de boeufs</strong> possible. Chaque carte a un certain nombre de têtes de boeufs. 
+
+    <br>
+    Les joueurs choisissent à tour de rôle une carte de leur main et la placent sur l'une des rangées disponibles. 
+
+    <br>
+
+    Si la carte ajoutée dépasse la limite de la rangée, le joueur récupère toutes les cartes de cette rangée, ainsi que les têtes de boeufs correspondantes. 
+
+    <br>
+    Le jeu se poursuit jusqu'à ce qu'un joueur atteigne un certain nombre de têtes de boeufs ou qu'il n'y ait plus de cartes à piocher.
+	 <br>Le joueur avec le moins de têtes de boeufs à la fin de la partie est déclaré vainqueur. 
+
+    <br><br>
+
+    <strong>Comment Jouer :</strong>
+    <br>
+    Pour jouer, chaque joueur reçoit un certain nombre de cartes. À tour de rôle, les joueurs choisissent une carte de leur main et la placent face cachée sur l'une des rangées disponibles. 
+
+    <br><br>
+
+    <strong>Objectif du Jeu :</strong>
+    <br>
+    L'objectif est de minimiser le nombre de <strong>têtes de boeufs</strong> que vous collectez en plaçant vos cartes sur les rangées. 
+
+    <br><br>
+
+    <strong>Jouer Maintenant :</strong>
+    <br>
+    Prêt à relever le défi ? Jouez maintenant et voyez si vous pouvez éviter de ramasser trop de têtes de boeufs !
+</p>
+
+
+
+
 						</br>
 
 						{% if app.user %}
-						<button type="button" class="flex items-center justify-center text-white bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
-							JOUER
-							<svg class="rtl:rotate-180 w-3.5 h-3.5 ml-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewbox="0 0 14 10">
-								<path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
-							</svg>
-						</button>
-						{% endif %}
+    <a href="/dashboard/tables" class="text-white bg-primary hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
+        Jouer
+    </a>
+{% else %}
+    <a href="/login" class="text-white bg-primary hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
+        Se connecter
+    </a>
+{% endif %}
+
 					</div>
 				</div>
 			</div>
