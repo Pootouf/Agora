@@ -150,6 +150,7 @@ class GLMGameManagerService extends AbstractGameManagerService
             $this->entityManager->remove($player->getPersonalBoard());
             $this->entityManager->remove($player);
         }
+        $this->entityManager->remove($game->getMainBoard());
         $this->logService->sendSystemLog($game, "game " . $game->getId() . "ended");
         $this->entityManager->remove($game);
         $this->entityManager->flush();

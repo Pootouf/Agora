@@ -230,6 +230,7 @@ class GLMService
             // TODO RETURN CODE TO PUBLISH
         }
         if ($newPlayer->isBot()) {
+            $this->manageBotAction($newPlayer);
             $this->manageEndOfRound($gameGLM);
         }
     }
@@ -267,8 +268,6 @@ class GLMService
             $player->getPersonalBoard()->setActivatedTile(null);
             $player->getPersonalBoard()->setBuyingTile(null);
             $player->setRoundPhase(GlenmoreParameters::$STABLE_PHASE);
-            $player->getPersonalBoard()->setActivatedTile(null);
-            $player->getPersonalBoard()->setBuyingTile(null);
             $this->entityManager->persist($player);
             $this->entityManager->persist($player->getPersonalBoard());
         }
@@ -303,11 +302,6 @@ class GLMService
             $this->entityManager->persist($nextPlayer->getPersonalBoard());
         }
         $this->entityManager->persist($nextPlayer);
-
-        if ($nextPlayer->isBot()) {
-            $this->manageBotAction($nextPlayer);
-        }
-
         $this->entityManager->flush();
     }
 
