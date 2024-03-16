@@ -129,7 +129,7 @@ class BoardController extends AbstractController
         return $this->redirectToRoute('app_dashboard_tables');
     }
     //    Get all game where connected user participate
-    #[\Symfony\Component\Routing\Attribute\Route('/dashboard/user', name: 'app_dashboard_user', methods: ['GET'])]
+    #[Route('/dashboard/user', name: 'app_dashboard_user', methods: ['GET'])]
     public function boardsUser(Request $request, BoardRepository $boardRepository): Response
     {
 //        check if we have a connected user
@@ -156,13 +156,6 @@ class BoardController extends AbstractController
     #[Route('/dashboard/tables', name: 'app_dashboard_tables', methods: ['GET'])]
     public function allBoards(Request $request, BoardRepository $boardRepository): Response
     {
-//        $sortBy = $request->query->get('sort_by', 'creationDate'); // Par défaut, tri par date de création
-//        $sortOrder = $request->query->get('sort_order', 'desc'); // Par défaut, tri décroissant
-//        // Vérifier si l'ordre de tri est valide
-//        $validSortOrders = ['asc', 'desc'];
-//        $sortOrder = in_array($sortOrder, $validSortOrders) ? $sortOrder : 'desc';
-//        $boards = $boardRepository->findBy([], [$sortBy => $sortOrder]);
-
 
         $data = new SearchData();
         $form = $this->createForm(SearchBoardType::class, $data);

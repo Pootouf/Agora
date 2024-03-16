@@ -1,7 +1,7 @@
 {% extends 'platform/base.html.twig' %}
 
 {% block title %}
-	Inscription
+	Inscription Agora
 {% endblock %}
 
 {% block body %}
@@ -14,8 +14,16 @@
 			<div class="sm:mx-auto sm:w-full sm:max-w-sm">
 				<h2 class="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">Créez votre compte</h2>
 			</div>
-
 			<div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+				{% if errors %}
+					<div class="alert alert-danger">
+						<ul>
+							{% for error in errors %}
+								<li class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4" role="alert">{{ error }}</li>
+							{% endfor %}
+						</ul>
+					</div>
+				{% endif %}
 				{{ form_start(registrationForm, {'attr': {'class': 'space-y-6'}}) }}
 
 				{% for flash_error in app.flashes('verify_email_error') %}
@@ -48,11 +56,23 @@
 				</div>
 
 				<div>
-					{{ form_label(registrationForm.plainPassword, 'Mot de passe', {'label_attr': {
+					{{ form_label(registrationForm.plainPassword.first, 'Mot de passe', {'label_attr': {
 						'class': 'block text-sm font-medium leading-6 text-gray-900'
 					}}) }}
 					<div class="mt-2">
-						{{ form_widget(registrationForm.plainPassword, {'attr': {
+						{{ form_widget(registrationForm.plainPassword.first, {'attr': {
+							'class': 'block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6',
+							'placeholder': '******************',
+							'type': 'password'
+						}}) }}
+					</div>
+				</div>
+				<div>
+					{{ form_label(registrationForm.plainPassword.second, 'Confirmation de Mot de passe', {'label_attr': {
+						'class': 'block text-sm font-medium leading-6 text-gray-900'
+					}}) }}
+					<div class="mt-2">
+						{{ form_widget(registrationForm.plainPassword.second, {'attr': {
 							'class': 'block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6',
 							'placeholder': '******************',
 							'type': 'password'

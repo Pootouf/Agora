@@ -3,8 +3,6 @@
 namespace App\Controller\Platform;
 
 use App\Entity\Platform\Game;
-use App\Service\Platform\UserManagerService;
-use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -50,7 +48,8 @@ class GameController extends AbstractController
         $game = $gameRepository->find($game_id);
 
         if(!$game) {
-            throw $this->createNotFoundException('Le jeu n\'existe pas');
+            $this->addFlash('warning', 'Le jeu n\'existe pas');
+            return $this->redirectToRoute('app_games');
         }
 
         return $this->render('platform/dashboard/games/description.html.twig', [
@@ -67,16 +66,21 @@ class GameController extends AbstractController
         $game = $gameRepository->find($game_id);
 
         if(!$game) {
-            throw $this->createNotFoundException('Le jeu n\'existe pas');
+            $this->addFlash('warning', 'Le jeu n\'existe pas');
+            return $this->redirectToRoute('app_games');
         }
         $user = $security->getUser();
         if ($user){
 //            Add game as favorite game
-            $user->addFavoriteGame($game);
-            $entityManager->flush();
-            $this->addFlash('successfavorite', 'Le jeu a été ajouté à vos favoris.');
+            if(!$user->getFavoriteGames()->contains($game)){
+                $user->addFavoriteGame($game);
+                $entityManager->flush();
+                $this->addFlash('success', 'Le jeu '. $game->getLabel() . ' a été ajouté à vos favoris.');
+            }else{
+                $this->addFlash('warning', 'Le jeu '. $game->getLabel() . ' a déja été ajouté à vos favoris.');
+            }
         }else{
-            $this->addFlash('user_connection', 'Le joueur n\'est pas connecté.');
+            $this->addFlash('warning', 'Le joueur n\'est pas connecté.');
         }
 
         return $this->redirectToRoute('app_games');
