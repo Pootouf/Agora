@@ -793,13 +793,25 @@ class SPLService
     {
 
         $cardPrice = $this->computeCardPrice($developmentCardsSPL);
+
+        // retrieve to the price the amount of card of same type
+        foreach ($cardPrice as $color => $amount) {
+            $playerCards = $playerSPL->getPersonalBoard()->getPlayerCards();
+            foreach ($playerCards as $playerCard) {
+                if($playerCard->getDevelopmentCard()->getColor() == $color && $amount > 0) {
+                    $amount -= 1;
+                }
+            }
+        }
+
         $selectedTokensForAnimation = [];
 
         // remove non gold token
         foreach ($cardPrice as $color => $amount){
             $tokens = $playerSPL->getPersonalBoard()->getTokens();
             foreach ($tokens as $token){
-                if($token->getColor() == $color && $amount > 0){
+                if($token->getColor() == $color && $token->getColor() != SplendorParameters::$COLOR_YELLOW
+                    && $amount > 0){
                     $playerSPL->getPersonalBoard()->removeToken($token);
                     $amount -= 1;
                     $playerSPL->getGameSPL()->getMainBoard()->addToken($token);
