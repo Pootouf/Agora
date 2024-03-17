@@ -3,6 +3,7 @@
 namespace App\Tests\Game\Glenmore\Unit\Entity;
 
 use App\Entity\Game\Glenmore\BoardTileGLM;
+use App\Entity\Game\Glenmore\BuyingTileGLM;
 use App\Entity\Game\Glenmore\CardGLM;
 use App\Entity\Game\Glenmore\CreatedResourceGLM;
 use App\Entity\Game\Glenmore\GameGLM;
@@ -221,7 +222,7 @@ class PersonalBoardGLMTest extends TestCase
     {
         // GIVEN
 
-        $selectedTile = new BoardTileGLM();
+        $selectedTile = new BuyingTileGLM();
 
         // WHEN
 

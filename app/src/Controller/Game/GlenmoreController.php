@@ -44,7 +44,7 @@ class GlenmoreController extends AbstractController
                                 private ResourceGLMRepository $resourceGLMRepository,
                                 private PublishService $publishService,
                                 private WarehouseGLMService $warehouseGLMService,
-                                private EntityManagerInterface $entityManager,
+                                private EntityManagerInterface $entityManager
                                 )
     {}
 
@@ -317,6 +317,7 @@ class GlenmoreController extends AbstractController
             try {
                 $this->tileGLMService->selectResourcesFromTileToActivate($tile, $resourceGLM->getResource());
             } catch (\Exception $e) {
+                return new Response($e->getMessage(), Response::HTTP_UNAVAILABLE_FOR_LEGAL_REASONS);
             }
         }
         return new Response('a new resource has been selected', Response::HTTP_OK);
@@ -385,8 +386,10 @@ class GlenmoreController extends AbstractController
         if(!$this->tileGLMService->hasActivationCost($tile)) {
             $player->setActivatedResourceSelection(false);
             try {
-                $this->tileGLMService->activateBonus($tile, $player);
+                $activableTiles = $this->tileGLMService->getActivableTiles($player->getPersonalBoard()->getPlayerTiles()->last());
+                $this->tileGLMService->activateBonus($tile, $player, $activableTiles);
             } catch (\Exception $e) {
+                return new Response("can't activate this tile", Response::HTTP_FORBIDDEN);
             }
         } else {
             $this->service->setPhase($player, GlenmoreParameters::$ACTIVATION_PHASE);
@@ -408,10 +411,12 @@ class GlenmoreController extends AbstractController
         }
         $tile = $player->getPersonalBoard()->getActivatedTile();
         try {
-            $this->tileGLMService->activateBonus($tile, $player);
+            $activableTiles = $this->tileGLMService->getActivableTiles($player->getPersonalBoard()->getPlayerTiles()->last());
+            $this->tileGLMService->activateBonus($tile, $player, $activableTiles);
         } catch (\Exception $e) {
         }
         $player->setActivatedResourceSelection(false);
+        $this->service->setPhase($player, GlenmoreParameters::$STABLE_PHASE);
         $this->entityManager->persist($player);
         $this->entityManager->flush();
         return new Response("tile was activated", Response::HTTP_OK);
@@ -508,9 +513,22 @@ class GlenmoreController extends AbstractController
             } catch (Exception $e) {
                 return new Response('player has not selected needed resources', Response::HTTP_FORBIDDEN);
             }
-            $this->service->setPhase($player, GlenmoreParameters::$ACTIVATION_PHASE);
+            $this->service->setPhase($player, GlenmoreParameters::$STABLE_PHASE);
             $player->setActivatedResourceSelection(false);
+            $this->entityManager->persist($player);
+        } else if ($playerPhase == GlenmoreParameters::$ACTIVATION_PHASE) {
+            try {
+                $activableTiles = $this->tileGLMService->getActivableTiles($player->getPersonalBoard()->getPlayerTiles()->last());
+                $this->tileGLMService->activateBonus($player->getPersonalBoard()->getActivatedTile(), $player, $activableTiles);
+            } catch (\Exception $e) {
+                return new Response($e->getMessage() . 'player has not selected needed resources', Response::HTTP_FORBIDDEN);
+            }
+            $this->service->setPhase($player, GlenmoreParameters::$STABLE_PHASE);
+            $player->setActivatedResourceSelection(false);
+            $this->entityManager->persist($player);
         }
+        $this->entityManager->flush();
+
         return new Response('player selected resources', Response::HTTP_OK);
     }
 
@@ -525,6 +543,9 @@ class GlenmoreController extends AbstractController
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
         }
         $this->tileGLMService->clearResourceSelection($player);
+        $this->service->setPhase($player, GlenmoreParameters::$STABLE_PHASE);
+        $player->setActivatedResourceSelection(false);
+        $this->entityManager->persist($player);
         return new Response('player cancel his selection', Response::HTTP_OK);
     }
 

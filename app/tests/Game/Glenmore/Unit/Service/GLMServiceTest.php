@@ -26,6 +26,7 @@ use App\Repository\Game\Glenmore\PlayerGLMRepository;
 use App\Repository\Game\Glenmore\PlayerTileGLMRepository;
 use App\Repository\Game\Glenmore\PlayerTileResourceGLMRepository;
 use App\Repository\Game\Glenmore\ResourceGLMRepository;
+use App\Repository\Game\Glenmore\SelectedResourceGLMRepository;
 use App\Repository\Game\Glenmore\TileGLMRepository;
 use App\Repository\Game\Splendor\DevelopmentCardsSPLRepository;
 use App\Repository\Game\Splendor\DrawCardsSPLRepository;
@@ -63,11 +64,11 @@ class GLMServiceTest extends TestCase
         $boardTileGLMRepository = $this->createMock(BoardTileGLMRepository::class);
         $playerTileResourceGLMRepository = $this->createMock(PlayerTileResourceGLMRepository::class);
         $playerTileGLMRepository = $this->createMock(PlayerTileGLMRepository::class);
-
         $cardGLMService = new CardGLMService($entityManager, $resourceGLMRepository);
+        $selectedResGLMRepo = $this->createMock(SelectedResourceGLMRepository::class);
         $tileGLMService = new TileGLMService($entityManager, $resourceGLMRepository,
                                             $playerGLMRepository, $playerTileResourceGLMRepository,
-                                            $playerTileGLMRepository, $cardGLMService);
+                                            $playerTileGLMRepository, $cardGLMService, $selectedResGLMRepo);
         $logService = new LogService($entityManager);
         $this->GLMService = new GLMService($entityManager, $tileGLMRepository,
             $tileGLMService, $logService, $drawTilesGLMRepository,

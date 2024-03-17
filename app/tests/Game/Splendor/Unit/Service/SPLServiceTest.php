@@ -441,6 +441,33 @@ class SPLServiceTest extends TestCase
         $this->assertNotContains($token, $player->getPersonalBoard()->getTokens());
     }
 
+    public function testTokenNotRetrievedWhenPlayerHasCardOfGoodTypes()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $player->setTurnOfPlayer(true);
+        $token = new TokenSPL();
+        $token->setColor(SplendorParameters::$COLOR_RED);
+        $player->getPersonalBoard()->addToken($token);
+        $playerDevCard = new DevelopmentCardsSPL();
+        $playerDevCard->setColor(SplendorParameters::$COLOR_RED);
+        $playerCard = new PlayerCardSPL($player, $playerDevCard, false);
+        $player->getPersonalBoard()->addPlayerCard($playerCard);
+        $cardCost = new CardCostSPL();
+        $cardCost->setColor(SplendorParameters::$COLOR_RED);
+        $cardCost->setPrice(1);
+        $array = new ArrayCollection();
+        $array->add($cardCost);
+        $developmentCard = DevelopmentCardsSPL::createDevelopmentCard($array);
+        $developmentCard->setLevel(1);
+        $playerTokensBefore = $player->getPersonalBoard()->getTokens();
+        // WHEN
+        $this->SPLService->buyCard($player, $developmentCard);
+        // THEN
+        $this->assertEquals($playerTokensBefore, $player->getPersonalBoard()->getTokens());
+    }
+
     public function testAddBuyableNobleTilesToPlayerShouldAddTileToPlayer() : void
     {
         //GIVEN
