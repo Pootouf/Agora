@@ -223,7 +223,6 @@ dropdownMenu.classList.toggle()
 }
 this.setAttribute('aria-expanded', ! isMenuExpanded)
 })
-console.log('user menu button', dropdownButton);
 
 window.addEventListener('click', function (event) {
 if (! dropdownButton.contains(event.target) && ! dropdownMenu.contains(event.target)) {
