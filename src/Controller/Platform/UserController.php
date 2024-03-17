@@ -55,4 +55,15 @@ class UserController extends AbstractController
         return $this->redirectToRoute('app_home');
     }
 
+    #[Route('/dashboard/profile/{user_id}', name: 'app_other_user_profile', requirements: ['user_id' => '\d+'])]
+    public function getUserProfile(EntityManagerInterface $entityManager, int $user_id) : Response
+    {
+        $userRepository = $entityManager->getRepository(User::class);
+        $user = $userRepository->find($user_id);
+
+        return $this->render('platform/dashboard/otherUserProfile.html.twig', [
+        'user' => $user,
+        ]);
+    }
+
 }
