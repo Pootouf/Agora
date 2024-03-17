@@ -19,8 +19,9 @@
 			{% endblock %}
 			{% block drawTileIndicator %}
 				<div id="drawTileIndicator"
-				     class="absolute bottom-[20%] flex justify-center items-center
+				     class="absolute bottom-[20%] flex justify-around items-center
                      bg-gradient-to-b from-[#4C6E9Bff] to-[#20222Dff] w-[25%] h-1/5 right-0">
+					{{ include('/Game/Glenmore/MainBoard/preview.html.twig') }}
 					{{ include('/Game/Glenmore/MainBoard/drawTileIndicator.html.twig') }}
 				</div>
 			{% endblock %}

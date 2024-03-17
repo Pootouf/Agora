@@ -174,4 +174,8 @@ export default class extends Controller {
         let url = resourceLine.params.url;
         const response = await fetch(url);
     }
+
+	preview() {
+		alert("preview");
+	}
 }
