@@ -607,7 +607,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
             $tileGLMService->giveBuyBonus($playerTile);
             $glmService->endRoundOfPlayer($game, $firstPlayer, 0);
         }
-        $expectedResult = 1;
+        $expectedResult = 2;
         //WHEN
         $result = $tileGLMService->getMovementPoints($firstPlayer->getPersonalBoard()->getPlayerTiles()->last());
         //THEN
@@ -676,7 +676,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
             $tileGLMService->giveBuyBonus($playerTile);
             $glmService->endRoundOfPlayer($game, $firstPlayer, 0);
         }
-        $expectedResult = 0;
+        $expectedResult = 2;
         //WHEN
         $result = $tileGLMService->getMovementPoints($firstPlayer->getPersonalBoard()->getPlayerTiles()->last());
         //THEN

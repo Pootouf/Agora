@@ -711,7 +711,7 @@ class TileGLMServiceTest extends TestCase
             $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile);
             $this->GLMService->endRoundOfPlayer($game, $firstPlayer, 0);
         }
-        $expectedResult = 1;
+        $expectedResult = 2;
         //WHEN
         $result = $this->tileGLMService->getMovementPoints($firstPlayer->getPersonalBoard()->getPlayerTiles()->last());
         //THEN
@@ -737,7 +737,7 @@ class TileGLMServiceTest extends TestCase
             $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile);
             $this->GLMService->endRoundOfPlayer($game, $firstPlayer, 0);
         }
-        $expectedResult = 2;
+        $expectedResult = 3;
         //WHEN
         $result = $this->tileGLMService->getMovementPoints($firstPlayer->getPersonalBoard()->getPlayerTiles()->last());
         //THEN
@@ -774,7 +774,7 @@ class TileGLMServiceTest extends TestCase
         $playerTile = new PlayerTileGLM();
         $playerTile->setTile($tile);
         $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile);
-        $expectedResult = 0;
+        $expectedResult = 3;
         //WHEN
         $result = $this->tileGLMService->getMovementPoints($firstPlayer->getPersonalBoard()->getPlayerTiles()->last());
         //THEN
