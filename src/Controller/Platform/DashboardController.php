@@ -25,7 +25,6 @@ class DashboardController extends AbstractController
             $userId = $security->getUser()->getId();
             $userRepository = $entityManager->getRepository(Board::class);
             $favGames = $security->getUser()->getFavoriteGames();
-            //TODO: Change this to IN_GAME
             $currentBoards = $userRepository->findBoardsByUserAndStatus($userId, "IN_GAME");
             $pastBoards = $userRepository->findBoardsByUserAndStatus($userId, "WAITING");
         }
@@ -35,7 +34,7 @@ class DashboardController extends AbstractController
         }
         return $this->render('platform/dashboard/profile.html.twig', [
             'controller_name' => 'DashboardController',
-            'favgames' => $favGames,
+            'fav_games' => $favGames,
             'current_boards'=> $currentBoards,
             'past_boards' => $pastBoards
         ]);

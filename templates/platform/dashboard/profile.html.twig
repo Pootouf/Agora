@@ -35,7 +35,7 @@
 							<span>Favorite Games</span>
 						</div>
 						<div class="grid grid-cols-3">
-						    {% for game in favgames %}
+						    {% for game in fav_games %}
 							<div class="text-center my-4">
 								<a href="{{path('app_game_description', {'game_id': game.id}) }}">
 								    <img class="w-32 h-16 md:w-20 md:h-20 rounded-md mx-auto" src="{{ asset(game.imgURL) }}" alt="{{ game.name }}" />
