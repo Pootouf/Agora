@@ -175,7 +175,17 @@ export default class extends Controller {
         const response = await fetch(url);
     }
 
-	preview() {
+	/*preview() {
 		alert("preview");
+	}*/
+
+	async showMainBoard(main)  {
+		let url = main.params.url;
+		const response = await fetch(url);
+		let tree = document.getElementById("index_glenmore");
+		let placeholder = document.createElement("div");
+		placeholder.innerHTML = await response.text();
+		const node = placeholder.firstElementChild;
+		tree.appendChild(node);
 	}
 }

@@ -1,7 +1,9 @@
 {#
     This section displays main board preview.
 #}
-<div class="h-[95%] w-[45%] bg-yellow-600 cursor-pointer" {{ stimulus_action('glenmore','preview','click') }}>
+<div class="h-[95%] w-[45%] bg-yellow-600 cursor-pointer"
+        {{ stimulus_action('glenmore','showMainBoard','click', {url:path('app_game_glenmore_show_main_board',
+            {idGame: game.id})}) }}>
     <div hidden class="bg-red-600 bg-white bg-blue-600 bg-green-600 bg-yellow-600"></div>
 
     <div class="h-full w-full grid grid-rows-4 grid-cols-5 gap-1">

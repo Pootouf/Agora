@@ -5,6 +5,7 @@ namespace App\Controller\Game;
 use App\Entity\Game\Glenmore\BoardTileGLM;
 use App\Entity\Game\Glenmore\GameGLM;
 use App\Entity\Game\Glenmore\GlenmoreParameters;
+use App\Entity\Game\Glenmore\MainBoardGLM;
 use App\Entity\Game\Glenmore\PlayerGLM;
 use App\Entity\Game\Glenmore\PlayerTileGLM;
 use App\Entity\Game\Glenmore\PlayerTileResourceGLM;
@@ -575,6 +576,18 @@ class GlenmoreController extends AbstractController
             'personalBoardTiles' => $this->dataManagementGLMService->organizePersonalBoardRows($playerGLM),
             'whiskyCount' => $this->dataManagementGLMService->getWhiskyCount($playerGLM),
         ]);
+    }
+
+    #[Route('/game/{idGame}/glenmore/show/main/board', name: 'app_game_glenmore_show_main_board')]
+    public function showMainBoard(
+        #[MapEntity(id: 'idGame')] GameGLM $game): Response
+    {
+        return $this->render('Game/Glenmore/MainBoard/mainBoard.html.twig',
+            [
+                'game' => $game,
+                'boardTiles' => $this->dataManagementGLMService->organizeMainBoardRows(
+                    $this->dataManagementGLMService->createBoardBoxes($game)),
+            ]);
     }
 
     /**

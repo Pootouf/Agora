@@ -3,6 +3,23 @@ This section displays the main board that every player and spectator can see
 @param :
 @return :
 #}
+{#
 <div class="bg-yellow-600 h-full w-full">
     {{ include('/Game/Glenmore/MainBoard/displayTiles.html.twig') }}
+</div>#}
+
+<div id="mainBoard"
+     class="absolute top-0 left-0 w-full h-full bg-black bg-opacity-70 flex z-50 hidden text-white items-center justify-center">
+    <div class="bg-slate-900 p-5 rounded-lg flex flex-col justify-center items-center">
+        <div class="font-bold">
+            {{ include('/Game/Glenmore/MainBoard/displayTiles.html.twig') }}
+            <button id="return_board" onclick="closeWindow()"
+                    class="rounded-lg bg-blue-800 py-2 px-3 m-1 portrait:text-2xl items-center"
+            >
+                <img src="{{ asset('resourcesGames/utils/return-arrow.svg') }}" id="returnArrow"
+                     alt="return on board"
+                     class="h-6 max-h-full">
+            </button>
+        </div>
+    </div>
 </div>
