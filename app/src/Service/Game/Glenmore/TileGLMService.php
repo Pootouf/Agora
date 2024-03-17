@@ -28,6 +28,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Exception;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 
 class TileGLMService
 {
@@ -39,7 +40,6 @@ class TileGLMService
                                 private readonly PlayerTileGLMRepository $playerTileGLMRepository,
                                 private readonly CardGLMService $cardGLMService,
                                 private readonly SelectedResourceGLMRepository $selectedResourceGLMRepository) {}
-
 
     /**
      * getAmountOfTileToReplace : returns the amount of tiles to replace
@@ -91,7 +91,8 @@ class TileGLMService
             return false;
         }
         $buyPrice = $tileGLM->getTile()->getBuyPrice();
-        if ($buyPrice->first()->getResource() == GlenmoreParameters::$WHISKY_RESOURCE) {
+
+        if ($buyPrice->first() != null && $buyPrice->first()->getResource() == GlenmoreParameters::$WHISKY_RESOURCE) {
             return false;
         }
         return !$tileGLM->getTile()->getBuyPrice()->isEmpty();
@@ -274,11 +275,7 @@ class TileGLMService
      * @return int
      */
     public function getMovementPoints(PlayerTileGLM $playerTileGLM) : int {
-        $tiles = new ArrayCollection();
-        $tiles->add($playerTileGLM);
-        foreach ($playerTileGLM->getAdjacentTiles() as $adjacentTile) {
-            $tiles->add($adjacentTile);
-        }
+        $tiles = $playerTileGLM->getPersonalBoard()->getPlayerTiles();
         $movementPoint = 0;
         foreach ($tiles as $tile) {
             foreach ($tile->getPlayerTileResource() as $tileResource) {
@@ -556,6 +553,7 @@ class TileGLMService
             throw new Exception("no villager placed on this tile");
         }
         $player = $playerTileGLM->getPersonalBoard()->getPlayerGLM();
+
         $movementPoint = $this->getMovementPoints($playerTileGLM);
         if ($movementPoint <= 0) {
             throw new Exception("no more movement points");
@@ -1140,7 +1138,6 @@ class TileGLMService
                     if ($tileResource->getResource()->getType() === GlenmoreParameters::$MOVEMENT_RESOURCE) {
                         $tileResource->setQuantity(1);
                         $this->entityManager->persist($tileResource);
-                        $adjacentTile->addPlayerTileResource($tileResource);
                         $exists = true;
                         $adjacentTile->setActivated(true);
                         $this->entityManager->persist($adjacentTile);

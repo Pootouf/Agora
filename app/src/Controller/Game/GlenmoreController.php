@@ -452,9 +452,9 @@ class GlenmoreController extends AbstractController
         }
         try {
             $this->tileGLMService->moveVillager($tile, $dir);
-        } catch (Exception) {
+        } catch (Exception $e) {
             return new Response('Could not move a villager from this tile to 
-                targeted one ');
+                targeted one ' . $e->getMessage(), Response::HTTP_FORBIDDEN);
         }
         return new Response('the villager has been moved', Response::HTTP_OK);
     }
