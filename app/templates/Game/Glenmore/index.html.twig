@@ -27,12 +27,12 @@
 			{% block playerRound %}
 				{{ include('Game/Glenmore/MainBoard/playerRoundManagement.html.twig') }}
 			{% endblock %}
-			{% block mainBoard %}
+			{#{% block mainBoard %}
 				<div id="mainBoard" class="flow float-start w-[75%]
                         h-full">
 					{{ include('/Game/Glenmore/MainBoard/mainBoard.html.twig') }}
 				</div>
-			{% endblock %}
+			{% endblock %}#}
 			{% block personalBoard %}
 				{% if not isSpectator %}
 					<div id="personalBoard" class="flow float-start w-[75%] h-full">

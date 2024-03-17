@@ -4,6 +4,7 @@ This section displays the personal board of a player
 @return :
 #}
 
+{#
 <div id="closedPersonalBoard" class="bg-[#888060] w-[3/4] w-[75%] inline-block h-[3rem] h-fit
                                     lg:h-fit absolute bottom-0 z-9 rounded-tr-2xl"
         {{ stimulus_controller('glenmore') }}
@@ -37,4 +38,15 @@ This section displays the personal board of a player
             {{ include('Game/Glenmore/PersonalBoard/displayPlayerResources.html.twig') }}
         </div>
     </div>
+</div>#}
+
+<div class="flex justify-center w-full h-full">
+    <div id="tileBoard" class="w-full h-full p-1 bg-yellow-600">
+        {{ include('Game/Glenmore/PersonalBoard/displayPersonalTiles.html.twig') }}
+    </div>
+    {#<div class="flex justify-center w-full pb-2 h-[25%]">
+        <div id="resourcesBoard" class="w-5/6 h-5/6 rounded-2xl p-1 bg-gray-500">
+            {{ include('Game/Glenmore/PersonalBoard/displayPlayerResources.html.twig') }}
+        </div>
+    </div>#}
 </div>
