@@ -61,17 +61,32 @@ class Board
         $this->invitationHash = sha1(random_bytes(10));
         $this->listUsers = new ArrayCollection();
     }
-
+    /**
+     * Gets the ID of the board.
+     *
+     * @return int|null The ID of the board.
+     */
     public function getId(): ?int
     {
         return $this->id;
     }
 
+    /**
+     * Gets the maximum number of users allowed on the board.
+     *
+     * @return int|null The maximum number of users allowed on the board.
+     */
     public function getNbUserMax(): ?int
     {
         return $this->nbUserMax;
     }
 
+    /**
+     * Sets the maximum number of users allowed on the board.
+     *
+     * @param int $nbUserMax The maximum number of users allowed on the board.
+     * @return static
+     */
     public function setNbUserMax(int $nbUserMax): static
     {
         $this->nbUserMax = $nbUserMax;
@@ -79,11 +94,22 @@ class Board
         return $this;
     }
 
+    /**
+     * Gets the status of the board.
+     *
+     * @return string|null The status of the board.
+     */
     public function getStatus(): ?string
     {
         return $this->status;
     }
-
+    
+    /**
+     * Sets the status of the board.
+     *
+     * @param string $status The status of the board.
+     * @return static
+     */
     public function setStatus(?string $status): static
     {
         $this->status = $status;
@@ -91,11 +117,22 @@ class Board
         return $this;
     }
 
+   /**
+     * Gets the creation date of the board.
+     *
+     * @return \DateTimeInterface|null The creation date of the board.
+     */
     public function getCreationDate(): ?\DateTimeInterface
     {
         return $this->creationDate;
     }
 
+    /**
+     * Sets the creation date of the board.
+     *
+     * @param \DateTimeInterface $creationDate The creation date of the board.
+     * @return static
+     */
     public function setCreationDate(\DateTimeInterface $creationDate): static
     {
         $this->creationDate = $creationDate;
@@ -245,7 +282,11 @@ class Board
         return $this;
     }
 
-    //Return true if all places of the board have been taken by a player
+    /**
+     * Checks if all places on the board have been taken by players.
+     *
+     * @return bool Returns true if all places on the board have been taken by players, otherwise false.
+     */
     public function isFull():bool
     {
         return $this->listUsers->count() == $this->nbUserMax;
