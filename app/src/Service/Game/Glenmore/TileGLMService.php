@@ -38,8 +38,7 @@ class TileGLMService
                                 private readonly PlayerTileResourceGLMRepository $playerTileResourceGLMRepository,
                                 private readonly PlayerTileGLMRepository $playerTileGLMRepository,
                                 private readonly CardGLMService $cardGLMService,
-                                private readonly SelectedResourceGLMRepository $selectedResourceGLMRepository){}
-
+                                private readonly SelectedResourceGLMRepository $selectedResourceGLMRepository) {}
 
 
     /**
@@ -482,6 +481,7 @@ class TileGLMService
             $activationCostsLevels = $tileGLM->getTile()->getActivationPrice()->count();
             $selectedLevel = min($resourcesTypesCount, $activationCostsLevels);
             $activationBonus = $tileGLM->getTile()->getActivationBonus()->get($selectedLevel - 1);
+            $activationBonus = $tile->getActivationBonus()->get($bonusNb);
             $playerGLM->setPoints($playerGLM->getPoints() + $activationBonus->getAmount());
             $this->entityManager->persist($playerGLM);
         }
