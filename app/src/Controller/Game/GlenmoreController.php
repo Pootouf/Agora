@@ -317,6 +317,7 @@ class GlenmoreController extends AbstractController
             try {
                 $this->tileGLMService->selectResourcesFromTileToActivate($tile, $resourceGLM->getResource());
             } catch (\Exception $e) {
+                return new Response($e->getMessage(), Response::HTTP_UNAVAILABLE_FOR_LEGAL_REASONS);
             }
         }
         return new Response('a new resource has been selected', Response::HTTP_OK);
@@ -415,6 +416,7 @@ class GlenmoreController extends AbstractController
         } catch (\Exception $e) {
         }
         $player->setActivatedResourceSelection(false);
+        $this->service->setPhase($player, GlenmoreParameters::$STABLE_PHASE);
         $this->entityManager->persist($player);
         $this->entityManager->flush();
         return new Response("tile was activated", Response::HTTP_OK);
@@ -541,6 +543,9 @@ class GlenmoreController extends AbstractController
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
         }
         $this->tileGLMService->clearResourceSelection($player);
+        $this->service->setPhase($player, GlenmoreParameters::$STABLE_PHASE);
+        $player->setActivatedResourceSelection(false);
+        $this->entityManager->persist($player);
         return new Response('player cancel his selection', Response::HTTP_OK);
     }
 
