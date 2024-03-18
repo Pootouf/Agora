@@ -36,9 +36,22 @@ class PlayerResourcesDataGLM
         return $this->productionsCount;
     }
 
+    /**
+     * getMovementPoints : return the integer representing the actual possessed movement points by the player
+     * @return int
+     */
     public function getMovementPoints(): int
     {
         return $this->movementPoints;
+    }
+
+    /**
+     * getWhiskyCount : return the integer representing the count of whisky possessed by the player
+     * @return int
+     */
+    public function getWhiskyCount(): int
+    {
+        return $this->whiskyCount;
     }
 
 
