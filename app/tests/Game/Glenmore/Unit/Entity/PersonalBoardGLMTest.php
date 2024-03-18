@@ -374,6 +374,21 @@ class PersonalBoardGLMTest extends TestCase
         $this->assertSame($length, $this->personalBoardGLM->getCreatedResources()->count());
     }
 
+    public function testSetActivatedResource() : void
+    {
+        // GIVEN
+
+        $playerTile = new PlayerTileGLM();
+
+        // WHEN
+
+        $this->personalBoardGLM->setActivatedTile($playerTile);
+
+        // THEN
+
+        $this->assertSame($playerTile, $this->personalBoardGLM->getActivatedTile());
+    }
+
     protected function setUp(): void
     {
         $this->personalBoardGLM = new PersonalBoardGLM();
