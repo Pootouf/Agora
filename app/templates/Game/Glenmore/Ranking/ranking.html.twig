@@ -6,10 +6,12 @@ This section displays the ranking with a view of the other players' possessions
 
 {# Glenmore Logo #}
 <div id="logo" class="w-full h-[10%] landscape:1/6  lg:h-1/5 justify-center flex">
-	<div class="h-[80%] mt-2 mr-4">
+	<div class="flex justify-center items-center w-[30%] h-[80%] mt-2 mr-4">
 		{{ include('/Game/Glenmore/MainBoard/drawTileIndicator.html.twig') }}
 	</div>
-	<img class="" src="{{ asset('resourcesGames/Glenmore/glenmore.png') }}" alt="glenmore logo">
+	<div class="flex justify-center items-center w-[70%] h-[80%] mt-2 mr-4">
+		<img src="{{ asset('resourcesGames/Glenmore/glenmore.png') }}" alt="glenmore logo">
+	</div>
 </div>
 
 <div>
