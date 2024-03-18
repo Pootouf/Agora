@@ -14,14 +14,9 @@ This section displays the personal board of a player other than the current one
 		     alt="arrow up" class="h-10 landscape:h-6 lg:h-4 rotate-180 mt-1 mr-2">
 		<p>Fermer le plateau personnel de <b>{{ player.username }}</b></p>
 	</div>
-	<div class="flex justify-center pt-2 pb-2 w-full h-[75%]">
-		<div id="tileBoard" class="w-5/6 h-full rounded-2xl p-1 bg-yellow-600">
+	<div class="bg-yellow-600 flex justify-center w-full h-[95%]">
+		<div id="tileBoard" class="overflow-y-scroll overflow-x-scroll w-auto h-auto p-1">
 			{{ include('Game/Glenmore/PersonalBoard/displayPersonalTiles.html.twig') }}
-		</div>
-	</div>
-	<div class="flex justify-center w-full pb-2 h-[25%]">
-		<div id="resourcesBoard" class="w-5/6 h-5/6 rounded-2xl p-1 bg-gray-500">
-			{{ include('Game/Glenmore/PersonalBoard/displayPlayerResources.html.twig') }}
 		</div>
 	</div>
 </div>
