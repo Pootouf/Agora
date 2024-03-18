@@ -8,15 +8,15 @@ This section displays the warehouse of the main board, with available resources
 {% set assignedPoints = [1, 2, 3, 5, 8] %}
 
 <div class="w-full h-full grid grid-cols-2 grid-rows-{{ pointsDifferences|length + 1 }}">
-    <span class="bg-green-400 flex items-center justify-center">Différences</span>
-    <span class="bg-green-400 flex items-center justify-center">Points</span>
+    <span class="bg-green-400 bg-opacity-25 rounded-lg flex items-center justify-center">Différences</span>
+    <span class="bg-green-400 bg-opacity-25 rounded-lg flex items-center justify-center">Points</span>
     {% for i in 0..pointsDifferences|length - 1%}
         {% if pointsDifferences[i] == 5 %}
-            <span class="bg-green-400 flex items-center justify-center">+{{ pointsDifferences[i] }}</span>
+            <span class="flex items-center justify-center">+{{ pointsDifferences[i] }}</span>
         {% else %}
-            <span class="bg-green-400 flex items-center justify-center">{{ pointsDifferences[i] }}</span>
+            <span class=" flex items-center justify-center">{{ pointsDifferences[i] }}</span>
         {% endif %}
 
-        <span class="bg-green-400 flex items-center justify-center">{{ assignedPoints[i] }}</span>
+        <span class="flex items-center justify-center">{{ assignedPoints[i] }}</span>
     {% endfor %}
 </div>
