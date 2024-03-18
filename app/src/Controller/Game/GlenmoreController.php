@@ -582,11 +582,14 @@ class GlenmoreController extends AbstractController
     public function showMainBoard(
         #[MapEntity(id: 'idGame')] GameGLM $game): Response
     {
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         return $this->render('Game/Glenmore/MainBoard/mainBoard.html.twig',
             [
                 'game' => $game,
                 'boardTiles' => $this->dataManagementGLMService->organizeMainBoardRows(
                     $this->dataManagementGLMService->createBoardBoxes($game)),
+                'needToPlay' => $player == null ? false : $player->isTurnOfPlayer(),
+                'isSpectator' => $player == null
             ]);
     }
 

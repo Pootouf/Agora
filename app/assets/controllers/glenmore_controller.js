@@ -175,10 +175,6 @@ export default class extends Controller {
         const response = await fetch(url);
     }
 
-	/*preview() {
-		alert("preview");
-	}*/
-
 	async showMainBoard(main)  {
 		let url = main.params.url;
 		const response = await fetch(url);
