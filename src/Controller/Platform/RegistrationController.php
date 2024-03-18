@@ -44,7 +44,7 @@ class RegistrationController extends AbstractController
         $user = new User();
         $form = $this->createForm(RegistrationFormType::class, $user);
         $form->handleRequest($request);
-
+        $errors = [];
         if ($form->isSubmitted() && $form->isValid()) {
             // encode the plain password
             $user->setPassword(
@@ -62,16 +62,21 @@ class RegistrationController extends AbstractController
                 (new TemplatedEmail())
                     ->from(new Address('agora@univ-rouen.fr', 'Agora assistant'))
                     ->to($user->getEmail())
-                    ->subject('Please Confirm your Email')
+                    ->subject('Confirmation de mail pour votre compte agora')
                     ->htmlTemplate('platform/registration/confirmation_email.html.twig')
             );
             // do anything else you need here, like send an email
 
             return $this->redirectToRoute('app_home');
+        }else{
+            foreach ($form->getErrors(true, true) as $error) {
+                $errors[] = $error->getMessage();
+            }
         }
 
         return $this->render('platform/registration/register.html.twig', [
             'registrationForm' => $form->createView(),
+            'errors' => $errors
         ]);
     }
 

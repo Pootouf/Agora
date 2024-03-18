@@ -3,8 +3,6 @@
 namespace App\Controller\Platform;
 
 use App\Entity\Platform\Game;
-use App\Service\Platform\UserManagerService;
-use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -43,14 +41,15 @@ class GameController extends AbstractController
      * 
      * @return Response HTTP response: game description by ID page
      */
-    #[Route('/games/{game_id}', name: 'app_game_description', requirements: ['game_id' => '\d+'], methods: ['GET', 'HEAD'])]
+    #[Route('/dashboard/games/{game_id}', name: 'app_game_description', requirements: ['game_id' => '\d+'], methods: ['GET', 'HEAD'])]
     public function game_description(EntityManagerInterface $entityManager, int $game_id): Response
     {
         $gameRepository = $entityManager->getRepository(Game::class);
         $game = $gameRepository->find($game_id);
 
         if(!$game) {
-            throw $this->createNotFoundException('Le jeu n\'existe pas');
+            $this->addFlash('warning', 'Le jeu n\'existe pas');
+            return $this->redirectToRoute('app_games');
         }
 
         return $this->render('platform/dashboard/games/description.html.twig', [
@@ -67,16 +66,21 @@ class GameController extends AbstractController
         $game = $gameRepository->find($game_id);
 
         if(!$game) {
-            throw $this->createNotFoundException('Le jeu n\'existe pas');
+            $this->addFlash('warning', 'Le jeu n\'existe pas');
+            return $this->redirectToRoute('app_games');
         }
         $user = $security->getUser();
         if ($user){
 //            Add game as favorite game
-            $user->addFavoriteGame($game);
-            $entityManager->flush();
-            $this->addFlash('successfavorite', 'Le jeu a été ajouté à vos favoris.');
+            if(!$user->getFavoriteGames()->contains($game)){
+                $user->addFavoriteGame($game);
+                $entityManager->flush();
+                $this->addFlash('success', 'Le jeu '. $game->getLabel() . ' a été ajouté à vos favoris.');
+            }else{
+                $this->addFlash('warning', 'Le jeu '. $game->getLabel() . ' a déja été ajouté à vos favoris.');
+            }
         }else{
-            $this->addFlash('user_connection', 'Le joueur n\'est pas connecté.');
+            $this->addFlash('warning', 'Le joueur n\'est pas connecté.');
         }
 
         return $this->redirectToRoute('app_games');

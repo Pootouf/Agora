@@ -11,8 +11,8 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-#[UniqueEntity(fields: ['email'], message: 'There is already an account with this email')]
-#[UniqueEntity(fields: ['username'], message: 'There is already an account with this username')]
+#[UniqueEntity(fields: ['email'], message: 'Nous avons déjà enrigistré un compte avec cet email')]
+#[UniqueEntity(fields: ['username'], message: 'Nous avons déjà enrigistré un compte avec ce nom d\'utilisateur')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -21,6 +21,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 180, unique: true)]
+    #[Assert\Email(
+        message: "L'adresse email '{{ value }}' n'est pas valide."
+    )]
     private ?string $email = null;
 
     #[ORM\Column]
@@ -37,8 +40,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\Length(
         min: 4,
         max: 20,
-        minMessage: 'Your first name must be at least {{ limit }} characters long',
-        maxMessage: 'Your first name cannot be longer than {{ limit }} characters',
+        minMessage: 'Votre mot de passe doit être composé au moins de {{ limit }} caractères',
+        maxMessage: 'Votre mot de passe doit être composé au plus de {{ limit }} caractères',
     )]
     private ?string $username = null;
 
@@ -53,13 +56,20 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\ManyToMany(targetEntity: Board::class, mappedBy: 'listUsers')]
     private Collection $boards;
 
+    #[ORM\OneToMany(targetEntity: Notification::class, mappedBy: 'receiver')]
+    private Collection $notifications;
+
     #[ORM\ManyToMany(targetEntity: self::class)]
     private Collection $contacts;
+
 
     public function __construct()
     {
         $this->boards = new ArrayCollection();
         $this->favoriteGames = new ArrayCollection();
+
+        $this->notifications = new ArrayCollection();
+
         $this->contacts = new ArrayCollection();
     }
 
@@ -216,6 +226,23 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
+
+     * @return Collection<int, Notification>
+     */
+    public function getNotifications(): Collection
+    {
+        return $this->notifications;
+    }
+
+    public function addNotification(Notification $notification): static
+    {
+        if (!$this->notifications->contains($notification)) {
+            $this->notifications->add($notification);
+            $notification->setReceiver($this);
+        }
+        return $this;
+    }
+    /**
      * @return Collection<int, self>
      */
     public function getContacts(): Collection
@@ -229,6 +256,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             $this->contacts->add($contact);
         }
 
+        return $this;
+    }
+
+    public function removeNotification(Notification $notification): static
+    {
+        if ($this->notifications->removeElement($notification)) {
+            // set the owning side to null (unless already changed)
+            if ($notification->getReceiver() === $this) {
+                $notification->setReceiver(null);
+            }
+        }
         return $this;
     }
 
