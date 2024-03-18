@@ -153,6 +153,28 @@ class PlayerGLMTest extends TestCase
         $this->assertSame($length, $this->playerGLM->getPlayerTileResourceGLMs()->count());
     }
 
+    public function testSetActivatedResourceSelection() : void
+    {
+        // GIVEN et WHEN
+
+        $this->playerGLM->setActivatedResourceSelection(true);
+
+        // THEN
+
+        $this->assertTrue($this->playerGLM->isActivatedResourceSelection());
+    }
+
+    public function testSetBot() : void
+    {
+        // GIVEN et WHEN
+
+        $this->playerGLM->setBot(true);
+
+        // THEN
+
+        $this->assertTrue($this->playerGLM->isBot());
+    }
+
     protected function setUp(): void
     {
         $this->playerGLM = new PlayerGLM("user", new GameGLM());

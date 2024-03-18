@@ -84,6 +84,18 @@ class PawnGLMTest extends TestCase
         $this->assertSame($mainBoard, $this->pawnGLM->getMainBoardGLM());
     }
 
+    public function testSetDice() : void
+    {
+        // GIVEN et WHEN
+
+        $this->pawnGLM->setDice(true);
+
+        // THEN
+
+        $this->assertTrue($this->pawnGLM->isDice());
+
+    }
+
     protected function setUp(): void
     {
         $this->pawnGLM = new PawnGLM();
