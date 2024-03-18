@@ -92,8 +92,8 @@
                   </th>
               </tr>
           </thead>
-          {% if userProfile is not null %}
-              {% set currentUserID = userProfile.id %}
+          {% if app.user is not null %}
+              {% set currentUserID = app.user.id %}
           {% endif %}
           <tbody>
               {% for board in current_boards %}
@@ -167,7 +167,7 @@
                            </table>
                        </td>
                        <td class="px-3 py-4">
-                           {% if userProfile %}
+                           {% if app.user %}
                                 {% if currentUserID in usersIds %}
                                      {% if board.status == 'IN_GAME' %}
                                          <a href="/" class="text-white bg-primary hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
@@ -217,8 +217,8 @@
                   </th>
               </tr>
           </thead>
-          {% if userProfile is not null %}
-              {% set currentUserID = userProfile.id %}
+          {% if app.user is not null %}
+              {% set currentUserID = app.user.id %}
           {% endif %}
           <tbody>
               {% for board in past_boards %}
@@ -292,7 +292,7 @@
                            </table>
                        </td>
                        <td class="px-3 py-4">
-                           {% if userProfile %}
+                           {% if app.user %}
                                 {% if currentUserID in usersIds %}
                                      {% if board.status == 'IN_GAME' %}
                                          <a href="/" class="text-white bg-primary hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
