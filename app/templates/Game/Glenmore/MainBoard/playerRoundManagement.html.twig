@@ -33,9 +33,6 @@ This section displays the player options regarding his round
         </div>
     {% elseif not activatedMovementPhase and activatedActivationPhase and not activatedResourceSelection
                 and activableTiles is not empty %}
-        <div class="bg-gradient-to-b from-[#4C6E9Bff] to-[#20222Dff]
-                                            flex justify-center items-center
-                                             w-[70%] h-[17%]">
             <div class="flex items-center justify-center">
                 <button
                         {{ stimulus_action('glenmore', 'endActivationTilesPhase', 'click',
@@ -49,12 +46,7 @@ This section displays the player options regarding his round
                     Valider l'activation des tuiles
                 </button>
             </div>
-        </div>
     {% else %}
-        <div
-                class="bg-gradient-to-b from-[#4C6E9Bff] to-[#20222Dff]
-                                            flex justify-center items-center
-                                             w-[70%] h-[17%]">
             <div class="flex items-center justify-center">
                 <button
                         {% if activatedBuyingPhase %} disabled {% endif %}
@@ -69,6 +61,5 @@ This section displays the player options regarding his round
                     Finir le tour
                 </button>
             </div>
-        </div>
     {% endif %}
 {% endif %}

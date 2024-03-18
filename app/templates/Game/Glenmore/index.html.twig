@@ -8,7 +8,7 @@
 			{% block playerRound %}
 				<div class="absolute bg-gradient-to-b absolute from-[#4C6E9Bff] to-[#20222Dff]
                                      flex justify-center items-center
-                                     w-[70%] h-[17%]">
+                                     w-[70%] h-[10%]">
 					{{ include('Game/Glenmore/MainBoard/playerRoundManagement.html.twig') }}
 				</div>
 			{% endblock %}
@@ -39,7 +39,7 @@
 			{% endblock %}#}
 			{% block personalBoard %}
 				{% if not isSpectator %}
-					<div id="personalBoard" class="absolute bottom-0 w-[70%] h-[83%]">
+					<div id="personalBoard" class="absolute bottom-0 w-[70%] h-[90%]">
 						{{ include('/Game/Glenmore/PersonalBoard/personalBoard.html.twig') }}
 					</div>
 					<div id="playerPersonalBoard" class="flow float-start w-[70%] h-[5/6]">
