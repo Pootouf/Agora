@@ -6,7 +6,7 @@
 	<div class="h-screen w-screen overflow-hidden absolute" {{ stimulus_controller('glenmore') }}>
 		<div id="index_glenmore" class="h-full w-full static overflow-hidden">
 			{% block playerRound %}
-				<div class="absolute bg-gradient-to-b absolute from-[#4C6E9Bff] to-[#20222Dff]
+				<div class="absolute bg-gradient-to-b absolute from-[#09090b] to-[#14532d]
                                      flex justify-center items-center
                                      w-[70%] h-[10%]">
 					{{ include('Game/Glenmore/MainBoard/playerRoundManagement.html.twig') }}
@@ -31,18 +31,12 @@
 					{{ include('/Game/Glenmore/MainBoard/preview.html.twig') }}
 				</div>
 			{% endblock %}
-			{#{% block mainBoard %}
-				<div id="mainBoard" class="flow float-start w-[75%]
-                        h-full">
-					{{ include('/Game/Glenmore/MainBoard/mainBoard.html.twig') }}
-				</div>
-			{% endblock %}#}
 			{% block personalBoard %}
 				{% if not isSpectator %}
-					<div id="personalBoard" class="absolute bottom-0 w-[70%] h-[90%]">
+					<div id="personalBoard" class="absolute bg-gradient-to-r from-[#422006] to-[#ca8a04] bottom-0 w-[70%] h-[90%]">
 						{{ include('/Game/Glenmore/PersonalBoard/personalBoard.html.twig') }}
 					</div>
-					<div id="playerPersonalBoard" class="flow float-start w-[70%] h-[5/6]">
+					<div id="playerPersonalBoard" class="bg-[#422006] flow float-start w-[70%] h-[5/6]">
 						{{ include('Game/Glenmore/MainBoard/playerPersonalBoard.html.twig') }}
 					</div>
 				{% endif %}

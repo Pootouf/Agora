@@ -3,18 +3,18 @@ This section displays the personal board of a player other than the current one
 @param :
 @return :
 #}
-<div id="openedPlayerPersonalBoard" class="bg-[#888060] w-full h-full lg:w-[70%] lg:h-full absolute bottom-0
+<div id="openedPlayerPersonalBoard" class="bg-[#09090b] w-full h-full lg:w-[70%] lg:h-full absolute bottom-0
                             lg:rounded-tr-2xl z-10
                             overflow-y-hidden" hidden
 		{{ stimulus_controller('glenmore') }}
 >
-	<div class="h-1/30 w-full flex justify-center cursor-pointer text-5xl landscape:text-2xl lg:text-base"
+	<div class="h-1/30 w-full flex justify-center cursor-pointer text-white text-5xl landscape:text-2xl lg:text-base"
 			{{ stimulus_action('glenmore', 'displayPlayerPersonalBoard', 'click', { 'open': false}) }}>
-		<img src="{{ asset('resourcesGames/utils/arrow_up.svg') }}" id="openArrow"
+		<img src="{{ asset('resourcesGames/utils/arrow_up_white.svg') }}" id="openArrow"
 		     alt="arrow up" class="h-10 landscape:h-6 lg:h-4 rotate-180 mt-1 mr-2">
 		<p>Fermer le plateau personnel de <b>{{ player.username }}</b></p>
 	</div>
-	<div class="bg-yellow-600 flex justify-center w-full h-[95%]">
+	<div class="bg-gradient-to-b from-[#09090b] to-[#052e16]  flex justify-center w-full h-[95%]">
 		<div id="tileBoard" class="overflow-y-scroll overflow-x-scroll w-auto h-auto p-1">
 			{{ include('Game/Glenmore/PersonalBoard/displayPersonalTiles.html.twig') }}
 		</div>
