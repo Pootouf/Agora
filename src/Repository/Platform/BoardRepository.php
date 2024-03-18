@@ -120,5 +120,20 @@ class BoardRepository extends ServiceEntityRepository
         return $query->getQuery()->getResult();
     }
 
-
+    /**
+     * Results of boards that user participate
+     * @return Board[]
+     */
+    public function findBoardsByUserAndStatus(int $userId, string $status)
+    {
+        return $this->createQueryBuilder('b')
+            ->join('b.listUsers', 'p')
+            ->where('b.status = :status')
+            ->andWhere('p.id = :userId')
+            ->setParameter('status', $status)
+            ->setParameter('userId', $userId)
+            ->orderBy('b.creationDate', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
 }

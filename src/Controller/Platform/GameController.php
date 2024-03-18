@@ -41,7 +41,7 @@ class GameController extends AbstractController
      * 
      * @return Response HTTP response: game description by ID page
      */
-    #[Route('/games/{game_id}', name: 'app_game_description', requirements: ['game_id' => '\d+'], methods: ['GET', 'HEAD'])]
+    #[Route('/dashboard/games/{game_id}', name: 'app_game_description', requirements: ['game_id' => '\d+'], methods: ['GET', 'HEAD'])]
     public function game_description(EntityManagerInterface $entityManager, int $game_id): Response
     {
         $gameRepository = $entityManager->getRepository(Game::class);
