@@ -6,6 +6,7 @@ use App\Entity\Platform\Board;
 use App\Entity\Platform\Game;
 use App\Entity\Platform\User;
 use App\Service\Game\GameManagerService;
+use App\Service\Platform\NotificationService;
 use Doctrine\ORM\EntityManagerInterface;
 
 class BoardManagerService
@@ -16,13 +17,17 @@ class BoardManagerService
     private static $SUCCESS = 1;
     private EntityManagerInterface $entityManagerInterface;
 
+    private NotificationService $notificationService;
+
     public function __construct(
         GameManagerService $gameManagerService,
-        EntityManagerInterface $entityManagerInterface
+        EntityManagerInterface $entityManagerInterface,
+        notificationService $notificationService
     )
     {
         $this->gameManagerService = $gameManagerService;
         $this->entityManagerInterface = $entityManagerInterface;
+        $this->notificationService = $notificationService;
     }
 
 
@@ -52,6 +57,8 @@ class BoardManagerService
         if($board->isFull()){
             $this->gameManagerService->launchGame($board->getPartyId());
             $board->setStatus("IN_GAME");
+            $users = $board->getListUsers();
+            $this->notificationService->notifyManyUser($users, "La partie ".$board->getPartyId()." du jeu ".$board->getGame()->getLabel()." a démarré, vous pouvez maintenant jouer", new \DateTime());
         }
         $this->entityManagerInterface->persist($board);
         $this->entityManagerInterface->persist($user);

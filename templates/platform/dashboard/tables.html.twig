@@ -16,31 +16,50 @@
 			<div class="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-danger to-primary opacity-30 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]" style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)"></div>
 		</div>
 		<div class="mx-auto max-w-7xl px-6 lg:px-8 mt-16">
-			{{ form_start(searchboard) }}
-			<div class="my-custom-class-for-errors">
-				{{ form_errors(searchboard) }}
-			</div>
+				<div class="search-form-container">
+					<!-- Ajout de la classe de conteneur pour le formulaire -->
+					<!-- Formulaire de recherche -->
+					{{ form_start(searchboard, {'attr': {'id': 'searchForm'}}) }}
+					<div class="my-custom-class-for-errors">
+						{{ form_errors(searchboard) }}
+					</div>
+					<div class="flex flex-wrap items-start">
+						<!-- Ajout de la classe "items-start" pour aligner les éléments en haut -->
+						<div class="w-full md:w-1/5">
+							<div class="text-black font-bold">
+								{{ form_label(searchboard.status, 'Statut', {'label_attr': {'class': 'search-label'}}) }}
+							</div>
+							{{ form_widget(searchboard.status, {'id': 'statusSelect', 'placeholder': 'Choisir le statut'}) }}
+						</div>
+						<div class="w-full md:w-1/5">
+							<div class="text-black font-bold">
+								{{ form_label(searchboard.availability, 'Disponibilité', {'label_attr': {'class': 'search-label'}}) }}
+							</div>
+							{{ form_widget(searchboard.availability, {'id': 'availabilitySelect', 'placeholder': 'Choisir la disponibilité'}) }}
+						</div>
+						<div class="w-full md:w-1/5">
+							<div class="text-black font-bold">
+								{{ form_label(searchboard.datecreation, 'Date de création', {'label_attr': {'class': 'search-label'}}) }}
+							</div>
+							{{ form_widget(searchboard.datecreation, {'id': 'datecreationSelect', 'placeholder': 'Choisir la date de création'}) }}
+						</div>
+						<div class="w-full md:w-1/5">
+							<div class="text-black font-bold">
+								{{ form_label(searchboard.game, 'Jeu', {'label_attr': {'class': 'search-label'}}) }}
+							</div>
+							{{ form_widget(searchboard.game, {'id': 'gameSelect', 'placeholder': 'Choisir le jeu'}) }}
+						</div>
+						<div class="md:w-1/5 items-center justify-center">
+							<br>
+							<button type="submit" class="text-white bg-primary hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
+								chercher
+							</button>
+						</div>
+					</div>
+					{{ form_end(searchboard) }}
+				</div>
+		</div>
 
-			<div class="row">
-				<div class="col">
-					{{ form_row(searchboard.status) }}
-				</div>
-				<div class="col" id="some-custom-id">
-					{{ form_row(searchboard.availability) }}
-				</div>
-				<div class="col" id="some-custom-id">
-					{{ form_row(searchboard.datecreation) }}
-				</div>
-				<div class="col" id="some-custom-id">
-					{{ form_row(searchboard.game) }}
-				</div>
-			</div>
-			<br>
-			<button type="submit">
-				chercher
-			</button>
-			{{ form_end(searchboard) }}
-			<br>
 			<div class="mx-auto max-w-7xl px-6 lg:px-8 mt-16">
 				<div class="relative overflow-x-auto shadow-md sm:rounded-lg">
 					<table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 border border-gray-300">
