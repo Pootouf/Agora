@@ -59,7 +59,7 @@ This section displays the player's disposition of tiles
                                 />
 
                             {# Placement of the productions #}
-                            {% elseif playerResource.resource.type == PRODUCTION %}
+                            {% elseif playerResource.resource.type == PRODUCTION and playerResource.quantity > 0%}
                                 <img class="absolute w-1/6 h-1/6 items-center aspect-auto justify-center
                                             max-h-full left-{{ productionPlacement}} bottom-0"
                                      src="{{

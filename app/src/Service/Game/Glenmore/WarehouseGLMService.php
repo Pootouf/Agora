@@ -46,7 +46,7 @@ class WarehouseGLMService
             throw new Exception("Unable to sell the resource");
         }
 
-        $money = GlenmoreParameters::$MONEY_FROM_QUANTITY[$warehouseLine->getQuantity()];
+        $money = GlenmoreParameters::$MONEY_FROM_QUANTITY[$warehouseLine->getQuantity() - 1];
         if ($money == GlenmoreParameters::$MIN_TRADE)
         {
             throw new Exception("Unable to sell the resource");
@@ -141,7 +141,7 @@ class WarehouseGLMService
      * Return a tile's player or null that contains resource
      * @param PersonalBoardGLM $personalBoard
      * @param ResourceGLM $resource
-     * @return PlayerTileGLM|null
+     * @return PlayerTileResourceGLM|null
      */
     public function getResourceOnPersonalBoard(PersonalBoardGLM $personalBoard
         , ResourceGLM $resource) : ?PlayerTileResourceGLM
