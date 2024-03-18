@@ -713,7 +713,7 @@ class TileGLMServiceTest extends TestCase
         }
         $expectedResult = 2;
         //WHEN
-        $result = $this->tileGLMService->getMovementPoints($firstPlayer->getPersonalBoard()->getPlayerTiles()->last());
+        $result = $this->tileGLMService->getMovementPoints($firstPlayer);
         //THEN
         $this->assertSame($expectedResult, $result);
     }
@@ -739,7 +739,7 @@ class TileGLMServiceTest extends TestCase
         }
         $expectedResult = 3;
         //WHEN
-        $result = $this->tileGLMService->getMovementPoints($firstPlayer->getPersonalBoard()->getPlayerTiles()->last());
+        $result = $this->tileGLMService->getMovementPoints($firstPlayer);
         //THEN
         $this->assertSame($expectedResult, $result);
     }
@@ -776,7 +776,7 @@ class TileGLMServiceTest extends TestCase
         $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile);
         $expectedResult = 3;
         //WHEN
-        $result = $this->tileGLMService->getMovementPoints($firstPlayer->getPersonalBoard()->getPlayerTiles()->last());
+        $result = $this->tileGLMService->getMovementPoints($firstPlayer);
         //THEN
         $this->assertSame($expectedResult, $result);
     }
@@ -813,7 +813,7 @@ class TileGLMServiceTest extends TestCase
         }
         $expectedResult = 3;
         //WHEN
-        $result = $this->tileGLMService->getMovementPoints($firstPlayer->getPersonalBoard()->getPlayerTiles()->last());
+        $result = $this->tileGLMService->getMovementPoints($firstPlayer);
         //THEN
         $this->assertSame($expectedResult, $result);
     }
