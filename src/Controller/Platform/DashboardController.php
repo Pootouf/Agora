@@ -3,6 +3,7 @@
 namespace App\Controller\Platform;
 
 use App\Entity\Platform\Board;
+use App\Entity\Platform\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -39,6 +40,28 @@ class DashboardController extends AbstractController
             'past_boards' => $pastBoards
         ]);
     }
+
+    #[Route('/dashboard/profile/{user_id}', name: 'app_other_user_profile', requirements: ['user_id' => '\d+'])]
+    public function getUserProfile(EntityManagerInterface $entityManager, Security $security, int $user_id) : Response
+    {
+        $userRepository = $entityManager->getRepository(User::class);
+        $boardRepository = $entityManager->getRepository(Board::class);
+
+        $user = $userRepository->find($user_id);
+
+        $favGames = $user->getFavoriteGames();
+        $currentBoards = $boardRepository->findBoardsByUserAndStatus($user_id, "IN_GAME");
+        $pastBoards = $boardRepository->findBoardsByUserAndStatus($user_id, "WAITING");
+
+        return $this->render('platform/dashboard/profile.html.twig', [
+            'controller_name' => 'DashboardController',
+            'fav_games' => $favGames,
+            'current_boards'=> $currentBoards,
+            'past_boards' => $pastBoards,
+            'userProfile' => $user
+        ]);
+    }
+
     #[Route('/dashboard/settings', name: 'app_dashboard_settings')]
     public function settings(): Response
     {
