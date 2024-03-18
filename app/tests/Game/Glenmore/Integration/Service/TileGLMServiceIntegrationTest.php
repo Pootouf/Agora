@@ -609,7 +609,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         }
         $expectedResult = 2;
         //WHEN
-        $result = $tileGLMService->getMovementPoints($firstPlayer->getPersonalBoard()->getPlayerTiles()->last());
+        $result = $tileGLMService->getMovementPoints($firstPlayer);
         //THEN
         $this->assertSame($expectedResult, $result);
     }
@@ -643,7 +643,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         }
         $expectedResult = 1;
         //WHEN
-        $result = $tileGLMService->getMovementPoints($firstPlayer->getPersonalBoard()->getPlayerTiles()->last());
+        $result = $tileGLMService->getMovementPoints($firstPlayer);
         //THEN
         $this->assertSame($expectedResult, $result);
     }
@@ -678,7 +678,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         }
         $expectedResult = 2;
         //WHEN
-        $result = $tileGLMService->getMovementPoints($firstPlayer->getPersonalBoard()->getPlayerTiles()->last());
+        $result = $tileGLMService->getMovementPoints($firstPlayer);
         //THEN
         $this->assertSame($expectedResult, $result);
     }
@@ -715,7 +715,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         }
         $expectedResult = 2;
         //WHEN
-        $result = $tileGLMService->getMovementPoints($firstPlayer->getPersonalBoard()->getPlayerTiles()->last());
+        $result = $tileGLMService->getMovementPoints($firstPlayer);
         //THEN
         $this->assertSame($expectedResult, $result);
     }

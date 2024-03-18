@@ -3,6 +3,7 @@
 namespace App\Tests\Game\Glenmore\Unit\Service;
 
 use App\Entity\Game\DTO\Glenmore\BoardBoxGLM;
+use App\Entity\Game\DTO\Tile;
 use App\Entity\Game\Glenmore\BoardTileGLM;
 use App\Entity\Game\Glenmore\DrawTilesGLM;
 use App\Entity\Game\Glenmore\GameGLM;
@@ -19,6 +20,7 @@ use App\Entity\Game\Glenmore\WarehouseGLM;
 use App\Entity\Game\Glenmore\WarehouseLineGLM;
 use App\Repository\Game\Glenmore\PlayerTileGLMRepository;
 use App\Service\Game\AbstractGameManagerService;
+use App\Service\Game\Glenmore\TileGLMService;
 use Doctrine\Common\Collections\ArrayCollection;
 use PHPUnit\Framework\TestCase;
 use App\Service\Game\Glenmore\DataManagementGLMService;
@@ -28,7 +30,8 @@ class DataManagementGLMServiceTest extends TestCase
     protected function setUp(): void
     {
         $playerTileRepository = $this->createMock(PlayerTileGLMRepository::class);
-        $this->dataManagementGLMService = new DataManagementGLMService($playerTileRepository);
+        $tileGLMService = $this->createMock(TileGLMService::class);
+        $this->dataManagementGLMService = new DataManagementGLMService($playerTileRepository, $tileGLMService);
     }
 
     public function testWhiskyCount() : void

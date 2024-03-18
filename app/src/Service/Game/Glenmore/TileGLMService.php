@@ -271,11 +271,12 @@ class TileGLMService
 
     /**
      * getMovementPoints : returns total movement points of a player
-     * @param PlayerTileGLM $playerTileGLM
+     * @param PlayerGLM $playerGLM
      * @return int
      */
-    public function getMovementPoints(PlayerTileGLM $playerTileGLM) : int {
-        $tiles = $playerTileGLM->getPersonalBoard()->getPlayerTiles();
+    public function getMovementPoints(PlayerGLM $playerGLM) : int
+    {
+        $tiles = $playerGLM->getPersonalBoard()->getPlayerTiles();
         $movementPoint = 0;
         foreach ($tiles as $tile) {
             foreach ($tile->getPlayerTileResource() as $tileResource) {
@@ -285,6 +286,50 @@ class TileGLMService
             }
         }
         return $movementPoint;
+    }
+
+
+    /**
+     * getPlayerProductionResources : return an array containing the count of each resource production of a player
+     * @param PlayerGLM $playerGLM
+     * @return array<string, int>
+     */
+    public function getPlayerProductionResources(PlayerGLM $playerGLM) : array
+    {
+        $result = [];
+        $result[GlenmoreParameters::$COLOR_GREEN] = $this->getProductionResourcesCountByColor($playerGLM,
+                                                        GlenmoreParameters::$COLOR_GREEN);
+        $result[GlenmoreParameters::$COLOR_YELLOW] = $this->getProductionResourcesCountByColor($playerGLM,
+                                                        GlenmoreParameters::$COLOR_YELLOW);
+        $result[GlenmoreParameters::$COLOR_BROWN] = $this->getProductionResourcesCountByColor($playerGLM,
+                                                        GlenmoreParameters::$COLOR_BROWN);
+        $result[GlenmoreParameters::$COLOR_WHITE] = $this->getProductionResourcesCountByColor($playerGLM,
+                                                        GlenmoreParameters::$COLOR_WHITE);
+        $result[GlenmoreParameters::$COLOR_GREY] = $this->getProductionResourcesCountByColor($playerGLM,
+                                                        GlenmoreParameters::$COLOR_GREY);
+        return $result;
+    }
+
+    /**
+     * getProductionResourcesCountByColor : return the count of a production resource
+     * @param PlayerGLM $playerGLM
+     * @param string $color
+     * @return int
+     */
+    public function getProductionResourcesCountByColor(PlayerGLM $playerGLM, string $color) : int
+    {
+        $tiles = $playerGLM->getPersonalBoard()->getPlayerTiles();
+        $count = 0;
+        foreach ($tiles as $tile) {
+            $resources = $tile->getPlayerTileResource();
+            foreach ($resources as $resource) {
+                if($resource->getResource()->getType() == GlenmoreParameters::$PRODUCTION_RESOURCE
+                    && $resource->getResource()->getColor() == $color) {
+                    $count += $resource->getQuantity();
+                }
+            }
+        }
+        return $count;
     }
 
 
@@ -349,9 +394,11 @@ class TileGLMService
         foreach ($tile->getBuyPrice() as $buyPrice) {
             $priceTile = $buyPrice->getPrice();
             $resource = $buyPrice->getResource();
-            $selectedResourcesOfSameResource = $globalResources->filter(function (SelectedResourceGLM $selectedResourceGLM) use ($resource) {
-               return $selectedResourceGLM->getResource()->getId() == $resource->getId();
-            });
+            $selectedResourcesOfSameResource = $globalResources->filter(
+                function (SelectedResourceGLM $selectedResourceGLM) use ($resource) {
+                    return $selectedResourceGLM->getResource()->getId() == $resource->getId();
+                }
+            );
             if ($selectedResourcesOfSameResource->count() != $priceTile) {
                 throw new \Exception('Invalid amount of selected resources');
             }
@@ -408,7 +455,8 @@ class TileGLMService
         $posTile = $currentPosition;
         $posTile -= 1;
         // Search last position busy by a tile
-        while ($this->getBoardTilesAtPosition($mainBoard, $posTile) == null && $this->getPawnsAtPosition($player, $mainBoard, $posTile) == null)
+        while ($this->getBoardTilesAtPosition($mainBoard, $posTile) == null
+            && $this->getPawnsAtPosition($player, $mainBoard, $posTile) == null)
         {
             $posTile -= 1;
             if ($posTile < 0) {
@@ -519,13 +567,14 @@ class TileGLMService
                 }
             }
         }
-
-
-
-
         $this->entityManager->flush();
     }
 
+    /**
+     * chooseTileToActivate : set activated tile to tile
+     * @param PlayerTileGLM $tileGLM
+     * @return void
+     */
     public function chooseTileToActivate(PlayerTileGLM $tileGLM) : void
     {
         $personalBoard = $tileGLM->getPersonalBoard();
@@ -554,7 +603,7 @@ class TileGLMService
         }
         $player = $playerTileGLM->getPersonalBoard()->getPlayerGLM();
 
-        $movementPoint = $this->getMovementPoints($playerTileGLM);
+        $movementPoint = $this->getMovementPoints($playerTileGLM->getPersonalBoard()->getPlayerGLM());
         if ($movementPoint <= 0) {
             throw new Exception("no more movement points");
         }
@@ -583,7 +632,7 @@ class TileGLMService
             throw new Exception("not enough villager on player's village");
         }
         $player = $playerTileGLM->getPersonalBoard()->getPlayerGLM();
-        $movementPoint = $this->getMovementPoints($playerTileGLM);
+        $movementPoint = $this->getMovementPoints($playerTileGLM->getPersonalBoard()->getPlayerGLM());
         if ($movementPoint == 0) {
             throw new Exception("no more movement points");
         }

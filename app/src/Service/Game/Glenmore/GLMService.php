@@ -291,7 +291,7 @@ class GLMService
         }
         $nextPlayer->setTurnOfPlayer(true);
         $nextPlayer->setRoundPhase(GlenmoreParameters::$BUYING_PHASE);
-        foreach ($nextPlayer->getPersonalBoard()->getPlayerTiles() as $playerTile) {
+        foreach ($playerGLM->getPersonalBoard()->getPlayerTiles() as $playerTile) {
             $playerTile->setActivated(false);
             if ($playerTile->getTile()->getType() === GlenmoreParameters::$TILE_TYPE_CASTLE
                 || $playerTile->getTile()->getType() === GlenmoreParameters::$TILE_TYPE_VILLAGE) {

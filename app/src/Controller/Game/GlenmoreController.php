@@ -81,7 +81,6 @@ class GlenmoreController extends AbstractController
             'personalBoardTiles' => $this->dataManagementGLMService->organizePersonalBoardRows($player),
             'boardTiles' => $this->dataManagementGLMService->organizeMainBoardRows(
                 $this->dataManagementGLMService->createBoardBoxes($game)),
-            'whiskyCount' => $this->dataManagementGLMService->getWhiskyCount($player),
             'activatedBuyingPhase' => $buyingPhase,
             'activatedActivationPhase' => $activationPhase,
             'activatedSellingPhase' => $sellingPhase,
@@ -92,6 +91,7 @@ class GlenmoreController extends AbstractController
             'chosenNewResources' => $player->getPersonalBoard()->getCreatedResources(),
             'selectedWarehouseProduction' => null,
             'isWarehouseMoneySelected' => false,
+            'playersDataResources' => $this->dataManagementGLMService->getPlayersResourcesData($game),
             'buyingTile' => $player->getPersonalBoard()->getBuyingTile(),
             'messages' => $messages,
         ]);

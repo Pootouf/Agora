@@ -4,6 +4,7 @@ namespace App\Service\Game\Glenmore;
 
 use App\Entity\Game\DTO\Glenmore\BoardBoxGLM;
 use App\Entity\Game\DTO\Glenmore\PersonalBoardBoxGLM;
+use App\Entity\Game\DTO\Glenmore\PlayerResourcesDataGLM;
 use App\Entity\Game\Glenmore\GameGLM;
 use App\Entity\Game\Glenmore\GlenmoreParameters;
 use App\Entity\Game\Glenmore\PlayerGLM;
@@ -20,7 +21,8 @@ use Psr\Log\LoggerInterface;
 class DataManagementGLMService
 {
 
-    public function __construct(private PlayerTileGLMRepository $playerTileGLMRepository)
+    public function __construct(private PlayerTileGLMRepository $playerTileGLMRepository,
+                                private TileGLMService $tileGLMService)
     {}
 
     /**
@@ -41,6 +43,26 @@ class DataManagementGLMService
             }
         }
         return $whiskyCount;
+    }
+
+
+    /**
+     * getPlayersResourcesData : return a collection containing the players data regarding their resources
+     * @param GameGLM $gameGLM
+     * @return Collection
+     */
+    public function getPlayersResourcesData(GameGLM $gameGLM) : Collection
+    {
+        $playersData = new ArrayCollection();
+        foreach($gameGLM->getPlayers() as $player) {
+            $playerData = new PlayerResourcesDataGLM($player,
+                                                    $this->tileGLMService->getPlayerProductionResources($player),
+                                                    $this->tileGLMService->getMovementPoints($player),
+                                                    $this->getWhiskyCount($player));
+            $playersData->add($playerData);
+
+        }
+        return $playersData;
     }
 
     /**

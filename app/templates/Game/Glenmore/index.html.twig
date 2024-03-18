@@ -5,6 +5,13 @@
 {% block body %}
 	<div class="h-screen w-screen overflow-hidden absolute" {{ stimulus_controller('glenmore') }}>
 		<div id="index_glenmore" class="h-full w-full static overflow-hidden">
+			{% block playerRound %}
+				<div class="absolute bg-gradient-to-b absolute from-[#4C6E9Bff] to-[#20222Dff]
+                                     flex justify-center items-center
+                                     w-[70%] h-[10%]">
+					{{ include('Game/Glenmore/MainBoard/playerRoundManagement.html.twig') }}
+				</div>
+			{% endblock %}
 			{% block nav %}
 				{{ include('/Game/Utils/navigation.html.twig') }}
 			{% endblock %}
@@ -13,19 +20,16 @@
 			{% endblock %}
 			{% block ranking %}
 				<div id="ranking"
-				     class="absolute bg-gradient-to-b from-[#4C6E9Bff] to-[#20222Dff] w-[25%] h-3/5 right-0">
+				     class="absolute bg-gradient-to-b from-[#4C6E9Bff] to-[#20222Dff] w-[30%] h-[75%] top-0 right-0">
 					{{ include('/Game/Glenmore/Ranking/ranking.html.twig') }}
 				</div>
 			{% endblock %}
 			{% block previewMainBoard %}
-				<div id="drawTileIndicator"
-				     class="absolute bottom-[20%] flex justify-around items-center
-                     bg-gradient-to-b from-[#4C6E9Bff] to-[#20222Dff] w-[25%] h-1/5 right-0">
+				<div id="preview"
+				     class="absolute bottom-0 flex justify-around items-center
+                     bg-gradient-to-b from-[#4C6E9Bff] to-[#20222Dff] w-[30%] h-[25%] right-0">
 					{{ include('/Game/Glenmore/MainBoard/preview.html.twig') }}
 				</div>
-			{% endblock %}
-			{% block playerRound %}
-				{{ include('Game/Glenmore/MainBoard/playerRoundManagement.html.twig') }}
 			{% endblock %}
 			{#{% block mainBoard %}
 				<div id="mainBoard" class="flow float-start w-[75%]
@@ -35,16 +39,13 @@
 			{% endblock %}#}
 			{% block personalBoard %}
 				{% if not isSpectator %}
-					<div id="personalBoard" class="flow float-start w-[75%] h-full">
+					<div id="personalBoard" class="absolute bottom-0 w-[70%] h-[90%]">
 						{{ include('/Game/Glenmore/PersonalBoard/personalBoard.html.twig') }}
 					</div>
-					<div id="playerPersonalBoard" class="flow float-start w-[75%] h-full">
+					<div id="playerPersonalBoard" class="flow float-start w-[70%] h-[5/6]">
 						{{ include('Game/Glenmore/MainBoard/playerPersonalBoard.html.twig') }}
 					</div>
 				{% endif %}
-			{% endblock %}
-			{% block chat %}
-				{{ include('/Game/Utils/chat.html.twig') }}
 			{% endblock %}
 		</div>
 	</div>
