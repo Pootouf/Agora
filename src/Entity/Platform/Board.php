@@ -141,7 +141,9 @@ class Board
     }
 
     /**
-     * @return \DateTimeInterface|null The invitation timer of the board.
+     * Gets the invitation timer for the board.
+     *
+     * @return \DateTimeInterface|null The invitation timer for the board.
      */
     public function getInvitationTimer(): ?\DateTimeInterface
     {
@@ -149,8 +151,9 @@ class Board
     }
 
     /**
-     * Sets the invitation timer of the board.
-     * @param \DateTimeInterface $invitationTimer The invitation timer to set.
+     * Sets the invitation timer for the board.
+     *
+     * @param \DateTimeInterface $invitationTimer The invitation timer for the board.
      * @return static
      */
     public function setInvitationTimer(\DateTimeInterface $invitationTimer): static
@@ -160,6 +163,11 @@ class Board
         return $this;
     }
 
+    /**
+     * Gets the inactivity timer for the board.
+     *
+     * @return \DateTimeInterface|null The inactivity timer for the board.
+     */
     public function getInactivityTimer(): ?\DateTimeInterface
     {
         return $this->inactivityTimer;
@@ -167,6 +175,7 @@ class Board
 
     /**
      * Sets the inactivity timer of the board.
+     * 
      * @param \DateTimeInterface $inactivityTimer The inativity timer to set.
      * @return static
      */
@@ -177,11 +186,22 @@ class Board
         return $this;
     }
 
+    /**
+     * Gets the invitation hash for the board.
+     *
+     * @return string|null The invitation hash for the board.
+     */
     public function getInvitationHash(): ?string
     {
         return $this->invitationHash;
     }
 
+    /**
+     * Sets the invitation hash for the board.
+     *
+     * @param string $invitationHash The invitation hash for the board.
+     * @return static
+     */
     public function setInvitationHash(string $invitationHash): static
     {
         $this->invitationHash = $invitationHash;
@@ -189,11 +209,22 @@ class Board
         return $this;
     }
 
+    /**
+     * Gets the number of invitations for the board.
+     *
+     * @return int|null The number of invitations for the board.
+     */
     public function getNbInvitations(): ?int
     {
         return $this->nbInvitations;
     }
 
+    /**
+     * Sets the number of invitations for the board.
+     *
+     * @param int $nbInvitations The number of invitations for the board.
+     * @return static
+     */
     public function setNbInvitations(int $nbInvitations): static
     {
         $this->nbInvitations = $nbInvitations;
@@ -202,7 +233,9 @@ class Board
     }
 
     /**
-     * @return Collection<int, User>
+     * Gets the list of users associated with the board.
+     *
+     * @return Collection<int, User> The list of users associated with the board.
      */
     public function getListUsers(): Collection
     {
@@ -224,14 +257,23 @@ class Board
         return -1;
     }
 
-    //return the number of players who have joined the table
-
+ 
+    /**
+     * Gets the number of users who have joined the board.
+     *
+     * @return int|null The number of users who have joined the board.
+     */
     public function getUsersNb(): ?int
     {
         return $this->getListUsers()->count();
     }
 
-    //Remove user of the list of player
+    /**
+     * Removes a user from the board's list of users.
+     *
+     * @param User $user The user to remove.
+     * @return static
+     */
     public function removeListUser(User $user): static
     {
         if ($this->listUsers->contains($user)) {
@@ -241,16 +283,32 @@ class Board
         return $this;
     }
 
-    //Return true if the board is availble for a player to join
+
+    /**
+     * Checks if the board is available for a player to join.
+     *
+     * @return bool Returns true if the board is available, false otherwise.
+     */
     public function isAvailble(){
         return $this->status!="IN_GAME" && $this->listUsers->count() + $this->nbInvitations < $this->nbUserMax;
     }
 
+    /**
+     * Gets the inactivity hours for the board.
+     *
+     * @return int|null The inactivity hours for the board.
+     */
     public function getInactivityHours(): ?int
     {
         return $this->inactivityHours;
     }
 
+    /**
+     * Sets the inactivity hours for the board.
+     *
+     * @param int $inactivityHours The inactivity hours for the board.
+     * @return static
+     */
     public function setInactivityHours(int $inactivityHours): static
     {
         $this->inactivityHours = $inactivityHours;
@@ -258,24 +316,45 @@ class Board
         return $this;
     }
 
+    /**
+     * Checks if a user exists in the board's list of users.
+     *
+     * @param User $user The user to check.
+     * @return bool Returns true if the user exists in the list, false otherwise.
+     */
     public function hasUser(User $user):bool
     {
         return $this->listUsers->contains($user);
     }
 
     
-    //Return the actual number of availble slots of the board
-    //getNbAvailbleSlots() == 0 => isAvailble() == false
+    /**
+     * Gets the number of available slots on the board.
+     *
+     * @return int The number of available slots on the board.
+     * getNbAvailbleSlots() == 0 => isAvailble() == false
+     */
     public function getNbAvailbleSlots():int{
         return $this->getNbUserMax() - ($this->listUsers->count() +
                 $this->nbInvitations);
     }
 
+    /**
+     * Gets the game associated with the board.
+     *
+     * @return Game|null The game associated with the board.
+     */
     public function getGame(): ?Game
     {
         return $this->game;
     }
 
+    /**
+     * Sets the game associated with the board.
+     *
+     * @param Game|null $game The game associated with the board.
+     * @return static
+     */
     public function setGame(?Game $game): static
     {
         $this->game=$game;
@@ -283,11 +362,22 @@ class Board
         return $this;
     }
 
+    /**
+     * Gets the party ID of the board.
+     *
+     * @return int|null The party ID of the board.
+     */
     public function getPartyId(): ?int
     {
         return $this->partyId;
     }
 
+    /**
+     * Sets the party ID of the board.
+     *
+     * @param int $partyId The party ID of the board.
+     * @return static
+     */
     public function setPartyId(int $partyId): static
     {
         $this->partyId = $partyId;
