@@ -22,6 +22,10 @@ class TileMYR
     #[ORM\Column]
     private ?int $yCoord = null;
 
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?TileTypeMYR $type = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -59,6 +63,18 @@ class TileMYR
     public function setYCoord(int $yCoord): static
     {
         $this->yCoord = $yCoord;
+
+        return $this;
+    }
+
+    public function getType(): ?TileTypeMYR
+    {
+        return $this->type;
+    }
+
+    public function setType(?TileTypeMYR $type): static
+    {
+        $this->type = $type;
 
         return $this;
     }
