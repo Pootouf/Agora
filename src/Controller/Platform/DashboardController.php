@@ -67,7 +67,8 @@ class DashboardController extends AbstractController
             'fav_games' => $favGames,
             'current_boards'=> $currentBoards,
             'past_boards' => $pastBoards,
-            'userProfile' => $user
+            'userProfile' => $user,
+            'notifications' => null
         ]);
     }
 
