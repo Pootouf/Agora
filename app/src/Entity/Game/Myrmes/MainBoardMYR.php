@@ -2,19 +2,15 @@
 
 namespace App\Entity\Game\Myrmes;
 
+use App\Entity\Game\DTO\Component;
 use App\Repository\Game\Myrmes\MainBoardMYRRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: MainBoardMYRRepository::class)]
-class MainBoardMYR
+class MainBoardMYR extends Component
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
-
     #[ORM\Column]
     private ?int $yearNum = null;
 
@@ -32,11 +28,6 @@ class MainBoardMYR
     public function __construct()
     {
         $this->gardenWorkers = new ArrayCollection();
-    }
-
-    public function getId(): ?int
-    {
-        return $this->id;
     }
 
     public function getYearNum(): ?int

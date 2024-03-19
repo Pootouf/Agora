@@ -2,18 +2,15 @@
 
 namespace App\Entity\Game\Myrmes;
 
+use App\Entity\Game\DTO\Component;
 use App\Repository\Game\Myrmes\GardenTileMYRRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: GardenTileMYRRepository::class)]
-class GardenTileMYR
+class GardenTileMYR extends Component
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
 
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
@@ -36,11 +33,6 @@ class GardenTileMYR
     public function __construct()
     {
         $this->tile = new ArrayCollection();
-    }
-
-    public function getId(): ?int
-    {
-        return $this->id;
     }
 
     public function getType(): ?TileTypeMYR

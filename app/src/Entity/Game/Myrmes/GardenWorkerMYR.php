@@ -2,16 +2,13 @@
 
 namespace App\Entity\Game\Myrmes;
 
+use App\Entity\Game\DTO\Component;
 use App\Repository\Game\Myrmes\GardenWorkerMYRRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: GardenWorkerMYRRepository::class)]
-class GardenWorkerMYR
+class GardenWorkerMYR extends Component
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'gardenWorkerMYRs')]
     #[ORM\JoinColumn(nullable: false)]
@@ -27,11 +24,6 @@ class GardenWorkerMYR
     #[ORM\ManyToOne(inversedBy: 'gardenWorkers')]
     #[ORM\JoinColumn(nullable: false)]
     private ?MainBoardMYR $mainBoardMYR = null;
-
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
 
     public function getPlayer(): ?PlayerMYR
     {

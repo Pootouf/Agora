@@ -2,17 +2,13 @@
 
 namespace App\Entity\Game\Myrmes;
 
+use App\Entity\Game\DTO\Component;
 use App\Repository\Game\Myrmes\AnthillWorkerMYRRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: AnthillWorkerMYRRepository::class)]
-class AnthillWorkerMYR
+class AnthillWorkerMYR extends Component
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
-
     #[ORM\Column]
     private ?int $workFloor = null;
 
@@ -23,11 +19,6 @@ class AnthillWorkerMYR
     #[ORM\ManyToOne(inversedBy: 'anthillWorkers')]
     #[ORM\JoinColumn(nullable: false)]
     private ?PersonalBoardMYR $personalBoardMYR = null;
-
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
 
     public function getWorkFloor(): ?int
     {

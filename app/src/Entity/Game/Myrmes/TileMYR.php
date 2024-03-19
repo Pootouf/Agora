@@ -2,16 +2,14 @@
 
 namespace App\Entity\Game\Myrmes;
 
+use App\Entity\Game\DTO\Component;
+use App\Entity\Game\DTO\Tile;
 use App\Repository\Game\Myrmes\TileMYRRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: TileMYRRepository::class)]
-class TileMYR
+class TileMYR extends Component
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
 
     #[ORM\Column]
     private ?int $xMinCoord = null;
@@ -25,11 +23,6 @@ class TileMYR
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     private ?TileTypeMYR $type = null;
-
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
 
     public function getXMinCoord(): ?int
     {

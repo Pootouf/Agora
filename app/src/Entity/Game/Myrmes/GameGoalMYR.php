@@ -2,19 +2,15 @@
 
 namespace App\Entity\Game\Myrmes;
 
+use App\Entity\Game\DTO\Component;
 use App\Repository\Game\Myrmes\GameGoalMYRRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: GameGoalMYRRepository::class)]
-class GameGoalMYR
+class GameGoalMYR extends Component
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
-
     #[ORM\ManyToMany(targetEntity: PlayerMYR::class, inversedBy: 'gameGoalMYRs')]
     private Collection $precedentsPlayers;
 
@@ -25,11 +21,6 @@ class GameGoalMYR
     public function __construct()
     {
         $this->precedentsPlayers = new ArrayCollection();
-    }
-
-    public function getId(): ?int
-    {
-        return $this->id;
     }
 
     /**

@@ -2,17 +2,13 @@
 
 namespace App\Entity\Game\Myrmes;
 
+use App\Entity\Game\DTO\Component;
 use App\Repository\Game\Myrmes\PreyMYRRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PreyMYRRepository::class)]
-class PreyMYR
+class PreyMYR extends Component
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
-
     #[ORM\Column(length: 255)]
     private ?string $type = null;
 
@@ -23,11 +19,6 @@ class PreyMYR
     #[ORM\ManyToOne(inversedBy: 'preyMYRs')]
     #[ORM\JoinColumn(nullable: false)]
     private ?GameMYR $game = null;
-
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
 
     public function getType(): ?string
     {

@@ -2,16 +2,13 @@
 
 namespace App\Entity\Game\Myrmes;
 
+use App\Entity\Game\DTO\Component;
 use App\Repository\Game\Myrmes\SeasonMYRRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: SeasonMYRRepository::class)]
-class SeasonMYR
+class SeasonMYR extends Component
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
 
     #[ORM\Column]
     private ?int $diceResult = null;
@@ -21,11 +18,6 @@ class SeasonMYR
 
     #[ORM\Column(length: 255)]
     private ?string $name = null;
-
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
 
     public function getDiceResult(): ?int
     {

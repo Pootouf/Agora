@@ -2,19 +2,15 @@
 
 namespace App\Entity\Game\Myrmes;
 
+use App\Entity\Game\DTO\Game;
 use App\Repository\Game\Myrmes\GameMYRRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: GameMYRRepository::class)]
-class GameMYR
+class GameMYR extends Game
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
-
     #[ORM\OneToOne(inversedBy: 'gameMYR', cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?PlayerMYR $firstPlayer = null;
@@ -32,11 +28,6 @@ class GameMYR
     {
         $this->players = new ArrayCollection();
         $this->preyMYRs = new ArrayCollection();
-    }
-
-    public function getId(): ?int
-    {
-        return $this->id;
     }
 
     public function getFirstPlayer(): ?PlayerMYR
