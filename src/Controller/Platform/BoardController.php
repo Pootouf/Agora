@@ -72,7 +72,7 @@ class BoardController extends AbstractController
                 'La table à bien été créé !'
             );
 
-            return $this->redirectToRoute('app_home');
+            return $this->redirectToRoute('app_dashboard_user');
         }
         return $this->render('platform/dashboard/games/boardRegister.html.twig', [
             'game' => $game,

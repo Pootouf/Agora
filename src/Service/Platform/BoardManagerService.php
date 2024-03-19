@@ -42,6 +42,7 @@ class BoardManagerService
 
         //create the instance of game and register its id to the board
         $gameId = $this->gameManagerService->createGame($game->getLabel());
+        $board->setGame($game);
         $board->setPartyId($gameId);
 
         return BoardManagerService::$SUCCESS;

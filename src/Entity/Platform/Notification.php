@@ -25,16 +25,32 @@ class Notification
     #[ORM\Column]
     private ?bool $isRead = null;
 
+    /**
+     * Gets the ID of the notification.
+     *
+     * @return int|null The ID of the notification.
+     */
     public function getId(): ?int
     {
         return $this->id;
     }
 
+    /**
+     * Gets the receiver of the notification.
+     *
+     * @return User|null The receiver of the notification.
+     */
     public function getReceiver(): ?User
     {
         return $this->receiver;
     }
 
+    /**
+     * Sets the receiver of the notification.
+     *
+     * @param User|null $receiver The receiver of the notification.
+     * @return static
+     */
     public function setReceiver(?User $receiver): static
     {
         $this->receiver = $receiver;
@@ -42,11 +58,22 @@ class Notification
         return $this;
     }
 
+    /**
+     * Gets the content of the notification.
+     *
+     * @return string|null The content of the notification.
+     */
     public function getContent(): ?string
     {
         return $this->content;
     }
 
+    /**
+     * Sets the content of the notification.
+     *
+     * @param string $content The content of the notification.
+     * @return static
+     */
     public function setContent(string $content): static
     {
         $this->content = $content;
@@ -54,11 +81,22 @@ class Notification
         return $this;
     }
 
+    /**
+     * Gets the creation date of the notification.
+     *
+     * @return \DateTime|null The creation date of the notification.
+     */
     public function getCreatedAt(): ?\DateTime
     {
         return $this->createdAt;
     }
 
+    /**
+     * Sets the creation date of the notification.
+     *
+     * @param \DateTime $createdAt The creation date of the notification.
+     * @return static
+     */
     public function setCreatedAt(\DateTime $createdAt): static
     {
         $this->createdAt = $createdAt;
@@ -66,17 +104,33 @@ class Notification
         return $this;
     }
 
+    /**
+     * Checks if the notification is read.
+     *
+     * @return bool|null True if the notification is read, false otherwise.
+     */
     public function isIsRead(): ?bool
     {
         return $this->isRead;
     }
 
+    /**
+     * Sets whether the notification is read.
+     *
+     * @param bool $isRead Whether the notification is read.
+     * @return static
+     */
     public function setIsRead(bool $isRead): static
     {
         $this->isRead = $isRead;
 
         return $this;
     }
+
+    
+    /**
+     * Constructs a new Notification object.
+     */
     public function __construct
     ()
     {
