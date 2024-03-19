@@ -73,16 +73,32 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->contacts = new ArrayCollection();
     }
 
+    /**
+     * Gets the ID of the user.
+     *
+     * @return int|null The ID of the user.
+     */
     public function getId(): ?int
     {
         return $this->id;
     }
 
+    /**
+     * Gets the email address of the user.
+     *
+     * @return string|null The email address of the user.
+     */
     public function getEmail(): ?string
     {
         return $this->email;
     }
 
+    /**
+     * Sets the email address of the user.
+     *
+     * @param string $email The email address of the user.
+     * @return static
+     */
     public function setEmail(string $email): static
     {
         $this->email = $email;
@@ -90,8 +106,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * A visual identifier that represents this user.
+   /**
+     * Gets a unique identifier representing this user.
      *
      * @see UserInterface
      */
@@ -100,7 +116,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return (string)$this->email;
     }
 
+
     /**
+     * Gets the roles assigned to the user.
+     *
      * @see UserInterface
      */
     public function getRoles(): array
@@ -112,6 +131,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return array_unique($roles);
     }
 
+    /**
+     * Sets the roles assigned to the user.
+     *
+     * @param array $roles The roles assigned to the user.
+     * @return static
+     */
     public function setRoles(array $roles): static
     {
         $this->roles = $roles;
@@ -119,7 +144,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+
     /**
+     * Gets the hashed password of the user.
+     *
      * @see PasswordAuthenticatedUserInterface
      */
     public function getPassword(): string
@@ -127,6 +155,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->password;
     }
 
+    /**
+     * Sets the hashed password of the user.
+     *
+     * @param string $password The hashed password of the user.
+     * @return static
+     */
     public function setPassword(string $password): static
     {
         $this->password = $password;
@@ -134,8 +168,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+ 
     /**
-     * @see UserInterface
+     * Clears any sensitive information stored on the user.
      */
     public function eraseCredentials(): void
     {
@@ -143,11 +178,22 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         // $this->plainPassword = null;
     }
 
+    /**
+     * Gets the username of the user.
+     *
+     * @return string|null The username of the user.
+     */
     public function getUsername(): ?string
     {
         return $this->username;
     }
 
+    /**
+     * Sets the username of the user.
+     *
+     * @param string $username The username of the user.
+     * @return static
+     */
     public function setUsername(string $username): static
     {
         $this->username = $username;
@@ -155,11 +201,20 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    /**
+     * Checks if the user is verified.
+     */
     public function isVerified(): bool
     {
         return $this->isVerified;
     }
 
+    /**
+     * Sets whether the user is verified.
+     *
+     * @param bool $isVerified Whether the user is verified.
+     * @return static
+     */
     public function setIsVerified(bool $isVerified): static
     {
         $this->isVerified = $isVerified;
@@ -167,8 +222,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * @return Collection<int, Board>
+   /**
+     * Gets the collection of boards associated with the user.
+     *
+     * @return Collection<int, Board> The collection of boards associated with the user.
      */
     public function getBoards(): Collection
     {
@@ -191,6 +248,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     }
 
+    /**
+     * Removes a board from the collection of boards associated with the user.
+     *
+     * @param Board $board The board to remove.
+     * @return static
+     */
     public function removeBoard(Board $board): static
     {
         if ($this->boards->removeElement($board)) {
@@ -201,13 +264,21 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
 
     /**
-     * @return Collection<int, Game>
+     * Gets the collection of favorite games associated with the user.
+     *
+     * @return Collection<int, Game> The collection of favorite games associated with the user.
      */
     public function getFavoriteGames(): Collection
     {
         return $this->favoriteGames;
     }
 
+    /**
+     * Adds a favorite game to the collection of favorite games associated with the user.
+     *
+     * @param Game $favoriteGames The favorite game to add.
+     * @return static
+     */
     public function addFavoriteGame(Game $favoriteGames): static
     {
         if (!$this->favoriteGames->contains($favoriteGames)) {
@@ -217,7 +288,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-
+    /**
+     * Removes a favorite game from the collection of favorite games associated with the user.
+     *
+     * @param Game $favoriteGames The favorite game to remove.
+     * @return static
+     */
     public function removeFavoriteGame(Game $favoriteGames): static
     {
         $this->favoriteGames->removeElement($favoriteGames);
@@ -226,14 +302,21 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-
-     * @return Collection<int, Notification>
+     * Gets the collection of notifications received by the user.
+     *
+     * @return Collection<int, Notification> The collection of notifications received by the user.
      */
     public function getNotifications(): Collection
     {
         return $this->notifications;
     }
 
+    /**
+     * Adds a notification to the collection of notifications received by the user.
+     *
+     * @param Notification $notification The notification to add.
+     * @return static
+     */
     public function addNotification(Notification $notification): static
     {
         if (!$this->notifications->contains($notification)) {
@@ -242,14 +325,23 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         }
         return $this;
     }
+
     /**
-     * @return Collection<int, self>
+     * Gets the collection of contacts associated with the user.
+     *
+     * @return Collection<int, User> The collection of contacts associated with the user.
      */
     public function getContacts(): Collection
     {
         return $this->contacts;
     }
 
+    /**
+     * Adds a contact to the collection of contacts associated with the user.
+     *
+     * @param User $contact The contact to add.
+     * @return static
+     */
     public function addContact(self $contact): static
     {
         if (!$this->contacts->contains($contact)) {
@@ -259,6 +351,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    /**
+     * Removes a notification from the collection of notifications received by the user.
+     *
+     * @param Notification $notification The notification to remove.
+     * @return static
+     */
     public function removeNotification(Notification $notification): static
     {
         if ($this->notifications->removeElement($notification)) {
@@ -269,7 +367,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         }
         return $this;
     }
-
+    
+    /**
+     * Removes a contact from the collection of contacts associated with the user.
+     *
+     * @param User $contact The contact to remove.
+     * @return static
+     */
     public function removeContact(self $contact): static
     {
         $this->contacts->removeElement($contact);
