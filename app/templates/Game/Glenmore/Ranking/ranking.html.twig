@@ -16,26 +16,35 @@ This section displays the ranking with a view of the other players' possessions
 
 <div class="overflow-y-auto">
 	{% for playerData in playersDataResources %}
-		{% if not playerData.player.isBot%}
+		{% if not playerData.player.isBot %}
 			{# Tailwind loading of background color in order red yellow blue white green #}
 			<div hidden class="bg-[#910016] bg-[#e3d400] bg-[#1105f5] bg-[#ffffff] bg-[#045900]"></div>
 
 			{# Variable to load the player's pawn color #}
 			{% set colorPawn = playerData.player.pawn.color %}
+			{% if colorPawn == 'white' or colorPawn == 'yellow' %}
+				{% set arrowColor %}
+					{{ asset("resourcesGames/utils/arrow_up.svg") }}
+				{% endset %}
+			{% else %}
+				{% set arrowColor %}
+					{{ asset("resourcesGames/utils/arrow_up_white.svg") }}
+				{% endset %}
+			{% endif %}
 
 			{# Display the player's informations #}
 			<div class="border-solid border-[1px] border-[white] rounded-2xl
-						h-[23.5%] landscape:md:h-1/4 landscape:lg:h-[23.5%]
 						mx-3 landscape:mx-2 lg:mx-5
-						my-6 landscape:my-2
-						text-3xl py-2
-						{% if colorPawn == 'red' %}bg-[#910016]{% elseif colorPawn == 'yellow' %}bg-[#e3d400]
-						{% elseif colorPawn == 'blue' %}bg-[#1105f5]{% elseif colorPawn == 'white' %}bg-[#ffffff]
-						{% else %}bg-[#045900]{% endif %}"
-					{{ stimulus_controller('glenmore') }}>
-				<div class="w-full h-[12%] landscape:h-1/5
-							pt-2 landscape:pt-1flex flex-col">
-					<div class="flex flex-row justify-around justify-between">
+                    my-6 landscape:my-2
+                    text-2xl pt-1 overflow-hidden
+                    {% if colorPawn == 'red' %}bg-[#910016]{% elseif colorPawn == 'yellow' %}bg-[#e3d400]
+                    {% elseif colorPawn == 'blue' %}bg-[#1105f5]{% elseif colorPawn == 'white' %}bg-[#ffffff]
+                    {% else %}bg-[#045900]{% endif %}"
+					{{ stimulus_controller('glenmore') }}
+			>
+
+				<div class="w-full flex flex-col ">
+					<div class="flex flex-row justify-between pb-1 mx-5 ">
 						{# Button to see other player's personal board #}
 						{% if playerData.player.username != player.username %}
 							<button {{ stimulus_action('glenmore', 'displayPlayerPersonalBoard', 'click',
@@ -43,52 +52,102 @@ This section displays the ranking with a view of the other players' possessions
 									{idGame: game.id, idPlayer: playerData.player.id}), open: true}) }}
 									class=""
 							>
-								<img class="h-5 -rotate-90 -ml-3"
-									 src="{{ asset("resourcesGames/utils/arrow_up.svg") }}"
-									 alt="arrow">
+								<img class="flex-none h-4 -rotate-90"
+								     src="{{ arrowColor }}"
+								     alt="arrow">
 							</button>
 						{% else %}
-							<span class="h-5 -ml3"></span>
+							<button class="flex-none opacity-0 cursor-default">
+								<img class="h-4 -rotate-90"
+								     src="{{ arrowColor }}"
+								     alt="arrow">
+							</button>
 						{% endif %}
 						{# Display the player's username with a specific color if the background is dark or light #}
-						<p class="landscape:ml-3 landscape:text-sm landscape:lg:text-lg
-								{% if colorPawn == 'white' or colorPawn == 'yellow' %}text-black{% else %}
-								text-white{% endif %}">{{ playerData.player.username }}</p>
+						<p class="flex-0 landscape:text-sm landscape:lg:text-lg text-clip overflow-hidden
+	                        {% if colorPawn == 'white' or colorPawn == 'yellow' %}text-black{% else %}
+	                        text-white{% endif %}">{{ playerData.player.username }}</p>
 						{# Display the player's points with a specific color if the background is dark or light #}
-						<div class="flex landscape:mr-2">
-							<p class="mr-1 landscape:text-base landscape:lg:text-lg
-									 {% if colorPawn == 'white' or colorPawn == 'yellow' %}text-black{% else %}
-								text-white{% endif %}">{{ playerData.player.points }}</p>
+						<div class=" w-[15%]">
+							<p class="landscape:text-base landscape:lg:text-lg text-right
+										 {% if colorPawn == 'white' or colorPawn == 'yellow' %}text-black{% else %}
+									text-white{% endif %}">{{ playerData.player.points }}</p>
 						</div>
 					</div>
-					<div class="relative flex flex-row justify-around justify-between">
-						<div class="relative w-[1/6]">
-							<img class="relative items-center justify-center
-										max-h-8"
-								 src="{{ asset('resourcesGames/Glenmore/deplacement.svg') }}" alt="movement"/>
-							<span
-									class="absolute inline-flex items-center justify-center w-5 h-5 text-xs
-											font-bold text-white
-												   bg-red-500 border-2 border-white rounded-full top-0 -end-3 dark:border-gray-900"
-							>
-								{{ playerData.movementPoints }}
-							</span>
-						</div>
-						{% for resourceColor, resourceCount in playerData.productionsCount %}
-							<div class="relative w-[1/6]">
+
+					<div class="bg-slate-950 bg-opacity-15 py-1 shadow-inner space-y-1">
+						<div class="relative flex flex-row justify-around justify-between">
+							<div class="relative w-[1/4]">
 								<img class="relative items-center justify-center
-										max-h-8"
-									 src="{{ asset('resourcesGames/Glenmore/ResourcesProduction/' ~ resourceColor
-													~ '.png') }}" alt="{{ resourceColor }}"/>
+									max-h-8"
+								     src="{{ asset('resourcesGames/Glenmore/figure.svg') }}" alt="leader"/>
 								<span
 										class="absolute inline-flex items-center justify-center w-5 h-5 text-xs
-											font-bold text-white
-												   bg-red-500 border-2 border-white rounded-full top-0 -end-3 dark:border-gray-900"
+										font-bold text-white
+											   bg-red-500 border-2 border-white rounded-full top-0 -end-3 dark:border-gray-900"
 								>
-									{{ resourceCount }}
+				                    {{ playerData.player.personalBoard.leaderCount }}
+				                </span>
+							</div>
+
+							<div class="relative w-[1/4]">
+								<img class="relative items-center justify-center
+									max-h-8"
+								     src="{{ asset('resourcesGames/Glenmore/money.png') }}" alt="money"/>
+								<span
+										class="absolute inline-flex items-center justify-center w-5 h-5 text-xs
+										font-bold text-white
+											   bg-red-500 border-2 border-white rounded-full top-0 -end-3 dark:border-gray-900"
+								>
+			                    {{ playerData.player.personalBoard.money }}
+			                </span>
+							</div>
+
+							<div class="relative w-[1/4]">
+								<div class="h-full flex items-center justify-center">
+									<img class="relative items-center justify-center
+									max-h-8"
+									     src="{{ asset('resourcesGames/Glenmore/whisky.png') }}" alt="whisky"/>
+									<span
+											class="absolute inline-flex items-center justify-center w-5 h-5 text-xs
+										font-bold text-white
+											   bg-red-500 border-2 border-white rounded-full top-0 -end-3 dark:border-gray-900"
+									>
+				                    {{ playerData.whiskyCount }}
+				                </span>
+								</div>
+							</div>
+							<div class="relative w-[1/4]">
+								<img class="relative items-center justify-center
+									max-h-8"
+								     src="{{ asset('resourcesGames/Glenmore/deplacement.svg') }}" alt="movement"/>
+								<span
+										class="absolute inline-flex items-center justify-center w-5 h-5 text-xs
+										font-bold text-white
+											   bg-red-500 border-2 border-white rounded-full top-0 -end-3 dark:border-gray-900"
+								>
+								{{ playerData.movementPoints }}
 							</span>
 							</div>
-						{% endfor %}
+						</div>
+
+						<div class="relative flex flex-row justify-around justify-between">
+							{% for resourceColor, resourceCount in playerData.productionsCount %}
+								<div class="relative w-[1/6]">
+									<img class="relative items-center justify-center
+									max-h-8"
+									     src="{{ asset('resourcesGames/Glenmore/ResourcesProduction/' ~ resourceColor
+										     ~ '.png') }}" alt="{{ resourceColor }}"/>
+									<span
+											class="absolute inline-flex items-center justify-center w-5 h-5 text-xs
+										font-bold text-white
+											   bg-red-500 border-2 border-white rounded-full top-0 -end-3 dark:border-gray-900"
+									>
+									{{ resourceCount }}
+								</span>
+								</div>
+							{% endfor %}
+						</div>
 					</div>
 				</div>
 			</div>

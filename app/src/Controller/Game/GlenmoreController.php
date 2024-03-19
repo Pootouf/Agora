@@ -90,12 +90,13 @@ class GlenmoreController extends AbstractController
         ]);
     }
 
-    #[Route('game/glenmore/{idGame}/display/propertyCards',
+    #[Route('game/glenmore/{idGame}/display/propertyCards/{idPlayer}',
             name: 'app_game_glenmore_display_player_property_cards')]
     public function displayPropertyCards(
-        #[MapEntity(id: 'idGame')] GameGLM $gameGLM): Response
+        #[MapEntity(id: 'idGame')] GameGLM $gameGLM,
+        #[MapEntity(id: 'idPlayer')] PlayerGLM $playerGLM): Response
     {
-        $player = $this->service->getPlayerFromNameAndGame($gameGLM, $this->getUser()->getUsername());
+        $player = $this->service->getPlayerFromNameAndGame($gameGLM, $playerGLM->getUsername());
         return $this->render('Game/Glenmore/PersonalBoard/displayPropertyCards.html.twig', [
             'player' => $player,
         ]);
