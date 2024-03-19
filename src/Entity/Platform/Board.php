@@ -140,11 +140,19 @@ class Board
         return $this;
     }
 
+    /**
+     * @return \DateTimeInterface|null The invitation timer of the board.
+     */
     public function getInvitationTimer(): ?\DateTimeInterface
     {
         return $this->invitationTimer;
     }
 
+    /**
+     * Sets the invitation timer of the board.
+     * @param \DateTimeInterface $invitationTimer The invitation timer to set.
+     * @return static
+     */
     public function setInvitationTimer(\DateTimeInterface $invitationTimer): static
     {
         $this->invitationTimer = $invitationTimer;
@@ -157,6 +165,11 @@ class Board
         return $this->inactivityTimer;
     }
 
+    /**
+     * Sets the inactivity timer of the board.
+     * @param \DateTimeInterface $inactivityTimer The inativity timer to set.
+     * @return static
+     */
     public function setInactivityTimer(\DateTimeInterface $inactivityTimer): static
     {
         $this->inactivityTimer = $inactivityTimer;
