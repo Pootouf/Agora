@@ -64,10 +64,79 @@
                             {{ block('profile_games_history') }}
 						</div>
 					</details>
+                    <details class="bg-white p-3 shadow-sm rounded-sm hover:cursor-pointer space-y-2">
+                        <summary class="font-semibold text-gray-900 leading-8 tracking-wide">
+                            Notifications
+                        </summary>
+                        <div class="text-gray-700 text-sm">
+                            <ul class="divide-y divide-gray-200" id="notifications-list">
+                                {% for notification in notifications %}
+                                    <li>
+                                        <a href="#" class="block hover:bg-gray-50 transition duration-150 ease-in-out">
+                                            <div class="flex items-center justify-between px-4 py-3">
+                                                <div class="flex-1">
+                                                    <p class="text-sm font-medium text-gray-900">Nouvelle notification</p>
+                                                    <p class="text-sm text-gray-500">{{ notification.content }}</p>
+                                                </div>
+                                                <div class="flex items-end">
+                                                    <div class="text-right text-xs text-gray-500">{{ notification.createdAt | date }}</div>
+                                                    <svg class="h-5 w-5 text-gray-400 ml-2" viewBox="0 0 20 20" fill="currentColor">
+                                                        <path fill-rule="evenodd" d="M13 10a3 3 0 11-6 0 3 3 0 016 0zm-2 0a1 1 0 10-2 0 1 1 0 002 0z" clip-rule="evenodd"/>
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </details>
 				</div>
 			</div>
 		</div>
 	</div>
+
+    <script src="{{ asset('js/Platform/notify.js') }}"></script>
+    <script>
+        let eventSource;
+        {% if app.user %}
+        eventSource = new EventSource("{{ mercure('agora/notifications/user/' ~ app.user.id, { subscribe: 'agora/notifications/user/' ~ app.user.id })|escape('js') }}",{
+            withCredentials: true
+        });
+        {% else %}
+        eventSource = new EventSource("{{ mercure('agora/notifications/user/null', { subscribe: 'agora/notifications/user/null'})|escape('js') }}",{
+            withCredentials: true
+        });
+        {% endif %}
+        eventSource.onmessage = event => {
+            const data = JSON.parse(event.data);
+            notify(data.content, "Notification: ");
+            updateNotificationFrame(data);
+        }
+
+        function updateNotificationFrame(notification) {
+            const notificationsList = document.getElementById('notifications-list');
+
+            const listItem = document.createElement('li');
+            listItem.innerHTML = `
+            <a href="#" class="block hover:bg-gray-50 transition duration-150 ease-in-out">
+                <div class="flex items-center justify-between px-4 py-3">
+                    <div class="flex-1">
+                        <p class="text-sm font-medium text-gray-900">Nouvelle notification - new!</p>
+                        <p class="text-sm text-gray-500">${notification.content}</p>
+                    </div>
+                    <div class="flex items-end">
+                        <div class="text-right text-xs text-gray-500">${notification.date}</div>
+                        <svg class="h-5 w-5 text-gray-400 ml-2" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M13 10a3 3 0 11-6 0 3 3 0 016 0zm-2 0a1 1 0 10-2 0 1 1 0 002 0z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                </div>
+            </a>
+        `;
+            notificationsList.prepend(listItem);
+        }
+    </script>
 {% endblock %}
 
 {% block profile_games_in_progress_section %}
@@ -319,5 +388,6 @@
           </tbody>
     </table>
 {% endblock %}
+
 
 

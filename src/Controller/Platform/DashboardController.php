@@ -3,6 +3,7 @@
 namespace App\Controller\Platform;
 
 use App\Entity\Platform\Board;
+use App\Entity\Platform\Notification;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -27,16 +28,24 @@ class DashboardController extends AbstractController
             $favGames = $security->getUser()->getFavoriteGames();
             $currentBoards = $userRepository->findBoardsByUserAndStatus($userId, "IN_GAME");
             $pastBoards = $userRepository->findBoardsByUserAndStatus($userId, "WAITING");
+            $user = $security->getUser();
+            $notifications = $entityManager->getRepository(Notification::class)
+                ->findBy(
+                    ['receiver' => $user],
+                    ['createdAt' => 'DESC']
+                );
         }
         else {
             $favGames = null;
             $boards = null;
+            $notifications = null;
         }
         return $this->render('platform/dashboard/profile.html.twig', [
             'controller_name' => 'DashboardController',
             'fav_games' => $favGames,
             'current_boards'=> $currentBoards,
-            'past_boards' => $pastBoards
+            'past_boards' => $pastBoards,
+            'notifications' => $notifications
         ]);
     }
     #[Route('/dashboard/settings', name: 'app_dashboard_settings')]
