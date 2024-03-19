@@ -6,7 +6,7 @@
 	<div class="h-screen w-screen overflow-hidden absolute" {{ stimulus_controller('glenmore') }}>
 		<div id="index_glenmore" class="h-full w-full static overflow-hidden">
 			{% block playerRound %}
-				<div class="absolute bg-gradient-to-b absolute from-[#09090b] to-[#14532d]
+				<div id="playerRoundManagement" class="absolute bg-gradient-to-b absolute from-[#09090b] to-[#14532d]
                                      flex justify-center items-center
                                      w-[70%] h-[10%]">
 					{{ include('Game/Glenmore/MainBoard/playerRoundManagement.html.twig') }}
@@ -87,7 +87,6 @@
 		{% set path = path('app_game_show_glm', {'id': game.id}) ~ 'personalBoard' ~ player.id %}
 		const eventSourcePersonalBoard = new EventSource("{{ mercure(path)|escape('js') }}");
 		eventSourcePersonalBoard.onmessage = event => {
-				alert("test")
 				let personalBoard = document.getElementById('personalBoard');
 				personalBoard.innerHTML = event.data;
 				setTimeout(() => animationQueue.executeNextInQueue(), 100)
@@ -99,6 +98,14 @@
 				let ranking = document.getElementById('ranking');
 				ranking.innerHTML = event.data;
 				setTimeout(() => animationQueue.executeNextInQueue(), 100)
+		}
+
+		{% set path = path('app_game_show_glm', {'id': game.id}) ~ 'playerRoundManagement' ~ player.id %}
+		const eventSourcePlayerRoundManagement = new EventSource("{{ mercure(path)|escape('js') }}");
+		eventSourcePlayerRoundManagement .onmessage = event => {
+			let ranking = document.getElementById('playerRoundManagement');
+			ranking.innerHTML = event.data;
+			setTimeout(() => animationQueue.executeNextInQueue(), 100)
 		}
 	</script>
 {% endblock %}

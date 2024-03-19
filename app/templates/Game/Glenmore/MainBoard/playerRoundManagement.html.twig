@@ -31,7 +31,8 @@ This section displays the player options regarding his round
                 Annuler le choix
             </button>
         </div>
-    {% elseif not activatedMovementPhase and activatedActivationPhase and not activatedResourceSelection
+    {% elseif not activatedMovementPhase and (activatedActivationPhase and player.personalBoard.buyingTile == null)
+                and not activatedResourceSelection and not activatedBuyingPhase
                 and activableTiles is not empty %}
             <div class="flex items-center justify-center">
                 <button
@@ -49,17 +50,53 @@ This section displays the player options regarding his round
     {% else %}
             <div class="flex items-center justify-center">
                 <button
-                        {% if activatedBuyingPhase %} disabled {% endif %}
+                        {%
+                            if activatedBuyingPhase or
+                                (not activatedMovementPhase and not activatedActivationPhase
+                                and not activatedResourceSelection and not activatedBuyingPhase) or
+                                player.personalBoard.buyingTile != null
+
+                        %}
+                            disabled
+                        {% endif %}
                         {{ stimulus_action('glenmore', 'endRoundPlayer', 'click',
                             {url:path('app_game_glenmore_end_player_round',
                                 {idGame: game.id})
                             })
                         }}
-                        class="bg-[#8F901F] py-2 px-3 m-1 rounded-lg text-2xl
+                        class="{%
+                                    if activatedBuyingPhase or
+                                    (not activatedMovementPhase and not activatedActivationPhase
+                                    and not activatedResourceSelection and not activatedBuyingPhase) or
+                                    player.personalBoard.buyingTile != null
+                                %} bg-opacity-25 {% endif %}
+                                bg-[#8F901F] py-2 px-3 m-1 rounded-lg text-2xl
                                                     flex items-center justify-center"
                 >
                     Finir le tour
                 </button>
             </div>
+    {% endif %}
+
+    {% if activatedBuyingPhase or (activatedActivationPhase and player.personalBoard.buyingTile != null) %}
+        <button
+                {%
+                    if player.personalBoard.buyingTile == null
+                %}
+                    disabled
+                {% endif %}
+                {{ stimulus_action('glenmore', 'cancelBuyingTile', 'click',
+                    {url:path('app_game_glenmore_cancel_buying_tile',
+                        {idGame: game.id})
+                    })
+                }}
+                class="{%
+                    if player.personalBoard.buyingTile == null
+                %} bg-opacity-25 {% endif %}
+                                bg-[#8F901F] py-2 px-3 m-1 rounded-lg text-2xl
+                                                    flex items-center justify-center"
+        >
+            Annuler l'achat
+        </button>
     {% endif %}
 {% endif %}

@@ -77,6 +77,11 @@ export default class extends Controller {
 		const response = await fetch(url);
 	}
 
+	async cancelBuyingTile(tile) {
+		let url = tile.params.url;
+		const response = await fetch(url);
+	}
+
 	async endRoundPlayer(player) {
 		let url = player.params.url;
 		const response = await fetch(url);
