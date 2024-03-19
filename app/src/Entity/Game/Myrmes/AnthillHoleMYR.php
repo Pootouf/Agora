@@ -2,43 +2,28 @@
 
 namespace App\Entity\Game\Myrmes;
 
-use App\Repository\Game\Myrmes\PreyMYRRepository;
+use App\Repository\Game\Myrmes\AnthillHoleMYRRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: PreyMYRRepository::class)]
-class PreyMYR
+#[ORM\Entity(repositoryClass: AnthillHoleMYRRepository::class)]
+class AnthillHoleMYR
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $type = null;
-
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     private ?TileMYR $tile = null;
 
-    #[ORM\ManyToOne(inversedBy: 'preyMYRs')]
+    #[ORM\ManyToOne(inversedBy: 'anthillHoleMYRs')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?GameMYR $game = null;
+    private ?PlayerMYR $player = null;
 
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getType(): ?string
-    {
-        return $this->type;
-    }
-
-    public function setType(string $type): static
-    {
-        $this->type = $type;
-
-        return $this;
     }
 
     public function getTile(): ?TileMYR
@@ -53,14 +38,14 @@ class PreyMYR
         return $this;
     }
 
-    public function getGame(): ?GameMYR
+    public function getPlayer(): ?PlayerMYR
     {
-        return $this->game;
+        return $this->player;
     }
 
-    public function setGame(?GameMYR $game): static
+    public function setPlayer(?PlayerMYR $player): static
     {
-        $this->game = $game;
+        $this->player = $player;
 
         return $this;
     }

@@ -20,6 +20,10 @@ class PlayerResourceMYR
     #[ORM\JoinColumn(nullable: false)]
     private ?ResourceMYR $resource = null;
 
+    #[ORM\ManyToOne(inversedBy: 'playerResourceMYRs')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?PersonalBoardMYR $personalBoard = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -45,6 +49,18 @@ class PlayerResourceMYR
     public function setResource(?ResourceMYR $resource): static
     {
         $this->resource = $resource;
+
+        return $this;
+    }
+
+    public function getPersonalBoard(): ?PersonalBoardMYR
+    {
+        return $this->personalBoard;
+    }
+
+    public function setPersonalBoard(?PersonalBoardMYR $personalBoard): static
+    {
+        $this->personalBoard = $personalBoard;
 
         return $this;
     }

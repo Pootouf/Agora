@@ -20,6 +20,10 @@ class AnthillWorkerMYR
     #[ORM\JoinColumn(nullable: false)]
     private ?PlayerMYR $player = null;
 
+    #[ORM\ManyToOne(inversedBy: 'anthillWorkers')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?PersonalBoardMYR $personalBoardMYR = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -45,6 +49,18 @@ class AnthillWorkerMYR
     public function setPlayer(?PlayerMYR $player): static
     {
         $this->player = $player;
+
+        return $this;
+    }
+
+    public function getPersonalBoardMYR(): ?PersonalBoardMYR
+    {
+        return $this->personalBoardMYR;
+    }
+
+    public function setPersonalBoardMYR(?PersonalBoardMYR $personalBoardMYR): static
+    {
+        $this->personalBoardMYR = $personalBoardMYR;
 
         return $this;
     }

@@ -33,11 +33,26 @@ class PlayerMYR
     #[ORM\OneToMany(targetEntity: GardenWorkerMYR::class, mappedBy: 'player', orphanRemoval: true)]
     private Collection $gardenWorkerMYRs;
 
+    #[ORM\OneToMany(targetEntity: GardenTileMYR::class, mappedBy: 'player', orphanRemoval: true)]
+    private Collection $gardenTileMYRs;
+
+    #[ORM\ManyToMany(targetEntity: GameGoalMYR::class, mappedBy: 'precedentsPlayers')]
+    private Collection $gameGoalMYRs;
+
+    #[ORM\OneToMany(targetEntity: AnthillHoleMYR::class, mappedBy: 'player', orphanRemoval: true)]
+    private Collection $anthillHoleMYRs;
+
+    #[ORM\OneToOne(mappedBy: 'player', cascade: ['persist', 'remove'])]
+    private ?PersonalBoardMYR $personalBoardMYR = null;
+
     public function __construct()
     {
         $this->nurseMYRs = new ArrayCollection();
         $this->anthillWorkerMYRs = new ArrayCollection();
         $this->gardenWorkerMYRs = new ArrayCollection();
+        $this->gardenTileMYRs = new ArrayCollection();
+        $this->gameGoalMYRs = new ArrayCollection();
+        $this->anthillHoleMYRs = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -172,6 +187,110 @@ class PlayerMYR
                 $gardenWorkerMYR->setPlayer(null);
             }
         }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, GardenTileMYR>
+     */
+    public function getGardenTileMYRs(): Collection
+    {
+        return $this->gardenTileMYRs;
+    }
+
+    public function addGardenTileMYR(GardenTileMYR $gardenTileMYR): static
+    {
+        if (!$this->gardenTileMYRs->contains($gardenTileMYR)) {
+            $this->gardenTileMYRs->add($gardenTileMYR);
+            $gardenTileMYR->setPlayer($this);
+        }
+
+        return $this;
+    }
+
+    public function removeGardenTileMYR(GardenTileMYR $gardenTileMYR): static
+    {
+        if ($this->gardenTileMYRs->removeElement($gardenTileMYR)) {
+            // set the owning side to null (unless already changed)
+            if ($gardenTileMYR->getPlayer() === $this) {
+                $gardenTileMYR->setPlayer(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, GameGoalMYR>
+     */
+    public function getGameGoalMYRs(): Collection
+    {
+        return $this->gameGoalMYRs;
+    }
+
+    public function addGameGoalMYR(GameGoalMYR $gameGoalMYR): static
+    {
+        if (!$this->gameGoalMYRs->contains($gameGoalMYR)) {
+            $this->gameGoalMYRs->add($gameGoalMYR);
+            $gameGoalMYR->addPrecedentsPlayer($this);
+        }
+
+        return $this;
+    }
+
+    public function removeGameGoalMYR(GameGoalMYR $gameGoalMYR): static
+    {
+        if ($this->gameGoalMYRs->removeElement($gameGoalMYR)) {
+            $gameGoalMYR->removePrecedentsPlayer($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, AnthillHoleMYR>
+     */
+    public function getAnthillHoleMYRs(): Collection
+    {
+        return $this->anthillHoleMYRs;
+    }
+
+    public function addAnthillHoleMYR(AnthillHoleMYR $anthillHoleMYR): static
+    {
+        if (!$this->anthillHoleMYRs->contains($anthillHoleMYR)) {
+            $this->anthillHoleMYRs->add($anthillHoleMYR);
+            $anthillHoleMYR->setPlayer($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAnthillHoleMYR(AnthillHoleMYR $anthillHoleMYR): static
+    {
+        if ($this->anthillHoleMYRs->removeElement($anthillHoleMYR)) {
+            // set the owning side to null (unless already changed)
+            if ($anthillHoleMYR->getPlayer() === $this) {
+                $anthillHoleMYR->setPlayer(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getPersonalBoardMYR(): ?PersonalBoardMYR
+    {
+        return $this->personalBoardMYR;
+    }
+
+    public function setPersonalBoardMYR(PersonalBoardMYR $personalBoardMYR): static
+    {
+        // set the owning side of the relation if necessary
+        if ($personalBoardMYR->getPlayer() !== $this) {
+            $personalBoardMYR->setPlayer($this);
+        }
+
+        $this->personalBoardMYR = $personalBoardMYR;
 
         return $this;
     }

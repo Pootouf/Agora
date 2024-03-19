@@ -23,6 +23,10 @@ class NurseMYR
     #[ORM\Column]
     private ?bool $available = null;
 
+    #[ORM\ManyToOne(inversedBy: 'nurses')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?PersonalBoardMYR $personalBoardMYR = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -60,6 +64,18 @@ class NurseMYR
     public function setAvailable(bool $available): static
     {
         $this->available = $available;
+
+        return $this;
+    }
+
+    public function getPersonalBoardMYR(): ?PersonalBoardMYR
+    {
+        return $this->personalBoardMYR;
+    }
+
+    public function setPersonalBoardMYR(?PersonalBoardMYR $personalBoardMYR): static
+    {
+        $this->personalBoardMYR = $personalBoardMYR;
 
         return $this;
     }

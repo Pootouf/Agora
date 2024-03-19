@@ -24,6 +24,10 @@ class GardenWorkerMYR
     #[ORM\Column]
     private ?int $shiftsCount = null;
 
+    #[ORM\ManyToOne(inversedBy: 'gardenWorkers')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?MainBoardMYR $mainBoardMYR = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -61,6 +65,18 @@ class GardenWorkerMYR
     public function setShiftsCount(int $shiftsCount): static
     {
         $this->shiftsCount = $shiftsCount;
+
+        return $this;
+    }
+
+    public function getMainBoardMYR(): ?MainBoardMYR
+    {
+        return $this->mainBoardMYR;
+    }
+
+    public function setMainBoardMYR(?MainBoardMYR $mainBoardMYR): static
+    {
+        $this->mainBoardMYR = $mainBoardMYR;
 
         return $this;
     }
