@@ -1,0 +1,48 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Agora - Myrmes{% endblock %}
+
+{% block body %}
+    <div class="h-screen w-screen overflow-hidden absolute" {{ stimulus_controller('myrmes') }}>
+        <div id="index_myrmes" class="h-full w-full static overflow-hidden">
+            {% block nav %}
+                {{ include('/Game/Utils/navigation.html.twig') }}
+            {% endblock %}
+            {% block endGame %}
+                {{ include('/Game/Myrmes/endGameScreenResult.html.twig') }}
+            {% endblock %}
+            {% block ranking %}
+                <div id="ranking"
+                     class="absolute bg-gradient-to-b from-[#4C6E9Bff] to-[#20222Dff] w-[30%] h-[75%] top-0 right-0">
+                    {{ include('/Game/Myrmes/Ranking/ranking.html.twig') }}
+                </div>
+            {% endblock %}
+            {% block previewMainBoard %}
+                <div id="preview"
+                     class="absolute bottom-0 flex justify-around items-center
+                     bg-gradient-to-b from-[#4C6E9Bff] to-[#20222Dff] w-[30%] h-[25%] right-0">
+                    {{ include('/Game/Myrmes/MainBoard/preview.html.twig') }}
+                </div>
+            {% endblock %}
+            {% block personalBoard %}
+                {% if not isSpectator %}
+                    <div id="personalBoard" class="absolute bottom-0 w-[70%] h-[90%]">
+                        {{ include('/Game/Myrmes/PersonalBoard/personalBoard.html.twig') }}
+                    </div>
+                {% endif %}
+            {% endblock %}
+        </div>
+    </div>
+    {#<script>
+        {% if needToPlay %}
+        alert("A toi de jouer ! ");
+        {% endif %}
+    </script>
+    #}{# MAIN BOARD CLOSURE MANAGEMENT #}{#
+    <script>
+        function closeWindow() {
+            let window = document.getElementById('mainBoard');
+            window.remove();
+        }
+    </script>#}
+{% endblock %}

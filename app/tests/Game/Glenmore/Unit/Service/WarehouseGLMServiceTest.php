@@ -23,6 +23,7 @@ use App\Repository\Game\Glenmore\TileGLMRepository;
 use App\Service\Game\AbstractGameManagerService;
 use App\Service\Game\Glenmore\CardGLMService;
 use App\Service\Game\Glenmore\GLMService;
+use App\Service\Game\Glenmore\TileGLMService;
 use App\Service\Game\Glenmore\WarehouseGLMService;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
@@ -33,7 +34,8 @@ class WarehouseGLMServiceTest extends TestCase
     protected function setUp(): void
     {
         $entityManager = $this->createMock(EntityManagerInterface::class);
-        $this->warehouseGLMService = new WarehouseGLMService($entityManager);
+        $tileGLMService = $this->createMock(TileGLMService::class);
+        $this->warehouseGLMService = new WarehouseGLMService($entityManager, $tileGLMService);
     }
 
     public function testResourceSaleWhenPlayerHaveNotThisResource() : void

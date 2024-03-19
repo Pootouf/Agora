@@ -605,7 +605,6 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
             $entityManager->persist($firstPlayer->getPersonalBoard());
             $entityManager->flush();
             $tileGLMService->giveBuyBonus($playerTile);
-            $glmService->endRoundOfPlayer($game, $firstPlayer, 0);
         }
         $expectedResult = 2;
         //WHEN
@@ -639,7 +638,6 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
             $entityManager->persist($firstPlayer->getPersonalBoard());
             $entityManager->flush();
             $tileGLMService->giveBuyBonus($playerTile);
-            $glmService->endRoundOfPlayer($game, $firstPlayer, 0);
         }
         $expectedResult = 1;
         //WHEN
@@ -674,7 +672,6 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
             $entityManager->persist($firstPlayer->getPersonalBoard());
             $entityManager->flush();
             $tileGLMService->giveBuyBonus($playerTile);
-            $glmService->endRoundOfPlayer($game, $firstPlayer, 0);
         }
         $expectedResult = 2;
         //WHEN
@@ -711,7 +708,6 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
             $entityManager->persist($firstPlayer->getPersonalBoard());
             $entityManager->flush();
             $tileGLMService->giveBuyBonus($playerTile);
-            $glmService->endRoundOfPlayer($game, $firstPlayer, 0);
         }
         $expectedResult = 2;
         //WHEN

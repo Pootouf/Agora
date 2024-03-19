@@ -204,8 +204,19 @@ class TileGLMService
     public function canBuyTile(TileGLM $tile, PlayerGLM $player) : bool
     {
         $globalResources = $player->getPlayerTileResourceGLMs();
+        $money = $player->getPersonalBoard()->getMoney();
+        $game = $player->getGameGLM();
+        $warehouse = $game->getMainBoard()->getWarehouse();
         foreach ($tile->getBuyPrice() as $buyPrice) {
             $resourceTile = $buyPrice->getResource();
+            $warehouseLines = $warehouse->getWarehouseLine();
+            $line = null;
+            foreach ($warehouseLines as $warehouseLine) {
+                if ($warehouseLine->getResource() === $resourceTile) {
+                    $line = $warehouseLine;
+                    break;
+                }
+            }
             $priceTile = $buyPrice->getPrice();
             $resourcesOfPlayerLikeResourceTile = $globalResources->filter(
                 function (PlayerTileResourceGLM $playerTileResource) use ($resourceTile) {
@@ -217,7 +228,18 @@ class TileGLMService
                 $quantity += $resource->getQuantity();
             }
             if ($quantity < $priceTile) {
-                return false;
+                $remaining = $priceTile - $quantity;
+                for ($i = 0; $i < $remaining; ++$i) {
+                    $quantity = $line->getQuantity();
+                    if ($quantity == 3) {
+                        return false;
+                    }
+                    $neededMoney = GlenmoreParameters::$MONEY_FROM_QUANTITY[$quantity];
+                    $money -= $neededMoney;
+                    if ($money < 0) {
+                        return false;
+                    }
+                }
             }
         }
         return true;
@@ -344,7 +366,24 @@ class TileGLMService
     {
         $personalBoard = $playerTileGLM->getPersonalBoard();
         $selectedTile = $personalBoard->getBuyingTile();
-        $this->addSelectedResourcesFromTileWithCost($playerTileGLM, $resource,
+        $this->addSelectedResourcesFromTileWithCost($personalBoard->getPlayerGLM(), $playerTileGLM, $resource,
+            $selectedTile->getBoardTile()->getTile()->getBuyPrice());
+    }
+
+    /**
+     * selectLeader: select a leader to use to buy the selectedTile of the player
+     * @param PlayerGLM $playerGLM
+     * @return void
+     * @throws Exception if the selectedResources can't be used to buy the tile
+     */
+    public function selectLeader(PlayerGLM $playerGLM) : void
+    {
+        $personalBoard = $playerGLM->getPersonalBoard();
+        $selectedTile = $personalBoard->getBuyingTile();
+        $resource = $this->resourceGLMRepository->findOneBy([
+            'type' => GlenmoreParameters::$VILLAGER_RESOURCE
+        ]);
+        $this->addSelectedResourcesFromTileWithCost($playerGLM, null, $resource,
             $selectedTile->getBoardTile()->getTile()->getBuyPrice());
     }
 
@@ -425,11 +464,13 @@ class TileGLMService
                 } else {
                     $priceTile -= $resource->getQuantity();
                     $player->getPersonalBoard()->removeSelectedResource($resource);
-                    $playerTileResource = $playerTile->getPlayerTileResource()->filter(
-                        function (PlayerTileResourceGLM $playerTileResourceGLM) use ($resource) {
-                            return $playerTileResourceGLM->getResource()->getId() == $resource->getResource()->getId();
-                        })->first();
-                    $this->entityManager->remove($playerTileResource);
+                    if ($playerTile != null ) {
+                        $playerTileResource = $playerTile->getPlayerTileResource()->filter(
+                            function(PlayerTileResourceGLM $playerTileResourceGLM) use ($resource) {
+                                return $playerTileResourceGLM->getResource()->getId() == $resource->getResource()->getId();
+                            })->first();
+                        $this->entityManager->remove($playerTileResource);
+                    }
                     $this->entityManager->remove($resource);
                 }
                 if ($priceTile == 0) {
@@ -544,6 +585,9 @@ class TileGLMService
             );
             foreach ($resourcesOfPlayerLikeResourceTile as $resource) {
                 $playerTile = $resource->getPlayerTile();
+                if ($playerTile == null) {
+                    continue;
+                }
                 if ($resource->getQuantity() > $priceTile) {
                     $resource->setQuantity($resource->getQuantity() - $priceTile);
                     $playerTileResource = $playerTile->getPlayerTileResource()->filter(
@@ -1023,16 +1067,18 @@ class TileGLMService
     /**
      * addSelectedResourcesFromTileWithCost: create a selected resources from the playerTile with the selected resource,
      *                                       if it's coherent with the cost
-     * @param PlayerTileGLM $playerTileGLM
+     * @param PlayerGLM $playerGLM
+     * @param PlayerTileGLM|null $playerTileGLM
      * @param ResourceGLM $resource
      * @param Collection<TileBuyCostGLM> $cost cost of the tile
      * @return void
-     * @throws \Exception if the selected resources can't be used to buy the tile
+     * @throws Exception if the selected resources can't be used to buy the tile
      */
-    public function addSelectedResourcesFromTileWithCost(PlayerTileGLM $playerTileGLM, ResourceGLM $resource, Collection $cost) : void
+    public function addSelectedResourcesFromTileWithCost(PlayerGLM $playerGLM, ?PlayerTileGLM $playerTileGLM,
+                                                         ResourceGLM $resource, Collection $cost) : void
     {
 
-        $personalBoard = $playerTileGLM->getPersonalBoard();
+        $personalBoard = $playerGLM->getPersonalBoard();
         $selectedResources = $personalBoard->getSelectedResources();
         $selectedResourcesLikeResource = $selectedResources->filter(
             function (SelectedResourceGLM $selectedResourceGLM) use ($resource) {
