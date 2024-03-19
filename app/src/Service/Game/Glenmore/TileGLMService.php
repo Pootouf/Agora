@@ -400,7 +400,7 @@ class TileGLMService
     {
         $personalBoard = $playerTileGLM->getPersonalBoard();
         $selectedTile = $personalBoard->getActivatedTile();
-        $this->addSelectedResourcesFromTileWithCost($playerTileGLM, $resource,
+        $this->addSelectedResourcesFromTileWithCost($personalBoard->getPlayerGLM(), $playerTileGLM, $resource,
             $selectedTile->getTile()->getActivationPrice());
     }
 
@@ -715,6 +715,18 @@ class TileGLMService
         $this->entityManager->persist($personalBoard);
         $this->entityManager->persist($boardTile);
         $this->entityManager->persist($buyingTile);
+        $this->entityManager->flush();
+    }
+
+    /**
+     * clearTileSelection : cancel the tile that a player has selected to buy it
+     * @param PlayerGLM $player
+     * @return void
+     */
+    public function clearTileSelection(PlayerGLM $player): void
+    {
+        $player->getPersonalBoard()->setBuyingTile(null);
+        $this->entityManager->persist($player->getPersonalBoard());
         $this->entityManager->flush();
     }
 

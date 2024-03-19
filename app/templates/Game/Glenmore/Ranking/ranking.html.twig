@@ -14,7 +14,7 @@ This section displays the ranking with a view of the other players' possessions
 	</div>
 </div>
 
-<div>
+<div class="overflow-y-auto">
 	{% for playerData in playersDataResources %}
 		{% if not playerData.player.isBot%}
 			{# Tailwind loading of background color in order red yellow blue white green #}
