@@ -33,7 +33,7 @@
 			{% endblock %}
 			{% block personalBoard %}
 				{% if not isSpectator %}
-					<div id="personalBoard" class="absolute bg-gradient-to-r from-[#422006] to-[#ca8a04] bottom-0 w-[70%] h-[90%]">
+					<div id="personalBoard" class="absolute bg-gradient-to-r from-[#422006] to-[#ca8a04] bottom-0 mb-6 w-[70%] h-[90%]">
 						{{ include('/Game/Glenmore/PersonalBoard/personalBoard.html.twig') }}
 					</div>
 					<div id="playerPersonalBoard" class="bg-[#422006] flow float-start w-[70%] h-[5/6]">
@@ -76,7 +76,7 @@
 
 	{# NOTIFICATION MANAGEMENT #}
 	<script>
-		{% set path = path('app_game_show_glm', {'id': game.id}) ~ 'mainBoard' ~ player.id %}
+		{% set path = path('app_game_show_glm', {'id': game.id}) ~ 'mainBoardPreview' ~ player.id %}
 		const eventSourceMainBoard = new EventSource("{{ mercure(path)|escape('js') }}");
 		eventSourceMainBoard.onmessage = event => {
 			let mainBoard = document.getElementById('preview');
@@ -104,6 +104,14 @@
 		const eventSourcePlayerRoundManagement = new EventSource("{{ mercure(path)|escape('js') }}");
 		eventSourcePlayerRoundManagement .onmessage = event => {
 			let ranking = document.getElementById('playerRoundManagement');
+			ranking.innerHTML = event.data;
+			setTimeout(() => animationQueue.executeNextInQueue(), 100)
+		}
+
+		{% set path = path('app_game_show_glm', {'id': game.id}) ~ 'warehouse' ~ player.id %}
+		const eventSourceWarehouse = new EventSource("{{ mercure(path)|escape('js') }}");
+		eventSourceWarehouse .onmessage = event => {
+			let ranking = document.getElementById('warehouse');
 			ranking.innerHTML = event.data;
 			setTimeout(() => animationQueue.executeNextInQueue(), 100)
 		}
