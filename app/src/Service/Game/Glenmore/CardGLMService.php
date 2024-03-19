@@ -215,6 +215,7 @@ class CardGLMService
             $playerResource = new PlayerTileResourceGLM();
             $playerResource->setResource($createdResource->getResource());
             $playerResource->setQuantity($createdResource->getQuantity());
+            $playerResource->setPlayer($playerGLM);
             $playerResource->setPlayerTileGLM($tile);
             $this->entityManager->persist($playerResource);
             $tile->addPlayerTileResource($playerResource);

@@ -230,11 +230,7 @@ This section displays the player tile resources and possible actions
                                             {idGame: game.id, idTile : selectedTile.id, resource: colorResource})
                                         })
                                     }}
-                                    class="{% for chosenResource in chosenNewResources %}
-                                                {% if playerResource == chosenResource %}
-                                                    opacity-25
-                                                {% endif %}
-                                            {% endfor %}
+                                    class="
                                     flex items-center justify-center">
                                 <img class="max-h-full"
                                      src="{{

@@ -38,8 +38,7 @@ class GlenmoreController extends AbstractController
                                 private ResourceGLMRepository $resourceGLMRepository,
                                 private PublishService $publishService,
                                 private WarehouseGLMService $warehouseGLMService,
-                                private EntityManagerInterface $entityManager
-                                )
+                                private EntityManagerInterface $entityManager)
     {}
 
     #[Route('/game/glenmore/{id}', name: 'app_game_show_glm')]
@@ -260,13 +259,14 @@ class GlenmoreController extends AbstractController
         $this->entityManager->persist($player);
         $this->entityManager->flush();
         $playerTile = $player->getPersonalBoard()->getPlayerTiles()->last();
+
         if ($this->tileGLMService->giveBuyBonus($playerTile) == -1) {
-             $this->publishCreateResource($playerTile);
+            $this->publishCreateResource($playerTile);
             $this->publishPlayerRoundManagement($game, true);
         } else {
+            $this->publishPersonalBoard($player);
             $this->publishPlayerRoundManagement($game, false);
         }
-        $this->publishPersonalBoard($player);
         $this->publishRanking($game);
 //        $message = $player->getUsername() . " put tile " . $player->getPersonalBoard()->getSelectedTile()->getId();
 //        $this->logService->sendPlayerLog($game, $player, $message);
@@ -362,7 +362,8 @@ class GlenmoreController extends AbstractController
         if ($player == null) {
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
         }
-        $production_resource = $this->resourceGLMRepository->findOneBy(["type" => $resource]);
+        $production_resource = $this->resourceGLMRepository->findOneBy(["type" => GlenmoreParameters::$PRODUCTION_RESOURCE,
+                                                                        "color" => $resource]);
         if($tile->getTile()->getName() === GlenmoreParameters::$CARD_LOCH_LOCHY) {
             try {
                 $this->cardGLMService->selectResourceForLochLochy($player, $production_resource);
@@ -370,7 +371,7 @@ class GlenmoreController extends AbstractController
                 return new Response('can not select more resource', Response::HTTP_FORBIDDEN);
             }
         }
-        $this->publishPersonalBoard($player);
+        $this->publishCreateResource($tile);
         return new Response($player->getUsername()." selected a resource" ,Response::HTTP_OK);
     }
 
@@ -678,16 +679,18 @@ class GlenmoreController extends AbstractController
     {
         $player = $playerTileGLM->getPersonalBoard()->getPlayerGLM();
         $game = $player->getGameGLM();
+        $activatedActivationPhase = $playerTileGLM->getTile()->getName() == GlenmoreParameters::$CARD_IONA_ABBEY;
         $response = $this->render('Game/Glenmore/PersonalBoard/selectTile.html.twig',
         [
             'player' => $player,
             'selectedTile' => $playerTileGLM,
             'game' => $game,
             'activatedResourceSelection' => false,
-            'selectedResources' => null,
+            'selectedResources' => $player->getPersonalBoard()->getSelectedResources(),
             'activatedNewResourceAcquisition' => true,
             'chosenNewResources' => $player->getPersonalBoard()->getCreatedResources(),
-            'activatedMovementPhase' => false
+            'activatedMovementPhase' => false,
+            'activatedActivationPhase' => $activatedActivationPhase
         ]
         );
         $this->publishService->publish(
