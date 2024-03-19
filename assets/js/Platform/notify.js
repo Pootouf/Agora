@@ -10,7 +10,7 @@ function notify($content, $type) {
         notification.onclick = function() {
             // Perform action when notification is clicked
             // For example, redirect to a specific URL
-            window.location.href = "/";
+            window.location.href = "/dashboard/profile";
         };
     } else if (Notification.permission !== "denied") {
         // We need to ask the user for permission
@@ -19,7 +19,7 @@ function notify($content, $type) {
             if (permission === "granted") {
                 const notification = new Notification($type+ ": "+ $content);
                 notification.onclick = function() {
-                    window.location.href = "/";
+                    window.location.href = "/dashboard/profile";
                 };
             }
         });

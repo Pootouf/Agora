@@ -55,7 +55,7 @@ class NotificationService
     {
         foreach ($users as $user) {
             $this->storeNotification($user, $content);
-            $this->notifyUser($user->getId(), $content, $date);
+            $this->notifyUser($user->getId(), $content, $date->format('Y-m-d H:i:s.u'));
         }
         $this->entityManager->flush();
     }
