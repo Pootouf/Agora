@@ -111,8 +111,16 @@
 		{% set path = path('app_game_show_glm', {'id': game.id}) ~ 'warehouse' ~ player.id %}
 		const eventSourceWarehouse = new EventSource("{{ mercure(path)|escape('js') }}");
 		eventSourceWarehouse .onmessage = event => {
-			let ranking = document.getElementById('warehouse');
-			ranking.innerHTML = event.data;
+			let warehouse = document.getElementById('warehouse');
+			warehouse.innerHTML = event.data;
+			setTimeout(() => animationQueue.executeNextInQueue(), 100)
+		}
+
+		{% set path = path('app_game_show_glm', {'id': game.id}) ~ 'createResource' ~ player.id %}
+		const createResource = new EventSource("{{ mercure(path)|escape('js') }}");
+		createResource .onmessage = event => {
+			let createResource = document.getElementById('personalBoard');
+			createResource.innerHTML = event.data;
 			setTimeout(() => animationQueue.executeNextInQueue(), 100)
 		}
 	</script>

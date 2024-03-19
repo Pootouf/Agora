@@ -744,7 +744,7 @@ class TileGLMService
     {
         if ($player->getPersonalBoard()->getBuyingTile() == null)
         {
-            throw new Exception("Unable to place tile");
+            throw new Exception("no tile selected");
         }
 
         // Initialization

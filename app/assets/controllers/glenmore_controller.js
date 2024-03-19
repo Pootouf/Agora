@@ -189,4 +189,9 @@ export default class extends Controller {
 		const node = placeholder.firstElementChild;
 		tree.appendChild(node);
 	}
+
+	async selectNewResourceAcquisition(resource) {
+		let url = resource.params.url;
+		const response = await fetch(url);
+	}
 }
