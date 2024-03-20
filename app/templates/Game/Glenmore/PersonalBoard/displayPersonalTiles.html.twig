@@ -20,7 +20,16 @@ This section displays the player's disposition of tiles
 
                 {# Display for empty space #}
                 {% if personalBox.playerTile == null %}
-                    <button type="button" class="opacity-25 max-w-full max-h-full bg-gray-500"
+                    <button type="button"
+                            {% if not personalBox.placeable %}
+                                disabled
+                            {% endif %}
+                            class="{% if not personalBox.placeable %}
+                                                     opacity-25 bg-gray-500
+                                                 {% else %}
+                                                    opacity-50 bg-white
+                                                 {% endif %}
+                                                  max-w-full max-h-full "
                     {{ stimulus_action('glenmore','putTileInPersonalBoard','click',
                         {url: path('app_game_glenmore_put_tile_on_personal_board',
                             {idGame: game.id, coordX: personalBox.coordX, coordY: personalBox.coordY})
