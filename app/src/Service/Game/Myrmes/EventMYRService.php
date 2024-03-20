@@ -18,12 +18,10 @@ class EventMYRService
     {}
 
     /**
-     * placeNurse : place the nurse that was in $oldPosition to $newPosition
-     * @param PlayerMYR $playerMYR
-     * @param int $oldPosition
+     * placeNurse : place the nurse in $newPosition
+     * @param NurseMYR $nurseMYR
      * @param int $newPosition
      * @return void
-     * @throws \Exception
      */
     public function placeNurse(NurseMYR $nurseMYR, int $newPosition) : void
     {
