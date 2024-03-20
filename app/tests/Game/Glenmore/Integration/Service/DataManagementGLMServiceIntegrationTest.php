@@ -81,36 +81,36 @@ class DataManagementGLMServiceIntegrationTest extends KernelTestCase
         $entityManager->persist($personalBoard);
 
         $row0 = new ArrayCollection([
-            new PersonalBoardBoxGLM(null, $tile2->getCoordX() - 1, $tile2->getCoordY() - 2),
-            new PersonalBoardBoxGLM(null, $tile2->getCoordX() - 1, $tile2->getCoordY() - 1),
-            new PersonalBoardBoxGLM(null, $tile2->getCoordX() - 1, $tile2->getCoordY()),
-            new PersonalBoardBoxGLM(null, $tile2->getCoordX() - 1, $tile2->getCoordY() + 1),
-            new PersonalBoardBoxGLM(null, $tile2->getCoordX() - 1, $tile2->getCoordY() + 2)
+            new PersonalBoardBoxGLM(null, $tile2->getCoordX() - 1, $tile2->getCoordY() - 2, false),
+            new PersonalBoardBoxGLM(null, $tile2->getCoordX() - 1, $tile2->getCoordY() - 1, false),
+            new PersonalBoardBoxGLM(null, $tile2->getCoordX() - 1, $tile2->getCoordY(), false),
+            new PersonalBoardBoxGLM(null, $tile2->getCoordX() - 1, $tile2->getCoordY() + 1, false),
+            new PersonalBoardBoxGLM(null, $tile2->getCoordX() - 1, $tile2->getCoordY() + 2, false)
         ]);
         $row1 = new ArrayCollection([
-            new PersonalBoardBoxGLM(null, $tile2->getCoordX(), $tile2->getCoordY() - 2),
-            new PersonalBoardBoxGLM(null, $tile2->getCoordX(), $tile2->getCoordY() - 1),
-            new PersonalBoardBoxGLM($tile2, $tile2->getCoordX(), $tile2->getCoordY()),
-            new PersonalBoardBoxGLM(null, $tile2->getCoordX(), $tile2->getCoordY() + 1),
-            new PersonalBoardBoxGLM(null, $tile2->getCoordX(), $tile2->getCoordY() + 2)
+            new PersonalBoardBoxGLM(null, $tile2->getCoordX(), $tile2->getCoordY() - 2, false),
+            new PersonalBoardBoxGLM(null, $tile2->getCoordX(), $tile2->getCoordY() - 1, false),
+            new PersonalBoardBoxGLM($tile2, $tile2->getCoordX(), $tile2->getCoordY(), false),
+            new PersonalBoardBoxGLM(null, $tile2->getCoordX(), $tile2->getCoordY() + 1, false),
+            new PersonalBoardBoxGLM(null, $tile2->getCoordX(), $tile2->getCoordY() + 2, false)
         ]);
         $row2 = new ArrayCollection([
-            new PersonalBoardBoxGLM(null, $startTile->getCoordX(), $startTile->getCoordY() - 1),
-            new PersonalBoardBoxGLM($startTile, $startTile->getCoordX(), $startTile->getCoordY()),
-            new PersonalBoardBoxGLM(null, $startTile->getCoordX(), $startTile->getCoordY() + 1),
-            new PersonalBoardBoxGLM($tile1, $tile1->getCoordX(), $tile1->getCoordY()),
-            new PersonalBoardBoxGLM(null, $tile1->getCoordX(), $tile1->getCoordY() + 1)
+            new PersonalBoardBoxGLM(null, $startTile->getCoordX(), $startTile->getCoordY() - 1, false),
+            new PersonalBoardBoxGLM($startTile, $startTile->getCoordX(), $startTile->getCoordY(), false),
+            new PersonalBoardBoxGLM(null, $startTile->getCoordX(), $startTile->getCoordY() + 1, false),
+            new PersonalBoardBoxGLM($tile1, $tile1->getCoordX(), $tile1->getCoordY(), false),
+            new PersonalBoardBoxGLM(null, $tile1->getCoordX(), $tile1->getCoordY() + 1, false)
         ]);
         $row3 = new ArrayCollection([
-            new PersonalBoardBoxGLM(null, $tile1->getCoordX() + 1, $tile1->getCoordY() - 3),
-            new PersonalBoardBoxGLM(null, $tile1->getCoordX() + 1, $tile1->getCoordY() - 2),
-            new PersonalBoardBoxGLM(null, $tile1->getCoordX() + 1, $tile1->getCoordY() - 1),
-            new PersonalBoardBoxGLM(null, $tile1->getCoordX() + 1, $tile1->getCoordY()),
-            new PersonalBoardBoxGLM(null, $tile1->getCoordX() + 1, $tile1->getCoordY() + 1)
+            new PersonalBoardBoxGLM(null, $tile1->getCoordX() + 1, $tile1->getCoordY() - 3, false),
+            new PersonalBoardBoxGLM(null, $tile1->getCoordX() + 1, $tile1->getCoordY() - 2, false),
+            new PersonalBoardBoxGLM(null, $tile1->getCoordX() + 1, $tile1->getCoordY() - 1, false),
+            new PersonalBoardBoxGLM(null, $tile1->getCoordX() + 1, $tile1->getCoordY(), false),
+            new PersonalBoardBoxGLM(null, $tile1->getCoordX() + 1, $tile1->getCoordY() + 1, false)
         ]);
         $entityManager->flush();
         //WHEN
-        $result = $dataManagementGLMService->organizePersonalBoardRows($firstPlayer);
+        $result = $dataManagementGLMService->organizePersonalBoardRows($firstPlayer, []);
         //THEN
         for($i = 0; $i < $row0->count(); $i++) {
             $this->assertEquals($row0->get($i)->getPlayerTile(), $result->get(0)->get($i)->getPlayerTile());

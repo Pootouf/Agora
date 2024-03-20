@@ -39,8 +39,7 @@ class TileGLMService
                                 private readonly PlayerTileResourceGLMRepository $playerTileResourceGLMRepository,
                                 private readonly PlayerTileGLMRepository $playerTileGLMRepository,
                                 private readonly CardGLMService $cardGLMService,
-                                private readonly SelectedResourceGLMRepository $selectedResourceGLMRepository,
-                                private LoggerInterface $logger) {}
+                                private readonly SelectedResourceGLMRepository $selectedResourceGLMRepository) {}
 
     /**
      * getAmountOfTileToReplace : returns the amount of tiles to replace
@@ -705,7 +704,6 @@ class TileGLMService
             $y = $playerTile->getCoordY();
             if($this->canPlaceTile($x - 1, $y, $tileGLM, $personalBoardGLM->getPlayerGLM())) {
                 $acceptableCoords[] = [$x - 1, $y];
-                $this->logger->critical(($x - 1).' '.$y);
             }
             if($this->canPlaceTile($x + 1, $y, $tileGLM, $personalBoardGLM->getPlayerGLM())) {
                 $acceptableCoords[] = [$x + 1, $y];
