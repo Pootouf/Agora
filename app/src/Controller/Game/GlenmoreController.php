@@ -38,8 +38,7 @@ class GlenmoreController extends AbstractController
                                 private ResourceGLMRepository $resourceGLMRepository,
                                 private PublishService $publishService,
                                 private WarehouseGLMService $warehouseGLMService,
-                                private EntityManagerInterface $entityManager
-                                )
+                                private EntityManagerInterface $entityManager)
     {}
 
     #[Route('/game/glenmore/{id}', name: 'app_game_show_glm')]
@@ -260,13 +259,14 @@ class GlenmoreController extends AbstractController
         $this->entityManager->persist($player);
         $this->entityManager->flush();
         $playerTile = $player->getPersonalBoard()->getPlayerTiles()->last();
+
         if ($this->tileGLMService->giveBuyBonus($playerTile) == -1) {
-             $this->publishCreateResource($playerTile);
+            $this->publishCreateResource($playerTile);
             $this->publishPlayerRoundManagement($game, true);
         } else {
+            $this->publishPersonalBoard($player);
             $this->publishPlayerRoundManagement($game, false);
         }
-        $this->publishPersonalBoard($player);
         $this->publishRanking($game);
 //        $message = $player->getUsername() . " put tile " . $player->getPersonalBoard()->getSelectedTile()->getId();
 //        $this->logService->sendPlayerLog($game, $player, $message);
@@ -362,15 +362,22 @@ class GlenmoreController extends AbstractController
         if ($player == null) {
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
         }
-        $production_resource = $this->resourceGLMRepository->findOneBy(["type" => $resource]);
+        $production_resource = $this->resourceGLMRepository->findOneBy(["type" => GlenmoreParameters::$PRODUCTION_RESOURCE,
+                                                                        "color" => $resource]);
         if($tile->getTile()->getName() === GlenmoreParameters::$CARD_LOCH_LOCHY) {
             try {
                 $this->cardGLMService->selectResourceForLochLochy($player, $production_resource);
             } catch (\Exception) {
                 return new Response('can not select more resource', Response::HTTP_FORBIDDEN);
             }
+        } else if ($tile->getTile()->getName() === GlenmoreParameters::$CARD_IONA_ABBEY) {
+            try {
+                $this->tileGLMService->selectResourceForIonaAbbey($player, $production_resource);
+            } catch (\Exception) {
+                return new Response('can not select more resource', Response::HTTP_FORBIDDEN);
+            }
         }
-        $this->publishPersonalBoard($player);
+        $this->publishCreateResource($tile);
         return new Response($player->getUsername()." selected a resource" ,Response::HTTP_OK);
     }
 
@@ -391,8 +398,8 @@ class GlenmoreController extends AbstractController
         }
         try {
             $this->tileGLMService->removeVillager($tile);
-        } catch (Exception) {
-            return new Response('Invalid move', Response::HTTP_FORBIDDEN);
+        } catch (Exception $e) {
+            return new Response('Invalid move' . $e->getMessage(), Response::HTTP_FORBIDDEN);
         }
         $this->publishPersonalBoard($player);
         $this->publishRanking($game);
@@ -432,6 +439,7 @@ class GlenmoreController extends AbstractController
         $isActivatedNewResourcesAcquisition = false;
         if($tile->getTile()->getName() == GlenmoreParameters::$CARD_IONA_ABBEY) {
             $isActivatedNewResourcesAcquisition = true;
+            $this->publishCreateResource($tile);
         }
         $this->publishPlayerRoundManagement($game, $isActivatedNewResourcesAcquisition);
         return new Response('tile was activated', Response::HTTP_OK);
@@ -517,6 +525,12 @@ class GlenmoreController extends AbstractController
         }
         if($tile->getTile()->getName() === GlenmoreParameters::$CARD_LOCH_LOCHY) {
             $this->cardGLMService->validateTakingOfResourcesForLochLochy($player);
+        } else if ($tile->getTile()->getName() === GlenmoreParameters::$CARD_IONA_ABBEY) {
+            try {
+                $this->tileGLMService->validateTakingOfResourcesForIonaAbbey($player);
+            } catch (Exception $e) {
+                return new Response("could not activate this" . $e->getMessage(), Response::HTTP_FORBIDDEN);
+            }
         }
         $this->publishPersonalBoard($player);
         $this->publishRanking($game);
@@ -536,10 +550,8 @@ class GlenmoreController extends AbstractController
         if ($player == null) {
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
         }
-        if($tile->getTile()->getName() === GlenmoreParameters::$CARD_LOCH_LOCHY) {
-            $this->cardGLMService->clearCreatedResources($player);
-        }
-        $this->publishPersonalBoard($player);
+        $this->cardGLMService->clearCreatedResources($player);
+        $this->publishCreateResource($tile);
         $this->publishPlayerRoundManagement($game, true);
         return new Response('the chosen resources have been canceled', Response::HTTP_OK);
     }
@@ -678,16 +690,19 @@ class GlenmoreController extends AbstractController
     {
         $player = $playerTileGLM->getPersonalBoard()->getPlayerGLM();
         $game = $player->getGameGLM();
+        $activatedActivationPhase = $playerTileGLM->getTile()->getName() == GlenmoreParameters::$CARD_IONA_ABBEY;
         $response = $this->render('Game/Glenmore/PersonalBoard/selectTile.html.twig',
         [
             'player' => $player,
             'selectedTile' => $playerTileGLM,
             'game' => $game,
             'activatedResourceSelection' => false,
-            'selectedResources' => null,
+            'activatedSellingPhase' => false,
+            'selectedResources' => $player->getPersonalBoard()->getSelectedResources(),
             'activatedNewResourceAcquisition' => true,
             'chosenNewResources' => $player->getPersonalBoard()->getCreatedResources(),
-            'activatedMovementPhase' => false
+            'activatedMovementPhase' => false,
+            'activatedActivationPhase' => $activatedActivationPhase
         ]
         );
         $this->publishService->publish(
