@@ -44,6 +44,7 @@ export default class extends Controller {
 
 	async activateTile(tile) {
 		let url = tile.params.url;
+		document.getElementById("returnArrow").click();
 		const response = await fetch(url);
 	}
 
@@ -188,5 +189,10 @@ export default class extends Controller {
 		placeholder.innerHTML = await response.text();
 		const node = placeholder.firstElementChild;
 		tree.appendChild(node);
+	}
+
+	async selectNewResourceAcquisition(resource) {
+		let url = resource.params.url;
+		const response = await fetch(url);
 	}
 }

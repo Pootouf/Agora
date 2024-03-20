@@ -19,7 +19,6 @@ This section displays the player tile resources and possible actions
 
 {% set CARD_LOCH_NESS = "Loch Ness" %}
 
-
 {% set PRODUCTION_TYPE = ['brown', 'green', 'grey', 'white', 'yellow'] %}
 
 {# Variable definition #}
@@ -187,29 +186,31 @@ This section displays the player tile resources and possible actions
                 {% for playerResource in resources %}
 
                     {% if playerResource.resource.type == PRODUCTION %}
-                        <button {% if not activatedResourceSelection and not activatedSellingPhase %}
-                                    disabled
-                                {% endif %}
-                                {{ stimulus_action('glenmore', 'selectResource', 'click',
-                                    {url:path('app_game_glenmore_select_resource',
-                                        {idGame: game.id, idPlayerTileResource : playerResource.id, idTile : selectedTile.id})
-                                    })
-                                }}
-                                class="{% for selectedResource in selectedResources %}
-                                            {% if playerResource.resource == selectedResource.resource and
-                                                    playerResource.quantity == selectedResource.quantity %}
-                                                opacity-25
-                                            {% endif %}
-                                        {% endfor %}
-                                flex items-center justify-center w-full h-full">
-                            <img class="max-h-full"
-                                 src="{{
-                                 asset('resourcesGames/Glenmore/ResourcesProduction/'
-                                     ~ playerResource.resource.color ~'.png')
-                                 }}"
-                                 alt="{{ playerResource.resource.color }}"
-                            />
-                        </button>
+                        {% for i in 1..playerResource.quantity %}
+                            <button {% if not activatedResourceSelection and not activatedSellingPhase %}
+                                        disabled
+                                    {% endif %}
+                                    {{ stimulus_action('glenmore', 'selectResource', 'click',
+                                        {url:path('app_game_glenmore_select_resource',
+                                            {idGame: game.id, idPlayerTileResource : playerResource.id, idTile : selectedTile.id})
+                                        })
+                                    }}
+                                    class="{% for selectedResource in selectedResources %}
+                                                {% if playerResource.resource == selectedResource.resource and
+                                                        playerResource.quantity == selectedResource.quantity %}
+                                                    opacity-25
+                                                {% endif %}
+                                            {% endfor %}
+                                    flex items-center justify-center w-full h-full">
+                                <img class="max-h-full"
+                                     src="{{
+                                     asset('resourcesGames/Glenmore/ResourcesProduction/'
+                                         ~ playerResource.resource.color ~'.png')
+                                     }}"
+                                     alt="{{ playerResource.resource.color }}"
+                                />
+                            </button>
+                        {% endfor %}
                     {% endif %}
                 {% endfor %}
             </div>
@@ -217,7 +218,7 @@ This section displays the player tile resources and possible actions
 
             {# Display the new resources the player must select to have them #}
             {% if activatedNewResourceAcquisition %}
-                <div class="grid grid-rows-4 grid-cols-1 gap-1 ">
+                <div class="grid grid-rows-4 grid-cols-1 gap-1">
                     <span class="border-white border-2 bg-green-700
                                 text-white text-lg flex items-center border-solid text-center justify-center">
                         Choisir les nouvelles ressources à récupérer
@@ -230,11 +231,7 @@ This section displays the player tile resources and possible actions
                                             {idGame: game.id, idTile : selectedTile.id, resource: colorResource})
                                         })
                                     }}
-                                    class="{% for chosenResource in chosenNewResources %}
-                                                {% if playerResource == chosenResource %}
-                                                    opacity-25
-                                                {% endif %}
-                                            {% endfor %}
+                                    class="
                                     flex items-center justify-center">
                                 <img class="max-h-full"
                                      src="{{
