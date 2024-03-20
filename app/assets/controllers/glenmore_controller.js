@@ -44,6 +44,7 @@ export default class extends Controller {
 
 	async activateTile(tile) {
 		let url = tile.params.url;
+		document.getElementById("returnArrow").click();
 		const response = await fetch(url);
 	}
 
