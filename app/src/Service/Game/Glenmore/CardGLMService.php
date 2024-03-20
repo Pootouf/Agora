@@ -17,11 +17,13 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
+use Psr\Log\LoggerInterface;
 
 class CardGLMService
 {
     public function __construct(private readonly EntityManagerInterface $entityManager,
-        private ResourceGLMRepository $resourceGLMRepository) {}
+        private ResourceGLMRepository $resourceGLMRepository,
+        private LoggerInterface $logger) {}
 
     /** applyCastle Of Mey : applies effect of card Castle Of Mey
      *
@@ -222,6 +224,7 @@ class CardGLMService
             $playerResource = new PlayerTileResourceGLM();
             $playerResource->setResource($createdResource->getResource());
             $playerResource->setQuantity($createdResource->getQuantity());
+            $this->logger->critical($createdResource->getQuantity());
             $playerResource->setPlayer($playerGLM);
             $playerResource->setPlayerTileGLM($tile);
             $this->entityManager->persist($playerResource);
