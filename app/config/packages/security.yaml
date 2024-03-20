@@ -39,7 +39,7 @@ when@test:
             # used to reload user from session & other features (e.g. switch_user)
             app_user_provider:
                 entity:
-                    class: App\Entity\Game\GameUser
+                    class: App\Entity\Platform\User
                     property: username
         password_hashers:
             # By default, password hashers are resource intensive and take time. This is
@@ -79,7 +79,7 @@ when@gametest:
             # used to reload user from session & other features (e.g. switch_user)
             app_user_provider:
                 entity:
-                    class: App\Entity\Game\GameUser
+                    class: App\Entity\Platform\User
                     property: username
         firewalls:
             main:

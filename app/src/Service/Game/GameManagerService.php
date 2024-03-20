@@ -3,7 +3,7 @@
 namespace App\Service\Game;
 
 use App\Entity\Game\DTO\Game;
-use App\Entity\Game\GameUser;
+use App\Entity\Platform\User;
 use App\Repository\Game\Glenmore\GameGLMRepository;
 use App\Repository\Game\SixQP\GameSixQPRepository;
 use App\Repository\Game\Splendor\GameSPLRepository;
