@@ -11,9 +11,9 @@ use App\Entity\Game\Splendor\TokenSPL;
 use App\Repository\Game\Splendor\TokenSPLRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\DBAL\Exception;
 use Doctrine\ORM\EntityManagerInterface;
 use phpDocumentor\Reflection\Types\Boolean;
+use Exception;
 
 class TokenSPLService
 {
@@ -99,6 +99,7 @@ class TokenSPLService
      * @param PlayerSPL $playerSPL
      * @param TokenSPL  $tokenSPL
      * @return void
+     * @throws Exception
      */
     public function takeToken(PlayerSPL $playerSPL, TokenSPL $tokenSPL): void
     {
@@ -288,11 +289,12 @@ class TokenSPLService
      * @param Collection $tokens
      * @return bool
      */
-    private function canSelectTokenOfOtherColors(GameSPL $game, Collection $tokens)
+    private function canSelectTokenOfOtherColors(GameSPL $game, Collection $tokens): bool
     {
-        $selectedColors = $tokens->map(function (TokenSPL $token) {
-            return $token->getColor();
+        $selectedColors = $tokens->map(function (SelectedTokenSPL $token) {
+            return $token->getToken()->getColor();
         });
+
         $colors = $game->getMainBoard()->getTokens()->map(
             function (TokenSPL $tokenSPL) {
                 return $tokenSPL->getColor();
