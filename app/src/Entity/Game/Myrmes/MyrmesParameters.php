@@ -13,15 +13,11 @@ class MyrmesParameters
 
 
     // Area's for nurses
-    public static array $AREA_LARVAE = array(1, 2, 2);
-    public static array $AREA_SOLDIERS = array(2, 1);
-    public static array $FIRST_AREA_WORKER = array(2, 2);
-    public static array $AREA_WORKSHOP = array(
-        "RIGHT" => "GOAL",
-        "LEFT" => "ANTHILL_HOLE",
-        "BOTTOM" => "NURSE",
-        "TOP" => "LEVEL"
-    );
+    public static int $BASE_AREA = 0;
+    public static int $LARVAE_AREA = 1;
+    public static int $SOLDIERS_AREA = 2;
+    public static int $WORKER_AREA = 3;
+    public static int $WORKSHOP_AREA = 4;
 
     public static int $FIRST_YEAR_NUM = 1;
     public static int $SECOND_YEAR_NUM = 2;
