@@ -5,14 +5,17 @@ namespace App\Tests\Game\Factory\Unit\Service;
 
 use App\Entity\Game\GameUser;
 use App\Entity\Game\Glenmore\GameGLM;
+use App\Entity\Game\Myrmes\GameMYR;
 use App\Entity\Game\SixQP\GameSixQP;
 use App\Entity\Game\Splendor\GameSPL;
 use App\Repository\Game\Glenmore\GameGLMRepository;
+use App\Repository\Game\Myrmes\GameMYRRepository;
 use App\Repository\Game\SixQP\GameSixQPRepository;
 use App\Repository\Game\Splendor\GameSPLRepository;
 use App\Service\Game\AbstractGameManagerService;
 use App\Service\Game\GameManagerService;
 use App\Service\Game\Glenmore\GLMGameManagerService;
+use App\Service\Game\Myrmes\MYRGameManagerService;
 use App\Service\Game\SixQP\SixQPGameManagerService;
 use App\Service\Game\Splendor\SPLGameManagerService;
 use PHPUnit\Framework\TestCase;
@@ -33,17 +36,7 @@ class GameManagerServiceTest extends TestCase
     public function testCreate6QPGameSuccessful()
     {
         // GIVEN
-        $gameSixQPRepository = $this->createMock(GameSixQPRepository::class);
-        $gameSplendorRepository = $this->createMock(GameSPLRepository::class);
-        $gameGlenmoreRepository = $this->createMock(GameGLMRepository::class);
-        $sixQPService = $this->createMock(SixQPGameManagerService::class);
-        $sixQPService->method('createGame')->willReturn(AbstractGameManagerService::$SUCCESS);
-        $splendorService = $this->createMock(SPLGameManagerService::class);
-        $splendorService->method('createGame')->willReturn(AbstractGameManagerService::$SUCCESS);
-        $glenmoreService = $this->createMock(GLMGameManagerService::class);
-        $glenmoreService->method('createGame')->willReturn(AbstractGameManagerService::$SUCCESS);
-        $gameService = new GameManagerService($gameSixQPRepository, $gameSplendorRepository, $gameGlenmoreRepository,
-            $sixQPService, $splendorService, $glenmoreService);
+        $gameService = $this->createGameManagerServiceWithMockFunctionRepository('createGame');
         // WHEN
         $result = $gameService->createGame(AbstractGameManagerService::$SIXQP_LABEL);
         // THEN
@@ -53,14 +46,7 @@ class GameManagerServiceTest extends TestCase
     public function testJoinGameWhenInvalidGame()
     {
         // GIVEN
-        $gameSixQPRepository = $this->createMock(GameSixQPRepository::class);
-        $gameSplendorRepository = $this->createMock(GameSPLRepository::class);
-        $gameGlenmoreRepository = $this->createMock(GameGLMRepository::class);
-        $sixQPService = $this->createMock(SixQPGameManagerService::class);
-        $splendorService = $this->createMock(SPLGameManagerService::class);
-        $glenmoreService = $this->createMock(GLMGameManagerService::class);
-        $gameService = new GameManagerService($gameSixQPRepository, $gameSplendorRepository, $gameGlenmoreRepository,
-            $sixQPService, $splendorService, $glenmoreService);
+        $gameService = $this->createGameManagerService();
         $user = new GameUser();
         // WHEN
         $result = $gameService->joinGame(-1, $user);
@@ -71,23 +57,8 @@ class GameManagerServiceTest extends TestCase
     public function testJoinGameWhenGameAlreadyLaunched()
     {
         // GIVEN
-        $gameSixQPRepository = $this->createMock(GameSixQPRepository::class);
-        $gameSixQPRepository->method('findOneBy')->willReturn(new GameSixQP());
-        $gameSplendorRepository = $this->createMock(GameSPLRepository::class);
-        $gameSplendorRepository->method('findOneBy')->willReturn(new GameSPL());
-        $gameGlenmoreRepository = $this->createMock(GameGLMRepository::class);
-        $gameGlenmoreRepository->method('findOneBy')->willReturn(new GameGLM());
-        $sixQPService = $this->createMock(SixQPGameManagerService::class);
-        $sixQPService->method('createPlayer')->
-            willReturn(AbstractGameManagerService::$ERROR_GAME_ALREADY_LAUNCHED);
-        $splendorService = $this->createMock(SPLGameManagerService::class);
-        $splendorService->method('createPlayer')->
-            willReturn(AbstractGameManagerService::$ERROR_GAME_ALREADY_LAUNCHED);
-        $glenmoreService = $this->createMock(GLMGameManagerService::class);
-        $glenmoreService->method('createPlayer')->
-            willReturn(AbstractGameManagerService::$ERROR_GAME_ALREADY_LAUNCHED);
-        $gameService = new GameManagerService($gameSixQPRepository, $gameSplendorRepository, $gameGlenmoreRepository,
-            $sixQPService, $splendorService, $glenmoreService);
+        $gameService = $this->createGameManagerServiceWithMockFunctionWillReturn('createPlayer',
+                                        AbstractGameManagerService::$ERROR_GAME_ALREADY_LAUNCHED);
         $user = new GameUser();
         $user->setUsername("testUser");
         // WHEN
@@ -99,22 +70,8 @@ class GameManagerServiceTest extends TestCase
     public function testJoinGameWhenPlayerAlreadyInParty()
     {
         // GIVEN
-        $gameSixQPRepository = $this->createMock(GameSixQPRepository::class);
-        $gameSplendorRepository = $this->createMock(GameSPLRepository::class);
-        $gameGlenmoreRepository = $this->createMock(GameGLMRepository::class);
-        $gameSixQPRepository->method('findOneBy')->willReturn(new GameSixQP());
-        $gameSplendorRepository->method('findOneBy')->willReturn(new GameSPL());
-        $sixQPService = $this->createMock(SixQPGameManagerService::class);
-        $sixQPService->method('createPlayer')->
-            willReturn(AbstractGameManagerService::$ERROR_ALREADY_IN_PARTY);
-        $splendorService = $this->createMock(SPLGameManagerService::class);
-        $splendorService->method('createPlayer')->
-            willReturn(AbstractGameManagerService::$ERROR_ALREADY_IN_PARTY);
-        $glenmoreService = $this->createMock(GLMGameManagerService::class);
-        $glenmoreService->method('createPlayer')->
-            willReturn(AbstractGameManagerService::$ERROR_ALREADY_IN_PARTY);
-        $gameService = new GameManagerService($gameSixQPRepository, $gameSplendorRepository, $gameGlenmoreRepository,
-            $sixQPService, $splendorService, $glenmoreService);
+        $gameService = $this->createGameManagerServiceWithMockFunctionWillReturn('createPlayer',
+            AbstractGameManagerService::$ERROR_ALREADY_IN_PARTY);
         $user = new GameUser();
         $user->setUsername("testUser");
         // WHEN
@@ -126,23 +83,8 @@ class GameManagerServiceTest extends TestCase
     public function testJoinGameWhenInvalidNumberOfPlayer()
     {
         // GIVEN
-        $gameSixQPRepository = $this->createMock(GameSixQPRepository::class);
-        $gameSixQPRepository->method('findOneBy')->willReturn(new GameSixQP());
-        $gameSplendorRepository = $this->createMock(GameSPLRepository::class);
-        $gameSplendorRepository->method('findOneBy')->willReturn(new GameSPL());
-        $gameGlenmoreRepository = $this->createMock(GameGLMRepository::class);
-        $gameGlenmoreRepository->method('findOneBy')->willReturn(new GameGLM());
-        $sixQPService = $this->createMock(SixQPGameManagerService::class);
-        $sixQPService->method('createPlayer')->
-            willReturn(AbstractGameManagerService::$ERROR_INVALID_NUMBER_OF_PLAYER);
-        $splendorService = $this->createMock(SPLGameManagerService::class);
-        $splendorService->method('createPlayer')->
-            willReturn(AbstractGameManagerService::$ERROR_INVALID_NUMBER_OF_PLAYER);
-        $glenmoreService = $this->createMock(GLMGameManagerService::class);
-        $glenmoreService->method('createPlayer')->
-            willReturn(AbstractGameManagerService::$ERROR_INVALID_NUMBER_OF_PLAYER);
-        $gameService = new GameManagerService($gameSixQPRepository, $gameSplendorRepository, $gameGlenmoreRepository,
-            $sixQPService, $splendorService, $glenmoreService);
+        $gameService = $this->createGameManagerServiceWithMockFunctionWillReturn('createPlayer',
+            AbstractGameManagerService::$ERROR_INVALID_NUMBER_OF_PLAYER);
         $user = new GameUser();
         $user->setUsername("testUser");
         // WHEN
@@ -154,23 +96,9 @@ class GameManagerServiceTest extends TestCase
     public function testJoinGameSuccessful()
     {
         // GIVEN
-        $gameSixQPRepository = $this->createMock(GameSixQPRepository::class);
-        $gameSixQPRepository->method('findOneBy')->willReturn(new GameSixQP());
-        $gameSplendorRepository = $this->createMock(GameSPLRepository::class);
-        $gameSplendorRepository->method('findOneBy')->willReturn(new GameSPL());
-        $gameGlenmoreRepository = $this->createMock(GameGLMRepository::class);
-        $gameGlenmoreRepository->method('findOneBy')->willReturn(new GameGLM());
-        $sixQPService = $this->createMock(SixQPGameManagerService::class);
-        $sixQPService->method('createPlayer')->
-            willReturn(AbstractGameManagerService::$SUCCESS);
-        $splendorService = $this->createMock(SPLGameManagerService::class);
-        $splendorService->method('createPlayer')->
-            willReturn(AbstractGameManagerService::$SUCCESS);
-        $glenmoreService = $this->createMock(GLMGameManagerService::class);
-        $glenmoreService->method('createPlayer')->
-            willReturn(AbstractGameManagerService::$SUCCESS);
-        $gameService = new GameManagerService($gameSixQPRepository, $gameSplendorRepository, $gameGlenmoreRepository,
-            $sixQPService, $splendorService, $glenmoreService);
+
+        $gameService = $this->createGameManagerServiceWithMockFunctionWillReturn('createPlayer',
+            AbstractGameManagerService::$SUCCESS);
         $user = new GameUser();
         $user->setUsername("testUser");
         // WHEN
@@ -182,14 +110,7 @@ class GameManagerServiceTest extends TestCase
     public function testDeletePlayerWhenGameIsInvalid()
     {
         // GIVEN
-        $gameSixQPRepository = $this->createMock(GameSixQPRepository::class);
-        $gameSplendorRepository = $this->createMock(GameSPLRepository::class);
-        $gameGlenmoreRepository = $this->createMock(GameGLMRepository::class);
-        $sixQPService = $this->createMock(SixQPGameManagerService::class);
-        $splendorService = $this->createMock(SPLGameManagerService::class);
-        $glenmoreService = $this->createMock(GLMGameManagerService::class);
-        $gameService = new GameManagerService($gameSixQPRepository, $gameSplendorRepository, $gameGlenmoreRepository,
-            $sixQPService, $splendorService, $glenmoreService);
+        $gameService = $this->createGameManagerService();
         $user = new GameUser();
         // WHEN
         $result = $gameService->quitGame(-1, $user);
@@ -200,23 +121,8 @@ class GameManagerServiceTest extends TestCase
     public function testDeletePlayerWhenPlayerNotFound()
     {
         // GIVEN
-        $gameSixQPRepository = $this->createMock(GameSixQPRepository::class);
-        $gameSixQPRepository->method('findOneBy')->willReturn(new GameSixQP());
-        $gameSplendorRepository = $this->createMock(GameSPLRepository::class);
-        $gameSplendorRepository->method('findOneBy')->willReturn(new GameSPL());
-        $gameGlenmoreRepository = $this->createMock(GameGLMRepository::class);
-        $gameGlenmoreRepository->method('findOneBy')->willReturn(new GameGLM());
-        $sixQPService = $this->createMock(SixQPGameManagerService::class);
-        $sixQPService->method('deletePlayer')->
-            willReturn(AbstractGameManagerService::$ERROR_PLAYER_NOT_FOUND);
-        $splendorService = $this->createMock(SPLGameManagerService::class);
-        $splendorService->method('deletePlayer')->
-            willReturn(AbstractGameManagerService::$ERROR_PLAYER_NOT_FOUND);
-        $glenmoreService = $this->createMock(GLMGameManagerService::class);
-        $glenmoreService->method('deletePlayer')->
-            willReturn(AbstractGameManagerService::$ERROR_PLAYER_NOT_FOUND);
-        $gameService = new GameManagerService($gameSixQPRepository, $gameSplendorRepository, $gameGlenmoreRepository,
-            $sixQPService, $splendorService, $glenmoreService);
+        $gameService = $this->createGameManagerServiceWithMockFunctionWillReturn('deletePlayer',
+            AbstractGameManagerService::$ERROR_PLAYER_NOT_FOUND);
         $user = new GameUser();
         $user->setUsername("testUser");
         // WHEN
@@ -228,27 +134,8 @@ class GameManagerServiceTest extends TestCase
     public function testDeletePlayerWhenGameAlreadyLaunched()
     {
         // GIVEN
-        $gameSixQPRepository = $this->createMock(GameSixQPRepository::class);
-        $gameSixQPRepository->method('findOneBy')->willReturn(new GameSixQP());
-        $gameSplendorRepository = $this->createMock(GameSPLRepository::class);
-        $gameSplendorRepository->method('findOneBy')->willReturn(new GameSPL());
-        $gameGlenmoreRepository = $this->createMock(GameGLMRepository::class);
-        $gameGlenmoreRepository->method('findOneBy')->willReturn(new GameGLM());
-
-        $sixQPService = $this->createMock(SixQPGameManagerService::class);
-        $sixQPService->method('deletePlayer')->
-            willReturn(AbstractGameManagerService::$ERROR_GAME_ALREADY_LAUNCHED);
-
-        $splendorService = $this->createMock(SPLGameManagerService::class);
-        $splendorService->method('deletePlayer')->
-            willReturn(AbstractGameManagerService::$ERROR_GAME_ALREADY_LAUNCHED);
-
-        $glenmoreService = $this->createMock(GLMGameManagerService::class);
-        $glenmoreService->method('deletePlayer')->
-            willReturn(AbstractGameManagerService::$ERROR_GAME_ALREADY_LAUNCHED);
-
-        $gameService = new GameManagerService($gameSixQPRepository, $gameSplendorRepository, $gameGlenmoreRepository,
-            $sixQPService, $splendorService, $glenmoreService);
+        $gameService = $this->createGameManagerServiceWithMockFunctionWillReturn('deletePlayer',
+            AbstractGameManagerService::$ERROR_GAME_ALREADY_LAUNCHED);
         $user = new GameUser();
         $user->setUsername("testUser");
         // WHEN
@@ -260,27 +147,8 @@ class GameManagerServiceTest extends TestCase
     public function testDeletePlayerSuccessful()
     {
         // GIVEN
-        $gameSixQPRepository = $this->createMock(GameSixQPRepository::class);
-        $gameSixQPRepository->method('findOneBy')->willReturn(new GameSixQP());
-        $gameSplendorRepository = $this->createMock(GameSPLRepository::class);
-        $gameSplendorRepository->method('findOneBy')->willReturn(new GameSPL());
-        $gameGlenmoreRepository = $this->createMock(GameGLMRepository::class);
-        $gameGlenmoreRepository->method('findOneBy')->willReturn(new GameGLM());
-
-        $sixQPService = $this->createMock(SixQPGameManagerService::class);
-        $sixQPService->method('deletePlayer')->
-            willReturn(AbstractGameManagerService::$SUCCESS);
-
-        $splendorService = $this->createMock(SPLGameManagerService::class);
-        $splendorService->method('deletePlayer')->
-            willReturn(AbstractGameManagerService::$SUCCESS);
-
-        $glenmoreService = $this->createMock(GLMGameManagerService::class);
-        $glenmoreService->method('deletePlayer')->
-            willReturn(AbstractGameManagerService::$SUCCESS);
-
-        $gameService = new GameManagerService($gameSixQPRepository, $gameSplendorRepository, $gameGlenmoreRepository,
-            $sixQPService, $splendorService, $glenmoreService);
+        $gameService = $this->createGameManagerServiceWithMockFunctionWillReturn('deletePlayer',
+            AbstractGameManagerService::$SUCCESS);
         $user = new GameUser();
         $user->setUsername("testUser");
         // WHEN
@@ -292,14 +160,7 @@ class GameManagerServiceTest extends TestCase
     public function testDeleteGameWhenGameIsInvalid()
     {
         // GIVEN
-        $gameSixQPRepository = $this->createMock(GameSixQPRepository::class);
-        $gameSplendorRepository = $this->createMock(GameSPLRepository::class);
-        $gameGlenmoreRepository = $this->createMock(GameGLMRepository::class);
-        $sixQPService = $this->createMock(SixQPGameManagerService::class);
-        $splendorService = $this->createMock(SPLGameManagerService::class);
-        $glenmoreService = $this->createMock(GLMGameManagerService::class);
-        $gameService = new GameManagerService($gameSixQPRepository, $gameSplendorRepository, $gameGlenmoreRepository,
-            $sixQPService, $splendorService, $glenmoreService);
+        $gameService = $this->createGameManagerService();
         // WHEN
         $result = $gameService->deleteGame(-1);
         // THEN
@@ -309,23 +170,8 @@ class GameManagerServiceTest extends TestCase
     public function testDeleteGameSuccessful()
     {
         // GIVEN
-        $gameSixQPRepository = $this->createMock(GameSixQPRepository::class);
-        $gameSixQPRepository->method('findOneBy')->willReturn(new GameSixQP());
-        $gameSplendorRepository = $this->createMock(GameSPLRepository::class);
-        $gameSplendorRepository->method('findOneBy')->willReturn(new GameSPL());
-        $gameGlenmoreRepository = $this->createMock(GameGLMRepository::class);
-        $gameGlenmoreRepository->method('findOneBy')->willReturn(new GameGLM());
-        $sixQPService = $this->createMock(SixQPGameManagerService::class);
-        $sixQPService->method('deleteGame')->
-            willReturn(AbstractGameManagerService::$SUCCESS);
-        $splendorService = $this->createMock(SPLGameManagerService::class);
-        $splendorService->method('deleteGame')->
-            willReturn(AbstractGameManagerService::$SUCCESS);
-        $glenmoreService = $this->createMock(GLMGameManagerService::class);
-        $glenmoreService->method('deleteGame')->
-            willReturn(AbstractGameManagerService::$SUCCESS);
-        $gameService = new GameManagerService($gameSixQPRepository, $gameSplendorRepository, $gameGlenmoreRepository,
-            $sixQPService, $splendorService, $glenmoreService);
+        $gameService = $this->createGameManagerServiceWithMockFunctionWillReturn('deleteGame',
+            AbstractGameManagerService::$SUCCESS);
         $user = new GameUser();
         $user->setUsername("testUser");
         // WHEN
@@ -337,14 +183,7 @@ class GameManagerServiceTest extends TestCase
     public function testLaunchGameWhenGameIsInvalid()
     {
         // GIVEN
-        $gameSixQPRepository = $this->createMock(GameSixQPRepository::class);
-        $gameSplendorRepository = $this->createMock(GameSPLRepository::class);
-        $gameGlenmoreRepository = $this->createMock(GameGLMRepository::class);
-        $sixQPService = $this->createMock(SixQPGameManagerService::class);
-        $splendorService = $this->createMock(SPLGameManagerService::class);
-        $glenmoreService = $this->createMock(GLMGameManagerService::class);
-        $gameService = new GameManagerService($gameSixQPRepository, $gameSplendorRepository, $gameGlenmoreRepository,
-            $sixQPService, $splendorService, $glenmoreService);
+        $gameService = $this->createGameManagerService();
         // WHEN
         $result = $gameService->launchGame(-1);
         // THEN
@@ -354,28 +193,91 @@ class GameManagerServiceTest extends TestCase
     public function testLaunchGameSuccessful()
     {
         // GIVEN
-        $gameSixQPRepository = $this->createMock(GameSixQPRepository::class);
-        $gameSixQPRepository->method('findOneBy')->willReturn(new GameSixQP());
-        $gameSplendorRepository = $this->createMock(GameSPLRepository::class);
-        $gameSplendorRepository->method('findOneBy')->willReturn(new GameSPL());
-        $gameGlenmoreRepository = $this->createMock(GameGLMRepository::class);
-        $gameGlenmoreRepository->method('findOneBy')->willReturn(new GameGLM());
-        $sixQPService = $this->createMock(SixQPGameManagerService::class);
-        $sixQPService->method('launchGame')->
-            willReturn(AbstractGameManagerService::$SUCCESS);
-        $splendorService = $this->createMock(SPLGameManagerService::class);
-        $splendorService->method('launchGame')->
-            willReturn(AbstractGameManagerService::$SUCCESS);
-        $glenmoreService = $this->createMock(GLMGameManagerService::class);
-        $glenmoreService->method('launchGame')->
-            willReturn(AbstractGameManagerService::$SUCCESS);
-        $gameService = new GameManagerService($gameSixQPRepository, $gameSplendorRepository, $gameGlenmoreRepository,
-            $sixQPService, $splendorService, $glenmoreService);
+        $gameService = $this->createGameManagerServiceWithMockFunctionWillReturn('launchGame',
+            AbstractGameManagerService::$SUCCESS);
         $user = new GameUser();
         $user->setUsername("testUser");
         // WHEN
         $result = $gameService->launchGame(-1);
         // THEN
         $this->assertEquals(AbstractGameManagerService::$SUCCESS, $result);
+    }
+
+    /**
+     * createGameManagerServiceWithMockFunction : initialize a GameManagerService and mock function name in parameter
+     *          to return success
+     * @param string $functionName
+     * @return GameManagerService
+     */
+    private function createGameManagerServiceWithMockFunctionRepository(string $functionName) : GameManagerService
+    {
+        $gameSixQPRepository = $this->createMock(GameSixQPRepository::class);
+        $gameSplendorRepository = $this->createMock(GameSPLRepository::class);
+        $gameGlenmoreRepository = $this->createMock(GameGLMRepository::class);
+        $gameMyrmesRepository = $this->createMock(GameMYRRepository::class);
+        $sixQPService = $this->createMock(SixQPGameManagerService::class);
+        $sixQPService->method($functionName)->willReturn(AbstractGameManagerService::$SUCCESS);
+        $splendorService = $this->createMock(SPLGameManagerService::class);
+        $splendorService->method($functionName)->willReturn(AbstractGameManagerService::$SUCCESS);
+        $glenmoreService = $this->createMock(GLMGameManagerService::class);
+        $glenmoreService->method($functionName)->willReturn(AbstractGameManagerService::$SUCCESS);
+        $myrmesService = $this->createMock(MYRGameManagerService::class);
+        $myrmesService->method($functionName)->willReturn(AbstractGameManagerService::$SUCCESS);
+        return new GameManagerService($gameSixQPRepository, $gameSplendorRepository, $gameGlenmoreRepository,
+            $gameMyrmesRepository, $sixQPService, $splendorService, $glenmoreService, $myrmesService);
+    }
+
+    /**
+     * createGameManagerServiceWithMockFunctionRepositoryAndService : initialize a GameManagerService and mock
+     *          functions name in parameter
+     *           to return success
+     * @param string $functionNameRepo
+     * @param string $functionNameService
+     * @return GameManagerService
+     */
+    private function createGameManagerServiceWithMockFunctionWillReturn(string $functionNameService,
+                                                                        int $returnCode)
+    : GameManagerService
+    {
+        $gameSixQPRepository = $this->createMock(GameSixQPRepository::class);
+        $gameSixQPRepository->method('findOneBy')->willReturn(new GameSixQP());
+        $gameSplendorRepository = $this->createMock(GameSPLRepository::class);
+        $gameSplendorRepository->method('findOneBy')->willReturn(new GameSPL());
+        $gameGlenmoreRepository = $this->createMock(GameGLMRepository::class);
+        $gameGlenmoreRepository->method('findOneBy')->willReturn(new GameGLM());
+        $gameMyrmesRepository = $this->createMock(GameMYRRepository::class);
+        $gameMyrmesRepository->method('findOneBy')->willReturn(new GameMYR());
+        $sixQPService = $this->createMock(SixQPGameManagerService::class);
+        $sixQPService->method($functionNameService)->
+        willReturn($returnCode);
+        $splendorService = $this->createMock(SPLGameManagerService::class);
+        $splendorService->method($functionNameService)->
+        willReturn($returnCode);
+        $glenmoreService = $this->createMock(GLMGameManagerService::class);
+        $glenmoreService->method($functionNameService)->
+        willReturn($returnCode);
+        $myrmesService = $this->createMock(MYRGameManagerService::class);
+        $myrmesService->method($functionNameService)->
+        willReturn($returnCode);
+        return new GameManagerService($gameSixQPRepository, $gameSplendorRepository, $gameGlenmoreRepository,
+            $gameMyrmesRepository, $sixQPService, $splendorService, $glenmoreService, $myrmesService);
+    }
+
+    /**
+     * createGameManagerService : initialize a GameManagerService
+     * @return GameManagerService
+     */
+    private function createGameManagerService() : GameManagerService
+    {
+        $gameSixQPRepository = $this->createMock(GameSixQPRepository::class);
+        $gameSplendorRepository = $this->createMock(GameSPLRepository::class);
+        $gameGlenmoreRepository = $this->createMock(GameGLMRepository::class);
+        $gameMyrmesRepository = $this->createMock(GameMYRRepository::class);
+        $sixQPService = $this->createMock(SixQPGameManagerService::class);
+        $splendorService = $this->createMock(SPLGameManagerService::class);
+        $glenmoreService = $this->createMock(GLMGameManagerService::class);
+        $myrmesService = $this->createMock(MYRGameManagerService::class);
+        return new GameManagerService($gameSixQPRepository, $gameSplendorRepository, $gameGlenmoreRepository,
+            $gameMyrmesRepository, $sixQPService, $splendorService, $glenmoreService, $myrmesService);
     }
 }
