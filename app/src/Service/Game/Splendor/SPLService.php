@@ -460,7 +460,8 @@ class SPLService
      * buyCard : check if player can buy a card and remove the card from the main board
      * @param PlayerSPL $playerSPL
      * @param DevelopmentCardsSPL $developmentCardsSPL
-     * @return array<string> the type of the removed tokens
+     * @return array retrievePlayerMoney => money removed from the player,
+     *               newDevCard => the card added on the main board
      * @throws \Exception if it's not the card of the player
      */
     public function buyCard(PlayerSPL $playerSPL,
@@ -503,10 +504,12 @@ class SPLService
                 $levelDraw = $mainBoard->getDrawCards()->get($levelCard - 1);
 
                 if ($levelDraw->getDevelopmentCards()->count() > 0) {
-                    $newDevCardInRow = $levelDraw->getDevelopmentCards()->first();
-                $row->addDevelopmentCard($levelDraw->getDevelopmentCards()->first());
+                    $devCards = $levelDraw->getDevelopmentCards()->toArray();
+                    shuffle($devCards);
+                    $newDevCardInRow = $devCards[0];
+                    $row->addDevelopmentCard($newDevCardInRow);
                     //Remove the new card from draw
-                    $levelDraw->removeDevelopmentCard($levelDraw->getDevelopmentCards()->first());
+                    $levelDraw->removeDevelopmentCard($newDevCardInRow);
                     $this->entityManager->persist($levelDraw);
                 }
                 $this->entityManager->persist($row);
