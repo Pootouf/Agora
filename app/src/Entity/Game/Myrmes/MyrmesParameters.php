@@ -11,4 +11,9 @@ class MyrmesParameters
     public static int $WORKER_AREA = 3;
     public static int $WORKSHOP_AREA = 4;
     public static int $AREA_COUNT = 5;
+
+    // Win by area's nurses
+    public static array $WIN_LARVAE_BY_NURSES_COUNT = array(0, 1, 3, 5);
+    public static array $WIN_SOLDIERS_BY_NURSES_COUNT = array(0, 0, 1, 1);
+    public static array $WIN_WORKERS_BY_NURSES_COUNT = array(0, 0, 1, 0, 2);
 }
