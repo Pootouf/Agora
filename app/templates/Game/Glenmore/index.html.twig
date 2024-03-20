@@ -3,64 +3,115 @@
 {% block title %}Agora - Glenmore{% endblock %}
 
 {% block body %}
-    <div class="h-screen w-screen overflow-hidden absolute" {{ stimulus_controller('glenmore') }}>
-        <div id="index_glenmore" class="h-full w-full static overflow-hidden">
-            {% block nav %}
-                {{ include('/Game/Utils/navigation.html.twig') }}
-            {% endblock %}
-            {% block endGame %}
-                    {{ include('/Game/Glenmore/endGameScreenResult.html.twig') }}
-            {% endblock %}
-            {% block ranking %}
-            <div id="ranking" class="absolute bg-gradient-to-b from-[#4C6E9Bff] to-[#20222Dff] w-[25%] h-3/5 right-0">
-                {{  include('/Game/Glenmore/Ranking/ranking.html.twig') }}
-            </div>
-            {% endblock %}
-            {% block drawTileIndicator %}
-                <div id="drawTileIndicator"
-                     class="absolute bottom-[20%] flex justify-center items-center
-                     bg-gradient-to-b from-[#4C6E9Bff] to-[#20222Dff] w-[25%] h-1/5 right-0">
-                    {{  include('/Game/Glenmore/MainBoard/drawTileIndicator.html.twig') }}
-                </div>
-            {% endblock %}
-            {% block playerRound %}
-                {{ include('Game/Glenmore/MainBoard/playerRoundManagement.html.twig') }}
-            {% endblock %}
-            {% block mainBoard %}
-                <div id="mainBoard" class="flow float-start w-[75%]
-                        h-full">
-                    {{ include('/Game/Glenmore/MainBoard/mainBoard.html.twig') }}
-                </div>
-            {% endblock %}
-            {% block personalBoard %}
-                {% if not isSpectator %}
-                <div id="personalBoard" class="flow float-start w-[75%] h-full">
-                    {{ include('/Game/Glenmore/PersonalBoard/personalBoard.html.twig') }}
-                </div>
-                {% endif %}
-            {% endblock %}
-            {% block chat %}
-                {{ include('/Game/Utils/chat.html.twig') }}
-            {% endblock %}
-        </div>
-    </div>
-    <script>
-        {% if needToPlay %}
-        alert("A toi de jouer ! ");
-        {% endif %}
-    </script>
-    <script>
-        function closePropertyCardsDisplayWindow() {
-            let window = document.getElementById('propertyCardsDisplay');
-            window.remove();
-        }
-        function closeSelectedTileWindow() {
-            let window = document.getElementById('selectedTileActions');
-            window.remove();
-        }
+	<div class="h-screen w-screen overflow-hidden absolute" {{ stimulus_controller('glenmore') }}>
+		<div id="index_glenmore" class="h-full w-full static overflow-hidden">
+			{% block playerRound %}
+				<div id="playerRoundManagement" class="absolute bg-gradient-to-b absolute from-[#09090b] to-[#14532d]
+                                     flex justify-center items-center
+                                     w-[70%] h-[10%]">
+					{{ include('Game/Glenmore/MainBoard/playerRoundManagement.html.twig') }}
+				</div>
+			{% endblock %}
+			{% block nav %}
+				{{ include('/Game/Utils/navigation.html.twig') }}
+			{% endblock %}
+			{% block endGame %}
+				{{ include('/Game/Glenmore/endGameScreenResult.html.twig') }}
+			{% endblock %}
+			{% block ranking %}
+				<div id="ranking"
+				     class="absolute bg-gradient-to-b from-[#ca8a04] to-[#052e16] w-[30%] h-[75%] top-0 right-0">
+					{{ include('/Game/Glenmore/Ranking/ranking.html.twig') }}
+				</div>
+			{% endblock %}
+			{% block previewMainBoard %}
+				<div id="preview"
+				     class="absolute bottom-0 pb-3 flex justify-around items-center
+                     bg-gradient-to-b from-[#052e16] to-[#09090b] w-[30%] h-[25%] right-0">
+					{{ include('/Game/Glenmore/MainBoard/preview.html.twig') }}
+				</div>
+			{% endblock %}
+			{% block personalBoard %}
+				{% if not isSpectator %}
+					<div id="personalBoard" class="absolute bg-gradient-to-r from-[#422006] to-[#ca8a04] bottom-0 mb-6 w-[70%] h-[90%]">
+						{{ include('/Game/Glenmore/PersonalBoard/personalBoard.html.twig') }}
+					</div>
+					<div id="playerPersonalBoard" class="flow float-start w-[70%] h-[5/6]"></div>
+				{% endif %}
+			{% endblock %}
+		</div>
+	</div>
+	<script>
+		{% if needToPlay %}
+		alert("A toi de jouer ! ");
+		{% endif %}
+	</script>
+	<script>
+		function closePropertyCardsDisplayWindow() {
+			let window = document.getElementById('propertyCardsDisplay');
+			window.remove();
+		}
+
+		function closeSelectedTileWindow() {
+			let window = document.getElementById('selectedTileActions');
+			window.remove();
+		}
         function closeSelectedWarehouseResource() {
             let window = document.getElementById('selectedWarehouseResource');
             window.remove();
         }
-    </script>
+	</script>
+	{# MAIN BOARD CLOSURE MANAGEMENT #}
+	<script>
+		function closeWindow() {
+			let window = document.getElementById('mainBoard');
+			window.remove();
+		}
+	</script>
+	{# ANIMATION MANAGEMENT #}
+	<script type="text/javascript" src="{{ asset('resourcesGames/utils/ingameNotification.js') }}"></script>
+	<script type="text/javascript" src="{{ asset('resourcesGames/utils/animationQueue.js') }}"></script>
+
+	{# NOTIFICATION MANAGEMENT #}
+	<script>
+		{% set path = path('app_game_show_glm', {'id': game.id}) ~ 'mainBoardPreview' ~ player.id %}
+		const eventSourceMainBoard = new EventSource("{{ mercure(path)|escape('js') }}");
+		eventSourceMainBoard.onmessage = event => {
+			let mainBoard = document.getElementById('preview');
+			mainBoard.innerHTML = event.data;
+			setTimeout(() => animationQueue.executeNextInQueue(), 100)
+		}
+
+		{% set path = path('app_game_show_glm', {'id': game.id}) ~ 'personalBoard' ~ player.id %}
+		const eventSourcePersonalBoard = new EventSource("{{ mercure(path)|escape('js') }}");
+		eventSourcePersonalBoard.onmessage = event => {
+				let personalBoard = document.getElementById('personalBoard');
+				personalBoard.innerHTML = event.data;
+				setTimeout(() => animationQueue.executeNextInQueue(), 100)
+		}
+
+		{% set path = path('app_game_show_glm', {'id': game.id}) ~ 'ranking' ~ player.id %}
+		const eventSourceRanking = new EventSource("{{ mercure(path)|escape('js') }}");
+		eventSourceRanking.onmessage = event => {
+				let ranking = document.getElementById('ranking');
+				ranking.innerHTML = event.data;
+				setTimeout(() => animationQueue.executeNextInQueue(), 100)
+		}
+
+		{% set path = path('app_game_show_glm', {'id': game.id}) ~ 'playerRoundManagement' ~ player.id %}
+		const eventSourcePlayerRoundManagement = new EventSource("{{ mercure(path)|escape('js') }}");
+		eventSourcePlayerRoundManagement .onmessage = event => {
+			let ranking = document.getElementById('playerRoundManagement');
+			ranking.innerHTML = event.data;
+			setTimeout(() => animationQueue.executeNextInQueue(), 100)
+		}
+
+		{% set path = path('app_game_show_glm', {'id': game.id}) ~ 'warehouse' ~ player.id %}
+		const eventSourceWarehouse = new EventSource("{{ mercure(path)|escape('js') }}");
+		eventSourceWarehouse .onmessage = event => {
+			let ranking = document.getElementById('warehouse');
+			ranking.innerHTML = event.data;
+			setTimeout(() => animationQueue.executeNextInQueue(), 100)
+		}
+	</script>
 {% endblock %}

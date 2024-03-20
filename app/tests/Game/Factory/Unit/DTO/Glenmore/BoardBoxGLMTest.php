@@ -5,6 +5,7 @@ namespace App\Tests\Game\Factory\Unit\DTO\Glenmore;
 
 use App\Entity\Game\DTO\Glenmore\BoardBoxGLM;
 use App\Entity\Game\DTO\Pawn;
+use App\Entity\Game\Glenmore\BoardTileGLM;
 use App\Entity\Game\Glenmore\PawnGLM;
 use App\Entity\Game\Glenmore\TileGLM;
 use phpDocumentor\Reflection\Types\Nullable;
@@ -52,17 +53,21 @@ class BoardBoxGLMTest extends TestCase
         $this->assertSame($tile, $boardBoxGLM->getTile());
     }*/
 
-    /*public function testConstructWithBoth(): void
+    public function testConstructWithBoth(): void
     {
         //GIVEN
+
         $pawn = new PawnGLM();
-        $tile = new TileGLM();
+        $tile = new BoardTileGLM();
 
         //THEN
+
         $this->expectException(\Exception::class);
+
         //WHEN
+
         $boardBoxGLM = new BoardBoxGLM($tile, $pawn);
-    }*/
+    }
 
    /* public function testIsEmptyBoxWithPawn(): void
     {

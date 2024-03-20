@@ -18,7 +18,8 @@ use Doctrine\ORM\EntityManagerInterface;
 class WarehouseGLMService
 {
 
-    public function __construct(private EntityManagerInterface $entityManager){}
+    public function __construct(private EntityManagerInterface $entityManager,
+                                private TileGLMService $tileGLMService){}
 
 
     /**
@@ -46,7 +47,7 @@ class WarehouseGLMService
             throw new Exception("Unable to sell the resource");
         }
 
-        $money = GlenmoreParameters::$MONEY_FROM_QUANTITY[$warehouseLine->getQuantity()];
+        $money = GlenmoreParameters::$MONEY_FROM_QUANTITY[$warehouseLine->getQuantity() - 1];
         if ($money == GlenmoreParameters::$MIN_TRADE)
         {
             throw new Exception("Unable to sell the resource");
@@ -95,11 +96,47 @@ class WarehouseGLMService
         }
 
         $moneyOfPlayer = $player->getPersonalBoard()->getMoney();
-        $moneyNeeded = GlenmoreParameters::$MONEY_FROM_QUANTITY[$warehouseLine->getQuantity() + 1];
+        $moneyNeeded = GlenmoreParameters::$MONEY_FROM_QUANTITY[$warehouseLine->getQuantity()];
         if ($moneyOfPlayer < $moneyNeeded) {
             throw new Exception('Not enough money to buy resource');
         }
+        $buyingTile = $player->getPersonalBoard()->getBuyingTile();
+        $activatingTile = $player->getPersonalBoard()->getActivatedTile();
+        if ($buyingTile == null && $activatingTile == null) {
+            throw new Exception("player does not need to buy resources");
+        }
 
+        $playerResources = $this->tileGLMService->getPlayerProductionResources($player);
+        $found = false;
+        if ($buyingTile != null) {
+            $buyPrice = $buyingTile->getBoardTile()->getTile()->getBuyPrice();
+            foreach ($buyPrice as $price) {
+                if ($price->getResource() === $resource) {
+                    $requiredResource = $price;
+                    $found = true;
+                    if ($playerResources[$resource->getColor()] >= $requiredResource->getPrice()) {
+                        throw new Exception("player does not need to buy this resource");
+                    }
+                }
+            }
+            if (!$found) {
+                throw new Exception("player does not need to buy this resource");
+            }
+        } else if ($activatingTile != null) {
+            $activationPrice = $activatingTile->getTile()->getBuyPrice();
+            foreach ($activationPrice as $price) {
+                if ($price->getResource() === $resource) {
+                    $requiredResource = $price;
+                    $found = true;
+                    if ($playerResources[$resource->getColor()] >= $requiredResource->getPrice()) {
+                        throw new Exception("player does not need to buy this resource");
+                    }
+                }
+            }
+            if (!$found) {
+                throw new Exception("player does not need to buy this resource");
+            }
+        }
         $selectedResource = new SelectedResourceGLM();
         $selectedResource->setPlayerTile(null);
         $selectedResource->setResource($resource);
@@ -141,7 +178,7 @@ class WarehouseGLMService
      * Return a tile's player or null that contains resource
      * @param PersonalBoardGLM $personalBoard
      * @param ResourceGLM $resource
-     * @return PlayerTileGLM|null
+     * @return PlayerTileResourceGLM|null
      */
     public function getResourceOnPersonalBoard(PersonalBoardGLM $personalBoard
         , ResourceGLM $resource) : ?PlayerTileResourceGLM
