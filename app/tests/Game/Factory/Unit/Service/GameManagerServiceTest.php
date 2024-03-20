@@ -231,8 +231,8 @@ class GameManagerServiceTest extends TestCase
      * createGameManagerServiceWithMockFunctionRepositoryAndService : initialize a GameManagerService and mock
      *          functions name in parameter
      *           to return success
-     * @param string $functionNameRepo
      * @param string $functionNameService
+     * @param int $returnCode
      * @return GameManagerService
      */
     private function createGameManagerServiceWithMockFunctionWillReturn(string $functionNameService,
