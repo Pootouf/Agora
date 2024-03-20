@@ -39,7 +39,8 @@ class TileGLMService
                                 private readonly PlayerTileResourceGLMRepository $playerTileResourceGLMRepository,
                                 private readonly PlayerTileGLMRepository $playerTileGLMRepository,
                                 private readonly CardGLMService $cardGLMService,
-                                private readonly SelectedResourceGLMRepository $selectedResourceGLMRepository) {}
+                                private readonly SelectedResourceGLMRepository $selectedResourceGLMRepository,
+                                private LoggerInterface $logger) {}
 
     /**
      * getAmountOfTileToReplace : returns the amount of tiles to replace
@@ -691,12 +692,41 @@ class TileGLMService
     }
 
     /**
+     * verifyAllPositionOnPersonalBoard : for each player tile, verify if the tile in parameter can be placed next to it
+     * @param PersonalBoardGLM $personalBoardGLM
+     * @param TileGLM $tileGLM
+     * @return array
+     */
+    public function verifyAllPositionOnPersonalBoard(PersonalBoardGLM $personalBoardGLM, TileGLM $tileGLM): array
+    {
+        $acceptableCoords = [];
+        foreach($personalBoardGLM->getPlayerTiles() as $playerTile) {
+            $x = $playerTile->getCoordX();
+            $y = $playerTile->getCoordY();
+            if($this->canPlaceTile($x - 1, $y, $tileGLM, $personalBoardGLM->getPlayerGLM())) {
+                $acceptableCoords[] = [$x - 1, $y];
+                $this->logger->critical(($x - 1).' '.$y);
+            }
+            if($this->canPlaceTile($x + 1, $y, $tileGLM, $personalBoardGLM->getPlayerGLM())) {
+                $acceptableCoords[] = [$x + 1, $y];
+            }
+            if($this->canPlaceTile($x, $y - 1, $tileGLM, $personalBoardGLM->getPlayerGLM())) {
+                $acceptableCoords[] = [$x, $y - 1];
+            }
+            if($this->canPlaceTile($x, $y + 1, $tileGLM, $personalBoardGLM->getPlayerGLM())) {
+                $acceptableCoords[] = [$x, $y + 1];
+            }
+        }
+        return $acceptableCoords;
+    }
+
+    /**
      * Assign tile for player when conditions are verified
      * @param BoardTileGLM $boardTile
      * @param PlayerGLM $player
      * @throws Exception
      */
-    public function assignTileToPlayer(BoardTileGLM $boardTile, PlayerGLM $player) : void
+    public function assignTileToPlayer(BoardTileGLM $boardTile, PlayerGLM $player) : array
     {
         if (!$this->canBuyTile($boardTile->getTile(), $player)) {
             throw new Exception("Unable to buy tile");
@@ -704,9 +734,12 @@ class TileGLMService
         if ($player->getPersonalBoard()->getBuyingTile() != null) {
             throw new Exception("Already bought a tile");
         }
+        $possiblePlacement = $this->verifyAllPositionOnPersonalBoard($player->getPersonalBoard(), $boardTile->getTile());
+        if (count($possiblePlacement) == 0) {
+            throw new Exception("There is no place for this tile");
+        }
         // Initialization
         $personalBoard = $player->getPersonalBoard();
-
         // Manage personal board and update
         $buyingTile = new BuyingTileGLM();
         $buyingTile->setBoardTile($boardTile);
@@ -716,6 +749,7 @@ class TileGLMService
         $this->entityManager->persist($boardTile);
         $this->entityManager->persist($buyingTile);
         $this->entityManager->flush();
+        return $possiblePlacement;
     }
 
     /**
@@ -725,7 +759,9 @@ class TileGLMService
      */
     public function clearTileSelection(PlayerGLM $player): void
     {
+        $buyingTile = $player->getPersonalBoard()->getBuyingTile();
         $player->getPersonalBoard()->setBuyingTile(null);
+        $this->entityManager->remove($buyingTile);
         $this->entityManager->persist($player->getPersonalBoard());
         $this->entityManager->flush();
     }
@@ -757,11 +793,6 @@ class TileGLMService
         // Check if condition for assign tile
         if (!$this->canPlaceTile($abscissa, $ordinate, $tileSelected->getTile(), $player))
         {
-            $buyingTile = $personalBoard->getBuyingTile();
-            $personalBoard->setBuyingTile(null);
-            $this->entityManager->persist($personalBoard);
-            $this->entityManager->remove($buyingTile);
-            $this->entityManager->flush();
             throw new Exception("Unable to place tile");
         }
         try {
