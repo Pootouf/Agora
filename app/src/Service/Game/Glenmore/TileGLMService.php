@@ -725,7 +725,9 @@ class TileGLMService
      */
     public function clearTileSelection(PlayerGLM $player): void
     {
+        $buyingTile = $player->getPersonalBoard()->getBuyingTile();
         $player->getPersonalBoard()->setBuyingTile(null);
+        $this->entityManager->remove($buyingTile);
         $this->entityManager->persist($player->getPersonalBoard());
         $this->entityManager->flush();
     }
@@ -1192,13 +1194,27 @@ class TileGLMService
         $tileGLM = $playerTileGLM->getTile();
         $activationBonusResources = $tileGLM->getActivationBonus();
         foreach ($activationBonusResources as $activationBonusResource){
-            $playerTileResource = new PlayerTileResourceGLM();
-            $playerTileResource->setQuantity($activationBonusResource->getAmount());
-            $playerTileResource->setPlayer($playerGLM);
-            $playerTileResource->setResource($activationBonusResource->getResource());
-            $this->entityManager->persist($playerTileResource);
-            $playerTileGLM->addPlayerTileResource($playerTileResource);
-            $this->entityManager->persist($playerTileGLM);
+            $exists = false;
+            foreach ($playerTileGLM->getPlayerTileResource() as $tileResource) {
+                if ($tileResource->getResource() === $activationBonusResource->getResource()) {
+                    $tileResource->setQuantity($tileResource->getQuantity() + 1);
+                    $this->entityManager->persist($tileResource);
+                    $exists = true;
+                    $playerTileGLM->setActivated(true);
+                    $this->entityManager->persist($playerTileGLM);
+                }
+            }
+            if (!$exists) {
+                $playerTileResource = new PlayerTileResourceGLM();
+                $playerTileResource->setPlayer($playerTileGLM->getPersonalBoard()->getPlayerGLM());
+                $playerTileResource->setPlayerTileGLM($playerTileGLM);
+                $playerTileResource->setResource($activationBonusResource->getResource());
+                $playerTileResource->setQuantity(1);
+                $this->entityManager->persist($playerTileResource);
+                $playerTileGLM->addPlayerTileResource($playerTileResource);
+                $playerTileGLM->setActivated(true);
+                $this->entityManager->persist($playerTileGLM);
+            }
         }
         $selectedResources = $playerGLM->getPersonalBoard()->getSelectedResources();
         $activationPrices = $playerTileGLM->getTile()->getActivationPrice();
@@ -1239,8 +1255,8 @@ class TileGLMService
         foreach ($tiles as $adjacentTile) {
             if ($adjacentTile->getTile()->getType() === GlenmoreParameters::$TILE_TYPE_CASTLE
                 || $adjacentTile->getTile()->getType() === GlenmoreParameters::$TILE_TYPE_VILLAGE) {
-                $exists = false;
                 $resource = $this->resourceGLMRepository->findOneBy(["type" => GlenmoreParameters::$MOVEMENT_RESOURCE]);
+                $exists = false;
                 foreach ($adjacentTile->getPlayerTileResource() as $tileResource) {
                     if ($tileResource->getResource()->getType() === GlenmoreParameters::$MOVEMENT_RESOURCE) {
                         $tileResource->setQuantity(1);

@@ -539,7 +539,7 @@ class GlenmoreController extends AbstractController
         if($tile->getTile()->getName() === GlenmoreParameters::$CARD_LOCH_LOCHY) {
             $this->cardGLMService->clearCreatedResources($player);
         }
-        $this->publishPersonalBoard($player);
+        $this->publishCreateResource($tile);
         $this->publishPlayerRoundManagement($game, true);
         return new Response('the chosen resources have been canceled', Response::HTTP_OK);
     }
