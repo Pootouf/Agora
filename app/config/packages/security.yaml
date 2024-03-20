@@ -79,7 +79,7 @@ when@gametest:
             # used to reload user from session & other features (e.g. switch_user)
             app_user_provider:
                 entity:
-                    class: App\Entity\Platform\User
+                    class: App\Entity\Game\GameUser
                     property: username
         firewalls:
             main:
