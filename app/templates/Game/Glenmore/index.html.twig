@@ -33,7 +33,7 @@
 			{% endblock %}
 			{% block personalBoard %}
 				{% if not isSpectator %}
-					<div id="personalBoard" class="absolute bg-gradient-to-r from-[#422006] to-[#ca8a04] bottom-0 mb-6 w-[70%] h-[90%]">
+					<div id="personalBoard" class="absolute bg-gradient-to-r from-[#422006] to-[#ca8a04] bottom-0 pb-6 w-[70%] h-[90%]">
 						{{ include('/Game/Glenmore/PersonalBoard/personalBoard.html.twig') }}
 					</div>
 					<div id="playerPersonalBoard" class="flow float-start w-[70%] h-[5/6]"></div>
@@ -75,8 +75,8 @@
 	{# NOTIFICATION MANAGEMENT #}
 	<script>
 		{% set path = path('app_game_show_glm', {'id': game.id}) ~ 'mainBoardPreview' ~ player.id %}
-		const eventSourceMainBoard = new EventSource("{{ mercure(path)|escape('js') }}");
-		eventSourceMainBoard.onmessage = event => {
+		const eventSourceMainBoardPreview = new EventSource("{{ mercure(path)|escape('js') }}");
+		eventSourceMainBoardPreview.onmessage = event => {
 			let mainBoard = document.getElementById('preview');
 			mainBoard.innerHTML = event.data;
 			setTimeout(() => animationQueue.executeNextInQueue(), 100)
@@ -106,20 +106,19 @@
 			setTimeout(() => animationQueue.executeNextInQueue(), 100)
 		}
 
-		{% set path = path('app_game_show_glm', {'id': game.id}) ~ 'warehouse' ~ player.id %}
-		const eventSourceWarehouse = new EventSource("{{ mercure(path)|escape('js') }}");
-		eventSourceWarehouse .onmessage = event => {
-			let warehouse = document.getElementById('warehouse');
-			warehouse.innerHTML = event.data;
+		{% set path = path('app_game_show_glm', {'id': game.id}) ~ 'mainBoard' ~ player.id %}
+		const eventSourceMainBoard = new EventSource("{{ mercure(path)|escape('js') }}");
+		eventSourceMainBoard .onmessage = event => {
+			let ranking = document.getElementById('mainBoard');
+			ranking.innerHTML = event.data;
 			setTimeout(() => animationQueue.executeNextInQueue(), 100)
 		}
-
-		{% set path = path('app_game_show_glm', {'id': game.id}) ~ 'createResource' ~ player.id %}
-		const createResource = new EventSource("{{ mercure(path)|escape('js') }}");
-		createResource .onmessage = event => {
-			let createResource = document.getElementById('personalBoard');
-			createResource.innerHTML = event.data;
-			setTimeout(() => animationQueue.executeNextInQueue(), 100)
-		}
+        {% set path = path('app_game_show_glm', {'id': game.id}) ~ 'createResource' ~ player.id %}
+        const createResource = new EventSource("{{ mercure(path)|escape('js') }}");
+        createResource .onmessage = event => {
+            let createResource = document.getElementById('personalBoard');
+            createResource.innerHTML = event.data;
+            setTimeout(() => animationQueue.executeNextInQueue(), 100)
+        }
 	</script>
 {% endblock %}

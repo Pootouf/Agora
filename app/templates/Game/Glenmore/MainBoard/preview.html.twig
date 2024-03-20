@@ -93,12 +93,15 @@
         {% for row in boardTiles %}
             {% for box in row %}
                 {% if box.isEmptyBox %}
-                    <span class="w-full h-full bg-gray-500"></span>
+                    <span class="w-full h-full bg-opacity-25 bg-gray-500"></span>
                 {% endif %}
                 {% if box.hasTile %}
                     <div class="flex justify-center items-center h-full w-full">
                         <img
-                                class="aspect-auto max-h-full"
+                                class="bg-opacity-25 {% if player.personalBoard.buyingTile != null and
+                                    player.personalBoard.buyingTile.boardTile.id == box.tile.id %}
+                                        opacity-25
+                                {% endif %}bg-gray-500 aspect-auto max-h-full"
                                 src="{{ asset('resourcesGames/Glenmore/BoardTiles/' ~ box.tile.tile.id ~ '.svg')
                                 }}"
                                 alt="{{ box.tile.id }}"
@@ -106,7 +109,7 @@
                     </div>
                 {% endif %}
                 {% if box.hasPawn %}
-                    <div class=" flex items-center justify-center bg-gray-500 space-x-8">
+                    <div class=" flex items-center justify-center bg-opacity-25 bg-gray-500 space-x-8">
                         <div class="w-3/5 h-3/5 {% if box.pawn.color == 'white' %}
                                             bg-{{ box.pawn.color }}
                                       {% else %}

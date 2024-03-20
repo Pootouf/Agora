@@ -17,10 +17,13 @@ class PersonalBoardBoxGLM
 
     private int $coordY;
 
-    public function __construct(?PlayerTileGLM $playerTileGLM, int $coordX, int $coordY) {
+    private bool $placeable;
+
+    public function __construct(?PlayerTileGLM $playerTileGLM, int $coordX, int $coordY, bool $placeable) {
         $this->playerTile = $playerTileGLM;
         $this->coordX = $coordX;
         $this->coordY = $coordY;
+        $this->placeable = $placeable;
     }
 
     /**
@@ -48,6 +51,15 @@ class PersonalBoardBoxGLM
     public function getCoordY(): int
     {
         return $this->coordY;
+    }
+
+    /**
+     * isPlaceable : return if the buying tile is placeable on the personal board
+     * @return bool
+     */
+    public function isPlaceable(): bool
+    {
+        return $this->placeable;
     }
 
 
