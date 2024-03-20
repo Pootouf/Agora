@@ -24,6 +24,9 @@ class NurseMYR extends Component
     #[ORM\JoinColumn(nullable: false)]
     private ?PersonalBoardMYR $personalBoardMYR = null;
 
+    #[ORM\Column]
+    private ?int $area = null;
+
     public function getPosition(): ?int
     {
         return $this->position;
@@ -68,6 +71,18 @@ class NurseMYR extends Component
     public function setPersonalBoardMYR(?PersonalBoardMYR $personalBoardMYR): static
     {
         $this->personalBoardMYR = $personalBoardMYR;
+
+        return $this;
+    }
+
+    public function getArea(): ?int
+    {
+        return $this->area;
+    }
+
+    public function setArea(int $area): static
+    {
+        $this->area = $area;
 
         return $this;
     }
