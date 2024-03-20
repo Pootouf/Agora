@@ -24,9 +24,6 @@ class PlayerMYR extends Player
     #[ORM\OneToMany(targetEntity: AnthillWorkerMYR::class, mappedBy: 'player', orphanRemoval: true)]
     private Collection $anthillWorkerMYRs;
 
-    #[ORM\OneToOne(mappedBy: 'firstPlayer', cascade: ['persist', 'remove'])]
-    private ?GameMYR $gameMYR = null;
-
     #[ORM\OneToMany(targetEntity: GardenWorkerMYR::class, mappedBy: 'player', orphanRemoval: true)]
     private Collection $gardenWorkerMYRs;
 
@@ -42,7 +39,11 @@ class PlayerMYR extends Player
     #[ORM\OneToOne(mappedBy: 'player', cascade: ['persist', 'remove'])]
     private ?PersonalBoardMYR $personalBoardMYR = null;
 
-    public function __construct()
+    #[ORM\ManyToOne(inversedBy: 'players')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?GameMYR $gameMYR = null;
+
+    public function __construct(string $name, GameMYR $game)
     {
         $this->nurseMYRs = new ArrayCollection();
         $this->anthillWorkerMYRs = new ArrayCollection();
@@ -50,6 +51,8 @@ class PlayerMYR extends Player
         $this->gardenTileMYRs = new ArrayCollection();
         $this->gameGoalMYRs = new ArrayCollection();
         $this->anthillHoleMYRs = new ArrayCollection();
+        $this->username = $name;
+        $this->gameMYR = $game;
     }
 
 
@@ -133,23 +136,6 @@ class PlayerMYR extends Player
                 $anthillWorkerMYR->setPlayer(null);
             }
         }
-
-        return $this;
-    }
-
-    public function getGameMYR(): ?GameMYR
-    {
-        return $this->gameMYR;
-    }
-
-    public function setGameMYR(GameMYR $gameMYR): static
-    {
-        // set the owning side of the relation if necessary
-        if ($gameMYR->getFirstPlayer() !== $this) {
-            $gameMYR->setFirstPlayer($this);
-        }
-
-        $this->gameMYR = $gameMYR;
 
         return $this;
     }
@@ -284,6 +270,18 @@ class PlayerMYR extends Player
         }
 
         $this->personalBoardMYR = $personalBoardMYR;
+
+        return $this;
+    }
+
+    public function getGameMyr(): ?GameMYR
+    {
+        return $this->gameMYR;
+    }
+
+    public function setGameMyr(?GameMYR $gameMYR): static
+    {
+        $this->gameMYR = $gameMYR;
 
         return $this;
     }
