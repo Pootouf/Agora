@@ -9,6 +9,7 @@ abstract class AbstractGameManagerService {
     public static string $SIXQP_LABEL = "6QP";
     public static string $SPL_LABEL = "SPL";
     public static string $GLM_LABEL = "GLM";
+    public static string $MYR_LABEL = "MYR";
 
     public static int $SUCCESS = 1;
     public static int $ERROR_ALREADY_IN_PARTY = -1;
