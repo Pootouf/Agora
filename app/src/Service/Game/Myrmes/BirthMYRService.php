@@ -2,6 +2,7 @@
 
 namespace App\Service\Game\Myrmes;
 
+use App\Entity\Game\Myrmes\AnthillWorkerMYR;
 use App\Entity\Game\Myrmes\MyrmesParameters;
 use App\Entity\Game\Myrmes\NurseMYR;
 use App\Entity\Game\Myrmes\PlayerMYR;
@@ -36,14 +37,23 @@ class BirthMYRService
      * @return void
      * @throws \Exception
      */
-    public function giveBirthBonus(PlayerMYR $playerMYR) : void
+    public function giveBirthBonus(PlayerMYR $player) : void
     {
         for($i = 1; $i < MyrmesParameters::$AREA_COUNT; $i += 1) {
-            $nurses = $this->getNursesAtPosition($playerMYR ,$i);
+            $nurses = $this->getNursesAtPosition($player ,$i);
+            $nursesCount = $nurses->count();
             switch ($i) {
                 case MyrmesParameters::$LARVAE_AREA;
-                $this->activateLarvaeArea($playerMYR, $nurses);
-                break;
+                    $this->manageLarvae($player, $nursesCount);
+                    break;
+                case MyrmesParameters::$SOLDIERS_AREA;
+                    $this->manageSoldiers($player, $nursesCount);
+                    break;
+                case MyrmesParameters::$WORKER_AREA:
+                    $this->manageWorker($player, $nursesCount);
+                    break;
+                default:
+                    throw new Exception("Don't give bonus");
             }
         }
     }
@@ -61,27 +71,51 @@ class BirthMYRService
         return new ArrayCollection($nurses);
     }
 
-    /**
-     * activateLarvaeArea : gives player the larva in function of nurses in area
-     * @param PlayerMYR $playerMYR
-     * @param ArrayCollection $array
-     * @return void
-     * @throws \Exception
-     */
-    private function activateLarvaeArea(PlayerMYR $playerMYR, ArrayCollection $array) : void
+    private function getGainByCountNurse(array $gainsByCountNurse, int $countNurse) : int
     {
-        $playerBoard = $playerMYR->getPersonalBoardMYR();
-        $currentLarvaCount = $playerBoard->getLarvaCount();
-        switch ($array->count()) {
-            case 0 : return;
-            case 1 : $playerBoard->setLarvaCount($currentLarvaCount + 1);
-            break;
-            case 2 : $playerBoard->setLarvaCount($currentLarvaCount + 3);
-            break;
-            case 3 : $playerBoard->setLarvaCount($currentLarvaCount + 5);
-            break;
-            default :
-                throw new \Exception("TOO MUCH NURSES ON THIS PLACE");
+        $isWin = array_key_exists($countNurse, $gainsByCountNurse);
+        return $isWin ? $gainsByCountNurse[$countNurse] : 0;
+    }
+
+    private function manageLarvae(PlayerMYR $player, int $nursesCount) : void
+    {
+        $winLarvae = $this->getGainByCountNurse(
+            MyrmesParameters::$WIN_LARVAE_BY_NURSES_COUNT,
+            $nursesCount
+        );
+        $player->setLarvaCount($player->getLarvaCount() + $winLarvae);
+    }
+
+    private function manageSoldiers(PlayerMYR $player, int $nursesCount) : void
+    {
+        $winSoldiers = $this->getGainByCountNurse(
+            MyrmesParameters::$WIN_SOLDIERS_BY_NURSES_COUNT,
+            $nursesCount
+        );
+        $personalBoard = $player->getPersonalBoardMYR();
+        $oldCountSoldiers = $personalBoard->getWarriorsCount();
+        $newCountSoldiers = $oldCountSoldiers + $winSoldiers;
+        $player->getPersonalBoardMYR()->setWarriorsCount($newCountSoldiers);
+    }
+
+    private function manageWorker(PlayerMYR $player, int $nursesCount) : void
+    {
+        $winWorker = $this->getGainByCountNurse(
+            MyrmesParameters::$WIN_WORKERS_BY_NURSES_COUNT,
+            $nursesCount
+        );
+
+        $personalBoard = $player->getPersonalBoardMYR();
+
+        for ($count = 0; $count < $winWorker; $count++)
+        {
+            $worker = new AnthillWorkerMYR();
+            $personalBoard->addAnthillWorker($worker);
         }
+    }
+
+    private function manageNursesAfterBonusGive(PlayerMYR $player, int $nurseCount) : void
+    {
+
     }
 }
