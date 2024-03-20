@@ -30,6 +30,9 @@ class GardenTileMYR extends Component
     #[ORM\Column]
     private ?bool $harvested = null;
 
+    #[ORM\ManyToOne]
+    private ?PreyMYR $prey = null;
+
     public function __construct()
     {
         $this->tile = new ArrayCollection();
@@ -103,6 +106,18 @@ class GardenTileMYR extends Component
     public function setHarvested(bool $harvested): static
     {
         $this->harvested = $harvested;
+
+        return $this;
+    }
+
+    public function getPrey(): ?PreyMYR
+    {
+        return $this->prey;
+    }
+
+    public function setPrey(?PreyMYR $prey): static
+    {
+        $this->prey = $prey;
 
         return $this;
     }

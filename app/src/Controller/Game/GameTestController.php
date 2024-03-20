@@ -3,11 +3,13 @@
 namespace App\Controller\Game;
 
 use App\Entity\Game\Glenmore\GameGLM;
+use App\Entity\Game\Myrmes\GameMYR;
 use App\Entity\Game\SixQP\GameSixQP;
 use App\Entity\Game\Splendor\GameSPL;
 use App\Entity\Game\Splendor\PlayerCardSPL;
 use App\Entity\Game\Splendor\SplendorParameters;
 use App\Repository\Game\Glenmore\GameGLMRepository;
+use App\Repository\Game\Myrmes\GameMYRRepository;
 use App\Repository\Game\SixQP\GameSixQPRepository;
 use App\Repository\Game\Splendor\GameSPLRepository;
 use App\Service\Game\AbstractGameManagerService;
@@ -227,7 +229,7 @@ class GameTestController extends AbstractController
     }
 
     #[Route('/game/glenmore/join/{id}', name: 'app_game_glenmore_join')]
-    public function joinGlenmoreGame(GameGLM $game, LoggerInterface $logger): Response
+    public function joinGlenmoreGame(GameGLM $game): Response
     {
         $user = $this->getUser();
         $value = $this->gameService->joinGame($game->getId(), $user);
@@ -268,6 +270,66 @@ class GameTestController extends AbstractController
         return $this->redirectToRoute('app_game_glenmore_list');
     }
 
+
+
+    #[Route('/game/myrmes/list', name: 'app_game_myrmes_list')]
+    public function listMYRGames(GameMYRRepository $gameMYRRepository): Response
+    {
+        $games = $gameMYRRepository->findAll();
+
+        return $this->render('Game/Myrmes/GameTest/list_games.html.twig', [
+            'games' => $games,
+        ]);
+    }
+
+    #[Route('/game/myrmes/create', name: 'app_game_myrmes_create')]
+    public function createMyrmesGame(): Response
+    {
+        $this->gameService->createGame(AbstractGameManagerService::$MYR_LABEL);
+        return $this->redirectToRoute('app_game_myrmes_list');
+    }
+
+    #[Route('/game/myrmes/join/{id}', name: 'app_game_myrmes_join')]
+    public function joinMyrmesGame(GameMYR $game): Response
+    {
+        $user = $this->getUser();
+        $value = $this->gameService->joinGame($game->getId(), $user);
+        if ($value != AbstractGameManagerService::$SUCCESS) {
+            throw new Exception($value);
+        }
+        return $this->redirectToRoute('app_game_myrmes_list');
+    }
+
+    #[Route('/game/myrmes/leave/{id}', name: 'app_game_myrmes_quit')]
+    public function quitMyrmesGame(GameMYR $game): Response
+    {
+        $user = $this->getUser();
+        $value = $this->gameService->quitGame($game->getId(), $user);
+        if ($value != AbstractGameManagerService::$SUCCESS) {
+            throw new Exception($value);
+        }
+        return $this->redirectToRoute('app_game_myrmes_list');
+    }
+
+    #[Route('/game/myrmes/delete/{id}', name: 'app_game_myrmes_delete')]
+    public function deleteMyrmesGame(GameMYR $game): Response
+    {
+        $value = $this->gameService->deleteGame($game->getId());
+        if ($value != AbstractGameManagerService::$SUCCESS) {
+            throw new Exception($value);
+        }
+        return $this->redirectToRoute('app_game_myrmes_list');
+    }
+
+    #[Route('/game/myrmes/launch/{id}', name: 'app_game_myrmes_launch')]
+    public function launchMyrmesGame(GameMYR $game): Response
+    {
+        $value = $this->gameService->launchGame($game->getId());
+        if ($value != AbstractGameManagerService::$SUCCESS) {
+            throw new Exception($value);
+        }
+        return $this->redirectToRoute('app_game_myrmes_list');
+    }
 
 
 
