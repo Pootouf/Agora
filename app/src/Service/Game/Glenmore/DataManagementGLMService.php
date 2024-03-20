@@ -156,7 +156,7 @@ class DataManagementGLMService
      * @param PlayerGLM $playerGLM
      * @return Collection
      */
-    public function organizePersonalBoardRows(PlayerGLM $playerGLM) : Collection
+    public function organizePersonalBoardRows(PlayerGLM $playerGLM, array $possiblePlacement) : Collection
     {
         $result = new ArrayCollection();
 
@@ -187,7 +187,12 @@ class DataManagementGLMService
             if ($previousX < $tile->getCoordX()) {
                 // Fill the gaps up to y max coord
                 while ($y <= $maxy) {
-                    $currentLine->add(new PersonalBoardBoxGLM(null, $x, $y));
+                    $currentLine->add(new PersonalBoardBoxGLM(
+                        null,
+                        $x,
+                        $y,
+                        in_array([$x, $y], $possiblePlacement)
+                    ));
                     $y++;
                 }
                 $y = $miny;
@@ -198,16 +203,21 @@ class DataManagementGLMService
             }
             // Fill the gaps up to the next y coord
             while ($y < $tile->getCoordY()) {
-                $currentLine->add(new PersonalBoardBoxGLM(null, $x, $y));
+                $currentLine->add(new PersonalBoardBoxGLM(
+                    null,
+                    $x,
+                    $y,
+                    in_array([$x, $y], $possiblePlacement)
+                ));
                 $y++;
             }
-            $currentLine->add(new PersonalBoardBoxGLM($tile, $x, $y));
+            $currentLine->add(new PersonalBoardBoxGLM($tile, $x, $y, in_array([$x, $y], $possiblePlacement)));
             $previousX = $tile->getCoordX();
             $y++;
         }
         // Complete the last added line until max y
         while ($y <= $maxy) {
-            $currentLine->add(new PersonalBoardBoxGLM(null, $x, $y));
+            $currentLine->add(new PersonalBoardBoxGLM(null, $x, $y, in_array([$x, $y], $possiblePlacement)));
             $y++;
         }
         $result->add($currentLine);
@@ -217,7 +227,7 @@ class DataManagementGLMService
             $y = $miny;
             $x++;
             while($y <= $maxy) {
-                $currentLine->add(new PersonalBoardBoxGLM(null, $x, $y));
+                $currentLine->add(new PersonalBoardBoxGLM(null, $x, $y, in_array([$x, $y], $possiblePlacement)));
                 $y++;
             }
             $result->add($currentLine);

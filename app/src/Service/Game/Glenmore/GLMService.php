@@ -202,19 +202,21 @@ class GLMService
         $newPlayer = $this->getActivePlayer($gameGLM);
         $amountOfTilesToReplace = $this->tileGLMService->getAmountOfTileToReplace($mainBoard);
         $drawTiles = $this->tileGLMService->getActiveDrawTile($gameGLM);
-        $oldLevel = $drawTiles->getLevel();
-        $newLevel = $oldLevel;
+        if ($drawTiles != null) {
+            $oldLevel = $drawTiles->getLevel();
+            $newLevel = $oldLevel;
 
-        for ($i = 0; $i < $amountOfTilesToReplace; ++$i) {
-            $this->tileGLMService->placeNewTile($newPlayer, $drawTiles);
-            $drawTiles = $this->tileGLMService->getActiveDrawTile($gameGLM);
-            if ($drawTiles == null) {
-                break;
+            for ($i = 0; $i < $amountOfTilesToReplace; ++$i) {
+                $this->tileGLMService->placeNewTile($newPlayer, $drawTiles);
+                $drawTiles = $this->tileGLMService->getActiveDrawTile($gameGLM);
+                if ($drawTiles == null) {
+                    break;
+                }
+                $newLevel = $drawTiles->getLevel();
             }
-            $newLevel = $drawTiles->getLevel();
-        }
-        if ($newLevel > $oldLevel) {
-            $this->calculatePoints($gameGLM, $oldLevel);
+            if ($newLevel > $oldLevel) {
+                $this->calculatePoints($gameGLM, $oldLevel);
+            }
         }
         if ($this->isGameEnded($gameGLM)) {
             // TODO RETURN CODE TO PUBLISH WINNERS

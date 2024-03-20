@@ -19,7 +19,10 @@ This section displays the tiles for the main board with players' pawns on it
                         {% if not needToPlay %}
                             disabled
                         {% endif %}
-                        class="bg-opacity-25 bg-gray-500 flex justify-center items-center h-full w-full"
+                        class="bg-opacity-25 {% if player.personalBoard.buyingTile != null and
+                            player.personalBoard.buyingTile.boardTile.id == box.tile.id %}
+                                        opacity-25
+                                {% endif %}bg-gray-500 flex justify-center items-center h-full w-full"
                 {{ stimulus_action('glenmore','buyTile','click',
                     {url: path('app_game_glenmore_select_tile_on_mainboard', {idGame: game.id, idTile: box.tile.id})}) }}
                 >

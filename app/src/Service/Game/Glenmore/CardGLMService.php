@@ -170,6 +170,13 @@ class CardGLMService
             if ($createdResource->getResource()->getColor() === $resourceGLM->getColor()) {
                 $createdResource->setQuantity($createdResource->getQuantity() + 1);
                 $this->entityManager->persist($createdResource);
+            } else {
+                $createdResource = new CreatedResourceGLM();
+                $createdResource->setResource($resourceGLM);
+                $createdResource->setQuantity(1);
+                $createdResource->setPersonalBoardGLM($playerGLM->getPersonalBoard());
+                $this->entityManager->persist($createdResource);
+                $playerGLM->getPersonalBoard()->addCreatedResource($createdResource);
             }
         } else {
             $createdResource = new CreatedResourceGLM();
@@ -215,6 +222,7 @@ class CardGLMService
             $playerResource = new PlayerTileResourceGLM();
             $playerResource->setResource($createdResource->getResource());
             $playerResource->setQuantity($createdResource->getQuantity());
+            $playerResource->setPlayer($playerGLM);
             $playerResource->setPlayerTileGLM($tile);
             $this->entityManager->persist($playerResource);
             $tile->addPlayerTileResource($playerResource);

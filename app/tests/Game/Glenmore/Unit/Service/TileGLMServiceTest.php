@@ -264,9 +264,23 @@ class TileGLMServiceTest extends TestCase
         $player = $game->getPlayers()->first();
         $personalBoard = $player->getPersonalBoard();
         $boardTile = $mainBoard->getBoardTiles()->last();
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $resourceGLMRepository = $this->createMock(ResourceGLMRepository::class);
+        $playerGLMRepository = $this->createMock(PlayerGLMRepository::class);
+        $playerTileGLMRepository = $this->createMock(PlayerTileGLMRepository::class);
+        $playerTileResourceGLMRepository = $this->createMock(PlayerTileResourceGLMRepository::class);
+        $cardGLMService = new CardGLMService($entityManager, $resourceGLMRepository);
+        $selectedResGLMRepo = $this->createMock(SelectedResourceGLMRepository::class);
+        $mock = $this->getMockBuilder(TileGLMService::class)
+            ->setConstructorArgs(array($entityManager, $resourceGLMRepository,
+                $playerGLMRepository, $playerTileResourceGLMRepository,
+                $playerTileGLMRepository, $cardGLMService, $selectedResGLMRepo))
+            ->onlyMethods(['canPlaceTile'])
+            ->getMock();
+        $mock->method('canPlaceTile')->willReturn(true);
         // WHEN
 
-        $this->tileGLMService->assignTileToPlayer($boardTile, $player);
+        $mock->assignTileToPlayer($boardTile, $player);
 
         // THEN
 
@@ -1188,7 +1202,7 @@ class TileGLMServiceTest extends TestCase
             $startTile->setName(GlenmoreParameters::$TILE_NAME_START_VILLAGE);
             $startTile->setType(GlenmoreParameters::$TILE_TYPE_VILLAGE);
             $startTile->setContainingRiver(true);
-            $startTile->setContainingRiver(true);
+            $startTile->setContainingRoad(true);
             $playerTile->setTile($startTile);
             $playerTile->setPersonalBoard($personalBoard);
             $playerTile->setCoordX(0);
