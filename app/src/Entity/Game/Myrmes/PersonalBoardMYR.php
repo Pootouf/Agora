@@ -34,9 +34,6 @@ class PersonalBoardMYR extends Component
     #[ORM\Column]
     private ?int $bonus = null;
 
-    #[ORM\Column]
-    private ?int $huntedPreyCount = null;
-
     #[ORM\OneToMany(targetEntity: PlayerResourceMYR::class, mappedBy: 'personalBoard', orphanRemoval: true)]
     private Collection $playerResourceMYRs;
 
@@ -163,18 +160,6 @@ class PersonalBoardMYR extends Component
     public function setBonus(int $bonus): static
     {
         $this->bonus = $bonus;
-
-        return $this;
-    }
-
-    public function getHuntedPreyCount(): ?int
-    {
-        return $this->huntedPreyCount;
-    }
-
-    public function setHuntedPreyCount(int $huntedPreyCount): static
-    {
-        $this->huntedPreyCount = $huntedPreyCount;
 
         return $this;
     }

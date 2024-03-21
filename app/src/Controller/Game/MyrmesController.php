@@ -6,7 +6,7 @@ use App\Entity\Game\Myrmes\GameMYR;
 use App\Service\Game\Myrmes\MYRService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class MyrmesController extends AbstractController
 {
