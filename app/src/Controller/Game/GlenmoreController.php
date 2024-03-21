@@ -587,7 +587,7 @@ class GlenmoreController extends AbstractController
             } catch (Exception $e) {
                 return new Response('player has not selected needed resources', Response::HTTP_FORBIDDEN);
             }
-            $this->service->setPhase($player, GlenmoreParameters::$STABLE_PHASE);
+            $this->service->setPhase($player, GlenmoreParameters::$ACTIVATION_PHASE);
             $player->setActivatedResourceSelection(false);
             $this->entityManager->persist($player);
             if ($this->tileGLMService->giveBuyBonus($player->getPersonalBoard()->getPlayerTiles()->last()) == -1) {
@@ -600,7 +600,7 @@ class GlenmoreController extends AbstractController
             } catch (\Exception $e) {
                 return new Response($e->getMessage() . 'player has not selected needed resources', Response::HTTP_FORBIDDEN);
             }
-            $this->service->setPhase($player, GlenmoreParameters::$STABLE_PHASE);
+            $this->service->setPhase($player, GlenmoreParameters::$ACTIVATION_PHASE);
             $player->setActivatedResourceSelection(false);
             $this->entityManager->persist($player);
         }
