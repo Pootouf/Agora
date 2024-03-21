@@ -49,9 +49,6 @@ class TileGLMService
      */
     public function getAmountOfTileToReplace(MainBoardGLM $mainBoardGLM): int
     {
-        if(!$this->isChainBroken($mainBoardGLM)){
-            return 1;
-        }
         $this->removeTilesOfBrokenChain($mainBoardGLM);
         $player = $this->getActivePlayer($mainBoardGLM ->getGameGLM());
         $playerPosition = $player->getPawn()->getPosition();
@@ -1095,25 +1092,6 @@ class TileGLMService
         return !$adjacentTiles->filter(function(?PlayerTileGLM $tile) {
             return $tile != null && $this->doesTileContainsVillager($tile);
         })->isEmpty();
-    }
-
-    /**
-     * isChainBroken : returns true if the chain is broken, false otherwise
-     * @param MainBoardGLM $mainBoardGLM
-     * @return bool
-     */
-    private function isChainBroken(MainBoardGLM $mainBoardGLM): bool
-    {
-        $player = $this->getActivePlayer($mainBoardGLM->getGameGLM());
-        $playerPosition = $player->getPawn()->getPosition();
-        $positionBehindPlayer = $playerPosition - 1;
-        if($positionBehindPlayer == -1){
-            $positionBehindPlayer = GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD - 1;
-        }
-        if($this->getTileInPosition($mainBoardGLM, $positionBehindPlayer) != null){
-            return true;
-        }
-        return false;
     }
 
     /**
