@@ -230,6 +230,7 @@ class GlenmoreController extends AbstractController
             $player->setRoundPhase(GlenmoreParameters::$ACTIVATION_PHASE);
             $player->setActivatedResourceSelection(false);
         }
+
         $this->entityManager->persist($player);
         $this->entityManager->flush();
         $this->publishMainBoardPreview($game);
@@ -274,8 +275,8 @@ class GlenmoreController extends AbstractController
             $this->publishPlayerRoundManagement($game, true);
         } else {
             $this->publishPlayerRoundManagement($game, false);
+            $this->publishPersonalBoard($player, []);
         }
-        $this->publishPersonalBoard($player, []);
         $this->publishRanking($game);
         $this->publishMainBoardPreview($game);
 //        $message = $player->getUsername() . " put tile " . $player->getPersonalBoard()->getSelectedTile()->getId();
@@ -306,6 +307,7 @@ class GlenmoreController extends AbstractController
             'activatedNewResourceAcquisition' => false,
             'chosenNewResources' => $player->getPersonalBoard()->getCreatedResources(),
             'activatedMovementPhase' => $this->service->isInMovementPhase($player),
+            'buyingTile' => $player->getPersonalBoard()->getBuyingTile()
         ]);
     }
 
@@ -386,8 +388,8 @@ class GlenmoreController extends AbstractController
             } catch (\Exception) {
                 return new Response('can not select more resource', Response::HTTP_FORBIDDEN);
             }
+            $this->publishPersonalBoard($player, []);
         }
-        $this->publishPersonalBoard($player, []);
         return new Response($player->getUsername()." selected a resource" ,Response::HTTP_OK);
     }
 
@@ -714,7 +716,8 @@ class GlenmoreController extends AbstractController
             'activatedNewResourceAcquisition' => true,
             'chosenNewResources' => $player->getPersonalBoard()->getCreatedResources(),
             'activatedMovementPhase' => false,
-            'activatedActivationPhase' => $activatedActivationPhase
+            'activatedActivationPhase' => $activatedActivationPhase,
+            'buyingTile' => $player->getPersonalBoard()->getBuyingTile()
         ]
         );
         $this->publishService->publish(
