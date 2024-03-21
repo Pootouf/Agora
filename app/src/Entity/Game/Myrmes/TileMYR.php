@@ -16,6 +16,9 @@ class TileMYR extends Component
     #[ORM\Column]
     private ?int $coord_Y = null;
 
+    #[ORM\Column(length: 255)]
+    private ?string $type = null;
+
     public function getCoordX(): ?int
     {
         return $this->coord_X;
@@ -36,6 +39,18 @@ class TileMYR extends Component
     public function setCoordY(int $coord_Y): static
     {
         $this->coord_Y = $coord_Y;
+
+        return $this;
+    }
+
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+    public function setType(string $type): static
+    {
+        $this->type = $type;
 
         return $this;
     }
