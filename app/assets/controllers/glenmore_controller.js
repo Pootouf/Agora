@@ -97,7 +97,7 @@ export default class extends Controller {
         let url = tile.params.url;
         const response = await fetch(url);
         if (response.status === 200) {
-            personalBoard.togglePersonalBoard(true);
+            closeWindow();
         }
     }
 
