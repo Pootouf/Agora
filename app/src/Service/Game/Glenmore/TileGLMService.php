@@ -595,6 +595,7 @@ class TileGLMService
             if (!$this->buyTavern($player)) {
                 throw new Exception("not enough whisky");
             }
+            return;
         }
         $globalResources = $player->getPersonalBoard()->getSelectedResources();
         foreach ($tile->getBuyPrice() as $buyPrice) {
@@ -984,7 +985,7 @@ class TileGLMService
         foreach ($playerTiles as $playerTile) {
             $resources = $playerTile->getPlayerTileResource();
             foreach ($resources as $resource) {
-                if ($resource->getResource() == GlenmoreParameters::$WHISKY_RESOURCE) {
+                if ($resource->getResource()->getType() == GlenmoreParameters::$WHISKY_RESOURCE) {
                     $resource->setQuantity($resource->getQuantity() - 1);
                     $this->entityManager->persist($resource);
                     $this->entityManager->flush();

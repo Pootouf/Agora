@@ -474,7 +474,7 @@ class GlenmoreController extends AbstractController
             return new Response("can't activate this tile", Response::HTTP_FORBIDDEN);
         }
         $player->setActivatedResourceSelection(false);
-        $this->service->setPhase($player, GlenmoreParameters::$STABLE_PHASE);
+        $this->service->setPhase($player, GlenmoreParameters::$ACTIVATION_PHASE);
         $this->entityManager->persist($player);
         $this->entityManager->flush();
         $this->publishPersonalBoard($player, []);
