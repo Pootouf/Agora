@@ -214,7 +214,6 @@ class GlenmoreController extends AbstractController
         if ($this->service->getActivePlayer($game) !== $player) {
             return new Response("Not player's turn", Response::HTTP_FORBIDDEN);
         }
-        $possiblePlacement = null;
         try {
             $possiblePlacement = $this->tileGLMService->assignTileToPlayer($tile, $player);
         } catch (Exception $e) {
@@ -257,6 +256,10 @@ class GlenmoreController extends AbstractController
         }
         if ($this->service->getActivePlayer($game) !== $player) {
             return new Response("Not player's turn", Response::HTTP_FORBIDDEN);
+        }
+        if($player->isActivatedResourceSelection()) {
+            return new Response("can't place this tile, need to validate selection of proper resources",
+                Response::HTTP_FORBIDDEN);
         }
         try {
             $this->tileGLMService->setPlaceTileAlreadySelected($player, $coordX, $coordY);
@@ -588,19 +591,14 @@ class GlenmoreController extends AbstractController
         }
         $playerPhase = $player->getRoundPhase();
         if ($playerPhase == GlenmoreParameters::$BUYING_PHASE) {
-            try {
-                $this->tileGLMService->setPlaceTileAlreadySelected($player,
-                    $player->getPersonalBoard()->getBuyingTile()->getCoordX(),
-                    $player->getPersonalBoard()->getBuyingTile()->getCoordY());
-            } catch (Exception $e) {
+            if(!$this->tileGLMService->canBuyTileWithSelectedResources(
+                $player,
+                $player->getPersonalBoard()->getBuyingTile()->getBoardTile()->getTile()
+            )) {
                 return new Response('player has not selected needed resources', Response::HTTP_FORBIDDEN);
             }
-            $this->service->setPhase($player, GlenmoreParameters::$STABLE_PHASE);
             $player->setActivatedResourceSelection(false);
             $this->entityManager->persist($player);
-            if ($this->tileGLMService->giveBuyBonus($player->getPersonalBoard()->getPlayerTiles()->last()) == -1) {
-                $this->publishCreateResource($player->getPersonalBoard()->getPlayerTiles()->last());
-            }
         } else if ($playerPhase == GlenmoreParameters::$ACTIVATION_PHASE) {
             try {
                 $activableTiles = $this->tileGLMService->getActivableTiles($player->getPersonalBoard()->getPlayerTiles()->last());
@@ -613,7 +611,11 @@ class GlenmoreController extends AbstractController
             $this->entityManager->persist($player);
         }
         $this->entityManager->flush();
-        $this->publishPersonalBoard($player, []);
+        $this->publishPersonalBoard($player, $player->getPersonalBoard()->getBuyingTile() == null ? [] :
+            $this->tileGLMService->verifyAllPositionOnPersonalBoard(
+                $player->getPersonalBoard(),
+                $player->getPersonalBoard()->getBuyingTile()->getBoardTile()->getTile()
+            ));
         $this->publishPersonalBoardSpectator($game, []);
         $this->publishRanking($game);
         $this->publishPlayerRoundManagement($game, false);
@@ -775,6 +777,7 @@ class GlenmoreController extends AbstractController
             'isSpectator' => $player === null,
             'game' => $player->getGameGLM(),
             'player' => $player,
+            'activatedResourceSelection' => $player->isActivatedResourceSelection(),
             'personalBoardTiles' => $this->dataManagementGLMService->organizePersonalBoardRows($player, $possiblePlacement),
             'whiskyCount' => $this->dataManagementGLMService->getWhiskyCount($player),
         ]);
