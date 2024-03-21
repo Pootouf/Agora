@@ -15,6 +15,12 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class BirthMYRServiceTest extends KernelTestCase
 {
+     private EntityManagerInterface $entityManager;
+
+    protected function setUp() : void
+    {
+        $this->entityManager = static::getContainer()->get(EntityManagerInterface::class);
+    }
 
     public function testPlaceNurseWhenNurseIsAvailable()
     {
@@ -28,6 +34,23 @@ class BirthMYRServiceTest extends KernelTestCase
         $birthMYRService->placeNurse($nurse, $position);
         // THEN
         $this->assertEquals($position, $nurse->getPosition());
+    }
+
+    public function testPlaceNurseWhenNurseIsNotAvailable()
+    {
+        // GIVEN
+        $birthMYRService = static::getContainer()->get(BirthMYRService::class);
+        $game = $this->createGame(2);
+        $personalBoard = $game->getPlayers()->first()->getPersonalBoardMYR();
+        $nurse = $personalBoard->getNurses()->first();
+        $nurse->setAvailable(false);
+        $this->entityManager->persist($nurse);
+        $this->entityManager->flush();
+        $position = MyrmesParameters::$LARVAE_AREA;
+        // THEN
+        $this->expectException(\Exception::class);
+        // THEN
+        $birthMYRService->placeNurse($nurse, $position);
     }
 
     private function createGame(int $numberOfPlayers) : GameMYR

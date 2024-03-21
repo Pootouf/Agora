@@ -40,6 +40,21 @@ class BirthMYRServiceTest extends TestCase
         $this->assertEquals($position, $nurse->getPosition());
     }
 
+    public function testPlaceNurseWhenNurseIsNotAvailable()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $personalBoard = $firstPlayer->getPersonalBoardMYR();
+        $nurse = $personalBoard->getNurses()->first();
+        $nurse->setAvailable(false);
+        $position = MyrmesParameters::$LARVAE_AREA;
+        // THEN
+        $this->expectException(\Exception::class);
+        // WHEN
+        $this->birthMYRService->placeNurse($nurse, $position);
+    }
+
     private function createGame(int $numberOfPlayers) : GameMYR
     {
         if($numberOfPlayers < MyrmesParameters::$MIN_NUMBER_OF_PLAYER ||
@@ -55,6 +70,7 @@ class BirthMYRServiceTest extends TestCase
             $player->setPersonalBoardMYR($personalBoard);
             for($j = 0; $j < MyrmesParameters::$START_NURSES_COUNT_PER_PLAYER; $j += 1) {
                 $nurse = new NurseMYR();
+                $nurse->setAvailable(true);
                 $personalBoard->addNurse($nurse);
             }
         }
