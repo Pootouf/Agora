@@ -236,6 +236,7 @@ class GlenmoreController extends AbstractController
         $this->publishRanking($game);
         $this->publishMainBoard($game);
         $this->publishPersonalBoard($player, $possiblePlacement);
+        $this->publishPersonalBoardSpectator($game, []);
         $this->publishPlayerRoundManagement($game, false);
         $message = $player->getUsername() . " chose tile " . $tile->getId();
         $this->logService->sendPlayerLog($game, $player, $message);
@@ -274,8 +275,9 @@ class GlenmoreController extends AbstractController
             $this->publishPlayerRoundManagement($game, true);
         } else {
             $this->publishPlayerRoundManagement($game, false);
+            $this->publishPersonalBoard($player, []);
+            $this->publishPersonalBoardSpectator($game, []);
         }
-        $this->publishPersonalBoard($player, []);
         $this->publishRanking($game);
         $this->publishMainBoardPreview($game);
 //        $message = $player->getUsername() . " put tile " . $player->getPersonalBoard()->getSelectedTile()->getId();
@@ -336,6 +338,7 @@ class GlenmoreController extends AbstractController
             }
         }
         $this->publishPersonalBoard($player, []);
+        $this->publishPersonalBoardSpectator($game, []);
         return new Response('a new resource has been selected', Response::HTTP_OK);
     }
 
@@ -386,8 +389,9 @@ class GlenmoreController extends AbstractController
             } catch (\Exception) {
                 return new Response('can not select more resource', Response::HTTP_FORBIDDEN);
             }
+            $this->publishPersonalBoard($player, []);
+            $this->publishPersonalBoardSpectator($game, []);
         }
-        $this->publishPersonalBoard($player, []);
         return new Response($player->getUsername()." selected a resource" ,Response::HTTP_OK);
     }
 
@@ -412,6 +416,7 @@ class GlenmoreController extends AbstractController
             return new Response('Invalid move' . $e->getMessage(), Response::HTTP_FORBIDDEN);
         }
         $this->publishPersonalBoard($player, []);
+        $this->publishPersonalBoardSpectator($game, []);
         $this->publishRanking($game);
         return new Response('villager has been removed', Response::HTTP_OK);
     }
@@ -445,6 +450,7 @@ class GlenmoreController extends AbstractController
         $this->entityManager->persist($player);
         $this->entityManager->flush();
         $this->publishPersonalBoard($player, []);
+        $this->publishPersonalBoardSpectator($game, []);
         $this->publishRanking($game);
         $isActivatedNewResourcesAcquisition = false;
         if($tile->getTile()->getName() == GlenmoreParameters::$CARD_IONA_ABBEY) {
@@ -476,6 +482,7 @@ class GlenmoreController extends AbstractController
         $this->entityManager->persist($player);
         $this->entityManager->flush();
         $this->publishPersonalBoard($player, []);
+        $this->publishPersonalBoardSpectator($game, []);
         $this->publishRanking($game);
         $this->publishPlayerRoundManagement($game, false);
         return new Response("tile was activated", Response::HTTP_OK);
@@ -492,6 +499,7 @@ class GlenmoreController extends AbstractController
         }
         $this->service->setPhase($player, GlenmoreParameters::$MOVEMENT_PHASE);
         $this->publishPersonalBoard($player, []);
+        $this->publishPersonalBoardSpectator($game, []);
         $this->publishRanking($game);
         $this->publishPlayerRoundManagement($game, false);
         return new Response($player->getUsername().' has ended activation phase', Response::HTTP_OK);
@@ -519,6 +527,7 @@ class GlenmoreController extends AbstractController
                 targeted one ' . $e->getMessage(), Response::HTTP_FORBIDDEN);
         }
         $this->publishPersonalBoard($player, []);
+        $this->publishPersonalBoardSpectator($game, []);
         return new Response('the villager has been moved', Response::HTTP_OK);
     }
 
@@ -543,6 +552,7 @@ class GlenmoreController extends AbstractController
             }
         }
         $this->publishPersonalBoard($player, []);
+        $this->publishPersonalBoardSpectator($game, []);
         $this->publishRanking($game);
         $this->publishPlayerRoundManagement($game, false);
         return new Response($player->getUsername().' has ended new resources acquisition phase',
@@ -604,6 +614,7 @@ class GlenmoreController extends AbstractController
         }
         $this->entityManager->flush();
         $this->publishPersonalBoard($player, []);
+        $this->publishPersonalBoardSpectator($game, []);
         $this->publishRanking($game);
         $this->publishPlayerRoundManagement($game, false);
         return new Response('player selected resources', Response::HTTP_OK);
@@ -621,6 +632,7 @@ class GlenmoreController extends AbstractController
         }
         $this->tileGLMService->clearResourceSelection($player);
         $this->publishPersonalBoard($player, []);
+        $this->publishPersonalBoardSpectator($game, []);
         $this->publishPlayerRoundManagement($game, false);
         return new Response('player cancel his selection', Response::HTTP_OK);
     }
@@ -636,6 +648,7 @@ class GlenmoreController extends AbstractController
         }
         $this->service->manageEndOfRound($game);
         $this->publishPersonalBoard($player, []);
+        $this->publishPersonalBoardSpectator($game, []);
         $this->publishRanking($game);
         $this->publishMainBoardPreview($game);
         $this->publishPlayerRoundManagement($game, false);
@@ -688,6 +701,7 @@ class GlenmoreController extends AbstractController
         $this->entityManager->persist($player);
         $this->entityManager->flush();
         $this->publishPersonalBoard($player, []);
+        $this->publishPersonalBoardSpectator($game, []);
         $this->publishMainBoardPreview($game);
         $this->publishPlayerRoundManagement($game, false);
         return new Response('player cancel his tile selection', Response::HTTP_OK);
@@ -758,7 +772,7 @@ class GlenmoreController extends AbstractController
     private function publishPersonalBoard(PlayerGLM $player, array $possiblePlacement) : void
     {
         $response = $this->render('Game/Glenmore/PersonalBoard/personalBoard.html.twig', [
-            'isSpectator' => true,
+            'isSpectator' => $player === null,
             'game' => $player->getGameGLM(),
             'player' => $player,
             'personalBoardTiles' => $this->dataManagementGLMService->organizePersonalBoardRows($player, $possiblePlacement),
@@ -767,6 +781,29 @@ class GlenmoreController extends AbstractController
         $this->publishService->publish(
             $this->generateUrl('app_game_show_glm',
                 ['id' => $player->getGameGLM()->getId()]).'personalBoard'.$player->getId(),
+            $response
+        );
+    }
+
+    /**
+     * publishPersonalBoardSpectator: publish with mercure the personal board of the player
+     * @param GameGLM $game
+     * @param array $possiblePlacement
+     * @return void
+     */
+    private function publishPersonalBoardSpectator(GameGLM $game, array $possiblePlacement) : void
+    {
+        foreach($game->getPlayers() as $player)
+        $response = $this->render('Game/Glenmore/MainBoard/playerPersonalBoard.html.twig', [
+            'isSpectator' => $player === null,
+            'game' => $player->getGameGLM(),
+            'player' => $player,
+            'personalBoardTiles' => $this->dataManagementGLMService->organizePersonalBoardRows($player, $possiblePlacement),
+            'whiskyCount' => $this->dataManagementGLMService->getWhiskyCount($player),
+        ]);
+        $this->publishService->publish(
+            $this->generateUrl('app_game_show_glm',
+                ['id' => $player->getGameGLM()->getId()]).'personalBoardSpectator'.$player->getId(),
             $response
         );
     }
