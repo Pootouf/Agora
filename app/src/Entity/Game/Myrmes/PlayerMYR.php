@@ -18,17 +18,8 @@ class PlayerMYR extends Player
     #[ORM\Column]
     private ?int $goalLevel = null;
 
-    #[ORM\OneToMany(targetEntity: NurseMYR::class, mappedBy: 'player', orphanRemoval: true)]
-    private Collection $nurseMYRs;
-
-    #[ORM\OneToMany(targetEntity: AnthillWorkerMYR::class, mappedBy: 'player', orphanRemoval: true)]
-    private Collection $anthillWorkerMYRs;
-
     #[ORM\OneToMany(targetEntity: GardenWorkerMYR::class, mappedBy: 'player', orphanRemoval: true)]
     private Collection $gardenWorkerMYRs;
-
-    #[ORM\OneToMany(targetEntity: GardenTileMYR::class, mappedBy: 'player', orphanRemoval: true)]
-    private Collection $gardenTileMYRs;
 
     #[ORM\ManyToMany(targetEntity: GameGoalMYR::class, mappedBy: 'precedentsPlayers')]
     private Collection $gameGoalMYRs;
@@ -43,16 +34,21 @@ class PlayerMYR extends Player
     #[ORM\JoinColumn(nullable: false)]
     private ?GameMYR $gameMYR = null;
 
+    #[ORM\OneToMany(targetEntity: PheromonMYR::class, mappedBy: 'player', orphanRemoval: true)]
+    private Collection $pheromonMYRs;
+
+    #[ORM\OneToMany(targetEntity: PreyMYR::class, mappedBy: 'player')]
+    private Collection $preyMYRs;
+
     public function __construct(string $name, GameMYR $game)
     {
-        $this->nurseMYRs = new ArrayCollection();
-        $this->anthillWorkerMYRs = new ArrayCollection();
         $this->gardenWorkerMYRs = new ArrayCollection();
-        $this->gardenTileMYRs = new ArrayCollection();
         $this->gameGoalMYRs = new ArrayCollection();
         $this->anthillHoleMYRs = new ArrayCollection();
         $this->username = $name;
         $this->gameMYR = $game;
+        $this->pheromonMYRs = new ArrayCollection();
+        $this->preyMYRs = new ArrayCollection();
     }
 
 
@@ -80,65 +76,6 @@ class PlayerMYR extends Player
         return $this;
     }
 
-    /**
-     * @return Collection<int, NurseMYR>
-     */
-    public function getNurseMYRs(): Collection
-    {
-        return $this->nurseMYRs;
-    }
-
-    public function addNurseMYR(NurseMYR $nurseMYR): static
-    {
-        if (!$this->nurseMYRs->contains($nurseMYR)) {
-            $this->nurseMYRs->add($nurseMYR);
-            $nurseMYR->setPlayer($this);
-        }
-
-        return $this;
-    }
-
-    public function removeNurseMYR(NurseMYR $nurseMYR): static
-    {
-        if ($this->nurseMYRs->removeElement($nurseMYR)) {
-            // set the owning side to null (unless already changed)
-            if ($nurseMYR->getPlayer() === $this) {
-                $nurseMYR->setPlayer(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, AnthillWorkerMYR>
-     */
-    public function getAnthillWorkerMYRs(): Collection
-    {
-        return $this->anthillWorkerMYRs;
-    }
-
-    public function addAnthillWorkerMYR(AnthillWorkerMYR $anthillWorkerMYR): static
-    {
-        if (!$this->anthillWorkerMYRs->contains($anthillWorkerMYR)) {
-            $this->anthillWorkerMYRs->add($anthillWorkerMYR);
-            $anthillWorkerMYR->setPlayer($this);
-        }
-
-        return $this;
-    }
-
-    public function removeAnthillWorkerMYR(AnthillWorkerMYR $anthillWorkerMYR): static
-    {
-        if ($this->anthillWorkerMYRs->removeElement($anthillWorkerMYR)) {
-            // set the owning side to null (unless already changed)
-            if ($anthillWorkerMYR->getPlayer() === $this) {
-                $anthillWorkerMYR->setPlayer(null);
-            }
-        }
-
-        return $this;
-    }
 
     /**
      * @return Collection<int, GardenWorkerMYR>
@@ -164,36 +101,6 @@ class PlayerMYR extends Player
             // set the owning side to null (unless already changed)
             if ($gardenWorkerMYR->getPlayer() === $this) {
                 $gardenWorkerMYR->setPlayer(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, GardenTileMYR>
-     */
-    public function getGardenTileMYRs(): Collection
-    {
-        return $this->gardenTileMYRs;
-    }
-
-    public function addGardenTileMYR(GardenTileMYR $gardenTileMYR): static
-    {
-        if (!$this->gardenTileMYRs->contains($gardenTileMYR)) {
-            $this->gardenTileMYRs->add($gardenTileMYR);
-            $gardenTileMYR->setPlayer($this);
-        }
-
-        return $this;
-    }
-
-    public function removeGardenTileMYR(GardenTileMYR $gardenTileMYR): static
-    {
-        if ($this->gardenTileMYRs->removeElement($gardenTileMYR)) {
-            // set the owning side to null (unless already changed)
-            if ($gardenTileMYR->getPlayer() === $this) {
-                $gardenTileMYR->setPlayer(null);
             }
         }
 
@@ -282,6 +189,66 @@ class PlayerMYR extends Player
     public function setGameMyr(?GameMYR $gameMYR): static
     {
         $this->gameMYR = $gameMYR;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PheromonMYR>
+     */
+    public function getPheromonMYRs(): Collection
+    {
+        return $this->pheromonMYRs;
+    }
+
+    public function addPheromonMYR(PheromonMYR $pheromonMYR): static
+    {
+        if (!$this->pheromonMYRs->contains($pheromonMYR)) {
+            $this->pheromonMYRs->add($pheromonMYR);
+            $pheromonMYR->setPlayer($this);
+        }
+
+        return $this;
+    }
+
+    public function removePheromonMYR(PheromonMYR $pheromonMYR): static
+    {
+        if ($this->pheromonMYRs->removeElement($pheromonMYR)) {
+            // set the owning side to null (unless already changed)
+            if ($pheromonMYR->getPlayer() === $this) {
+                $pheromonMYR->setPlayer(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PreyMYR>
+     */
+    public function getPreyMYRs(): Collection
+    {
+        return $this->preyMYRs;
+    }
+
+    public function addPreyMYR(PreyMYR $preyMYR): static
+    {
+        if (!$this->preyMYRs->contains($preyMYR)) {
+            $this->preyMYRs->add($preyMYR);
+            $preyMYR->setPlayer($this);
+        }
+
+        return $this;
+    }
+
+    public function removePreyMYR(PreyMYR $preyMYR): static
+    {
+        if ($this->preyMYRs->removeElement($preyMYR)) {
+            // set the owning side to null (unless already changed)
+            if ($preyMYR->getPlayer() === $this) {
+                $preyMYR->setPlayer(null);
+            }
+        }
 
         return $this;
     }
