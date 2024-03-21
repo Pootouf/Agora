@@ -24,10 +24,14 @@ class BirthMYRService
      * placeNurse : place the nurse in $newPosition
      * @param NurseMYR $nurseMYR
      * @param int $newPosition
+     * @throws Exception
      * @return void
      */
     public function placeNurse(NurseMYR $nurseMYR, int $newPosition) : void
     {
+        if(!$nurseMYR->isAvailable()) {
+            throw new Exception("NURSE NOT AVAILABLE");
+        }
         $nurseMYR->setPosition($newPosition);
         $this->entityManager->persist($nurseMYR);
         $this->entityManager->flush();
