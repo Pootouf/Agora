@@ -88,9 +88,9 @@ class TileGLMService
      */
     public function hasBuyCost(BoardTileGLM $tileGLM) : bool
     {
-        if ($tileGLM->getTile()->getName() === GlenmoreParameters::$CARD_LOCH_NESS) {
+        /*if ($tileGLM->getTile()->getName() === GlenmoreParameters::$CARD_LOCH_NESS) {
             return false;
-        }
+        }*/
         $buyPrice = $tileGLM->getTile()->getBuyPrice();
 
         if ($buyPrice->first() != null && $buyPrice->first()->getResource() == GlenmoreParameters::$WHISKY_RESOURCE) {
@@ -583,14 +583,13 @@ class TileGLMService
     public function buyTile(TileGLM $tile, PlayerGLM $player) : void
     {
         if ($tile->getName() === GlenmoreParameters::$CARD_LOCH_NESS) {
-            $leaderCount = $player->getPersonalBoard()->getLeaderCount();
-            if ($leaderCount <= 0) {
-                throw new Exception("not enough leaders");
+            if ($player->getPersonalBoard()->getSelectedResources()->first()->getPlayerTile() == null) {
+                $leaderCount = $player->getPersonalBoard()->getLeaderCount();
+                $player->getPersonalBoard()->setLeaderCount($leaderCount - 1);
+                $this->entityManager->persist($player->getPersonalBoard());
+                $this->entityManager->flush();
+                return;
             }
-            $player->getPersonalBoard()->setLeaderCount($leaderCount - 1);
-            $this->entityManager->persist($player->getPersonalBoard());
-            $this->entityManager->flush();
-            return;
         }
         if ($tile->getName() === GlenmoreParameters::$TILE_NAME_TAVERN) {
             if (!$this->buyTavern($player)) {
@@ -882,7 +881,7 @@ class TileGLMService
             $personalBoard->getBuyingTile()->setCoordY($ordinate);
             $this->entityManager->persist($personalBoard->getBuyingTile());
             $this->entityManager->flush();
-            throw new \Exception('Invalid amount of selected resources');
+            throw new \Exception('Invalid amount of selected resources' . $e->getMessage());
         }
 
         // Here assign tile --> Creation of player tile and manage personal board
@@ -1067,8 +1066,9 @@ class TileGLMService
     private function doesTileContainsVillager(PlayerTileGLM $playerTile) : bool
     {
         $villager = $this->resourceGLMRepository->findOneBy(['type' => GlenmoreParameters::$VILLAGER_RESOURCE]);
-        return $this->playerTileResourceGLMRepository->findOneBy(['resource' => $villager->getId(),
-                'playerTileGLM' => $playerTile->getId()]) != null;
+        $villager = $this->playerTileResourceGLMRepository->findOneBy(['resource' => $villager->getId(),
+                'playerTileGLM' => $playerTile->getId()]);
+        return $villager != null && $villager->getQuantity() > 0;
     }
 
     /**
@@ -1230,24 +1230,34 @@ class TileGLMService
                 })->first();
         }
 
-
-
-        $selectedResourceWithSamePlayerTile = $this->selectedResourceGLMRepository
-            ->findOneBy(["playerTile" => $playerTileGLM->getId(), "resource" => $resource->getId()]);
-
-        if ($selectedResourceWithSamePlayerTile == null) {
+        $selectedResourceWithSamePlayerTile = null;
+        if ($playerTileGLM != null ) {
+            $selectedResourceWithSamePlayerTile = $this->selectedResourceGLMRepository
+                ->findOneBy(["playerTile" => $playerTileGLM->getId(), "resource" => $resource->getId()]);
+        }
+        if ($selectedResourceWithSamePlayerTile == null && $playerTileGLM != null) {
             $selectedResource = new SelectedResourceGLM();
             $selectedResource->setPlayerTile($playerTileGLM);
             $selectedResource->setResource($resource);
             $selectedResource->setQuantity(1);
             $selectedResource->setPersonalBoardGLM($playerTileGLM->getPersonalBoard());
-           $this->entityManager->persist($selectedResource);
-           $personalBoard->addSelectedResource($selectedResource);
-           $this->entityManager->persist($personalBoard);
-        } else {
+            $this->entityManager->persist($selectedResource);
+            $personalBoard->addSelectedResource($selectedResource);
+            $this->entityManager->persist($personalBoard);
+        } else if ($selectedResourceWithSamePlayerTile != null) {
             $selectedResourceWithSamePlayerTile
                 ->setQuantity($selectedResourceWithSamePlayerTile->getQuantity() + 1);
             $this->entityManager->persist($selectedResourceWithSamePlayerTile);
+        } else {
+            $selectedResource = new SelectedResourceGLM();
+            $selectedResource->setPlayerTile(null);
+            $selectedResource->setResource($resource);
+            $selectedResource->setQuantity(1);
+            $selectedResource->setPersonalBoardGLM($playerGLM->getPersonalBoard());
+            $this->entityManager->persist($selectedResource);
+            $personalBoard->addSelectedResource($selectedResource);
+            $this->entityManager->persist($personalBoard);
+            $this->entityManager->persist($selectedResource);
         }
 
         $this->entityManager->flush();
