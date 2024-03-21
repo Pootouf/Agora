@@ -14,12 +14,14 @@ use App\Entity\Game\Glenmore\WarehouseLineGLM;
 use App\Repository\Game\Glenmore\PlayerGLMRepository;
 use Doctrine\DBAL\Exception;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 
 class WarehouseGLMService
 {
 
     public function __construct(private EntityManagerInterface $entityManager,
-                                private TileGLMService $tileGLMService){}
+                                private TileGLMService $tileGLMService,
+                                private LoggerInterface $logger){}
 
 
     /**
@@ -103,7 +105,7 @@ class WarehouseGLMService
         $buyingTile = $player->getPersonalBoard()->getBuyingTile();
         $activatingTile = $player->getPersonalBoard()->getActivatedTile();
         if ($buyingTile == null && $activatingTile == null) {
-            throw new Exception("player does not need to buy resources");
+            throw new Exception("player does not need to buy resources, not correct phase");
         }
 
         $playerResources = $this->tileGLMService->getPlayerProductionResources($player);
@@ -115,26 +117,26 @@ class WarehouseGLMService
                     $requiredResource = $price;
                     $found = true;
                     if ($playerResources[$resource->getColor()] >= $requiredResource->getPrice()) {
-                        throw new Exception("player does not need to buy this resource");
+                        throw new Exception("player does not need to buy this resource, too much possessed to buy");
                     }
                 }
             }
             if (!$found) {
-                throw new Exception("player does not need to buy this resource");
+                throw new Exception("player does not need to buy this resource to buy");
             }
         } else if ($activatingTile != null) {
-            $activationPrice = $activatingTile->getTile()->getBuyPrice();
+            $activationPrice = $activatingTile->getTile()->getActivationPrice();
             foreach ($activationPrice as $price) {
                 if ($price->getResource() === $resource) {
                     $requiredResource = $price;
                     $found = true;
                     if ($playerResources[$resource->getColor()] >= $requiredResource->getPrice()) {
-                        throw new Exception("player does not need to buy this resource");
+                        throw new Exception("player does not need to buy this resource too much possessed to activate");
                     }
                 }
             }
             if (!$found) {
-                throw new Exception("player does not need to buy this resource");
+                throw new Exception("player does not need to buy this resource to activate");
             }
         }
         $selectedResource = new SelectedResourceGLM();
