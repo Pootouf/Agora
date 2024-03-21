@@ -26,7 +26,7 @@ class BirthMYRServiceTest extends TestCase
         $this->birthMYRService = new BirthMYRService($entityManager, $MYRService, $nurseRepository);
     }
 
-    public function testPlaceNurse()
+    public function testPlaceNurseWhenNurseIsAvailable()
     {
         // GIVEN
         $game = $this->createGame(2);

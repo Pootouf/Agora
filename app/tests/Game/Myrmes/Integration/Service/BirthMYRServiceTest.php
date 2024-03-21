@@ -16,7 +16,7 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 class BirthMYRServiceTest extends KernelTestCase
 {
 
-    public function testPlaceNurse()
+    public function testPlaceNurseWhenNurseIsAvailable()
     {
         // GIVEN
         $birthMYRService = static::getContainer()->get(BirthMYRService::class);
