@@ -55,8 +55,6 @@ class BirthMYRService
                 case MyrmesParameters::$WORKER_AREA:
                     $this->manageWorker($player, $nursesCount);
                     break;
-                case MyrmesParameters::$WORKSHOP_GOAL_AREA:
-                    break;
                 case MyrmesParameters::$WORKSHOP_ANTHILL_HOLE_AREA:
                     if ($nursesCount == 1)
                     {
@@ -86,6 +84,8 @@ class BirthMYRService
                             $player, 1, MyrmesParameters::$WORKSHOP_NURSE_AREA
                         );
                     }
+                    break;
+                case MyrmesParameters::$WORKSHOP_GOAL_AREA:
                     break;
                 default:
                     throw new Exception("Don't give bonus");
