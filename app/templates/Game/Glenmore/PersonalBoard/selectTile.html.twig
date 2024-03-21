@@ -304,7 +304,8 @@ This section displays the player tile resources and possible actions
                 </div>
             {% endif %}
 
-            {% if activatedActivationPhase %}
+            {% if activatedActivationPhase and not selectedTile.activated and
+                not (activatedResourceSelection or activatedNewResourceAcquisition or activatedSellingPhase) %}
                 <div class="absolute flex items-center justify-center left-0 bottom-1">
                     <button
                             {{ stimulus_action('glenmore', 'activateTile', 'click',
