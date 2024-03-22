@@ -294,12 +294,15 @@ This section displays the player tile resources and possible actions
                     </button>
                 </div>
             {% endif %}
-            {% if selectedTile.tile.name == CARD_LOCH_NESS and activatedBuyingPhase %}
+            {% if buyingTile != null
+                and buyingTile.boardTile.tile.name == CARD_LOCH_NESS
+                and activatedBuyingPhase
+                and villager != null %}
                 <div class="absolute flex items-center justify-center left-0 bottom-1">
                     <button
                             {{ stimulus_action('glenmore', 'selectResource', 'click',
                                 {url:path('app_game_glenmore_select_resource',
-                                    {idGame: game.id, idPlayerTileResource : playerResource.id, idTile : selectedTile.id})
+                                    {idGame: game.id, idPlayerTileResource : villager.id, idTile : selectedTile.id})
                                 })
                             }}
                             class="bg-[#8F901F] py-2 px-3 m-1 rounded-lg sm:text-lg text-2xl
