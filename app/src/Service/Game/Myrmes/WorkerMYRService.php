@@ -4,6 +4,7 @@ namespace App\Service\Game\Myrmes;
 
 use App\Entity\Game\Myrmes\AnthillHoleMYR;
 use App\Entity\Game\Myrmes\GameMYR;
+use App\Entity\Game\Myrmes\MyrmesParameters;
 use App\Entity\Game\Myrmes\PheromonTileMYR;
 use App\Entity\Game\Myrmes\PlayerMYR;
 use App\Entity\Game\Myrmes\TileMYR;
@@ -36,7 +37,9 @@ class WorkerMYRService
         $anthillHole = new AnthillHoleMYR();
         $anthillHole->setPlayer($playerMYR);
         $anthillHole->setTile($tileMYR);
+        $playerMYR->addAnthillHoleMYR($anthillHole);
         $this->entityManager->persist($anthillHole);
+        $this->entityManager->persist($playerMYR);
         $this->entityManager->flush();
     }
 
@@ -48,6 +51,9 @@ class WorkerMYRService
      */
     private function isPositionAvailable(GameMYR $gameMYR, TileMYR $tileMYR) : bool
     {
+        if($tileMYR->getType() == MyrmesParameters::$WATER_TILE_TYPE) {
+            return false;
+        }
         $players = $gameMYR->getPlayers();
         foreach ($players as $player) {
             $anthill = $this->anthillHoleMYRRepository->findOneBy(["tile" => $tileMYR,
