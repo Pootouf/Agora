@@ -49,6 +49,21 @@ class TileMYRTest extends TestCase
         $this->assertSame($y, $this->tileMYR->getCoordY());
     }
 
+    public function testSetType() : void
+    {
+        // GIVEN
+
+        $type = "type";
+
+        // WHEN
+
+        $this->tileMYR->setType($type);
+
+        // THEN
+
+        $this->assertSame($type, $this->tileMYR->getType());
+    }
+
     protected function setUp(): void
     {
         $this->tileMYR = new TileMYR();
