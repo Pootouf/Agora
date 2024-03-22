@@ -29,7 +29,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Exception;
 use Doctrine\ORM\EntityManagerInterface;
-use Psr\Log\LoggerInterface;
 
 class TileGLMService
 {
@@ -40,8 +39,7 @@ class TileGLMService
                                 private readonly PlayerTileResourceGLMRepository $playerTileResourceGLMRepository,
                                 private readonly PlayerTileGLMRepository $playerTileGLMRepository,
                                 private readonly CardGLMService $cardGLMService,
-                                private readonly SelectedResourceGLMRepository $selectedResourceGLMRepository,
-                                private readonly LoggerInterface $logger) {}
+                                private readonly SelectedResourceGLMRepository $selectedResourceGLMRepository) {}
 
     /**
      * getAmountOfTileToReplace : returns the amount of tiles to replace
@@ -424,7 +422,14 @@ class TileGLMService
             $selectedLevel = min($resourcesTypesCount, $activationCostsLevels);
             $activationBonus = $tileGLM->getTile()->getActivationBonus()->get($selectedLevel - 1);
             $activationBonus = $tile->getActivationBonus()->get($bonusNb);
-            $playerGLM->setPoints($playerGLM->getPoints() + $activationBonus->getAmount());
+            if ($tileGLM->getTile()->getName() === GlenmoreParameters::$TILE_NAME_BRIDGE) {
+                $playerGLM->setPoints($playerGLM->getPoints() + 7);
+            } else if ($tileGLM->getTile()->getName() === GlenmoreParameters::$TILE_NAME_BUTCHER
+                && !$tileGLM->getTile()->getBuyPrice()->isEmpty()) {
+                $playerGLM->setPoints($playerGLM->getPoints() + 5);
+            } else {
+                $playerGLM->setPoints($playerGLM->getPoints() + $activationBonus->getAmount());
+            }
             $this->entityManager->persist($playerGLM);
         }
         $tileGLM->setActivated(true);
