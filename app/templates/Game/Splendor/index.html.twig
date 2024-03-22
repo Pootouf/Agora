@@ -32,6 +32,10 @@
                 {{ include('/Game/Utils/chat.html.twig') }}
             {% endblock %}
 	        {% block notification %}
+                <div id="notificationsContainer"
+                     class="absolute space-y-2 landscape:sm:w-[27%] portrait:w-[30%] landscape:lg:w-[20%]
+                            bottom-0 right-0 ">
+                </div>
                 {{ include('/Game/Utils/notification.html.twig') }}
             {% endblock %}
             {% block cardReversal %}

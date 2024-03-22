@@ -13,6 +13,7 @@ use App\Entity\Game\Glenmore\PlayerGLM;
 use App\Entity\Game\Glenmore\PlayerTileGLM;
 use App\Entity\Game\Glenmore\PlayerTileResourceGLM;
 use App\Entity\Game\Glenmore\ResourceGLM;
+use App\Entity\Game\Glenmore\SelectedResourceGLM;
 use App\Entity\Game\Glenmore\TileGLM;
 use App\Entity\Game\Glenmore\WarehouseGLM;
 use App\Entity\Game\Glenmore\WarehouseLineGLM;
@@ -47,10 +48,20 @@ class WarehouseGLMServiceTest extends TestCase
         $mainBoard = $game->getMainBoard();
         $player = $game->getPlayers()->first();
         $resource = new ResourceGLM();
+        $playerTile = new PlayerTileGLM();
+        $playerTileResource = new PlayerTileResourceGLM();
+        $playerTileResource->setResource($resource);
+        $playerTileResource->setQuantity(0);
+        $playerTile->addPlayerTileResource($playerTileResource);
+
         $resource->setColor(GlenmoreParameters::$COLOR_GREEN);
         $mainBoard->getWarehouse()->getWarehouseLine()->first()->setResource($resource);
         $mainBoard->getWarehouse()->getWarehouseLine()->first()->setQuantity(2);
         $mainBoard->getWarehouse()->getWarehouseLine()->first()->setCoinNumber(1);
+        $selectedResource = new SelectedResourceGLM();
+        $selectedResource->setResource($resource);
+        $selectedResource->setQuantity(1);
+        $selectedResource->setPlayerTile($playerTile);
 
         // WHEN
 
@@ -58,7 +69,7 @@ class WarehouseGLMServiceTest extends TestCase
 
         // THEN
 
-        $this->warehouseGLMService->sellResource($player, $resource);
+        $this->warehouseGLMService->sellResource($player, $resource, $selectedResource);
     }
 
     public function testResourceSaleWhenWarehouseHaveNotMoneyForThisResource() : void
@@ -87,6 +98,11 @@ class WarehouseGLMServiceTest extends TestCase
         $playerTile->addPlayerTileResource($playerTileResource);
         $personalBoard->addPlayerTile($playerTile);
 
+        $selectedResource = new SelectedResourceGLM();
+        $selectedResource->setResource($resource);
+        $selectedResource->setQuantity(1);
+        $selectedResource->setPlayerTile($playerTile);
+
         $mainBoard->getWarehouse()->getWarehouseLine()->clear();
 
         // WHEN
@@ -95,7 +111,7 @@ class WarehouseGLMServiceTest extends TestCase
 
         // THEN
 
-        $this->warehouseGLMService->sellResource($player, $resource);
+        $this->warehouseGLMService->sellResource($player, $resource, $selectedResource);
     }
 
     public function testSuccessResourceSale() : void
@@ -129,18 +145,18 @@ class WarehouseGLMServiceTest extends TestCase
         $playerTile->addPlayerTileResource($playerTileResource);
         $personalBoard->addPlayerTile($playerTile);
 
+        $selectedResource = new SelectedResourceGLM();
+        $selectedResource->setResource($resourcePlayer);
+        $selectedResource->setQuantity(1);
+        $selectedResource->setPlayerTile($playerTile);
+
         $lastMoney = $personalBoard->getMoney();
 
         // WHEN
 
-        $this->warehouseGLMService->sellResource($player, $resourcePlayer);
+        $this->warehouseGLMService->sellResource($player, $resourcePlayer, $selectedResource);
 
         // THEN
-
-        $this->assertNull($this->warehouseGLMService->getResourceOnPersonalBoard(
-            $personalBoard,
-            $resourcePlayer)
-        );
         $this->assertNotEquals($personalBoard->getMoney(), $lastMoney);
         $this->assertGreaterThan($lastMoney, $personalBoard->getMoney());
     }

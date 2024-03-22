@@ -42,7 +42,6 @@ This section displays the ranking with a view of the other players' possessions
                     {% else %}bg-[#045900]{% endif %}"
 					{{ stimulus_controller('glenmore') }}
 			>
-
 				<div class="w-full flex flex-col ">
 					<div class="flex flex-row justify-between pb-1 mx-5 ">
 						{# Button to see other player's personal board #}
@@ -76,10 +75,21 @@ This section displays the ranking with a view of the other players' possessions
 					</div>
 
 					<div class="bg-slate-950 bg-opacity-15 py-1 shadow-inner space-y-1">
-						<div class="relative flex landscape:flex-row portrait:flex-wrap portrait:gap-4 landscape:sm:flex-wrap landscape:sm:space-x-5 px-3 justify-around justify-between">
-							<div class="relative">
+						<div class="relative flex flex-row justify-around justify-between">
+							<button {{ stimulus_action('glenmore', 'displayPropertyCards', 'click',
+								{url:path('app_game_glenmore_display_player_property_cards',
+									{idGame: game.id, idPlayer: playerData.player.id})
+								}) }}
+									class="relative w-[1/4]">
 								<img class="relative items-center justify-center
-									landscape:max-h-6 portrait:max-h-8 landscape:sm:max-h-5"
+									max-h-8"
+								     src="{{ asset('resourcesGames/utils/propertyCardIcon.svg') }}" alt="leader"/>
+
+							</button>
+
+							<div class="relative w-[1/4]">
+								<img class="relative items-center justify-center
+									max-h-8"
 								     src="{{ asset('resourcesGames/Glenmore/figure.svg') }}" alt="leader"/>
 								<span
 										class="absolute inline-flex items-center justify-center w-5 h-5 text-xs
@@ -90,9 +100,9 @@ This section displays the ranking with a view of the other players' possessions
 				                </span>
 							</div>
 
-							<div class="relative">
+							<div class="relative w-[1/4]">
 								<img class="relative items-center justify-center
-									landscape:max-h-6 portrait:max-h-8 landscape:sm:max-h-5"
+									max-h-8"
 								     src="{{ asset('resourcesGames/Glenmore/money.png') }}" alt="money"/>
 								<span
 										class="absolute inline-flex items-center justify-center w-5 h-5 text-xs
@@ -103,10 +113,10 @@ This section displays the ranking with a view of the other players' possessions
 			                </span>
 							</div>
 
-							<div class="relative">
+							<div class="relative w-[1/4]">
 								<div class="h-full flex items-center justify-center">
 									<img class="relative items-center justify-center
-									landscape:max-h-6 portrait:max-h-8 landscape:sm:max-h-5"
+									max-h-8"
 									     src="{{ asset('resourcesGames/Glenmore/whisky.png') }}" alt="whisky"/>
 									<span
 											class="absolute inline-flex items-center justify-center w-5 h-5 text-xs
@@ -117,22 +127,25 @@ This section displays the ranking with a view of the other players' possessions
 				                </span>
 								</div>
 							</div>
-							<div class="relative">
+							<div class="relative w-[1/4]">
 								<img class="relative items-center justify-center
-									landscape:max-h-6 portrait:max-h-8 landscape:sm:max-h-5 "
+									max-h-8"
 								     src="{{ asset('resourcesGames/Glenmore/deplacement.svg') }}" alt="movement"/>
 								<span
 										class="absolute inline-flex items-center justify-center w-5 h-5 text-xs
 										font-bold text-white
 											   bg-red-500 border-2 border-white rounded-full top-0 -end-3 dark:border-gray-900"
 								>
-									{{ playerData.movementPoints }}
-								</span>
+								{{ playerData.movementPoints }}
+							</span>
 							</div>
+						</div>
+
+						<div class="relative flex flex-row justify-around justify-between">
 							{% for resourceColor, resourceCount in playerData.productionsCount %}
-								<div class="relative">
+								<div class="relative w-[1/6]">
 									<img class="relative items-center justify-center
-									landscape:max-h-6 portrait:max-h-8 landscape:sm:max-h-5"
+									max-h-8"
 									     src="{{ asset('resourcesGames/Glenmore/ResourcesProduction/' ~ resourceColor
 										     ~ '.png') }}" alt="{{ resourceColor }}"/>
 									<span
@@ -144,10 +157,6 @@ This section displays the ranking with a view of the other players' possessions
 								</span>
 								</div>
 							{% endfor %}
-						</div>
-
-						<div class="relative flex flex-row justify-around justify-between">
-
 						</div>
 					</div>
 				</div>

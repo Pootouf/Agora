@@ -38,6 +38,9 @@ class PlayerGLM extends Player
     #[ORM\Column]
     private ?bool $activatedResourceSelection = false;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $previousPhase = null;
+
     public function __construct(string $username, GameGLM $game)
     {
         $this->username = $username;
@@ -155,6 +158,18 @@ class PlayerGLM extends Player
     public function setBot(bool $bot): static
     {
         $this->bot = $bot;
+
+        return $this;
+    }
+
+    public function getPreviousPhase(): ?int
+    {
+        return $this->previousPhase;
+    }
+
+    public function setPreviousPhase(?int $previousPhase): static
+    {
+        $this->previousPhase = $previousPhase;
 
         return $this;
     }
