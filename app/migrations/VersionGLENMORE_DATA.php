@@ -1064,7 +1064,7 @@ final class VersionGLENMORE_DATA extends AbstractMigration
         // Insertion of tile 34
 
         $this->connection->insert('tile_buy_cost_glm',
-            ['id' => 49, 'help_id' => null, 'resource_id' => 1, 'amount' => 1]
+            ['id' => 49, 'help_id' => null, 'resource_id' => 1, 'price' => 1]
         );
 
         $this->connection->insert('tile_activation_bonus_glm',
