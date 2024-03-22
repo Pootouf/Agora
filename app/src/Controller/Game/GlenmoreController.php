@@ -184,13 +184,19 @@ class GlenmoreController extends AbstractController
         if ($this->service->getActivePlayer($game) !== $player) {
             return new Response("Not player's turn", Response::HTTP_FORBIDDEN);
         }
+        if ($player->isActivatedResourceSelection()) {
+            return new Response("Can't sell a resource when already in resource selection",
+                Response::HTTP_FORBIDDEN);
+        }
         $player->getPersonalBoard()->setResourceToSell($line->getResource());
+        $this->service->setPreviousPhase($player, $player->getRoundPhase());
         $this->service->setPhase($player, GlenmoreParameters::$SELLING_PHASE);
         $player->setActivatedResourceSelection(true);
         $this->entityManager->persist($player);
         $this->entityManager->persist($player->getPersonalBoard());
         $this->entityManager->flush();
 
+        $this->publishPlayerRoundManagement($game, false);
         return new Response('player activated selling selection of resource', Response::HTTP_OK);
     }
 
@@ -297,6 +303,8 @@ class GlenmoreController extends AbstractController
             'selectedTile' => $tile,
             'game' => $game,
             'player' => $player,
+            'activableTiles' => $this->tileGLMService
+                ->getActivableTiles($player->getPersonalBoard()->getPlayerTiles()->last()),
             'activatedBuyingPhase' => $this->service->isInBuyingPhase($player),
             'activatedActivationPhase' => $this->service->isInActivationPhase($player),
             'activatedSellingPhase' => $this->service->isInSellingPhase($player),
@@ -445,7 +453,8 @@ class GlenmoreController extends AbstractController
                 $activableTiles = $this->tileGLMService->getActivableTiles($player->getPersonalBoard()->getPlayerTiles()->last());
                 $this->tileGLMService->activateBonus($tile, $player, $activableTiles);
             } catch (\Exception $e) {
-                return new Response("can't activate this tile", Response::HTTP_FORBIDDEN);
+                return new Response("can't activate this tile: ". $e->getMessage(),
+                    Response::HTTP_FORBIDDEN);
             }
         } else {
             $this->service->setPhase($player, GlenmoreParameters::$ACTIVATION_PHASE);
@@ -613,7 +622,7 @@ class GlenmoreController extends AbstractController
                     'player has not selected needed resources',
                     Response::HTTP_FORBIDDEN);
             }
-            $this->service->setPhase($player, GlenmoreParameters::$STABLE_PHASE);
+            $this->service->setPhase($player, GlenmoreParameters::$MOVEMENT_PHASE);
 
         } else if ($playerPhase == GlenmoreParameters::$SELLING_PHASE) {
             try {
@@ -630,6 +639,8 @@ class GlenmoreController extends AbstractController
                 $this->logService->sendPlayerLog($game, $player, $message);
                 return new Response("can't sell this resource", Response::HTTP_FORBIDDEN);
             }
+            $this->service->setPhase($player, $player->getPreviousPhase());
+            $this->service->setPreviousPhase($player, null);
             $this->publishMainBoardPreview($game);
             $this->publishMainBoard($game);
             $message = $player->getUsername() .
@@ -807,6 +818,7 @@ class GlenmoreController extends AbstractController
             'isSpectator' => $player === null,
             'game' => $player->getGameGLM(),
             'player' => $player,
+            'activableTiles' => $this->tileGLMService->getActivableTiles($player->getPersonalBoard()->getPlayerTiles()->last()),
             'activatedResourceSelection' => $player->isActivatedResourceSelection(),
             'personalBoardTiles' => $this->dataManagementGLMService->organizePersonalBoardRows($player, $possiblePlacement),
             'whiskyCount' => $this->dataManagementGLMService->getWhiskyCount($player),
