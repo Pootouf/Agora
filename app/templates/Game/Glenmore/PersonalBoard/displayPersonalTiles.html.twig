@@ -21,10 +21,10 @@ This section displays the player's disposition of tiles
                 {# Display for empty space #}
                 {% if personalBox.playerTile == null %}
                     <button type="button"
-                            {% if not personalBox.placeable %}
+                            {% if not personalBox.placeable or activatedResourceSelection %}
                                 disabled
                             {% endif %}
-                            class="{% if not personalBox.placeable %}
+                            class="{% if not personalBox.placeable or activatedResourceSelection %}
                                                      opacity-25 bg-gray-500
                                                  {% else %}
                                                     opacity-50 bg-white

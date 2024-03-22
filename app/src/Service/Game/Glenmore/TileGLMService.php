@@ -353,6 +353,30 @@ class TileGLMService
     }
 
     /**
+     * canBuyTileWithSelectedResources : indicate if the player can buy the tile with his current selected resources
+     * @param PlayerGLM $player
+     * @param TileGLM $tile
+     * @return bool
+     */
+    public function canBuyTileWithSelectedResources(PlayerGLM $player, TileGLM $tile) : bool
+    {
+        $globalResources = $player->getPersonalBoard()->getSelectedResources();
+        foreach ($tile->getBuyPrice() as $buyPrice) {
+            $priceTile = $buyPrice->getPrice();
+            $resource = $buyPrice->getResource();
+            $selectedResourcesOfSameResource = $globalResources->filter(
+                function (SelectedResourceGLM $selectedResourceGLM) use ($resource) {
+                    return $selectedResourceGLM->getResource()->getId() == $resource->getId();
+                }
+            );
+            if ($selectedResourcesOfSameResource->count() != $priceTile) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * activateBonus : activate a tile and give player his resources
      *
      * @param PlayerTileGLM   $tileGLM
@@ -536,6 +560,42 @@ class TileGLMService
     }
 
     /**
+     * selectResourcesFromTileToSellResource: select a resources from a tile to use to sell the resourceToSell
+     * @param PlayerTileGLM $playerTileGLM
+     * @param ResourceGLM $resource
+     * @return void
+     * @throws Exception if there is already a selected resource to sell or if the resouce is not the correct type
+     */
+    public function selectResourcesFromTileToSellResource(PlayerTileGLM $playerTileGLM, ResourceGLM $resource) : void
+    {
+        $personalBoard = $playerTileGLM->getPersonalBoard();
+        $resourceToSell = $personalBoard->getResourceToSell();
+        if ($playerTileGLM->getPlayerTileResource()->filter(
+            function (PlayerTileResourceGLM $playerTileResourceGLM) use ($resource) {
+                return $playerTileResourceGLM->getResource()->getId() == $resource->getId()
+                    && $playerTileResourceGLM->getQuantity() > 0;
+            })->count() <= 0
+        ) {
+            throw new Exception("Can't select this resource, there is none of it on this tile");
+        }
+        if($personalBoard->getSelectedResources()->count() > 0) {
+            throw new Exception("Can't select a new resource, already selected one");
+        }
+        if($resourceToSell->getId() != $resource->getId()) {
+            throw new Exception("Can't select this resource, it's not the required type");
+        }
+        $selectedResource = new SelectedResourceGLM();
+        $selectedResource->setResource($resource);
+        $selectedResource->setPlayerTile($playerTileGLM);
+        $selectedResource->setQuantity(1);
+        $selectedResource->setPersonalBoardGLM($personalBoard);
+        $personalBoard->addSelectedResource($selectedResource);
+        $this->entityManager->persist($selectedResource);
+        $this->entityManager->persist($personalBoard);
+        $this->entityManager->flush();
+    }
+
+    /**
      * selectLeader: select a leader to use to buy the selectedTile of the player
      * @param PlayerGLM $playerGLM
      * @return void
@@ -594,19 +654,10 @@ class TileGLMService
             }
             return;
         }
-        $globalResources = $player->getPersonalBoard()->getSelectedResources();
-        foreach ($tile->getBuyPrice() as $buyPrice) {
-            $priceTile = $buyPrice->getPrice();
-            $resource = $buyPrice->getResource();
-            $selectedResourcesOfSameResource = $globalResources->filter(
-                function (SelectedResourceGLM $selectedResourceGLM) use ($resource) {
-                    return $selectedResourceGLM->getResource()->getId() == $resource->getId();
-                }
-            );
-            if ($selectedResourcesOfSameResource->count() != $priceTile) {
-                throw new \Exception('Invalid amount of selected resources');
-            }
+        if(!$this->canBuyTileWithSelectedResources($player, $tile)) {
+            throw new Exception("can't buy tile with selected resources, wrong selected resources");
         }
+        $globalResources = $player->getPersonalBoard()->getSelectedResources();
         foreach ($tile->getBuyPrice() as $buyPrice) {
             $resourceTile = $buyPrice->getResource();
             $priceTile = $buyPrice->getPrice();
