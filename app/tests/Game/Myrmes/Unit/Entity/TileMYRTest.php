@@ -19,64 +19,34 @@ class TileMYRTest extends TestCase
         $this->assertTrue($this->tileMYR->getId() >= 0);
     }
 
-    public function testSetXMinCoordinate() : void
+    public function testSetCoordinateX() : void
     {
         // GIVEN
 
-        $xMin = 7;
+        $x = 4;
 
         // WHEN
 
-        $this->tileMYR->setXMinCoord($xMin);
+        $this->tileMYR->setCoordX($x);
 
         // THEN
 
-        $this->assertSame($xMin, $this->tileMYR->getXMinCoord());
+        $this->assertSame($x, $this->tileMYR->getCoordX());
     }
 
-    public function testSetXMaxCoordinate() : void
+    public function testSetCoordinateY() : void
     {
         // GIVEN
 
-        $xMax = 8;
+        $y = 4;
 
         // WHEN
 
-        $this->tileMYR->setXMaxCoord($xMax);
+        $this->tileMYR->setCoordY($y);
 
         // THEN
 
-        $this->assertSame($xMax, $this->tileMYR->getXMaxCoord());
-    }
-
-    public function testSetYCoordinate() : void
-    {
-        // GIVEN
-
-        $y = 2;
-
-        // WHEN
-
-        $this->tileMYR->setYCoord($y);
-
-        // THEN
-
-        $this->assertSame($y, $this->tileMYR->getYCoord());
-    }
-
-    public function testSetType() : void
-    {
-        // GIVEN
-
-        $type = new TileTypeMYR();
-
-        // WHEN
-
-        $this->tileMYR->setType($type);
-
-        // THEN
-
-        $this->assertSame($type, $this->tileMYR->getType());
+        $this->assertSame($y, $this->tileMYR->getCoordY());
     }
 
     protected function setUp(): void

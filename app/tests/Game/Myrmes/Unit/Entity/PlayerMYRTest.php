@@ -25,12 +25,11 @@ class PlayerMYRTest extends TestCase
         // THEN
 
         $this->assertTrue($this->playerMYR->getId() >= 0);
-        $this->assertNotNull($this->playerMYR->getNurseMYRs());
-        $this->assertNotNull($this->playerMYR->getAnthillWorkerMYRs());
         $this->assertNotNull($this->playerMYR->getGardenWorkerMYRs());
-        $this->assertNotNull($this->playerMYR->getGardenTileMYRs());
         $this->assertNotNull($this->playerMYR->getGameGoalMYRs());
         $this->assertNotNull($this->playerMYR->getAnthillHoleMYRs());
+        $this->assertNotNull($this->playerMYR->getPheromonMYRs());
+        $this->assertNotNull($this->playerMYR->getPreyMYRs());
     }
 
     public function testSetScore() : void
