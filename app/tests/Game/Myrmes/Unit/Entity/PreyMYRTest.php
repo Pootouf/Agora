@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\Game\Myrmes\Unit;
+namespace App\Tests\Game\Myrmes\Unit\Entity;
 
 use App\Entity\Game\Myrmes\PreyMYR;
 use PHPUnit\Framework\TestCase;

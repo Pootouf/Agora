@@ -1,9 +1,8 @@
 <?php
 
-namespace App\Tests\Game\Myrmes\Unit;
+namespace App\Tests\Game\Myrmes\Unit\Entity;
 
 use App\Entity\Game\Myrmes\PersonalBoardMYR;
-use App\Entity\Game\Myrmes\PlayerMYR;
 use App\Entity\Game\Myrmes\PlayerResourceMYR;
 use App\Entity\Game\Myrmes\ResourceMYR;
 use PHPUnit\Framework\TestCase;

@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Tests\Game\Myrmes\Unit;
+namespace App\Tests\Game\Myrmes\Unit\Entity;
 
 use App\Entity\Game\Myrmes\TileMYR;
 use App\Entity\Game\Myrmes\TileTypeMYR;
 use PHPUnit\Framework\TestCase;
+
 class TileMYRTest extends TestCase
 {
     private TileMYR $tileMYR;
