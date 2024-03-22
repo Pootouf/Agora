@@ -41,7 +41,11 @@
         "doctrine/coding-standard": "^12",
         "phpstan/phpstan": "^1.8",
         "phpstan/phpstan-phpunit": "^1.0",
+<<<<<<< HEAD
         "phpunit/phpunit": "^9.5",
+=======
+        "phpunit/phpunit": "^10.5",
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         "vimeo/psalm": "^5.11"
     },
     "autoload": {
@@ -51,7 +55,11 @@
     },
     "autoload-dev": {
         "psr-4": {
+<<<<<<< HEAD
             "Doctrine\\Tests\\": "tests"
+=======
+            "Doctrine\\Tests\\Common\\Collections\\": "tests"
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         }
     },
     "config": {

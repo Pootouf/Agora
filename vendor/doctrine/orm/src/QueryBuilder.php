@@ -6,6 +6,12 @@ namespace Doctrine\ORM;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Criteria;
+<<<<<<< HEAD
+=======
+use Doctrine\DBAL\ArrayParameterType;
+use Doctrine\DBAL\ParameterType;
+use Doctrine\ORM\Internal\NoUnknownNamedArguments;
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 use Doctrine\ORM\Internal\QueryType;
 use Doctrine\ORM\Query\Expr;
 use Doctrine\ORM\Query\Parameter;
@@ -38,6 +44,11 @@ use function substr;
  */
 class QueryBuilder implements Stringable
 {
+<<<<<<< HEAD
+=======
+    use NoUnknownNamedArguments;
+
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
     /**
      * The array of DQL parts collected.
      *
@@ -428,12 +439,21 @@ class QueryBuilder implements Stringable
      *         ->setParameter('user_id', 1);
      * </code>
      *
+<<<<<<< HEAD
      * @param string|int      $key  The parameter position or name.
      * @param string|int|null $type ParameterType::* or \Doctrine\DBAL\Types\Type::* constant
      *
      * @return $this
      */
     public function setParameter(string|int $key, mixed $value, string|int|null $type = null): static
+=======
+     * @param string|int                                       $key  The parameter position or name.
+     * @param ParameterType|ArrayParameterType|string|int|null $type ParameterType::*, ArrayParameterType::* or \Doctrine\DBAL\Types\Type::* constant
+     *
+     * @return $this
+     */
+    public function setParameter(string|int $key, mixed $value, ParameterType|ArrayParameterType|string|int|null $type = null): static
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
     {
         $existingParameter = $this->getParameter($key);
 
@@ -611,6 +631,11 @@ class QueryBuilder implements Stringable
      */
     public function select(mixed ...$select): static
     {
+<<<<<<< HEAD
+=======
+        self::validateVariadicParameter($select);
+
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         $this->type = QueryType::Select;
 
         if ($select === []) {
@@ -657,6 +682,11 @@ class QueryBuilder implements Stringable
      */
     public function addSelect(mixed ...$select): static
     {
+<<<<<<< HEAD
+=======
+        self::validateVariadicParameter($select);
+
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         $this->type = QueryType::Select;
 
         if ($select === []) {
@@ -951,6 +981,11 @@ class QueryBuilder implements Stringable
      */
     public function where(mixed ...$predicates): static
     {
+<<<<<<< HEAD
+=======
+        self::validateVariadicParameter($predicates);
+
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         if (! (count($predicates) === 1 && $predicates[0] instanceof Expr\Composite)) {
             $predicates = new Expr\Andx($predicates);
         }
@@ -976,6 +1011,11 @@ class QueryBuilder implements Stringable
      */
     public function andWhere(mixed ...$where): static
     {
+<<<<<<< HEAD
+=======
+        self::validateVariadicParameter($where);
+
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         $dql = $this->getDQLPart('where');
 
         if ($dql instanceof Expr\Andx) {
@@ -1006,6 +1046,11 @@ class QueryBuilder implements Stringable
      */
     public function orWhere(mixed ...$where): static
     {
+<<<<<<< HEAD
+=======
+        self::validateVariadicParameter($where);
+
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         $dql = $this->getDQLPart('where');
 
         if ($dql instanceof Expr\Orx) {
@@ -1033,6 +1078,11 @@ class QueryBuilder implements Stringable
      */
     public function groupBy(string ...$groupBy): static
     {
+<<<<<<< HEAD
+=======
+        self::validateVariadicParameter($groupBy);
+
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         return $this->add('groupBy', new Expr\GroupBy($groupBy));
     }
 
@@ -1051,6 +1101,11 @@ class QueryBuilder implements Stringable
      */
     public function addGroupBy(string ...$groupBy): static
     {
+<<<<<<< HEAD
+=======
+        self::validateVariadicParameter($groupBy);
+
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         return $this->add('groupBy', new Expr\GroupBy($groupBy), true);
     }
 
@@ -1062,6 +1117,11 @@ class QueryBuilder implements Stringable
      */
     public function having(mixed ...$having): static
     {
+<<<<<<< HEAD
+=======
+        self::validateVariadicParameter($having);
+
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         if (! (count($having) === 1 && ($having[0] instanceof Expr\Andx || $having[0] instanceof Expr\Orx))) {
             $having = new Expr\Andx($having);
         }
@@ -1077,6 +1137,11 @@ class QueryBuilder implements Stringable
      */
     public function andHaving(mixed ...$having): static
     {
+<<<<<<< HEAD
+=======
+        self::validateVariadicParameter($having);
+
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         $dql = $this->getDQLPart('having');
 
         if ($dql instanceof Expr\Andx) {
@@ -1097,6 +1162,11 @@ class QueryBuilder implements Stringable
      */
     public function orHaving(mixed ...$having): static
     {
+<<<<<<< HEAD
+=======
+        self::validateVariadicParameter($having);
+
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         $dql = $this->getDQLPart('having');
 
         if ($dql instanceof Expr\Orx) {
@@ -1162,6 +1232,7 @@ class QueryBuilder implements Stringable
             }
         }
 
+<<<<<<< HEAD
         if ($criteria->getOrderings()) {
             foreach ($criteria->getOrderings() as $sort => $order) {
                 $hasValidAlias = false;
@@ -1178,6 +1249,22 @@ class QueryBuilder implements Stringable
 
                 $this->addOrderBy($sort, $order);
             }
+=======
+        foreach ($criteria->orderings() as $sort => $order) {
+            $hasValidAlias = false;
+            foreach ($allAliases as $alias) {
+                if (str_starts_with($sort . '.', $alias . '.')) {
+                    $hasValidAlias = true;
+                    break;
+                }
+            }
+
+            if (! $hasValidAlias) {
+                $sort = $allAliases[0] . '.' . $sort;
+            }
+
+            $this->addOrderBy($sort, $order->value);
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         }
 
         // Overwrite limits only if they was set in criteria

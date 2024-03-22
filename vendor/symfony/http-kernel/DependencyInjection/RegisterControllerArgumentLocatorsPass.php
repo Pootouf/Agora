@@ -45,6 +45,10 @@ class RegisterControllerArgumentLocatorsPass implements CompilerPassInterface
 
         $parameterBag = $container->getParameterBag();
         $controllers = [];
+<<<<<<< HEAD
+=======
+        $controllerClasses = [];
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 
         $publicAliases = [];
         foreach ($container->getAliases() as $id => $alias) {
@@ -74,6 +78,11 @@ class RegisterControllerArgumentLocatorsPass implements CompilerPassInterface
                 throw new InvalidArgumentException(sprintf('Class "%s" used for service "%s" cannot be found.', $class, $id));
             }
 
+<<<<<<< HEAD
+=======
+            $controllerClasses[] = $class;
+
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
             // get regular public methods
             $methods = [];
             $arguments = [];
@@ -227,5 +236,13 @@ class RegisterControllerArgumentLocatorsPass implements CompilerPassInterface
         }
 
         $container->setAlias('argument_resolver.controller_locator', (string) $controllerLocatorRef);
+<<<<<<< HEAD
+=======
+
+        if ($container->hasDefinition('controller_resolver')) {
+            $container->getDefinition('controller_resolver')
+                ->addMethodCall('allowControllers', [array_unique($controllerClasses)]);
+        }
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
     }
 }

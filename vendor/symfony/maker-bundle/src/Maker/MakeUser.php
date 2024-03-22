@@ -104,7 +104,11 @@ final class MakeUser extends AbstractMaker
         }
         $input->setOption('is-entity', $userIsEntity);
 
+<<<<<<< HEAD
         $identityFieldName = $io->ask('Enter a property name that will be the unique "display" name for the user (e.g. <comment>email, username, uuid</comment>)', 'email', [Validator::class, 'validatePropertyName']);
+=======
+        $identityFieldName = $io->ask('Enter a property name that will be the unique "display" name for the user (e.g. <comment>email, username, uuid</comment>)', 'email', Validator::validatePropertyName(...));
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         $input->setOption('identity-property-name', $identityFieldName);
 
         $io->text('Will this app need to hash/check user passwords? Choose <comment>No</comment> if passwords are not needed or will be checked/hashed by some other system (e.g. a single sign-on server).');
@@ -231,7 +235,11 @@ final class MakeUser extends AbstractMaker
         $io->text($nextSteps);
     }
 
+<<<<<<< HEAD
     public function configureDependencies(DependencyBuilder $dependencies, InputInterface $input = null): void
+=======
+    public function configureDependencies(DependencyBuilder $dependencies, ?InputInterface $input = null): void
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
     {
         // checking for SecurityBundle guarantees security.yaml is present
         $dependencies->addClassDependency(

@@ -13,7 +13,11 @@ declare(strict_types=1);
 
 namespace Liip\TestFixturesBundle\Services\DatabaseBackup;
 
+<<<<<<< HEAD
 use Liip\TestFixturesBundle\Services\FixturesLoaderFactory;
+=======
+use Liip\TestFixturesBundle\FixturesLoaderFactoryInterface;
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -37,7 +41,11 @@ abstract class AbstractDatabaseBackup implements DatabaseBackupInterface
      */
     protected $classNames = [];
 
+<<<<<<< HEAD
     public function __construct(ContainerInterface $container, FixturesLoaderFactory $fixturesLoaderFactory)
+=======
+    public function __construct(ContainerInterface $container, FixturesLoaderFactoryInterface $fixturesLoaderFactory)
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
     {
         $this->container = $container;
         $this->fixturesLoaderFactory = $fixturesLoaderFactory;

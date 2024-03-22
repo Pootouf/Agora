@@ -20,17 +20,29 @@ use Symfony\Bundle\MakerBundle\Doctrine\EntityClassGenerator;
 use Symfony\Bundle\MakerBundle\Doctrine\EntityRegenerator;
 use Symfony\Bundle\MakerBundle\Doctrine\EntityRelation;
 use Symfony\Bundle\MakerBundle\Doctrine\ORMDependencyBuilder;
+<<<<<<< HEAD
+=======
+use Symfony\Bundle\MakerBundle\Exception\RuntimeCommandException;
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 use Symfony\Bundle\MakerBundle\FileManager;
 use Symfony\Bundle\MakerBundle\Generator;
 use Symfony\Bundle\MakerBundle\InputAwareMakerInterface;
 use Symfony\Bundle\MakerBundle\InputConfiguration;
 use Symfony\Bundle\MakerBundle\Str;
 use Symfony\Bundle\MakerBundle\Util\ClassDetails;
+<<<<<<< HEAD
 use Symfony\Bundle\MakerBundle\Util\ClassSourceManipulator;
 use Symfony\Bundle\MakerBundle\Util\CliOutputHelper;
 use Symfony\Bundle\MakerBundle\Util\ClassSource\Model\ClassProperty;
 use Symfony\Bundle\MakerBundle\Util\PhpCompatUtil;
 use Symfony\Bundle\MakerBundle\Validator;
+=======
+use Symfony\Bundle\MakerBundle\Util\ClassSource\Model\ClassProperty;
+use Symfony\Bundle\MakerBundle\Util\ClassSourceManipulator;
+use Symfony\Bundle\MakerBundle\Util\CliOutputHelper;
+use Symfony\Bundle\MakerBundle\Validator;
+use Symfony\Bundle\MercureBundle\DependencyInjection\MercureExtension;
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -48,15 +60,24 @@ final class MakeEntity extends AbstractMaker implements InputAwareMakerInterface
 {
     private Generator $generator;
     private EntityClassGenerator $entityClassGenerator;
+<<<<<<< HEAD
     private PhpCompatUtil $phpCompatUtil;
+=======
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 
     public function __construct(
         private FileManager $fileManager,
         private DoctrineHelper $doctrineHelper,
+<<<<<<< HEAD
         string $projectDirectory = null,
         Generator $generator = null,
         EntityClassGenerator $entityClassGenerator = null,
         PhpCompatUtil $phpCompatUtil = null,
+=======
+        ?string $projectDirectory = null,
+        ?Generator $generator = null,
+        ?EntityClassGenerator $entityClassGenerator = null,
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
     ) {
         if (null !== $projectDirectory) {
             @trigger_error('The $projectDirectory constructor argument is no longer used since 1.41.0', \E_USER_DEPRECATED);
@@ -75,6 +96,7 @@ final class MakeEntity extends AbstractMaker implements InputAwareMakerInterface
         } else {
             $this->entityClassGenerator = $entityClassGenerator;
         }
+<<<<<<< HEAD
 
         if (null === $phpCompatUtil) {
             @trigger_error(sprintf('Passing a "%s" instance as 6th argument is mandatory since version 1.41.0', PhpCompatUtil::class), \E_USER_DEPRECATED);
@@ -82,6 +104,8 @@ final class MakeEntity extends AbstractMaker implements InputAwareMakerInterface
         } else {
             $this->phpCompatUtil = $phpCompatUtil;
         }
+=======
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
     }
 
     public static function getCommandName(): string
@@ -119,7 +143,11 @@ final class MakeEntity extends AbstractMaker implements InputAwareMakerInterface
                 'This command will generate any missing methods (e.g. getters & setters) for a class or all classes in a namespace.',
                 'To overwrite any existing methods, re-run this command with the --overwrite flag',
             ], null, 'fg=yellow');
+<<<<<<< HEAD
             $classOrNamespace = $io->ask('Enter a class or namespace to regenerate', $this->getEntityNamespace(), [Validator::class, 'notBlank']);
+=======
+            $classOrNamespace = $io->ask('Enter a class or namespace to regenerate', $this->getEntityNamespace(), Validator::notBlank(...));
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 
             $input->setArgument('name', $classOrNamespace);
 
@@ -153,6 +181,14 @@ final class MakeEntity extends AbstractMaker implements InputAwareMakerInterface
             $question = new ConfirmationQuestion($description, false);
             $isBroadcast = $io->askQuestion($question);
 
+<<<<<<< HEAD
+=======
+            // Mercure is needed
+            if ($isBroadcast && !class_exists(MercureExtension::class)) {
+                throw new RuntimeCommandException('Please run "composer require symfony/mercure". It is needed to broadcast entities.');
+            }
+
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
             $input->setOption('broadcast', $isBroadcast);
         }
     }
@@ -309,7 +345,11 @@ final class MakeEntity extends AbstractMaker implements InputAwareMakerInterface
         ]);
     }
 
+<<<<<<< HEAD
     public function configureDependencies(DependencyBuilder $dependencies, InputInterface $input = null): void
+=======
+    public function configureDependencies(DependencyBuilder $dependencies, ?InputInterface $input = null): void
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
     {
         if (null !== $input && $input->getOption('api-resource')) {
             $dependencies->addClassDependency(
@@ -321,7 +361,11 @@ final class MakeEntity extends AbstractMaker implements InputAwareMakerInterface
         if (null !== $input && $input->getOption('broadcast')) {
             $dependencies->addClassDependency(
                 Broadcast::class,
+<<<<<<< HEAD
                 'ux-turbo-mercure'
+=======
+                'ux-turbo'
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
             );
         }
 
@@ -410,6 +454,7 @@ final class MakeEntity extends AbstractMaker implements InputAwareMakerInterface
 
         if ('string' === $type) {
             // default to 255, avoid the question
+<<<<<<< HEAD
             $classProperty->length = $io->ask('Field length', 255, [Validator::class, 'validateLength']);
         } elseif ('decimal' === $type) {
             // 10 is the default value given in \Doctrine\DBAL\Schema\Column::$_precision
@@ -417,6 +462,15 @@ final class MakeEntity extends AbstractMaker implements InputAwareMakerInterface
 
             // 0 is the default value given in \Doctrine\DBAL\Schema\Column::$_scale
             $classProperty->scale = $io->ask('Scale (number of decimals to store: 100.00 would be 2)', 0, [Validator::class, 'validateScale']);
+=======
+            $classProperty->length = $io->ask('Field length', 255, Validator::validateLength(...));
+        } elseif ('decimal' === $type) {
+            // 10 is the default value given in \Doctrine\DBAL\Schema\Column::$_precision
+            $classProperty->precision = $io->ask('Precision (total number of digits stored: 100.00 would be 5)', 10, Validator::validatePrecision(...));
+
+            // 0 is the default value given in \Doctrine\DBAL\Schema\Column::$_scale
+            $classProperty->scale = $io->ask('Scale (number of decimals to store: 100.00 would be 2)', 0, Validator::validateScale(...));
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         }
 
         if ($io->confirm('Can this field be null in the database (nullable)', false)) {
@@ -430,6 +484,7 @@ final class MakeEntity extends AbstractMaker implements InputAwareMakerInterface
     {
         $allTypes = $this->getTypesMap();
 
+<<<<<<< HEAD
         if ('Hyper' === getenv('TERM_PROGRAM')) {
             $wizard = 'wizard 🧙';
         } else {
@@ -439,11 +494,17 @@ final class MakeEntity extends AbstractMaker implements InputAwareMakerInterface
         $typesTable = [
             'main' => [
                 'string' => [],
+=======
+        $typesTable = [
+            'main' => [
+                'string' => ['ascii_string'],
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
                 'text' => [],
                 'boolean' => [],
                 'integer' => ['smallint', 'bigint'],
                 'float' => [],
             ],
+<<<<<<< HEAD
             'relation' => [
                 'relation' => 'a '.$wizard.' will help you build the relation',
                 EntityRelation::MANY_TO_ONE => [],
@@ -451,6 +512,8 @@ final class MakeEntity extends AbstractMaker implements InputAwareMakerInterface
                 EntityRelation::MANY_TO_MANY => [],
                 EntityRelation::ONE_TO_ONE => [],
             ],
+=======
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
             'array_object' => [
                 'array' => ['simple_array'],
                 'json' => [],
@@ -469,6 +532,7 @@ final class MakeEntity extends AbstractMaker implements InputAwareMakerInterface
 
         $printSection = static function (array $sectionTypes) use ($io, &$allTypes) {
             foreach ($sectionTypes as $mainType => $subTypes) {
+<<<<<<< HEAD
                 unset($allTypes[$mainType]);
                 $line = sprintf('  * <comment>%s</comment>', $mainType);
 
@@ -482,6 +546,32 @@ final class MakeEntity extends AbstractMaker implements InputAwareMakerInterface
                     foreach ($subTypes as $subType) {
                         unset($allTypes[$subType]);
                     }
+=======
+                if (!\array_key_exists($mainType, $allTypes)) {
+                    // The type is not a valid DBAL Type - don't show it as an option
+                    continue;
+                }
+
+                foreach ($subTypes as $key => $potentialType) {
+                    if (!\array_key_exists($potentialType, $allTypes)) {
+                        // The type is not a valid DBAL Type - don't show it as an "or" option
+                        unset($subTypes[$key]);
+                    }
+
+                    // Remove type as not to show it again in "Other Types"
+                    unset($allTypes[$potentialType]);
+                }
+
+                // Remove type as not to show it again in "Other Types"
+                unset($allTypes[$mainType]);
+
+                $line = sprintf('  * <comment>%s</comment>', $mainType);
+
+                if (!empty($subTypes)) {
+                    $line .= sprintf(' or %s', implode(' or ', array_map(
+                        static fn ($subType) => sprintf('<comment>%s</comment>', $subType), $subTypes))
+                    );
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
                 }
 
                 $io->writeln($line);
@@ -490,11 +580,37 @@ final class MakeEntity extends AbstractMaker implements InputAwareMakerInterface
             $io->writeln('');
         };
 
+<<<<<<< HEAD
+=======
+        $printRelationsSection = static function () use ($io) {
+            if ('Hyper' === getenv('TERM_PROGRAM')) {
+                $wizard = 'wizard 🧙';
+            } else {
+                $wizard = '\\' === \DIRECTORY_SEPARATOR ? 'wizard' : 'wizard 🧙';
+            }
+
+            $io->writeln(sprintf('  * <comment>relation</comment> a %s will help you build the relation', $wizard));
+
+            $relations = [EntityRelation::MANY_TO_ONE, EntityRelation::ONE_TO_MANY, EntityRelation::MANY_TO_MANY, EntityRelation::ONE_TO_ONE];
+            foreach ($relations as $relation) {
+                $line = sprintf('  * <comment>%s</comment>', $relation);
+
+                $io->writeln($line);
+            }
+
+            $io->writeln('');
+        };
+
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         $io->writeln('<info>Main Types</info>');
         $printSection($typesTable['main']);
 
         $io->writeln('<info>Relationships/Associations</info>');
+<<<<<<< HEAD
         $printSection($typesTable['relation']);
+=======
+        $printRelationsSection();
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 
         $io->writeln('<info>Array/Object Types</info>');
         $printSection($typesTable['array_object']);
@@ -511,7 +627,11 @@ final class MakeEntity extends AbstractMaker implements InputAwareMakerInterface
     private function createEntityClassQuestion(string $questionText): Question
     {
         $question = new Question($questionText);
+<<<<<<< HEAD
         $question->setValidator([Validator::class, 'notBlank']);
+=======
+        $question->setValidator(Validator::notBlank(...));
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         $question->setAutocompleterValues($this->doctrineHelper->getEntitiesForAutocomplete());
 
         return $question;

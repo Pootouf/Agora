@@ -72,7 +72,11 @@ final class MakerTestDetails
 
     public function addExtraDependencies(string ...$packages): self
     {
+<<<<<<< HEAD
         $this->extraDependencies += $packages;
+=======
+        $this->extraDependencies = [...$this->extraDependencies, ...$packages];
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 
         return $this;
     }
@@ -125,11 +129,19 @@ final class MakerTestDetails
     {
         $depBuilder = $this->getDependencyBuilder();
 
+<<<<<<< HEAD
         return array_merge(
             $depBuilder->getAllRequiredDependencies(),
             $depBuilder->getAllRequiredDevDependencies(),
             $this->extraDependencies
         );
+=======
+        return [
+            ...$depBuilder->getAllRequiredDependencies(),
+            ...$depBuilder->getAllRequiredDevDependencies(),
+            ...$this->extraDependencies,
+        ];
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
     }
 
     public function getExtraDependencies(): array

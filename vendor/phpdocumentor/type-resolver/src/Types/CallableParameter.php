@@ -21,6 +21,7 @@ use phpDocumentor\Reflection\Type;
  */
 final class CallableParameter
 {
+<<<<<<< HEAD
     private Type $type;
 
     private bool $isReference;
@@ -30,6 +31,22 @@ final class CallableParameter
     private bool $isOptional;
 
     private ?string $name;
+=======
+    /** @var Type */
+    private $type;
+
+    /** @var bool */
+    private $isReference;
+
+    /** @var bool */
+    private $isVariadic;
+
+    /** @var bool */
+    private $isOptional;
+
+    /** @var string|null */
+    private $name;
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 
     public function __construct(
         Type $type,

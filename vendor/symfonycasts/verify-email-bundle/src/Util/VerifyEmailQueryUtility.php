@@ -23,6 +23,12 @@ class VerifyEmailQueryUtility
 {
     public function getTokenFromQuery(string $uri): string
     {
+<<<<<<< HEAD
+=======
+        /** @psalm-suppress UndefinedFunction */
+        @trigger_deprecation('symfonycasts/verify-email-bundle', '1.17.0', 'This method is deprecated and will be removed in 2.0.');
+
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         $params = $this->getQueryParams($uri);
 
         return $params['token'];
@@ -30,6 +36,12 @@ class VerifyEmailQueryUtility
 
     public function getExpiryTimestamp(string $uri): int
     {
+<<<<<<< HEAD
+=======
+        /** @psalm-suppress UndefinedFunction */
+        @trigger_deprecation('symfonycasts/verify-email-bundle', '1.17.0', 'This method is deprecated and will be removed in 2.0.');
+
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         $params = $this->getQueryParams($uri);
 
         if (empty($params['expires'])) {

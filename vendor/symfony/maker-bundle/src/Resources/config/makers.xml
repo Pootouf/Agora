@@ -17,7 +17,10 @@
             </service>
 
             <service id="maker.maker.make_command" class="Symfony\Bundle\MakerBundle\Maker\MakeCommand">
+<<<<<<< HEAD
                 <argument type="service" id="maker.php_compat_util" />
+=======
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
                 <tag name="maker.command" />
             </service>
 
@@ -26,7 +29,10 @@
             </service>
 
             <service id="maker.maker.make_controller" class="Symfony\Bundle\MakerBundle\Maker\MakeController">
+<<<<<<< HEAD
                 <argument type="service" id="maker.php_compat_util" />
+=======
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
                 <tag name="maker.command" />
             </service>
 
@@ -47,7 +53,10 @@
                 <argument>null</argument>
                 <argument type="service" id="maker.generator" />
                 <argument type="service" id="maker.entity_class_generator" />
+<<<<<<< HEAD
                 <argument type="service" id="maker.php_compat_util" />
+=======
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
                 <tag name="maker.command" />
             </service>
 

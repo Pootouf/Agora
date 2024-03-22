@@ -36,11 +36,21 @@ final class MakeController extends AbstractMaker
 {
     public function __construct(private ?PhpCompatUtil $phpCompatUtil = null)
     {
+<<<<<<< HEAD
         if (null === $phpCompatUtil) {
             @trigger_error(sprintf('Passing a "%s" instance is mandatory since version 1.42.0', PhpCompatUtil::class), \E_USER_DEPRECATED);
         }
 
         $this->phpCompatUtil = $phpCompatUtil;
+=======
+        if (null !== $phpCompatUtil) {
+            @trigger_deprecation(
+                'symfony/maker-bundle',
+                '1.55.0',
+                sprintf('Initializing MakeCommand while providing an instance of "%s" is deprecated. The $phpCompatUtil param will be removed in a future version.', PhpCompatUtil::class)
+            );
+        }
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
     }
 
     public static function getCommandName(): string

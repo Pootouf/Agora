@@ -25,7 +25,11 @@ use function implode;
 class ArrayShape implements PseudoType
 {
     /** @var ArrayShapeItem[] */
+<<<<<<< HEAD
     private array $items;
+=======
+    private $items;
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 
     public function __construct(ArrayShapeItem ...$items)
     {

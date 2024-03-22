@@ -39,10 +39,17 @@ final class DiscriminatorColumnMapping implements ArrayAccess
      *     type: string,
      *     fieldName: string,
      *     name: string,
+<<<<<<< HEAD
      *     length?: int,
      *     columnDefinition?: string,
      *     enumType?: class-string<BackedEnum>,
      *     options?: array<string, mixed>,
+=======
+     *     length?: int|null,
+     *     columnDefinition?: string|null,
+     *     enumType?: class-string<BackedEnum>|null,
+     *     options?: array<string, mixed>|null,
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
      * } $mappingArray
      */
     public static function fromMappingArray(array $mappingArray): self
@@ -58,7 +65,11 @@ final class DiscriminatorColumnMapping implements ArrayAccess
             }
 
             if (property_exists($mapping, $key)) {
+<<<<<<< HEAD
                 $mapping->$key = $value;
+=======
+                $mapping->$key = $value ?? $mapping->$key;
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
             } else {
                 throw new Exception('Unknown property ' . $key . ' on class ' . static::class);
             }

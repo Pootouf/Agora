@@ -365,7 +365,12 @@ class Table
                 for ($i = 0; $i < $maxRows; ++$i) {
                     $cell = (string) ($row[$i] ?? '');
 
+<<<<<<< HEAD
                     $parts = explode("\n", $cell);
+=======
+                    $eol = str_contains($cell, "\r\n") ? "\r\n" : "\n";
+                    $parts = explode($eol, $cell);
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
                     foreach ($parts as $idx => $part) {
                         if ($headers && !$containsColspan) {
                             if (0 === $idx) {
@@ -636,9 +641,16 @@ class Table
                 if (!str_contains($cell ?? '', "\n")) {
                     continue;
                 }
+<<<<<<< HEAD
                 $escaped = implode("\n", array_map(OutputFormatter::escapeTrailingBackslash(...), explode("\n", $cell)));
                 $cell = $cell instanceof TableCell ? new TableCell($escaped, ['colspan' => $cell->getColspan()]) : $escaped;
                 $lines = explode("\n", str_replace("\n", "<fg=default;bg=default></>\n", $cell));
+=======
+                $eol = str_contains($cell ?? '', "\r\n") ? "\r\n" : "\n";
+                $escaped = implode($eol, array_map(OutputFormatter::escapeTrailingBackslash(...), explode($eol, $cell)));
+                $cell = $cell instanceof TableCell ? new TableCell($escaped, ['colspan' => $cell->getColspan()]) : $escaped;
+                $lines = explode($eol, str_replace($eol, '<fg=default;bg=default></>'.$eol, $cell));
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
                 foreach ($lines as $lineKey => $line) {
                     if ($colspan > 1) {
                         $line = new TableCell($line, ['colspan' => $colspan]);
@@ -700,8 +712,14 @@ class Table
                 $nbLines = $cell->getRowspan() - 1;
                 $lines = [$cell];
                 if (str_contains($cell, "\n")) {
+<<<<<<< HEAD
                     $lines = explode("\n", str_replace("\n", "<fg=default;bg=default>\n</>", $cell));
                     $nbLines = \count($lines) > $nbLines ? substr_count($cell, "\n") : $nbLines;
+=======
+                    $eol = str_contains($cell, "\r\n") ? "\r\n" : "\n";
+                    $lines = explode($eol, str_replace($eol, '<fg=default;bg=default>'.$eol.'</>', $cell));
+                    $nbLines = \count($lines) > $nbLines ? substr_count($cell, $eol) : $nbLines;
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 
                     $rows[$line][$column] = new TableCell($lines[0], ['colspan' => $cell->getColspan(), 'style' => $cell->getStyle()]);
                     unset($lines[0]);

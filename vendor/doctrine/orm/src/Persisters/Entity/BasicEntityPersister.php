@@ -7,6 +7,10 @@ namespace Doctrine\ORM\Persisters\Entity;
 use BackedEnum;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\Common\Collections\Expr\Comparison;
+<<<<<<< HEAD
+=======
+use Doctrine\Common\Collections\Order;
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\LockMode;
@@ -764,7 +768,11 @@ class BasicEntityPersister implements EntityPersister
         $targetClass = $this->em->getClassMetadata($assoc->targetEntity);
 
         if ($assoc->isOwningSide()) {
+<<<<<<< HEAD
             $isInverseSingleValued = $assoc->inversedBy && ! $targetClass->isCollectionValuedAssociation($assoc->inversedBy);
+=======
+            $isInverseSingleValued = $assoc->inversedBy !== null && ! $targetClass->isCollectionValuedAssociation($assoc->inversedBy);
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 
             // Mark inverse side as fetched in the hints, otherwise the UoW would
             // try to load it in a separate query (remember: to-one inverse sides can not be lazy).
@@ -842,7 +850,14 @@ class BasicEntityPersister implements EntityPersister
      */
     public function loadCriteria(Criteria $criteria): array
     {
+<<<<<<< HEAD
         $orderBy = $criteria->getOrderings();
+=======
+        $orderBy = array_map(
+            static fn (Order $order): string => $order->value,
+            $criteria->orderings(),
+        );
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         $limit   = $criteria->getMaxResults();
         $offset  = $criteria->getFirstResult();
         $query   = $this->getSelectSQL($criteria, null, null, $limit, $offset, $orderBy);
@@ -1151,7 +1166,11 @@ class BasicEntityPersister implements EntityPersister
 
             if (isset($this->class->fieldMappings[$fieldName])) {
                 $tableAlias = isset($this->class->fieldMappings[$fieldName]->inherited)
+<<<<<<< HEAD
                     ? $this->getSQLTableAlias($this->class->fieldMappings[$fieldName]['inherited'])
+=======
+                    ? $this->getSQLTableAlias($this->class->fieldMappings[$fieldName]->inherited)
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
                     : $baseTableAlias;
 
                 $columnName    = $this->quoteStrategy->getColumnName($fieldName, $this->class, $this->platform);

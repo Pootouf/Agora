@@ -162,7 +162,11 @@ class SchemaValidator
                 }
             }
 
+<<<<<<< HEAD
             if ($assoc->isOwningSide() && $assoc->inversedBy) {
+=======
+            if ($assoc->isOwningSide() && $assoc->inversedBy !== null) {
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
                 if ($targetMetadata->hasField($assoc->inversedBy)) {
                     $ce[] = 'The association ' . $class->name . '#' . $fieldName . ' refers to the inverse side ' .
                             'field ' . $assoc->targetEntity . '#' . $assoc->inversedBy . ' which is not defined as association.';
@@ -343,7 +347,11 @@ class SchemaValidator
                             return null;
                         }
 
+<<<<<<< HEAD
                         $metadataFieldType = $this->findBuiltInType(Type::getType($fieldMapping['type']));
+=======
+                        $metadataFieldType = $this->findBuiltInType(Type::getType($fieldMapping->type));
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 
                         //If the metadata field type is not a mapped built-in type, we cannot check it
                         if ($metadataFieldType === null) {
@@ -371,7 +379,11 @@ class SchemaValidator
                                 );
                             }
 
+<<<<<<< HEAD
                             if (! isset($fieldMapping['enumType']) || $propertyType === $fieldMapping['enumType']) {
+=======
+                            if (! isset($fieldMapping->enumType) || $propertyType === $fieldMapping->enumType) {
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
                                 return null;
                             }
 
@@ -380,17 +392,30 @@ class SchemaValidator
                                 $class->name,
                                 $fieldName,
                                 $propertyType,
+<<<<<<< HEAD
                                 $fieldMapping['enumType'],
+=======
+                                $fieldMapping->enumType,
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
                             );
                         }
 
                         if (
+<<<<<<< HEAD
                             isset($fieldMapping['enumType'])
                             && $propertyType !== $fieldMapping['enumType']
                             && interface_exists($propertyType)
                             && is_a($fieldMapping['enumType'], $propertyType, true)
                         ) {
                             $backingType = (string) (new ReflectionEnum($fieldMapping['enumType']))->getBackingType();
+=======
+                            isset($fieldMapping->enumType)
+                            && $propertyType !== $fieldMapping->enumType
+                            && interface_exists($propertyType)
+                            && is_a($fieldMapping->enumType, $propertyType, true)
+                        ) {
+                            $backingType = (string) (new ReflectionEnum($fieldMapping->enumType))->getBackingType();
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 
                             if ($metadataFieldType === $backingType) {
                                 return null;
@@ -400,14 +425,22 @@ class SchemaValidator
                                 "The field '%s#%s' has the metadata enumType '%s' with a backing type of '%s' that differs from the metadata field type '%s'.",
                                 $class->name,
                                 $fieldName,
+<<<<<<< HEAD
                                 $fieldMapping['enumType'],
+=======
+                                $fieldMapping->enumType,
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
                                 $backingType,
                                 $metadataFieldType,
                             );
                         }
 
                         if (
+<<<<<<< HEAD
                             $fieldMapping['type'] === 'json'
+=======
+                            $fieldMapping->type === 'json'
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
                             && in_array($propertyType, ['string', 'int', 'float', 'bool', 'true', 'false', 'null'], true)
                         ) {
                             return null;
@@ -419,7 +452,11 @@ class SchemaValidator
                             $fieldName,
                             $propertyType,
                             $metadataFieldType,
+<<<<<<< HEAD
                             $fieldMapping['type'],
+=======
+                            $fieldMapping->type,
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
                         );
                     },
                     $class->fieldMappings,

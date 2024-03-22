@@ -126,6 +126,13 @@ final class Driver extends AbstractPostgreSQLDriver
             $dsn .= 'application_name=' . $params['application_name'] . ';';
         }
 
+<<<<<<< HEAD
+=======
+        if (isset($params['gssencmode'])) {
+            $dsn .= 'gssencmode=' . $params['gssencmode'] . ';';
+        }
+
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         return $dsn;
     }
 }

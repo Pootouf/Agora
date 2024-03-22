@@ -301,7 +301,11 @@ class HtmlErrorRenderer implements ErrorRendererInterface
 
     private function formatFileFromText(string $text): string
     {
+<<<<<<< HEAD
         return preg_replace_callback('/in ("|&quot;)?(.+?)\1(?: +(?:on|at))? +line (\d+)/s', fn ($match) => 'in '.$this->formatFile($match[2], $match[3]), $text);
+=======
+        return preg_replace_callback('/in ("|&quot;)?(.+?)\1(?: +(?:on|at))? +line (\d+)/s', fn ($match) => 'in '.$this->formatFile($match[2], $match[3]), $text) ?? $text;
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
     }
 
     private function formatLogMessage(string $message, array $context): string

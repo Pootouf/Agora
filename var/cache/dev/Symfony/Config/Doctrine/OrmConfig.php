@@ -51,7 +51,12 @@ class OrmConfig
     }
 
     /**
+<<<<<<< HEAD
      * @default false
+=======
+     * Enables the new implementation of proxies based on lazy ghosts instead of using the legacy implementation
+     * @default true
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
      * @param ParamConfigurator|bool $value
      * @return $this
      */

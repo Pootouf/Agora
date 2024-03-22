@@ -2,6 +2,15 @@
 
 All notable changes in `sebastian/global-state` are documented in this file using the [Keep a CHANGELOG](https://keepachangelog.com/) principles.
 
+<<<<<<< HEAD
+=======
+## [5.0.7] - 2024-03-02
+
+### Changed
+
+* Do not use implicitly nullable parameters
+
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 ## [5.0.6] - 2023-08-02
 
 ### Changed
@@ -72,6 +81,10 @@ All notable changes in `sebastian/global-state` are documented in this file usin
 
 * This component is no longer supported on PHP 7.0 and PHP 7.1
 
+<<<<<<< HEAD
+=======
+[5.0.7]: https://github.com/sebastianbergmann/global-state/compare/5.0.6...5.0.7
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 [5.0.6]: https://github.com/sebastianbergmann/global-state/compare/5.0.5...5.0.6
 [5.0.5]: https://github.com/sebastianbergmann/global-state/compare/5.0.4...5.0.5
 [5.0.4]: https://github.com/sebastianbergmann/global-state/compare/5.0.3...5.0.4

@@ -36,13 +36,21 @@ use function trim;
 final class Context
 {
     /** @var string The current namespace. */
+<<<<<<< HEAD
     private string $namespace;
+=======
+    private $namespace;
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 
     /**
      * @var string[] List of namespace aliases => Fully Qualified Namespace.
      * @psalm-var array<string, string>
      */
+<<<<<<< HEAD
     private array $namespaceAliases;
+=======
+    private $namespaceAliases;
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 
     /**
      * Initializes the new context and normalizes all passed namespaces to be in Qualified Namespace Name (QNN)

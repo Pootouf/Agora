@@ -1,5 +1,44 @@
+<<<<<<< HEAD
 # Upgrade to 3.0
 
+=======
+# Upgrade to 3.1
+
+## Deprecate `Doctrine\ORM\Mapping\ReflectionEnumProperty`
+
+This class is deprecated and will be removed in 4.0.
+Instead, use `Doctrine\Persistence\Reflection\EnumReflectionProperty` from
+`doctrine/persistence`.
+
+## Deprecate passing null to `ClassMetadata::fullyQualifiedClassName()`
+
+Passing `null` to `Doctrine\ORM\ClassMetadata::fullyQualifiedClassName()` is
+deprecated and will no longer be possible in 4.0.
+
+## Deprecate array access
+
+Using array access on instances of the following classes is deprecated:
+
+- `Doctrine\ORM\Mapping\DiscriminatorColumnMapping`
+- `Doctrine\ORM\Mapping\EmbedClassMapping`
+- `Doctrine\ORM\Mapping\FieldMapping`
+- `Doctrine\ORM\Mapping\JoinColumnMapping`
+- `Doctrine\ORM\Mapping\JoinTableMapping`
+
+# Upgrade to 3.0
+
+## BC BREAK: Calling `ClassMetadata::getAssociationMappedByTargetField()` with the owning side of an association now throws an exception
+
+Previously, calling
+`Doctrine\ORM\Mapping\ClassMetadata::getAssociationMappedByTargetField()` with
+the owning side of an association returned `null`, which was undocumented, and
+wrong according to the phpdoc of the parent method.
+
+If you do not know whether you are on the owning or inverse side of an association,
+you can use  `Doctrine\ORM\Mapping\ClassMetadata::isAssociationInverseSide()`
+to find out.
+
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 ## BC BREAK: `Doctrine\ORM\Proxy\Autoloader` no longer extends `Doctrine\Common\Proxy\Autoloader`
 
 Make sure to use the former when writing a type declaration or an `instanceof` check.
@@ -13,9 +52,15 @@ so `$targetEntity` is a first argument now. This change affects only non-named a
 
 When using the `AUTO` strategy to let Doctrine determine the identity generation mechanism for
 an entity, and when using `doctrine/dbal` 4, PostgreSQL now uses `IDENTITY`
+<<<<<<< HEAD
 instead of `SEQUENCE`. When upgrading from ORM 2.x and preference is on keeping
 the `SEQUENCE` based identity generation, then configure the ORM this way:
 
+=======
+instead of `SEQUENCE` or `SERIAL`.
+* If you want to upgrade your existing tables to identity columns, you will need to follow [migration to identity columns on PostgreSQL](https://www.doctrine-project.org/projects/doctrine-dbal/en/4.0/how-to/postgresql-identity-migration.html)
+* If you want to keep using SQL sequences, you need to configure the ORM this way:
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 ```php
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\ORM\Configuration;
@@ -495,8 +540,13 @@ The methods have been replaced by PSR-6 compatible counterparts
 
 ## BC BREAK: Remove `Doctrine\ORM\Configuration::newDefaultAnnotationDriver`
 
+<<<<<<< HEAD
 This functionality has been moved to the new `DoctrineSetup` class. Call
 `Doctrine\ORM\Tools\DoctrineSetup::createDefaultAnnotationDriver()` to create
+=======
+This functionality has been moved to the new `ORMSetup` class. Call
+`Doctrine\ORM\ORMSetup::createDefaultAnnotationDriver()` to create
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 a new annotation driver.
 
 ## BC BREAK: Remove `Doctrine\ORM\Tools\Setup`
@@ -504,7 +554,11 @@ a new annotation driver.
 In our effort to migrate from Doctrine Cache to PSR-6, the `Setup` class which
 accepted a Doctrine Cache instance in each method has been removed.
 
+<<<<<<< HEAD
 The replacement is `Doctrine\ORM\Tools\DoctrineSetup` which accepts a PSR-6
+=======
+The replacement is `Doctrine\ORM\ORMSetup` which accepts a PSR-6
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 cache instead.
 
 ## BC BREAK: Removed named queries
@@ -663,6 +717,26 @@ following classes and methods:
 
 Use `toIterable()` instead.
 
+<<<<<<< HEAD
+=======
+# Upgrade to 2.19
+
+## Deprecate calling `ClassMetadata::getAssociationMappedByTargetField()` with the owning side of an association
+
+Calling
+`Doctrine\ORM\Mapping\ClassMetadata::getAssociationMappedByTargetField()` with
+the owning side of an association returns `null`, which is undocumented, and
+wrong according to the phpdoc of the parent method.
+
+If you do not know whether you are on the owning or inverse side of an association,
+you can use  `Doctrine\ORM\Mapping\ClassMetadata::isAssociationInverseSide()`
+to find out.
+
+## Deprecate `Doctrine\ORM\Query\Lexer::T_*` constants
+
+Use `Doctrine\ORM\Query\TokenType::T_*` instead.
+
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 # Upgrade to 2.17
 
 ## Deprecate annotations classes for named queries

@@ -2,6 +2,15 @@
 
 All notable changes are documented in this file using the [Keep a CHANGELOG](http://keepachangelog.com/) principles.
 
+<<<<<<< HEAD
+=======
+## [9.2.31] - 2024-03-02
+
+### Changed
+
+* Do not use implicitly nullable parameters
+
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 ## [9.2.30] - 2023-12-22
 
 ### Changed
@@ -505,6 +514,10 @@ All notable changes are documented in this file using the [Keep a CHANGELOG](htt
 
 * This component is no longer supported on PHP 7.1
 
+<<<<<<< HEAD
+=======
+[9.2.31]: https://github.com/sebastianbergmann/php-code-coverage/compare/9.2.30...9.2.31
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 [9.2.30]: https://github.com/sebastianbergmann/php-code-coverage/compare/9.2.29...9.2.30
 [9.2.29]: https://github.com/sebastianbergmann/php-code-coverage/compare/9.2.28...9.2.29
 [9.2.28]: https://github.com/sebastianbergmann/php-code-coverage/compare/9.2.27...9.2.28

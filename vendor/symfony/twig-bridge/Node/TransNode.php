@@ -11,6 +11,10 @@
 
 namespace Symfony\Bridge\Twig\Node;
 
+<<<<<<< HEAD
+=======
+use Twig\Attribute\YieldReady;
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 use Twig\Compiler;
 use Twig\Node\Expression\AbstractExpression;
 use Twig\Node\Expression\ArrayExpression;
@@ -22,6 +26,10 @@ use Twig\Node\TextNode;
 /**
  * @author Fabien Potencier <fabien@symfony.com>
  */
+<<<<<<< HEAD
+=======
+#[YieldReady]
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 final class TransNode extends Node
 {
     public function __construct(Node $body, ?Node $domain = null, ?AbstractExpression $count = null, ?AbstractExpression $vars = null, ?AbstractExpression $locale = null, int $lineno = 0, ?string $tag = null)
@@ -53,9 +61,16 @@ final class TransNode extends Node
             $vars = null;
         }
         [$msg, $defaults] = $this->compileString($this->getNode('body'), $defaults, (bool) $vars);
+<<<<<<< HEAD
 
         $compiler
             ->write('echo $this->env->getExtension(\'Symfony\Bridge\Twig\Extension\TranslationExtension\')->trans(')
+=======
+        $display = class_exists(YieldReady::class) ? 'yield' : 'echo';
+
+        $compiler
+            ->write($display.' $this->env->getExtension(\'Symfony\Bridge\Twig\Extension\TranslationExtension\')->trans(')
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
             ->subcompile($msg)
         ;
 

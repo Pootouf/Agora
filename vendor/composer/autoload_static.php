@@ -4,7 +4,11 @@
 
 namespace Composer\Autoload;
 
+<<<<<<< HEAD
 class ComposerStaticInitc88eb765ca1491b213158e8b57fc2438
+=======
+class ComposerStaticInit0900387351b286a9aa8c1f88b5385b9d
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 {
     public static $files = array (
         '6e3fae29631ef280660b3cdad06f25a8' => __DIR__ . '/..' . '/symfony/deprecation-contracts/function.php',
@@ -1032,6 +1036,10 @@ class ComposerStaticInitc88eb765ca1491b213158e8b57fc2438
         'PharIo\\Manifest\\ManifestLoader' => __DIR__ . '/..' . '/phar-io/manifest/src/ManifestLoader.php',
         'PharIo\\Manifest\\ManifestLoaderException' => __DIR__ . '/..' . '/phar-io/manifest/src/exceptions/ManifestLoaderException.php',
         'PharIo\\Manifest\\ManifestSerializer' => __DIR__ . '/..' . '/phar-io/manifest/src/ManifestSerializer.php',
+<<<<<<< HEAD
+=======
+        'PharIo\\Manifest\\NoEmailAddressException' => __DIR__ . '/..' . '/phar-io/manifest/src/exceptions/NoEmailAddressException.php',
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         'PharIo\\Manifest\\PhpElement' => __DIR__ . '/..' . '/phar-io/manifest/src/xml/PhpElement.php',
         'PharIo\\Manifest\\PhpExtensionRequirement' => __DIR__ . '/..' . '/phar-io/manifest/src/values/PhpExtensionRequirement.php',
         'PharIo\\Manifest\\PhpVersionRequirement' => __DIR__ . '/..' . '/phar-io/manifest/src/values/PhpVersionRequirement.php',
@@ -1277,9 +1285,15 @@ class ComposerStaticInitc88eb765ca1491b213158e8b57fc2438
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
+<<<<<<< HEAD
             $loader->prefixLengthsPsr4 = ComposerStaticInitc88eb765ca1491b213158e8b57fc2438::$prefixLengthsPsr4;
             $loader->prefixDirsPsr4 = ComposerStaticInitc88eb765ca1491b213158e8b57fc2438::$prefixDirsPsr4;
             $loader->classMap = ComposerStaticInitc88eb765ca1491b213158e8b57fc2438::$classMap;
+=======
+            $loader->prefixLengthsPsr4 = ComposerStaticInit0900387351b286a9aa8c1f88b5385b9d::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit0900387351b286a9aa8c1f88b5385b9d::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit0900387351b286a9aa8c1f88b5385b9d::$classMap;
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 
         }, null, ClassLoader::class);
     }

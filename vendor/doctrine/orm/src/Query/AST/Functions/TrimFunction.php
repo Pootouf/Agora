@@ -59,7 +59,11 @@ class TrimFunction extends FunctionNode
             $this->trimChar = $lexer->token->value;
         }
 
+<<<<<<< HEAD
         if ($this->leading || $this->trailing || $this->both || $this->trimChar) {
+=======
+        if ($this->leading || $this->trailing || $this->both || ($this->trimChar !== false)) {
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
             $parser->match(TokenType::T_FROM);
         }
 

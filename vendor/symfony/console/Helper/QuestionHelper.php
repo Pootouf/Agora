@@ -501,6 +501,7 @@ class QuestionHelper extends Helper
             return self::$stdinIsInteractive;
         }
 
+<<<<<<< HEAD
         if (\function_exists('stream_isatty')) {
             return self::$stdinIsInteractive = @stream_isatty(fopen('php://stdin', 'r'));
         }
@@ -514,6 +515,9 @@ class QuestionHelper extends Helper
         }
 
         return self::$stdinIsInteractive = (bool) shell_exec('stty 2> '.('\\' === \DIRECTORY_SEPARATOR ? 'NUL' : '/dev/null'));
+=======
+        return self::$stdinIsInteractive = @stream_isatty(fopen('php://stdin', 'r'));
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
     }
 
     /**

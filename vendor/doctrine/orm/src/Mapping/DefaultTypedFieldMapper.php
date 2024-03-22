@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace Doctrine\ORM\Mapping;
 
+<<<<<<< HEAD
+=======
+use BackedEnum;
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 use DateInterval;
 use DateTime;
 use DateTimeImmutable;
@@ -16,6 +20,10 @@ use ReflectionProperty;
 use function array_merge;
 use function assert;
 use function enum_exists;
+<<<<<<< HEAD
+=======
+use function is_a;
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 
 /** @psalm-type ScalarName = 'array'|'bool'|'float'|'int'|'string' */
 final class DefaultTypedFieldMapper implements TypedFieldMapper
@@ -52,18 +60,31 @@ final class DefaultTypedFieldMapper implements TypedFieldMapper
             && ($type instanceof ReflectionNamedType)
         ) {
             if (! $type->isBuiltin() && enum_exists($type->getName())) {
+<<<<<<< HEAD
                 $mapping['enumType'] = $type->getName();
 
+=======
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
                 $reflection = new ReflectionEnum($type->getName());
                 if (! $reflection->isBacked()) {
                     throw MappingException::backedEnumTypeRequired(
                         $field->class,
                         $mapping['fieldName'],
+<<<<<<< HEAD
                         $mapping['enumType'],
                     );
                 }
 
                 $type = $reflection->getBackingType();
+=======
+                        $type->getName(),
+                    );
+                }
+
+                assert(is_a($type->getName(), BackedEnum::class, true));
+                $mapping['enumType'] = $type->getName();
+                $type                = $reflection->getBackingType();
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 
                 assert($type instanceof ReflectionNamedType);
             }

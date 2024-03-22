@@ -72,7 +72,11 @@ class ExecutableFinder
             }
         }
 
+<<<<<<< HEAD
         $command = '\\' === \DIRECTORY_SEPARATOR ? 'where' : 'command -v';
+=======
+        $command = '\\' === \DIRECTORY_SEPARATOR ? 'where' : 'command -v --';
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         if (\function_exists('exec') && ($executablePath = strtok(@exec($command.' '.escapeshellarg($name)), \PHP_EOL)) && @is_executable($executablePath)) {
             return $executablePath;
         }

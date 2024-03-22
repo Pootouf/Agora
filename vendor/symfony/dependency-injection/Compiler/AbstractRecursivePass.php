@@ -82,7 +82,11 @@ abstract class AbstractRecursivePass implements CompilerPassInterface
                     continue;
                 }
                 if ($isRoot) {
+<<<<<<< HEAD
                     if ($v->hasTag('container.excluded')) {
+=======
+                    if ($v instanceof Definition && $v->hasTag('container.excluded')) {
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
                         continue;
                     }
                     $this->currentId = $k;

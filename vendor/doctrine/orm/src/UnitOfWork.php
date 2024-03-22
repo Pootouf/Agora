@@ -997,7 +997,11 @@ class UnitOfWork implements PropertyChangedListener
         foreach ($actualData as $propName => $actualValue) {
             $orgValue = $originalData[$propName] ?? null;
 
+<<<<<<< HEAD
             if (isset($class->fieldMappings[$propName]['enumType'])) {
+=======
+            if (isset($class->fieldMappings[$propName]->enumType)) {
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
                 if (is_array($orgValue)) {
                     foreach ($orgValue as $id => $val) {
                         if ($val instanceof BackedEnum) {
@@ -1267,16 +1271,28 @@ class UnitOfWork implements PropertyChangedListener
                 }
 
                 $joinColumns = reset($assoc->joinColumns);
+<<<<<<< HEAD
                 if (! isset($joinColumns['onDelete'])) {
                     continue;
                 }
 
                 $onDeleteOption = strtolower($joinColumns['onDelete']);
+=======
+                if (! isset($joinColumns->onDelete)) {
+                    continue;
+                }
+
+                $onDeleteOption = strtolower($joinColumns->onDelete);
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
                 if ($onDeleteOption !== 'cascade') {
                     continue;
                 }
 
+<<<<<<< HEAD
                 $targetEntity = $class->getFieldValue($entity, $assoc['fieldName']);
+=======
+                $targetEntity = $class->getFieldValue($entity, $assoc->fieldName);
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 
                 // If the association does not refer to another entity or that entity
                 // is not to be deleted, there is no ordering problem and we can
@@ -1557,6 +1573,7 @@ class UnitOfWork implements PropertyChangedListener
      */
     final public static function getIdHashByIdentifier(array $identifier): string
     {
+<<<<<<< HEAD
         return implode(
             ' ',
             array_map(
@@ -1569,6 +1586,17 @@ class UnitOfWork implements PropertyChangedListener
                 },
                 $identifier,
             ),
+=======
+        foreach ($identifier as $k => $value) {
+            if ($value instanceof BackedEnum) {
+                $identifier[$k] = $value->value;
+            }
+        }
+
+        return implode(
+            ' ',
+            $identifier,
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         );
     }
 
@@ -2550,7 +2578,11 @@ class UnitOfWork implements PropertyChangedListener
                     $this->originalEntityData[$oid][$field] = $newValue;
                     $class->reflFields[$field]->setValue($entity, $newValue);
 
+<<<<<<< HEAD
                     if ($assoc->inversedBy && $assoc->isOneToOne() && $newValue !== null) {
+=======
+                    if ($assoc->inversedBy !== null && $assoc->isOneToOne() && $newValue !== null) {
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
                         $inverseAssoc = $targetClass->associationMappings[$assoc->inversedBy];
                         $targetClass->reflFields[$inverseAssoc->fieldName]->setValue($newValue, $entity);
                     }
@@ -2713,7 +2745,11 @@ class UnitOfWork implements PropertyChangedListener
     private function scheduleCollectionForBatchLoading(PersistentCollection $collection, ClassMetadata $sourceClass): void
     {
         $mapping = $collection->getMapping();
+<<<<<<< HEAD
         $name    = $mapping['sourceEntity'] . '#' . $mapping['fieldName'];
+=======
+        $name    = $mapping->sourceEntity . '#' . $mapping->fieldName;
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 
         if (! isset($this->eagerLoadingCollections[$name])) {
             $this->eagerLoadingCollections[$name] = [

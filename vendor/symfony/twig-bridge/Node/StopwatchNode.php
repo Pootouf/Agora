@@ -11,6 +11,10 @@
 
 namespace Symfony\Bridge\Twig\Node;
 
+<<<<<<< HEAD
+=======
+use Twig\Attribute\YieldReady;
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 use Twig\Compiler;
 use Twig\Node\Expression\AssignNameExpression;
 use Twig\Node\Node;
@@ -20,6 +24,10 @@ use Twig\Node\Node;
  *
  * @author Wouter J <wouter@wouterj.nl>
  */
+<<<<<<< HEAD
+=======
+#[YieldReady]
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 final class StopwatchNode extends Node
 {
     public function __construct(Node $name, Node $body, AssignNameExpression $var, int $lineno = 0, ?string $tag = null)

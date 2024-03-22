@@ -2,16 +2,29 @@
 /*
  * This file is part of PharIo\Manifest.
  *
+<<<<<<< HEAD
  * (c) Arne Blankerts <arne@blankerts.de>, Sebastian Heuer <sebastian@phpeople.de>, Sebastian Bergmann <sebastian@phpunit.de>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
+=======
+ * Copyright (c) Arne Blankerts <arne@blankerts.de>, Sebastian Heuer <sebastian@phpeople.de>, Sebastian Bergmann <sebastian@phpunit.de> and contributors
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
  */
 namespace PharIo\Manifest;
 
 use PharIo\Version\Exception as VersionException;
 use PharIo\Version\Version;
 use PharIo\Version\VersionConstraintParser;
+<<<<<<< HEAD
+=======
+use Throwable;
+use function sprintf;
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 
 class ManifestDocumentMapper {
     public function map(ManifestDocument $document): Manifest {
@@ -30,9 +43,13 @@ class ManifestDocumentMapper {
                 $requirements,
                 $bundledComponents
             );
+<<<<<<< HEAD
         } catch (VersionException $e) {
             throw new ManifestDocumentMapperException($e->getMessage(), (int)$e->getCode(), $e);
         } catch (Exception $e) {
+=======
+        } catch (Throwable $e) {
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
             throw new ManifestDocumentMapperException($e->getMessage(), (int)$e->getCode(), $e);
         }
     }
@@ -48,7 +65,11 @@ class ManifestDocumentMapper {
         }
 
         throw new ManifestDocumentMapperException(
+<<<<<<< HEAD
             \sprintf('Unsupported type %s', $contains->getType())
+=======
+            sprintf('Unsupported type %s', $contains->getType())
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         );
     }
 
@@ -59,7 +80,11 @@ class ManifestDocumentMapper {
             $authors->add(
                 new Author(
                     $authorElement->getName(),
+<<<<<<< HEAD
                     new Email($authorElement->getEmail())
+=======
+                    $authorElement->hasEMail() ? new Email($authorElement->getEmail()) : null
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
                 )
             );
         }
@@ -85,7 +110,11 @@ class ManifestDocumentMapper {
             $versionConstraint = $parser->parse($phpElement->getVersion());
         } catch (VersionException $e) {
             throw new ManifestDocumentMapperException(
+<<<<<<< HEAD
                 \sprintf('Unsupported version constraint - %s', $e->getMessage()),
+=======
+                sprintf('Unsupported version constraint - %s', $e->getMessage()),
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
                 (int)$e->getCode(),
                 $e
             );
@@ -141,7 +170,11 @@ class ManifestDocumentMapper {
             );
         } catch (VersionException $e) {
             throw new ManifestDocumentMapperException(
+<<<<<<< HEAD
                 \sprintf('Unsupported version constraint - %s', $e->getMessage()),
+=======
+                sprintf('Unsupported version constraint - %s', $e->getMessage()),
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
                 (int)$e->getCode(),
                 $e
             );

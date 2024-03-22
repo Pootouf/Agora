@@ -930,6 +930,13 @@ class Configuration implements ConfigurationInterface
                         ->end()
                         ->scalarNode('importmap_polyfill')
                             ->info('The importmap name that will be used to load the polyfill. Set to false to disable.')
+<<<<<<< HEAD
+=======
+                            ->validate()
+                                ->ifTrue()
+                                ->thenInvalid('Invalid "importmap_polyfill" value. Must be either an importmap name or false.')
+                            ->end()
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
                             ->defaultValue('es-module-shims')
                         ->end()
                         ->arrayNode('importmap_script_attributes')

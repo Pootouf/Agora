@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace Doctrine\ORM\Query;
 
+<<<<<<< HEAD
+=======
+use Doctrine\ORM\Internal\NoUnknownNamedArguments;
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 use Traversable;
 
 use function implode;
@@ -23,6 +27,11 @@ use function str_replace;
  */
 class Expr
 {
+<<<<<<< HEAD
+=======
+    use NoUnknownNamedArguments;
+
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
     /**
      * Creates a conjunction of the given boolean expressions.
      *
@@ -38,6 +47,11 @@ class Expr
      */
     public function andX(Expr\Comparison|Expr\Func|Expr\Andx|Expr\Orx|string ...$x): Expr\Andx
     {
+<<<<<<< HEAD
+=======
+        self::validateVariadicParameter($x);
+
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         return new Expr\Andx($x);
     }
 
@@ -56,6 +70,11 @@ class Expr
      */
     public function orX(Expr\Comparison|Expr\Func|Expr\Andx|Expr\Orx|string ...$x): Expr\Orx
     {
+<<<<<<< HEAD
+=======
+        self::validateVariadicParameter($x);
+
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         return new Expr\Orx($x);
     }
 
@@ -225,6 +244,11 @@ class Expr
      */
     public function countDistinct(mixed ...$x): string
     {
+<<<<<<< HEAD
+=======
+        self::validateVariadicParameter($x);
+
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         return 'COUNT(DISTINCT ' . implode(', ', $x) . ')';
     }
 
@@ -470,6 +494,11 @@ class Expr
      */
     public function concat(mixed ...$x): Expr\Func
     {
+<<<<<<< HEAD
+=======
+        self::validateVariadicParameter($x);
+
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         return new Expr\Func('CONCAT', $x);
     }
 

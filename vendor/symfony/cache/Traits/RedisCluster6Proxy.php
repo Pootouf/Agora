@@ -96,6 +96,14 @@ class RedisCluster6Proxy extends \RedisCluster implements ResetInterface, LazyOb
         return ($this->lazyObjectState->realInstance ??= ($this->lazyObjectState->initializer)())->bgrewriteaof(...\func_get_args());
     }
 
+<<<<<<< HEAD
+=======
+    public function waitaof($key_or_address, $numlocal, $numreplicas, $timeout): \RedisCluster|array|false
+    {
+        return ($this->lazyObjectState->realInstance ??= ($this->lazyObjectState->initializer)())->waitaof(...\func_get_args());
+    }
+
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
     public function bgsave($key_or_address): \RedisCluster|bool
     {
         return ($this->lazyObjectState->realInstance ??= ($this->lazyObjectState->initializer)())->bgsave(...\func_get_args());

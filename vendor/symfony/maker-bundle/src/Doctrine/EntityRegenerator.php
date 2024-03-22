@@ -116,6 +116,7 @@ final class EntityRegenerator
                     continue;
                 }
 
+<<<<<<< HEAD
                 switch ($mapping['type']) {
                     case ClassMetadata::MANY_TO_ONE:
                         $manipulator->addManyToOneRelation(RelationManyToOne::createFromObject($mapping));
@@ -136,6 +137,15 @@ final class EntityRegenerator
                     default:
                         throw new \Exception('Unknown association type.');
                 }
+=======
+                match ($mapping['type']) {
+                    ClassMetadata::MANY_TO_ONE => $manipulator->addManyToOneRelation(RelationManyToOne::createFromObject($mapping)),
+                    ClassMetadata::ONE_TO_MANY => $manipulator->addOneToManyRelation(RelationOneToMany::createFromObject($mapping)),
+                    ClassMetadata::MANY_TO_MANY => $manipulator->addManyToManyRelation(RelationManyToMany::createFromObject($mapping)),
+                    ClassMetadata::ONE_TO_ONE => $manipulator->addOneToOneRelation(RelationOneToOne::createFromObject($mapping)),
+                    default => throw new \Exception('Unknown association type.'),
+                };
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
             }
         }
 

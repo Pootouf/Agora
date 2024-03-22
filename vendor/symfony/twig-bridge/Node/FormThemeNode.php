@@ -12,12 +12,20 @@
 namespace Symfony\Bridge\Twig\Node;
 
 use Symfony\Component\Form\FormRenderer;
+<<<<<<< HEAD
+=======
+use Twig\Attribute\YieldReady;
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 use Twig\Compiler;
 use Twig\Node\Node;
 
 /**
  * @author Fabien Potencier <fabien@symfony.com>
  */
+<<<<<<< HEAD
+=======
+#[YieldReady]
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 final class FormThemeNode extends Node
 {
     public function __construct(Node $form, Node $resources, int $lineno, ?string $tag = null, bool $only = false)

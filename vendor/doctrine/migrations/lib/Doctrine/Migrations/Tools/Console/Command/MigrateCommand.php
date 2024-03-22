@@ -100,7 +100,11 @@ You can specify the version you wish to migrate to using an alias:
     <info>%command.full_name% prev</info>
     <info>These alias are defined: first, latest, prev, current and next</info>
 
+<<<<<<< HEAD
 You can specify the version you wish to migrate to using an number against the current version:
+=======
+You can specify the version you wish to migrate to using a number against the current version:
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 
     <info>%command.full_name% current+3</info>
 
@@ -112,6 +116,7 @@ You can output the prepared SQL statements to a file with <comment>--write-sql</
 
     <info>%command.full_name% FQCN --write-sql</info>
 
+<<<<<<< HEAD
 Or you can also execute the migration without a warning message which you need to interact with:
 
     <info>%command.full_name% --no-interaction</info>
@@ -121,6 +126,23 @@ You can also time all the different queries if you wanna know which one is takin
     <info>%command.full_name% --query-time</info>
 
 Use the --all-or-nothing option to wrap the entire migration in a transaction.
+=======
+Or you can also execute the migration without a warning message which you need to interact with <comment>--no-interaction</comment>:
+
+    <info>%command.full_name% --no-interaction</info>
+
+You can also time all the different queries if you want to know which one is taking so long with <comment>--query-time</comment>:
+
+    <info>%command.full_name% --query-time</info>
+
+You can skip throwing an exception if no migration is available with <comment>--allow-no-migration</comment>:
+
+    <info>%command.full_name% --allow-no-migration</info>
+
+You can wrap the entire migration in a transaction with <comment>--all-or-nothing</comment>:
+
+    <info>%command.full_name% --all-or-nothing</info>
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 
 EOT);
 

@@ -81,7 +81,11 @@ class PhpSerializer implements SerializerInterface
             $prevUnserializeHandler = ini_set('unserialize_callback_func', self::class.'::handleUnserializeCallback');
         }
         $prevErrorHandler = set_error_handler(function ($type, $msg, $file, $line, $context = []) use (&$prevErrorHandler) {
+<<<<<<< HEAD
             if (__FILE__ === $file) {
+=======
+            if (__FILE__ === $file && !\in_array($type, [\E_DEPRECATED, \E_USER_DEPRECATED], true)) {
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
                 throw new \ErrorException($msg, 0, $type, $file, $line);
             }
 

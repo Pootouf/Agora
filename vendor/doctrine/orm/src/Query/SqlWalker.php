@@ -376,6 +376,13 @@ class SqlWalker
                 continue;
             }
 
+<<<<<<< HEAD
+=======
+            $sqlTableAlias = $this->useSqlTableAliases
+                ? $this->getSQLTableAlias($class->getTableName(), $dqlAlias) . '.'
+                : '';
+
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
             $conn   = $this->em->getConnection();
             $values = [];
 
@@ -384,6 +391,7 @@ class SqlWalker
             }
 
             foreach ($class->subClasses as $subclassName) {
+<<<<<<< HEAD
                 $values[] = $conn->quote((string) $this->em->getClassMetadata($subclassName)->discriminatorValue);
             }
 
@@ -392,6 +400,24 @@ class SqlWalker
                 : '';
 
             $sqlParts[] = $sqlTableAlias . $class->getDiscriminatorColumn()->name . ' IN (' . implode(', ', $values) . ')';
+=======
+                $subclassMetadata = $this->em->getClassMetadata($subclassName);
+
+                // Abstract entity classes show up in the list of subClasses, but may be omitted
+                // from the discriminator map. In that case, they have a null discriminator value.
+                if ($subclassMetadata->discriminatorValue === null) {
+                    continue;
+                }
+
+                $values[] = $conn->quote((string) $subclassMetadata->discriminatorValue);
+            }
+
+            if ($values !== []) {
+                $sqlParts[] = $sqlTableAlias . $class->getDiscriminatorColumn()->name . ' IN (' . implode(', ', $values) . ')';
+            } else {
+                $sqlParts[] = '1=0'; // impossible condition
+            }
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         }
 
         $sql = implode(' AND ', $sqlParts);
@@ -786,7 +812,11 @@ class SqlWalker
                 $class     = $this->getMetadataForDqlAlias($alias);
 
                 if (isset($class->associationMappings[$fieldName]->inherited)) {
+<<<<<<< HEAD
                     $class = $this->em->getClassMetadata($class->associationMappings[$fieldName]['inherited']);
+=======
+                    $class = $this->em->getClassMetadata($class->associationMappings[$fieldName]->inherited);
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
                 }
 
                 $association = $class->associationMappings[$fieldName];

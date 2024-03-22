@@ -29,7 +29,11 @@ final class FormTypeRenderer
     ) {
     }
 
+<<<<<<< HEAD
     public function render(ClassNameDetails $formClassDetails, array $formFields, ClassNameDetails $boundClassDetails = null, array $constraintClasses = [], array $extraUseClasses = []): void
+=======
+    public function render(ClassNameDetails $formClassDetails, array $formFields, ?ClassNameDetails $boundClassDetails = null, array $constraintClasses = [], array $extraUseClasses = []): void
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
     {
         $fieldTypeUseStatements = [];
         $fields = [];

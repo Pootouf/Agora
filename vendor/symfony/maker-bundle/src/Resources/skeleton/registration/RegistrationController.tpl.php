@@ -16,7 +16,11 @@ class <?= $class_name; ?> extends AbstractController
 
 <?php endif; ?>
 <?= $generator->generateRouteForControllerMethod($route_path, $route_name) ?>
+<<<<<<< HEAD
     public function register(Request $request, <?= $password_hasher_class_details->getShortName() ?> $userPasswordHasher<?= $authenticator_full_class_name ? sprintf(', UserAuthenticatorInterface $userAuthenticator, %s $authenticator', $authenticator_class_name) : '' ?>, EntityManagerInterface $entityManager): Response
+=======
+    public function register(Request $request, UserPasswordHasherInterface $userPasswordHasher<?= $login_after_registration ? ', Security $security': '' ?>, EntityManagerInterface $entityManager): Response
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
     {
         $user = new <?= $user_class_name ?>();
         $form = $this->createForm(<?= $form_class_name ?>::class, $user);
@@ -25,7 +29,11 @@ class <?= $class_name; ?> extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             // encode the plain password
             $user->set<?= ucfirst($password_field) ?>(
+<<<<<<< HEAD
                 $userPasswordHasher->hashPassword(
+=======
+                    $userPasswordHasher->hashPassword(
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
                     $user,
                     $form->get('plainPassword')->getData()
                 )
@@ -44,6 +52,7 @@ class <?= $class_name; ?> extends AbstractController
                     ->htmlTemplate('registration/confirmation_email.html.twig')
             );
 <?php endif; ?>
+<<<<<<< HEAD
             // do anything else you need here, like send an email
 
 <?php if ($authenticator_full_class_name): ?>
@@ -52,13 +61,24 @@ class <?= $class_name; ?> extends AbstractController
                 $authenticator,
                 $request
             );
+=======
+
+            // do anything else you need here, like send an email
+
+<?php if ($login_after_registration): ?>
+            return $security->login($user, <?= $authenticator ?>, '<?= $firewall ?>');
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 <?php else: ?>
             return $this->redirectToRoute('<?= $redirect_route_name ?>');
 <?php endif; ?>
         }
 
         return $this->render('registration/register.html.twig', [
+<<<<<<< HEAD
             'registrationForm' => $form->createView(),
+=======
+            'registrationForm' => $form,
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         ]);
     }
 <?php if ($will_verify_email): ?>

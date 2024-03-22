@@ -6,7 +6,11 @@
 </div>
 <div id="sfToolbarClearer-{{ token }}" class="sf-toolbar-clearer"></div>
 
+<<<<<<< HEAD
 <div id="sfToolbarMainContent-{{ token }}" class="sf-toolbarreset notranslate clear-fix" data-no-turbolink>
+=======
+<div id="sfToolbarMainContent-{{ token }}" class="sf-toolbarreset notranslate clear-fix" data-no-turbolink data-turbo="false">
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
     {% for name, template in templates %}
         {% if block('toolbar', template) is defined %}
             {% with {

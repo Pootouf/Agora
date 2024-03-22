@@ -157,7 +157,11 @@ final class MakeAuthenticator extends AbstractMaker
                 $io->ask(
                     'Choose a name for the controller class (e.g. <fg=yellow>SecurityController</>)',
                     'SecurityController',
+<<<<<<< HEAD
                     [Validator::class, 'validateClassName']
+=======
+                    Validator::validateClassName(...)
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
                 )
             );
 
@@ -218,7 +222,11 @@ final class MakeAuthenticator extends AbstractMaker
         $securityData = $manipulator->getData();
 
         $supportRememberMe = $input->hasArgument('support-remember-me') ? $input->getArgument('support-remember-me') : false;
+<<<<<<< HEAD
         $alwaysRememberMe = $input->hasArgument('always-remember-me') ? $input->getArgument('always-remember-me') : false;
+=======
+        $alwaysRememberMe = $input->hasArgument('always-remember-me') && self::REMEMBER_ME_TYPE_ALWAYS === $input->getArgument('always-remember-me');
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 
         $this->generateAuthenticatorClass(
             $securityData,
@@ -446,7 +454,11 @@ final class MakeAuthenticator extends AbstractMaker
         return $userNeedsEncoder;
     }
 
+<<<<<<< HEAD
     public function configureDependencies(DependencyBuilder $dependencies, InputInterface $input = null): void
+=======
+    public function configureDependencies(DependencyBuilder $dependencies, ?InputInterface $input = null): void
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
     {
         $dependencies->addClassDependency(
             SecurityBundle::class,

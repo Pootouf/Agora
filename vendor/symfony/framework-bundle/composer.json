@@ -57,7 +57,11 @@
         "symfony/notifier": "^5.4|^6.0|^7.0",
         "symfony/process": "^5.4|^6.0|^7.0",
         "symfony/rate-limiter": "^5.4|^6.0|^7.0",
+<<<<<<< HEAD
         "symfony/scheduler": "^6.4.3|^7.0.3",
+=======
+        "symfony/scheduler": "^6.4.4|^7.0.4",
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         "symfony/security-bundle": "^5.4|^6.0|^7.0",
         "symfony/semaphore": "^5.4|^6.0|^7.0",
         "symfony/serializer": "^6.4|^7.0",
@@ -72,7 +76,11 @@
         "symfony/uid": "^5.4|^6.0|^7.0",
         "symfony/web-link": "^5.4|^6.0|^7.0",
         "phpdocumentor/reflection-docblock": "^3.0|^4.0|^5.0",
+<<<<<<< HEAD
         "twig/twig": "^2.10|^3.0"
+=======
+        "twig/twig": "^2.10|^3.0.4"
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
     },
     "conflict": {
         "doctrine/annotations": "<1.13.1",
@@ -93,7 +101,11 @@
         "symfony/mime": "<6.4",
         "symfony/property-info": "<5.4",
         "symfony/property-access": "<5.4",
+<<<<<<< HEAD
         "symfony/scheduler": "<6.4.3|>=7.0.0,<7.0.3",
+=======
+        "symfony/scheduler": "<6.4.4|>=7.0.0,<7.0.4",
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         "symfony/serializer": "<6.4",
         "symfony/security-csrf": "<5.4",
         "symfony/security-core": "<5.4",

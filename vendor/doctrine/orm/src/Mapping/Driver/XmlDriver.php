@@ -5,6 +5,10 @@ declare(strict_types=1);
 namespace Doctrine\ORM\Mapping\Driver;
 
 use Doctrine\Common\Collections\Criteria;
+<<<<<<< HEAD
+=======
+use Doctrine\Common\Collections\Order;
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 use Doctrine\ORM\Mapping\Builder\EntityListenerBuilder;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\MappingException;
@@ -20,6 +24,10 @@ use function assert;
 use function constant;
 use function count;
 use function defined;
+<<<<<<< HEAD
+=======
+use function enum_exists;
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 use function explode;
 use function extension_loaded;
 use function file_get_contents;
@@ -403,9 +411,16 @@ class XmlDriver extends FileDriver
                 if (isset($oneToManyElement->{'order-by'})) {
                     $orderBy = [];
                     foreach ($oneToManyElement->{'order-by'}->{'order-by-field'} ?? [] as $orderByField) {
+<<<<<<< HEAD
                         $orderBy[(string) $orderByField['name']] = isset($orderByField['direction'])
                             ? (string) $orderByField['direction']
                             : Criteria::ASC;
+=======
+                        /** @psalm-suppress DeprecatedConstant */
+                        $orderBy[(string) $orderByField['name']] = isset($orderByField['direction'])
+                            ? (string) $orderByField['direction']
+                            : (enum_exists(Order::class) ? Order::Ascending->value : Criteria::ASC);
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
                     }
 
                     $mapping['orderBy'] = $orderBy;
@@ -531,9 +546,16 @@ class XmlDriver extends FileDriver
                 if (isset($manyToManyElement->{'order-by'})) {
                     $orderBy = [];
                     foreach ($manyToManyElement->{'order-by'}->{'order-by-field'} ?? [] as $orderByField) {
+<<<<<<< HEAD
                         $orderBy[(string) $orderByField['name']] = isset($orderByField['direction'])
                             ? (string) $orderByField['direction']
                             : Criteria::ASC;
+=======
+                        /** @psalm-suppress DeprecatedConstant */
+                        $orderBy[(string) $orderByField['name']] = isset($orderByField['direction'])
+                            ? (string) $orderByField['direction']
+                            : (enum_exists(Order::class) ? Order::Ascending->value : Criteria::ASC);
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
                     }
 
                     $mapping['orderBy'] = $orderBy;

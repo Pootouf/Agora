@@ -14,6 +14,10 @@ namespace Symfony\Bridge\Doctrine\Form;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
+<<<<<<< HEAD
+=======
+use Doctrine\ORM\Mapping\JoinColumnMapping;
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 use Doctrine\ORM\Mapping\MappingException as LegacyMappingException;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\Mapping\MappingException;
@@ -110,13 +114,21 @@ class DoctrineOrmTypeGuesser implements FormTypeGuesserInterface
         if ($classMetadata->isAssociationWithSingleJoinColumn($property)) {
             $mapping = $classMetadata->getAssociationMapping($property);
 
+<<<<<<< HEAD
             if (!isset($mapping['joinColumns'][0]['nullable'])) {
+=======
+            if (null === self::getMappingValue($mapping['joinColumns'][0], 'nullable')) {
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
                 // The "nullable" option defaults to true, in that case the
                 // field should not be required.
                 return new ValueGuess(false, Guess::HIGH_CONFIDENCE);
             }
 
+<<<<<<< HEAD
             return new ValueGuess(!$mapping['joinColumns'][0]['nullable'], Guess::HIGH_CONFIDENCE);
+=======
+            return new ValueGuess(!self::getMappingValue($mapping['joinColumns'][0], 'nullable'), Guess::HIGH_CONFIDENCE);
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         }
 
         return null;
@@ -190,4 +202,16 @@ class DoctrineOrmTypeGuesser implements FormTypeGuesserInterface
 
         return substr($class, $pos + Proxy::MARKER_LENGTH + 2);
     }
+<<<<<<< HEAD
+=======
+
+    private static function getMappingValue(array|JoinColumnMapping $mapping, string $key): mixed
+    {
+        if ($mapping instanceof JoinColumnMapping) {
+            return $mapping->$key ?? null;
+        }
+
+        return $mapping[$key] ?? null;
+    }
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 }

@@ -1,5 +1,13 @@
+<<<<<<< HEAD
 The <info>%command.name%</info> command generates or updates databases services in compose.yaml
 
 <info>php %command.full_name%</info>
 
 Supports MySQL, MariaDB and PostgreSQL
+=======
+The <info>%command.name%</info> command generates or updates databases services in compose.yaml
+
+<info>php %command.full_name%</info>
+
+Supports MySQL, MariaDB and PostgreSQL
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939

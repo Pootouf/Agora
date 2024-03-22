@@ -64,7 +64,11 @@ class AutoImportLocator
 
         $entry = $this->importMapConfigReader->findRootImportMapEntry($path);
         if (!$entry) {
+<<<<<<< HEAD
             throw new \LogicException(sprintf('The autoimport "%s" could not be found in importmap.php. Try running "importmap:require %s".', $path, $path));
+=======
+            throw new \LogicException(sprintf('The autoimport "%s" could not be found in importmap.php. Try running "php bin/console importmap:require %s".', $path, $path));
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         }
 
         return new MappedControllerAutoImport($path, true);

@@ -318,7 +318,11 @@ abstract class ParserAbstract implements Parser {
                     try {
                         $callback = $this->reduceCallbacks[$rule];
                         if ($callback !== null) {
+<<<<<<< HEAD
                             $callback($stackPos);
+=======
+                            $callback($this, $stackPos);
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
                         } elseif ($ruleLength > 0) {
                             $this->semValue = $this->semStack[$stackPos - $ruleLength + 1];
                         }

@@ -466,12 +466,20 @@ class ArrayCollection implements Collection, Selectable, Stringable
             $filtered = array_filter($filtered, $filter);
         }
 
+<<<<<<< HEAD
         $orderings = $criteria->getOrderings();
+=======
+        $orderings = $criteria->orderings();
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 
         if ($orderings) {
             $next = null;
             foreach (array_reverse($orderings) as $field => $ordering) {
+<<<<<<< HEAD
                 $next = ClosureExpressionVisitor::sortByField($field, $ordering === Criteria::DESC ? -1 : 1, $next);
+=======
+                $next = ClosureExpressionVisitor::sortByField($field, $ordering === Order::Descending ? -1 : 1, $next);
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
             }
 
             uasort($filtered, $next);
@@ -480,7 +488,11 @@ class ArrayCollection implements Collection, Selectable, Stringable
         $offset = $criteria->getFirstResult();
         $length = $criteria->getMaxResults();
 
+<<<<<<< HEAD
         if ($offset || $length) {
+=======
+        if ($offset !== null && $offset > 0 || $length !== null && $length > 0) {
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
             $filtered = array_slice($filtered, (int) $offset, $length, true);
         }
 

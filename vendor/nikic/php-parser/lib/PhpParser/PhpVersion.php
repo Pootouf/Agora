@@ -43,7 +43,11 @@ class PhpVersion {
      * if it is still under development.
      */
     public static function getNewestSupported(): self {
+<<<<<<< HEAD
         return self::fromComponents(8, 2);
+=======
+        return self::fromComponents(8, 3);
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
     }
 
     /**

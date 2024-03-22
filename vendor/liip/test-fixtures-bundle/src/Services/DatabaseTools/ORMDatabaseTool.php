@@ -31,7 +31,11 @@ use Liip\TestFixturesBundle\LiipTestFixturesEvents;
 /**
  * @author Aleksey Tupichenkov <alekseytupichenkov@gmail.com>
  */
+<<<<<<< HEAD
 class ORMDatabaseTool extends AbstractDatabaseTool
+=======
+class ORMDatabaseTool extends AbstractDbalDatabaseTool
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 {
     /**
      * @var EntityManager
@@ -177,10 +181,19 @@ class ORMDatabaseTool extends AbstractDatabaseTool
         // “An exception occurred in driver: SQLSTATE[HY000] [1049] Unknown database 'test'”
 
         $tmpConnection = DriverManager::getConnection($params);
+<<<<<<< HEAD
         $tmpConnection->connect();
 
         if (!\in_array($dbName, $tmpConnection->getSchemaManager()->listDatabases(), true)) {
             $tmpConnection->getSchemaManager()->createDatabase($dbName);
+=======
+
+        try {
+            if (!\in_array($dbName, $tmpConnection->createSchemaManager()->listDatabases(), true)) {
+                $tmpConnection->createSchemaManager()->createDatabase($dbName);
+            }
+        } catch (\Doctrine\DBAL\Platforms\Exception\NotSupported $e) {
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         }
 
         $tmpConnection->close();

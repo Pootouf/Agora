@@ -251,7 +251,11 @@ class TokenStream {
     private function calcIndentMap(): array {
         $indentMap = [];
         $indent = 0;
+<<<<<<< HEAD
         foreach ($this->tokens as $token) {
+=======
+        foreach ($this->tokens as $i => $token) {
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
             $indentMap[] = $indent;
 
             if ($token->id === \T_WHITESPACE) {
@@ -259,6 +263,13 @@ class TokenStream {
                 $newlinePos = \strrpos($content, "\n");
                 if (false !== $newlinePos) {
                     $indent = \strlen($content) - $newlinePos - 1;
+<<<<<<< HEAD
+=======
+                } elseif ($i === 1 && $this->tokens[0]->id === \T_OPEN_TAG &&
+                          $this->tokens[0]->text[\strlen($this->tokens[0]->text) - 1] === "\n") {
+                    // Special case: Newline at the end of opening tag followed by whitespace.
+                    $indent = \strlen($content);
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
                 }
             }
         }

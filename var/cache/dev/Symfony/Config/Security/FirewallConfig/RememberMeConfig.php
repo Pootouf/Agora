@@ -187,7 +187,11 @@ class RememberMeConfig
     }
 
     /**
+<<<<<<< HEAD
      * @default null
+=======
+     * @default false
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
      * @param ParamConfigurator|true|false|'auto' $value
      * @return $this
      */
@@ -213,7 +217,11 @@ class RememberMeConfig
     }
 
     /**
+<<<<<<< HEAD
      * @default 'lax'
+=======
+     * @default null
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
      * @param ParamConfigurator|NULL|'lax'|'strict'|'none' $value
      * @return $this
      */

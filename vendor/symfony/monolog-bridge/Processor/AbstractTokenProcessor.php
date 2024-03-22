@@ -51,7 +51,12 @@ abstract class AbstractTokenProcessor
                 'roles' => $token->getRoleNames(),
             ];
 
+<<<<<<< HEAD
             $record['extra'][$this->getKey()]['user_identifier'] = $token->getUserIdentifier();
+=======
+            // @deprecated since Symfony 5.3, change to $token->getUserIdentifier() in 7.0
+            $record['extra'][$this->getKey()]['user_identifier'] = method_exists($token, 'getUserIdentifier') ? $token->getUserIdentifier() : $token->getUsername();
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         }
 
         return $record;

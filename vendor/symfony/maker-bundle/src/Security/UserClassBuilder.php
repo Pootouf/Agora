@@ -12,8 +12,14 @@
 namespace Symfony\Bundle\MakerBundle\Security;
 
 use PhpParser\Node;
+<<<<<<< HEAD
 use Symfony\Bundle\MakerBundle\Util\ClassSourceManipulator;
 use Symfony\Bundle\MakerBundle\Util\ClassSource\Model\ClassProperty;
+=======
+use Symfony\Bundle\MakerBundle\Str;
+use Symfony\Bundle\MakerBundle\Util\ClassSource\Model\ClassProperty;
+use Symfony\Bundle\MakerBundle\Util\ClassSourceManipulator;
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -28,6 +34,11 @@ final class UserClassBuilder
     {
         $manipulator->addInterface(UserInterface::class);
 
+<<<<<<< HEAD
+=======
+        $this->addUniqueConstraint($manipulator, $userClassConfig);
+
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         $this->addGetUsername($manipulator, $userClassConfig);
 
         $this->addGetRoles($manipulator, $userClassConfig);
@@ -57,7 +68,10 @@ final class UserClassBuilder
                     propertyName: $userClassConfig->getIdentityPropertyName(),
                     type: 'string',
                     length: 180,
+<<<<<<< HEAD
                     unique: true,
+=======
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
                 )
             );
         } else {
@@ -99,18 +113,30 @@ final class UserClassBuilder
         if ($userClassConfig->isEntity()) {
             // add entity property
             $manipulator->addEntityField(
+<<<<<<< HEAD
                 new ClassProperty(propertyName: 'roles', type: 'json')
+=======
+                new ClassProperty(propertyName: 'roles', type: 'json', comments: ['@var list<string> The user roles'])
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
             );
         } else {
             // add normal property
             $manipulator->addProperty(
                 name: 'roles',
+<<<<<<< HEAD
                 defaultValue: new Node\Expr\Array_([], ['kind' => Node\Expr\Array_::KIND_SHORT])
+=======
+                defaultValue: new Node\Expr\Array_([], ['kind' => Node\Expr\Array_::KIND_SHORT]),
+                comments: [
+                    '@var list<string> The user roles',
+                ]
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
             );
 
             $manipulator->addGetter(
                 'roles',
                 'array',
+<<<<<<< HEAD
                 false
             );
 
@@ -121,12 +147,29 @@ final class UserClassBuilder
             );
         }
 
+=======
+                false,
+            );
+        }
+
+        $manipulator->addSetter(
+            'roles',
+            'array',
+            false,
+            ['@param list<string> $roles']
+        );
+
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         // define getRoles (if it was defined above, this will override)
         $builder = $manipulator->createMethodBuilder(
             'getRoles',
             'array',
             false,
+<<<<<<< HEAD
             ['@see UserInterface']
+=======
+            ['@see UserInterface', '@return list<string>']
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         );
 
         // $roles = $this->roles
@@ -255,4 +298,22 @@ final class UserClassBuilder
 
         $manipulator->addMethodBuilder($builder);
     }
+<<<<<<< HEAD
+=======
+
+    private function addUniqueConstraint(ClassSourceManipulator $manipulator, UserClassConfiguration $userClassConfig): void
+    {
+        if (!$userClassConfig->isEntity()) {
+            return;
+        }
+
+        $manipulator->addAttributeToClass(
+            'ORM\\UniqueConstraint',
+            [
+                'name' => 'UNIQ_IDENTIFIER_'.strtoupper(Str::asSnakeCase($userClassConfig->getIdentityPropertyName())),
+                'fields' => [$userClassConfig->getIdentityPropertyName()],
+            ]
+        );
+    }
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 }

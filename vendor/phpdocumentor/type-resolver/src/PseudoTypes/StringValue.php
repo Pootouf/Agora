@@ -22,7 +22,12 @@ use function sprintf;
 /** @psalm-immutable */
 class StringValue implements PseudoType
 {
+<<<<<<< HEAD
     private string $value;
+=======
+    /** @var string */
+    private $value;
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 
     public function __construct(string $value)
     {

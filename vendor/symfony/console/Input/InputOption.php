@@ -75,7 +75,11 @@ class InputOption
             throw new InvalidArgumentException('An option name cannot be empty.');
         }
 
+<<<<<<< HEAD
         if ('' === $shortcut || [] === $shortcut) {
+=======
+        if ('' === $shortcut || [] === $shortcut || false === $shortcut) {
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
             $shortcut = null;
         }
 

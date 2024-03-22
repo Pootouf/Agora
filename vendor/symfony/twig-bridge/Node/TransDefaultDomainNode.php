@@ -11,6 +11,10 @@
 
 namespace Symfony\Bridge\Twig\Node;
 
+<<<<<<< HEAD
+=======
+use Twig\Attribute\YieldReady;
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 use Twig\Compiler;
 use Twig\Node\Expression\AbstractExpression;
 use Twig\Node\Node;
@@ -18,6 +22,10 @@ use Twig\Node\Node;
 /**
  * @author Fabien Potencier <fabien@symfony.com>
  */
+<<<<<<< HEAD
+=======
+#[YieldReady]
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 final class TransDefaultDomainNode extends Node
 {
     public function __construct(AbstractExpression $expr, int $lineno = 0, ?string $tag = null)

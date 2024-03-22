@@ -65,7 +65,11 @@ in the database while developing the application.
 Suppose that you have the following security configuration in your application:
 
 <comment>
+<<<<<<< HEAD
 # app/config/security.yml
+=======
+# config/packages/security.yml
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 security:
     password_hashers:
         Symfony\Component\Security\Core\User\InMemoryUser: plaintext

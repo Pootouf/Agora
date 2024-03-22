@@ -12,6 +12,10 @@
 namespace Symfony\Bundle\MakerBundle\Doctrine;
 
 use Doctrine\DBAL\Connection;
+<<<<<<< HEAD
+=======
+use Doctrine\DBAL\Types\Type;
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\Driver\AttributeDriver;
@@ -147,7 +151,11 @@ final class DoctrineHelper
         return $entities;
     }
 
+<<<<<<< HEAD
     public function getMetadata(string $classOrNamespace = null, bool $disconnected = false): array|ClassMetadata
+=======
+    public function getMetadata(?string $classOrNamespace = null, bool $disconnected = false): array|ClassMetadata
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
     {
         // Invalidating the cached AttributeDriver::$classNames to find new Entity classes
         foreach ($this->mappingDriversByPrefix ?? [] as $managerName => $prefixes) {
@@ -257,7 +265,11 @@ final class DoctrineHelper
 
     public static function getPropertyTypeForColumn(string $columnType): ?string
     {
+<<<<<<< HEAD
         return match ($columnType) {
+=======
+        $propertyType = match ($columnType) {
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
             Types::STRING, Types::TEXT, Types::GUID, Types::BIGINT, Types::DECIMAL => 'string',
             'array', Types::SIMPLE_ARRAY, Types::JSON => 'array',
             Types::BOOLEAN => 'bool',
@@ -271,6 +283,26 @@ final class DoctrineHelper
             'ulid' => '\\'.Ulid::class,
             default => null,
         };
+<<<<<<< HEAD
+=======
+
+        if (null !== $propertyType || !($registry = Type::getTypeRegistry())->has($columnType)) {
+            return $propertyType;
+        }
+
+        $reflection = new \ReflectionClass(($registry->get($columnType))::class);
+
+        $returnType = $reflection->getMethod('convertToPHPValue')->getReturnType();
+
+        /*
+         * we do not support union and intersection types
+         */
+        if (!$returnType instanceof \ReflectionNamedType) {
+            return null;
+        }
+
+        return $returnType->isBuiltin() ? $returnType->getName() : '\\'.$returnType->getName();
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
     }
 
     /**

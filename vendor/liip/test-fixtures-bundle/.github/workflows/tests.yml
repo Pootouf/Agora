@@ -11,7 +11,12 @@ jobs:
       fail-fast: false
       matrix:
         # Symfony 5.4 requires PHP >= 7.2, it will be installed on PHP 7.4
+<<<<<<< HEAD
         # Symfony 6.3 requires PHP >= 8.0, it will be installed on PHP >= 8.0
+=======
+        # Symfony 6.4 requires PHP >= 8.0, it will be installed on PHP >= 8.0
+        # Symfony 7.0 requires PHP >= 8.2, it will be installed on PHP >= 8.2
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         php-version: ['8.2']
         composer-flags: ['']
         symfony-version: ['']
@@ -31,8 +36,13 @@ jobs:
             # add a specific job to test mysqldump from MariaDB
             mysql-client: "mariadb-client"
           - php-version: 8.2
+<<<<<<< HEAD
             # add a specific job to test ^6.3 for all Symfony packages
             symfony-version: "^6.3"
+=======
+            # add a specific job to test ^6.4 for all Symfony packages
+            symfony-version: "^6.4"
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
           - php-version: 8.2
             # Remove doctrine/phpcr-* in order to allow doctrine/persistence v3
             composer-flags: "remove --dev --no-progress doctrine/phpcr-bundle doctrine/phpcr-odm"
@@ -40,12 +50,23 @@ jobs:
             symfony-version: "^7.0"
             # Remove doctrine/phpcr-* in order to allow doctrine/persistence v3
             composer-flags: "remove --dev --no-progress doctrine/phpcr-bundle doctrine/phpcr-odm"
+<<<<<<< HEAD
+=======
+          - php-version: 8.3
+            symfony-version: "^7.0"
+            # Remove doctrine/phpcr-* in order to allow doctrine/persistence v3
+            composer-flags: "remove --dev --no-progress doctrine/phpcr-bundle doctrine/phpcr-odm"
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 
     services:
       mysql:
         image: mysql:5.7
         env:
+<<<<<<< HEAD
           MYSQL_ALLOW_EMPTY_PASSWORD: yes
+=======
+          MYSQL_ROOT_PASSWORD: root
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
           MYSQL_DATABASE: acme
         ports:
           - 3306:3306
@@ -63,13 +84,33 @@ jobs:
             --health-retries 5
         ports:
           - 5432:5432
+<<<<<<< HEAD
+=======
+      mongodb:
+        image: mongo:5
+        ports:
+          - 27017:27017
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 
     steps:
       - name: Install mysqldump
         run: |
+<<<<<<< HEAD
           sudo apt install -y -q ${{ matrix.mysql-client }}
           mysqldump --version
 
+=======
+          sudo apt update
+          sudo apt install -y -q ${{ matrix.mysql-client }}
+          mysqldump --version
+
+      - name: Install mongodb database tools
+        run: |
+          wget https://fastdl.mongodb.org/tools/db/mongodb-database-tools-debian92-x86_64-100.3.1.deb
+          sudo apt install ./mongodb-database-tools-*.deb
+          rm -f mongodb-database-tools-*.deb
+
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -84,7 +125,11 @@ jobs:
         run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
       - name: Cache composer dependencies
+<<<<<<< HEAD
         uses: actions/cache@v3
+=======
+        uses: actions/cache@v4
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         with:
           path: ${{ steps.composercache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ matrix.php-version }}-${{ matrix.symfony-version }}-${{ hashFiles('composer.json') }}
@@ -112,6 +157,12 @@ jobs:
       - name: Show Composer dependencies
         run: composer show
 
+<<<<<<< HEAD
+=======
+      - name: Set up hosts file
+        run: echo '127.0.0.1 mariadb postgres mongodb' | sudo tee -a /etc/hosts
+
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
       - name: Run tests
         # In phpunit.xml.dist, tests annotated with "@group mysql" are excluded, revert this
         # Run tests twice to ensure that tests are idempotent even if database caching is enabled

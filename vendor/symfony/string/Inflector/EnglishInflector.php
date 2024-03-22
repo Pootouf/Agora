@@ -291,6 +291,15 @@ final class EnglishInflector implements InflectorInterface
         // circuses (circus)
         ['suc', 3, true, true, 'cuses'],
 
+<<<<<<< HEAD
+=======
+        // hippocampi (hippocampus)
+        ['supmacoppih', 11, false, false, 'hippocampi'],
+
+        // campuses (campus)
+        ['sup', 3, true, true, 'puses'],
+
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         // status (status)
         ['sutats', 6, true, true, ['status', 'statuses']],
 

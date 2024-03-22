@@ -54,6 +54,30 @@ That's it! This will watch for changes to your ``assets/styles/app.css`` file
 and automatically recompile it when needed. If you refresh the page, the
 final ``app.css`` file will already contain the compiled CSS.
 
+<<<<<<< HEAD
+=======
+Symfony CLI
+~~~~~~~~~~~
+
+If using the `Symfony CLI <https://symfony.com/download>`_, you can add build
+command as a `worker <https://symfony.com/doc/current/setup/symfony_server.html#configuring-workers>`_
+to be started whenever you run ``symfony server:start``:
+
+.. code-block:: yaml
+
+    # .symfony.local.yaml
+    workers:
+        # ...
+
+        tailwind:
+            cmd: ['symfony', 'console', 'tailwind:build', '--watch']
+
+.. tip::
+
+    If running ``symfony server:start`` as a daemon, you can run
+    ``symfony server:log`` to tail the output of the worker.
+
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 How Does It Work?
 -----------------
 
@@ -167,4 +191,8 @@ set ``binary_version`` option:
 .. code-block:: yaml
     # config/packages/symfonycasts_tailwind.yaml
     symfonycasts_tailwind:
+<<<<<<< HEAD
         binary_version: 'v3.3.0'
+=======
+        binary_version: 'v3.3.0'
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939

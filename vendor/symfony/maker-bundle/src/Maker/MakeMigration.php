@@ -56,7 +56,11 @@ final class MakeMigration extends AbstractMaker implements ApplicationAwareMaker
         $this->application = $application;
     }
 
+<<<<<<< HEAD
     public function configureCommand(Command $command, InputConfiguration $inputConf)
+=======
+    public function configureCommand(Command $command, InputConfiguration $inputConfig): void
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
     {
         $command
             ->setHelp(file_get_contents(__DIR__.'/../Resources/help/MakeMigration.txt'))
@@ -70,6 +74,14 @@ final class MakeMigration extends AbstractMaker implements ApplicationAwareMaker
                 ->addOption('shard', null, InputOption::VALUE_REQUIRED, 'The shard connection name')
             ;
         }
+<<<<<<< HEAD
+=======
+
+        $command
+            ->addOption('formatted', null, InputOption::VALUE_NONE, 'Format the generated SQL')
+            ->addOption('configuration', null, InputOption::VALUE_OPTIONAL, 'The path of doctrine configuration file')
+        ;
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
     }
 
     public function generate(InputInterface $input, ConsoleStyle $io, Generator $generator)
@@ -88,6 +100,17 @@ final class MakeMigration extends AbstractMaker implements ApplicationAwareMaker
         }
         // end 2.x support
 
+<<<<<<< HEAD
+=======
+        if ($input->getOption('formatted')) {
+            $options[] = '--formatted';
+        }
+
+        if (null !== $configuration = $input->getOption('configuration')) {
+            $options[] = '--configuration='.$configuration;
+        }
+
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         $generateMigrationCommand = $this->application->find('doctrine:migrations:diff');
         $generateMigrationCommandInput = new ArgvInput($options);
 

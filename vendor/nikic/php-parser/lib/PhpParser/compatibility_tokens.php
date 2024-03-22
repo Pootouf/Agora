@@ -26,6 +26,16 @@ if (!\function_exists('PhpParser\defineCompatibilityTokens')) {
         foreach ($compatTokens as $token) {
             if (\defined($token)) {
                 $tokenId = \constant($token);
+<<<<<<< HEAD
+=======
+                if (!\is_int($tokenId)) {
+                    throw new \Error(sprintf(
+                        'Token %s has ID of type %s, should be int. ' .
+                        'You may be using a library with broken token emulation',
+                        $token, \gettype($tokenId)
+                    ));
+                }
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
                 $clashingToken = $usedTokenIds[$tokenId] ?? null;
                 if ($clashingToken !== null) {
                     throw new \Error(sprintf(

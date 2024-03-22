@@ -18,7 +18,11 @@
         "symfony/dependency-injection": "^5.4|^6.0|^7.0",
         "symfony/finder": "^5.4|^6.0|^7.0",
         "symfony/http-kernel": "^5.4|^6.0|^7.0",
+<<<<<<< HEAD
         "twig/twig": "^2.15.3|^3.4.3",
+=======
+        "twig/twig": "^2.15.3|~3.8.0",
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         "symfony/deprecation-contracts": "^2.0|^3.0"
     },
     "require-dev": {

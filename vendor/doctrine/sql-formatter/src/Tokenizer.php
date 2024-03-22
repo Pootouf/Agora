@@ -710,6 +710,10 @@ final class Tokenizer
     private $boundaries = [
         ',',
         ';',
+<<<<<<< HEAD
+=======
+        '::', // PostgreSQL cast operator
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         ':',
         ')',
         '(',
@@ -908,7 +912,11 @@ final class Tokenizer
             ) {
                 return new Token(
                     Token::TOKEN_TYPE_RESERVED_TOPLEVEL,
+<<<<<<< HEAD
                     substr($string, 0, strlen($matches[1]))
+=======
+                    substr($upper, 0, strlen($matches[1]))
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
                 );
             }
 
@@ -922,7 +930,11 @@ final class Tokenizer
             ) {
                 return new Token(
                     Token::TOKEN_TYPE_RESERVED_NEWLINE,
+<<<<<<< HEAD
                     substr($string, 0, strlen($matches[1]))
+=======
+                    substr($upper, 0, strlen($matches[1]))
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
                 );
             }
 
@@ -936,7 +948,11 @@ final class Tokenizer
             ) {
                 return new Token(
                     Token::TOKEN_TYPE_RESERVED,
+<<<<<<< HEAD
                     substr($string, 0, strlen($matches[1]))
+=======
+                    substr($upper, 0, strlen($matches[1]))
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
                 );
             }
         }
@@ -948,7 +964,11 @@ final class Tokenizer
         if (preg_match('/^(' . $this->regexFunction . '[(]|\s|[)])/', $upper, $matches)) {
             return new Token(
                 Token::TOKEN_TYPE_RESERVED,
+<<<<<<< HEAD
                 substr($string, 0, strlen($matches[1]) - 1)
+=======
+                substr($upper, 0, strlen($matches[1]) - 1)
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
             );
         }
 

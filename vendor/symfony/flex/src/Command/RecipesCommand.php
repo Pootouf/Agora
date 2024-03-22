@@ -226,7 +226,15 @@ class RecipesCommand extends BaseCommand
 
             // show commits since one second after the currently-installed recipe
             if (null !== $commitDate) {
+<<<<<<< HEAD
                 $historyUrl .= '?since='.(new \DateTime($commitDate))->modify('+1 seconds')->format('c\Z');
+=======
+                $historyUrl .= '?since=';
+                $historyUrl .= (new \DateTime($commitDate))
+                    ->setTimezone(new \DateTimeZone('UTC'))
+                    ->modify('+1 seconds')
+                    ->format('Y-m-d\TH:i:s\Z');
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
             }
 
             $io->write('<info>recipe history</info>   : '.$historyUrl);

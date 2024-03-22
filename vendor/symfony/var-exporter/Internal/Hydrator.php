@@ -271,10 +271,26 @@ class Hydrator
             $name = $property->name;
 
             if (\ReflectionProperty::IS_PRIVATE & $flags) {
+<<<<<<< HEAD
                 $propertyScopes["\0$class\0$name"] = $propertyScopes[$name] = [$class, $name, $flags & \ReflectionProperty::IS_READONLY ? $class : null, $property];
                 continue;
             }
             $propertyScopes[$name] = [$class, $name, $flags & \ReflectionProperty::IS_READONLY ? $property->class : null, $property];
+=======
+                $readonlyScope = null;
+                if ($flags & \ReflectionProperty::IS_READONLY) {
+                    $readonlyScope = $class;
+                }
+                $propertyScopes["\0$class\0$name"] = $propertyScopes[$name] = [$class, $name, $readonlyScope, $property];
+
+                continue;
+            }
+            $readonlyScope = null;
+            if ($flags & \ReflectionProperty::IS_READONLY) {
+                $readonlyScope = $property->class;
+            }
+            $propertyScopes[$name] = [$class, $name, $readonlyScope, $property];
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 
             if (\ReflectionProperty::IS_PROTECTED & $flags) {
                 $propertyScopes["\0*\0$name"] = $propertyScopes[$name];

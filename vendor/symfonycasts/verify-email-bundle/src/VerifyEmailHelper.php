@@ -9,6 +9,10 @@
 
 namespace SymfonyCasts\Bundle\VerifyEmail;
 
+<<<<<<< HEAD
+=======
+use Symfony\Component\HttpFoundation\Request;
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 use Symfony\Component\HttpFoundation\UriSigner;
 use Symfony\Component\HttpKernel\UriSigner as LegacyUriSigner;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -45,6 +49,14 @@ final class VerifyEmailHelper implements VerifyEmailHelperInterface
         $this->queryUtility = $queryUtility;
         $this->tokenGenerator = $generator;
         $this->lifetime = $lifetime;
+<<<<<<< HEAD
+=======
+
+        if (!$uriSigner instanceof UriSigner) {
+            /** @psalm-suppress UndefinedFunction */
+            @trigger_deprecation('symfonycasts/verify-email-bundle', '1.17.0', 'Not providing an instance of %s is deprecated. It will be required in v2.0', UriSigner::class);
+        }
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
     }
 
     public function generateSignature(string $routeName, string $userId, string $userEmail, array $extraParams = []): VerifyEmailSignatureComponents
@@ -65,6 +77,12 @@ final class VerifyEmailHelper implements VerifyEmailHelperInterface
 
     public function validateEmailConfirmation(string $signedUrl, string $userId, string $userEmail): void
     {
+<<<<<<< HEAD
+=======
+        /** @psalm-suppress UndefinedFunction */
+        @trigger_deprecation('symfonycasts/verify-email-bundle', '1.17.0', '%s() is deprecated and will be removed in v2.0, use validateEmailConfirmationFromRequest() instead.', __METHOD__);
+
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         if (!$this->uriSigner->check($signedUrl)) {
             throw new InvalidSignatureException();
         }
@@ -80,4 +98,29 @@ final class VerifyEmailHelper implements VerifyEmailHelperInterface
             throw new WrongEmailVerifyException();
         }
     }
+<<<<<<< HEAD
+=======
+
+    public function validateEmailConfirmationFromRequest(Request $request, string $userId, string $userEmail): void
+    {
+        /** @legacy - Remove in 2.0 */
+        if (!$this->uriSigner instanceof UriSigner) {
+            throw new \RuntimeException(sprintf('An instance of %s is required, provided by symfony/http-kernel >=6.4, to validate an email confirmation.', UriSigner::class));
+        }
+
+        if (!$this->uriSigner->checkRequest($request)) {
+            throw new InvalidSignatureException();
+        }
+
+        if ($request->query->getInt('expires') <= time()) {
+            throw new ExpiredSignatureException();
+        }
+
+        $knownToken = $this->tokenGenerator->createToken($userId, $userEmail);
+
+        if (!hash_equals($knownToken, $request->query->getString('token'))) {
+            throw new WrongEmailVerifyException();
+        }
+    }
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 }

@@ -134,7 +134,11 @@ class ResultSetMappingBuilder extends ResultSetMapping implements Stringable
 
             $this->addFieldResult($alias, $columnAlias, $propertyName);
 
+<<<<<<< HEAD
             $enumType = $classMetadata->getFieldMapping($propertyName)['enumType'] ?? null;
+=======
+            $enumType = $classMetadata->getFieldMapping($propertyName)->enumType ?? null;
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
             if (! empty($enumType)) {
                 $this->addEnumResult($columnAlias, $enumType);
             }

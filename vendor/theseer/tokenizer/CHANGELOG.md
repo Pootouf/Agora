@@ -2,6 +2,15 @@
 
 All notable changes to Tokenizer are documented in this file using the [Keep a CHANGELOG](http://keepachangelog.com/) principles.
 
+<<<<<<< HEAD
+=======
+## [1.2.3] - 2024-03-03
+
+### Changed
+
+* Do not use implicitly nullable parameters
+
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 ## [1.2.2] - 2023-11-20
 
 ### Fixed
@@ -70,6 +79,13 @@ This release is now PHP 8.0 compliant.
 
 Initial Release
 
+<<<<<<< HEAD
+=======
+[1.2.3]: https://github.com/theseer/tokenizer/compare/1.2.2...1.2.3
+[1.2.2]: https://github.com/theseer/tokenizer/compare/1.2.1...1.2.2
+[1.2.1]: https://github.com/theseer/tokenizer/compare/1.2.0...1.2.1
+[1.2.0]: https://github.com/theseer/tokenizer/compare/1.1.3...1.2.0
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 [1.1.3]: https://github.com/theseer/tokenizer/compare/1.1.2...1.1.3
 [1.1.2]: https://github.com/theseer/tokenizer/compare/1.1.1...1.1.2
 [1.1.1]: https://github.com/theseer/tokenizer/compare/1.1.0...1.1.1

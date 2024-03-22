@@ -17,6 +17,10 @@ use Symfony\Component\Mailer\Envelope;
 use Symfony\Component\Mailer\Exception\LogicException;
 use Symfony\Component\Mailer\Exception\TransportException;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
+<<<<<<< HEAD
+=======
+use Symfony\Component\Mailer\Exception\UnexpectedResponseException;
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 use Symfony\Component\Mailer\SentMessage;
 use Symfony\Component\Mailer\Transport\AbstractTransport;
 use Symfony\Component\Mailer\Transport\Smtp\Stream\AbstractStream;
@@ -335,7 +339,11 @@ class SmtpTransport extends AbstractTransport
             $codeStr = $code ? sprintf('code "%s"', $code) : 'empty code';
             $responseStr = $response ? sprintf(', with message "%s"', trim($response)) : '';
 
+<<<<<<< HEAD
             throw new TransportException(sprintf('Expected response code "%s" but got ', implode('/', $codes)).$codeStr.$responseStr.'.', $code ?: 0);
+=======
+            throw new UnexpectedResponseException(sprintf('Expected response code "%s" but got ', implode('/', $codes)).$codeStr.$responseStr.'.', $code ?: 0);
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         }
     }
 

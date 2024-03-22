@@ -2,6 +2,17 @@
 
 All notable changes to phar-io/manifest are documented in this file using the [Keep a CHANGELOG](http://keepachangelog.com/) principles.
 
+<<<<<<< HEAD
+=======
+## [2.0.4] - 03-03-2024
+
+### Changed
+
+- Make `EMail` an optional attribute for author
+- Stick with PHP 7.2 compatibilty 
+- Do not use implict nullable type (thanks @sebastianbergmann), this should make things work on PHP 8.4
+
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 ## [2.0.3] - 20.07.2021
 
 - Fixed PHP 7.2 / PHP 7.3 incompatibility introduced in previous release
@@ -26,7 +37,12 @@ This release now requires PHP 7.2+
 
 ### Unreleased
 
+<<<<<<< HEAD
 [Unreleased]: https://github.com/phar-io/manifest/compare/2.0.3...HEAD
+=======
+[Unreleased]: https://github.com/phar-io/manifest/compare/2.1.0...HEAD
+[2.1.0]: https://github.com/phar-io/manifest/compare/2.0.3...2.1.0
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 [2.0.3]: https://github.com/phar-io/manifest/compare/2.0.2...2.0.3
 [2.0.2]: https://github.com/phar-io/manifest/compare/2.0.1...2.0.2
 [2.0.1]: https://github.com/phar-io/manifest/compare/2.0.0...2.0.1

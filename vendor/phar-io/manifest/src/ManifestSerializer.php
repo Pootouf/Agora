@@ -2,10 +2,18 @@
 /*
  * This file is part of PharIo\Manifest.
  *
+<<<<<<< HEAD
  * (c) Arne Blankerts <arne@blankerts.de>, Sebastian Heuer <sebastian@phpeople.de>, Sebastian Bergmann <sebastian@phpunit.de>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
+=======
+ * Copyright (c) Arne Blankerts <arne@blankerts.de>, Sebastian Heuer <sebastian@phpeople.de>, Sebastian Bergmann <sebastian@phpunit.de> and contributors
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
  */
 namespace PharIo\Manifest;
 
@@ -13,6 +21,12 @@ use PharIo\Version\AnyVersionConstraint;
 use PharIo\Version\Version;
 use PharIo\Version\VersionConstraint;
 use XMLWriter;
+<<<<<<< HEAD
+=======
+use function count;
+use function file_put_contents;
+use function str_repeat;
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 
 /** @psalm-suppress MissingConstructor */
 class ManifestSerializer {
@@ -20,7 +34,11 @@ class ManifestSerializer {
     private $xmlWriter;
 
     public function serializeToFile(Manifest $manifest, string $filename): void {
+<<<<<<< HEAD
         \file_put_contents(
+=======
+        file_put_contents(
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
             $filename,
             $this->serializeToString($manifest)
         );
@@ -41,7 +59,11 @@ class ManifestSerializer {
         $xmlWriter = new XMLWriter();
         $xmlWriter->openMemory();
         $xmlWriter->setIndent(true);
+<<<<<<< HEAD
         $xmlWriter->setIndentString(\str_repeat(' ', 4));
+=======
+        $xmlWriter->setIndentString(str_repeat(' ', 4));
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         $xmlWriter->startDocument('1.0', 'UTF-8');
         $xmlWriter->startElement('phar');
         $xmlWriter->writeAttribute('xmlns', 'https://phar.io/xml/manifest/1.0');
@@ -144,7 +166,11 @@ class ManifestSerializer {
     }
 
     private function addBundles(BundledComponentCollection $bundledComponentCollection): void {
+<<<<<<< HEAD
         if (\count($bundledComponentCollection) === 0) {
+=======
+        if (count($bundledComponentCollection) === 0) {
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
             return;
         }
         $this->xmlWriter->startElement('bundles');

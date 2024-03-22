@@ -111,7 +111,11 @@ final class MakeFormLogin extends AbstractMaker
         $this->controllerName = $io->ask(
             'Choose a name for the controller class (e.g. <fg=yellow>SecurityController</>)',
             'SecurityController',
+<<<<<<< HEAD
             [Validator::class, 'validateClassName']
+=======
+            Validator::validateClassName(...)
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         );
 
         $securityHelper = new InteractiveSecurityHelper();

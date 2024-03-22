@@ -28,7 +28,11 @@ final class ProxyHelper
     public static function generateLazyGhost(\ReflectionClass $class): string
     {
         if (\PHP_VERSION_ID >= 80200 && \PHP_VERSION_ID < 80300 && $class->isReadOnly()) {
+<<<<<<< HEAD
             throw new LogicException(sprintf('Cannot generate lazy ghost: class "%s" is readonly.', $class->name));
+=======
+            throw new LogicException(sprintf('Cannot generate lazy ghost with PHP < 8.3: class "%s" is readonly.', $class->name));
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         }
         if ($class->isFinal()) {
             throw new LogicException(sprintf('Cannot generate lazy ghost: class "%s" is final.', $class->name));
@@ -92,7 +96,11 @@ final class ProxyHelper
             throw new LogicException(sprintf('Cannot generate lazy proxy: class "%s" is final.', $class->name));
         }
         if (\PHP_VERSION_ID >= 80200 && \PHP_VERSION_ID < 80300 && $class?->isReadOnly()) {
+<<<<<<< HEAD
             throw new LogicException(sprintf('Cannot generate lazy proxy: class "%s" is readonly.', $class->name));
+=======
+            throw new LogicException(sprintf('Cannot generate lazy proxy with PHP < 8.3: class "%s" is readonly.', $class->name));
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         }
 
         $methodReflectors = [$class?->getMethods(\ReflectionMethod::IS_PUBLIC | \ReflectionMethod::IS_PROTECTED) ?? []];

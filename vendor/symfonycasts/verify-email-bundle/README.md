@@ -57,16 +57,26 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+<<<<<<< HEAD
 use Symfony\Component\Routing\Annotation\Route;
+=======
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
 
 class RegistrationController extends AbstractController
 {
+<<<<<<< HEAD
     private EmailVerifier $emailVerifier;
 
     public function __construct(EmailVerifier $emailVerifier)
     {
         $this->emailVerifier = $emailVerifier;
+=======
+    public function __construct(private EmailVerifier $emailVerifier)
+    {
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
     }
 
     #[Route('/register', name: 'app_register')]
@@ -98,16 +108,28 @@ class RegistrationController extends AbstractController
             );
             // do anything else you need here, like send an email
 
+<<<<<<< HEAD
             return $this->redirectToRoute('_preview_error');
         }
 
         return $this->render('registration/register.html.twig', [
             'registrationForm' => $form->createView(),
+=======
+            return $this->redirectToRoute('app_main');
+        }
+
+        return $this->render('registration/register.html.twig', [
+            'registrationForm' => $form,
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         ]);
     }
 
     #[Route('/verify/email', name: 'app_verify_email')]
+<<<<<<< HEAD
     public function verifyUserEmail(Request $request): Response
+=======
+    public function verifyUserEmail(Request $request, TranslatorInterface $translator): Response
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
@@ -115,7 +137,11 @@ class RegistrationController extends AbstractController
         try {
             $this->emailVerifier->handleEmailConfirmation($request, $this->getUser());
         } catch (VerifyEmailExceptionInterface $exception) {
+<<<<<<< HEAD
             $this->addFlash('verify_email_error', $exception->getReason());
+=======
+            $this->addFlash('verify_email_error', $translator->trans($exception->getReason(), [], 'VerifyEmailBundle'));
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 
             return $this->redirectToRoute('app_register');
         }
@@ -174,7 +200,11 @@ class EmailVerifier
      */
     public function handleEmailConfirmation(Request $request, UserInterface $user): void
     {
+<<<<<<< HEAD
         $this->verifyEmailHelper->validateEmailConfirmation($request->getUri(), $user->getId(), $user->getEmail());
+=======
+        $this->verifyEmailHelper->validateEmailConfirmationFromRequest($request, $user->getId(), $user->getEmail());
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 
         $user->setIsVerified(true);
 
@@ -249,7 +279,11 @@ class RegistrationController extends AbstractController
 +       }
 
         try {
+<<<<<<< HEAD
             $this->verifyEmailHelper->validateEmailConfirmation($request->getUri(), $user->getId(), $user->getEmail());
+=======
+            $this->verifyEmailHelper->validateEmailConfirmationFromRequest($request, $user->getId(), $user->getEmail());
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         } catch (VerifyEmailExceptionInterface $e) {
         // ...
     }

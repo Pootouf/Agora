@@ -6,6 +6,7 @@ awareness about deprecated code.
 - Use of our low-overhead runtime deprecation API, details:
   https://github.com/doctrine/deprecations/
 
+<<<<<<< HEAD
 # Upgrade to 3.1
 
 ## Added method `Proxy::__setInitialized()`
@@ -13,6 +14,17 @@ awareness about deprecated code.
 Classes implementing `Doctrine\Persistence\Proxy` should implement the new
 method. This method will be added to the interface in 4.0.
 
+=======
+# Upgrade to 3.3
+
+## Added method `ObjectManager::isUninitializedObject()`
+
+Classes implementing `Doctrine\Persistence\ObjectManager` should implement the new
+method. This method will be added to the interface in 4.0.
+
+# Upgrade to 3.1
+
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 ## Deprecated `RuntimePublicReflectionProperty`
 
 Use `RuntimeReflectionProperty` instead.

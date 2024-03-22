@@ -1,8 +1,11 @@
 <?php declare(strict_types = 1);
 namespace TheSeer\Tokenizer;
 
+<<<<<<< HEAD
 use function var_dump;
 
+=======
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 class Tokenizer {
 
     /**

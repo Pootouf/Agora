@@ -5,6 +5,10 @@ declare(strict_types=1);
 namespace Doctrine\ORM\Cache\Persister\Entity;
 
 use Doctrine\Common\Collections\Criteria;
+<<<<<<< HEAD
+=======
+use Doctrine\Common\Collections\Order;
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 use Doctrine\DBAL\LockMode;
 use Doctrine\ORM\Cache;
 use Doctrine\ORM\Cache\CollectionCacheKey;
@@ -201,8 +205,13 @@ abstract class AbstractEntityPersister implements CachedEntityPersister
     /**
      * Generates a string of currently query
      *
+<<<<<<< HEAD
      * @param string[]|Criteria $criteria
      * @param string[]|null     $orderBy
+=======
+     * @param string[]|Criteria         $criteria
+     * @param array<string, Order>|null $orderBy
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
      */
     protected function getHash(
         string $query,
@@ -426,7 +435,11 @@ abstract class AbstractEntityPersister implements CachedEntityPersister
      */
     public function loadCriteria(Criteria $criteria): array
     {
+<<<<<<< HEAD
         $orderBy     = $criteria->getOrderings();
+=======
+        $orderBy     = $criteria->orderings();
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         $limit       = $criteria->getMaxResults();
         $offset      = $criteria->getFirstResult();
         $query       = $this->persister->getSelectSQL($criteria);

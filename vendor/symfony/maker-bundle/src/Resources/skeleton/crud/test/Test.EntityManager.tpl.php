@@ -49,9 +49,15 @@ class <?= $class_name ?> extends WebTestCase<?= "\n" ?>
 <?php endforeach; ?>
         ]);
 
+<<<<<<< HEAD
         self::assertResponseRedirects('/sweet/food/');
 
         self::assertSame(1, $this->getRepository()->count([]));
+=======
+        self::assertResponseRedirects($this->path);
+
+        self::assertSame(1, $this->repository->count([]));
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
     }
 
     public function testShow(): void
@@ -109,7 +115,11 @@ class <?= $class_name ?> extends WebTestCase<?= "\n" ?>
         $fixture->set<?= ucfirst($form_field); ?>('Value');
 <?php endforeach; ?>
 
+<<<<<<< HEAD
         $this->manager->remove($fixture);
+=======
+        $this->manager->persist($fixture);
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         $this->manager->flush();
 
         $this->client->request('GET', sprintf('%s%s', $this->path, $fixture->getId()));

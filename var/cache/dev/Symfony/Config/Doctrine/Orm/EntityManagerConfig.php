@@ -262,7 +262,11 @@ class EntityManagerConfig
 
     /**
      * Set to "true" to opt-in to the new mapping driver mode that was added in Doctrine ORM 2.16 and will be mandatory in ORM 3.0. See https://github.com/doctrine/orm/pull/10455.
+<<<<<<< HEAD
      * @default false
+=======
+     * @default true
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
      * @param ParamConfigurator|bool $value
      * @return $this
      */

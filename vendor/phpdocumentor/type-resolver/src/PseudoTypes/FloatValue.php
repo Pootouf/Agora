@@ -20,7 +20,12 @@ use phpDocumentor\Reflection\Types\Float_;
 /** @psalm-immutable */
 class FloatValue implements PseudoType
 {
+<<<<<<< HEAD
     private float $value;
+=======
+    /** @var float */
+    private $value;
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 
     public function __construct(float $value)
     {

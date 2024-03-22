@@ -67,7 +67,11 @@ class FileLockRegion implements ConcurrentRegion
         $time    = $this->getLockTime($filename);
         $content = $this->getLockContent($filename);
 
+<<<<<<< HEAD
         if (! $content || ! $time) {
+=======
+        if ($content === false || $time === false) {
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
             @unlink($filename);
 
             return false;
@@ -156,12 +160,19 @@ class FileLockRegion implements ConcurrentRegion
     {
         // The check below is necessary because on some platforms glob returns false
         // when nothing matched (even though no errors occurred)
+<<<<<<< HEAD
         $filenames = glob(sprintf('%s/*.%s', $this->directory, self::LOCK_EXTENSION));
 
         if ($filenames) {
             foreach ($filenames as $filename) {
                 @unlink($filename);
             }
+=======
+        $filenames = glob(sprintf('%s/*.%s', $this->directory, self::LOCK_EXTENSION)) ?: [];
+
+        foreach ($filenames as $filename) {
+            @unlink($filename);
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         }
 
         return $this->region->evictAll();
@@ -176,7 +187,11 @@ class FileLockRegion implements ConcurrentRegion
         $lock     = Lock::createLockRead();
         $filename = $this->getLockFileName($key);
 
+<<<<<<< HEAD
         if (! @file_put_contents($filename, $lock->value, LOCK_EX)) {
+=======
+        if (@file_put_contents($filename, $lock->value, LOCK_EX) === false) {
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
             return null;
         }
 

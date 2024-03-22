@@ -7,10 +7,18 @@ namespace Doctrine\ORM\Query\Expr;
 use InvalidArgumentException;
 use Stringable;
 
+<<<<<<< HEAD
+=======
+use function array_key_exists;
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 use function count;
 use function get_debug_type;
 use function implode;
 use function in_array;
+<<<<<<< HEAD
+=======
+use function is_array;
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 use function is_string;
 use function sprintf;
 
@@ -33,6 +41,13 @@ abstract class Base implements Stringable
 
     public function __construct(mixed $args = [])
     {
+<<<<<<< HEAD
+=======
+        if (is_array($args) && array_key_exists(0, $args) && is_array($args[0])) {
+            $args = $args[0];
+        }
+
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         $this->addMultiple($args);
     }
 

@@ -20,7 +20,11 @@ use phpDocumentor\Reflection\Type;
  *
  * @psalm-immutable
  */
+<<<<<<< HEAD
 final class Float_ implements Type
+=======
+class Float_ implements Type
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 {
     /**
      * Returns a rendered output of the Type as it would be used in a DocBlock.

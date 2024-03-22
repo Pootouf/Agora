@@ -456,7 +456,11 @@ class YamlSourceManipulator
      *
      * @param mixed $value The new value to set into YAML
      */
+<<<<<<< HEAD
     private function changeValueInYaml($value)
+=======
+    private function changeValueInYaml(mixed $value)
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
     {
         $originalVal = $this->getCurrentData();
 
@@ -696,7 +700,11 @@ class YamlSourceManipulator
             if ($parsedContentsData !== $newData) {
                 throw new YamlManipulationFailedException(sprintf('Content was updated, but updated content does not match expected data. Original source: "%s", updated source: "%s", updated data: %s', $this->contents, $newContents, var_export($newData, true)));
             }
+<<<<<<< HEAD
         } catch (ParseException $e) {
+=======
+        } catch (ParseException) {
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
             throw new YamlManipulationFailedException(sprintf('Could not update YAML: a parse error occurred in the new content: "%s"', $newContents));
         }
 
@@ -829,7 +837,11 @@ class YamlSourceManipulator
         }
 
         if (\is_scalar($value) || null === $value) {
+<<<<<<< HEAD
             $offset = null === $offset ? $this->currentPosition : $offset;
+=======
+            $offset ??= $this->currentPosition;
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 
             if (\is_bool($value)) {
                 // (?i) & (?-i) opens/closes case insensitive match
@@ -947,7 +959,11 @@ class YamlSourceManipulator
         --$this->depth;
     }
 
+<<<<<<< HEAD
     private function getCurrentIndentation(int $override = null): string
+=======
+    private function getCurrentIndentation(?int $override = null): string
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
     {
         $indent = $override ?? $this->indentationForDepths[$this->depth];
 
@@ -1090,9 +1106,13 @@ class YamlSourceManipulator
     private function normalizeSequences(array $data)
     {
         // https://stackoverflow.com/questions/173400/how-to-check-if-php-array-is-associative-or-sequential/4254008#4254008
+<<<<<<< HEAD
         $hasStringKeys = function (array $array) {
             return \count(array_filter(array_keys($array), 'is_string')) > 0;
         };
+=======
+        $hasStringKeys = fn (array $array) => \count(array_filter(array_keys($array), 'is_string')) > 0;
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 
         foreach ($data as $key => $val) {
             if (!\is_array($val)) {
@@ -1174,9 +1194,15 @@ class YamlSourceManipulator
         $this->indentationForDepths[$this->depth] += $this->getPreferredIndentationSize();
     }
 
+<<<<<<< HEAD
     private function isEOF(int $position = null)
     {
         $position = null === $position ? $this->currentPosition : $position;
+=======
+    private function isEOF(?int $position = null)
+    {
+        $position ??= $this->currentPosition;
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 
         return $position === \strlen($this->contents);
     }
@@ -1296,7 +1322,11 @@ class YamlSourceManipulator
      * Usually an empty line needs to be prepended to this result before
      * adding to the content.
      */
+<<<<<<< HEAD
     private function indentMultilineYamlArray(string $yaml, int $indentOverride = null): string
+=======
+    private function indentMultilineYamlArray(string $yaml, ?int $indentOverride = null): string
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
     {
         $indent = $this->getCurrentIndentation($indentOverride);
 

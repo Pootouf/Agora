@@ -10,7 +10,11 @@
         }
     ],
     "require": {
+<<<<<<< HEAD
         "php": "^7.4 || ^8.0",
+=======
+        "php": "^7.3 || ^8.0",
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         "phpdocumentor/reflection-common": "^2.0",
         "phpstan/phpdoc-parser": "^1.13",
         "doctrine/deprecations": "^1.0"
@@ -42,7 +46,11 @@
     },
     "config": {
         "platform": {
+<<<<<<< HEAD
             "php": "7.4.0"
+=======
+            "php": "7.3.0"
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         },
         "allow-plugins": {
             "phpstan/extension-installer": true

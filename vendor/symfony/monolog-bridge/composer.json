@@ -25,7 +25,11 @@
     "require-dev": {
         "symfony/console": "^5.4|^6.0|^7.0",
         "symfony/http-client": "^5.4|^6.0|^7.0",
+<<<<<<< HEAD
         "symfony/security-core": "^6.0|^7.0",
+=======
+        "symfony/security-core": "^5.4|^6.0|^7.0",
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         "symfony/var-dumper": "^5.4|^6.0|^7.0",
         "symfony/mailer": "^5.4|^6.0|^7.0",
         "symfony/mime": "^5.4|^6.0|^7.0",
@@ -34,7 +38,11 @@
     "conflict": {
         "symfony/console": "<5.4",
         "symfony/http-foundation": "<5.4",
+<<<<<<< HEAD
         "symfony/security-core": "<6.0"
+=======
+        "symfony/security-core": "<5.4"
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
     },
     "autoload": {
         "psr-4": { "Symfony\\Bridge\\Monolog\\": "" },

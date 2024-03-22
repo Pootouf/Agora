@@ -96,6 +96,14 @@ class Redis6Proxy extends \Redis implements ResetInterface, LazyObjectInterface
         return ($this->lazyObjectState->realInstance ??= ($this->lazyObjectState->initializer)())->bgrewriteaof(...\func_get_args());
     }
 
+<<<<<<< HEAD
+=======
+    public function waitaof($numlocal, $numreplicas, $timeout): \Redis|array|false
+    {
+        return ($this->lazyObjectState->realInstance ??= ($this->lazyObjectState->initializer)())->waitaof(...\func_get_args());
+    }
+
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
     public function bitcount($key, $start = 0, $end = -1, $bybit = false): \Redis|false|int
     {
         return ($this->lazyObjectState->realInstance ??= ($this->lazyObjectState->initializer)())->bitcount(...\func_get_args());

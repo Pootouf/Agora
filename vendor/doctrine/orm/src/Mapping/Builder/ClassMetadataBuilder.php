@@ -288,7 +288,11 @@ class ClassMetadataBuilder
     ): ClassMetadataBuilder {
         $builder = $this->createManyToOne($name, $targetEntity);
 
+<<<<<<< HEAD
         if ($inversedBy) {
+=======
+        if ($inversedBy !== null) {
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
             $builder->inversedBy($inversedBy);
         }
 
@@ -348,7 +352,11 @@ class ClassMetadataBuilder
     ): ClassMetadataBuilder {
         $builder = $this->createOneToOne($name, $targetEntity);
 
+<<<<<<< HEAD
         if ($inversedBy) {
+=======
+        if ($inversedBy !== null) {
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
             $builder->inversedBy($inversedBy);
         }
 
@@ -380,7 +388,11 @@ class ClassMetadataBuilder
     ): ClassMetadataBuilder {
         $builder = $this->createManyToMany($name, $targetEntity);
 
+<<<<<<< HEAD
         if ($inversedBy) {
+=======
+        if ($inversedBy !== null) {
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
             $builder->inversedBy($inversedBy);
         }
 

@@ -26,6 +26,11 @@ use Symfony\Bundle\MakerBundle\Generator;
 use Symfony\Bundle\MakerBundle\InputConfiguration;
 use Symfony\Bundle\MakerBundle\Renderer\FormTypeRenderer;
 use Symfony\Bundle\MakerBundle\Security\InteractiveSecurityHelper;
+<<<<<<< HEAD
+=======
+use Symfony\Bundle\MakerBundle\Security\Model\Authenticator;
+use Symfony\Bundle\MakerBundle\Security\Model\AuthenticatorType;
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 use Symfony\Bundle\MakerBundle\Str;
 use Symfony\Bundle\MakerBundle\Util\ClassDetails;
 use Symfony\Bundle\MakerBundle\Util\ClassNameDetails;
@@ -34,6 +39,10 @@ use Symfony\Bundle\MakerBundle\Util\CliOutputHelper;
 use Symfony\Bundle\MakerBundle\Util\UseStatementGenerator;
 use Symfony\Bundle\MakerBundle\Util\YamlSourceManipulator;
 use Symfony\Bundle\MakerBundle\Validator;
+<<<<<<< HEAD
+=======
+use Symfony\Bundle\SecurityBundle\Security;
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 use Symfony\Bundle\SecurityBundle\SecurityBundle;
 use Symfony\Bundle\TwigBundle\TwigBundle;
 use Symfony\Component\Console\Command\Command;
@@ -49,7 +58,10 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+<<<<<<< HEAD
 use Symfony\Component\Security\Http\Authentication\UserAuthenticatorInterface;
+=======
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 use Symfony\Component\Translation\Translator;
 use Symfony\Component\Validator\Validation;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -75,8 +87,12 @@ final class MakeRegistrationForm extends AbstractMaker
     private $emailGetter;
     private $fromEmailAddress;
     private $fromEmailName;
+<<<<<<< HEAD
     private $autoLoginAuthenticator;
     private $firewallName;
+=======
+    private ?Authenticator $autoLoginAuthenticator = null;
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
     private $redirectRouteName;
     private $addUniqueEntityConstraint;
 
@@ -110,7 +126,11 @@ final class MakeRegistrationForm extends AbstractMaker
         $interactiveSecurityHelper = new InteractiveSecurityHelper();
 
         if (null === $this->router) {
+<<<<<<< HEAD
             throw new RuntimeCommandException('Router have been explicitely disabled in your configuration. This command needs to use the router.');
+=======
+            throw new RuntimeCommandException('Router have been explicitly disabled in your configuration. This command needs to use the router.');
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         }
 
         if (!$this->fileManager->fileExists($path = 'config/packages/security.yaml')) {
@@ -158,13 +178,21 @@ final class MakeRegistrationForm extends AbstractMaker
             $this->fromEmailAddress = $io->ask(
                 'What email address will be used to send registration confirmations? (e.g. <fg=yellow>mailer@your-domain.com</>)',
                 null,
+<<<<<<< HEAD
                 [Validator::class, 'validateEmailAddress']
+=======
+                Validator::validateEmailAddress(...)
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
             );
 
             $this->fromEmailName = $io->ask(
                 'What "name" should be associated with that email address? (e.g. <fg=yellow>Acme Mail Bot</>)',
                 null,
+<<<<<<< HEAD
                 [Validator::class, 'notBlank']
+=======
+                Validator::notBlank(...)
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
             );
         }
 
@@ -184,6 +212,7 @@ final class MakeRegistrationForm extends AbstractMaker
 
     private function interactAuthenticatorQuestions(ConsoleStyle $io, InteractiveSecurityHelper $interactiveSecurityHelper, array $securityData): void
     {
+<<<<<<< HEAD
         $firewallsData = $securityData['security']['firewalls'] ?? [];
         $firewallName = $interactiveSecurityHelper->guessFirewallName(
             $io,
@@ -193,10 +222,18 @@ final class MakeRegistrationForm extends AbstractMaker
 
         if (!isset($firewallsData[$firewallName])) {
             $io->note('No firewalls found - skipping authentication after registration. You might want to configure your security before running this command.');
+=======
+        // get list of authenticators
+        $authenticators = $interactiveSecurityHelper->getAuthenticatorsFromConfig($securityData['security']['firewalls'] ?? []);
+
+        if (empty($authenticators)) {
+            $io->note('No authenticators found - so your user won\'t be automatically authenticated after registering.');
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 
             return;
         }
 
+<<<<<<< HEAD
         $this->firewallName = $firewallName;
 
         // get list of guard authenticators
@@ -210,6 +247,13 @@ final class MakeRegistrationForm extends AbstractMaker
                     $authenticatorClasses
                 );
         }
+=======
+        $this->autoLoginAuthenticator =
+            1 === \count($authenticators) ? $authenticators[0] : $io->choice(
+                'Which authenticator should be used to login the user?',
+                $authenticators
+            );
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
     }
 
     public function generate(InputInterface $input, ConsoleStyle $io, Generator $generator): void
@@ -312,11 +356,30 @@ final class MakeRegistrationForm extends AbstractMaker
             }
         }
 
+<<<<<<< HEAD
         if ($this->autoLoginAuthenticator) {
             $useStatements->addUseStatement([
                 $this->autoLoginAuthenticator,
                 UserAuthenticatorInterface::class,
             ]);
+=======
+        $autoLoginVars = [
+            'login_after_registration' => null !== $this->autoLoginAuthenticator,
+        ];
+
+        if (null !== $this->autoLoginAuthenticator) {
+            $useStatements->addUseStatement([
+                Security::class,
+            ]);
+
+            $autoLoginVars['firewall'] = $this->autoLoginAuthenticator->firewallName;
+            $autoLoginVars['authenticator'] = sprintf('\'%s\'', $this->autoLoginAuthenticator->type->value);
+
+            if (AuthenticatorType::CUSTOM === $this->autoLoginAuthenticator->type) {
+                $useStatements->addUseStatement($this->autoLoginAuthenticator->authenticatorClass);
+                $autoLoginVars['authenticator'] = sprintf('%s::class', Str::getShortClassName($this->autoLoginAuthenticator->authenticatorClass));
+            }
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         }
 
         if ($isTranslatorAvailable = class_exists(Translator::class)) {
@@ -339,6 +402,7 @@ final class MakeRegistrationForm extends AbstractMaker
                     'from_email' => $this->fromEmailAddress,
                     'from_email_name' => addslashes($this->fromEmailName),
                     'email_getter' => $this->emailGetter,
+<<<<<<< HEAD
                     'authenticator_class_name' => $this->autoLoginAuthenticator ? Str::getShortClassName($this->autoLoginAuthenticator) : null,
                     'authenticator_full_class_name' => $this->autoLoginAuthenticator,
                     'firewall_name' => $this->firewallName,
@@ -347,6 +411,13 @@ final class MakeRegistrationForm extends AbstractMaker
                     'translator_available' => $isTranslatorAvailable,
                 ],
                 $userRepoVars
+=======
+                    'redirect_route_name' => $this->redirectRouteName,
+                    'translator_available' => $isTranslatorAvailable,
+                ],
+                $userRepoVars,
+                $autoLoginVars,
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
             )
         );
 

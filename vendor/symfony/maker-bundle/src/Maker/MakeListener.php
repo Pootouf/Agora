@@ -98,7 +98,11 @@ final class MakeListener extends AbstractMaker
             $io->listing($this->eventRegistry->listActiveEvents($events));
             $question = new Question(sprintf(' <fg=green>%s</>', $command->getDefinition()->getArgument('event')->getDescription()));
             $question->setAutocompleterValues($events);
+<<<<<<< HEAD
             $question->setValidator([Validator::class, 'notBlank']);
+=======
+            $question->setValidator(Validator::notBlank(...));
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
             $event = $io->askQuestion($question);
             $input->setArgument('event', $event);
         }

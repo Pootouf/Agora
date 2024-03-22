@@ -449,7 +449,16 @@ class PhpDocParser
 				case '@template-contravariant':
 				case '@phpstan-template-contravariant':
 				case '@psalm-template-contravariant':
+<<<<<<< HEAD
 					$tagValue = $this->parseTemplateTagValue($tokens, true);
+=======
+					$tagValue = $this->typeParser->parseTemplateTagValue(
+						$tokens,
+						function ($tokens) {
+							return $this->parseOptionalDescription($tokens);
+						}
+					);
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 					break;
 
 				case '@extends':
@@ -919,10 +928,23 @@ class PhpDocParser
 
 	private function parseMethodTagValue(TokenIterator $tokens): Ast\PhpDoc\MethodTagValueNode
 	{
+<<<<<<< HEAD
 		$isStatic = $tokens->tryConsumeTokenValue('static');
 		$startLine = $tokens->currentTokenLine();
 		$startIndex = $tokens->currentTokenIndex();
 		$returnTypeOrMethodName = $this->typeParser->parse($tokens);
+=======
+		$staticKeywordOrReturnTypeOrMethodName = $this->typeParser->parse($tokens);
+
+		if ($staticKeywordOrReturnTypeOrMethodName instanceof Ast\Type\IdentifierTypeNode && $staticKeywordOrReturnTypeOrMethodName->name === 'static') {
+			$isStatic = true;
+			$returnTypeOrMethodName = $this->typeParser->parse($tokens);
+
+		} else {
+			$isStatic = false;
+			$returnTypeOrMethodName = $staticKeywordOrReturnTypeOrMethodName;
+		}
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 
 		if ($tokens->isCurrentTokenType(Lexer::TOKEN_IDENTIFIER)) {
 			$returnType = $returnTypeOrMethodName;
@@ -930,9 +952,13 @@ class PhpDocParser
 			$tokens->next();
 
 		} elseif ($returnTypeOrMethodName instanceof Ast\Type\IdentifierTypeNode) {
+<<<<<<< HEAD
 			$returnType = $isStatic
 				? $this->typeParser->enrichWithAttributes($tokens, new Ast\Type\IdentifierTypeNode('static'), $startLine, $startIndex)
 				: null;
+=======
+			$returnType = $isStatic ? $staticKeywordOrReturnTypeOrMethodName : null;
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 			$methodName = $returnTypeOrMethodName->name;
 			$isStatic = false;
 
@@ -947,7 +973,16 @@ class PhpDocParser
 			do {
 				$startLine = $tokens->currentTokenLine();
 				$startIndex = $tokens->currentTokenIndex();
+<<<<<<< HEAD
 				$templateTypes[] = $this->enrichWithAttributes($tokens, $this->parseTemplateTagValue($tokens, false), $startLine, $startIndex);
+=======
+				$templateTypes[] = $this->enrichWithAttributes(
+					$tokens,
+					$this->typeParser->parseTemplateTagValue($tokens),
+					$startLine,
+					$startIndex
+				);
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 			} while ($tokens->tryConsumeTokenType(Lexer::TOKEN_COMMA));
 			$tokens->consumeTokenType(Lexer::TOKEN_CLOSE_ANGLE_BRACKET);
 		}
@@ -1003,6 +1038,7 @@ class PhpDocParser
 		);
 	}
 
+<<<<<<< HEAD
 	private function parseTemplateTagValue(TokenIterator $tokens, bool $parseDescription): Ast\PhpDoc\TemplateTagValueNode
 	{
 		$name = $tokens->currentTokenValue();
@@ -1030,6 +1066,8 @@ class PhpDocParser
 		return new Ast\PhpDoc\TemplateTagValueNode($name, $bound, $description, $default);
 	}
 
+=======
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 	private function parseExtendsTagValue(string $tagName, TokenIterator $tokens): Ast\PhpDoc\PhpDocTagValueNode
 	{
 		$startLine = $tokens->currentTokenLine();

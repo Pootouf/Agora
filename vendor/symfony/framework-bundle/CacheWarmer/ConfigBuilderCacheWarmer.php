@@ -15,10 +15,21 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\Config\Builder\ConfigBuilderGenerator;
 use Symfony\Component\Config\Builder\ConfigBuilderGeneratorInterface;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
+<<<<<<< HEAD
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\ConfigurationExtensionInterface;
 use Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
 use Symfony\Component\HttpKernel\CacheWarmer\CacheWarmerInterface;
+=======
+use Symfony\Component\DependencyInjection\Container;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Extension\ConfigurationExtensionInterface;
+use Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
+use Symfony\Component\DependencyInjection\ParameterBag\ContainerBag;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
+use Symfony\Component\HttpKernel\CacheWarmer\CacheWarmerInterface;
+use Symfony\Component\HttpKernel\Kernel;
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
@@ -50,12 +61,36 @@ class ConfigBuilderCacheWarmer implements CacheWarmerInterface
 
         $generator = new ConfigBuilderGenerator($buildDir);
 
+<<<<<<< HEAD
         foreach ($this->kernel->getBundles() as $bundle) {
             $extension = $bundle->getContainerExtension();
             if (null === $extension) {
                 continue;
             }
 
+=======
+        if ($this->kernel instanceof Kernel) {
+            /** @var ContainerBuilder $container */
+            $container = \Closure::bind(function (Kernel $kernel) {
+                $containerBuilder = $kernel->getContainerBuilder();
+                $kernel->prepareContainer($containerBuilder);
+
+                return $containerBuilder;
+            }, null, $this->kernel)($this->kernel);
+
+            $extensions = $container->getExtensions();
+        } else {
+            $extensions = [];
+            foreach ($this->kernel->getBundles() as $bundle) {
+                $extension = $bundle->getContainerExtension();
+                if (null !== $extension) {
+                    $extensions[] = $extension;
+                }
+            }
+        }
+
+        foreach ($extensions as $extension) {
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
             try {
                 $this->dumpExtension($extension, $generator);
             } catch (\Exception $e) {
@@ -73,7 +108,12 @@ class ConfigBuilderCacheWarmer implements CacheWarmerInterface
         if ($extension instanceof ConfigurationInterface) {
             $configuration = $extension;
         } elseif ($extension instanceof ConfigurationExtensionInterface) {
+<<<<<<< HEAD
             $configuration = $extension->getConfiguration([], new ContainerBuilder($this->kernel->getContainer()->getParameterBag()));
+=======
+            $container = $this->kernel->getContainer();
+            $configuration = $extension->getConfiguration([], new ContainerBuilder($container instanceof Container ? new ContainerBag($container) : new ParameterBag()));
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         }
 
         if (!$configuration) {

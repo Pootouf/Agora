@@ -97,6 +97,7 @@ class StreamOutput extends Output
             return false;
         }
 
+<<<<<<< HEAD
         if (!$this->isTty()) {
             return false;
         }
@@ -104,10 +105,27 @@ class StreamOutput extends Output
         if (\DIRECTORY_SEPARATOR === '\\'
             && \function_exists('sapi_windows_vt100_support')
             && @sapi_windows_vt100_support($this->stream)
+=======
+        // Detect msysgit/mingw and assume this is a tty because detection
+        // does not work correctly, see https://github.com/composer/composer/issues/9690
+        if (!@stream_isatty($this->stream) && !\in_array(strtoupper((string) getenv('MSYSTEM')), ['MINGW32', 'MINGW64'], true)) {
+            return false;
+        }
+
+        if ('\\' === \DIRECTORY_SEPARATOR && @sapi_windows_vt100_support($this->stream)) {
+            return true;
+        }
+
+        if ('Hyper' === getenv('TERM_PROGRAM')
+            || false !== getenv('COLORTERM')
+            || false !== getenv('ANSICON')
+            || 'ON' === getenv('ConEmuANSI')
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         ) {
             return true;
         }
 
+<<<<<<< HEAD
         return 'Hyper' === getenv('TERM_PROGRAM')
             || false !== getenv('ANSICON')
             || 'ON' === getenv('ConEmuANSI')
@@ -142,5 +160,13 @@ class StreamOutput extends Output
 
         // Check if formatted mode is S_IFCHR
         return $stat ? 0020000 === ($stat['mode'] & 0170000) : false;
+=======
+        if ('dumb' === $term = (string) getenv('TERM')) {
+            return false;
+        }
+
+        // See https://github.com/chalk/supports-color/blob/d4f413efaf8da045c5ab440ed418ef02dbb28bf1/index.js#L157
+        return preg_match('/^((screen|xterm|vt100|vt220|putty|rxvt|ansi|cygwin|linux).*)|(.*-256(color)?(-bce)?)$/', $term);
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
     }
 }

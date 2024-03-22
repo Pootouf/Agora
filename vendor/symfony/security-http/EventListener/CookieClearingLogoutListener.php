@@ -40,7 +40,11 @@ class CookieClearingLogoutListener implements EventSubscriberInterface
         }
 
         foreach ($this->cookies as $cookieName => $cookieData) {
+<<<<<<< HEAD
             $response->headers->clearCookie($cookieName, $cookieData['path'], $cookieData['domain'], $cookieData['secure'] ?? false, true, $cookieData['samesite'] ?? null);
+=======
+            $response->headers->clearCookie($cookieName, $cookieData['path'], $cookieData['domain'], $cookieData['secure'] ?? false, true, $cookieData['samesite'] ?? null, $cookieData['partitioned'] ?? false);
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         }
     }
 

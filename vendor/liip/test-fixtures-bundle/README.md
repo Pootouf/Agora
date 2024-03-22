@@ -20,3 +20,7 @@ Documentation
 * [Events](doc/events.md)
 * [Examples](doc/examples.md)
 * [Caveats](doc/caveats.md)
+<<<<<<< HEAD
+=======
+* [Contributing](doc/contributing.md)
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939

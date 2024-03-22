@@ -72,6 +72,10 @@ final class Driver extends AbstractPostgreSQLDriver
                 'user' => $params['user'] ?? null,
                 'password' => $params['password'] ?? null,
                 'sslmode' => $params['sslmode'] ?? null,
+<<<<<<< HEAD
+=======
+                'gssencmode' => $params['gssencmode'] ?? null,
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
             ],
             static fn ($value) => $value !== '' && $value !== null,
         );

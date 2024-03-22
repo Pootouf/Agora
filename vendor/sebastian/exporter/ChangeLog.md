@@ -2,6 +2,15 @@
 
 All notable changes are documented in this file using the [Keep a CHANGELOG](https://keepachangelog.com/) principles.
 
+<<<<<<< HEAD
+=======
+## [4.0.6] - 2024-03-02
+
+### Changed
+
+* Do not use implicitly nullable parameters
+
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 ## [4.0.5] - 2022-09-14
 
 ### Fixed
@@ -66,6 +75,10 @@ All notable changes are documented in this file using the [Keep a CHANGELOG](htt
 
 * Remove HHVM-specific code that is no longer needed
 
+<<<<<<< HEAD
+=======
+[4.0.6]: https://github.com/sebastianbergmann/exporter/compare/4.0.5...4.0.6
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 [4.0.5]: https://github.com/sebastianbergmann/exporter/compare/4.0.4...4.0.5
 [4.0.4]: https://github.com/sebastianbergmann/exporter/compare/4.0.3...4.0.4
 [4.0.3]: https://github.com/sebastianbergmann/exporter/compare/4.0.2...4.0.3

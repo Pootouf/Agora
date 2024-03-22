@@ -15,6 +15,7 @@ namespace Liip\TestFixturesBundle\Services\DatabaseTools;
 
 use Doctrine\Bundle\FixturesBundle\Loader\SymfonyFixturesLoader;
 use Doctrine\Common\DataFixtures\Executor\AbstractExecutor;
+<<<<<<< HEAD
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
@@ -23,6 +24,12 @@ use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectManager;
 use Liip\TestFixturesBundle\Services\DatabaseBackup\DatabaseBackupInterface;
 use Liip\TestFixturesBundle\Services\FixturesLoaderFactory;
+=======
+use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ObjectManager;
+use Liip\TestFixturesBundle\FixturesLoaderFactoryInterface;
+use Liip\TestFixturesBundle\Services\DatabaseBackup\DatabaseBackupInterface;
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -39,7 +46,11 @@ abstract class AbstractDatabaseTool
     /** @var EventDispatcherInterface */
     protected $eventDispatcher;
 
+<<<<<<< HEAD
     protected $fixturesLoaderFactory;
+=======
+    protected FixturesLoaderFactoryInterface $fixturesLoaderFactory;
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 
     /**
      * @var ManagerRegistry
@@ -61,8 +72,11 @@ abstract class AbstractDatabaseTool
      */
     protected $om;
 
+<<<<<<< HEAD
     protected Connection $connection;
 
+=======
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
     /**
      * @var int|null
      */
@@ -80,7 +94,11 @@ abstract class AbstractDatabaseTool
      */
     private static $cachedMetadatas = [];
 
+<<<<<<< HEAD
     public function __construct(ContainerInterface $container, FixturesLoaderFactory $fixturesLoaderFactory)
+=======
+    public function __construct(ContainerInterface $container, FixturesLoaderFactoryInterface $fixturesLoaderFactory)
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
     {
         $this->container = $container;
         $this->eventDispatcher = $container->get('event_dispatcher');
@@ -106,7 +124,10 @@ abstract class AbstractDatabaseTool
     {
         $this->omName = $omName;
         $this->om = $this->registry->getManager($omName);
+<<<<<<< HEAD
         $this->connection = $this->registry->getConnection($omName);
+=======
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
     }
 
     public function setRegistryName(string $registryName): void
@@ -271,6 +292,7 @@ abstract class AbstractDatabaseTool
             && false !== $this->container->getParameter(self::CACHE_METADATA_PARAMETER_NAME);
     }
 
+<<<<<<< HEAD
     private function getPlatformName(): string
     {
         $platform = $this->connection->getDatabasePlatform();
@@ -285,4 +307,7 @@ abstract class AbstractDatabaseTool
 
         return (new \ReflectionClass($platform))->getShortName();
     }
+=======
+    abstract protected function getPlatformName(): string;
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 }

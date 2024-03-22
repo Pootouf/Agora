@@ -200,7 +200,11 @@ EOF
 
         if (null === $mounts) {
             $mounts = [];
+<<<<<<< HEAD
             if ('/' === \DIRECTORY_SEPARATOR && $files = @file('/proc/mounts')) {
+=======
+            if ('/' === \DIRECTORY_SEPARATOR && is_readable('/proc/mounts') && $files = @file('/proc/mounts')) {
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
                 foreach ($files as $mount) {
                     $mount = \array_slice(explode(' ', $mount), 1, -3);
                     if (!\in_array(array_pop($mount), ['vboxsf', 'nfs'])) {

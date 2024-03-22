@@ -36,8 +36,12 @@ use function method_exists;
  * The EntityManager is the central access point to ORM functionality.
  *
  * It is a facade to all different ORM subsystems such as UnitOfWork,
+<<<<<<< HEAD
  * Query Language and Repository API. Instantiation is done through
  * the static create() method. The quickest way to obtain a fully
+=======
+ * Query Language and Repository API. The quickest way to obtain a fully
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
  * configured EntityManager is:
  *
  *     use Doctrine\ORM\Tools\ORMSetup;

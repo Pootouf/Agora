@@ -99,7 +99,11 @@ final class DockerDatabaseServices
     /**
      * @throws RuntimeCommandException
      */
+<<<<<<< HEAD
     private static function throwInvalidDatabase(string $name): void
+=======
+    private static function throwInvalidDatabase(string $name): never
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
     {
         throw new RuntimeCommandException(sprintf('%s is not a valid / supported docker database type.', $name));
     }

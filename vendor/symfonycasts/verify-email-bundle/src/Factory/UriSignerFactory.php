@@ -15,6 +15,7 @@ use Symfony\Component\HttpKernel\UriSigner as LegacyUriSigner;
 /**
  * @author Victor Bocharsky <victor@symfonycasts.com>
  * @author Ryan Weaver      <ryan@symfonycasts.com>
+<<<<<<< HEAD
  */
 class UriSignerFactory
 {
@@ -25,6 +26,22 @@ class UriSignerFactory
     {
         $this->secret = $secret;
         $this->parameter = $parameter;
+=======
+ *
+ * Will become final && internal and ultimately removed in v2.0.
+ *
+ * @internal
+ *
+ * @final
+ */
+class UriSignerFactory
+{
+    public function __construct(
+        #[\SensitiveParameter]
+        private string $secret,
+        private string $parameter = '_hash'
+    ) {
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
     }
 
     /**

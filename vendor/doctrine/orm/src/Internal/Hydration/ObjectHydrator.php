@@ -91,7 +91,11 @@ class ObjectHydrator extends AbstractHydrator
             }
 
             // handle fetch-joined owning side bi-directional one-to-one associations
+<<<<<<< HEAD
             if ($assoc->inversedBy) {
+=======
+            if ($assoc->inversedBy !== null) {
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
                 $class        = $this->getClassMetadata($className);
                 $inverseAssoc = $class->associationMappings[$assoc->inversedBy];
 
@@ -439,7 +443,11 @@ class ObjectHydrator extends AbstractHydrator
                             if ($relation->isOwningSide()) {
                                 // TODO: Just check hints['fetched'] here?
                                 // If there is an inverse mapping on the target class its bidirectional
+<<<<<<< HEAD
                                 if ($relation->inversedBy) {
+=======
+                                if ($relation->inversedBy !== null) {
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
                                     $inverseAssoc = $targetClass->associationMappings[$relation->inversedBy];
                                     if ($inverseAssoc->isToOne()) {
                                         $targetClass->reflFields[$inverseAssoc->fieldName]->setValue($element, $parentObject);

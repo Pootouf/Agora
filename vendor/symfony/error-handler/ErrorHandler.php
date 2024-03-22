@@ -432,7 +432,11 @@ class ErrorHandler
                 return true;
             }
         } else {
+<<<<<<< HEAD
             if (str_contains($message, '@anonymous')) {
+=======
+            if (PHP_VERSION_ID < 80303 && str_contains($message, '@anonymous')) {
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
                 $backtrace = debug_backtrace(false, 5);
 
                 for ($i = 1; isset($backtrace[$i]); ++$i) {
@@ -440,8 +444,12 @@ class ErrorHandler
                         && ('trigger_error' === $backtrace[$i]['function'] || 'user_error' === $backtrace[$i]['function'])
                     ) {
                         if ($backtrace[$i]['args'][0] !== $message) {
+<<<<<<< HEAD
                             $message = $this->parseAnonymousClass($backtrace[$i]['args'][0]);
                             $logMessage = $this->levels[$type].': '.$message;
+=======
+                            $message = $backtrace[$i]['args'][0];
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
                         }
 
                         break;
@@ -449,6 +457,14 @@ class ErrorHandler
                 }
             }
 
+<<<<<<< HEAD
+=======
+            if (false !== strpos($message, "@anonymous\0")) {
+                $message = $this->parseAnonymousClass($message);
+                $logMessage = $this->levels[$type].': '.$message;
+            }
+
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
             $errorAsException = new \ErrorException($logMessage, 0, $type, $file, $line);
 
             if ($throw || $this->tracedErrors & $type) {

@@ -11,8 +11,11 @@ use Doctrine\ORM\Query\QueryException;
 use Doctrine\ORM\Query\SqlWalker;
 use Doctrine\ORM\Query\TokenType;
 
+<<<<<<< HEAD
 use function assert;
 use function is_numeric;
+=======
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 use function strtolower;
 
 /**
@@ -63,6 +66,7 @@ class DateAddFunction extends FunctionNode
         };
     }
 
+<<<<<<< HEAD
     /**
      * @return numeric-string
      *
@@ -74,6 +78,12 @@ class DateAddFunction extends FunctionNode
         assert(is_numeric($sql));
 
         return $sql;
+=======
+    /** @throws ASTException */
+    private function dispatchIntervalExpression(SqlWalker $sqlWalker): string
+    {
+        return $this->intervalExpression->dispatch($sqlWalker);
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
     }
 
     public function parse(Parser $parser): void

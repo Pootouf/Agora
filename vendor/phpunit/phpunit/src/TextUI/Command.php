@@ -16,6 +16,10 @@ use function array_keys;
 use function assert;
 use function class_exists;
 use function copy;
+<<<<<<< HEAD
+=======
+use function explode;
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 use function extension_loaded;
 use function fgets;
 use function file_get_contents;
@@ -598,6 +602,7 @@ class Command
     {
         $this->printVersionString();
 
+<<<<<<< HEAD
         $latestVersion = file_get_contents('https://phar.phpunit.de/latest-version-of/phpunit');
         $isOutdated    = version_compare($latestVersion, Version::id(), '>');
 
@@ -609,6 +614,33 @@ class Command
             );
         } else {
             print 'You are using the latest version of PHPUnit.' . PHP_EOL;
+=======
+        $latestVersion           = file_get_contents('https://phar.phpunit.de/latest-version-of/phpunit');
+        $latestCompatibleVersion = file_get_contents('https://phar.phpunit.de/latest-version-of/phpunit-' . explode('.', Version::series())[0]);
+
+        $notLatest           = version_compare($latestVersion, Version::id(), '>');
+        $notLatestCompatible = version_compare($latestCompatibleVersion, Version::id(), '>');
+
+        if ($notLatest || $notLatestCompatible) {
+            print 'You are not using the latest version of PHPUnit.' . PHP_EOL;
+        } else {
+            print 'You are using the latest version of PHPUnit.' . PHP_EOL;
+        }
+
+        if ($notLatestCompatible) {
+            printf(
+                'The latest version compatible with PHPUnit %s is PHPUnit %s.' . PHP_EOL,
+                Version::id(),
+                $latestCompatibleVersion,
+            );
+        }
+
+        if ($notLatest) {
+            printf(
+                'The latest version is PHPUnit %s.' . PHP_EOL,
+                $latestVersion,
+            );
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         }
 
         exit(TestRunner::SUCCESS_EXIT);

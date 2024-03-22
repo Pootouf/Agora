@@ -53,6 +53,11 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Translation\Translator;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
+<<<<<<< HEAD
+=======
+use Symfony\Component\Validator\Constraints\NotCompromisedPassword;
+use Symfony\Component\Validator\Constraints\PasswordStrength;
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -160,7 +165,11 @@ class MakeResetPassword extends AbstractMaker
         $this->controllerResetSuccessRedirect = $io->ask(
             'What route should users be redirected to after their password has been successfully reset?',
             'app_home',
+<<<<<<< HEAD
             [Validator::class, 'notBlank']
+=======
+            Validator::notBlank(...)
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         );
 
         $io->section('- Email -');
@@ -170,13 +179,21 @@ class MakeResetPassword extends AbstractMaker
         $this->fromEmailAddress = $io->ask(
             'What email address will be used to send reset confirmations? e.g. mailer@your-domain.com',
             null,
+<<<<<<< HEAD
             [Validator::class, 'validateEmailAddress']
+=======
+            Validator::validateEmailAddress(...)
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         );
 
         $this->fromEmailName = $io->ask(
             'What "name" should be associated with that email address? e.g. "Acme Mail Bot"',
             null,
+<<<<<<< HEAD
             [Validator::class, 'notBlank']
+=======
+            Validator::notBlank(...)
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         );
     }
 
@@ -292,6 +309,11 @@ class MakeResetPassword extends AbstractMaker
             OptionsResolver::class,
             Length::class,
             NotBlank::class,
+<<<<<<< HEAD
+=======
+            NotCompromisedPassword::class,
+            PasswordStrength::class,
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
         ]);
 
         $generator->generateClass(

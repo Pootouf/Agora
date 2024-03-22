@@ -9,6 +9,10 @@
 
 namespace SymfonyCasts\Bundle\VerifyEmail;
 
+<<<<<<< HEAD
+=======
+use Symfony\Component\HttpFoundation\Request;
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
 use SymfonyCasts\Bundle\VerifyEmail\Model\VerifyEmailSignatureComponents;
 
@@ -17,6 +21,11 @@ use SymfonyCasts\Bundle\VerifyEmail\Model\VerifyEmailSignatureComponents;
  *
  * @author Jesse Rushlow <jr@rushlow.dev>
  * @author Ryan Weaver   <ryan@symfonycasts.com>
+<<<<<<< HEAD
+=======
+ *
+ * @method void validateEmailConfirmationFromRequest(Request $request, string $userId, string $userEmail)
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
  */
 interface VerifyEmailHelperInterface
 {
@@ -33,6 +42,11 @@ interface VerifyEmailHelperInterface
     public function generateSignature(string $routeName, string $userId, string $userEmail, array $extraParams = []): VerifyEmailSignatureComponents;
 
     /**
+<<<<<<< HEAD
+=======
+     * @deprecated since v1.17.0, use validateEmailConfirmationFromRequest instead.
+     *
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
      * Validate a signed an email confirmation request.
      *
      * If something is wrong with the email confirmation, a

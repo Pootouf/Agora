@@ -5,11 +5,21 @@ declare(strict_types=1);
 namespace Doctrine\Persistence\Reflection;
 
 use BackedEnum;
+<<<<<<< HEAD
 use ReflectionProperty;
+=======
+use ReflectionClass;
+use ReflectionProperty;
+use ReflectionType;
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 use ReturnTypeWillChange;
 
 use function array_map;
 use function is_array;
+<<<<<<< HEAD
+=======
+use function reset;
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 
 /**
  * PHP Enum Reflection Property - special override for backed enums.
@@ -32,6 +42,47 @@ class EnumReflectionProperty extends ReflectionProperty
     /**
      * {@inheritDoc}
      *
+<<<<<<< HEAD
+=======
+     * @psalm-external-mutation-free
+     */
+    public function getDeclaringClass(): ReflectionClass
+    {
+        return $this->originalReflectionProperty->getDeclaringClass();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @psalm-external-mutation-free
+     */
+    public function getName(): string
+    {
+        return $this->originalReflectionProperty->getName();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @psalm-external-mutation-free
+     */
+    public function getType(): ?ReflectionType
+    {
+        return $this->originalReflectionProperty->getType();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getAttributes(?string $name = null, int $flags = 0): array
+    {
+        return $this->originalReflectionProperty->getAttributes($name, $flags);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
      * Converts enum instance to its value.
      *
      * @param object|null $object
@@ -86,6 +137,7 @@ class EnumReflectionProperty extends ReflectionProperty
     }
 
     /**
+<<<<<<< HEAD
      * @param int|string|int[]|string[] $value
      *
      * @return ($value is int|string ? BackedEnum : BackedEnum[])
@@ -93,9 +145,50 @@ class EnumReflectionProperty extends ReflectionProperty
     private function toEnum($value)
     {
         if (is_array($value)) {
+=======
+     * @param int|string|int[]|string[]|BackedEnum|BackedEnum[] $value
+     *
+     * @return ($value is int|string|BackedEnum ? BackedEnum : BackedEnum[])
+     */
+    private function toEnum($value)
+    {
+        if ($value instanceof BackedEnum) {
+            return $value;
+        }
+
+        if (is_array($value)) {
+            $v = reset($value);
+            if ($v instanceof BackedEnum) {
+                return $value;
+            }
+
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
             return array_map([$this->enumType, 'from'], $value);
         }
 
         return $this->enumType::from($value);
     }
+<<<<<<< HEAD
+=======
+
+    /**
+     * {@inheritDoc}
+     *
+     * @psalm-external-mutation-free
+     */
+    public function getModifiers(): int
+    {
+        return $this->originalReflectionProperty->getModifiers();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @psalm-external-mutation-free
+     */
+    public function getDocComment(): string|false
+    {
+        return $this->originalReflectionProperty->getDocComment();
+    }
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 }

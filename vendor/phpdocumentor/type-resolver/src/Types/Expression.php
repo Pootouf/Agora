@@ -22,7 +22,12 @@ use phpDocumentor\Reflection\Type;
  */
 final class Expression implements Type
 {
+<<<<<<< HEAD
     protected Type $valueType;
+=======
+    /** @var Type */
+    protected $valueType;
+>>>>>>> 2b5a5be8c33b93a2ea2500b9c6aa226dbc5bc939
 
     /**
      * Initializes this representation of an array with the given Type.
