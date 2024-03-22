@@ -42,4 +42,12 @@ class MyrmesParameters
     public static string $FALL_SEASON_NAME = "fall";
     public static string $INVALID_SEASON_NAME = "invalid";
 
+
+    //TILE TYPES
+    public static string $WATER_TILE_TYPE = "water";
+    public static string $DIRT_TILE_TYPE = "dirt";
+    public static string $MUSHROOM_TILE_TYPE = "mushroom";
+    public static string $STONE_TILE_TYPE = "stone";
+    public static string $GRASS_TILE_TYPE = "grass";
+
 }
