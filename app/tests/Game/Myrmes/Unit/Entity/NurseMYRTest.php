@@ -1,8 +1,7 @@
 <?php
 
-namespace App\Tests\Game\Myrmes\Unit;
+namespace App\Tests\Game\Myrmes\Unit\Entity;
 
-use App\Entity\Game\DTO\Player;
 use App\Entity\Game\Myrmes\GameMYR;
 use App\Entity\Game\Myrmes\MyrmesParameters;
 use App\Entity\Game\Myrmes\NurseMYR;
