@@ -11,6 +11,7 @@ use App\Entity\Game\Glenmore\PersonalBoardGLM;
 use App\Entity\Game\Glenmore\PlayerCardGLM;
 use App\Entity\Game\Glenmore\PlayerGLM;
 use App\Entity\Game\Glenmore\PlayerTileGLM;
+use App\Entity\Game\Glenmore\ResourceGLM;
 use App\Entity\Game\Glenmore\SelectedResourceGLM;
 use PHPUnit\Framework\TestCase;
 
@@ -387,6 +388,21 @@ class PersonalBoardGLMTest extends TestCase
         // THEN
 
         $this->assertSame($playerTile, $this->personalBoardGLM->getActivatedTile());
+    }
+
+    public function testSetResourceToSell() : void
+    {
+        // GIVEN
+
+        $resource = new ResourceGLM();
+
+        // WHEN
+
+        $this->personalBoardGLM->setResourceToSell($resource);
+
+        // THEN
+
+        $this->assertSame($resource, $this->personalBoardGLM->getResourceToSell());
     }
 
     protected function setUp(): void
