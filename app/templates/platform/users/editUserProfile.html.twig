@@ -1,24 +1,70 @@
-{% extends 'platform/base.html.twig' %}
+{% extends 'platform/dashboard/layout.html.twig' %}
+
+{% block title %}
+	Paramètres
+{% endblock %}
+
 {% block body %}
-<header class="relative isolate px-6 pt-14 lg:px-8">
+<header class="relative isolate px-6 lg:px-8 flex justify-center items-center h-screen">
    <div class="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80" aria-hidden="true">
-      <div
-         class="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-danger to-primary opacity-30 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]"
-         style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%);"
-         ></div>
+      <div class="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-danger to-primary opacity-30 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]" style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%);"></div>
    </div>
-   <form method="GET">
-        {{ form_start(form) }}
-        {{ form_widget(form) }}
-        <button type="submit">Save</button>
-        {{ form_end(form) }}
-    </form>
+   <div>
+   <div class="relative z-50 xl:hidden" role="dialog" aria-modal="true">
+   <div></div>
+   <div>
+      <div class="relative mr-16 flex w-full max-w-xs flex-1">
+         <main>
+            <div class="divide-y divide-black/5">
+               <div class="grid max-w-7xl grid-cols-1 gap-x-8 gap-y-10 px-4 py-16 sm:px-6 md:grid-cols-3 lg:px-8">
+                  <div class="flex justify-center items-center flex-col">
+				  {% include 'platform/shared/flashMessage.html.twig' %}
+    <h2 class="mb-4 text-base font-semibold leading-7" style="white-space: nowrap;">Modifier mes informations personnelles</h2>
+</div>
+  <form method="GET">
+    {{ form_start(form) }}
+    <div class="grid grid-cols-1 gap-x-6 gap-y-8 sm:max-w-xl sm:grid-cols-6">
+      <div class="col-span-full sm:col-span-6">
+    <label for="username" class="block text-sm font-medium leading-6">Identifiant</label>
+    <div class="mt-2">
+        {{ form_widget(form.username, {'attr': {'class': 'block w-full md:w-96 rounded-md border-0 bg-white/5 py-2 text-black font-bold shadow-sm ring-1 ring-inset ring-black/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6', 'autocomplete': 'username', 'placeholder': 'Entrer un identifiant', 'readonly': 'readonly', 'disabled': 'disabled'}}) }}
+    </div>
+</div>
+
+
+        <div class="col-span-full sm:col-span-6">
+            <label for="email" class="block text-sm font-medium leading-6">Email</label>
+            <div class="mt-2">
+                {{ form_widget(form.email, {'attr': {'class': 'block w-full md:w-96 rounded-md border-0 bg-white/5 py-2 text-black font-bold shadow-sm ring-1 ring-inset ring-black/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6', 'autocomplete': 'email', 'placeholder': 'exemple@exemple.fr'}}) }}
+            </div>
+        </div>
+       <div class="sm:col-span-3">
+    <label for="plainPassword" class="block text-sm font-medium leading-6">Nouveau mot de passe</label>
+    <div class="mt-2">
+        {{ form_widget(form.plainPassword.first, {'attr': {'type': 'password', 'class': 'block w-full md:w-96 rounded-md border-0 bg-white/5 py-2 text-black font-bold shadow-sm ring-1 ring-inset ring-black/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6', 'autocomplete': 'new-password', 'placeholder': 'Nouveau mot de passe'}}) }}
+    </div>
+</div>
+<div class="sm:col-span-3">
+    <label for="confirmPlainPassword" class="block text-sm font-medium leading-6">Confirmer le nouveau mot de passe</label>
+    <div class="mt-2">
+        {{ form_widget(form.plainPassword.second, {'attr': {'type': 'password', 'class': 'block w-full md:w-96 rounded-md border-0 bg-white/5 py-2 text-black font-bold shadow-sm ring-1 ring-inset ring-black/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6', 'autocomplete': 'new-password', 'placeholder': 'Nouveau mot de passe'}}) }}
+    </div>
+</div>
+
+    </div>
+    <div class="mt-6 flex justify-center">
+    {{ form_row(form.submit, {'attr': {'class': 'text-white bg-primary hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2'}}) }}
+</div>
+
+    {{ form_end(form) }}
+</form>
+</div>
+            </div>
+         </main>
+      </div>
+   </div>
    <div class="absolute inset-x-0 top-[calc(100%-13rem)] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[calc(100%-30rem)]" aria-hidden="true">
-      <div
-         class="relative left-[calc(50%+3rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 bg-gradient-to-tr from-primary to-danger opacity-30 sm:left-[calc(50%+36rem)] sm:w-[72.1875rem]"
-         style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%);"
-         ></div>
+      <div class="relative left-[calc(50%+3rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 bg-gradient-to-tr from-primary to-danger opacity-30 sm:left-[calc(50%+36rem)] sm:w-[72.1875rem]" style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%);"></div>
    </div>
 </header>
-    
 {% endblock %}
