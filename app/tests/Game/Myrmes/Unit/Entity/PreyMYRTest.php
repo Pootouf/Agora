@@ -2,7 +2,10 @@
 
 namespace App\Tests\Game\Myrmes\Unit\Entity;
 
+use App\Entity\Game\Myrmes\GameMYR;
+use App\Entity\Game\Myrmes\PlayerMYR;
 use App\Entity\Game\Myrmes\PreyMYR;
+use App\Entity\Game\Myrmes\TileMYR;
 use PHPUnit\Framework\TestCase;
 
 class PreyMYRTest extends TestCase
@@ -31,6 +34,36 @@ class PreyMYRTest extends TestCase
         // THEN
 
         $this->assertSame($type, $this->preyMYR->getType());
+    }
+
+    public function testSetTile() : void
+    {
+        // GIVEN
+
+        $tile = new TileMYR();
+
+        // WHEN
+
+        $this->preyMYR->setTile($tile);
+
+        // THEN
+
+        $this->assertSame($tile, $this->preyMYR->getTile());
+    }
+
+    public function testSetPlayer() : void
+    {
+        // GIVEN
+
+        $player = new PlayerMYR("user", new GameMYR());
+
+        // WHEN
+
+        $this->preyMYR->setPlayer($player);
+
+        // THEN
+
+        $this->assertSame($player, $this->preyMYR->getPlayer());
     }
 
     protected function setUp(): void
