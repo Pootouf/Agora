@@ -167,20 +167,6 @@ class PersonalBoardMYRTest extends TestCase
         $this->assertSame($bonus, $this->personalBoardMYR->getBonus());
     }
 
-    public function testSetHuntedPreyCount() : void
-    {
-        // GIVEN
-
-        $huntedPreyCount = 4;
-
-        // WHEN
-
-        $this->personalBoardMYR->setHuntedPreyCount($huntedPreyCount);
-
-        // THEN
-        $this->assertSame($huntedPreyCount, $this->personalBoardMYR->getHuntedPreyCount());
-    }
-
     public function testAddPlayerResourceYetNotAdded() : void
     {
         // GIVEN

@@ -10,7 +10,9 @@ use App\Entity\Game\Myrmes\GardenTileMYR;
 use App\Entity\Game\Myrmes\GardenWorkerMYR;
 use App\Entity\Game\Myrmes\NurseMYR;
 use App\Entity\Game\Myrmes\PersonalBoardMYR;
+use App\Entity\Game\Myrmes\PheromonMYR;
 use App\Entity\Game\Myrmes\PlayerMYR;
+use App\Entity\Game\Myrmes\PreyMYR;
 use PHPUnit\Framework\TestCase;
 
 class PlayerMYRTest extends TestCase
@@ -62,71 +64,6 @@ class PlayerMYRTest extends TestCase
         $this->assertSame($goalLevel, $this->playerMYR->getGoalLevel());
     }
 
-    public function testAddNurseYetNotAdded() : void
-    {
-        // GIVEN
-
-        $nurse = new NurseMYR();
-
-        // WHEN
-
-        $this->playerMYR->addNurseMYR($nurse);
-
-        // THEN
-
-        $this->assertContains($nurse, $this->playerMYR->getNurseMYRs());
-    }
-
-    public function testRemoveNurseNotYetRemoved() : void
-    {
-        // GIVEN
-
-        $nurse = new NurseMYR();
-        $this->playerMYR->addNurseMYR($nurse);
-
-        // WHEN
-
-        $this->playerMYR->removeNurseMYR($nurse);
-
-        // THEN
-
-        $this->assertNotContains($nurse, $this->playerMYR->getNurseMYRs());
-        $this->assertNull($nurse->getPlayer());
-    }
-
-    public function testAddAnthillWorkerYetNotAdded() : void
-    {
-        // GIVEN
-
-        $anthillWorker = new AnthillWorkerMYR();
-
-        // WHEN
-
-        $this->playerMYR->addAnthillWorkerMYR($anthillWorker);
-
-        // THEN
-
-        $this->assertContains($anthillWorker, $this->playerMYR->getAnthillWorkerMYRs());
-        $this->assertSame($this->playerMYR, $anthillWorker->getPlayer());
-    }
-
-    public function testRemoveAnthillWorkerYetNotRemoved() : void
-    {
-        // GIVEN
-
-        $anthillWorker = new AnthillWorkerMYR();
-        $this->playerMYR->addAnthillWorkerMYR($anthillWorker);
-
-        // WHEN
-
-        $this->playerMYR->removeAnthillWorkerMYR($anthillWorker);
-
-        // THEN
-
-        $this->assertNotContains($anthillWorker, $this->playerMYR->getAnthillWorkerMYRs());
-        $this->assertNull($anthillWorker->getPlayer());
-    }
-
     public function testAddGardenWorkerYetNotAdded() : void
     {
         // GIVEN
@@ -158,39 +95,6 @@ class PlayerMYRTest extends TestCase
 
         $this->assertNotContains($gardenWorker, $this->playerMYR->getGardenWorkerMYRs());
         $this->assertNull($gardenWorker->getPlayer());
-    }
-
-    public function testAddGardenTileYetNotAdded() : void
-    {
-        // GIVEN
-
-        $gardenTile = new GardenTileMYR();
-
-        // WHEN
-
-        $this->playerMYR->addGardenTileMYR($gardenTile);
-
-        // THEN
-
-        $this->assertContains($gardenTile, $this->playerMYR->getGardenTileMYRs());
-        $this->assertSame($this->playerMYR, $gardenTile->getPlayer());
-    }
-
-    public function testRemoveGardenTileYetNotRemoved() : void
-    {
-        // GIVEN
-
-        $gardenTile = new GardenTileMYR();
-        $this->playerMYR->addGardenTileMYR($gardenTile);
-
-        // WHEN
-
-        $this->playerMYR->removeGardenTileMYR($gardenTile);
-
-        // THEN
-
-        $this->assertNotContains($gardenTile, $this->playerMYR->getGardenTileMYRs());
-        $this->assertNull($gardenTile->getPlayer());
     }
 
     public function testAddGameGoalYetNotAdded() : void
@@ -288,6 +192,72 @@ class PlayerMYRTest extends TestCase
         // THEN
 
         $this->assertSame($game, $this->playerMYR->getGameMyr());
+    }
+
+    public function testAddPheromoneYetNotAdded() : void
+    {
+        // GIVEN
+
+        $pheromone = new PheromonMYR();
+
+        // WHEN
+
+        $this->playerMYR->addPheromonMYR($pheromone);
+
+        // THEN
+
+        $this->assertContains($pheromone, $this->playerMYR->getPheromonMYRs());
+        $this->assertSame($pheromone->getPlayer(), $this->playerMYR);
+    }
+
+    public function testRemovePheromoneYetNotRemoved() : void
+    {
+        // GIVEN
+
+        $pheromone = new PheromonMYR();
+        $this->playerMYR->addPheromonMYR($pheromone);
+
+        // WHEN
+
+        $this->playerMYR->removePheromonMYR($pheromone);
+
+        // THEN
+
+        $this->assertNotContains($pheromone, $this->playerMYR->getPheromonMYRs());
+        $this->assertNull($pheromone->getPlayer());
+    }
+
+    public function testAddPreyNotYetAdded() : void
+    {
+        // GIVEN
+
+        $prey = new PreyMYR();
+
+        // WHEN
+
+        $this->playerMYR->addPreyMYR($prey);
+
+        // THEN
+
+        $this->assertContains($prey, $this->playerMYR->getPreyMYRs());
+        $this->assertSame($this->playerMYR, $prey->getPlayer());
+    }
+
+    public function testRemovePreyYetNotRemoved() : void
+    {
+        // GIVEN
+
+        $prey = new PreyMYR();
+        $this->playerMYR->addPreyMYR($prey);
+
+        // WHEN
+
+        $this->playerMYR->removePreyMYR($prey);
+
+        // THEN
+
+        $this->assertNotContains($prey, $this->playerMYR->getPreyMYRs());
+        $this->assertNull($prey->getPlayer());
     }
 
     protected function setUp(): void
