@@ -20,8 +20,7 @@ class WarehouseGLMService
 {
 
     public function __construct(private EntityManagerInterface $entityManager,
-                                private TileGLMService $tileGLMService,
-                                private LoggerInterface $logger){}
+                                private TileGLMService $tileGLMService){}
 
 
     /**
@@ -32,7 +31,7 @@ class WarehouseGLMService
      * @throws Exception
      */
     public function sellResource(PlayerGLM $player
-        , ResourceGLM $resource) : void
+        , ResourceGLM $resource, SelectedResourceGLM $selectedResourceGLM) : void
     {
         // Initialization
         $personalBoard = $player->getPersonalBoard();
@@ -46,33 +45,36 @@ class WarehouseGLMService
         );
         if ($warehouseLine == null)
         {
-            throw new Exception("Unable to sell the resource");
+            throw new Exception("Unable to sell the resource, there is no such resource in warehouse");
         }
 
         $money = GlenmoreParameters::$MONEY_FROM_QUANTITY[$warehouseLine->getQuantity() - 1];
         if ($money == GlenmoreParameters::$MIN_TRADE)
         {
-            throw new Exception("Unable to sell the resource");
+            throw new Exception("Unable to sell the resource, there is no place to sell");
         }
 
 
-        // Check if the player has the resource
-        $tileResource = $this->getResourceOnPersonalBoard(
-            $personalBoard,
-            $resource
-        );
-
-        if ($tileResource == null || $tileResource->getQuantity() == 0)
+        if ($selectedResourceGLM->getQuantity() == 0)
         {
-            throw new Exception("Unable to sell the resource");
+            throw new Exception("Unable to sell the resource, player tile does not have enough resource");
         }
 
         // Manage resource and update
-        $tileResource->setQuantity($tileResource->getQuantity() - 1);
+        $playerTileResource = $selectedResourceGLM->getPlayerTile()->getPlayerTileResource()
+            ->filter(function (PlayerTileResourceGLM $playerTileResource) use ($resource) {
+                return $playerTileResource->getResource()->getId() == $resource->getId()
+                    && $playerTileResource->getQuantity() > 0;
+            })->first();
+        if(!$playerTileResource) {
+            throw new Exception("Unable to sell the resource, impossible to find the tile resource");
+        }
+        $playerTileResource->setQuantity($playerTileResource->getQuantity() - 1);
         $personalBoard->setMoney($personalBoard->getMoney() + $money);
         $this->manageWarehouseLine($warehouseLine, $money, false);
-        $this->entityManager->persist($tileResource);
+        $this->entityManager->persist($playerTileResource);
         $this->entityManager->persist($personalBoard);
+        $this->entityManager->remove($selectedResourceGLM);
         $this->entityManager->flush();
     }
 
@@ -176,35 +178,6 @@ class WarehouseGLMService
         return null;
     }
 
-    /**
-     * Return a tile's player or null that contains resource
-     * @param PersonalBoardGLM $personalBoard
-     * @param ResourceGLM $resource
-     * @return PlayerTileResourceGLM|null
-     */
-    public function getResourceOnPersonalBoard(PersonalBoardGLM $personalBoard
-        , ResourceGLM $resource) : ?PlayerTileResourceGLM
-    {
-
-        // Search this resource in personal board
-        $playerTiles = $personalBoard->getPlayerTiles();
-        foreach ($playerTiles as $t)
-        {
-            $tilesResource = $t->getPlayerTileResource();
-            foreach ($tilesResource as $tile)
-            {
-                if ($tile->getQuantity() > 0)
-                {
-                    $r = $tile->getResource();
-                    if ($r->getColor() === $resource->getColor())
-                    {
-                        return $tile;
-                    }
-                }
-            }
-        }
-        return null;
-    }
 
     private function manageWarehouseLine(WarehouseLineGLM $warehouseLine, int $money, bool $isPurchasable) : void
     {

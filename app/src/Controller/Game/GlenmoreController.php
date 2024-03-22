@@ -170,9 +170,9 @@ class GlenmoreController extends AbstractController
         return new Response('player bought this resource', Response::HTTP_OK);
     }
 
-    #[Route('game/glenmore/{idGame}/sell/resource/warehouse/production/mainBoard/{idResourceLine}',
-        name: 'app_game_glenmore_sell_resource_warehouse_production_on_mainboard')]
-    public function sellResourceWarehouseProductionOnMainBoard(
+    #[Route('game/glenmore/{idGame}/activate/selling/resource/warehouse/production/mainBoard/{idResourceLine}',
+        name: 'app_game_glenmore_activate_selling_resource_warehouse_production_on_mainboard')]
+    public function activateSellingResourceWarehouseProductionOnMainBoard(
         #[MapEntity(id: 'idGame')] GameGLM $game,
         #[MapEntity(id: 'idResourceLine')] WarehouseLineGLM $line
     )  : Response
@@ -184,20 +184,14 @@ class GlenmoreController extends AbstractController
         if ($this->service->getActivePlayer($game) !== $player) {
             return new Response("Not player's turn", Response::HTTP_FORBIDDEN);
         }
-        try {
-            $this->warehouseGLMService->sellResource($player, $line->getResource());
-        } catch (Exception) {
-            $message = $player->getUsername() . " tried to sell resource " . $line->getResource()->getId()
-                . " but could not do it";
-            $this->logService->sendPlayerLog($game, $player, $message);
-            return new Response("can't sell this resource", Response::HTTP_FORBIDDEN);
-        }
-        $this->publishMainBoardPreview($game);
-        $this->publishRanking($game);
-        $this->publishMainBoard($game);
-        $message = $player->getUsername() . " chose resource " . $line->getResource()->getId();
-        $this->logService->sendPlayerLog($game, $player, $message);
-        return new Response('player sold this resource', Response::HTTP_OK);
+        $player->getPersonalBoard()->setResourceToSell($line->getResource());
+        $this->service->setPhase($player, GlenmoreParameters::$SELLING_PHASE);
+        $player->setActivatedResourceSelection(true);
+        $this->entityManager->persist($player);
+        $this->entityManager->persist($player->getPersonalBoard());
+        $this->entityManager->flush();
+
+        return new Response('player activated selling selection of resource', Response::HTTP_OK);
     }
 
     #[Route('game/glenmore/{idGame}/select/tile/mainBoard/{idTile}',
@@ -331,13 +325,19 @@ class GlenmoreController extends AbstractController
             try {
                 $this->tileGLMService->selectResourcesFromTileToBuy($tile, $resourceGLM->getResource());
             } catch (\Exception $e) {
-                return new Response($e->getMessage(), Response::HTTP_UNAVAILABLE_FOR_LEGAL_REASONS);
+                return new Response($e->getMessage(), Response::HTTP_FORBIDDEN);
             }
         } else if ($phase == GlenmoreParameters::$ACTIVATION_PHASE) {
             try {
                 $this->tileGLMService->selectResourcesFromTileToActivate($tile, $resourceGLM->getResource());
             } catch (\Exception $e) {
-                return new Response($e->getMessage(), Response::HTTP_UNAVAILABLE_FOR_LEGAL_REASONS);
+                return new Response($e->getMessage(), Response::HTTP_FORBIDDEN);
+            }
+        } else if ($phase == GlenmoreParameters::$SELLING_PHASE) {
+            try {
+                $this->tileGLMService->selectResourcesFromTileToSellResource($tile, $resourceGLM->getResource());
+            } catch (Exception $e) {
+                return new Response($e->getMessage(), Response::HTTP_FORBIDDEN);
             }
         }
         $this->publishPersonalBoard($player, []);
@@ -597,19 +597,47 @@ class GlenmoreController extends AbstractController
             )) {
                 return new Response('player has not selected needed resources', Response::HTTP_FORBIDDEN);
             }
-            $player->setActivatedResourceSelection(false);
-            $this->entityManager->persist($player);
+
         } else if ($playerPhase == GlenmoreParameters::$ACTIVATION_PHASE) {
             try {
-                $activableTiles = $this->tileGLMService->getActivableTiles($player->getPersonalBoard()->getPlayerTiles()->last());
-                $this->tileGLMService->activateBonus($player->getPersonalBoard()->getActivatedTile(), $player, $activableTiles);
+                $activableTiles = $this->tileGLMService
+                    ->getActivableTiles($player->getPersonalBoard()->getPlayerTiles()->last());
+                $this->tileGLMService->activateBonus(
+                    $player->getPersonalBoard()->getActivatedTile(),
+                    $player,
+                    $activableTiles
+                );
             } catch (\Exception $e) {
-                return new Response($e->getMessage() . 'player has not selected needed resources', Response::HTTP_FORBIDDEN);
+                return new Response($e->getMessage() .
+                    'player has not selected needed resources',
+                    Response::HTTP_FORBIDDEN);
             }
             $this->service->setPhase($player, GlenmoreParameters::$STABLE_PHASE);
-            $player->setActivatedResourceSelection(false);
-            $this->entityManager->persist($player);
+
+        } else if ($playerPhase == GlenmoreParameters::$SELLING_PHASE) {
+            try {
+                $this->warehouseGLMService->sellResource(
+                    $player,
+                    $player->getPersonalBoard()->getResourceToSell(),
+                    $player->getPersonalBoard()->getSelectedResources()->first()
+                );
+            } catch (Exception) {
+                $message = $player->getUsername() .
+                    " tried to sell resource " .
+                    $player->getPersonalBoard()->getResourceToSell()->getId()
+                    . " but could not do it";
+                $this->logService->sendPlayerLog($game, $player, $message);
+                return new Response("can't sell this resource", Response::HTTP_FORBIDDEN);
+            }
+            $this->publishMainBoardPreview($game);
+            $this->publishMainBoard($game);
+            $message = $player->getUsername() .
+                " chose resource " .
+                $player->getPersonalBoard()->getResourceToSell()->getId();
+            $this->logService->sendPlayerLog($game, $player, $message);
         }
+        $player->setActivatedResourceSelection(false);
+        $this->entityManager->persist($player);
         $this->entityManager->flush();
         $this->publishPersonalBoard($player, $player->getPersonalBoard()->getBuyingTile() == null ? [] :
             $this->tileGLMService->verifyAllPositionOnPersonalBoard(

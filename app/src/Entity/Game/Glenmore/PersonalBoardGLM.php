@@ -39,6 +39,9 @@ class PersonalBoardGLM extends Component
     #[ORM\OneToOne(inversedBy: 'personalBoardGLM', cascade: ['persist', 'remove'])]
     private ?BuyingTileGLM $buyingTile = null;
 
+    #[ORM\ManyToOne]
+    private ?ResourceGLM $resourceToSell = null;
+
     public function __construct()
     {
         $this->playerTiles = new ArrayCollection();
@@ -228,6 +231,18 @@ class PersonalBoardGLM extends Component
     public function setBuyingTile(?BuyingTileGLM $buyingTile): static
     {
         $this->buyingTile = $buyingTile;
+
+        return $this;
+    }
+
+    public function getResourceToSell(): ?ResourceGLM
+    {
+        return $this->resourceToSell;
+    }
+
+    public function setResourceToSell(?ResourceGLM $resourceToSell): static
+    {
+        $this->resourceToSell = $resourceToSell;
 
         return $this;
     }
