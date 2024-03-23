@@ -21,7 +21,7 @@
 				  {% include 'platform/shared/flashMessage.html.twig' %}
     <h2 class="mb-4 text-base font-semibold leading-7" style="white-space: nowrap;">Modifier mes informations personnelles</h2>
 </div>
-  <form method="GET">
+<form method="GET" {# action="{{ path('app_user_edit_profile', {'id': user.id}) }}" #}>
     {{ form_start(form) }}
     <div class="grid grid-cols-1 gap-x-6 gap-y-8 sm:max-w-xl sm:grid-cols-6">
       <div class="col-span-full sm:col-span-6">
