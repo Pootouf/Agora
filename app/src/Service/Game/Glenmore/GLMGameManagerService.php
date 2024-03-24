@@ -63,7 +63,7 @@ class GLMGameManagerService extends AbstractGameManagerService
         $this->entityManager->persist($mainBoard);
         $this->entityManager->persist($game);
         $this->entityManager->flush();
-        $this->logService->sendSystemLog($game, "game " . $game->getId() . " was created");
+        $this->logService->sendSystemLog($game, "la partie " . $game->getId() . " a été créée");
         return $game->getId();
     }
 
@@ -104,7 +104,7 @@ class GLMGameManagerService extends AbstractGameManagerService
         $this->entityManager->persist($personalBoard);
         $this->entityManager->flush();
         $this->logService->sendPlayerLog($game, $player,
-            $playerName . " joined game " . $game->getId());
+            $playerName . " a rejoint la partie " . $game->getId());
         return GLMGameManagerService::$SUCCESS;
     }
 
@@ -127,7 +127,7 @@ class GLMGameManagerService extends AbstractGameManagerService
         $this->entityManager->remove($player);
         $this->entityManager->flush();
         $this->logService->sendSystemLog($game,
-            $playerName . " was removed from the game " . $game->getId());
+            $playerName . " a été retiré de la partie " . $game->getId());
         return GLMGameManagerService::$SUCCESS;
     }
 
@@ -151,7 +151,7 @@ class GLMGameManagerService extends AbstractGameManagerService
             $this->entityManager->remove($player);
         }
         $this->entityManager->remove($game->getMainBoard());
-        $this->logService->sendSystemLog($game, "game " . $game->getId() . "ended");
+        $this->logService->sendSystemLog($game, "la partie " . $game->getId() . " a pris fin");
         $this->entityManager->remove($game);
         $this->entityManager->flush();
         return GLMGameManagerService::$SUCCESS;
@@ -176,7 +176,7 @@ class GLMGameManagerService extends AbstractGameManagerService
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         $this->GLMService->initializeNewGame($game);
-        $this->logService->sendSystemLog($game, "game " . $game->getId() . " began");
+        $this->logService->sendSystemLog($game, "la partie " . $game->getId() . " a débuté");
         return GLMGameManagerService::$SUCCESS;
     }
 
