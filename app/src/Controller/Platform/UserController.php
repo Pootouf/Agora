@@ -58,6 +58,21 @@ class UserController extends AbstractController
         return $this->redirectToRoute('app_home');
     }
 
+    #[Route('/dashboard/contacts', name: 'app_contacts')]
+    public function contacts(): Response
+    {
+        // Récupérer l'utilisateur actuellement connecté
+        $user = $this->getUser();
+    
+        // Récupérer la liste de contacts pour cet utilisateur
+        $contacts = $user->getContacts();
+    
+        // Afficher la liste de contacts dans le template
+        return $this->render('platform/dashboard/contacts.html.twig', [
+            'contacts' => $contacts,
+        ]);
+    }
+
     #[Route('/user/{id}/editProfile', name: 'app_user_edit_profile')]
     public function editAccount(EntityManagerInterface $entityManager, Request $request, UserPasswordHasherInterface $userPasswordHarsher, User $user) :Response
     {
@@ -94,19 +109,6 @@ class UserController extends AbstractController
         ]);
     }
 
-    #[Route('/contacts', name: 'app_contacts')]
-    public function contacts(): Response
-    {
-        // Récupérer l'utilisateur actuellement connecté
-        $user = $this->getUser();
-
-        // Récupérer la liste de contacts pour cet utilisateur
-        $contacts = $user->getContacts();
-
-        // Afficher la liste de contacts dans le template
-        return $this->render('contacts/index.html.twig', [
-            'contacts' => $contacts,
-        ]);
-    }
+    
 
 }
