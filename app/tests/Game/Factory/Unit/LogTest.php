@@ -59,6 +59,26 @@ class LogTest extends TestCase
         //THEN
         $this->assertSame($date, $this->log->getDate());
     }
+
+    public function testSetGameLabel(): void
+    {
+        //GIVEN
+        $label = "GLM";
+        //WHEN
+        $this->log->setGameLabel($label);
+        //THEN
+        $this->assertSame($label, $this->log->getGameLabel());
+    }
+
+    public function testSetTime(): void
+    {
+        //GIVEN
+        $time = new \DateTime();
+        //WHEN
+        $this->log->setTime($time);
+        //THEN
+        $this->assertSame($time, $this->log->getTime());
+    }
     protected function setUp(): void
     {
         $this->log = new Log();
