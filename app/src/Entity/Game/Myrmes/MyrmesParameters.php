@@ -26,7 +26,7 @@ class MyrmesParameters
     public static int $MAX_NURSES_COUNT_PER_PLAYER = 8;
 
     // Win by area's nurses
-    public static array $WIN_LARVAE_BY_NURSES_COUNT = array(0, 1, 3, 5);
+    public static array $WIN_LARVAE_BY_NURSES_COUNT = array(1 => 1, 2 => 3, 3 => 5);
     public static array $WIN_SOLDIERS_BY_NURSES_COUNT = array(0, 0, 1, 1);
     public static array $WIN_WORKERS_BY_NURSES_COUNT = array(0, 0, 1, 0, 2);
 

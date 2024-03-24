@@ -55,20 +55,45 @@ class BirthMYRServiceTest extends TestCase
         $this->birthMYRService->placeNurse($nurse, $position);
     }
 
+    public function testGiveBonusWhenNursePlaceInLarvaeArea() : void
+    {
+        // GIVEN
+
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $personalBoard = $player->getPersonalBoardMYR();
+        $nurse = $personalBoard->getNurses()->first();
+        $this->birthMYRService->placeNurse($nurse, MyrmesParameters::$LARVAE_AREA);
+
+        // WHEN
+
+        $this->birthMYRService->giveBirthBonus($player);
+
+        // THEN
+
+        $this->assertSame(2, $personalBoard->getLarvaCount());
+        $this->assertSame($nurse->getPosition(), MyrmesParameters::$BASE_AREA);
+    }
+
     private function createGame(int $numberOfPlayers) : GameMYR
     {
         if($numberOfPlayers < MyrmesParameters::$MIN_NUMBER_OF_PLAYER ||
-            $numberOfPlayers > MyrmesParameters::$MAX_NUMBER_OF_PLAYER) {
+            $numberOfPlayers > MyrmesParameters::$MAX_NUMBER_OF_PLAYER)
+        {
             throw new \Exception("TOO MUCH PLAYERS ON CREATE GAME");
         }
+
         $game = new GameMYR();
-        for ($i = 0; $i < $numberOfPlayers; $i += 1) {
+        for ($i = 0; $i < $numberOfPlayers; $i += 1)
+        {
             $player = new PlayerMYR('test', $game);
             $game->addPlayer($player);
             $player->setGameMyr($game);
             $personalBoard = new PersonalBoardMYR();
+            $personalBoard->setLarvaCount(1);
             $player->setPersonalBoardMYR($personalBoard);
-            for($j = 0; $j < MyrmesParameters::$START_NURSES_COUNT_PER_PLAYER; $j += 1) {
+            for ($j = 0; $j < MyrmesParameters::$START_NURSES_COUNT_PER_PLAYER; $j += 1)
+            {
                 $nurse = new NurseMYR();
                 $nurse->setAvailable(true);
                 $personalBoard->addNurse($nurse);

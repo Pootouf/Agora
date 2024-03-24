@@ -46,10 +46,12 @@ class BirthMYRService
     public function giveBirthBonus(PlayerMYR $player) : void
     {
         $personalBoard = $player->getPersonalBoardMYR();
-        for($i = 1; $i < MyrmesParameters::$AREA_COUNT; $i += 1) {
+        for ($i = 1; $i < MyrmesParameters::$AREA_COUNT; $i += 1)
+        {
             $nurses = $this->getNursesAtPosition($player ,$i);
             $nursesCount = $nurses->count();
-            switch ($i) {
+            switch ($i)
+            {
                 case MyrmesParameters::$LARVAE_AREA:
                     $this->manageLarvae($player, $nursesCount);
                     break;
@@ -130,11 +132,13 @@ class BirthMYRService
             MyrmesParameters::$WIN_LARVAE_BY_NURSES_COUNT,
             $nursesCount
         );
-        $personalBoard = $player->getPersonalBoardMYR();
-        $personalBoard->setLarvaCount($personalBoard->getLarvaCount() + $winLarvae);
-        $this->entityManager->persist($personalBoard);
+
+        echo " nursesCount " . $nursesCount . " \n";
         if ($winLarvae != 0)
         {
+            $personalBoard = $player->getPersonalBoardMYR();
+            $personalBoard->setLarvaCount($personalBoard->getLarvaCount() + $winLarvae);
+            $this->entityManager->persist($personalBoard);
             $this->manageNursesAfterBonusGive(
                 $player,
                 $nursesCount,
@@ -156,14 +160,14 @@ class BirthMYRService
             MyrmesParameters::$WIN_SOLDIERS_BY_NURSES_COUNT,
             $nursesCount
         );
-        $personalBoard = $player->getPersonalBoardMYR();
-        $oldCountSoldiers = $personalBoard->getWarriorsCount();
-        $newCountSoldiers = $oldCountSoldiers + $winSoldiers;
-        $personalBoard->setWarriorsCount($newCountSoldiers);
-        $this->entityManager->persist($personalBoard);
 
         if ($winSoldiers != 0)
         {
+            $personalBoard = $player->getPersonalBoardMYR();
+            $oldCountSoldiers = $personalBoard->getWarriorsCount();
+            $newCountSoldiers = $oldCountSoldiers + $winSoldiers;
+            $personalBoard->setWarriorsCount($newCountSoldiers);
+            $this->entityManager->persist($personalBoard);
             $this->manageNursesAfterBonusGive(
                 $player,
                 $nursesCount,
@@ -186,17 +190,17 @@ class BirthMYRService
             $nursesCount
         );
 
-        $personalBoard = $player->getPersonalBoardMYR();
-        for ($count = 0; $count < $winWorker; $count++)
-        {
-            $worker = new AnthillWorkerMYR();
-            $personalBoard->addAnthillWorker($worker);
-            $this->entityManager->persist($worker);
-            $this->entityManager->persist($personalBoard);
-        }
-
         if ($winWorker != 0)
         {
+            $personalBoard = $player->getPersonalBoardMYR();
+            for ($count = 0; $count < $winWorker; $count++)
+            {
+                $worker = new AnthillWorkerMYR();
+                $personalBoard->addAnthillWorker($worker);
+                $this->entityManager->persist($worker);
+                $this->entityManager->persist($personalBoard);
+            }
+
             $this->manageNursesAfterBonusGive(
                 $player,
                 $nursesCount,
