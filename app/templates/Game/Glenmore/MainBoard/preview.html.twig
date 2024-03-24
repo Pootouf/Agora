@@ -23,7 +23,7 @@
                                  alt="{{ resourceLine.resource.color }}"
                             />
                         </div>
-                        {% for ind in 1..resourceLine.quantity %}
+                        {% for ind in 0..resourceLine.quantity %}
                             {% if ind >= 1 %}
                                 <div class="relative justify-center items-center aspect-auto my-auto p-auto
                             max-h-full w-full h-full">
@@ -40,7 +40,7 @@
                                 <div class="flex justify-center items-center h-full w-full">
                                     <span class="bg-yellow-600 rounded-full w-4/5 h-4/5 flex items-center justify-center
                                                     text-[0rem] lg:text-xs">
-                                        1
+                                        {{ ind }}
                                     </span>
                                 </div>
                             {% endif %}

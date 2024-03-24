@@ -195,7 +195,6 @@ class GlenmoreController extends AbstractController
         $this->entityManager->persist($player);
         $this->entityManager->persist($player->getPersonalBoard());
         $this->entityManager->flush();
-
         $this->publishPlayerRoundManagement($game, false);
         return new Response('player activated selling selection of resource', Response::HTTP_OK);
     }
@@ -401,7 +400,6 @@ class GlenmoreController extends AbstractController
             } catch (\Exception) {
                 return new Response('can not select more resource', Response::HTTP_FORBIDDEN);
             }
-            $this->publishPersonalBoard($player, []);
             $this->publishPersonalBoardSpectator($game, []);
         }
         return new Response($player->getUsername()." selected a resource" ,Response::HTTP_OK);
