@@ -401,7 +401,6 @@ class GlenmoreController extends AbstractController
             } catch (\Exception) {
                 return new Response('can not select more resource', Response::HTTP_FORBIDDEN);
             }
-            $this->publishPersonalBoard($player, []);
             $this->publishPersonalBoardSpectator($game, []);
         }
         return new Response($player->getUsername()." selected a resource" ,Response::HTTP_OK);
