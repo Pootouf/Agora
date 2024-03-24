@@ -18,6 +18,9 @@ class PreyMYR extends Component
     #[ORM\ManyToOne(inversedBy: 'preyMYRs')]
     private ?PlayerMYR $player = null;
 
+    #[ORM\ManyToOne(inversedBy: 'preys')]
+    private ?MainBoardMYR $mainBoardMYR = null;
+
     public function getType(): ?string
     {
         return $this->type;
@@ -50,6 +53,18 @@ class PreyMYR extends Component
     public function setPlayer(?PlayerMYR $player): static
     {
         $this->player = $player;
+
+        return $this;
+    }
+
+    public function getMainBoardMYR(): ?MainBoardMYR
+    {
+        return $this->mainBoardMYR;
+    }
+
+    public function setMainBoardMYR(?MainBoardMYR $mainBoardMYR): static
+    {
+        $this->mainBoardMYR = $mainBoardMYR;
 
         return $this;
     }
