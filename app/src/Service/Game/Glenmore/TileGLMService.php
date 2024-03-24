@@ -405,6 +405,10 @@ class TileGLMService
             $this->activateFair($tileGLM);
             return;
         }
+        if($tileGLM->getTile()->getName() === GlenmoreParameters::$TILE_NAME_GROCER) {
+            $this->activateGrocer($tileGLM);
+            return;
+        }
         if($tile->getType() != GlenmoreParameters::$TILE_TYPE_BROWN){
             $this->givePlayerActivationBonus($tileGLM, $playerGLM);
             $this->entityManager->persist($tileGLM);
@@ -1012,6 +1016,12 @@ class TileGLMService
             }
             return -1;
         }
+        if ($playerTileGLM->getTile()->getName() === GlenmoreParameters::$TILE_NAME_GROCER) {
+            if ($selectedResources->count() >= 3) {
+                return 0;
+            }
+            return -1;
+        }
         foreach ($activationPrices as $activationPrice){
             $resourceType = $activationPrice->getResource();
             $resourceAmount = $activationPrice->getPrice();
@@ -1250,6 +1260,12 @@ class TileGLMService
             $playerGLM->getPersonalBoard()->getActivatedTile()->getTile()->getName()
                 === GlenmoreParameters::$TILE_NAME_FAIR) {
             $this->selectResourceForFair($playerGLM, $playerTileGLM, $resource, $cost);
+            return;
+        }
+        if ($playerGLM->getRoundPhase() == GlenmoreParameters::$ACTIVATION_PHASE &&
+            $playerGLM->getPersonalBoard()->getActivatedTile()->getTile()->getName()
+            === GlenmoreParameters::$TILE_NAME_GROCER) {
+            $this->selectResourceForGrocer($playerGLM, $playerTileGLM, $resource, $cost);
             return;
         }
         $personalBoard = $playerGLM->getPersonalBoard();
@@ -1650,6 +1666,35 @@ class TileGLMService
     }
 
     /**
+     * selectResourceForGrocer : select a resource for grocer tile
+     * @param PlayerGLM          $playerGLM
+     * @param PlayerTileGLM|null $playerTileGLM
+     * @param ResourceGLM        $resource
+     * @param Collection         $cost
+     * @return void
+     * @throws Exception
+     */
+    private function selectResourceForGrocer(PlayerGLM $playerGLM,
+        ?PlayerTileGLM $playerTileGLM, ResourceGLM $resource, Collection $cost) : void
+    {
+        $selectedResources = $playerGLM->getPersonalBoard()->getSelectedResources();
+        if ($selectedResources->count() > 3) {
+            throw new Exception("can't pick more resource for this tile");
+        }
+        if (!$this->canPickThisResource($selectedResources, $resource)) {
+            throw new Exception("resources must be different");
+        }
+        $newResource = new SelectedResourceGLM();
+        $newResource->setResource($resource);
+        $newResource->setQuantity(1);
+        $newResource->setPlayerTile($playerTileGLM);
+        $newResource->setPersonalBoardGLM($playerGLM->getPersonalBoard());
+        $this->entityManager->persist($newResource);
+        $this->entityManager->flush();
+    }
+
+
+    /**
      * activateFair : gives points to the player
      * @param PlayerTileGLM $tileGLM
      * @return void
@@ -1676,6 +1721,32 @@ class TileGLMService
                 $points = 12;
                 break;
         }
+        foreach ($selectedResources as $selectedResource) {
+            $playerTile = $selectedResource->getPlayerTile();
+            foreach ($playerTile->getPlayerTileResource() as $item) {
+                if ($item->getResource() === $selectedResource->getResource()) {
+                    $this->entityManager->remove($item);
+                }
+            }
+        }
+        $player = $personalBoard->getPlayerGLM();
+        $player->setPoints($player->getPoints() + $points);
+        $this->entityManager->persist($player);
+        $tileGLM->setActivated(true);
+        $this->entityManager->persist($tileGLM);
+        $this->entityManager->flush();
+    }
+
+    /**
+     * activateGrocer : gives points to the player
+     * @param PlayerTileGLM $tileGLM
+     * @return void
+     */
+    private function activateGrocer(PlayerTileGLM $tileGLM) : void
+    {
+        $personalBoard = $tileGLM->getPersonalBoard();
+        $selectedResources = $personalBoard->getSelectedResources();
+        $points = 8;
         foreach ($selectedResources as $selectedResource) {
             $playerTile = $selectedResource->getPlayerTile();
             foreach ($playerTile->getPlayerTileResource() as $item) {
