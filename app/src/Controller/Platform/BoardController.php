@@ -144,7 +144,7 @@ class BoardController extends AbstractController
         $form = $this->createForm(SearchBoardType::class, $data);
         $form->handleRequest($request);
 
-//        $boards = $boardRepository->searchBoards($data);
+         $boards = $boardRepository->searchBoards($data);
 
 
         return $this->render('platform/dashboard/user.html.twig', [
