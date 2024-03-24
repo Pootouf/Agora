@@ -747,6 +747,27 @@ class GlenmoreController extends AbstractController
         return new Response('player cancel his tile selection', Response::HTTP_OK);
     }
 
+    #[Route('/game/{idGame}/glenmore/cancel/activating/tile', name: 'app_game_glenmore_cancel_activating_tile')]
+    public function cancelActivatingTile(
+        #[MapEntity(id: 'idGame')] GameGLM $game): Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+        }
+        $this->tileGLMService->clearTileActivationSelection($player);
+        $this->tileGLMService->clearResourceSelection($player);
+        $this->service->setPhase($player, GlenmoreParameters::$ACTIVATION_PHASE);
+        $player->setActivatedResourceSelection(false);
+        $this->entityManager->persist($player);
+        $this->entityManager->flush();
+        $this->publishPersonalBoard($player, []);
+        $this->publishPersonalBoardSpectator($game, []);
+        $this->publishMainBoardPreview($game);
+        $this->publishPlayerRoundManagement($game, false);
+        return new Response('player cancel his tile selection', Response::HTTP_OK);
+    }
+
     /**
      * publishCreateResource : send a mercure notification with information regarding the creation of resource
      * @param PlayerTileGLM $playerTileGLM
