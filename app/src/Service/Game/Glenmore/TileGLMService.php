@@ -524,6 +524,8 @@ class TileGLMService
                 }
             }
         }
+        $playerGLM->getPersonalBoard()->setActivatedTile(null);
+        $this->entityManager->persist($playerGLM->getPersonalBoard());
         $this->clearResourceSelection($playerGLM);
         $this->entityManager->flush();
     }
@@ -970,6 +972,18 @@ class TileGLMService
     }
 
     /**
+     * clearTileActivationSelection : cancel the tile that a player has selected to activate it
+     * @param PlayerGLM $player
+     * @return void
+     */
+    public function clearTileActivationSelection(PlayerGLM $player): void
+    {
+        $player->getPersonalBoard()->setActivatedTile(null);
+        $this->entityManager->persist($player->getPersonalBoard());
+        $this->entityManager->flush();
+    }
+
+    /**
      * Place a selected tile in personal board's player at position (abscissa, ordinate)
      *
      * @param PlayerGLM $player
@@ -1072,7 +1086,7 @@ class TileGLMService
         $activationPrices = $tileGLM->getActivationPrice();
         $selectedResources = $playerGLM->getPersonalBoard()->getSelectedResources();
         if ($playerTileGLM->getTile()->getName() === GlenmoreParameters::$TILE_NAME_FAIR) {
-            if ($selectedResources->count() > 1) {
+            if ($selectedResources->count() >= 1) {
                 return 0;
             }
             return -1;

@@ -348,8 +348,7 @@ class GlenmoreController extends AbstractController
                 return new Response($e->getMessage(), Response::HTTP_FORBIDDEN);
             }
         }
-        $this->publishPersonalBoard($player, []);
-        $this->publishPersonalBoardSpectator($game, []);
+        $this->publishSelectResource($tile);
         return new Response('a new resource has been selected', Response::HTTP_OK);
     }
 
@@ -747,6 +746,27 @@ class GlenmoreController extends AbstractController
         return new Response('player cancel his tile selection', Response::HTTP_OK);
     }
 
+    #[Route('/game/{idGame}/glenmore/cancel/activating/tile', name: 'app_game_glenmore_cancel_activating_tile')]
+    public function cancelActivatingTile(
+        #[MapEntity(id: 'idGame')] GameGLM $game): Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+        }
+        $this->tileGLMService->clearTileActivationSelection($player);
+        $this->tileGLMService->clearResourceSelection($player);
+        $this->service->setPhase($player, GlenmoreParameters::$ACTIVATION_PHASE);
+        $player->setActivatedResourceSelection(false);
+        $this->entityManager->persist($player);
+        $this->entityManager->flush();
+        $this->publishPersonalBoard($player, []);
+        $this->publishPersonalBoardSpectator($game, []);
+        $this->publishMainBoardPreview($game);
+        $this->publishPlayerRoundManagement($game, false);
+        return new Response('player cancel his tile selection', Response::HTTP_OK);
+    }
+
     /**
      * publishCreateResource : send a mercure notification with information regarding the creation of resource
      * @param PlayerTileGLM $playerTileGLM
@@ -776,6 +796,37 @@ class GlenmoreController extends AbstractController
             $this->generateUrl('app_game_show_glm',
                 ['id' => $game->getId()]).'createResource' . $player->getId(),
                 $response);
+    }
+
+    /**
+     * publishCreateResource : send a mercure notification with information regarding the creation of resource
+     * @param PlayerTileGLM $playerTileGLM
+     * @return void
+     */
+    private function publishSelectResource(PlayerTileGLM $playerTileGLM) : void
+    {
+        $player = $playerTileGLM->getPersonalBoard()->getPlayerGLM();
+        $game = $player->getGameGLM();
+        $response = $this->render('Game/Glenmore/PersonalBoard/selectTile.html.twig',
+            [
+                'player' => $player,
+                'selectedTile' => $playerTileGLM,
+                'game' => $game,
+                'activatedSellingPhase' => $this->service->isInSellingPhase($player),
+                'selectedResources' => $player->getPersonalBoard()->getSelectedResources(),
+                'activatedNewResourceAcquisition' => false,
+                'chosenNewResources' => $player->getPersonalBoard()->getCreatedResources(),
+                'activatedMovementPhase' => $this->service->isInMovementPhase($player),
+                'activatedActivationPhase' => $this->service->isInActivationPhase($player),
+                'activatedBuyingPhase' => $this->service->isInBuyingPhase($player),
+                'activatedResourceSelection' => $player->isActivatedResourceSelection(),
+                'buyingTile' => $player->getPersonalBoard()->getBuyingTile()
+            ]
+        );
+        $this->publishService->publish(
+            $this->generateUrl('app_game_show_glm',
+                ['id' => $game->getId()]).'selectResource' . $player->getId(),
+            $response);
     }
 
     /**
