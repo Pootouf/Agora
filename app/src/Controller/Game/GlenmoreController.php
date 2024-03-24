@@ -348,8 +348,7 @@ class GlenmoreController extends AbstractController
                 return new Response($e->getMessage(), Response::HTTP_FORBIDDEN);
             }
         }
-        $this->publishPersonalBoard($player, []);
-        $this->publishPersonalBoardSpectator($game, []);
+        $this->publishSelectResource($tile);
         return new Response('a new resource has been selected', Response::HTTP_OK);
     }
 
@@ -797,6 +796,37 @@ class GlenmoreController extends AbstractController
             $this->generateUrl('app_game_show_glm',
                 ['id' => $game->getId()]).'createResource' . $player->getId(),
                 $response);
+    }
+
+    /**
+     * publishCreateResource : send a mercure notification with information regarding the creation of resource
+     * @param PlayerTileGLM $playerTileGLM
+     * @return void
+     */
+    private function publishSelectResource(PlayerTileGLM $playerTileGLM) : void
+    {
+        $player = $playerTileGLM->getPersonalBoard()->getPlayerGLM();
+        $game = $player->getGameGLM();
+        $response = $this->render('Game/Glenmore/PersonalBoard/selectTile.html.twig',
+            [
+                'player' => $player,
+                'selectedTile' => $playerTileGLM,
+                'game' => $game,
+                'activatedSellingPhase' => $this->service->isInSellingPhase($player),
+                'selectedResources' => $player->getPersonalBoard()->getSelectedResources(),
+                'activatedNewResourceAcquisition' => false,
+                'chosenNewResources' => $player->getPersonalBoard()->getCreatedResources(),
+                'activatedMovementPhase' => $this->service->isInMovementPhase($player),
+                'activatedActivationPhase' => $this->service->isInActivationPhase($player),
+                'activatedBuyingPhase' => $this->service->isInBuyingPhase($player),
+                'activatedResourceSelection' => $player->isActivatedResourceSelection(),
+                'buyingTile' => $player->getPersonalBoard()->getBuyingTile()
+            ]
+        );
+        $this->publishService->publish(
+            $this->generateUrl('app_game_show_glm',
+                ['id' => $game->getId()]).'selectResource' . $player->getId(),
+            $response);
     }
 
     /**
