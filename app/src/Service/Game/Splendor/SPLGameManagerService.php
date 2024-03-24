@@ -128,7 +128,7 @@ class SPLGameManagerService extends AbstractGameManagerService
         foreach ($game->getPlayers() as $player) {
             $this->entityManager->remove($player);
         }
-        $this->logService->sendSystemLog($game, "game " . $game->getId() . "ended");
+        $this->logService->sendSystemLog($game, "game " . $game->getId() . " ended");
         $this->entityManager->remove($game);
         $this->entityManager->flush();
         return SPLGameManagerService::$SUCCESS;
