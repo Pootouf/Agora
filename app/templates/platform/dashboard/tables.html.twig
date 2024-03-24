@@ -57,8 +57,8 @@ Tables
    </div>
    <div class="mx-auto max-w-7xl px-6 lg:px-8 mt-16">
       <div id="table-container" class="relative overflow-x-auto shadow-md sm:rounded-lg">
-         <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 border border-gray-300">
-            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+         <table class="w-full text-sm text-left rtl:text-right text-gray-500 border border-gray-300">
+            <thead class="text-xs text-gray-700 uppercase bg-gray-50">
                <tr>
                   <th scope="col" class="px-3 py-3 text-center">
                      Jeux
@@ -86,7 +86,7 @@ Tables
                {% set usersIds = users|map(user => user.id) %}
                {% set usersInTable = usersIds|filter(id => id == currentUserID) %}
                {% if usersInTable|length == 0 %} {# Vérifie si l'utilisateur n'est pas dans la table #}
-               <tr class="{{ colorClass }} border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+               <tr class="{{ colorClass }} border-b hover:bg-gray-50">
                   <td class="p-2 text-center">
                      {% if board.game is not empty %}
                      <a href="{{ path('app_game_description', {'game_id': board.game.id}) }}">
@@ -96,7 +96,7 @@ Tables
                      <span class="text-red-500">Image non disponible</span>
                      {% endif %}
                   </td>
-                  <td class="px-3 py-4 font-semibold text-gray-900 dark:text-white">
+                  <td class="px-3 py-4 font-semibold text-gray-900">
                      <div class="text-black font-bold">{{ board.game.name }}</div>
                      </br>
                      <div>Places disponibles : {{ availableSeats }}</div>
@@ -119,7 +119,7 @@ Tables
                      <div>Date de création : Le {{ board.creationdate|date('d-m-Y à H:i') }}</div>
                   </td>
                   <td class="px-20 py-4">
-                     <table class="w-full text-xs text-gray-500 dark:text-gray-400 table-container">
+                     <table class="w-full text-xs text-gray-500 table-container">
                         {% set usersCount = users|length %}
                         {% set maxUsers = board.getNbUserMax() %}
                         {% set rows = (maxUsers / 4)|round(0, 'ceil') %}
@@ -150,22 +150,22 @@ Tables
                      {% if app.user %}
                      {% if currentUserID in usersIds %}
                      {% if board.status == 'IN_GAME' %}
-                     <a href="#" class="text-white bg-primary hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
+                     <a href="#" class="text-white bg-primary hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
                      Reprendre
                      </a>
                      {% else %}
-                     <a href="{{ path('app_leave_board', {'id': board.id}) }}" class="text-white bg-red-500 hover:bg-red-400 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
+                     <a href="{{ path('app_leave_board', {'id': board.id}) }}" class="text-white bg-red-500 hover:bg-red-400 focus:ring-4 focus:outline-none focus:ring-red-300 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
                      Quitter
                      </a>
                      {% endif %}
                      {% else %}
                      {% if board.status == 'IN_GAME' %}
-                     <a href="#" class="text-white bg-primary hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
+                     <a href="#" class="text-white bg-primary hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
                      Visionner
                      </a>
                      {% elseif board.status == 'WAITING' %}
                      {% if board.isAvailble() == true and availableSeats > 0 %} {# test inutile ? déjà fait dans le for #}
-                     <a href="{{ path('app_join_board', {'id': board.id}) }}" class="text-white bg-primary hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
+                     <a href="{{ path('app_join_board', {'id': board.id}) }}" class="text-white bg-primary hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
                      Rejoindre
                      </a>
                      {% endif %}
