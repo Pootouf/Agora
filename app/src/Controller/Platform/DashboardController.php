@@ -75,7 +75,7 @@ class DashboardController extends AbstractController
     #[Route('/dashboard/settings', name: 'app_dashboard_settings')]
     public function settings(): Response
     {
-        return $this->render('platform/dashboard/settings.html.twig', [
+        return $this->render('platform/users/editUserProfile.html.twig', [
             'controller_name' => 'DashboardController',
         ]);
     }
