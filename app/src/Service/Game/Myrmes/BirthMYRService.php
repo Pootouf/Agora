@@ -106,7 +106,7 @@ class BirthMYRService
      * @param int $position
      * @return ArrayCollection
      */
-    private function getNursesAtPosition(PlayerMYR $player, int $position): ArrayCollection
+    public function getNursesAtPosition(PlayerMYR $player, int $position): ArrayCollection
     {
         $nurses =  $this->nurseMYRRepository->findBy(["position" => $position,
             "player" => $player]);
@@ -133,7 +133,6 @@ class BirthMYRService
             $nursesCount
         );
 
-        echo " nursesCount " . $nursesCount . " \n";
         if ($winLarvae != 0)
         {
             $personalBoard = $player->getPersonalBoardMYR();
