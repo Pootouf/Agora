@@ -190,7 +190,7 @@ class SplendorController extends AbstractController
              return new Response("Can't buy this card : ".$e->getMessage(), Response::HTTP_FORBIDDEN);
          }
          try {
-             $this->publishNotification($game, 5, "Action validé !", "", "validation",
+             $this->publishNotification($game, SplendorParameters::$NOTIFICATION_DURATION_5, "Action validé !", "", "validation",
                  "green", $player->getUsername());
              if (!$reserved) {
                  $this->publishAnimTakenCard($game, $player->getUsername(), $card, $returnedData["newDevCard"]);
@@ -204,17 +204,17 @@ class SplendorController extends AbstractController
              if ($nobleTileId != -1){
                  foreach ($game->getPlayers() as $playerInGame) {
                      if ($playerInGame->getUsername() == $player->getUsername()) {
-                         $this->publishNotification($game, 10, "Un noble vous rend visite !",
+                         $this->publishNotification($game, SplendorParameters::$NOTIFICATION_DURATION_10, "Un noble vous rend visite !",
                              "", "ringing",
                              "yellow", $playerInGame->getUsername());
                      } else {
-                         $this->publishNotification($game, 5,
+                         $this->publishNotification($game, SplendorParameters::$NOTIFICATION_DURATION_5,
                              $player->getUsername()." reçoit la visite d'un noble",
                              "", "info",
                              "green", $playerInGame->getUsername());
                      }
                  }
-                 $this->publishNotification($game, 5,
+                 $this->publishNotification($game, SplendorParameters::$NOTIFICATION_DURATION_5,
                      $player->getUsername()." reçoit la visite d'un noble",
                      "", "info",
                      "green", "");
@@ -248,7 +248,7 @@ class SplendorController extends AbstractController
              return new Response("Can't reserve this card : " . $e->getMessage(), Response::HTTP_FORBIDDEN);
          }
          try {
-             $this->publishNotification($game, 5, "Action validé !", "", "validation",
+             $this->publishNotification($game, SplendorParameters::$NOTIFICATION_DURATION_5, "Action validé !", "", "validation",
                  "green", $player->getUsername());
              if ($returnedData["cardFromDraw"] != null) {
                  $this->publishAnimTakenCard($game, $player->getUsername(), $card, $returnedData["cardFromDraw"]);
@@ -285,7 +285,7 @@ class SplendorController extends AbstractController
              return new Response("Can't reserve this card : " . $e->getMessage(), Response::HTTP_FORBIDDEN);
          }
          try {
-             $this->publishNotification($game, 5, "Action validé !", "", "validation",
+             $this->publishNotification($game, SplendorParameters::$NOTIFICATION_DURATION_5, "Action validé !", "", "validation",
                  "green", $player->getUsername());
              $this->publishAnimCardOnDraw($game, $player->getUsername(), $level);
              if ($returnedData["isJokerTaken"]) {
@@ -338,7 +338,7 @@ class SplendorController extends AbstractController
          $this->logService->sendPlayerLog($gameSPL, $player, $message);
          if ($this->tokenSPLService->mustEndPlayerRoundBecauseOfTokens($player)) {
              try {
-                 $this->publishNotification($gameSPL, 5, "Action validé !", "", "validation",
+                 $this->publishNotification($gameSPL, SplendorParameters::$NOTIFICATION_DURATION_5, "Action validé !", "", "validation",
                      "green", $player->getUsername());
                  $this->publishAnimTakenTokens($gameSPL, $player->getUsername(), $player->getPersonalBoard()->getSelectedTokens());
                  $this->tokenSPLService->validateTakingOfTokens($player);
@@ -374,16 +374,16 @@ class SplendorController extends AbstractController
              foreach ($gameSPL->getPlayers() as $playerNotif) {
                  $this->publishToken($gameSPL, $playerNotif);
                  if ($playerNotif->getUsername() == $newActivePlayer->getUsername()) {
-                     $this->publishNotification($gameSPL, 10, "C'est votre tour !",
+                     $this->publishNotification($gameSPL, SplendorParameters::$NOTIFICATION_DURATION_10, "C'est votre tour !",
                          "Jouez votre meilleur coup !", "ringing",
                          "blue", $playerNotif->getUsername());
                  } else {
-                     $this->publishNotification($gameSPL, 5, "Joueur suivant !",
+                     $this->publishNotification($gameSPL, SplendorParameters::$NOTIFICATION_DURATION_5, "Joueur suivant !",
                          "C'est au tour de ".$newActivePlayer->getUsername(), "info",
                          "green", $playerNotif->getUsername());
                  }
              }
-             $this->publishNotification($gameSPL, 5, "Joueur suivant !",
+             $this->publishNotification($gameSPL, SplendorParameters::$NOTIFICATION_DURATION_5, "Joueur suivant !",
                  "C'est au tour de ".$newActivePlayer->getUsername(), "info",
                  "green", "");
              $this->publishDevelopmentCards($gameSPL);

@@ -164,6 +164,10 @@ class GlenmoreController extends AbstractController
             //$this->logService->sendPlayerLog($game, $player, $message);
             return new Response("can't afford this resource", Response::HTTP_FORBIDDEN);
         }
+        $prod = $this->typeResources($line->getResource()->getColor());
+        $this->publishNotification($game, GlenmoreParameters::$NOTIFICATION_DURATION, "Achat validé !",
+            "Tu as acheté ".$prod, "validation",
+            "green", $player->getUsername());
         $this->publishMainBoardPreview($game);
         $this->publishRanking($game);
         $this->publishMainBoard($game);
@@ -279,6 +283,9 @@ class GlenmoreController extends AbstractController
             $this->publishPersonalBoard($player, []);
             $this->publishPersonalBoardSpectator($game, []);
         }
+        $this->publishNotification($game, GlenmoreParameters::$NOTIFICATION_DURATION, "Action validé !",
+            "Ta tuile a bien été posé, actives tes tuiles ou finis la phase.", "validation",
+            "green", $player->getUsername());
         $this->entityManager->persist($player);
         $this->entityManager->flush();
         $this->publishPlayerRoundManagement($game);
@@ -350,6 +357,9 @@ class GlenmoreController extends AbstractController
                 return new Response($e->getMessage(), Response::HTTP_FORBIDDEN);
             }
         }
+        $this->publishNotification($game, GlenmoreParameters::$NOTIFICATION_DURATION, "Ressource sélectionnée !",
+            "Si tu as fini n'oublie pas de validé ton choix !", "validation", "green",
+            $player->getUsername());
         $this->publishSelectResource($tile);
         return new Response('a new resource has been selected', Response::HTTP_OK);
     }
@@ -426,6 +436,9 @@ class GlenmoreController extends AbstractController
         } catch (Exception $e) {
             return new Response('Invalid move' . $e->getMessage(), Response::HTTP_FORBIDDEN);
         }
+        $this->publishNotification($game, GlenmoreParameters::$NOTIFICATION_DURATION, "Chef sélectionné !",
+            "Un nouveau chef fait parti de ton village !", "validation", "green",
+            $player->getUsername());
         $this->publishPersonalBoard($player, []);
         $this->publishPersonalBoardSpectator($game, []);
         $this->publishRanking($game);
@@ -628,6 +641,10 @@ class GlenmoreController extends AbstractController
                     $player->getPersonalBoard()->getResourceToSell(),
                     $player->getPersonalBoard()->getSelectedResources()->first()
                 );
+                $prod = $this->typeResources($player->getPersonalBoard()->getResourceToSell()->getColor());
+                $this->publishNotification($game, GlenmoreParameters::$NOTIFICATION_DURATION, "Vente validée !",
+                    "Tu as vendu ".$prod, "validation",
+                    "green", $player->getUsername());
             } catch (Exception) {
                 $message = $player->getUsername() .
                     " tried to sell resource " .
@@ -987,5 +1004,34 @@ class GlenmoreController extends AbstractController
             );
         }
     }
+
+    private function publishNotification(GameGLM $game, int $duration, string $message,
+                                         string $description, string $iconId,
+                                         string $loadingBarColor, string $targetedPlayer): void
+    {
+        $dataSent =  [$duration, $message, $description, $iconId, $loadingBarColor];
+
+        $this->publishService->publish(
+            $this->generateUrl('app_game_show_glm', ['id' => $game->getId()]).'notification'.$targetedPlayer,
+            new Response(implode('_', $dataSent))
+        );
+    }
+
+    private function typeResources(string $color): string
+    {
+        switch ($color) {
+            case 'yellow':
+                return "du blé";
+            case 'white':
+                return "de la laine";
+            case 'brown':
+                return "de la viande";
+            case 'green':
+                return "de l'herbe";
+            default:
+                return "de la pierre";
+        }
+    }
+
 
 }
