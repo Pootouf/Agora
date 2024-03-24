@@ -19,7 +19,7 @@ This section displays the warehouse of the main board, with available resources
             />
         </div>
 
-        {% for ind in 1..resourceLine.quantity %}
+        {% for ind in 0..resourceLine.quantity %}
             {% if ind >= 1 %}
                 <button {% if not needToPlay or isSpectator %}disabled{% endif %}
                         {{ stimulus_action('glenmore', 'selectMoneyWarehouseProductionOnMainBoard', 'click',

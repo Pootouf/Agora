@@ -195,7 +195,6 @@ class GlenmoreController extends AbstractController
         $this->entityManager->persist($player);
         $this->entityManager->persist($player->getPersonalBoard());
         $this->entityManager->flush();
-
         $this->publishPlayerRoundManagement($game, false);
         return new Response('player activated selling selection of resource', Response::HTTP_OK);
     }

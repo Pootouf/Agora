@@ -147,9 +147,11 @@ class TileGLMService
         }
         // if there is no activable tiles even after Loch Ness
         if($activableTiles->isEmpty()) {
-            $personalBoard->getPlayerGLM()->setRoundPhase(GlenmoreParameters::$MOVEMENT_PHASE);
-            $this->entityManager->persist($personalBoard->getPlayerGLM());
-            $this->entityManager->flush();
+            if ($personalBoard->getPlayerGLM()->getRoundPhase() != GlenmoreParameters::$SELLING_PHASE) {
+                $personalBoard->getPlayerGLM()->setRoundPhase(GlenmoreParameters::$MOVEMENT_PHASE);
+                $this->entityManager->persist($personalBoard->getPlayerGLM());
+                $this->entityManager->flush();
+            }
         }
         return $activableTiles;
     }
