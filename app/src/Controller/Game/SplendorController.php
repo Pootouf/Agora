@@ -171,15 +171,23 @@ class SplendorController extends AbstractController
              return new Response('Invalid player', Response::HTTP_FORBIDDEN);
          }
          if ($this->SPLService->getActivePlayer($game) !== $player) {
+             $this->logService->sendPlayerLog($game, $player,
+                 $player->getUsername() . " a essayé d'acheter une carte alors que ce n'est pas son tour");
              return new Response("Not player's turn", Response::HTTP_FORBIDDEN);
          }
          $playerCard = $this->SPLService->getPlayerCardFromDevelopmentCard($game, $card);
          $reserved = false;
          if ($playerCard != null) {
              if ($player->getId() != $playerCard->getPersonalBoardSPL()->getPlayerSPL()->getId()) {
+                 $this->logService->sendPlayerLog($game, $player,
+                     $player->getUsername() . " a essayé d'acheter la carte " . $card->getId()
+                 . " alors qu'elle ne lui appartient pas");
                  return new Response("Not player's card ", Response::HTTP_FORBIDDEN);
              }
              if (!$playerCard->isIsReserved()) {
+                 $this->logService->sendPlayerLog($game, $player,
+                     $player->getUsername() . " a essayé d'acheter la carte " . $card->getId()
+                 . "alors qu'il ne l'a pas réservée");
                  return new Response("The card is not reserved", Response::HTTP_FORBIDDEN);
              }
              $reserved = true;
@@ -187,10 +195,12 @@ class SplendorController extends AbstractController
          try {
              $returnedData = $this->SPLService->buyCard($player, $card);
          } catch (Exception $e) {
+             $this->logService->sendPlayerLog($game, $player,
+                 $player->getUsername() . " n'a pas pu acheter la carte " . $card->getId());
              return new Response("Can't buy this card : ".$e->getMessage(), Response::HTTP_FORBIDDEN);
          }
          try {
-             $this->publishNotification($game, SplendorParameters::$NOTIFICATION_DURATION_5, "Action validé !", "", "validation",
+             $this->publishNotification($game, SplendorParameters::$NOTIFICATION_DURATION_5, "Action validée !", "", "validation",
                  "green", $player->getUsername());
              if (!$reserved) {
                  $this->publishAnimTakenCard($game, $player->getUsername(), $card, $returnedData["newDevCard"]);
@@ -219,10 +229,15 @@ class SplendorController extends AbstractController
                      "", "info",
                      "green", "");
                  $this->publishAnimNoble($game, $player->getUsername(), $nobleTileId);
+                 $this->logService->sendPlayerLog($game, $player,
+                     $player->getUsername() . " a reçu la visite d'un noble venant de la tuile noble
+                      " . $nobleTileId);
              }
              $this->publishNobleTiles($game);
              $this->publishReservedCards($game);
          } finally {
+             $this->logService->sendPlayerLog($game, $player,
+                 $player->getUsername() . " a acheté la carte " . $card->getId());
              return new Response('Card Bought', Response::HTTP_OK);
          }
      }
@@ -237,14 +252,22 @@ class SplendorController extends AbstractController
              return new Response('Invalid player', Response::HTTP_FORBIDDEN);
          }
          if ($this->SPLService->getActivePlayer($game) !== $player) {
+             $this->logService->sendPlayerLog($game, $player,
+                 $player->getUsername() . " a essayé de réserver une carte alors que ce n'est pas son tour");
              return new Response("Not player's turn", Response::HTTP_FORBIDDEN);
          }
          if (!$this->SPLService->canPlayerReserveCard($game, $card)) {
+             $this->logService->sendPlayerLog($game, $player,
+                 $player->getUsername() . " a essayé de réserver la carte " . $card->getId()
+                 . " alors qu'il ne peut pas");
              return new Response("Can't reserve this card", Response::HTTP_FORBIDDEN);
          }
          try {
              $returnedData = $this->SPLService->reserveCard($player, $card);
          } catch (Exception $e) {
+             $this->logService->sendPlayerLog($game, $player,
+                 $player->getUsername() . " a essayé de réserver la carte " . $card->getId()
+                 . " alors qu'il ne peut pas");
              return new Response("Can't reserve this card : " . $e->getMessage(), Response::HTTP_FORBIDDEN);
          }
          try {
@@ -258,6 +281,8 @@ class SplendorController extends AbstractController
              }
          } finally {
              $this->manageEndOfRound($game);
+             $this->logService->sendPlayerLog($game, $player,
+                 $player->getUsername() . " a réservé la carte " . $card->getId());
              return new Response('Card reserved', Response::HTTP_OK);
          }
      }
@@ -272,16 +297,24 @@ class SplendorController extends AbstractController
              return new Response('Invalid player', Response::HTTP_FORBIDDEN);
          }
          if ($this->SPLService->getActivePlayer($game) !== $player) {
+             $this->logService->sendPlayerLog($game, $player,
+                 $player->getUsername() . " a essayé de réserver une carte alors que ce n'est pas son tour");
              return new Response("Not player's turn", Response::HTTP_FORBIDDEN);
          }
          $draw = $this->SPLService->getDrawFromGameAndLevel($game, $level);
          $card = $this->SPLService->getCardFromDraw($draw);
          if ($card == null || !$this->SPLService->canPlayerReserveCard($game, $card)) {
+             $this->logService->sendPlayerLog($game, $player,
+                 $player->getUsername() . " a essayé de réserver la carte " . $card->getId()
+                 . " alors qu'il ne peut pas");
              return new Response("Can't reserve this card", Response::HTTP_FORBIDDEN);
          }
          try {
              $returnedData = $this->SPLService->reserveCard($player, $card);
          } catch (Exception $e) {
+             $this->logService->sendPlayerLog($game, $player,
+                 $player->getUsername() . " a essayé de réserver la carte " . $card->getId()
+                 . " alors qu'il ne peut pas");
              return new Response("Can't reserve this card : " . $e->getMessage(), Response::HTTP_FORBIDDEN);
          }
          try {
@@ -293,6 +326,8 @@ class SplendorController extends AbstractController
              }
          } finally {
              $this->manageEndOfRound($game);
+             $this->logService->sendPlayerLog($game, $player,
+                 $player->getUsername() . " a réservé la carte " . $card->getId());
              return new Response('Card reserved', Response::HTTP_OK);
          }
      }
@@ -307,6 +342,8 @@ class SplendorController extends AbstractController
          }
          $this->tokenSPLService->clearSelectedTokens($player);
          $this->publishToken($gameSPL, $player);
+         $this->logService->sendPlayerLog($gameSPL, $player,
+             $player->getUsername() . " a reposé les jetons en cours de sélection");
          return new Response('Selected tokens cleaned', Response::HTTP_OK);
      }
 
@@ -320,21 +357,29 @@ class SplendorController extends AbstractController
              return new Response('Invalid player', Response::HTTP_FORBIDDEN);
          }
          if ($this->SPLService->getActivePlayer($gameSPL) !== $player) {
+             $this->logService->sendPlayerLog($gameSPL, $player,
+                 $player->getUsername() . " a essayé de prendre un jeton alors que ce n'est pas son tour");
              return new Response("Not player's turn", Response::HTTP_FORBIDDEN);
          }
          $tokenSPL = $this->tokenSPLService->getTokenOnMainBoardFromColor($gameSPL->getMainBoard(), $color);
          if ($tokenSPL == null) {
+             $this->logService->sendPlayerLog($gameSPL, $player,
+                 $player->getUsername() . " a essayé de prendre un jeton " . $color
+                 . " alors qu'il n'en reste plus");
              return new Response("There is no more token of this color", Response::HTTP_FORBIDDEN);
          }
          try {
              $this->tokenSPLService->takeToken($player, $tokenSPL);
          } catch(Exception) {
+             $this->logService->sendPlayerLog($gameSPL, $player,
+                 $player->getUsername() . " a essayé de prendre un jeton " . $color
+                 . " mais n'a pas pu");
              $message = $player->getUsername() . " tried to pick a token of " . $tokenSPL->getColor()
                  . " but could not ";
              $this->logService->sendPlayerLog($gameSPL, $player, $message);
              return new Response('Impossible to choose', Response::HTTP_FORBIDDEN);
          }
-         $message = $player->getUsername() . " picked a token of " . $tokenSPL->getColor();
+         $message = $player->getUsername() . " a pris un jeton " . $tokenSPL->getColor();
          $this->logService->sendPlayerLog($gameSPL, $player, $message);
          if ($this->tokenSPLService->mustEndPlayerRoundBecauseOfTokens($player)) {
              try {
@@ -566,8 +611,8 @@ class SplendorController extends AbstractController
     {
         $winner = $this->SPLService->getRanking($game)[0];
         $this->logService->sendPlayerLog($game, $winner,
-            $winner->getUsername() . " won game " . $game->getId());
-        $this->logService->sendSystemLog($game, "game " . $game->getId() . " ended");
+            $winner->getUsername() . " a gagné la partie " . $game->getId());
+        $this->logService->sendSystemLog($game, "la partie " . $game->getId() . " s'est terminée");
         $this->publishService->publish(
             $this->generateUrl('app_game_show_spl', ['id' => $game->getId()]).'endOfGame',
             new Response($winner?->getUsername()));

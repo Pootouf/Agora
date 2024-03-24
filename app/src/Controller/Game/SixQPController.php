@@ -102,6 +102,8 @@ class SixQPController extends AbstractController
         }
 
         if ($this->service->doesPlayerAlreadyHasPlayed($player)) {
+            $this->logService->sendPlayerLog($game, $player,
+                $player->getUsername() . " a essayé de jouer une autre fois " . $card->getValue());
             return new Response('Player already have played', Response::HTTP_UNAUTHORIZED);
         }
 
@@ -143,6 +145,8 @@ class SixQPController extends AbstractController
             return new Response('Choose a card', Response::HTTP_UNAUTHORIZED);
         }
         if ($this->service->getValidRowForCard($game, $chosenCard) != null) {
+            $this->logService->sendPlayerLog($game, $player,
+                $player->getUsername() . " n'a pas pu placé sa carte sur la ligne " . $row->getPosition());
             return new Response("Can't place the card here", Response::HTTP_METHOD_NOT_ALLOWED);
         }
         $message = $player->getUsername() . " a placé la carte " . $chosenCard->getCard()->getValue()
