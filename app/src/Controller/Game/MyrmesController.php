@@ -22,7 +22,10 @@ class MyrmesController extends AbstractController
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
 
         return $this->render('/Game/Myrmes/index.html.twig', [
-            'player' => $player
+            'player' => $player,
+            'game' => $game,
+            'tiles' => $game->getMainBoardMYR()->getTiles(),
+            'preys' => $game->getMainBoardMYR()->getPreys()
         ]);
     }
 }
