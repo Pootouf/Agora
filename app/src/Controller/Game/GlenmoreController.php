@@ -67,7 +67,9 @@ class GlenmoreController extends AbstractController
             'needToPlay' => $needToPlay,
             'isGameFinished' => $this->service->isGameEnded($game),
             'selectedTile' => null,
-            'activableTiles' => $this->tileGLMService->getActivableTiles($personalBoard->getPlayerTiles()->last()),
+            'activableTiles' => $this->service->isInActivationPhase($player) ?
+                $this->tileGLMService->getActivableTiles($personalBoard->getPlayerTiles()->last())
+                : null,
             'potentialNeighbours' => null,
             'currentDrawTile' => $this->tileGLMService->getActiveDrawTile($game),
             'personalBoardTiles' => $this->dataManagementGLMService->organizePersonalBoardRows(
@@ -865,7 +867,9 @@ class GlenmoreController extends AbstractController
             'isSpectator' => $player === null,
             'game' => $player->getGameGLM(),
             'player' => $player,
-            'activableTiles' => $this->tileGLMService->getActivableTiles($player->getPersonalBoard()->getPlayerTiles()->last()),
+            'activableTiles' => $this->service->isInActivationPhase($player) ?
+                $this->tileGLMService->getActivableTiles($player->getPersonalBoard()->getPlayerTiles()->last())
+                : null,
             'activatedResourceSelection' => $player->isActivatedResourceSelection(),
             'personalBoardTiles' => $this->dataManagementGLMService->organizePersonalBoardRows($player, $possiblePlacement),
             'whiskyCount' => $this->dataManagementGLMService->getWhiskyCount($player),
@@ -890,6 +894,10 @@ class GlenmoreController extends AbstractController
             'isSpectator' => $player === null,
             'game' => $player->getGameGLM(),
             'player' => $player,
+            'activableTiles' => $this->service->isInActivationPhase($player) ?
+                $this->tileGLMService->getActivableTiles($player->getPersonalBoard()->getPlayerTiles()->last())
+                : null,
+            'activatedResourceSelection' => $player->isActivatedResourceSelection(),
             'personalBoardTiles' => $this->dataManagementGLMService->organizePersonalBoardRows($player, $possiblePlacement),
             'whiskyCount' => $this->dataManagementGLMService->getWhiskyCount($player),
         ]);
