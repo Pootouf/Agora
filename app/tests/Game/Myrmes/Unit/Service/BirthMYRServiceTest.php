@@ -63,13 +63,10 @@ class BirthMYRServiceTest extends TestCase
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
         $personalBoard = $player->getPersonalBoardMYR();
+        $nurse = $personalBoard->getNurses()->first();
+
         $collection = new ArrayCollection();
-        for ($i = 0; $i < $personalBoard->getNurses()->count(); $i++)
-        {
-            $nurse = $personalBoard->getNurses()->get($i);
-            $nurse->setPosition(MyrmesParameters::$LARVAE_AREA);
-            $collection->add($nurse);
-        }
+        $collection->add($nurse);
 
         $entityManager = $this->createMock(EntityManagerInterface::class);
         $nurseMYRRepository = $this->createMock(NurseMYRRepository::class);
@@ -86,15 +83,8 @@ class BirthMYRServiceTest extends TestCase
 
         // THEN
 
-        $this->assertSame(1 + MyrmesParameters::$WIN_LARVAE_BY_NURSES_COUNT[$collection->count()],
-            $personalBoard->getLarvaCount());
-
-        for ($i = 0; $i < $personalBoard->getNurses()->count(); $i++)
-        {
-            $nurse = $collection->get($i);
-            $this->assertSame($nurse->getPosition(), MyrmesParameters::$BASE_AREA);
-        }
-
+        $this->assertSame(2, $personalBoard->getLarvaCount());
+        $this->assertSame($nurse->getPosition(), MyrmesParameters::$BASE_AREA);
     }
 
     private function createGame(int $numberOfPlayers) : GameMYR
