@@ -52,4 +52,8 @@ class SplendorParameters
 
     public static int $POINT_PRESTIGE_BY_NOBLE_TILE = 3;
 
+    //NOTIFICATIONS
+    public static int $NOTIFICATION_DURATION_5 = 5;
+    public static int $NOTIFICATION_DURATION_10 = 10;
+
 }
