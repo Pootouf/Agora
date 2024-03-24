@@ -29,41 +29,34 @@
 		</div>
 		<div class="mx-auto max-w-7xl px-6 lg:px-8 mt-16">
 				<div class="search-form-container">
-         <!-- Ajout de la classe de conteneur pour le formulaire -->
-         <!-- Formulaire de recherche -->
-         {{ form_start(searchboard, {'attr': {'id': 'searchForm'}}) }}
-         <div class="my-custom-class-for-errors">
-            {{ form_errors(searchboard) }}
-         </div>
-         <div class="flex flex-wrap items-start">
-            <!-- Ajout de la classe "items-start" pour aligner les éléments en haut -->
-            <div class="w-full md:w-1/4">
-               <div class="text-black font-bold">
-                  {{ form_label(searchboard.status, 'Statut', {'label_attr': {'class': 'search-label'}}) }}
-               </div>
-               {{ form_widget(searchboard.status, {'id': 'statusSelect', 'placeholder': 'Choisir le statut'}) }}
-            </div>
-            <div class="w-full md:w-1/4">
-               <div class="text-black font-bold">
-                  {{ form_label(searchboard.availability, 'Disponibilité', {'label_attr': {'class': 'search-label'}}) }}
-               </div>
-               {{ form_widget(searchboard.availability, {'id': 'availabilitySelect', 'placeholder': 'Choisir la disponibilité'}) }}
-            </div>
-            <div class="w-full md:w-1/4">
-               <div class="text-black font-bold">
-                  {{ form_label(searchboard.datecreation, 'Date de création', {'label_attr': {'class': 'search-label'}}) }}
-               </div>
-               {{ form_widget(searchboard.datecreation, {'id': 'datecreationSelect', 'placeholder': 'Choisir la date de création'}) }}
-            </div>
-            <div class="w-full md:w-1/4">
-               <div class="text-black font-bold">
-                  {{ form_label(searchboard.game, 'Jeu', {'label_attr': {'class': 'search-label'}}) }}
-               </div>
-               {{ form_widget(searchboard.game, {'id': 'gameSelect', 'placeholder': 'Choisir le jeu'}) }}
-            </div>
-         </div>
-         {{ form_end(searchboard) }}
-      </div>
+    <!-- Ajout de la classe de conteneur pour le formulaire -->
+    <!-- Formulaire de recherche -->
+    {{ form_start(searchboard, {'attr': {'id': 'searchForm'}}) }}
+    <div class="my-custom-class-for-errors">
+        {{ form_errors(searchboard) }}
+    </div>
+    <div class="flex items-start">
+        <!-- Ajout de la classe "items-start" pour aligner les éléments en haut -->
+        <div class="w-full md:w-1/4 pr-2">
+            <div class="text-black font-bold">{{ form_label(searchboard.status, 'Statut', {'label_attr': {'class': 'search-label'}}) }}</div>
+            {{ form_widget(searchboard.status, {'id': 'statusSelect', 'placeholder': 'Choisir le statut'}) }}
+        </div>
+        <div class="w-full md:w-1/4 pr-2">
+            <div class="text-black font-bold">{{ form_label(searchboard.availability, 'Disponibilité', {'label_attr': {'class': 'search-label'}}) }}</div>
+            {{ form_widget(searchboard.availability, {'id': 'availabilitySelect', 'placeholder': 'Choisir la disponibilité'}) }}
+        </div>
+        <div class="w-full md:w-1/4 pr-2">
+            <div class="text-black font-bold">{{ form_label(searchboard.datecreation, 'Date de création', {'label_attr': {'class': 'search-label'}}) }}</div>
+            {{ form_widget(searchboard.datecreation, {'id': 'datecreationSelect', 'placeholder': 'Choisir la date de création'}) }}
+        </div>
+        <div class="w-full md:w-1/4">
+            <div class="text-black font-bold">{{ form_label(searchboard.game, 'Jeu', {'label_attr': {'class': 'search-label'}}) }}</div>
+            {{ form_widget(searchboard.game, {'id': 'gameSelect', 'placeholder': 'Choisir le jeu'}) }}
+        </div>
+    </div>
+    {{ form_end(searchboard) }}
+</div>
+
 		</div>
 
 			<div class="mx-auto max-w-7xl px-6 lg:px-8 mt-16">
@@ -145,7 +138,7 @@
                            <td style="width: {{ cellWidth }}%;{% if column < 4 %} margin-right: 1%;{% endif %}">
                               {% if user %}
                               <div style="width: 50px; margin: 0 auto;">
-                                 <a href="/" class="flex items-center justify-center">
+                                 <a href="#" class="flex items-center justify-center">
                                     <div style="text-align: center;">
                                        <img src="https://avatarfiles.alphacoders.com/244/thumb-244471.png" alt="Avatar de {{ user.username }}" class="w-8 h-8 rounded-full object-cover mb-1">
                                        <div class="text-black font-bold">{{ user.username }}</div>
