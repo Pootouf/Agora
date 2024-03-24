@@ -94,4 +94,19 @@ class UserController extends AbstractController
         ]);
     }
 
+    #[Route('/contacts', name: 'app_contacts')]
+    public function contacts(): Response
+    {
+        // Récupérer l'utilisateur actuellement connecté
+        $user = $this->getUser();
+
+        // Récupérer la liste de contacts pour cet utilisateur
+        $contacts = $user->getContacts();
+
+        // Afficher la liste de contacts dans le template
+        return $this->render('contacts/index.html.twig', [
+            'contacts' => $contacts,
+        ]);
+    }
+
 }
