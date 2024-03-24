@@ -8,10 +8,11 @@ This section displays the player's disposition of tiles
 {% set VILLAGER = 'villager' %}
 {% set PRODUCTION = 'production' %}
 
+
 {# Tailwind loading of placement for productions squares #}
 <div hidden class="left-0 left-8 left-16"></div>
 
-<div class="h-auto w-auto">
+<div class="h-3/4 w-3/4 ">
     <div class="gap-1 grid grid-rows-{{ personalBoardTiles|length }}
                 grid-cols-{{ personalBoardTiles|first|length }} h-auto w-auto"
     >
@@ -38,6 +39,12 @@ This section displays the player's disposition of tiles
 
                 {# Display for tile #}
                 {% else %}
+                    {% set isActivable = false %}
+                    {% for key,activableTile in activableTiles %}
+                        {% if activableTile.tile.id == personalBox.playerTile.tile.id %}
+                            {% set isActivable = true %}
+                        {% endif %}
+                    {% endfor %}
                     <button {{ stimulus_action('glenmore', 'selectTile', 'click',
                                 {url:path('app_game_glenmore_select_tile_on_personalboard',
                                     {idGame: game.id, idTile: personalBox.playerTile.id})
@@ -46,7 +53,11 @@ This section displays the player's disposition of tiles
                             {% if isSpectator %}
                                 disabled
                             {% endif %}
-                            class="relative flex justify-center items-center w-40 h-40">
+                            class="relative
+                             {% if isActivable %}
+                                shadow-white shadow-lg
+                             {% endif %}
+                             flex justify-center items-center max-h-full max-w-full">
                         <img
                                 class="aspect-auto max-h-full"
                                 src="{{ asset('resourcesGames/Glenmore/BoardTiles/' ~ personalBox.playerTile.tile.id ~ '.svg')

@@ -100,6 +100,26 @@ This section displays the player options regarding his round
         >
             Annuler l'achat
         </button>
+    {% elseif activatedActivationPhase and player.personalBoard.activatedTile != null %}
+        <button
+                {%
+                    if player.personalBoard.activatedTile == null
+                %}
+                    disabled
+                {% endif %}
+                {{ stimulus_action('glenmore', 'cancelBuyingTile', 'click',
+                    {url:path('app_game_glenmore_cancel_activating_tile',
+                        {idGame: game.id})
+                    })
+                }}
+                class="{%
+                    if player.personalBoard.activatedTile == null
+                %} bg-opacity-25 {% endif %}
+                                bg-[#8F901F] py-2 px-3 m-1 rounded-lg text-2xl
+                                                    flex items-center justify-center"
+        >
+            Annuler l'activation de la tuile
+        </button>
     {% endif %}
 {% endif %}
 {% if player.personalBoard.buyingTile != null and activatedBuyingPhase %}
@@ -120,11 +140,3 @@ This section displays the player options regarding his round
 		</div>
 	{% endif %}
 {% endif %}
-<button {{ stimulus_action('glenmore', 'displayPropertyCards', 'click',
-	{url:path('app_game_glenmore_display_player_property_cards',
-		{idGame: game.id, idPlayer: player.id})
-	}) }}
-		class="bg-[#8F901F] py-2 px-3 m-1 rounded-lg text-2xl
-        flex items-center justify-center">
-	Voir les cartes de propriété
-</button>

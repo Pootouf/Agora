@@ -89,7 +89,7 @@ class TileGLMService
         }
         $buyPrice = $tileGLM->getTile()->getBuyPrice();
 
-        if ($buyPrice->first() != null && $buyPrice->first()->getResource() == GlenmoreParameters::$WHISKY_RESOURCE) {
+        if ($buyPrice->first() != null && $buyPrice->first()->getResource()->getType() == GlenmoreParameters::$WHISKY_RESOURCE) {
             return false;
         }
         return !$tileGLM->getTile()->getBuyPrice()->isEmpty();
@@ -513,7 +513,9 @@ class TileGLMService
                     $playerGLM->getPersonalBoard()->removeSelectedResource($resource);
                     foreach ($playerTile->getPlayerTileResource() as $item) {
                         if ($item->getResource() === $resource->getResource()) {
-                            $this->entityManager->remove($item);
+                            $item->setQuantity($item->getQuantity() - 1);
+                            $this->entityManager->persist($item);
+                            break;
                         }
                     }
                 }
@@ -522,6 +524,9 @@ class TileGLMService
                 }
             }
         }
+        $playerGLM->getPersonalBoard()->setActivatedTile(null);
+        $this->entityManager->persist($playerGLM->getPersonalBoard());
+        $this->clearResourceSelection($playerGLM);
         $this->entityManager->flush();
     }
 
@@ -742,15 +747,16 @@ class TileGLMService
                     $this->entityManager->persist($playerTileResource);
                     $priceTile = 0;
                 } else {
-                    $priceTile -= $resource->getQuantity();
                     $player->getPersonalBoard()->removeSelectedResource($resource);
                     if ($playerTile != null ) {
                         $playerTileResource = $playerTile->getPlayerTileResource()->filter(
                             function(PlayerTileResourceGLM $playerTileResourceGLM) use ($resource) {
                                 return $playerTileResourceGLM->getResource()->getId() == $resource->getResource()->getId();
                             })->first();
-                        $this->entityManager->remove($playerTileResource);
+                        $playerTileResource->setQuantity($playerTileResource->getQuantity() - $priceTile);
+                        $this->entityManager->persist($playerTileResource);
                     }
+                    $priceTile -= $resource->getQuantity();
                     $this->entityManager->remove($resource);
                 }
                 if ($priceTile == 0) {
@@ -758,6 +764,7 @@ class TileGLMService
                 }
             }
         }
+        $this->clearResourceSelection($player);
         $this->entityManager->flush();
     }
 
@@ -965,6 +972,18 @@ class TileGLMService
     }
 
     /**
+     * clearTileActivationSelection : cancel the tile that a player has selected to activate it
+     * @param PlayerGLM $player
+     * @return void
+     */
+    public function clearTileActivationSelection(PlayerGLM $player): void
+    {
+        $player->getPersonalBoard()->setActivatedTile(null);
+        $this->entityManager->persist($player->getPersonalBoard());
+        $this->entityManager->flush();
+    }
+
+    /**
      * Place a selected tile in personal board's player at position (abscissa, ordinate)
      *
      * @param PlayerGLM $player
@@ -1067,7 +1086,7 @@ class TileGLMService
         $activationPrices = $tileGLM->getActivationPrice();
         $selectedResources = $playerGLM->getPersonalBoard()->getSelectedResources();
         if ($playerTileGLM->getTile()->getName() === GlenmoreParameters::$TILE_NAME_FAIR) {
-            if ($selectedResources->count() > 1) {
+            if ($selectedResources->count() >= 1) {
                 return 0;
             }
             return -1;
@@ -1815,7 +1834,9 @@ class TileGLMService
             $playerTile = $selectedResource->getPlayerTile();
             foreach ($playerTile->getPlayerTileResource() as $item) {
                 if ($item->getResource() === $selectedResource->getResource()) {
-                    $this->entityManager->remove($item);
+                    $item->setQuantity($item->getQuantity() - 1);
+                    $this->entityManager->persist($item);
+                    break;
                 }
             }
         }
@@ -1824,6 +1845,7 @@ class TileGLMService
         $this->entityManager->persist($player);
         $tileGLM->setActivated(true);
         $this->entityManager->persist($tileGLM);
+        $this->clearResourceSelection($player);
         $this->entityManager->flush();
     }
 
@@ -1841,7 +1863,9 @@ class TileGLMService
             $playerTile = $selectedResource->getPlayerTile();
             foreach ($playerTile->getPlayerTileResource() as $item) {
                 if ($item->getResource() === $selectedResource->getResource()) {
-                    $this->entityManager->remove($item);
+                    $item->setQuantity($item->getQuantity() - 1);
+                    $this->entityManager->persist($item);
+                    break;
                 }
             }
         }
@@ -1850,6 +1874,7 @@ class TileGLMService
         $this->entityManager->persist($player);
         $tileGLM->setActivated(true);
         $this->entityManager->persist($tileGLM);
+        $this->clearResourceSelection($player);
         $this->entityManager->flush();
     }
 
@@ -1872,6 +1897,7 @@ class TileGLMService
                 }
             }
         }
+        $this->clearResourceSelection($playerGLM);
         $this->entityManager->flush();
     }
 
