@@ -149,7 +149,7 @@
         {% set path = path('app_game_show_glm', {'id': game.id}) ~ 'createResource' ~ player.id %}
         const createResource = new EventSource("{{ mercure(path)|escape('js') }}");
         createResource .onmessage = event => {
-            let createResource = document.getElementById('personalBoard');
+            let createResource = document.getElementById('selectedTileActions');
             createResource.innerHTML = event.data;
             setTimeout(() => animationQueue.executeNextInQueue(), 100)
         }

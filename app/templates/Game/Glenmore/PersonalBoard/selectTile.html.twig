@@ -191,6 +191,7 @@ This section displays the player tile resources and possible actions
                 {% for playerResource in resources %}
 
                     {% if playerResource.resource.type == PRODUCTION %}
+                        {% set selectedResourceQuantity = 0 %}
                         {% for i in 1..playerResource.quantity %}
                             {% if playerResource.quantity > 0 %}
                                 <button {% if not activatedResourceSelection and not activatedSellingPhase %}
@@ -203,8 +204,9 @@ This section displays the player tile resources and possible actions
                                         }}
                                         class="{% for selectedResource in selectedResources %}
                                                     {% if playerResource.resource == selectedResource.resource and
-                                                            playerResource.quantity == selectedResource.quantity %}
+                                                            selectedResourceQuantity != selectedResource.quantity %}
                                                         opacity-25
+                                                        {% set selectedResourceQuantity = selectedResourceQuantity + 1 %}
                                                     {% endif %}
                                                 {% endfor %}
                                         flex items-center justify-center w-full h-full">

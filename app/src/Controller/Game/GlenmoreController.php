@@ -85,7 +85,7 @@ class GlenmoreController extends AbstractController
             'activatedMovementPhase' => $movementPhase,
             'activatedResourceSelection' => $player->isActivatedResourceSelection(),
             'selectedResources' => $player->getPersonalBoard()->getSelectedResources(),
-            'activatedNewResourceAcquisition' => false,
+            'activatedNewResourceAcquisition' => $player->isActivatedNewResourcesAcqusition(),
             'chosenNewResources' => $player->getPersonalBoard()->getCreatedResources(),
             'selectedWarehouseProduction' => null,
             'isWarehouseMoneySelected' => false,
@@ -268,22 +268,22 @@ class GlenmoreController extends AbstractController
         }
         $this->service->setPhase($player, GlenmoreParameters::$ACTIVATION_PHASE);
         $player->setActivatedResourceSelection(false);
-        $this->entityManager->persist($player);
-        $this->entityManager->flush();
         $playerTile = $player->getPersonalBoard()->getPlayerTiles()->last();
 
         if ($this->tileGLMService->giveBuyBonus($playerTile) == -1) {
+            $player->setActivatedNewResourcesAcqusition(true);
             $this->publishCreateResource($playerTile);
-            $this->publishPlayerRoundManagement($game, true);
         } else {
-            $this->publishPlayerRoundManagement($game, false);
             $this->publishPersonalBoard($player, []);
             $this->publishPersonalBoardSpectator($game, []);
         }
+        $this->entityManager->persist($player);
+        $this->entityManager->flush();
+        $this->publishPlayerRoundManagement($game);
         $this->publishRanking($game);
         $this->publishMainBoardPreview($game);
-//        $message = $player->getUsername() . " put tile " . $player->getPersonalBoard()->getSelectedTile()->getId();
-//        $this->logService->sendPlayerLog($game, $player, $message);
+        $message = $player->getUsername() . " put tile " . $playerTile->getTile()->getId();
+        $this->logService->sendPlayerLog($game, $player, $message);
         return new Response('player put this tile', Response::HTTP_OK);
     }
 
@@ -462,12 +462,10 @@ class GlenmoreController extends AbstractController
         $this->publishPersonalBoard($player, []);
         $this->publishPersonalBoardSpectator($game, []);
         $this->publishRanking($game);
-        $isActivatedNewResourcesAcquisition = false;
         if($tile->getTile()->getName() == GlenmoreParameters::$CARD_IONA_ABBEY) {
-            $isActivatedNewResourcesAcquisition = true;
             $this->publishCreateResource($tile);
         }
-        $this->publishPlayerRoundManagement($game, $isActivatedNewResourcesAcquisition);
+        $this->publishPlayerRoundManagement($game);
         return new Response('tile was activated', Response::HTTP_OK);
     }
 
@@ -782,12 +780,12 @@ class GlenmoreController extends AbstractController
             'player' => $player,
             'selectedTile' => $playerTileGLM,
             'game' => $game,
-            'activatedResourceSelection' => false,
-            'activatedSellingPhase' => false,
+            'activatedResourceSelection' => $player->isActivatedResourceSelection(),
+            'activatedSellingPhase' => $this->service->isInSellingPhase($player),
             'selectedResources' => $player->getPersonalBoard()->getSelectedResources(),
-            'activatedNewResourceAcquisition' => true,
+            'activatedNewResourceAcquisition' => $player->isActivatedNewResourcesAcqusition(),
             'chosenNewResources' => $player->getPersonalBoard()->getCreatedResources(),
-            'activatedMovementPhase' => false,
+            'activatedMovementPhase' => $this->service->isInMovementPhase($player),
             'activatedActivationPhase' => $activatedActivationPhase,
             'buyingTile' => $player->getPersonalBoard()->getBuyingTile()
         ]
@@ -814,7 +812,7 @@ class GlenmoreController extends AbstractController
                 'game' => $game,
                 'activatedSellingPhase' => $this->service->isInSellingPhase($player),
                 'selectedResources' => $player->getPersonalBoard()->getSelectedResources(),
-                'activatedNewResourceAcquisition' => false,
+                'activatedNewResourceAcquisition' => $player->isActivatedNewResourcesAcqusition(),
                 'chosenNewResources' => $player->getPersonalBoard()->getCreatedResources(),
                 'activatedMovementPhase' => $this->service->isInMovementPhase($player),
                 'activatedActivationPhase' => $this->service->isInActivationPhase($player),
@@ -905,10 +903,9 @@ class GlenmoreController extends AbstractController
     /**
      * publishPlayerRoundManagement : send a mercure notification to update player buttons
      * @param GameGLM $game
-     * @param bool $isActivatedNewResourceAcquisition
      * @return void
      */
-    private function publishPlayerRoundManagement(GameGLM $game, bool $isActivatedNewResourceAcquisition) : void
+    private function publishPlayerRoundManagement(GameGLM $game) : void
     {
         foreach ($game->getPlayers() as $player) {
             $response = $this->render('Game/Glenmore/MainBoard/playerRoundManagement.html.twig', [
@@ -917,7 +914,7 @@ class GlenmoreController extends AbstractController
                 'needToPlay' => $player == null ? false : $player->isTurnOfPlayer(),
                 'isSpectator' => $player == null,
                 'activatedResourceSelection' => $player->isActivatedResourceSelection(),
-                'activatedNewResourceAcquisition' => $isActivatedNewResourceAcquisition,
+                'activatedNewResourceAcquisition' => $player->isActivatedNewResourcesAcqusition(),
                 'activatedMovementPhase' => $this->service->isInMovementPhase($player),
                 'activatedSellingPhase' => $this->service->isInSellingPhase($player),
                 'activatedActivationPhase' => $this->service->isInActivationPhase($player),
