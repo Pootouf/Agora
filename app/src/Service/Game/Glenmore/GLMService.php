@@ -225,7 +225,7 @@ class GLMService
             foreach ($winners as $winner) {
                 $message .=  $winner->getUsername() . " ";
             }
-            $message .= " won the game " . $gameGLM->getId();
+            $message .= " ont gagné la partie " . $gameGLM->getId();
             $this->logService->sendSystemLog($gameGLM, $message);
         } else {
             // TODO RETURN CODE TO PUBLISH
