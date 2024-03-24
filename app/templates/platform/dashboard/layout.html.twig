@@ -261,7 +261,20 @@ document.addEventListener("DOMContentLoaded", function() {
             link.classList.remove("bg-gray-800", "text-white");
             link.classList.add("text-gray-400", "hover:text-white", "hover:bg-gray-800");
         }
+
+        // Ajouter un écouteur d'événements sur chaque lien pour mettre à jour le style lors du clic
+        link.addEventListener("click", function() {
+            // Réinitialiser le style de tous les liens
+            allNavLinks.forEach(function(navLink) {
+                navLink.classList.remove("bg-gray-800", "text-white");
+                navLink.classList.add("text-gray-400", "hover:text-white", "hover:bg-gray-800");
+            });
+
+            // Mettre à jour le style du lien cliqué pour avoir le focus
+            link.classList.remove("text-gray-400", "hover:text-white", "hover:bg-gray-800");
+            link.classList.add("bg-gray-800", "text-white");
+        });
     });
 });
-	</script>
+</script>
 {% endblock %}
