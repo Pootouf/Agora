@@ -289,6 +289,7 @@ class TileGLMService
      */
     public function giveBuyBonus(PlayerTileGLM $playerTileGLM) : int
     {
+        $returnCode = 0;
         $tile = $playerTileGLM->getTile();
         $personalBoard = $playerTileGLM->getPersonalBoard();
         $buyBonus = $tile->getBuyBonus();
@@ -320,12 +321,12 @@ class TileGLMService
                 $this->entityManager->persist($playerTileGLM);
             }
             $this->entityManager->flush();
-            return $this->cardGLMService->buyCardManagement($playerTileGLM);
+            $returnCode = $this->cardGLMService->buyCardManagement($playerTileGLM);
         }
         $this->giveAllMovementPoints($playerTileGLM);
         $this->entityManager->persist($personalBoard);
         $this->entityManager->flush();
-        return 0;
+        return $returnCode;
     }
 
     /**
