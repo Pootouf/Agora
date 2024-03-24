@@ -10,62 +10,45 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: TileMYRRepository::class)]
 class TileMYR extends Component
 {
+    #[ORM\Column]
+    private ?int $coord_X = null;
 
     #[ORM\Column]
-    private ?int $xMinCoord = null;
+    private ?int $coord_Y = null;
 
-    #[ORM\Column]
-    private ?int $xMaxCoord = null;
+    #[ORM\Column(length: 255)]
+    private ?string $type = null;
 
-    #[ORM\Column]
-    private ?int $yCoord = null;
-
-    #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?TileTypeMYR $type = null;
-
-    public function getXMinCoord(): ?int
+    public function getCoordX(): ?int
     {
-        return $this->xMinCoord;
+        return $this->coord_X;
     }
 
-    public function setXMinCoord(int $xMinCoord): static
+    public function setCoordX(int $coord_X): static
     {
-        $this->xMinCoord = $xMinCoord;
+        $this->coord_X = $coord_X;
 
         return $this;
     }
 
-    public function getXMaxCoord(): ?int
+    public function getCoordY(): ?int
     {
-        return $this->xMaxCoord;
+        return $this->coord_Y;
     }
 
-    public function setXMaxCoord(int $xMaxCoord): static
+    public function setCoordY(int $coord_Y): static
     {
-        $this->xMaxCoord = $xMaxCoord;
+        $this->coord_Y = $coord_Y;
 
         return $this;
     }
 
-    public function getYCoord(): ?int
-    {
-        return $this->yCoord;
-    }
-
-    public function setYCoord(int $yCoord): static
-    {
-        $this->yCoord = $yCoord;
-
-        return $this;
-    }
-
-    public function getType(): ?TileTypeMYR
+    public function getType(): ?string
     {
         return $this->type;
     }
 
-    public function setType(?TileTypeMYR $type): static
+    public function setType(string $type): static
     {
         $this->type = $type;
 

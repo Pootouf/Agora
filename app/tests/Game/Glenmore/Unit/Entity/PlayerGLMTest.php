@@ -175,6 +175,22 @@ class PlayerGLMTest extends TestCase
         $this->assertTrue($this->playerGLM->isBot());
     }
 
+    public function testSetPreviousPhase() : void
+    {
+        // GIVEN
+
+        $previousPhase = 3;
+
+        // WHEN
+
+
+        $this->playerGLM->setPreviousPhase($previousPhase);
+
+        // THEN
+
+        $this->assertSame($previousPhase, $this->playerGLM->getPreviousPhase());
+    }
+
     protected function setUp(): void
     {
         $this->playerGLM = new PlayerGLM("user", new GameGLM());

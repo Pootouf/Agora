@@ -22,16 +22,19 @@ export default class extends Controller {
     }
 
     async buyCard(card) {
+        closeWindow()
         let url = card.params.url;
         const response = await fetch(url);
     }
 
     async reserveCardOnRow(card) {
+        closeWindow()
         let url = card.params.url;
         const response = await fetch(url);
     }
 
     async reserveCardOnDraw(level) {
+        closeWindow()
         let url = level.params.url;
         const response = await fetch(url);
     }

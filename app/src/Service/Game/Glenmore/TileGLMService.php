@@ -29,7 +29,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Exception;
 use Doctrine\ORM\EntityManagerInterface;
-use Psr\Log\LoggerInterface;
 
 class TileGLMService
 {
@@ -49,9 +48,6 @@ class TileGLMService
      */
     public function getAmountOfTileToReplace(MainBoardGLM $mainBoardGLM): int
     {
-        if(!$this->isChainBroken($mainBoardGLM)){
-            return 1;
-        }
         $this->removeTilesOfBrokenChain($mainBoardGLM);
         $player = $this->getActivePlayer($mainBoardGLM ->getGameGLM());
         $playerPosition = $player->getPawn()->getPosition();
@@ -88,12 +84,12 @@ class TileGLMService
      */
     public function hasBuyCost(BoardTileGLM $tileGLM) : bool
     {
-        if ($tileGLM->getTile()->getName() === GlenmoreParameters::$CARD_LOCH_NESS) {
-            return false;
+        if ($tileGLM->getTile()->getName() === GlenmoreParameters::$CARD_LOCH_OICH) {
+            return true;
         }
         $buyPrice = $tileGLM->getTile()->getBuyPrice();
 
-        if ($buyPrice->first() != null && $buyPrice->first()->getResource() == GlenmoreParameters::$WHISKY_RESOURCE) {
+        if ($buyPrice->first() != null && $buyPrice->first()->getResource()->getType() == GlenmoreParameters::$WHISKY_RESOURCE) {
             return false;
         }
         return !$tileGLM->getTile()->getBuyPrice()->isEmpty();
@@ -151,9 +147,11 @@ class TileGLMService
         }
         // if there is no activable tiles even after Loch Ness
         if($activableTiles->isEmpty()) {
-            $personalBoard->getPlayerGLM()->setRoundPhase(GlenmoreParameters::$MOVEMENT_PHASE);
-            $this->entityManager->persist($personalBoard->getPlayerGLM());
-            $this->entityManager->flush();
+            if ($personalBoard->getPlayerGLM()->getRoundPhase() != GlenmoreParameters::$SELLING_PHASE) {
+                $personalBoard->getPlayerGLM()->setRoundPhase(GlenmoreParameters::$MOVEMENT_PHASE);
+                $this->entityManager->persist($personalBoard->getPlayerGLM());
+                $this->entityManager->flush();
+            }
         }
         return $activableTiles;
     }
@@ -247,12 +245,53 @@ class TileGLMService
     }
 
     /**
+     * canBuyLochOich: return true if the player can buy Loch Oich
+     * @param TileGLM $tile
+     * @param PlayerGLM $player
+     * @return bool
+     */
+    public function canBuyLochOich(TileGLM $tile, PlayerGLM $player) : bool
+    {
+        $playerTiles = $player->getPersonalBoard()->getPlayerTiles();
+        $playerResources = new ArrayCollection();
+        $warehouse = $player->getGameGLM()->getMainBoard()->getWarehouse();
+        $money = $player->getPersonalBoard()->getMoney();
+        foreach ($playerTiles as $playerTile) {
+            foreach ($playerTile->getPlayerTileResource() as $playerTileResource) {
+                if (!$playerResources->contains($playerTileResource->getResource())) {
+                    $playerResources->add($playerTileResource);
+                }
+            }
+        }
+        $i = 0;
+        while ($playerResources->count() < 2 && $i < 5) {
+            $line = $warehouse->getWarehouseLine()->get($i);
+            ++$i;
+            if ($playerResources->contains($line->getResource())) {
+                continue;
+            }
+            if ($line->getQuantity() == 3) {
+                return false;
+            }
+            $neededMoney = GlenmoreParameters::$MONEY_FROM_QUANTITY[$line->getQuantity()];
+            $money -= $neededMoney;
+            if ($money < 0) {
+                return false;
+            }
+            $playerResources->add($line->getResource());
+        }
+        return true;
+    }
+
+
+    /**
      * giveBuyBonus : once bought and placed, the playerTile gives bonus to its player
      * @param PlayerTileGLM $playerTileGLM
      * @return int
      */
     public function giveBuyBonus(PlayerTileGLM $playerTileGLM) : int
     {
+        $returnCode = 0;
         $tile = $playerTileGLM->getTile();
         $personalBoard = $playerTileGLM->getPersonalBoard();
         $buyBonus = $tile->getBuyBonus();
@@ -284,12 +323,12 @@ class TileGLMService
                 $this->entityManager->persist($playerTileGLM);
             }
             $this->entityManager->flush();
-            return $this->cardGLMService->buyCardManagement($playerTileGLM);
+            $returnCode = $this->cardGLMService->buyCardManagement($playerTileGLM);
         }
         $this->giveAllMovementPoints($playerTileGLM);
         $this->entityManager->persist($personalBoard);
         $this->entityManager->flush();
-        return 0;
+        return $returnCode;
     }
 
     /**
@@ -356,6 +395,33 @@ class TileGLMService
     }
 
     /**
+     * canBuyTileWithSelectedResources : indicate if the player can buy the tile with his current selected resources
+     * @param PlayerGLM $player
+     * @param TileGLM $tile
+     * @return bool
+     */
+    public function canBuyTileWithSelectedResources(PlayerGLM $player, TileGLM $tile) : bool
+    {
+        if ($tile->getName() === GlenmoreParameters::$CARD_LOCH_OICH) {
+            return $player->getPersonalBoard()->getSelectedResources()->count() >= 2;
+        }
+        $globalResources = $player->getPersonalBoard()->getSelectedResources();
+        foreach ($tile->getBuyPrice() as $buyPrice) {
+            $priceTile = $buyPrice->getPrice();
+            $resource = $buyPrice->getResource();
+            $selectedResourcesOfSameResource = $globalResources->filter(
+                function (SelectedResourceGLM $selectedResourceGLM) use ($resource) {
+                    return $selectedResourceGLM->getResource()->getId() == $resource->getId();
+                }
+            );
+            if ($selectedResourcesOfSameResource->count() != $priceTile) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * activateBonus : activate a tile and give player his resources
      *
      * @param PlayerTileGLM   $tileGLM
@@ -381,6 +447,14 @@ class TileGLMService
         if(!$this->hasEnoughPlaceToActivate($tileGLM)) {
             throw new \Exception("NOT ENOUGH PLACE ON TILE");
         }
+        if($tileGLM->getTile()->getName() === GlenmoreParameters::$TILE_NAME_FAIR) {
+            $this->activateFair($tileGLM);
+            return;
+        }
+        if($tileGLM->getTile()->getName() === GlenmoreParameters::$TILE_NAME_GROCER) {
+            $this->activateGrocer($tileGLM);
+            return;
+        }
         if($tile->getType() != GlenmoreParameters::$TILE_TYPE_BROWN){
             $this->givePlayerActivationBonus($tileGLM, $playerGLM);
             $this->entityManager->persist($tileGLM);
@@ -398,7 +472,14 @@ class TileGLMService
             $selectedLevel = min($resourcesTypesCount, $activationCostsLevels);
             $activationBonus = $tileGLM->getTile()->getActivationBonus()->get($selectedLevel - 1);
             $activationBonus = $tile->getActivationBonus()->get($bonusNb);
-            $playerGLM->setPoints($playerGLM->getPoints() + $activationBonus->getAmount());
+            if ($tileGLM->getTile()->getName() === GlenmoreParameters::$TILE_NAME_BRIDGE) {
+                $playerGLM->setPoints($playerGLM->getPoints() + 7);
+            } else if ($tileGLM->getTile()->getName() === GlenmoreParameters::$TILE_NAME_BUTCHER
+                && !$tileGLM->getTile()->getBuyPrice()->isEmpty()) {
+                $playerGLM->setPoints($playerGLM->getPoints() + 5);
+            } else {
+                $playerGLM->setPoints($playerGLM->getPoints() + $activationBonus->getAmount());
+            }
             $this->entityManager->persist($playerGLM);
         }
         $tileGLM->setActivated(true);
@@ -432,7 +513,9 @@ class TileGLMService
                     $playerGLM->getPersonalBoard()->removeSelectedResource($resource);
                     foreach ($playerTile->getPlayerTileResource() as $item) {
                         if ($item->getResource() === $resource->getResource()) {
-                            $this->entityManager->remove($item);
+                            $item->setQuantity($item->getQuantity() - 1);
+                            $this->entityManager->persist($item);
+                            break;
                         }
                     }
                 }
@@ -441,6 +524,9 @@ class TileGLMService
                 }
             }
         }
+        $playerGLM->getPersonalBoard()->setActivatedTile(null);
+        $this->entityManager->persist($playerGLM->getPersonalBoard());
+        $this->clearResourceSelection($playerGLM);
         $this->entityManager->flush();
     }
 
@@ -539,6 +625,42 @@ class TileGLMService
     }
 
     /**
+     * selectResourcesFromTileToSellResource: select a resources from a tile to use to sell the resourceToSell
+     * @param PlayerTileGLM $playerTileGLM
+     * @param ResourceGLM $resource
+     * @return void
+     * @throws Exception if there is already a selected resource to sell or if the resouce is not the correct type
+     */
+    public function selectResourcesFromTileToSellResource(PlayerTileGLM $playerTileGLM, ResourceGLM $resource) : void
+    {
+        $personalBoard = $playerTileGLM->getPersonalBoard();
+        $resourceToSell = $personalBoard->getResourceToSell();
+        if ($playerTileGLM->getPlayerTileResource()->filter(
+            function (PlayerTileResourceGLM $playerTileResourceGLM) use ($resource) {
+                return $playerTileResourceGLM->getResource()->getId() == $resource->getId()
+                    && $playerTileResourceGLM->getQuantity() > 0;
+            })->count() <= 0
+        ) {
+            throw new Exception("Can't select this resource, there is none of it on this tile");
+        }
+        if($personalBoard->getSelectedResources()->count() > 0) {
+            throw new Exception("Can't select a new resource, already selected one");
+        }
+        if($resourceToSell->getId() != $resource->getId()) {
+            throw new Exception("Can't select this resource, it's not the required type");
+        }
+        $selectedResource = new SelectedResourceGLM();
+        $selectedResource->setResource($resource);
+        $selectedResource->setPlayerTile($playerTileGLM);
+        $selectedResource->setQuantity(1);
+        $selectedResource->setPersonalBoardGLM($personalBoard);
+        $personalBoard->addSelectedResource($selectedResource);
+        $this->entityManager->persist($selectedResource);
+        $this->entityManager->persist($personalBoard);
+        $this->entityManager->flush();
+    }
+
+    /**
      * selectLeader: select a leader to use to buy the selectedTile of the player
      * @param PlayerGLM $playerGLM
      * @return void
@@ -583,33 +705,28 @@ class TileGLMService
     public function buyTile(TileGLM $tile, PlayerGLM $player) : void
     {
         if ($tile->getName() === GlenmoreParameters::$CARD_LOCH_NESS) {
-            $leaderCount = $player->getPersonalBoard()->getLeaderCount();
-            if ($leaderCount <= 0) {
-                throw new Exception("not enough leaders");
+            if ($player->getPersonalBoard()->getSelectedResources()->first()->getPlayerTile() == null) {
+                $leaderCount = $player->getPersonalBoard()->getLeaderCount();
+                $player->getPersonalBoard()->setLeaderCount($leaderCount - 1);
+                $this->entityManager->persist($player->getPersonalBoard());
+                $this->entityManager->flush();
+                return;
             }
-            $player->getPersonalBoard()->setLeaderCount($leaderCount - 1);
-            $this->entityManager->persist($player->getPersonalBoard());
-            $this->entityManager->flush();
-            return;
         }
         if ($tile->getName() === GlenmoreParameters::$TILE_NAME_TAVERN) {
             if (!$this->buyTavern($player)) {
                 throw new Exception("not enough whisky");
             }
+            return;
+        }
+        if ($tile->getName() === GlenmoreParameters::$CARD_LOCH_OICH) {
+            $this->buyLochOich($player);
+            return;
+        }
+        if(!$this->canBuyTileWithSelectedResources($player, $tile)) {
+            throw new Exception("can't buy tile with selected resources, wrong selected resources");
         }
         $globalResources = $player->getPersonalBoard()->getSelectedResources();
-        foreach ($tile->getBuyPrice() as $buyPrice) {
-            $priceTile = $buyPrice->getPrice();
-            $resource = $buyPrice->getResource();
-            $selectedResourcesOfSameResource = $globalResources->filter(
-                function (SelectedResourceGLM $selectedResourceGLM) use ($resource) {
-                    return $selectedResourceGLM->getResource()->getId() == $resource->getId();
-                }
-            );
-            if ($selectedResourcesOfSameResource->count() != $priceTile) {
-                throw new \Exception('Invalid amount of selected resources');
-            }
-        }
         foreach ($tile->getBuyPrice() as $buyPrice) {
             $resourceTile = $buyPrice->getResource();
             $priceTile = $buyPrice->getPrice();
@@ -630,15 +747,16 @@ class TileGLMService
                     $this->entityManager->persist($playerTileResource);
                     $priceTile = 0;
                 } else {
-                    $priceTile -= $resource->getQuantity();
                     $player->getPersonalBoard()->removeSelectedResource($resource);
                     if ($playerTile != null ) {
                         $playerTileResource = $playerTile->getPlayerTileResource()->filter(
                             function(PlayerTileResourceGLM $playerTileResourceGLM) use ($resource) {
                                 return $playerTileResourceGLM->getResource()->getId() == $resource->getResource()->getId();
                             })->first();
-                        $this->entityManager->remove($playerTileResource);
+                        $playerTileResource->setQuantity($playerTileResource->getQuantity() - $priceTile);
+                        $this->entityManager->persist($playerTileResource);
                     }
+                    $priceTile -= $resource->getQuantity();
                     $this->entityManager->remove($resource);
                 }
                 if ($priceTile == 0) {
@@ -646,6 +764,7 @@ class TileGLMService
                 }
             }
         }
+        $this->clearResourceSelection($player);
         $this->entityManager->flush();
     }
 
@@ -808,8 +927,14 @@ class TileGLMService
      */
     public function assignTileToPlayer(BoardTileGLM $boardTile, PlayerGLM $player) : array
     {
-        if (!$this->canBuyTile($boardTile->getTile(), $player)) {
-            throw new Exception("Unable to buy tile");
+        if ($boardTile->getTile()->getName() === GlenmoreParameters::$CARD_LOCH_OICH) {
+            if (!$this->canBuyLochOich($boardTile->getTile(), $player)) {
+                throw new Exception("Unable to buy tile");
+            }
+        } else {
+            if (!$this->canBuyTile($boardTile->getTile(), $player)) {
+                throw new Exception("Unable to buy tile");
+            }
         }
         if ($player->getPersonalBoard()->getBuyingTile() != null) {
             throw new Exception("Already bought a tile");
@@ -842,6 +967,18 @@ class TileGLMService
         $buyingTile = $player->getPersonalBoard()->getBuyingTile();
         $player->getPersonalBoard()->setBuyingTile(null);
         $this->entityManager->remove($buyingTile);
+        $this->entityManager->persist($player->getPersonalBoard());
+        $this->entityManager->flush();
+    }
+
+    /**
+     * clearTileActivationSelection : cancel the tile that a player has selected to activate it
+     * @param PlayerGLM $player
+     * @return void
+     */
+    public function clearTileActivationSelection(PlayerGLM $player): void
+    {
+        $player->getPersonalBoard()->setActivatedTile(null);
         $this->entityManager->persist($player->getPersonalBoard());
         $this->entityManager->flush();
     }
@@ -882,7 +1019,7 @@ class TileGLMService
             $personalBoard->getBuyingTile()->setCoordY($ordinate);
             $this->entityManager->persist($personalBoard->getBuyingTile());
             $this->entityManager->flush();
-            throw new \Exception('Invalid amount of selected resources');
+            throw new \Exception('Invalid amount of selected resources' . $e->getMessage());
         }
 
         // Here assign tile --> Creation of player tile and manage personal board
@@ -948,6 +1085,18 @@ class TileGLMService
         $tileGLM = $playerTileGLM->getTile();
         $activationPrices = $tileGLM->getActivationPrice();
         $selectedResources = $playerGLM->getPersonalBoard()->getSelectedResources();
+        if ($playerTileGLM->getTile()->getName() === GlenmoreParameters::$TILE_NAME_FAIR) {
+            if ($selectedResources->count() >= 1) {
+                return 0;
+            }
+            return -1;
+        }
+        if ($playerTileGLM->getTile()->getName() === GlenmoreParameters::$TILE_NAME_GROCER) {
+            if ($selectedResources->count() >= 3) {
+                return 0;
+            }
+            return -1;
+        }
         foreach ($activationPrices as $activationPrice){
             $resourceType = $activationPrice->getResource();
             $resourceAmount = $activationPrice->getPrice();
@@ -985,7 +1134,7 @@ class TileGLMService
         foreach ($playerTiles as $playerTile) {
             $resources = $playerTile->getPlayerTileResource();
             foreach ($resources as $resource) {
-                if ($resource->getResource() == GlenmoreParameters::$WHISKY_RESOURCE) {
+                if ($resource->getResource()->getType() == GlenmoreParameters::$WHISKY_RESOURCE) {
                     $resource->setQuantity($resource->getQuantity() - 1);
                     $this->entityManager->persist($resource);
                     $this->entityManager->flush();
@@ -1067,8 +1216,9 @@ class TileGLMService
     private function doesTileContainsVillager(PlayerTileGLM $playerTile) : bool
     {
         $villager = $this->resourceGLMRepository->findOneBy(['type' => GlenmoreParameters::$VILLAGER_RESOURCE]);
-        return $this->playerTileResourceGLMRepository->findOneBy(['resource' => $villager->getId(),
-                'playerTileGLM' => $playerTile->getId()]) != null;
+        $villager = $this->playerTileResourceGLMRepository->findOneBy(['resource' => $villager->getId(),
+                'playerTileGLM' => $playerTile->getId()]);
+        return $villager != null && $villager->getQuantity() > 0;
     }
 
     /**
@@ -1094,25 +1244,6 @@ class TileGLMService
         return !$adjacentTiles->filter(function(?PlayerTileGLM $tile) {
             return $tile != null && $this->doesTileContainsVillager($tile);
         })->isEmpty();
-    }
-
-    /**
-     * isChainBroken : returns true if the chain is broken, false otherwise
-     * @param MainBoardGLM $mainBoardGLM
-     * @return bool
-     */
-    private function isChainBroken(MainBoardGLM $mainBoardGLM): bool
-    {
-        $player = $this->getActivePlayer($mainBoardGLM->getGameGLM());
-        $playerPosition = $player->getPawn()->getPosition();
-        $positionBehindPlayer = $playerPosition - 1;
-        if($positionBehindPlayer == -1){
-            $positionBehindPlayer = GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD - 1;
-        }
-        if($this->getTileInPosition($mainBoardGLM, $positionBehindPlayer) != null){
-            return true;
-        }
-        return false;
     }
 
     /**
@@ -1200,7 +1331,24 @@ class TileGLMService
     public function addSelectedResourcesFromTileWithCost(PlayerGLM $playerGLM, ?PlayerTileGLM $playerTileGLM,
                                                          ResourceGLM $resource, Collection $cost) : void
     {
-
+        if ($playerGLM->getRoundPhase() == GlenmoreParameters::$ACTIVATION_PHASE &&
+            $playerGLM->getPersonalBoard()->getActivatedTile()->getTile()->getName()
+                === GlenmoreParameters::$TILE_NAME_FAIR) {
+            $this->selectResourceForFair($playerGLM, $playerTileGLM, $resource, $cost);
+            return;
+        }
+        if ($playerGLM->getRoundPhase() == GlenmoreParameters::$ACTIVATION_PHASE &&
+            $playerGLM->getPersonalBoard()->getActivatedTile()->getTile()->getName()
+            === GlenmoreParameters::$TILE_NAME_GROCER) {
+            $this->selectResourceForGrocer($playerGLM, $playerTileGLM, $resource, $cost);
+            return;
+        }
+        if ($playerGLM->getRoundPhase() == GlenmoreParameters::$BUYING_PHASE &&
+            $playerGLM->getPersonalBoard()->getBuyingTile()->getBoardTile()->getTile()->getName()
+            === GlenmoreParameters::$CARD_LOCH_OICH) {
+            $this->selectResourceForLochOich($playerGLM, $playerTileGLM, $resource, $cost);
+            return;
+        }
         $personalBoard = $playerGLM->getPersonalBoard();
         $selectedResources = $personalBoard->getSelectedResources();
         $selectedResourcesLikeResource = $selectedResources->filter(
@@ -1230,24 +1378,34 @@ class TileGLMService
                 })->first();
         }
 
-
-
-        $selectedResourceWithSamePlayerTile = $this->selectedResourceGLMRepository
-            ->findOneBy(["playerTile" => $playerTileGLM->getId(), "resource" => $resource->getId()]);
-
-        if ($selectedResourceWithSamePlayerTile == null) {
+        $selectedResourceWithSamePlayerTile = null;
+        if ($playerTileGLM != null ) {
+            $selectedResourceWithSamePlayerTile = $this->selectedResourceGLMRepository
+                ->findOneBy(["playerTile" => $playerTileGLM->getId(), "resource" => $resource->getId()]);
+        }
+        if ($selectedResourceWithSamePlayerTile == null && $playerTileGLM != null) {
             $selectedResource = new SelectedResourceGLM();
             $selectedResource->setPlayerTile($playerTileGLM);
             $selectedResource->setResource($resource);
             $selectedResource->setQuantity(1);
             $selectedResource->setPersonalBoardGLM($playerTileGLM->getPersonalBoard());
-           $this->entityManager->persist($selectedResource);
-           $personalBoard->addSelectedResource($selectedResource);
-           $this->entityManager->persist($personalBoard);
-        } else {
+            $this->entityManager->persist($selectedResource);
+            $personalBoard->addSelectedResource($selectedResource);
+            $this->entityManager->persist($personalBoard);
+        } else if ($selectedResourceWithSamePlayerTile != null) {
             $selectedResourceWithSamePlayerTile
                 ->setQuantity($selectedResourceWithSamePlayerTile->getQuantity() + 1);
             $this->entityManager->persist($selectedResourceWithSamePlayerTile);
+        } else {
+            $selectedResource = new SelectedResourceGLM();
+            $selectedResource->setPlayerTile(null);
+            $selectedResource->setResource($resource);
+            $selectedResource->setQuantity(1);
+            $selectedResource->setPersonalBoardGLM($playerGLM->getPersonalBoard());
+            $this->entityManager->persist($selectedResource);
+            $personalBoard->addSelectedResource($selectedResource);
+            $this->entityManager->persist($personalBoard);
+            $this->entityManager->persist($selectedResource);
         }
 
         $this->entityManager->flush();
@@ -1481,6 +1639,23 @@ class TileGLMService
     }
 
     /**
+     * canPickThisResource : checks if resource is different from all other resources contained in selectedResources
+     * @param Collection  $selectedResources
+     * @param ResourceGLM $resource
+     * @return bool
+     */
+    private function canPickThisResource(Collection $selectedResources, ResourceGLM $resource) : bool
+    {
+        foreach ($selectedResources as $selectedResource) {
+            if ($selectedResource->getResource()->getType() == $resource->getType() &&
+                $selectedResource->getResource()->getColor() == $resource->getColor()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * getTilesAround : returns every PlayerTile around coordinates
      * @param int $x
      * @param int $y
@@ -1541,4 +1716,189 @@ class TileGLMService
         }
         $this->entityManager->flush();
     }
+
+    /**
+     * selectResourceForFair : select a resource for fair tile
+     * @param PlayerGLM          $playerGLM
+     * @param PlayerTileGLM|null $playerTileGLM
+     * @param ResourceGLM        $resource
+     * @param Collection         $cost
+     * @return void
+     * @throws Exception
+     */
+    private function selectResourceForFair(PlayerGLM $playerGLM,
+        ?PlayerTileGLM $playerTileGLM, ResourceGLM $resource, Collection $cost) : void
+    {
+        $selectedResources = $playerGLM->getPersonalBoard()->getSelectedResources();
+        $numberNeeded = $cost->count();
+        if ($selectedResources->count() == $numberNeeded) {
+            throw new Exception("can't pick more resource for this tile");
+        }
+        if (!$this->canPickThisResource($selectedResources, $resource)) {
+            throw new Exception("resources must be different");
+        }
+        $newResource = new SelectedResourceGLM();
+        $newResource->setResource($resource);
+        $newResource->setQuantity(1);
+        $newResource->setPlayerTile($playerTileGLM);
+        $newResource->setPersonalBoardGLM($playerGLM->getPersonalBoard());
+        $this->entityManager->persist($newResource);
+        $this->entityManager->flush();
+    }
+
+    /**
+     * selectResourceForGrocer : select a resource for grocer tile
+     * @param PlayerGLM          $playerGLM
+     * @param PlayerTileGLM|null $playerTileGLM
+     * @param ResourceGLM        $resource
+     * @param Collection         $cost
+     * @return void
+     * @throws Exception
+     */
+    private function selectResourceForGrocer(PlayerGLM $playerGLM,
+        ?PlayerTileGLM $playerTileGLM, ResourceGLM $resource, Collection $cost) : void
+    {
+        $selectedResources = $playerGLM->getPersonalBoard()->getSelectedResources();
+        if ($selectedResources->count() > 3) {
+            throw new Exception("can't pick more resource for this tile");
+        }
+        if (!$this->canPickThisResource($selectedResources, $resource)) {
+            throw new Exception("resources must be different");
+        }
+        $newResource = new SelectedResourceGLM();
+        $newResource->setResource($resource);
+        $newResource->setQuantity(1);
+        $newResource->setPlayerTile($playerTileGLM);
+        $newResource->setPersonalBoardGLM($playerGLM->getPersonalBoard());
+        $this->entityManager->persist($newResource);
+        $this->entityManager->flush();
+    }
+
+    /**
+     * selectResourceForLochOich : select a resource for grocer tile
+     * @param PlayerGLM          $playerGLM
+     * @param PlayerTileGLM|null $playerTileGLM
+     * @param ResourceGLM        $resource
+     * @param Collection         $cost
+     * @return void
+     * @throws Exception
+     */
+    private function selectResourceForLochOich(PlayerGLM $playerGLM,
+        ?PlayerTileGLM $playerTileGLM, ResourceGLM $resource, Collection $cost) : void
+    {
+        $selectedResources = $playerGLM->getPersonalBoard()->getSelectedResources();
+        if ($selectedResources->count() >= 2) {
+            throw new Exception("can't pick more resource for this tile");
+        }
+        if (!$this->canPickThisResource($selectedResources, $resource)) {
+            throw new Exception("resources must be different");
+        }
+        $newResource = new SelectedResourceGLM();
+        $newResource->setResource($resource);
+        $newResource->setQuantity(1);
+        $newResource->setPlayerTile($playerTileGLM);
+        $newResource->setPersonalBoardGLM($playerGLM->getPersonalBoard());
+        $this->entityManager->persist($newResource);
+        $this->entityManager->flush();
+    }
+
+
+    /**
+     * activateFair : gives points to the player
+     * @param PlayerTileGLM $tileGLM
+     * @return void
+     */
+    private function activateFair(PlayerTileGLM $tileGLM) : void
+    {
+        $personalBoard = $tileGLM->getPersonalBoard();
+        $selectedResources = $personalBoard->getSelectedResources();
+        $points = 0;
+        switch ($selectedResources->count()) {
+            case 1:
+                $points = 1;
+                break;
+            case 2:
+                $points = 3;
+                break;
+            case 3:
+                $points = 5;
+                break;
+            case 4:
+                $points = 8;
+                break;
+            case 5:
+                $points = 12;
+                break;
+        }
+        foreach ($selectedResources as $selectedResource) {
+            $playerTile = $selectedResource->getPlayerTile();
+            foreach ($playerTile->getPlayerTileResource() as $item) {
+                if ($item->getResource() === $selectedResource->getResource()) {
+                    $item->setQuantity($item->getQuantity() - 1);
+                    $this->entityManager->persist($item);
+                    break;
+                }
+            }
+        }
+        $player = $personalBoard->getPlayerGLM();
+        $player->setPoints($player->getPoints() + $points);
+        $this->entityManager->persist($player);
+        $tileGLM->setActivated(true);
+        $this->entityManager->persist($tileGLM);
+        $this->clearResourceSelection($player);
+        $this->entityManager->flush();
+    }
+
+    /**
+     * activateGrocer : gives points to the player
+     * @param PlayerTileGLM $tileGLM
+     * @return void
+     */
+    private function activateGrocer(PlayerTileGLM $tileGLM) : void
+    {
+        $personalBoard = $tileGLM->getPersonalBoard();
+        $selectedResources = $personalBoard->getSelectedResources();
+        $points = 8;
+        foreach ($selectedResources as $selectedResource) {
+            $playerTile = $selectedResource->getPlayerTile();
+            foreach ($playerTile->getPlayerTileResource() as $item) {
+                if ($item->getResource() === $selectedResource->getResource()) {
+                    $item->setQuantity($item->getQuantity() - 1);
+                    $this->entityManager->persist($item);
+                    break;
+                }
+            }
+        }
+        $player = $personalBoard->getPlayerGLM();
+        $player->setPoints($player->getPoints() + $points);
+        $this->entityManager->persist($player);
+        $tileGLM->setActivated(true);
+        $this->entityManager->persist($tileGLM);
+        $this->clearResourceSelection($player);
+        $this->entityManager->flush();
+    }
+
+    /**
+     * buyLochOich : player buys Loch Oich
+     * @param PlayerGLM $playerGLM
+     * @return void
+     */
+    private function buyLochOich(PlayerGLM $playerGLM) : void
+    {
+        $selectedResources = $playerGLM->getPersonalBoard()->getSelectedResources();
+        foreach ($selectedResources as $selectedResource) {
+            $playerTile = $selectedResource->getPlayerTile();
+            if ($playerTile == null) {
+                continue;
+            }
+            foreach ($playerTile->getPlayerTileResource() as $item) {
+                if ($item->getResource() === $selectedResource->getResource()) {
+                    $this->entityManager->remove($item);
+                }
+            }
+        }
+        $this->clearResourceSelection($playerGLM);
+        $this->entityManager->flush();
+    }
+
 }

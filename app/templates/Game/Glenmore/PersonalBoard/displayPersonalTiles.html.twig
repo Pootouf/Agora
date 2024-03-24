@@ -11,9 +11,9 @@ This section displays the player's disposition of tiles
 {# Tailwind loading of placement for productions squares #}
 <div hidden class="left-0 left-8 left-16"></div>
 
-<div class="h-auto w-auto">
+<div class="h-auto w-auto flex justify-center items-center">
     <div class="gap-1 grid grid-rows-{{ personalBoardTiles|length }}
-                grid-cols-{{ personalBoardTiles|first|length }} h-auto w-auto"
+                grid-cols-{{ personalBoardTiles|first|length }} h-3/4 w-3/4"
     >
         {% for row in personalBoardTiles %}
             {% for personalBox in row %}
@@ -21,10 +21,10 @@ This section displays the player's disposition of tiles
                 {# Display for empty space #}
                 {% if personalBox.playerTile == null %}
                     <button type="button"
-                            {% if not personalBox.placeable %}
+                            {% if not personalBox.placeable or activatedResourceSelection %}
                                 disabled
                             {% endif %}
-                            class="{% if not personalBox.placeable %}
+                            class="{% if not personalBox.placeable or activatedResourceSelection %}
                                                      opacity-25 bg-gray-500
                                                  {% else %}
                                                     opacity-50 bg-white
@@ -46,7 +46,7 @@ This section displays the player's disposition of tiles
                             {% if isSpectator %}
                                 disabled
                             {% endif %}
-                            class="relative flex justify-center items-center w-40 h-40">
+                            class="relative flex justify-center items-center max-h-full max-w-full">
                         <img
                                 class="aspect-auto max-h-full"
                                 src="{{ asset('resourcesGames/Glenmore/BoardTiles/' ~ personalBox.playerTile.tile.id ~ '.svg')

@@ -320,6 +320,19 @@ class GLMService
     }
 
     /**
+     * setPreviousPhase : set player's previous phase into selected phase
+     * @param PlayerGLM $playerGLM
+     * @param ?int       $phase
+     * @return void
+     */
+    public function setPreviousPhase(PlayerGLM $playerGLM, ?int $phase) : void
+    {
+        $playerGLM->setPreviousPhase($phase);
+        $this->entityManager->persist($playerGLM);
+        $this->entityManager->flush();
+    }
+
+    /**
      * calculatePointsAtEndOfLevel : adds points to each player in gameGLM
      *
      * @param GameGLM $gameGLM

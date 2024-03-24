@@ -62,14 +62,14 @@ This section displays the warehouse actions
             {% else  %}
                 <button
                         {{ stimulus_action('glenmore', 'sellResourceFromWarehouse', 'click',
-                            {url:path('app_game_glenmore_sell_resource_warehouse_production_on_mainboard',
+                            {url:path('app_game_glenmore_activate_selling_resource_warehouse_production_on_mainboard',
                                 {idGame: game.id, idResourceLine : selectedWarehouseProduction.id})
                             })
                         }}
                         class="bg-[#8F901F] py-2 px-3 m-1 rounded-lg text-2xl
                                     flex items-center justify-center w-full h-full"
                 >
-                    Vendre la ressource
+                    Choisir la ressource à vendre sur le plateau
                 </button>
             {% endif %}
             <button id="return_board" onclick="closeSelectedWarehouseResource()"

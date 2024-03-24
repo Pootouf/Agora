@@ -33,18 +33,31 @@
 			{% endblock %}
 			{% block personalBoard %}
 				{% if not isSpectator %}
-					<div id="personalBoard" class="absolute bg-gradient-to-r from-[#422006] to-[#ca8a04] bottom-0 pb-6 w-[70%] h-[90%]">
+					<div id="personalBoard" class="absolute bg-gradient-to-r from-[#422006] to-[#ca8a04]
+													bottom-0 pb-6 w-[70%] h-[90%]"
+					>
 						{{ include('/Game/Glenmore/PersonalBoard/personalBoard.html.twig') }}
 					</div>
 					<div id="playerPersonalBoard" class="flow float-start w-[70%] h-[5/6]"></div>
 				{% endif %}
 			{% endblock %}
+			{% block notification %}
+				<div id="notificationsContainer"
+					 class="absolute space-y-2 landscape:sm:w-[27%] portrait:w-[30%] landscape:lg:w-[20%]
+					 		top-0 right-0 ">
+				</div>
+				{{ include('/Game/Utils/notification.html.twig') }}
+			{% endblock %}
 		</div>
 	</div>
 	<script>
-		{% if needToPlay %}
-		alert("A toi de jouer ! ");
-		{% endif %}
+		document.addEventListener('DOMContentLoaded', () => {
+			{% if needToPlay %}
+			new GameNotification(10, 'C\'est votre tour !', 'Jouez votre meilleur coup !', 'ringing', 'yellow');
+			{% else %}
+			new GameNotification(5, 'C\'est au tour d\'un autre joueur !', '', 'info', 'green');
+			{% endif %}
+		})
 	</script>
 	<script>
 		function closePropertyCardsDisplayWindow() {
@@ -71,6 +84,26 @@
 	{# ANIMATION MANAGEMENT #}
 	<script type="text/javascript" src="{{ asset('resourcesGames/utils/ingameNotification.js') }}"></script>
 	<script type="text/javascript" src="{{ asset('resourcesGames/utils/animationQueue.js') }}"></script>
+
+	{# NOTIFICATION POPUP MANAGEMENT #}
+	<script>
+
+		{% if isSpectator %}
+			{% set path = path('app_game_show_glm', {'id': game.id}) ~ 'notification' %}
+		{% else %}
+			{% set path = path('app_game_show_glm', {'id': game.id}) ~ 'notification' ~ player.username %}
+		{% endif %}
+		const eventSourceNotification = new EventSource("{{ mercure(path)|escape('js') }}");
+		eventSourceNotification.onmessage = event => {
+			animationQueue.addToQueue(() => {
+				let data = event.data.split('_');
+				if (data.length >= 5 ) {
+					new GameNotification(Number(data[0]), data[1], data[2], data[3], data[4]);
+				}
+				animationQueue.executeNextInQueue();
+			})
+		}
+	</script>
 
 	{# NOTIFICATION MANAGEMENT #}
 	<script>
@@ -101,8 +134,8 @@
 		{% set path = path('app_game_show_glm', {'id': game.id}) ~ 'playerRoundManagement' ~ player.id %}
 		const eventSourcePlayerRoundManagement = new EventSource("{{ mercure(path)|escape('js') }}");
 		eventSourcePlayerRoundManagement .onmessage = event => {
-			let ranking = document.getElementById('playerRoundManagement');
-			ranking.innerHTML = event.data;
+			let playerRoundManagement = document.getElementById('playerRoundManagement');
+			playerRoundManagement.innerHTML = event.data;
 			setTimeout(() => animationQueue.executeNextInQueue(), 100)
 		}
 
@@ -120,5 +153,14 @@
             createResource.innerHTML = event.data;
             setTimeout(() => animationQueue.executeNextInQueue(), 100)
         }
+		{% set path = path('app_game_show_glm', {'id': game.id}) ~ 'selectResource' ~ player.id %}
+		const selectResource = new EventSource("{{ mercure(path)|escape('js') }}");
+		selectResource .onmessage = event => {
+			let selectResource = document.getElementById('selectedTileActions');
+			let div = document.createElement("div")
+			div.innerHTML = event.data
+			selectResource.innerHTML = div.firstElementChild.innerHTML;
+			setTimeout(() => animationQueue.executeNextInQueue(), 100)
+		}
 	</script>
 {% endblock %}
