@@ -311,7 +311,7 @@ class GlenmoreController extends AbstractController
             'activatedSellingPhase' => $this->service->isInSellingPhase($player),
             'selectedResources' => $player->getPersonalBoard()->getSelectedResources(),
             'activatedResourceSelection' => $player->isActivatedResourceSelection(),
-            'activatedNewResourceAcquisition' => false,
+            'activatedNewResourceAcquisition' => $player->isActivatedNewResourcesAcqusition(),
             'chosenNewResources' => $player->getPersonalBoard()->getCreatedResources(),
             'activatedMovementPhase' => $this->service->isInMovementPhase($player),
             'buyingTile' => $player->getPersonalBoard()->getBuyingTile()
