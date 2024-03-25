@@ -61,7 +61,28 @@ class MyrmesParameters
     public static string $STONE_TILE_TYPE = "stone";
     public static string $GRASS_TILE_TYPE = "grass";
 
+    // Pheromone Level
 
+    public static int $PHEROMONE_LEVEL_ZERO = 0;
+    public static int $PHEROMONE_LEVEL_TWO = 2;
+    public static int $PHEROMONE_LEVEL_FOUR = 4;
+    public static int $PHEROMONE_LEVEL_SIX = 6;
+    public static int $PHEROMONE_LEVEL_EIGHT = 8;
+
+    // Pheromone Type
+
+    public static int $PHEROMONE_TYPE_ZERO = 0;
+    public static int $PHEROMONE_TYPE_ONE = 1;
+    public static int $PHEROMONE_TYPE_TWO = 2;
+    public static int $PHEROMONE_TYPE_THREE = 3;
+    public static int $PHEROMONE_TYPE_FOUR = 4;
+    public static int $PHEROMONE_TYPE_FIVE = 5;
+    public static int $PHEROMONE_TYPE_SIX = 6;
+    public static int $PHEROMONE_TYPE_SEVEN = 7;
+
+    // Pheromone Amount
+
+    public static array $PHEROMONE_TYPE_AMOUNT = [6, 2, 2, 2, 2, 2, 1];
 
     //Prey Types
     public static string $LADYBUG_TYPE = "ladybug";
