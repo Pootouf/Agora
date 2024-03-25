@@ -632,7 +632,7 @@ class GlenmoreController extends AbstractController
             return new Response("Not player's turn", Response::HTTP_FORBIDDEN);
         }
         try {
-            $this->tileGLMService->moveVillager($tile, $dir);
+            $targetedTile = $this->tileGLMService->moveVillager($tile, $dir);
         } catch (Exception $e) {
             $this->publishNotification($game, GlenmoreParameters::$NOTIFICATION_DURATION, "Attention !",
                 "Tu ne peux pas te déplacer ici !", "alert",
@@ -643,6 +643,7 @@ class GlenmoreController extends AbstractController
             return new Response('Could not move a villager from this tile to 
                 targeted one ' . $e->getMessage(), Response::HTTP_FORBIDDEN);
         }
+        $this->publishMoveVillagerOnPersonnalBoard($game, $player, $tile, $targetedTile);
         $this->publishPersonalBoard($player, []);
         $this->publishPersonalBoardSpectator($game, []);
         $this->logService->sendPlayerLog($game, $player,
@@ -1120,6 +1121,23 @@ class GlenmoreController extends AbstractController
                 $response
             );
         }
+    }
+
+    /**
+     * publishMoveVillagerOnPersonnalBoard : send a mercure notification to a specific player
+     * who moved a villager on his personnal board
+     * @param GameGLM $game
+     * @param PlayerGLM $player
+     * @param PlayerTileGLM $originTile
+     * @param PlayerTileGLM $targetedTile
+     * @return void
+     */
+    private function publishMoveVillagerOnPersonnalBoard(GameGLM $game, PlayerGLM $player, PlayerTileGLM $originTile, PlayerTileGLM $targetedTile) : void
+    {
+        $this->publishService->publish(
+            $this->generateUrl('app_game_show_glm', ['id' => $game->getId()]).'animVillagerMovement'.$player->getId(),
+            new Response($originTile->getTile()->getId() . '_' . $targetedTile->getTile()->getId())
+        );
     }
 
     private function publishNotification(GameGLM $game, int $duration, string $message,

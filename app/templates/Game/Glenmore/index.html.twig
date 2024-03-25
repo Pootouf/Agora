@@ -182,4 +182,19 @@
 			})
 		}
 	</script>
+
+
+	{# VILLAGER MOVEMENT ANIMATION MANAGEMENT #}
+	<script>
+		{% set path = path('app_game_show_glm', {'id': game.id}) ~ 'animVillagerMovement' ~ player.id %}
+		const eventSourceVillagerMovement = new EventSource("{{ mercure(path)|escape('js') }}");
+		eventSourceVillagerMovement.onmessage = event => {
+			animationQueue.addToQueue(() => {
+				let originTileId = event.data.split('_')[0];
+				let tileTargetedId = event.data.split('_')[1];
+				console.log(event.data);
+				moveVillagerOnPersonnalBoard("{{ player.id }}", originTileId, tileTargetedId).then(() => animationQueue.executeNextInQueue());
+			})
+		}
+	</script>
 {% endblock %}
