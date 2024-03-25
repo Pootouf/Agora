@@ -1,0 +1,24 @@
+{#
+    Represents an hexagon for a board box in Myrmes
+    param : color (inherit from parent)
+    return : display an hexagon from the color of the tile type
+#}
+
+{# Loading Tailwind colors #}
+<div class="hidden border-b-green-600 border-b-orange-950 border-b-red-700 border-b-stone-700 border-b-blue-600
+            border-t-green-600 border-t-orange-950 border-t-red-700 border-t-stone-700 border-t-blue-600
+            bg-green-600 bg-orange-950 bg-red-700 bg-stone-700 bg-blue-600">
+</div>
+
+<div class="hex invisible bg-{{ color }} border-b-{{ color }} border-t-{{ color }}
+    {% if isShifted %}
+        ml-[2.8vw]
+    {% endif %}
+">
+    <div class="visible top">
+    </div>
+    <div class="visible middle">
+    </div>
+    <div class="visible bottom">
+    </div>
+</div>
