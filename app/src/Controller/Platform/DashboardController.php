@@ -10,6 +10,9 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use App\Form\Platform\EditProfileType;
+use Symfony\Component\HttpFoundation\Request;
+
 
 class DashboardController extends AbstractController
 {
@@ -73,10 +76,23 @@ class DashboardController extends AbstractController
     }
 
     #[Route('/dashboard/settings', name: 'app_dashboard_settings')]
-    public function settings(): Response
-    {
-        return $this->render('platform/users/editUserProfile.html.twig', [
-            'controller_name' => 'DashboardController',
-        ]);
+public function settings(Request $request): Response
+{
+    // Récupérer l'utilisateur connecté
+    $user = $this->getUser();
+
+    // Créer le formulaire de modification de profil
+    $form = $this->createForm(EditProfileType::class, $user);
+
+    // Gérer la soumission du formulaire
+    $form->handleRequest($request);
+    if ($form->isSubmitted() && $form->isValid()) {
+        // Traiter les données du formulaire, enregistrer dans la base de données, etc.
     }
+
+    // Rendre la vue en passant le formulaire
+    return $this->render('platform/users/editUserProfile.html.twig', [
+        'form' => $form->createView(),
+    ]);
+}
 }
