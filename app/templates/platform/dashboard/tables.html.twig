@@ -157,7 +157,7 @@
 										{% if app.user %}
 											{% if currentUserID in usersIds %}
 												{% if board.status == 'IN_GAME' %}
-													<a href="/" class="text-white bg-primary hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
+													<a href="{{ path('app_join_game', {'id': board.id}) }}" class="text-white bg-primary hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
 														Reprendre
 													</a>
 												{% else %}
@@ -167,7 +167,7 @@
 												{% endif %}
 											{% else %}
 												{% if board.status == 'IN_GAME' %}
-													<a href="/" class="text-white bg-primary hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
+													<a href="{{ path('app_join_game', {'id': board.id}) }}" class="text-white bg-primary hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
 														Voir partie
 													</a>
 												{% elseif board.status == 'WAITING' %}
