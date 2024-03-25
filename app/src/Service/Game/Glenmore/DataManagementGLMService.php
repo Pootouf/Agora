@@ -211,7 +211,8 @@ class DataManagementGLMService
                 ));
                 $y++;
             }
-            $currentLine->add(new PersonalBoardBoxGLM($tile, $x, $y, in_array([$x, $y], $possiblePlacement)));
+            $currentLine->add(new PersonalBoardBoxGLM($tile, $x, $y, in_array([$x, $y], $possiblePlacement)
+            ));
             $previousX = $tile->getCoordX();
             $y++;
         }

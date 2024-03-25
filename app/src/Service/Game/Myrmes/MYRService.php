@@ -166,6 +166,7 @@ class MYRService
         $nurse->setPlayer($player);
         $nurse->setArea(MyrmesParameters::$BASE_AREA);
         $nurse->setAvailable(true);
+        $nurse->setPosition(0);
         $nurse->setPersonalBoardMYR($player->getPersonalBoardMYR());
         $this->entityManager->persist($nurse);
     }
@@ -180,6 +181,7 @@ class MYRService
         $worker = new AnthillWorkerMYR();
         $worker->setPlayer($player);
         $worker->setPersonalBoardMYR($player->getPersonalBoardMYR());
+        $worker->setWorkFloor(0);
         $this->entityManager->persist($worker);
     }
 
@@ -198,7 +200,6 @@ class MYRService
         $player->getGameMyr()->getMainBoardMYR()->addAnthillHole($hole);
         $this->entityManager->persist($hole);
         $this->entityManager->persist($player->getGameMyr()->getMainBoardMYR());
-        $this->entityManager->flush();
     }
 
 

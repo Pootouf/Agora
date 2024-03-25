@@ -84,7 +84,6 @@ class MYRGameManagerService extends AbstractGameManagerService
         $personalBoard->setLarvaCount(0);
         $personalBoard->setWarriorsCount(0);
         $personalBoard->setBonus(0);
-        $personalBoard->setHuntedPreyCount(0);
         $player->setPersonalBoardMYR($personalBoard);
         $game->addPlayer($player);
         $this->entityManager->persist($player);

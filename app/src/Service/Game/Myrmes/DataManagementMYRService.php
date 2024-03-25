@@ -51,13 +51,13 @@ class DataManagementMYRService
         // Change min and max y & x for adding extra empty tile (one empty line at the start of the board, one empty
         //  tile at each side of the line)
         $miny = $this->tileMYRRepository->
-            findOneBy(['coord_Y' => 'ASC'])->getCoordY() - 1;
+            findOneBy(['coord_Y' => 'ASC'])->getCoordY();
         $maxy = $this->tileMYRRepository->
-            findOneBy(['coord_Y' => 'DESC'])->getCoordY() + 1;
+            findOneBy(['coord_Y' => 'DESC'])->getCoordY();
         $minx = $this->tileMYRRepository->
-            findOneBy(['coord_X' => 'ASC'])->getCoordX() - 1;
+            findOneBy(['coord_X' => 'ASC'])->getCoordX();
         $maxx = $this->tileMYRRepository->
-            findOneBy(['coord_X' => 'DESC'])->getCoordX() + 1;
+            findOneBy(['coord_X' => 'DESC'])->getCoordX();
 
         //Sorting by x coord and then by y coord
         $tiles = $game->getMainBoardMYR()->getTiles()->toArray();
@@ -76,6 +76,7 @@ class DataManagementMYRService
                 // Fill the gaps up to y max coord
                 while ($y <= $maxy) {
                     $currentLine->add($this->createBoardBox($game, null, $x, $y));
+                    $y+=2;
                 }
                 $result->add($currentLine);
                 $x++;
@@ -85,16 +86,16 @@ class DataManagementMYRService
             // Fill the gaps up to the next y coord
             while ($y < $tile->getCoordY()) {
                 $currentLine->add($this->createBoardBox($game, null, $x, $y));
-                $y++;
+                $y+=2;
             }
             $currentLine->add($this->createBoardBox($game, $tile, $x, $y));
             $previousX = $tile->getCoordX();
-            $y++;
+            $y+=2;
         }
         // Complete the last added line until max y
         while ($y <= $maxy) {
             $currentLine->add($this->createBoardBox($game, null, $x, $y));
-            $y++;
+            $y+=2;
         }
         $result->add($currentLine);
         // Add an empty tile row at the end of the board
@@ -104,7 +105,7 @@ class DataManagementMYRService
             $x++;
             while($y <= $maxy) {
                 $currentLine->add($this->createBoardBox($game, null, $x, $y));
-                $y++;
+                $y+=2;
             }
             $result->add($currentLine);
         }
