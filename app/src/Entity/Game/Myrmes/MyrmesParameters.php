@@ -37,6 +37,17 @@ class MyrmesParameters
     public static array $WIN_SOLDIERS_BY_NURSES_COUNT = array(0, 0, 1, 1);
     public static array $WIN_WORKERS_BY_NURSES_COUNT = array(0, 0, 1, 0, 2);
 
+    // Events bonus
+
+    public static int $BONUS_LEVEL = 0;
+    public static int $BONUS_POINT = 1;
+    public static int $BONUS_LARVAE = 2;
+    public static int $BONUS_HARVEST = 3;
+    public static int $BONUS_MOVEMENT = 4;
+    public static int $BONUS_WARRIOR = 5;
+    public static int $BONUS_PHEROMONE = 6;
+    public static int $BONUS_WORKER = 7;
+
 
 
     // Years
