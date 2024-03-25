@@ -61,6 +61,61 @@ class MyrmesParameters
     public static string $STONE_TILE_TYPE = "stone";
     public static string $GRASS_TILE_TYPE = "grass";
 
+    // Pheromone Level
+
+    public static int $PHEROMONE_LEVEL_ZERO = 0;
+    public static int $PHEROMONE_LEVEL_TWO = 2;
+    public static int $PHEROMONE_LEVEL_FOUR = 4;
+    public static int $PHEROMONE_LEVEL_SIX = 6;
+    public static int $PHEROMONE_LEVEL_EIGHT = 8;
+
+    // Pheromone Type
+
+    public static int $PHEROMONE_TYPE_ZERO = 0;
+    public static int $PHEROMONE_TYPE_ONE = 1;
+    public static int $PHEROMONE_TYPE_TWO = 2;
+    public static int $PHEROMONE_TYPE_THREE = 3;
+    public static int $PHEROMONE_TYPE_FOUR = 4;
+    public static int $PHEROMONE_TYPE_FIVE = 5;
+    public static int $PHEROMONE_TYPE_SIX = 6;
+
+    // Pheromone Amount
+
+    public static array $PHEROMONE_TYPE_AMOUNT = [6, 2, 2, 2, 2, 2, 1];
+
+    // Pheromone Type Level
+
+    public static array $PHEROMONE_TYPE_LEVEL = [
+        0 => 0,
+        1 => 2,
+        2 => 2,
+        3 => 4,
+        4 => 4,
+        5 => 6,
+        6 => 8
+    ];
+
+    // Special tiles
+
+    // Special tiles Type
+
+    public static int $SPECIAL_TILE_TYPE_FARM = 7;
+    public static int $SPECIAL_TILE_TYPE_QUARRY = 8;
+    public static int $SPECIAL_TILE_TYPE_SUBANTHILL = 9;
+
+    // Special tiles amount
+    public static array $SPECIAL_TILE_TYPE_AMOUNT = [
+        7 => 4,
+        8 => 4,
+        9 => 8
+    ];
+
+    // Special tiles level
+    public static array $SPECIAL_TILES_TYPE_LEVEL = [
+        7 => 2,
+        8 => 2,
+        9 => 4
+    ];
 
 
     //Prey Types
@@ -105,5 +160,13 @@ class MyrmesParameters
         [7, 0], [8, 1], [9, 0], [9, 2], [10, 1], [10, 3], [11, 2], [11, 4], [12, 3], [12, 5], [13, 6],
         [7, 24], [8, 23], [9, 24], [9, 22], [10, 23], [10, 21], [11, 22], [11, 20], [12, 21], [12, 19], [13, 18]
     ];
+
+    // Resources Type
+
+    public static string $RESOURCE_TYPE_DIRT = "dirt";
+    public static string $RESOURCE_TYPE_STONE = "stone";
+    public static string $RESOURCE_TYPE_GRASS = "grass";
+    public static string $RESOURCE_TYPE_LARVAE = "larvae";
+
 
 }
