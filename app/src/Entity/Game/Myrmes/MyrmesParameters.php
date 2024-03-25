@@ -84,6 +84,18 @@ class MyrmesParameters
 
     public static array $PHEROMONE_TYPE_AMOUNT = [6, 2, 2, 2, 2, 2, 1];
 
+    // Pheromone Type Level
+
+    public static array $PHEROMONE_TYPE_LEVEL = [
+        0 => 0,
+        1 => 2,
+        2 => 2,
+        3 => 4,
+        4 => 4,
+        5 => 6,
+        6 => 8
+    ];
+
     //Prey Types
     public static string $LADYBUG_TYPE = "ladybug";
     public static string $TERMITE_TYPE = "termite";
