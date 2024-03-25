@@ -62,6 +62,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $anthillHole = new AnthillHoleMYR();
         $anthillHole->setPlayer($player);
         $anthillHole->setTile($tile);
+        $anthillHole->setMainBoardMYR($game->getMainBoardMYR());
         $this->entityManager->persist($anthillHole);
         $this->entityManager->flush();
         // THEN
