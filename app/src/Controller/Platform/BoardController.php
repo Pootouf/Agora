@@ -108,7 +108,7 @@ class BoardController extends AbstractController
         //dd($user->getBoards());
 
 
-        return $this->redirectToRoute('app_dashboard_tables');
+        return $this->redirectToRoute('app_dashboard_user');
     }
 
     #[Route('/leaveBoard/{id}', name: 'app_leave_board')]

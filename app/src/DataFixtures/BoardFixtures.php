@@ -63,7 +63,6 @@ class BoardFixtures extends Fixture implements DependentFixtureInterface
     {
         return[
             UserPlatformFixtures::class,
-            GameFixtures::class
         ];
     }
 }
