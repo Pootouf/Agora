@@ -1,5 +1,9 @@
 {#
 This section displays the main board that every player and spectator can see
-@param :
+@param : boardBoxes, game
 @return :
 #}
+
+<div class="w-full h-full flex items-center justify-center">
+    {{ include('Game/Myrmes/MainBoard/displayBoardBoxes.html.twig') }}
+</div>

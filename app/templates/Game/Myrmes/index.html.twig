@@ -9,19 +9,25 @@
                 {{ include('/Game/Utils/navigation.html.twig') }}
             {% endblock %}
             {% block endGame %}
-                {{ include('/Game/Myrmes/endGameScreenResult.html.twig') }}
+            {# {{ include('/Game/Myrmes/endGameScreenResult.html.twig') }} #}
             {% endblock %}
             {% block ranking %}
                 <div id="ranking"
-                     class="absolute bg-gradient-to-b from-[#4C6E9Bff] to-[#20222Dff] w-[30%] h-[75%] top-0 right-0">
+                     class="absolute bg-gradient-to-b from-[#4C6E9Bff] to-[#20222Dff] w-[25%] h-[75%] top-0 right-0">
                     {{ include('/Game/Myrmes/Ranking/ranking.html.twig') }}
                 </div>
             {% endblock %}
             {% block previewMainBoard %}
                 <div id="preview"
                      class="absolute bottom-0 flex justify-around items-center
-                     bg-gradient-to-b from-[#4C6E9Bff] to-[#20222Dff] w-[30%] h-[25%] right-0">
+                     bg-gradient-to-b from-[#4C6E9Bff] to-[#20222Dff] w-[25%] h-[25%] right-0">
                     {{ include('/Game/Myrmes/MainBoard/preview.html.twig') }}
+                </div>
+            {% endblock %}
+            {% block mainBoard %}
+                <div id="mainBoard"
+                     class="w-[75%] h-full bg-gray-500">
+                    {{ include('/Game/Myrmes/MainBoard/mainBoard.html.twig') }}
                 </div>
             {% endblock %}
             {% block personalBoard %}

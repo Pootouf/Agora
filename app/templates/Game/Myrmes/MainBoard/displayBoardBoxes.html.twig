@@ -4,3 +4,44 @@
     return : display the board boxes
 #}
 
+{# Declaration of contants #}
+{% set WATER_TILE_TYPE = "water" %}
+{% set DIRT_TILE_TYPE = "dirt" %}
+{% set MUSHROOM_TILE_TYPE = "mushroom" %}
+{% set STONE_TILE_TYPE = "stone" %}
+{% set GRASS_TILE_TYPE = "grass" %}
+
+{# Loading of Tailwind data for grid #}
+<div class="hidden grid grid-cols-13 grid-rows-15 grid-rows-13 grid-rows-8"></div>
+
+
+<div class="mx-4">
+    <div class="grid grid-rows-{{ boardBoxes|length }}
+                grid-cols-{{ boardBoxes|first|length }} h-auto w-auto"
+    >
+    {% for boardBoxLine in boardBoxes %}
+        {% set isShifted = boardBoxLine|first.coordX % 2 == 0 %}
+        {% for boardBox in boardBoxLine %}
+            {% if boardBox.tile != null %}
+                {% set color = "" %}
+                {% if boardBox.tile.type == WATER_TILE_TYPE %}
+                    {% set color = "blue-600" %}
+                {% elseif boardBox.tile.type == DIRT_TILE_TYPE %}
+                    {% set color = "orange-950" %}
+                {% elseif boardBox.tile.type == MUSHROOM_TILE_TYPE %}
+                    {% set color = "red-700" %}
+                {% elseif boardBox.tile.type == STONE_TILE_TYPE %}
+                    {% set color = "stone-700" %}
+                {% else %}
+                    {% set color = "green-600" %}
+                {% endif %}
+                <div class="">
+                    {{ include('Game/Myrmes/MainBoard/boardBox.html.twig') }}
+                </div>
+            {% else %}
+                <div class="max-h-full max-w-full"></div>
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+    </div>
+</div>
