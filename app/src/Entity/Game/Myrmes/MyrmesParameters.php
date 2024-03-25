@@ -78,7 +78,6 @@ class MyrmesParameters
     public static int $PHEROMONE_TYPE_FOUR = 4;
     public static int $PHEROMONE_TYPE_FIVE = 5;
     public static int $PHEROMONE_TYPE_SIX = 6;
-    public static int $PHEROMONE_TYPE_SEVEN = 7;
 
     // Pheromone Amount
 
@@ -95,6 +94,29 @@ class MyrmesParameters
         5 => 6,
         6 => 8
     ];
+
+    // Special tiles
+
+    // Special tiles Type
+
+    public static int $SPECIAL_TILE_TYPE_FARM = 7;
+    public static int $SPECIAL_TILE_TYPE_QUARRY = 8;
+    public static int $SPECIAL_TILE_TYPE_SUBANTHILL = 9;
+
+    // Special tiles amount
+    public static array $SPECIAL_TILE_TYPE_AMOUNT = [
+        7 => 4,
+        8 => 4,
+        9 => 8
+    ];
+
+    // Special tiles level
+    public static array $SPECIAL_TILES_TYPE_LEVEL = [
+        7 => 2,
+        8 => 2,
+        9 => 4
+    ];
+
 
     //Prey Types
     public static string $LADYBUG_TYPE = "ladybug";
