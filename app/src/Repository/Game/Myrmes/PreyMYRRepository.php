@@ -14,6 +14,10 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method PreyMYR[]    findAll()
  * @method PreyMYR[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
+
+/**
+ * @codeCoverageIgnore
+ */
 class PreyMYRRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)

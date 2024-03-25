@@ -14,6 +14,10 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method PlayerTileResourceGLM[]    findAll()
  * @method PlayerTileResourceGLM[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
+
+/**
+ * @codeCoverageIgnore
+ */
 class PlayerTileResourceGLMRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)

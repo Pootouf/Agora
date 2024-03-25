@@ -14,6 +14,10 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method DrawTilesGLM[]    findAll()
  * @method DrawTilesGLM[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
+
+/**
+ * @codeCoverageIgnore
+ */
 class DrawTilesGLMRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
