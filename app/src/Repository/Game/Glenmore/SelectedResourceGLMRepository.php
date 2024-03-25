@@ -14,6 +14,10 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method SelectedResourceGLM[]    findAll()
  * @method SelectedResourceGLM[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
+
+/**
+ * @codeCoverageIgnore
+ */
 class SelectedResourceGLMRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)

@@ -1,6 +1,6 @@
 <?php
 
-namespace Game\Factory\Integration\Service\Game;
+namespace App\Tests\Game\Factory\Integration\Service\Game;
 
 use App\Entity\Game\GameUser;
 use App\Entity\Game\SixQP\GameSixQP;
@@ -11,7 +11,7 @@ use App\Service\Game\GameManagerService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class GameManagerServiceIntegrationTest extends KernelTestCase
+class SixQPGameManagerServiceIntegrationTest extends KernelTestCase
 {
 
     public function testCreateValidGame() : void
@@ -54,6 +54,15 @@ class GameManagerServiceIntegrationTest extends KernelTestCase
         $user->setUsername("toto");
         $result = $gameService->joinGame($game->getId(), $user);
         $this->assertEquals(AbstractGameManagerService::$ERROR_INVALID_NUMBER_OF_PLAYER, $result);
+    }
+
+    public function testJoinGameWhenGameIsInvalid() : void
+    {
+        $gameService = static::getContainer()->get(GameManagerService::class);
+        $user = new GameUser();
+        $user->setUsername("toto");
+        $result = $gameService->joinGame(-1, $user);
+        $this->assertEquals(AbstractGameManagerService::$ERROR_INVALID_GAME, $result);
     }
 
     public function testJoinGameWhenPlayerAlreadyInGame() : void
