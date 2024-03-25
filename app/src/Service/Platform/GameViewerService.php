@@ -10,7 +10,9 @@ class GameViewerService
     public function __construct()
     {
         $this->routesArray = [
-            "6QP" => "app_game_show_sixqp"
+            "6QP" => "app_game_show_sixqp",
+            "SPL" => "app_game_show_spl",
+            "GLM" => "app_game_show_glm"
         ];
     }
 

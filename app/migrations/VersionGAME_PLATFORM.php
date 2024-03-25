@@ -31,6 +31,26 @@ final class Version6QPPLATFORM extends AbstractMigration
                 'max_players' => 10
             ]);
 
+        $this->connection->insert('game', [
+            'name' => 'Splendor',
+            'descr_rule' => 'C\'est le splendor' ,
+            'img_url' => 'images/splendor.jpg',
+            'label' => 'SPL',
+            'is_active' => true,
+            'min_players' => 2,
+            'max_players' => 4
+        ]);
+
+        $this->connection->insert('game', [
+            'name' => 'Glenmore',
+            'descr_rule' => 'C\'est le glenmore' ,
+            'img_url' => 'images/glenmore.jpg',
+            'label' => 'SPL',
+            'is_active' => true,
+            'min_players' => 2,
+            'max_players' => 5
+        ]);
+
 
     }
 
