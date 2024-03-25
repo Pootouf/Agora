@@ -48,23 +48,26 @@ class DataManagementMYRService
     {
         $result = new ArrayCollection();
 
-        // Change min and max y & x for adding extra empty tile (one empty line at the start of the board, one empty
-        //  tile at each side of the line)
-        $miny = $this->tileMYRRepository->
-            findOneBy(['coord_Y' => 'ASC'])->getCoordY();
-        $maxy = $this->tileMYRRepository->
-            findOneBy(['coord_Y' => 'DESC'])->getCoordY();
-        $minx = $this->tileMYRRepository->
-            findOneBy(['coord_X' => 'ASC'])->getCoordX();
-        $maxx = $this->tileMYRRepository->
-            findOneBy(['coord_X' => 'DESC'])->getCoordX();
-
         //Sorting by x coord and then by y coord
         $tiles = $game->getMainBoardMYR()->getTiles()->toArray();
         usort($tiles, function (TileMYR $tile1, TileMYR $tile2){
             $value = $tile1->getCoordX() - $tile2->getCoordX();
             return $value == 0 ? $tile1->getCoordY() - $tile2->getCoordY() : $value;
         });
+
+        $lines = [];
+        foreach ($tiles as $tile) {
+            $lines[$tile->getCoordX()][] = $tile;
+        }
+        $resultLine = [];
+        foreach ($lines as $line) {
+            $resultLine = sizeof($line) >= sizeof($resultLine) ? $line : $resultLine;
+        }
+
+        $miny = $resultLine[0]->getCoordY();
+        $minx = $resultLine[0]->getCoordX();
+        $maxy = $resultLine[sizeof($resultLine) - 1]->getCoordY();
+        $maxx = $resultLine[sizeof($resultLine) - 1]->getCoordX();
 
         $previousX = $minx;
         $currentLine = new ArrayCollection();
@@ -78,10 +81,13 @@ class DataManagementMYRService
                     $currentLine->add($this->createBoardBox($game, null, $x, $y));
                     $y+=2;
                 }
+                if ($x % 2 == 0) {
+                    $currentLine->add($this->createBoardBox($game, null, $x, $y));
+                }
+                $y = $miny + ($x % 2);
                 $result->add($currentLine);
                 $x++;
                 $currentLine = new ArrayCollection();
-
             }
             // Fill the gaps up to the next y coord
             while ($y < $tile->getCoordY()) {
@@ -97,18 +103,10 @@ class DataManagementMYRService
             $currentLine->add($this->createBoardBox($game, null, $x, $y));
             $y+=2;
         }
-        $result->add($currentLine);
-        // Add an empty tile row at the end of the board
-        while($x < $maxx) {
-            $currentLine = new ArrayCollection();
-            $y = $miny;
-            $x++;
-            while($y <= $maxy) {
-                $currentLine->add($this->createBoardBox($game, null, $x, $y));
-                $y+=2;
-            }
-            $result->add($currentLine);
+        if ($x % 2 == 0) {
+            $currentLine->add($this->createBoardBox($game, null, $x, $y));
         }
+        $result->add($currentLine);
         return $result;
     }
 
@@ -133,8 +131,8 @@ class DataManagementMYRService
                     'tile' => $tile->getId()
                 ]
             );
-            $ant = $ant ? $ant : null;
-            $pheromoneTile = $pheromoneTile ? $pheromoneTile : null;
+            $ant = $ant ?: null;
+            $pheromoneTile = $pheromoneTile ?: null;
         }
         return new BoardBoxMYR($tile, $ant, $pheromoneTile, $x, $y);
     }
