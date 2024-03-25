@@ -1,0 +1,37 @@
+{#
+This section displays the event track which the player can see and change the season bonus at phase 1.
+@param :
+@return :
+#}
+<div class="relative inline-flex flex-col gap-4 w-full h-[20%] ml-3" id="eventTrack">
+    <div class="inlineFlex w-full gap-1 lg:gap-2.5" id="eventTrackDices">
+        <div class="inline-flex flex-col align-top">
+            <button type="button"
+                    {{ stimulus_action('myrmes','moveToLeftOnEventTrack','click') }}
+            >
+                <img class="relative h-full mt-0.5 lg:mt-1.5 -rotate-90" id="eventTrackLeftButton"
+                     src="{{ asset('resourcesGames/Myrmes/myrmesArrow.svg') }}"
+                     alt="event track left button"/>
+            </button>
+        </div>
+        {% for i in 0..7 %}
+            <div class="inlineFlexCol gap-2 items-center h-full">
+                <img class=" w-full"
+                     src="{{ asset('resourcesGames/Myrmes/personalBoard/dices/dice' ~ i ~ '.svg') }}"
+                     alt="dice {{ i }}">
+                <img class="h-8 lg:h-14"
+                     src="{{ asset('resourcesGames/Myrmes/personalBoard/eventBonus/eventBonus' ~ i ~ '.svg') }}"
+                     alt="event bonus {{ i }}">
+            </div>
+        {% endfor %}
+        <div class="inline-flex flex-col align-top">
+            <button type="button"
+                    {{ stimulus_action('myrmes','moveToRightOnEventTrack','click') }}
+            >
+                <img class="relative h-full mt-0.5 lg:mt-1.5 rotate-90" id="eventTrackRightButton"
+                     src="{{ asset('resourcesGames/Myrmes/myrmesArrow.svg') }}"
+                     alt="event track right button" />
+            </button>
+        </div>
+    </div>
+</div>
