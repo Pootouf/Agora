@@ -3,9 +3,9 @@ This section displays the personal board of a player
 @param :
 @return :
 #}
-<div hidden class="bg-[#ffffff99] w-15 h-15
-    -translate-y-[40%] -translate-y-[125%] -translate-y-[208%]
-    -translate-y-[15%] -translate-y-[30%] -translate-y-[45%]"></div>
+
+{{ include('Game/Myrmes/PersonalBoard/loadingPersonalBoardData.html.twig') }}
+
 <div class="inlineFlex gap-3 py-10 pr-5 relative bg-[#c67b24] w-full h-full">
     <div class="inlineFlexCol gap-3 lg:gap-12 relative w-[45%]" id="left-column">
         {{ include('Game/Myrmes/PersonalBoard/displayBirthTrack.html.twig') }}
