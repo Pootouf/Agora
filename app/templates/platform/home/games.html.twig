@@ -12,45 +12,40 @@ Jeux
          <div class="mx-auto max-w-7xl px-6 lg:px-8 items-center mt-16">
             <div class="mx-auto mt-16 grid max-w-2xl auto-rows-fr grid-cols-1 gap-8 sm:mt-20 lg:mx-0 lg:max-w-none lg:grid-cols-3">
                {% for game in games %}
-    {% set isFavorite = false %}
-    {% if app.user %}
-        {% set isFavorite = game in app.user.favoriteGames %}
-    {% endif %}
-    {% set isFavoriteValue = isFavorite ? 'true' : 'false' %}
-    
-    <div class="relative isolate flex flex-col justify-end overflow-hidden rounded-2xl bg-gray-900 px-8 pb-8 pt-80 sm:pt-48 lg:pt-80 transform transition-transform duration-300 ease-in-out hover:scale-105">
-             {% if app.user %}
-
-        <div class="absolute top-4 right-4">
-            <form action="{{ path('app_game_favorite', {'game_id': game.id}) }}" method="post" class="favorite-form">
-                <input type="hidden" id="isFavorite" data-is-favorite="{{ isFavoriteValue }}">
-                <button type="submit" class="star-button bg-white text-blue-700 border border-blue-700 hover:bg-blue-700 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="star-icon w-6 h-6 {% if isFavorite %}fill-yellow{% endif %}">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z"/>
-                    </svg>
-                </button>
-            </form>
-        </div>
-            {% endif %}
-
-                 
+               {% set isFavorite = false %}
+               {% if app.user %}
+               {% set isFavorite = game in app.user.favoriteGames %}
+               {% endif %}
+               {% set isFavoriteValue = isFavorite ? 'true' : 'false' %}
+               <div class="relative isolate flex flex-col justify-end overflow-hidden rounded-2xl bg-gray-900 px-8 pb-8 pt-80 sm:pt-48 lg:pt-80 transform transition-transform duration-300 ease-in-out hover:scale-105">
+                  {% if app.user %}
+                  <div class="absolute top-4 right-4">
+                     <form action="{{ path('app_game_favorite', {'game_id': game.id}) }}" method="post" class="favorite-form">
+                        <input type="hidden" id="isFavorite" data-is-favorite="{{ isFavoriteValue }}">
+                        <button type="submit" class="star-button bg-white text-blue-700 border border-blue-700 hover:bg-blue-700 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center">
+                           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="star-icon w-6 h-6 {% if isFavorite %}fill-yellow{% endif %}">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z"/>
+                           </svg>
+                        </button>
+                     </form>
+                  </div>
+                  {% endif %}
                   <img src="{{ asset(game.imgURL) }}" class="absolute inset-0 -z-10 h-full w-full object-cover" alt="{{ game.name }}">
-                 
-                   {% if app.user %}
-            <a href="/dashboard/boardCreation/{{ game.id }}" type="button" class="text-white bg-primary hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
-                Créer une table
-            </a>
-            <a href="/dashboard/game/{{ game.id }}/tables" type="button" class="text-white bg-primary hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
-                Rejoindre une table
-            </a>
-        {% else %}
-            <a href="/login" type="button" class="text-white bg-primary hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
-                Se connecter pour créer une table
-            </a>
-            <a href="/login" type="button" class="text-white bg-primary hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
-                Se connecter pour rejoindre une table
-            </a>
-        {% endif %}
+                  {% if app.user %}
+                  <a href="/dashboard/boardCreation/{{ game.id }}" type="button" class="text-white bg-primary hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
+                  Créer une table
+                  </a>
+                  <a href="/dashboard/game/{{ game.id }}/tables" type="button" class="text-white bg-primary hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
+                  Rejoindre une table
+                  </a>
+                  {% else %}
+                  <a href="/login" type="button" class="text-white bg-primary hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
+                  Se connecter pour créer une table
+                  </a>
+                  <a href="/login" type="button" class="text-white bg-primary hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
+                  Se connecter pour rejoindre une table
+                  </a>
+                  {% endif %}
                   <div class="absolute inset-0 -z-10 bg-gradient-to-t from-gray-900 via-gray-900/40"></div>
                   <div class="absolute inset-0 -z-10 rounded-2xl ring-1 ring-inset ring-gray-900/10"></div>
                   <div class="transition duration-300 ease-in-out group-hover:-translate-y-1 group-hover:translate-x-3 group-hover:scale-110">

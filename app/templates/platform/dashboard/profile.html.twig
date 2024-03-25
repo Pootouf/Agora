@@ -148,7 +148,7 @@ Mon profil
          <tr class="{{ colorClass }} border-b hover:bg-gray-50">
             <td class="p-2 text-center">
                {% if board.game is not empty %}
-               <a href="{{ path('app_game_description', {'game_id': board.game.id}) }}">
+               <a href="{{ path('app_dashboard_game_description', {'game_id': board.game.id}) }}">
                <img src="{{ asset(board.game.imgURL) }}" class="w-32 h-16 md:w-24 md:h-24 rounded-md mx-auto" alt="{{ board.game.name }}">
                </a>
                {% else %}
@@ -262,7 +262,7 @@ Mon profil
          <tr class="{{ colorClass }} border-b hover:bg-gray-50">
             <td class="p-2 text-center">
                {% if board.game is not empty %}
-               <a href="{{ path('app_game_description', {'game_id': board.game.id}) }}">
+               <a href="{{ path('app_dashboard_game_description', {'game_id': board.game.id}) }}">
                <img src="{{ asset(board.game.imgURL) }}" class="w-32 h-16 md:w-24 md:h-24 rounded-md mx-auto" alt="{{ board.game.name }}">
                </a>
                {% else %}
