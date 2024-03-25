@@ -833,10 +833,10 @@ class TileGLMService
      *
      * @param PlayerTileGLM $playerTileGLM
      * @param int           $direction
-     * @return void
+     * @return PlayerTileGLM
      * @throws Exception
      */
-    public function moveVillager(PlayerTileGLM $playerTileGLM, int $direction) : void
+    public function moveVillager(PlayerTileGLM $playerTileGLM, int $direction) : PlayerTileGLM
     {
         $targetedTile = $this->getTargetedTile($playerTileGLM, $direction);
         if($targetedTile == null) {
@@ -858,6 +858,7 @@ class TileGLMService
         $this->placeVillagerOntoTile($villager, $targetedTile);
         // removes a movement point from the player
         $this->lowerMovementPoints($player);
+        return $targetedTile;
     }
 
     /**

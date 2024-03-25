@@ -37,6 +37,7 @@ class WorkerMYRService
         $anthillHole = new AnthillHoleMYR();
         $anthillHole->setPlayer($playerMYR);
         $anthillHole->setTile($tileMYR);
+        $anthillHole->setMainBoardMYR($playerMYR->getGameMyr()->getMainBoardMYR());
         $playerMYR->addAnthillHoleMYR($anthillHole);
         $this->entityManager->persist($anthillHole);
         $this->entityManager->persist($playerMYR);

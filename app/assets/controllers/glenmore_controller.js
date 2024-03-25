@@ -51,11 +51,17 @@ export default class extends Controller {
 	async removeVillager(tile) {
 		let url = tile.params.url;
 		const response = await fetch(url);
+		if (response.status === 200) {
+			closeSelectedTileWindow();
+		}
 	}
 
 	async moveVillager(tile) {
 		let url = tile.params.url;
 		const response = await fetch(url);
+		if (response.status === 200) {
+			closeSelectedTileWindow();
+		}
 	}
 
 	async validateNewResourcesAcquisition(tile) {

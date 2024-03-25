@@ -17,6 +17,10 @@ class AnthillHoleMYR extends Component
     #[ORM\JoinColumn(nullable: false)]
     private ?PlayerMYR $player = null;
 
+    #[ORM\ManyToOne(inversedBy: 'anthillHoles')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?MainBoardMYR $mainBoardMYR = null;
+
     public function getTile(): ?TileMYR
     {
         return $this->tile;
@@ -37,6 +41,18 @@ class AnthillHoleMYR extends Component
     public function setPlayer(?PlayerMYR $player): static
     {
         $this->player = $player;
+
+        return $this;
+    }
+
+    public function getMainBoardMYR(): ?MainBoardMYR
+    {
+        return $this->mainBoardMYR;
+    }
+
+    public function setMainBoardMYR(?MainBoardMYR $mainBoardMYR): static
+    {
+        $this->mainBoardMYR = $mainBoardMYR;
 
         return $this;
     }
