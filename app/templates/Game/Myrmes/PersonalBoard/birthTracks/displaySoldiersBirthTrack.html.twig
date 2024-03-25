@@ -4,6 +4,7 @@ This section displays the birth track for soldiers.
 @return :
 #}
 <div class="relative w-1/6 h-full justify-start align-top inline-flex flex-col gap-3" id="soldiers">
+    {#soldiers counter#}
     <div class="inlineFlex gap-3 items-center w-full h-[3rem] lg:h-[4rem]" id="soldierCount">
         <p class="relative w-10 h-fit text3-4">X</p>
         <img class="h-full" id="soldierIcon"
@@ -11,8 +12,8 @@ This section displays the birth track for soldiers.
              alt="soldier icon"/>
     </div>
     <div class="inlineFlexCol gap-2 lg:gap-5">
-        <div class="inlineFlexCol items-center gap-1 lg:gap-2.5 relative"
-             id="soldierTrack">
+        {# soldiers birth track#}
+        <div class="inlineFlexCol items-center gap-1 lg:gap-2.5 relative" id="soldierTrack">
             <img class="w-[90%]"
                  src="{{ asset('resourcesGames/Myrmes/personalBoard/birthTrack/birthTrackOne.svg') }}"
                  alt="soldier birth track"/>
@@ -20,6 +21,7 @@ This section displays the birth track for soldiers.
                  src="{{ asset('resourcesGames/Myrmes/personalBoard/birthTrack/birthTrackTwo.svg') }}"
                  alt="soldier birth track"/>
         </div>
+        {# button to place nurse on soldiers birth track#}
         <div class="flex justify-center">
             <button type="button" class="w-[60%]"
                     {{ stimulus_action('myrmes','placeNurseOnSoldiersTrack','click') }}
