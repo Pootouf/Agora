@@ -30,25 +30,23 @@ Jeux
                         </button>
                      </form>
                   </div>
-                   {% endif %}
-                  
+                  {% endif %}
                   <img src="{{ asset(game.imgURL) }}" class="absolute inset-0 -z-10 h-full w-full object-cover" alt="{{ game.name }}">
-                
-                   {% if app.user %}
-            <a href="/dashboard/boardCreation/{{ game.id }}" type="button" class="text-white bg-primary hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
-                Créer une table
-            </a>
-            <a href="/dashboard/game/{{ game.id }}/tables" type="button" class="text-white bg-primary hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
-                Rejoindre une table
-            </a>
-        {% else %}
-            <a href="/login" type="button" class="text-white bg-primary hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
-                Se connecter pour créer une table
-            </a>
-            <a href="/login" type="button" class="text-white bg-primary hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
-                Se connecter pour rejoindre une table
-            </a>
-        {% endif %}
+                  {% if app.user %}
+                  <a href="/dashboard/boardCreation/{{ game.id }}" type="button" class="text-white bg-primary hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
+                  Créer une table
+                  </a>
+                  <a href="/dashboard/game/{{ game.id }}/tables" type="button" class="text-white bg-primary hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
+                  Rejoindre une table
+                  </a>
+                  {% else %}
+                  <a href="/login" type="button" class="text-white bg-primary hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
+                  Se connecter pour créer une table
+                  </a>
+                  <a href="/login" type="button" class="text-white bg-primary hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
+                  Se connecter pour rejoindre une table
+                  </a>
+                  {% endif %}
                   <div class="absolute inset-0 -z-10 bg-gradient-to-t from-gray-900 via-gray-900/40"></div>
                   <div class="absolute inset-0 -z-10 rounded-2xl ring-1 ring-inset ring-gray-900/10"></div>
                   <div class="transition duration-300 ease-in-out group-hover:-translate-y-1 group-hover:translate-x-3 group-hover:scale-110">

@@ -1,9 +1,7 @@
 {% extends 'platform/dashboard/layout.html.twig' %}
-
 {% block title %}
-   Paramètres
+Paramètres
 {% endblock %}
-
 {% block content %}
 <div class="relative isolate px-6 pt-14 lg:px-8">
    <div class="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80" aria-hidden="true">
@@ -14,26 +12,7 @@
          <h2 class="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">Mes informations personnelles</h2>
       </div>
       <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-
-         {% include 'platform/shared/flashMessage.html.twig' %}
-         {% set flashMessages = app.flashes() %}
-         {% if flashMessages is not empty %}
-         {% for type, messages in flashMessages %}
-         {% for message in messages %}
-         <div class="alert alert-{{ type }} bg-red-100 border-l-4 border-red-500 text-red-700 p-4" role="alert">
-            {{ message }}
-         </div>
-         {% endfor %}
-         {% endfor %}
-         {% endif %}
-         
-        {{ form_start(form, {'action': path('app_user_edit_profile', {'id': app.user.id}), 'method': 'POST', 'attr': {'class': 'space-y-6 md:w-96'}}) }}
-
-
-         {% for flash_error in app.flashes('verify_email_error') %}
-				<div class="alert alert-danger" role="alert">{{ flash_error }}</div>
-			{% endfor %}
-
+         {{ form_start(form, {'action': path('app_user_edit_profile', {'id': app.user.id}), 'method': 'POST', 'attr': {'class': 'space-y-6 md:w-96'}}) }}
          <div>
             {{ form_label(form.username, 'Identifiant', {'label_attr': {'class': 'block text-sm font-medium leading-6 text-gray-900'}}) }}
             <div class="mt-2">
