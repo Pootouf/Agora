@@ -161,4 +161,12 @@ class MyrmesParameters
         [7, 24], [8, 23], [9, 24], [9, 22], [10, 23], [10, 21], [11, 22], [11, 20], [12, 21], [12, 19], [13, 18]
     ];
 
+    // Resources Type
+
+    public static string $RESOURCE_TYPE_DIRT = "dirt";
+    public static string $RESOURCE_TYPE_STONE = "stone";
+    public static string $RESOURCE_TYPE_GRASS = "grass";
+    public static string $RESOURCE_TYPE_LARVAE = "larvae";
+
+
 }

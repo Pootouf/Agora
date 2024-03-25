@@ -1095,6 +1095,9 @@ final class VersionMYRMESDATA extends AbstractMigration
                 'coord_y' => 13,
                 'type' => MyrmesParameters::$GRASS_TILE_TYPE]);
 
+
+        // INSERTION OF PHEROMONES
+
         $type = MyrmesParameters::$PHEROMONE_TYPE_ZERO;
         for ($i = 0; $i < 6; ++$i) {
             $this->connection->insert('tile_type_myr',
@@ -1159,6 +1162,23 @@ final class VersionMYRMESDATA extends AbstractMigration
             );
         }
 
+        //INSERTION OF RESOURCES
+
+        $this->connection->insert('resource_myr',
+            ['help_id' => null, 'description' => MyrmesParameters::$RESOURCE_TYPE_DIRT]
+        );
+
+        $this->connection->insert('resource_myr',
+            ['help_id' => null, 'description' => MyrmesParameters::$RESOURCE_TYPE_STONE]
+        );
+
+        $this->connection->insert('resource_myr',
+            ['help_id' => null, 'description' => MyrmesParameters::$RESOURCE_TYPE_GRASS]
+        );
+
+        $this->connection->insert('resource_myr',
+            ['help_id' => null, 'description' => MyrmesParameters::$RESOURCE_TYPE_LARVAE]
+        );
     }
 
     public function down(Schema $schema): void

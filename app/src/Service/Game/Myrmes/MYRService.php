@@ -11,8 +11,11 @@ use App\Entity\Game\Myrmes\PlayerMYR;
 use App\Entity\Game\Myrmes\PreyMYR;
 use App\Entity\Game\Myrmes\SeasonMYR;
 use App\Entity\Game\Myrmes\TileMYR;
+use App\Entity\Game\Myrmes\TileTypeMYR;
 use App\Repository\Game\Myrmes\PlayerMYRRepository;
 use App\Repository\Game\Myrmes\TileMYRRepository;
+use App\Repository\Game\Myrmes\TileTypeMYRRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 
 class MYRService
@@ -20,6 +23,7 @@ class MYRService
 
     public function __construct(private readonly PlayerMYRRepository $playerMYRRepository,
                 private readonly TileMYRRepository $tileMYRRepository,
+                private readonly TileTypeMYRRepository $tileTypeMYRRepository,
                 private readonly EntityManagerInterface $entityManager)
     {
 
@@ -67,6 +71,18 @@ class MYRService
 
         $this->entityManager->persist($game);
         $this->entityManager->flush();
+    }
+
+    /**
+     * getPhermononesFromType : returns all orientations of a pheremone or special tile from a type
+     * @param int $type
+     * @return ArrayCollection<Int, TileTypeMYR>
+     */
+    public function getPhermononesFromType(int $type) : ArrayCollection
+    {
+        return new ArrayCollection($this->tileTypeMYRRepository->findBy(
+            ["type" => $type]
+        ));
     }
 
     /**
