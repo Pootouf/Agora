@@ -14,6 +14,10 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method BoardTileGLM[]    findAll()
  * @method BoardTileGLM[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
+
+/**
+ * @codeCoverageIgnore
+ */
 class BoardTileGLMRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)

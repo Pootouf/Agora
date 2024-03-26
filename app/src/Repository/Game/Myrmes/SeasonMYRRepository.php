@@ -14,6 +14,10 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method SeasonMYR[]    findAll()
  * @method SeasonMYR[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
+
+/**
+ * @codeCoverageIgnore
+ */
 class SeasonMYRRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)

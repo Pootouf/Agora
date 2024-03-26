@@ -14,6 +14,10 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method GardenWorkerMYR[]    findAll()
  * @method GardenWorkerMYR[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
+
+/**
+ * @codeCoverageIgnore
+ */
 class GardenWorkerMYRRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
