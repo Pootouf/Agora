@@ -11,7 +11,6 @@ class MyrmesParameters
     public static int $MAX_NUMBER_OF_PLAYER = 4;
     public static int $MIN_NUMBER_OF_PLAYER = 2;
 
-
     // Area's for nurses
     public static int $BASE_AREA = 0;
     public static int $LARVAE_AREA = 1;
@@ -22,6 +21,8 @@ class MyrmesParameters
     public static int $WORKSHOP_NURSE_AREA = 6;
     public static int $WORKSHOP_GOAL_AREA = 7;
     public static int $AREA_COUNT = 8;
+
+    // Nurses info
     public static int $START_NURSES_COUNT_PER_PLAYER = 3;
     public static int $MAX_NURSES_COUNT_PER_PLAYER = 8;
 
