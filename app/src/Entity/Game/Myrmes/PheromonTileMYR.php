@@ -2,13 +2,17 @@
 
 namespace App\Entity\Game\Myrmes;
 
-use App\Entity\Game\DTO\Component;
 use App\Repository\Game\Myrmes\PheromonTileMYRRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PheromonTileMYRRepository::class)]
-class PheromonTileMYR extends Component
+class PheromonTileMYR
 {
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
+    private ?int $id = null;
+
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     private ?TileMYR $tile = null;
@@ -19,6 +23,11 @@ class PheromonTileMYR extends Component
     #[ORM\ManyToOne(inversedBy: 'pheromonTiles')]
     #[ORM\JoinColumn(nullable: false)]
     private ?PheromonMYR $pheromonMYR = null;
+
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
     public function getTile(): ?TileMYR
     {

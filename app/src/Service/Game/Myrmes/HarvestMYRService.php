@@ -42,11 +42,14 @@ class HarvestMYRService
                         if($playerResource === $resource) {
                             $playerResource->setQuantity($playerResource->getQuantity() + 1);
                             $playerPheromone->setHarvested(true);
+                            $this->entityManager->persist($playerResource);
+                            $this->entityManager->persist($playerPheromone);
                         }
                     }
                 }
             }
         }
+        $this->entityManager->flush();
     }
 
     /**
