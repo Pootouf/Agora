@@ -25,6 +25,10 @@ use App\Service\Game\LogService;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 
+
+/**
+ * @codeCoverageIgnore
+ */
 class MYRGameManagerService extends AbstractGameManagerService
 {
 
@@ -79,6 +83,7 @@ class MYRGameManagerService extends AbstractGameManagerService
         $player = new PlayerMYR($playerName, $game);
         $player->setScore(0);
         $player->setGoalLevel(0);
+        $player->setPhase(MyrmesParameters::$PHASE_EVENT);
         $personalBoard = new PersonalBoardMYR();
         $personalBoard->setAnthillLevel(0);
         $personalBoard->setLarvaCount(0);

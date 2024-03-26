@@ -90,6 +90,24 @@ class EventMYRServiceTest extends KernelTestCase
         $this->eventMYRService->chooseBonus($player, $bonusWanted);
     }
 
+    public function testChooseBonusShouldFailBecauseNotEventPhase() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $player->setPhase(MyrmesParameters::$PHASE_BIRTH);
+        $personalBoard = $player->getPersonalBoardMYR();
+        $personalBoard->setLarvaCount(2);
+        $this->entityManager->persist($personalBoard);
+        $this->entityManager->persist($player);
+        $this->entityManager->flush();
+        $bonusWanted = 1;
+        //THEN
+        $this->expectException(\Exception::class);
+        //WHEN
+        $this->eventMYRService->chooseBonus($player, $bonusWanted);
+    }
+
 
     private function createGame(int $numberOfPlayers) : GameMYR
     {
@@ -103,6 +121,7 @@ class EventMYRServiceTest extends KernelTestCase
             $player = new PlayerMYR('test', $game);
             $game->addPlayer($player);
             $player->setGameMyr($game);
+            $player->setPhase(MyrmesParameters::$PHASE_EVENT);
             $personalBoard = new PersonalBoardMYR();
             $personalBoard->setLarvaCount(0);
             $personalBoard->setAnthillLevel(0);

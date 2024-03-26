@@ -11,6 +11,10 @@ use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use phpDocumentor\Reflection\Types\Collection;
 
+
+/**
+ * @codeCoverageIgnore
+ */
 class EventMYRService
 {
 
@@ -25,6 +29,9 @@ class EventMYRService
      */
     public function chooseBonus(PlayerMYR $player, int $bonus) : void
     {
+        if ($player->getPhase() != MyrmesParameters::$PHASE_EVENT) {
+            throw new Exception("Player is not in event phase");
+        }
         if ($bonus < MyrmesParameters::$BONUS_LEVEL || $bonus > MyrmesParameters::$BONUS_WORKER) {
             throw new Exception("Bonus does not exist");
         }

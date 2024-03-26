@@ -11,6 +11,14 @@ class MyrmesParameters
     public static int $MAX_NUMBER_OF_PLAYER = 4;
     public static int $MIN_NUMBER_OF_PLAYER = 2;
 
+    // Player phases
+
+    public static int $PHASE_EVENT = 0;
+    public static int $PHASE_BIRTH = 1;
+    public static int $PHASE_WORRKER = 2;
+    public static int $PHASE_HARVEST = 3;
+    public static int $PHASE_WORKSHOP = 4;
+
 
 
     // Area's for nurses

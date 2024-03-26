@@ -4,6 +4,7 @@ namespace App\Tests\Game\Myrmes\Unit\Service;
 
 use App\Entity\Game\Myrmes\GameMYR;
 use App\Entity\Game\Myrmes\MainBoardMYR;
+use App\Entity\Game\Myrmes\MyrmesParameters;
 use App\Entity\Game\Myrmes\PersonalBoardMYR;
 use App\Entity\Game\Myrmes\PlayerMYR;
 use App\Service\Game\Myrmes\EventMYRService;
@@ -80,6 +81,21 @@ class EventMYRServiceTest extends TestCase
         $game = new GameMYR();
         $player = new PlayerMYR("test", $game);
         $personalBoard = new PersonalBoardMYR();
+        $player->setPersonalBoardMYR($personalBoard);
+        $bonusWanted = 10;
+        //THEN
+        $this->expectException(\Exception::class);
+        //WHEN
+        $this->eventMYRService->chooseBonus($player, $bonusWanted);
+    }
+
+    public function testChooseBonusShouldFailBecauseNotEventPhase() : void
+    {
+        //GIVEN
+        $game = new GameMYR();
+        $player = new PlayerMYR("test", $game);
+        $personalBoard = new PersonalBoardMYR();
+        $player->setPhase(MyrmesParameters::$PHASE_BIRTH);
         $player->setPersonalBoardMYR($personalBoard);
         $bonusWanted = 10;
         //THEN

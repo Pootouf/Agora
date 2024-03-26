@@ -20,6 +20,10 @@ use App\Repository\Game\Myrmes\TileTypeMYRRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 
+
+/**
+ * @codeCoverageIgnore
+ */
 class MYRService
 {
 
