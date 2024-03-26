@@ -13,11 +13,11 @@ use App\Entity\Game\Myrmes\SeasonMYR;
 use App\Repository\Game\Myrmes\NurseMYRRepository;
 use App\Entity\Game\Myrmes\TileMYR;
 use App\Entity\Game\Myrmes\TileTypeMYR;
+use App\Repository\Game\Myrmes\NurseMYRRepository;
 use App\Repository\Game\Myrmes\PlayerMYRRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use App\Repository\Game\Myrmes\TileMYRRepository;
 use App\Repository\Game\Myrmes\TileTypeMYRRepository;
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 
@@ -28,6 +28,9 @@ class MYRService
                 private EntityManagerInterface $entityManager,
                 private readonly NurseMYRRepository $nurseMYRRepository,
                 private readonly TileMYRRepository $tileMYRRepository,
+                private readonly TileTypeMYRRepository $tileTypeMYRRepository,
+                private readonly EntityManagerInterface $entityManager,
+                private readonly NurseMYRRepository $nurseMYRRepository,
                 private readonly TileTypeMYRRepository $tileTypeMYRRepository )
     {
 
@@ -95,7 +98,7 @@ class MYRService
      * @param string $seasonName
      * @return void
      */
-    private function initializeNewSeason(GameMYR $game, string $seasonName) : void
+    public function initializeNewSeason(GameMYR $game, string $seasonName) : void
     {
         $season = new SeasonMYR();
         $season->setMainBoardMYR($game->getMainBoardMYR());
@@ -302,6 +305,9 @@ class MYRService
                     case MyrmesParameters::$LARVAE_AREA:
                     case MyrmesParameters::$SOLDIERS_AREA:
                     case MyrmesParameters::$WORKER_AREA:
+                        $n->setPosition(MyrmesParameters::$BASE_AREA);
+                        $this->entityManager->persist($n);
+                        break;
                     case MyrmesParameters::$WORKSHOP_ANTHILL_HOLE_AREA:
                     case MyrmesParameters::$WORKSHOP_LEVEL_AREA:
                     case MyrmesParameters::$WORKSHOP_NURSE_AREA:

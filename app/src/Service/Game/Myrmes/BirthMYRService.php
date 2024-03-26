@@ -13,9 +13,7 @@ use Exception;
 class BirthMYRService
 {
     public function __construct(private readonly EntityManagerInterface $entityManager,
-                                private readonly MYRService $MYRService,
-                                private readonly NurseMYRRepository $nurseMYRRepository
-    )
+                                private readonly MYRService $MYRService)
     {}
 
     /**
@@ -45,7 +43,7 @@ class BirthMYRService
     {
         for ($i = 1; $i < MyrmesParameters::$AREA_COUNT; $i += 1)
         {
-            $nurses = $this->getNursesAtPosition($player ,$i);
+            $nurses = $this->MYRService->getNursesAtPosition($player ,$i);
             $nursesCount = $nurses->count();
             switch ($i) {
                 case MyrmesParameters::$LARVAE_AREA:
@@ -58,7 +56,7 @@ class BirthMYRService
                     $this->manageWorker($player, $nursesCount);
                     break;
                 default:
-                    throw new Exception("Don't give bonus");
+                    break;
             }
             $this->entityManager->flush();
         }

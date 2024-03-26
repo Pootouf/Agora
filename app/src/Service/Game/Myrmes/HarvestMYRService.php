@@ -6,16 +6,13 @@ use App\Entity\Game\Myrmes\AnthillHoleMYR;
 use App\Entity\Game\Myrmes\MyrmesParameters;
 use App\Entity\Game\Myrmes\NurseMYR;
 use App\Entity\Game\Myrmes\PlayerMYR;
-use App\Repository\Game\Myrmes\NurseMYRRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 
 class HarvestMYRService
 {
     public function __construct(private readonly EntityManagerInterface $entityManager,
-                                private readonly MYRService $MYRService,
-                                private readonly NurseMYRRepository $nurseMYRRepository
-    )
+                                private readonly MYRService $MYRService)
     {}
 
     /**
@@ -24,11 +21,10 @@ class HarvestMYRService
      * @throws Exception
      */
     public function manageHarvest(PlayerMYR $player) {
-        $personalBoard = $player->getPersonalBoardMYR();
 
         for ($i = 4; $i < MyrmesParameters::$AREA_COUNT; $i += 1)
         {
-            $nurses = $this->getNursesAtPosition($player ,$i);
+            $nurses = $this->MYRService->getNursesAtPosition($player ,$i);
             $nursesCount = $nurses->count();
             switch ($i) {
                 case MyrmesParameters::$WORKSHOP_ANTHILL_HOLE_AREA:
