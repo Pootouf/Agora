@@ -847,6 +847,13 @@ final class VersionMYRMES_DATA extends AbstractMigration
         $this->connection->insert('tile_myr',
             ['id' => $id, 'help_id' => null,
                 'coord_x' => 6,
+                'coord_y' => 9,
+                'type' => MyrmesParameters::$GRASS_TILE_TYPE]);
+        $id ++;
+
+        $this->connection->insert('tile_myr',
+            ['id' => $id, 'help_id' => null,
+                'coord_x' => 6,
                 'coord_y' => 11,
                 'type' => MyrmesParameters::$GRASS_TILE_TYPE]);
         $id ++;

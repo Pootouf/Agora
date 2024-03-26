@@ -81,10 +81,7 @@ class DataManagementMYRService
                     $currentLine->add($this->createBoardBox($game, null, $x, $y));
                     $y+=2;
                 }
-                if ($x % 2 == 0) {
-                    $currentLine->add($this->createBoardBox($game, null, $x, $y));
-                }
-                $y = $miny + ($x % 2);
+                $y = $miny ;
                 $result->add($currentLine);
                 $x++;
                 $currentLine = new ArrayCollection();
@@ -102,9 +99,6 @@ class DataManagementMYRService
         while ($y <= $maxy) {
             $currentLine->add($this->createBoardBox($game, null, $x, $y));
             $y+=2;
-        }
-        if ($x % 2 == 0) {
-            $currentLine->add($this->createBoardBox($game, null, $x, $y));
         }
         $result->add($currentLine);
         return $result;

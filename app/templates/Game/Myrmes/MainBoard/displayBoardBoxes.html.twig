@@ -12,15 +12,21 @@
 {% set GRASS_TILE_TYPE = "grass" %}
 
 {# Loading of Tailwind data for grid #}
-<div class="hidden grid grid-cols-13 grid-rows-15 grid-rows-13 grid-rows-8"></div>
+<div class="hidden grid grid-cols-[repeat(14,_4vw)] grid-rows-15 grid-rows-13 grid-rows-8"></div>
 
+{# Loading Tailwind colors #}
+<div class="hidden border-b-green-600 border-b-orange-950 border-b-red-700 border-b-stone-700 border-b-blue-600
+            border-t-green-600 border-t-orange-950 border-t-red-700 border-t-stone-700 border-t-blue-600
+            bg-green-600 bg-orange-950 bg-red-700 bg-stone-700 bg-blue-600">
+</div>
 
-<div class="mx-4">
+<div class="w-auto h-auto flex flex-row">
+    <div class="flex-grow"></div>
     <div class="grid grid-rows-{{ boardBoxes|length }}
-                grid-cols-{{ boardBoxes|first|length }} h-auto w-auto"
+                grid-cols-[repeat({{ boardBoxes|first|length + 1}},_4vw)] gap-1"
     >
     {% for boardBoxLine in boardBoxes %}
-        {% set isShifted = boardBoxLine|first.coordX % 2 == 0 %}
+        {% set isShifted = boardBoxLine|filter(box => box.tile != null)|first.tile.coordX % 2 != 0 %}
         {% for boardBox in boardBoxLine %}
             {% if boardBox.tile != null %}
                 {% set color = "" %}
@@ -35,13 +41,13 @@
                 {% else %}
                     {% set color = "green-600" %}
                 {% endif %}
-                <div class="">
-                    {{ include('Game/Myrmes/MainBoard/boardBox.html.twig') }}
-                </div>
+                {{ include('Game/Myrmes/MainBoard/boardBox.html.twig') }}
             {% else %}
-                <div class="max-h-full max-w-full"></div>
+                <div class="hex"></div>
             {% endif %}
         {% endfor %}
+        <div class="hex"></div>
     {% endfor %}
     </div>
+    <div class="flex-grow"></div>
 </div>

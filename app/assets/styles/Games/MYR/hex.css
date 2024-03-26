@@ -1,29 +1,24 @@
 .hex {
     float: left;
-    margin-bottom: -1vw;
+    margin-bottom: -1.2vw;
+    width: 4vw;
 }
 .hex .top {
     width: 0;
-    border-bottom: 1.5vw solid;
+    border-bottom: 1.125vw solid;
     border-bottom-color: inherit;
-    border-left: 2.5vw solid transparent;
-    border-right: 2.5vw solid transparent;
+    border-left: 2vw solid transparent;
+    border-right: 2vw solid transparent;
 }
 .hex .middle {
     background: inherit;
-    width: 5vw;
-    height: 3vw;
+    width: 4vw;
+    height: 2.25vw;
 }
 .hex .bottom {
     width: 0;
-    border-top: 1.5vw solid;
+    border-top: 1.125vw solid;
     border-top-color: inherit;
-    border-left: 2.5vw solid transparent;
-    border-right: 2.5vw solid transparent;
-}
-.hex-row {
-    clear: left;
-}
-.hex-row.even {
-    margin-left: 2.5vw;
+    border-left: 2vw solid transparent;
+    border-right: 2vw solid transparent;
 }
