@@ -71,6 +71,13 @@ class WorkerMYRService
     public function canPlace(PlayerMYR $player, TileMYR $tile, PheromonMYR $pheromone) : bool
     {
         $tileType = $pheromone->getType();
+        if (!$this->isWorkerOnTile($player, $tile)) {
+            throw new Exception("no garden worker on this tile");
+        }
+        $pheromoneCount = $this->getPheromoneCountOfType($player, $pheromone);
+        if (!$this->canChoosePheromone($player, $pheromone, $pheromoneCount)) {
+            throw new Exception("player can't place more pheromones of this type");
+        }
         switch ($tileType->getType()) {
             case MyrmesParameters::$PHEROMONE_TYPE_ZERO:
                 return $this->canPlaceTypeZero($player, $tile, $pheromone);
@@ -1097,5 +1104,56 @@ class WorkerMYRService
             $this->playerResourceMYRRepository->findOneBy(
                 ["personalBoard" => $personalBoard, "resource" => $dirt]
             )!= null;
+    }
+
+    /**
+     * isWorkerOnTile : checks if the player owns a garden worker on the selected tile
+     * @param PlayerMYR $player
+     * @param TileMYR   $tile
+     * @return bool
+     */
+    private function isWorkerOnTile(PlayerMYR $player, TileMYR $tile) : bool
+    {
+        $mainBoard = $player->getGameMyr()->getMainBoardMYR();
+        $gardenWorkers = $mainBoard->getGardenWorkers();
+        foreach ($gardenWorkers as $gardenWorker) {
+            if ($gardenWorker->getTile() === $tile && $gardenWorker->getPlayer() === $player) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * getPheromoneCountOfType : returns the amount of pheromones from a type a player already has placed
+     * @param PlayerMYR   $player
+     * @param PheromonMYR $pheromone
+     * @return int
+     */
+    private function getPheromoneCountOfType(PlayerMYR $player, PheromonMYR $pheromone) : int
+    {
+        $pheromones = $player->getPheromonMYRs();
+        $result = 0;
+        $type = $pheromone->getType()->getType();
+        foreach ($pheromones as $pheromone) {
+            if ($pheromone->getType()->getType() == $type) {
+                ++$result;
+            }
+        }
+        return $result;
+    }
+
+    private function canChoosePheromone(PlayerMYR $player, PheromonMYR $pheromone, int $pheromoneCount) : bool
+    {
+        $anthillLevel = $player->getPersonalBoardMYR()->getAnthillLevel();
+        $pheromoneSize = $pheromone->getPheromonTiles()->count();
+        $allowedSize = $anthillLevel + 2;
+        if ($player->getPhase() === MyrmesParameters::$BONUS_PHEROMONE) {
+            ++$allowedSize;
+        }
+        if ($pheromoneSize > $allowedSize) {
+            return false;
+        }
+        return MyrmesParameters::$PHEROMONE_TYPE_AMOUNT[$pheromone->getType()->getType()] >= $pheromoneCount;
     }
 }
