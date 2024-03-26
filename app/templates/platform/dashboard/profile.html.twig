@@ -190,7 +190,7 @@ Mon profil
                      <td style="width: {{ cellWidth }}%;{% if column < 4 %} margin-right: 1%;{% endif %}">
                         {% if user %}
                         <div style="width: 50px; margin: 0 auto;">
-                           <a href="#" class="flex items-center justify-center">
+                           <a href="{{ path('app_other_user_profile', {'user_id': user.id}) }}" class="flex items-center justify-center">
                               <div style="text-align: center;">
                                  <img src="https://avatarfiles.alphacoders.com/244/thumb-244471.png" alt="Avatar de {{ user.username }}" class="w-8 h-8 rounded-full object-cover mb-1">
                                  <div class="text-black font-bold">{{ user.username }}</div>
@@ -304,7 +304,7 @@ Mon profil
                      <td style="width: {{ cellWidth }}%;{% if column < 4 %} margin-right: 1%;{% endif %}">
                         {% if user %}
                         <div style="width: 50px; margin: 0 auto;">
-                           <a href="#" class="flex items-center justify-center">
+                           <a href="{{ path('app_other_user_profile', {'user_id': user.id}) }}" class="flex items-center justify-center">
                               <div style="text-align: center;">
                                  <img src="https://avatarfiles.alphacoders.com/244/thumb-244471.png" alt="Avatar de {{ user.username }}" class="w-8 h-8 rounded-full object-cover mb-1">
                                  <div class="text-black font-bold">{{ user.username }}</div>
