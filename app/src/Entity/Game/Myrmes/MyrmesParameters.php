@@ -11,6 +11,14 @@ class MyrmesParameters
     public static int $MAX_NUMBER_OF_PLAYER = 4;
     public static int $MIN_NUMBER_OF_PLAYER = 2;
 
+    // Player phases
+
+    public static int $PHASE_EVENT = 0;
+    public static int $PHASE_BIRTH = 1;
+    public static int $PHASE_WORRKER = 2;
+    public static int $PHASE_HARVEST = 3;
+    public static int $PHASE_WORKSHOP = 4;
+
 
 
     // Area's for nurses
@@ -36,6 +44,17 @@ class MyrmesParameters
     public static array $WIN_LARVAE_BY_NURSES_COUNT = array(0, 1, 3, 5);
     public static array $WIN_SOLDIERS_BY_NURSES_COUNT = array(0, 0, 1, 1);
     public static array $WIN_WORKERS_BY_NURSES_COUNT = array(0, 0, 1, 0, 2);
+
+    // Events bonus
+
+    public static int $BONUS_LEVEL = 0;
+    public static int $BONUS_POINT = 1;
+    public static int $BONUS_LARVAE = 2;
+    public static int $BONUS_HARVEST = 3;
+    public static int $BONUS_MOVEMENT = 4;
+    public static int $BONUS_WARRIOR = 5;
+    public static int $BONUS_PHEROMONE = 6;
+    public static int $BONUS_WORKER = 7;
 
 
 

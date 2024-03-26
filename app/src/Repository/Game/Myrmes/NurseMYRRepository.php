@@ -14,6 +14,10 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method NurseMYR[]    findAll()
  * @method NurseMYR[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
+
+/**
+ * @codeCoverageIgnore
+ */
 class NurseMYRRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)

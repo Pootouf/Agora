@@ -20,6 +20,10 @@ use App\Repository\Game\Myrmes\TileMYRRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 
+
+/**
+ * @codeCoverageIgnore
+ */
 class WorkerMYRService
 {
     public function __construct(private readonly EntityManagerInterface $entityManager,

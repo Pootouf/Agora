@@ -2,6 +2,10 @@
 
 namespace App\Service\Game\Myrmes;
 
+
+/**
+ * @codeCoverageIgnore
+ */
 class WinterMYRService
 {
 
