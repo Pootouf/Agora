@@ -6,14 +6,18 @@ use App\Entity\Game\Myrmes\GameMYR;
 use App\Entity\Game\Myrmes\MyrmesParameters;
 use App\Entity\Game\Myrmes\PlayerMYR;
 use App\Entity\Game\Myrmes\SeasonMYR;
+use App\Repository\Game\Myrmes\NurseMYRRepository;
 use App\Repository\Game\Myrmes\PlayerMYRRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 
 class MYRService
 {
 
     public function __construct(private PlayerMYRRepository $playerMYRRepository,
-                private EntityManagerInterface $entityManager)
+                private EntityManagerInterface $entityManager,
+                private readonly NurseMYRRepository $nurseMYRRepositoryr)
     {
 
     }
@@ -62,4 +66,52 @@ class MYRService
         $this->entityManager->flush();
     }
 
+    /**
+     * getNursesAtPosition : return nurses which is in $position
+     * @param PlayerMYR $player
+     * @param int $position
+     * @return ArrayCollection
+     */
+    public function getNursesAtPosition(PlayerMYR $player, int $position): ArrayCollection
+    {
+        $nurses =  $this->nurseMYRRepository->findBy(["position" => $position,
+            "player" => $player]);
+        return new ArrayCollection($nurses);
+    }
+
+    /**
+     * manageNursesAfterBonusGive : Replace use nurses
+     * @param PlayerMYR $player
+     * @param int $nurseCount
+     * @param int $positionOfNurse
+     * @return void
+     * @throws Exception
+     */
+    public function manageNursesAfterBonusGive(PlayerMYR $player, int $nurseCount, int $positionOfNurse) : void
+    {
+        if ($nurseCount > 0) {
+            $nurses = $this->getNursesAtPosition($player, $positionOfNurse);
+            foreach ($nurses as $n) {
+                if ($nurseCount == 0) {
+                    return;
+                }
+                switch ($positionOfNurse) {
+                    case MyrmesParameters::$LARVAE_AREA:
+                    case MyrmesParameters::$SOLDIERS_AREA:
+                    case MyrmesParameters::$WORKER_AREA:
+                    case MyrmesParameters::$WORKSHOP_ANTHILL_HOLE_AREA:
+                    case MyrmesParameters::$WORKSHOP_LEVEL_AREA:
+                    case MyrmesParameters::$WORKSHOP_NURSE_AREA:
+                        $n->setPosition(MyrmesParameters::$BASE_AREA);
+                        $this->entityManager->persist($n);
+                        break;
+                    case MyrmesParameters::$WORKSHOP_GOAL_AREA:
+                        break;
+                    default:
+                        throw new Exception("Don't manage bonus");
+                }
+                $nurseCount--;
+            }
+        }
+    }
 }
