@@ -24,6 +24,7 @@ class HarvestMYRService
      * @param PlayerMYR $playerMYR
      * @param TileMYR $tileMYR
      * @return void
+     * @throws Exception
      */
     public function harvestPheromone(PlayerMYR $playerMYR, TileMYR $tileMYR) : void
     {
@@ -31,12 +32,16 @@ class HarvestMYRService
         foreach ($playerPheromones as $playerPheromone) {
             foreach ($playerPheromone->getPheromonTiles() as $tile) {
                 if($tile->getTile() === $tileMYR) {
+                    if($playerPheromone->isHarvested()) {
+                        throw new Exception("Pheromone already harvested");
+                    }
                     $resource = $tile->getResource();
                     $tile->setResource(null);
                     $playerResources = $playerMYR->getPersonalBoardMYR()->getPlayerResourceMYRs();
                     foreach ($playerResources as $playerResource) {
                         if($playerResource === $resource) {
                             $playerResource->setQuantity($playerResource->getQuantity() + 1);
+                            $playerPheromone->setHarvested(true);
                         }
                     }
                 }
