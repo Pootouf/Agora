@@ -13,6 +13,7 @@ use App\Entity\Game\Myrmes\SeasonMYR;
 use App\Repository\Game\Myrmes\NurseMYRRepository;
 use App\Entity\Game\Myrmes\TileMYR;
 use App\Entity\Game\Myrmes\TileTypeMYR;
+use App\Repository\Game\Myrmes\NurseMYRRepository;
 use App\Repository\Game\Myrmes\PlayerMYRRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use App\Repository\Game\Myrmes\TileMYRRepository;
@@ -24,7 +25,7 @@ class MYRService
 {
 
     public function __construct(private PlayerMYRRepository $playerMYRRepository,
-                private EntityManagerInterface $entityManager,
+                private readonly EntityManagerInterface $entityManager,
                 private readonly NurseMYRRepository $nurseMYRRepository,
                 private readonly TileMYRRepository $tileMYRRepository,
                 private readonly TileTypeMYRRepository $tileTypeMYRRepository)
