@@ -13,7 +13,6 @@ use App\Entity\Game\Myrmes\SeasonMYR;
 use App\Repository\Game\Myrmes\NurseMYRRepository;
 use App\Entity\Game\Myrmes\TileMYR;
 use App\Entity\Game\Myrmes\TileTypeMYR;
-use App\Repository\Game\Myrmes\NurseMYRRepository;
 use App\Repository\Game\Myrmes\PlayerMYRRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use App\Repository\Game\Myrmes\TileMYRRepository;
@@ -28,10 +27,7 @@ class MYRService
                 private EntityManagerInterface $entityManager,
                 private readonly NurseMYRRepository $nurseMYRRepository,
                 private readonly TileMYRRepository $tileMYRRepository,
-                private readonly TileTypeMYRRepository $tileTypeMYRRepository,
-                private readonly EntityManagerInterface $entityManager,
-                private readonly NurseMYRRepository $nurseMYRRepository,
-                private readonly TileTypeMYRRepository $tileTypeMYRRepository )
+                private readonly TileTypeMYRRepository $tileTypeMYRRepository)
     {
 
     }
@@ -311,9 +307,6 @@ class MYRService
                     case MyrmesParameters::$WORKSHOP_ANTHILL_HOLE_AREA:
                     case MyrmesParameters::$WORKSHOP_LEVEL_AREA:
                     case MyrmesParameters::$WORKSHOP_NURSE_AREA:
-                        $n->setPosition(MyrmesParameters::$BASE_AREA);
-                        $this->entityManager->persist($n);
-                        break;
                     case MyrmesParameters::$WORKSHOP_GOAL_AREA:
                         break;
                     default:

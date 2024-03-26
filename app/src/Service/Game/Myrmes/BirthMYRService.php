@@ -6,7 +6,6 @@ use App\Entity\Game\Myrmes\AnthillWorkerMYR;
 use App\Entity\Game\Myrmes\MyrmesParameters;
 use App\Entity\Game\Myrmes\NurseMYR;
 use App\Entity\Game\Myrmes\PlayerMYR;
-use App\Repository\Game\Myrmes\NurseMYRRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 
