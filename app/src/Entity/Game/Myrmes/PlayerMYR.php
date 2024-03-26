@@ -40,6 +40,9 @@ class PlayerMYR extends Player
     #[ORM\OneToMany(targetEntity: PreyMYR::class, mappedBy: 'player')]
     private Collection $preyMYRs;
 
+    #[ORM\Column]
+    private ?int $phase = null;
+
     public function __construct(string $name, GameMYR $game)
     {
         $this->gardenWorkerMYRs = new ArrayCollection();
@@ -249,6 +252,18 @@ class PlayerMYR extends Player
                 $preyMYR->setPlayer(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getPhase(): ?int
+    {
+        return $this->phase;
+    }
+
+    public function setPhase(int $phase): static
+    {
+        $this->phase = $phase;
 
         return $this;
     }

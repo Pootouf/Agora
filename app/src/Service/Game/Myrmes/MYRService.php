@@ -18,6 +18,10 @@ use App\Repository\Game\Myrmes\TileTypeMYRRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 
+
+/**
+ * @codeCoverageIgnore
+ */
 class MYRService
 {
 

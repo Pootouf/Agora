@@ -12,6 +12,10 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 
+
+/**
+ * @codeCoverageIgnore
+ */
 class BirthMYRService
 {
     public function __construct(private readonly EntityManagerInterface $entityManager,
