@@ -110,6 +110,19 @@ class WorkerMYRService
     }
 
     /**
+     * placeResourceOnPheromone : places resources on each tile covered by the pheromone
+     * @param PheromonMYR $pheromonMYR
+     * @return void
+     */
+    public function placeResourceOnPheromone(PheromonMYR $pheromonMYR) : void
+    {
+        $tiles = $pheromonMYR->getPheromonTiles();
+        foreach ($tiles as $tile) {
+            $this->placeResourceOnTile($tile);
+        }
+    }
+
+    /**
      * isPositionAvailable : checks if any player can place something on the tile in parameters
      * @param GameMYR $gameMYR
      * @param TileMYR $tileMYR
@@ -1155,5 +1168,28 @@ class WorkerMYRService
             return false;
         }
         return MyrmesParameters::$PHEROMONE_TYPE_AMOUNT[$pheromone->getType()->getType()] >= $pheromoneCount;
+    }
+
+    /**
+     * placeResourceOnTile : places the correct resource on the tile
+     * @param PheromonTileMYR $tile
+     * @return void
+     */
+    private function placeResourceOnTile(PheromonTileMYR $tile) : void
+    {
+        $grass = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::$RESOURCE_TYPE_GRASS]);
+        $stone = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::$RESOURCE_TYPE_STONE]);
+        $dirt = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::$RESOURCE_TYPE_DIRT]);
+        switch ($tile->getTile()->getType()) {
+            case MyrmesParameters::$DIRT_TILE_TYPE:
+                $tile->setResource($dirt);
+                break;
+            case MyrmesParameters::$GRASS_TILE_TYPE:
+                $tile->setResource($grass);
+                break;
+            case MyrmesParameters::$STONE_TILE_TYPE:
+                $tile->setResource($stone);
+                break;
+        }
     }
 }
