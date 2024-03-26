@@ -2,18 +2,15 @@
 
 namespace App\Entity\Game\Splendor;
 
+use App\Entity\Game\DTO\Component;
 use App\Repository\Game\Splendor\NobleTileSPLRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: NobleTileSPLRepository::class)]
-class NobleTileSPL
+class NobleTileSPL extends Component
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
 
     #[ORM\Column]
     private ?int $prestigePoints = null;
@@ -24,11 +21,6 @@ class NobleTileSPL
     public function __construct()
     {
         $this->cardsCost = new ArrayCollection();
-    }
-
-    public function getId(): ?int
-    {
-        return $this->id;
     }
 
     public function getPrestigePoints(): ?int

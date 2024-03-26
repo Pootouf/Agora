@@ -5,6 +5,7 @@
 
 	frankenphp {
 		{$FRANKENPHP_CONFIG}
+		num_threads 1
 	}
 
 	# https://caddyserver.com/docs/caddyfile/directives#sorting-algorithm

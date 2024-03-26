@@ -20,6 +20,9 @@ class PawnGLM extends Pawn
     #[ORM\JoinColumn(nullable: false)]
     private ?MainBoardGLM $mainBoardGLM = null;
 
+    #[ORM\Column]
+    private ?bool $dice = false;
+
     public function getPosition(): ?int
     {
         return $this->position;
@@ -57,6 +60,18 @@ class PawnGLM extends Pawn
     public function setMainBoardGLM(?MainBoardGLM $mainBoardGLM): static
     {
         $this->mainBoardGLM = $mainBoardGLM;
+
+        return $this;
+    }
+
+    public function isDice(): ?bool
+    {
+        return $this->dice;
+    }
+
+    public function setDice(bool $dice): static
+    {
+        $this->dice = $dice;
 
         return $this;
     }

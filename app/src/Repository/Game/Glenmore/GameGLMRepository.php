@@ -14,6 +14,10 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method GameGLM[]    findAll()
  * @method GameGLM[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
+
+/**
+ * @codeCoverageIgnore
+ */
 class GameGLMRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)

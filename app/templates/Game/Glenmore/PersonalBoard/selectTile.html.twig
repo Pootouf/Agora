@@ -1,0 +1,348 @@
+{#
+This section displays the player tile resources and possible actions
+@param : player, selectedTile, game, activatedResourceSelection, selectedResources, activatedNewResourceAcquisition,
+        chosenNewResources, activatedMovementPhase
+@return : display the possible actions regarding the tile depending on the player's round phase
+#}
+
+{# Constants definition, same as in GlenmoreParameters for better transmission in the controller#}
+{% set VILLAGER = 'villager' %}
+{% set PRODUCTION = 'production' %}
+{% set NORTH = 0 %}
+{% set NORTH_EAST = 1 %}
+{% set EAST = 2 %}
+{% set SOUTH_EAST = 3 %}
+{% set SOUTH = 4 %}
+{% set SOUTH_WEST = 5 %}
+{% set WEST = 6 %}
+{% set NORTH_WEST = 7 %}
+
+{% set CARD_LOCH_NESS = "Loch Ness" %}
+
+{% set PRODUCTION_TYPE = ['brown', 'green', 'grey', 'white', 'yellow'] %}
+
+{# Variable definition #}
+{% set resources = selectedTile.playerTileResource %}
+{% set villager = null %}
+{% set productionCount = 0 %}
+
+<div id="selectedTileActions"
+     class="absolute top-0 left-0 w-full h-full bg-black bg-opacity-70 flex z-50 text-white items-center justify-center">
+
+
+    <div class="bg-green-950 p-5 w-3/4 h-3/4 rounded-lg flex flex-col">
+
+        <div class="relative grid grid-cols-3
+                    gap-5 grid-rows-1 h-full w-full"
+        >
+        {% set ind = 0 %}
+        {% for playerResource in resources %}
+            {# Placement of the villager #}
+            {% if playerResource.resource.type == VILLAGER  and playerResource.quantity > 0 %}
+                <div class="flex items-center justify-center">
+                    <img class="items-center justify-center max-h-full"
+                         src="{{ asset('resourcesGames/Glenmore/figure.svg') }}" alt="villager"
+                    />
+                </div>
+                {% set villager = playerResource %}
+
+            {% elseif playerResource.resource.type == PRODUCTION %}
+                {% set productionCount = productionCount + 1 %}
+            {% endif %}
+        {% endfor %}
+
+        {# Takes place if there is no villager for better display #}
+        {% if villager == null %}
+            <span class="max-h-full"></span>
+        {% endif %}
+
+        {# Display the tile regarding the phase of the player's round #}
+
+            {# When it is not movement phase, display only the tile #}
+            {% if not activatedMovementPhase or villager == null %}
+                <div class="flex items-center justify-center">
+                    <img id='image_tile_{{ selectedTile.id }}'
+                         class="items-center justify-center rounded-lg shadow-black shadow-lg max-h-full"
+                         src="{{
+                         asset('resourcesGames/Glenmore/BoardTiles/'
+                             ~ selectedTile.tile.id ~ '.svg')
+                         }}"
+                         alt="{{ 'selectedTile' ~ selectedTile.tile.id }}"
+                    >
+                </div>
+
+            {# When it is movement phase, display direction the villager can go around the tile #}
+            {% else %}
+            <div class="flex flex-col pl-3 justify-center items-center">
+                <span class="text-xl m-8 whitespace-nowrap">Déplacer le villageois vers :</span>
+                <div class="relative flex items-center justify-center">
+
+                    <button class="w-6 flex items-center justify-center"
+                            {{ stimulus_action('glenmore', 'moveVillager', 'click',
+                                {url:path('app_game_glenmore_move_villager',
+                                    {idGame: game.id, idTile : selectedTile.id, dir: WEST})
+                                })
+                            }}
+                    >
+                        <span class="bg-green-700 p-1 mr-2 rounded-lg -rotate-90 whitespace-nowrap">
+                            Ouest
+                        </span>
+                    </button>
+
+                    <div class="flex-1 flex flex-col">
+                        <button class="absolute left-0 w-6 flex items-center justify-center"
+                                {{ stimulus_action('glenmore', 'moveVillager', 'click',
+                                    {url:path('app_game_glenmore_move_villager',
+                                        {idGame: game.id, idTile : selectedTile.id, dir: NORTH_WEST})
+                                    })
+                                }}
+                        >
+                            <span class="bg-green-700 p-1 rounded-lg -rotate-45 whitespace-nowrap">
+                                Nord-Ouest
+                            </span>
+                        </button>
+                        <button class=" absolute bottom-0 left-0 w-6 flex items-center justify-center"
+                                {{ stimulus_action('glenmore', 'moveVillager', 'click',
+                                    {url:path('app_game_glenmore_move_villager',
+                                        {idGame: game.id, idTile : selectedTile.id, dir: SOUTH_WEST})
+                                    })
+                                }}
+                        >
+                            <span class="bg-green-700 p-1 rounded-lg mt-2 rotate-45 whitespace-nowrap">
+                                Sud-Ouest
+                            </span>
+                        </button>
+                        <button class="h-6 flex items-center justify-center"
+                                {{ stimulus_action('glenmore', 'moveVillager', 'click',
+                                    {url:path('app_game_glenmore_move_villager',
+                                        {idGame: game.id, idTile : selectedTile.id, dir: NORTH})
+                                    })
+                                }}
+                        >
+                            <span class="bg-green-700 p-1 rounded-lg mb-2 whitespace-nowrap">
+                                Nord
+                            </span>
+                        </button>
+                        <img id='image_tile_{{ selectedTile.id }}'
+                             class="flex-1 items-center justify-center rounded-lg shadow-black shadow-lg max-h-full"
+                             src="{{
+                             asset('resourcesGames/Glenmore/BoardTiles/'
+                                 ~ selectedTile.tile.id ~ '.svg')
+                             }}"
+                             alt="{{ 'selectedTile' ~ selectedTile.tile.id }}"
+                        >
+                        <button class="h-6 flex items-center justify-center"
+                                {{ stimulus_action('glenmore', 'moveVillager', 'click',
+                                    {url:path('app_game_glenmore_move_villager',
+                                        {idGame: game.id, idTile : selectedTile.id, dir: SOUTH})
+                                    })
+                                }}
+                        >
+                            <span class="bg-green-700 p-1 rounded-lg mt-2 whitespace-nowrap">
+                                Sud
+                            </span>
+                        </button>
+                        <button class=" absolute right-0 w-6 flex items-center justify-center"
+                                {{ stimulus_action('glenmore', 'moveVillager', 'click',
+                                    {url:path('app_game_glenmore_move_villager',
+                                        {idGame: game.id, idTile : selectedTile.id, dir: NORTH_EAST})
+                                    })
+                                }}
+                        >
+                            <span class="bg-green-700 p-1 rounded-lg rotate-45 whitespace-nowrap">Nord-Est</span>
+                        </button>
+                        <button class=" absolute bottom-0 right-0 w-6 flex items-center justify-center"
+                                {{ stimulus_action('glenmore', 'moveVillager', 'click',
+                                    {url:path('app_game_glenmore_move_villager',
+                                        {idGame: game.id, idTile : selectedTile.id, dir: SOUTH_EAST})
+                                    })
+                                }}
+                        >
+                            <span class="bg-green-700 p-1 rounded-lg -rotate-45 whitespace-nowrap">Sud-Est</span>
+                        </button>
+                    </div>
+                    <button class="w-6 flex items-center justify-center"
+                            {{ stimulus_action('glenmore', 'moveVillager', 'click',
+                                {url:path('app_game_glenmore_move_villager',
+                                    {idGame: game.id, idTile : selectedTile.id, dir: EAST})
+                                })
+                            }}
+                    >
+                        <span class="bg-green-700 p-1 rounded-lg ml-2 rotate-90 whitespace-nowrap">Est</span>
+                    </button>
+                </div>
+            </div>
+            {% endif %}
+
+            {# Display the productions possessed by the player and selection of them if resource selection is active #}
+            {% if productionCount != 0 %}
+            <div class="grid grid-rows-4 grid-cols-1 gap-1 ">
+                <span class="border-white border-2 bg-green-700
+                                text-white text-lg flex items-center justify-center border-solid text-center"
+                >
+                    {% if activatedResourceSelection or activatedSellingPhase or selectedTile.tile.name == CARD_LOCH_NESS %}
+                        Choisir les ressources à utiliser
+                    {% else %}
+                        Ressources sur la tuile
+                    {% endif %}
+                </span>
+
+                {% for playerResource in resources %}
+
+                    {% if playerResource.resource.type == PRODUCTION %}
+                        {% set selectedResourceQuantity = 0 %}
+                        {% for i in 1..playerResource.quantity %}
+                            {% if playerResource.quantity > 0 %}
+                                <button {% if not activatedResourceSelection and not activatedSellingPhase %}
+                                            disabled
+                                        {% endif %}
+                                        {{ stimulus_action('glenmore', 'selectResource', 'click',
+                                            {url:path('app_game_glenmore_select_resource',
+                                                {idGame: game.id, idPlayerTileResource : playerResource.id, idTile : selectedTile.id})
+                                            })
+                                        }}
+                                        class="{% for selectedResource in selectedResources %}
+                                                    {% if playerResource.resource == selectedResource.resource and
+                                                            selectedResourceQuantity != selectedResource.quantity %}
+                                                        opacity-25
+                                                        {% set selectedResourceQuantity = selectedResourceQuantity + 1 %}
+                                                    {% endif %}
+                                                {% endfor %}
+                                        flex items-center justify-center w-full h-full">
+                                    <img class="max-h-full"
+                                         src="{{
+                                         asset('resourcesGames/Glenmore/ResourcesProduction/'
+                                             ~ playerResource.resource.color ~'.png')
+                                         }}"
+                                         alt="{{ playerResource.resource.color }}"
+                                    />
+                                </button>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {# Display the new resources the player must select to have them #}
+            {% if activatedNewResourceAcquisition %}
+                <div class="grid grid-rows-4 grid-cols-1 gap-1 mb-6">
+                    <span class="border-white border-2 bg-green-700
+                                text-white text-lg flex items-center border-solid text-center justify-center">
+                        Choisir les nouvelles ressources à récupérer
+                    </span>
+                    <div class="flex justify-center items-center w-full h-full">
+                        {% for colorResource in PRODUCTION_TYPE %}
+                            <button
+                                    {{ stimulus_action('glenmore', 'selectNewResourceAcquisition', 'click',
+                                        {url:path('app_game_glenmore_select_new_resource_acquisition',
+                                            {idGame: game.id, idTile : selectedTile.id, resource: colorResource})
+                                        })
+                                    }}
+                                    class="
+                                    flex items-center justify-center">
+                                <img class="max-h-full"
+                                     src="{{
+                                     asset('resourcesGames/Glenmore/ResourcesProduction/'
+                                         ~ colorResource ~'.png')
+                                     }}"
+                                     alt="{{ colorResource }}"
+                                />
+                            </button>
+                        {% endfor %}
+                    </div>
+                    <div class="flex items-center justify-center">
+                        <button
+                                {{ stimulus_action('glenmore', 'validateNewResourcesAcquisition', 'click',
+                                    {url:path('app_game_glenmore_validate_new_resources_acquisition',
+                                        {idGame: game.id, idTile : selectedTile.id})
+                                    })
+                                }}
+                                class="bg-[#8F901F] py-2 px-3 rounded-lg text-2xl
+                                    flex items-center justify-center"
+                        >
+                            Valider le choix
+                        </button>
+                    </div>
+                    <div class="flex items-center justify-center">
+                        <button
+                                {{ stimulus_action('glenmore', 'cancelNewResourcesAcquisition', 'click',
+                                    {url:path('app_game_glenmore_cancel_new_resources_acquisition',
+                                        {idGame: game.id, idTile : selectedTile.id})
+                                    })
+                                }}
+                                class="bg-[#8F901F] py-2 px-3 mb-5 rounded-lg text-2xl
+                                    flex items-center justify-center"
+                        >
+                            Annuler le choix
+                        </button>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        <div class="relative flex flex-row ">
+            {# Display villager option #}
+
+            {% if activatedMovementPhase and villager != null %}
+                <div class="absolute flex items-center justify-center left-0 bottom-1">
+                    <button
+                            {{ stimulus_action('glenmore', 'removeVillager', 'click',
+                                {url:path('app_game_glenmore_remove_villager',
+                                    {idGame: game.id, idPlayerTileResource : villager.id, idTile : selectedTile.id})
+                                })
+                            }}
+                            class="bg-[#8F901F] py-2 px-3 m-1 rounded-lg sm:text-lg text-2xl
+                                    flex items-center justify-center w-full h-full">
+                        Retirer le villageois du plateau
+                    </button>
+                </div>
+            {% endif %}
+            {% if buyingTile != null
+                and buyingTile.boardTile.tile.name == CARD_LOCH_NESS
+                and activatedBuyingPhase
+                and villager != null %}
+                <div class="absolute flex items-center justify-center left-0 bottom-1">
+                    <button
+                            {{ stimulus_action('glenmore', 'selectResource', 'click',
+                                {url:path('app_game_glenmore_select_resource',
+                                    {idGame: game.id, idPlayerTileResource : villager.id, idTile : selectedTile.id})
+                                })
+                            }}
+                            class="bg-[#8F901F] py-2 px-3 m-1 rounded-lg sm:text-lg text-2xl
+                                    flex items-center justify-center w-full h-full">
+                        Choisir le villageois pour acheter la tuile
+                    </button>
+                </div>
+            {% endif %}
+
+            {% if activatedActivationPhase and not selectedTile.activated and
+                not (activatedResourceSelection or activatedNewResourceAcquisition or activatedSellingPhase) %}
+                {% for tile in activableTiles %}
+                    {% if selectedTile.id == tile.id %}
+                        <div class="absolute flex items-center justify-center left-0 bottom-1">
+                            <button
+                                    {{ stimulus_action('glenmore', 'activateTile', 'click',
+                                        {url:path('app_game_glenmore_activate_tile',
+                                            {idGame: game.id, idTile : selectedTile.id})
+                                        })
+                                    }}
+                                    class="bg-[#8F901F] py-2 px-3 m-1 rounded-lg text-2xl
+                                            flex items-center justify-center w-full h-full"
+                            >
+                                Activer la tuile
+                            </button>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+
+            <button id="return_board" onclick="closeSelectedTileWindow()"
+                    class="absolute rounded-lg bg-[#8F901F] py-2 px-3 m-1 text-2xl right-0 bottom-0 items-center"
+            >
+                <img src="{{ asset('resourcesGames/utils/return-arrow.svg') }}" id="returnArrow"
+                     alt="return on board"
+                     class="h-8 max-h-full">
+            </button>
+        </div>
+    </div>
+</div>

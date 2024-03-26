@@ -1,7 +1,10 @@
 {#
     This section displays the ranking with a view of the other players' possessions
-    @param :
-    @return :
+    @param : array colorsNames, array colors, array colorsTokens, array tokensNames, array prcards,
+             int angleStep, array translateY, array landscapeTranslateY, array lgTranslateY, array xlTranslateY,
+             array translateX, array landscapeTranslateX, array lgTranslateX, array xlTranslateX,
+             array playerCardsColorsCount, array playerTokensColorsCount,
+    @return : display the ranking of the game with public player information
 #}
 
 {#splendor logo#}
@@ -117,7 +120,7 @@
             {"yellow": playerTokensColors|filter(c => c == "yellow")|length}
         ] %}
 
-        <div class="bg-gradient-to-r from-[#707984ff] to-[#4C6E9Bff]
+        <div id="{{ p.username }}" class="bg-gradient-to-r from-[#707984ff] to-[#4C6E9Bff]
                     border-solid border-[5px] border-[#AC9424ff] rounded-2xl
                     h-[23.5%] landscape:md:h-1/4 landscape:lg:h-[23.5%]
                     mx-3 landscape:mx-2 lg:mx-5
@@ -127,7 +130,11 @@
             <div class="w-full h-[12%] landscape:h-1/5
                         pt-2 landscape:pt-1
                         flex justify-around landscape:justify-between">
-                <p class="landscape:ml-3 landscape:text-sm landscape:lg:text-lg">{{ p.username }}</p>
+                {% if p.username == player.username and not isSpectator %}
+                    <p class="landscape:ml-3 landscape:text-sm landscape:lg:text-lg font-bold text-purple-800">{{ p.username }}</p>
+                {% else %}
+                    <p class="landscape:ml-3 landscape:text-sm landscape:lg:text-lg">{{ p.username }}</p>
+                {% endif %}
                 <div class="flex landscape:mr-2">
                     <p class="mr-1 landscape:text-base landscape:lg:text-lg">{{ p.totalPoints }}</p>
                     <img class="h-8 landscape:h-5 landscape:lg:h-7"
@@ -149,7 +156,7 @@
                             {{ playerCardsColorsCount|column(color)|first }}</p>
                     </div>
                 {% endfor %}
-                <div class="scale-[60%] landscape:w-[13%]
+                <div class="mt-3 scale-[60%] landscape:w-[13%]
                             translate-x-[0.5rem] -translate-y-[1rem]
                             landscape:translate-x-0 landscape:lg:translate-x-[1rem]">
                     {% set i = 0 %}

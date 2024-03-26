@@ -78,7 +78,7 @@ class TileGLM extends Tile
      */
     public function getBuyBonus(): Collection
     {
-        return $this->buyPrice;
+        return $this->buyBonus;
     }
 
     public function addBuyBonus(TileBuyBonusGLM $buyBonus): static

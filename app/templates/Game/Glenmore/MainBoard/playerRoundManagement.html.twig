@@ -1,0 +1,142 @@
+{#
+This section displays the player options regarding his round
+@param : game, activatedResourceSelection, activatedNewResourceAcquisition,
+         activatedMovementPhase
+@return : display the possible actions regarding the player's round phases
+#}
+
+{# Definition of constants #}
+{% set CARD_LOCH_NESS = "Loch Ness" %}
+
+{% if needToPlay %}
+	{% if activatedResourceSelection or activatedSellingPhase %}
+		<div class="flex items-center justify-center">
+			<button
+					{{ stimulus_action('glenmore', 'validateResourcesSelection', 'click',
+						{url:path('app_game_glenmore_validate_resources_selection',
+							{idGame: game.id})
+						}) }}
+					class="bg-[#8F901F] py-2 px-3 m-1 rounded-lg text-2xl
+                                        flex items-center justify-center"
+			>
+				Valider le choix
+			</button>
+
+			<button
+					{{ stimulus_action('glenmore', 'cancelResourcesSelection', 'click',
+						{url:path('app_game_glenmore_cancel_resources_selection',
+							{idGame: game.id})
+						}) }}
+					class="bg-[#8F901F] py-2 px-3 m-1 rounded-lg text-2xl
+                                        flex items-center justify-center"
+            >
+                Annuler le choix
+            </button>
+        </div>
+    {% elseif not activatedMovementPhase and (activatedActivationPhase and player.personalBoard.buyingTile == null)
+                and not activatedResourceSelection and not activatedBuyingPhase
+                and activableTiles is not empty %}
+            <div class="flex items-center justify-center">
+                <button
+                        {{ stimulus_action('glenmore', 'endActivationTilesPhase', 'click',
+                            {url:path('app_game_glenmore_end_activate_tile',
+                                {idGame: game.id})
+                            })
+                        }}
+                        class="bg-[#8F901F] py-2 px-3 m-1 rounded-lg text-2xl
+                                                    flex items-center justify-center"
+                >
+                    Finir la phase d'activation des tuiles
+                </button>
+            </div>
+    {% else %}
+            <div class="flex items-center justify-center">
+                <button
+                        {%
+                            if activatedBuyingPhase or
+                                (not activatedMovementPhase and not activatedActivationPhase
+                                and not activatedResourceSelection and not activatedBuyingPhase) or
+                                player.personalBoard.buyingTile != null
+
+                        %}
+                            disabled
+                        {% endif %}
+                        {{ stimulus_action('glenmore', 'endRoundPlayer', 'click',
+                            {url:path('app_game_glenmore_end_player_round',
+                                {idGame: game.id})
+                            })
+                        }}
+                        class="{%
+                                    if activatedBuyingPhase or
+                                    (not activatedMovementPhase and not activatedActivationPhase
+                                    and not activatedResourceSelection and not activatedBuyingPhase) or
+                                    player.personalBoard.buyingTile != null
+                                %} bg-opacity-25 {% endif %}
+                                bg-[#8F901F] py-2 px-3 m-1 rounded-lg text-2xl
+                                                    flex items-center justify-center"
+                >
+                    Finir le tour
+                </button>
+            </div>
+    {% endif %}
+
+    {% if activatedBuyingPhase or (activatedActivationPhase and player.personalBoard.buyingTile != null) %}
+        <button
+                {%
+                    if player.personalBoard.buyingTile == null
+                %}
+                    disabled
+                {% endif %}
+                {{ stimulus_action('glenmore', 'cancelBuyingTile', 'click',
+                    {url:path('app_game_glenmore_cancel_buying_tile',
+                        {idGame: game.id})
+                    })
+                }}
+                class="{%
+                    if player.personalBoard.buyingTile == null
+                %} bg-opacity-25 {% endif %}
+                                bg-[#8F901F] py-2 px-3 m-1 rounded-lg text-2xl
+                                                    flex items-center justify-center"
+        >
+            Annuler l'achat
+        </button>
+    {% elseif activatedActivationPhase and player.personalBoard.activatedTile != null %}
+        <button
+                {%
+                    if player.personalBoard.activatedTile == null
+                %}
+                    disabled
+                {% endif %}
+                {{ stimulus_action('glenmore', 'cancelBuyingTile', 'click',
+                    {url:path('app_game_glenmore_cancel_activating_tile',
+                        {idGame: game.id})
+                    })
+                }}
+                class="{%
+                    if player.personalBoard.activatedTile == null
+                %} bg-opacity-25 {% endif %}
+                                bg-[#8F901F] py-2 px-3 m-1 rounded-lg text-2xl
+                                                    flex items-center justify-center"
+        >
+            Annuler l'activation de la tuile
+        </button>
+    {% endif %}
+{% endif %}
+{% if player.personalBoard.buyingTile != null and activatedBuyingPhase %}
+	{% if player.personalBoard.buyingTile.boardTile.tile.name == CARD_LOCH_NESS %}
+		<div class="flex items-center justify-center">
+			<button
+					{{ stimulus_action('glenmore', 'selectResource', 'click',
+						{url:path('app_game_glenmore_select_leader',
+							{
+								idGame: game.id,
+							})
+						})
+					}}
+					class="bg-[#8F901F] py-2 px-3 m-1 rounded-lg text-2xl
+                                                    flex items-center justify-center">
+				Choisir un chef pour acheter la tuile
+			</button>
+		</div>
+	{% endif %}
+{% endif %}

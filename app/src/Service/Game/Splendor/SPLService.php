@@ -35,8 +35,7 @@ class SPLService
         private NobleTileSPLRepository $nobleTileSPLRepository,
         private DevelopmentCardsSPLRepository $developmentCardsSPLRepository,
         private PlayerCardSPLRepository $playerCardSPLRepository,
-        private DrawCardsSPLRepository $drawCardsSPLRepository,
-        private LoggerInterface $logger)
+        private DrawCardsSPLRepository $drawCardsSPLRepository)
     { }
 
     public function getRowsFromGame(GameSPL $game)
@@ -234,7 +233,7 @@ class SPLService
     }
 
     /**
-     * getPurchasableCardsOnBoard : return a list of purchasable development cards for the player
+     * getPurchasableCardsOnBoard : return a list of purchasable development cards for the player on the main board
      * @param GameSPL $gameSPL
      * @param PlayerSPL $playerSPL
      * @return ArrayCollection
@@ -247,6 +246,24 @@ class SPLService
                 if($this->hasEnoughMoney($playerSPL, $card)) {
                     $purchasableCards->add($card);
                 }
+            }
+        }
+        return $purchasableCards;
+    }
+
+    /**
+     * getPurchasableCardsOnPersonalBoard : return a list of purchasable development cards for the player
+     *      between its reserved cards.
+     * @param PlayerSPL $playerSPL
+     * @return ArrayCollection
+     */
+    public function getPurchasableCardsOnPersonalBoard(PlayerSPL $playerSPL): ArrayCollection
+    {
+        $purchasableCards = new ArrayCollection();
+        $reservedCards = $this->getReservedCards($playerSPL);
+        foreach($reservedCards as $card) {
+            if($this->hasEnoughMoney($playerSPL, $card->getDevelopmentCard())) {
+                $purchasableCards->add($card->getDevelopmentCard());
             }
         }
         return $purchasableCards;
@@ -333,6 +350,10 @@ class SPLService
         foreach ($levelThreeCards as $card) {
             $drawCardLevelThree->addDevelopmentCard($card);
         }
+        foreach ($game->getPlayers() as $player) {
+            $player->setTurnOfPlayer(false);
+            $this->entityManager->persist($player);
+        }
         $firstPlayer = $game->getPlayers()->first();
         $firstPlayer->setTurnOfPlayer(true);
         $this->entityManager->persist($firstPlayer);
@@ -348,10 +369,10 @@ class SPLService
      * reserveCard : a player reserve a development card
      * @param PlayerSPL $player
      * @param DevelopmentCardsSPL $card
-     * @return void
+     * @return array
      * @throws Exception
      */
-    public function reserveCard(PlayerSPL $player, DevelopmentCardsSPL $card) : void
+    public function reserveCard(PlayerSPL $player, DevelopmentCardsSPL $card) : array
     {
         if (!$this->canReserveCard($player, $card))
         {
@@ -376,17 +397,20 @@ class SPLService
         $personalBoard->addPlayerCard($playerCard);
         $this->entityManager->persist($playerCard);
         $this->entityManager->persist($personalBoard);
-
+        $cardFromDraw = null;
         if ($from === SplendorParameters::$COMES_OF_THE_DISCARDS)
         {
             $this->manageDiscard($mainBoard, $card);
         } else {
-            $this->manageRow($mainBoard, $card);
+            $cardFromDraw = $this->manageRow($mainBoard, $card);
         }
-
-        $this->manageJokerToken($player);
+        $returnedData = array(
+            "isJokerTaken" => $this->manageJokerToken($player),
+            "cardFromDraw" => $cardFromDraw,
+        );
 
         $this->entityManager->flush();
+        return $returnedData;
     }
 
     /**
@@ -402,7 +426,9 @@ class SPLService
             $total += $tile->getPrestigePoints();
         }
         foreach ($developCards as $card) {
-            $total += $card->getDevelopmentCard()->getPrestigePoints();
+            if(!$card->isIsReserved()) {
+                $total += $card->getDevelopmentCard()->getPrestigePoints();
+            }
         }
         $player->setTotalPoints($total);
         $this->entityManager->persist($player);
@@ -411,6 +437,7 @@ class SPLService
 
     /**
      * endRoundOfPlayer : ends player's round and gives it to next player
+     * @param GameSPL $gameSPL
      * @param PlayerSPL $playerSPL
      * @return void
      */
@@ -433,11 +460,12 @@ class SPLService
      * buyCard : check if player can buy a card and remove the card from the main board
      * @param PlayerSPL $playerSPL
      * @param DevelopmentCardsSPL $developmentCardsSPL
-     * @return void
+     * @return array retrievePlayerMoney => money removed from the player,
+     *               newDevCard => the card added on the main board
      * @throws \Exception if it's not the card of the player
      */
     public function buyCard(PlayerSPL $playerSPL,
-                            DevelopmentCardsSPL $developmentCardsSPL): void
+                            DevelopmentCardsSPL $developmentCardsSPL): array
     {
         $playerCardSPL = $this->getPlayerCardFromDevelopmentCard($playerSPL->getGameSPL(), $developmentCardsSPL);
         if ($playerCardSPL != null
@@ -456,7 +484,10 @@ class SPLService
                 $this->entityManager->persist($playerCardSPL);
                 $this->entityManager->persist($playerSPL->getPersonalBoard());
             }
-            $this->retrievePlayerMoney($playerSPL, $developmentCardsSPL);
+
+            $retrievePlayerMoney = $this->retrievePlayerMoney($playerSPL, $developmentCardsSPL);
+
+            $newDevCardInRow = null;
             if($playerCardSPL->isIsReserved()) {
                 $playerCardSPL->setIsReserved(false);
                 $this->entityManager->persist($playerCardSPL);
@@ -471,14 +502,24 @@ class SPLService
                 //Add a new card in the row
                 $levelCard = $developmentCardsSPL->getLevel();
                 $levelDraw = $mainBoard->getDrawCards()->get($levelCard - 1);
-                $row->addDevelopmentCard($levelDraw->getDevelopmentCards()->first());
 
-                //Remove the new card from draw
-                $levelDraw->removeDevelopmentCard($levelDraw->getDevelopmentCards()->first());
-                $this->entityManager->persist($levelDraw);
+                if ($levelDraw->getDevelopmentCards()->count() > 0) {
+                    $devCards = $levelDraw->getDevelopmentCards()->toArray();
+                    shuffle($devCards);
+                    $newDevCardInRow = $devCards[0];
+                    $row->addDevelopmentCard($newDevCardInRow);
+                    //Remove the new card from draw
+                    $levelDraw->removeDevelopmentCard($newDevCardInRow);
+                    $this->entityManager->persist($levelDraw);
+                }
                 $this->entityManager->persist($row);
             }
-            $this->entityManager->flush();
+
+            $this->calculatePrestigePoints($playerSPL);
+            return array(
+                "retrievePlayerMoney" => $retrievePlayerMoney,
+                "newDevCard" => $newDevCardInRow,
+            );
         } else {
             throw new Exception('Not enough money to buy this card');
         }
@@ -488,9 +529,9 @@ class SPLService
      * addBuyableNobleTilesToPlayer: add the first noble tiles the player can afford to his stock
      * @param GameSPL $game
      * @param PlayerSPL $player
-     * @return void
+     * @return int the id of the bought noble tile, -1 if no noble tile bought
      */
-    public function addBuyableNobleTilesToPlayer(GameSPL $game, PlayerSPL $player): void
+    public function addBuyableNobleTilesToPlayer(GameSPL $game, PlayerSPL $player): int
     {
         $playerCards = $player->getPersonalBoard()->getPlayerCards();
         $filteredCards = $this->filterCardsByColor($playerCards);
@@ -509,8 +550,11 @@ class SPLService
                 $this->entityManager->persist($player->getPersonalBoard());
                 $this->entityManager->persist($game->getMainBoard());
                 $this->entityManager->flush();
+                $this->calculatePrestigePoints($player);
+                return $tile->getId();
             }
         }
+        return -1;
     }
 
     /**
@@ -570,7 +614,7 @@ class SPLService
         return $card === $testCard;
     }
 
-    private function manageRow(MainBoardSPL $mainBoard, DevelopmentCardsSPL $card): void
+    private function manageRow(MainBoardSPL $mainBoard, DevelopmentCardsSPL $card): DevelopmentCardsSPL
     {
         $level = $card->getLevel() - 1;
         $row = $mainBoard->getRowsSPL()->get($level);
@@ -580,6 +624,7 @@ class SPLService
         $discardsOfLevel = $mainBoard->getDrawCards()->get($level);
         $cardsInDiscard = $discardsOfLevel->getDevelopmentCards();
         $numberOfCard = $cardsInDiscard->count();
+        $discard = null;
         if ($numberOfCard > 0)
         {
             $discard = $cardsInDiscard->get($numberOfCard - 1);
@@ -588,6 +633,7 @@ class SPLService
             $this->entityManager->persist($discardsOfLevel);
         }
         $this->entityManager->persist($row);
+        return $discard;
     }
 
     private function manageDiscard(MainBoardSPL $mainBoard, DevelopmentCardsSPL $card): void
@@ -598,7 +644,7 @@ class SPLService
         $this->entityManager->persist($discardsAtLevel);
     }
 
-    private function manageJokerToken(PlayerSPL $player): void
+    private function manageJokerToken(PlayerSPL $player): bool
     {
         $personalBoard = $player->getPersonalBoard();
         $tokens = $personalBoard->getTokens();
@@ -614,8 +660,10 @@ class SPLService
                 $mainBoard->removeToken($joker);
                 $this->entityManager->persist($personalBoard);
                 $this->entityManager->persist($mainBoard);
+                return true;
             }
         }
+        return false;
     }
 
     private function getNumberOfTokenAtColorAtMainBoard(MainBoardSPL $mainBoard, string $color) : int
@@ -742,21 +790,35 @@ class SPLService
      * retrievePlayerMoney : remove tokens from the player to buy a card
      * @param PlayerSPL $playerSPL
      * @param DevelopmentCardsSPL $developmentCardsSPL
-     * @return void
+     * @return array<string> the type of the removed tokens
      */
-    private function retrievePlayerMoney(PlayerSPL $playerSPL, DevelopmentCardsSPL $developmentCardsSPL): void
+    private function retrievePlayerMoney(PlayerSPL $playerSPL, DevelopmentCardsSPL $developmentCardsSPL): array
     {
 
         $cardPrice = $this->computeCardPrice($developmentCardsSPL);
+
+        // retrieve to the price the amount of card of same type
+        foreach ($cardPrice as $color => $amount) {
+            $playerCards = $playerSPL->getPersonalBoard()->getPlayerCards();
+            foreach ($playerCards as $playerCard) {
+                if($playerCard->getDevelopmentCard()->getColor() == $color && $amount > 0) {
+                    $amount -= 1;
+                }
+            }
+        }
+
+        $selectedTokensForAnimation = [];
 
         // remove non gold token
         foreach ($cardPrice as $color => $amount){
             $tokens = $playerSPL->getPersonalBoard()->getTokens();
             foreach ($tokens as $token){
-                if($token->getColor() == $color && $amount > 0){
+                if($token->getColor() == $color && $token->getColor() != SplendorParameters::$COLOR_YELLOW
+                    && $amount > 0){
                     $playerSPL->getPersonalBoard()->removeToken($token);
                     $amount -= 1;
                     $playerSPL->getGameSPL()->getMainBoard()->addToken($token);
+                    $selectedTokensForAnimation[] = $token->getType();
                 }
             }
         }
@@ -770,10 +832,12 @@ class SPLService
                         $playerSPL->getPersonalBoard()->removeToken($token);
                         $amount -= 1;
                         $playerSPL->getGameSPL()->getMainBoard()->addToken($token);
+                        $selectedTokensForAnimation[] = $token->getType();
                     }
                 }
             }
         }
+        return $selectedTokensForAnimation;
     }
 
     private function initializeColorTab():array

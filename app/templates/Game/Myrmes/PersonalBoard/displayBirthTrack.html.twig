@@ -1,0 +1,16 @@
+{#
+This section displays the birthing rooms where the player can place nurses to create larvas, workers and/or warriors
+@param :
+@return :
+#}
+<div class="relative w-full h-[75%] inlineFlexCol gap-2 lg:gap-5" id="birth_track">
+    <p class="text2-4">Pistes de naissances</p>
+    <div class="inline-flex items-start w-full align-center justify-evenly">
+        {#larvae birth track#}
+        {{ include('Game/Myrmes/PersonalBoard/birthTracks/displayLarvaeBirthTrack.html.twig') }}
+        {#soldiers birth track#}
+        {{ include('Game/Myrmes/PersonalBoard/birthTracks/displaySoldiersBirthTrack.html.twig') }}
+        {#workers birth track#}
+        {{ include('Game/Myrmes/PersonalBoard/birthTracks/displayWorkersBirthTrack.html.twig') }}
+    </div>
+</div>

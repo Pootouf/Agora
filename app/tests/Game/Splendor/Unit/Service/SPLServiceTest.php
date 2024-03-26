@@ -285,8 +285,7 @@ class SPLServiceTest extends TestCase
         // GIVEN
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
-        $player->setTurnOfPlayer(false);
-        $player2 = $game->getPlayers()->last();
+        $player->setTurnOfPlayer(false);        $player2 = $game->getPlayers()->last();
         $player2->setTurnOfPlayer(true);
         $game->addPlayer($player2);
         $expectedResult = [true, false];
@@ -298,6 +297,87 @@ class SPLServiceTest extends TestCase
             $result[] = $tmp->isTurnOfPlayer();
         }
         $this->assertSame($expectedResult, $result);
+    }
+
+    public function testBuyCardWhenPlayerHasEnoughMoneyChangePoints()
+    {
+        // GIVEN
+
+        $game = $this->createGame(SplendorParameters::$MIN_NUMBER_OF_PLAYER);
+        $player = $game->getPlayers()->first();
+        $lastPoints = $player->getTotalPoints();
+
+        $level = 3;
+        $mainBoard = $game->getMainBoard();
+        $card = $mainBoard->getDrawCards()->get($level - 1)->getDevelopmentCards()->last();
+        $card->setPrestigePoints(3);
+
+        // THEN
+
+        $this->SPLService->buyCard($player, $card);
+
+        // WHEN
+
+        $this->assertNotSame($player->getTotalPoints(), $lastPoints);
+    }
+
+    public function testBuyReservedCardWhenPlayerHasEnoughMoneyChangePoints()
+    {
+        // GIVEN
+
+        $game = $this->createGame(SplendorParameters::$MIN_NUMBER_OF_PLAYER);
+        $player = $game->getPlayers()->first();
+        $lastPoints = $player->getTotalPoints();
+
+        $level = 3;
+        $mainBoard = $game->getMainBoard();
+        $card = $mainBoard->getDrawCards()->get($level - 1)->getDevelopmentCards()->last();
+        $card->setPrestigePoints(3);
+        $playerCard = new PlayerCardSPL($player, $card, true);
+        $player->getPersonalBoard()->addPlayerCard($playerCard);
+
+        // THEN
+
+        $this->SPLService->buyCard($player, $card);
+
+        // WHEN
+
+        $this->assertNotSame($player->getTotalPoints(), $lastPoints);
+    }
+
+    public function testAssignNobleTileWhenPlayerHasEnoughMoneyChangePoints()
+    {
+        // GIVEN
+
+        $game = $this->createGame(SplendorParameters::$MIN_NUMBER_OF_PLAYER);
+        $mainBoard = $game->getMainBoard();
+        $player = $game->getPlayers()->first();
+        $personal = $player->getPersonalBoard();
+        $lastPoints = $player->getTotalPoints();
+
+        $price = 3;
+        $noble = $this->createNobleTile(array(SplendorParameters::$COLOR_BLUE => $price));
+        $mainBoard->addNobleTile($noble);
+
+        $color = SplendorParameters::$COLOR_BLUE;
+        for ($i = 0; $i < $price; $i++) {
+            $row = $mainBoard->getRowsSPL()->first();
+            $card = $row->getDevelopmentCards()->first();
+            $card->setColor($color);
+            $playerCard = new PlayerCardSPL($player, $card, false);
+            $personal->addPlayerCard($playerCard);
+        }
+
+        // THEN
+
+        $addingNoble = $this->SPLService->addBuyableNobleTilesToPlayer($game, $player);
+
+        // WHEN
+
+        $this->assertNotSame(-1, $addingNoble);
+        $this->assertNotNull($addingNoble);
+        $this->assertSame($player->getTotalPoints(),
+            $lastPoints + SplendorParameters::$POINT_PRESTIGE_BY_NOBLE_TILE);
     }
 
     public function testBuyCardWhenNotEnoughMoney()
@@ -359,6 +439,33 @@ class SPLServiceTest extends TestCase
         $this->SPLService->buyCard($player, $developmentCard);
         // THEN
         $this->assertNotContains($token, $player->getPersonalBoard()->getTokens());
+    }
+
+    public function testTokenNotRetrievedWhenPlayerHasCardOfGoodTypes()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $player->setTurnOfPlayer(true);
+        $token = new TokenSPL();
+        $token->setColor(SplendorParameters::$COLOR_RED);
+        $player->getPersonalBoard()->addToken($token);
+        $playerDevCard = new DevelopmentCardsSPL();
+        $playerDevCard->setColor(SplendorParameters::$COLOR_RED);
+        $playerCard = new PlayerCardSPL($player, $playerDevCard, false);
+        $player->getPersonalBoard()->addPlayerCard($playerCard);
+        $cardCost = new CardCostSPL();
+        $cardCost->setColor(SplendorParameters::$COLOR_RED);
+        $cardCost->setPrice(1);
+        $array = new ArrayCollection();
+        $array->add($cardCost);
+        $developmentCard = DevelopmentCardsSPL::createDevelopmentCard($array);
+        $developmentCard->setLevel(1);
+        $playerTokensBefore = $player->getPersonalBoard()->getTokens();
+        // WHEN
+        $this->SPLService->buyCard($player, $developmentCard);
+        // THEN
+        $this->assertEquals($playerTokensBefore, $player->getPersonalBoard()->getTokens());
     }
 
     public function testAddBuyableNobleTilesToPlayerShouldAddTileToPlayer() : void
@@ -640,6 +747,98 @@ class SPLServiceTest extends TestCase
         $this->assertContains($developmentCard2, $result);
     }
 
+    public function testGetPurchasableCardsOnPersonalBoardWithEnoughMoneyForACard() : void
+    {
+        //GIVEN
+        $numberOfPlayers = 2;
+        $game = $this->createGame($numberOfPlayers);
+        $player = $game->getPlayers()->first();
+        $token = new TokenSPL();
+        $token->setColor(SplendorParameters::$COLOR_RED);
+        $player->getPersonalBoard()->addToken($token);
+        $cardCost = new CardCostSPL();
+        $cardCost->setColor(SplendorParameters::$COLOR_RED);
+        $cardCost->setPrice(1);
+        $array = new ArrayCollection();
+        $array->add($cardCost);
+        $developmentCard = DevelopmentCardsSPL::createDevelopmentCard($array);
+        $mock = $this->createPartialMock(SPLService::class, ['getReservedCards']);
+        $playerCard = new PlayerCardSPL($player, $developmentCard, true);
+        $reservedCard = [$playerCard];
+        $mock->method('getReservedCards')->willReturn($reservedCard);
+
+        //WHEN
+        $result = $mock->getPurchasableCardsOnPersonalBoard($player);
+
+        //THEN
+        $this->assertContains($developmentCard, $result);
+
+    }
+
+    public function testGetPurchasableCardsOnPersonalBoardWithNotEnoughMoneyForACard() : void
+    {
+        //GIVEN
+        $numberOfPlayers = 2;
+        $game = $this->createGame($numberOfPlayers);
+        $player = $game->getPlayers()->first();
+        $token = new TokenSPL();
+        $token->setColor(SplendorParameters::$COLOR_BLUE);
+        $player->getPersonalBoard()->addToken($token);
+        $cardCost = new CardCostSPL();
+        $cardCost->setColor(SplendorParameters::$COLOR_RED);
+        $cardCost->setPrice(1);
+        $array = new ArrayCollection();
+        $array->add($cardCost);
+        $developmentCard = DevelopmentCardsSPL::createDevelopmentCard($array);
+        $mock = $this->createPartialMock(SPLService::class, ['getReservedCards']);
+        $playerCard = new PlayerCardSPL($player, $developmentCard, true);
+        $reservedCard = [$playerCard];
+        $mock->method('getReservedCards')->willReturn($reservedCard);
+
+        //WHEN
+        $result = $mock->getPurchasableCardsOnPersonalBoard($player);
+
+        //THEN
+        $this->assertNotContains($developmentCard, $result);
+
+    }
+
+    public function testGetPurchasableCardsOnPersonalBoardWithNotEnoughMoneyForACardAndEnoughForAnother() : void
+    {
+        //GIVEN
+        $numberOfPlayers = 2;
+        $game = $this->createGame($numberOfPlayers);
+        $player = $game->getPlayers()->first();
+        $token = new TokenSPL();
+        $token->setColor(SplendorParameters::$COLOR_BLUE);
+        $player->getPersonalBoard()->addToken($token);
+        $cardCost = new CardCostSPL();
+        $cardCost->setColor(SplendorParameters::$COLOR_RED);
+        $cardCost->setPrice(1);
+        $cardCost2 = new CardCostSPL();
+        $cardCost2->setColor(SplendorParameters::$COLOR_BLUE);
+        $cardCost2->setPrice(1);
+        $array = new ArrayCollection();
+        $array->add($cardCost);
+        $developmentCard1 = DevelopmentCardsSPL::createDevelopmentCard($array);
+        $array2 = new ArrayCollection();
+        $array2->add($cardCost2);
+        $developmentCard2 = DevelopmentCardsSPL::createDevelopmentCard($array2);
+        $mock = $this->createPartialMock(SPLService::class, ['getReservedCards']);
+        $playerCard1 = new PlayerCardSPL($player, $developmentCard1, true);
+        $playerCard2 = new PlayerCardSPL($player, $developmentCard2, true);
+
+        $reservedCard = [$playerCard1, $playerCard2];
+        $mock->method('getReservedCards')->willReturn($reservedCard);
+
+        //WHEN
+        $result = $mock->getPurchasableCardsOnPersonalBoard($player);
+
+        //THEN
+        $this->assertNotContains($developmentCard1, $result);
+        $this->assertContains($developmentCard2, $result);
+    }
+
     private function createPlayerCard(PlayerSPL $player, string $color) : PlayerCardSPL
     {
         $card = new DevelopmentCardsSPL();
@@ -652,14 +851,19 @@ class SPLServiceTest extends TestCase
 
     private function createNobleTile(array $param) : NobleTileSPL
     {
-        $nobleTile = new NobleTileSPL();
+        $nobleTile = $this->createPartialMock(NobleTileSPL::class, [
+            'getId', 'getCardsCost', 'getPrestigePoints'
+        ]);
+        $cardsCost = new ArrayCollection();
         foreach ($param as $color => $price) {
             $cardCost = new CardCostSPL();
             $cardCost->setColor($color);
             $cardCost->setPrice($price);
-            $nobleTile->addCardsCost($cardCost);
+            $cardsCost->add($cardCost);
         }
-        $nobleTile->setPrestigePoints(0);
+        $nobleTile->method('getCardsCost')->willReturn($cardsCost);
+        $nobleTile->method('getPrestigePoints')->willReturn(SplendorParameters::$POINT_PRESTIGE_BY_NOBLE_TILE);
+        $nobleTile->method('getId')->willReturn(0);
         return $nobleTile;
     }
 

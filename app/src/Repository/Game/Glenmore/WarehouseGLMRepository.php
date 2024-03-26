@@ -14,6 +14,10 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method WarehouseGLM[]    findAll()
  * @method WarehouseGLM[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
+
+/**
+ * @codeCoverageIgnore
+ */
 class WarehouseGLMRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)

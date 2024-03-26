@@ -283,8 +283,8 @@ class SixQPService
         }
         $game = $player->getGame();
         $this->logService->sendPlayerLog($game, $player, $player->getUsername()
-            . " picked up row " . $game->getRowSixQPs()->indexOf($row)
-             . " and got " . $total . " points");
+            . " a choisi la ligne " . $game->getRowSixQPs()->indexOf($row)
+             . " et a récolté " . $total . " points");
         $this->entityManager->persist($row);
         $this->entityManager->persist($player->getDiscardSixQP());
         $this->entityManager->flush();

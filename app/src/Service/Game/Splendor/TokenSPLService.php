@@ -11,9 +11,9 @@ use App\Entity\Game\Splendor\TokenSPL;
 use App\Repository\Game\Splendor\TokenSPLRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\DBAL\Exception;
 use Doctrine\ORM\EntityManagerInterface;
 use phpDocumentor\Reflection\Types\Boolean;
+use Exception;
 
 class TokenSPLService
 {
@@ -93,17 +93,18 @@ class TokenSPLService
         });
     }
 
-
     /**
      * takeToken : player takes a token from the mainBoard
      *
      * @param PlayerSPL $playerSPL
      * @param TokenSPL  $tokenSPL
      * @return void
+     * @throws Exception
      */
     public function takeToken(PlayerSPL $playerSPL, TokenSPL $tokenSPL): void
     {
-        if ($playerSPL->getPersonalBoard()->getTokens()->count() >= 10) {
+        if ($playerSPL->getPersonalBoard()->getTokens()->count()
+            + $playerSPL->getPersonalBoard()->getSelectedTokens()->count() >= 10) {
             throw new Exception("Can't pick up more tokens");
         }
         $tokensPickable = $this->canChooseTwoTokens($playerSPL, $tokenSPL);
@@ -139,7 +140,8 @@ class TokenSPLService
         $selectedTokensNb = $selectedTokens->count();
         $firstToken = $selectedTokens->first()->getToken();
         $lastToken = $selectedTokens->last()->getToken();
-        if ($tokensNb + $selectedTokensNb == 10
+        if ($tokensNb + $selectedTokensNb == SplendorParameters::$PLAYER_MAX_TOKEN
+                || !$this->canSelectTokenOfOtherColors($playerSPL->getGameSPL(), $selectedTokens)
             || $selectedTokensNb == 3
             || $selectedTokensNb == 2 && $firstToken->getColor() == $lastToken->getColor()
         ) {
@@ -278,6 +280,29 @@ class TokenSPLService
         }
 
 
+    }
+
+    /**
+     * canSelectTokenOfOtherColors: return true if there is at least one color of token
+     *              available except the selected tokens
+     * @param GameSPL $game
+     * @param Collection $tokens
+     * @return bool
+     */
+    private function canSelectTokenOfOtherColors(GameSPL $game, Collection $tokens): bool
+    {
+        $selectedColors = $tokens->map(function (SelectedTokenSPL $token) {
+            return $token->getToken()->getColor();
+        });
+
+        $colors = $game->getMainBoard()->getTokens()->map(
+            function (TokenSPL $tokenSPL) {
+                return $tokenSPL->getColor();
+            }
+            )->filter(function (String $color) use ($selectedColors) {
+                return !$selectedColors->contains($color);
+        });
+        return $colors->count() > 0;
     }
 
     /**

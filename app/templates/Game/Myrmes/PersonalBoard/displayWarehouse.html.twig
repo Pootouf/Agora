@@ -1,0 +1,19 @@
+{#
+This section displays the storage of the player
+@param :
+@return :
+#}
+<div class="inlineFlexCol gap-2 lg:gap-6 relative items-center" id="warehouse">
+    <p class="relative w-fit mb-px text2-4">Entrepôt</p>
+    <div class="grid grid-cols-2 grid-rows-3 w-fit items-start gap-1.5 lg:gap-3 relative " id="warehouseCases">
+        {#warehouse's cases#}
+        {% for i in 1..6 %}
+            <button type="button" class="relative w-10 h-10 lg:w-14 lg:h-14
+                        {% if i < 5 %} bg-[#ffffff99]
+                        {% else %} bg-[#00000099]
+                        {% endif %}"
+                    {{ stimulus_action('myrmes','throwResourceFromWarehouse','click') }}
+            ></button>
+        {% endfor %}
+    </div>
+</div>

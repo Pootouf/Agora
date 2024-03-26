@@ -55,7 +55,7 @@ class SPLGameManagerService extends AbstractGameManagerService
         $this->entityManager->persist($mainBoard);
         $this->entityManager->persist($game);
         $this->entityManager->flush();
-        $this->logService->sendSystemLog($game, "game " . $game->getId() . " was created");
+        $this->logService->sendSystemLog($game, "la partie " . $game->getId() . " a été créée");
         return $game->getId();
     }
 
@@ -71,7 +71,7 @@ class SPLGameManagerService extends AbstractGameManagerService
         if($game->isLaunched()) {
             return SPLGameManagerService::$ERROR_GAME_ALREADY_LAUNCHED;
         }
-        if (count($game->getPlayers()) >= 4) {
+        if (count($game->getPlayers()) >= SplendorParameters::$MAX_NUMBER_OF_PLAYER) {
             return SPLGameManagerService::$ERROR_INVALID_NUMBER_OF_PLAYER;
         }
         if ($this->playerSPLRepository->findOneBy(
@@ -89,7 +89,7 @@ class SPLGameManagerService extends AbstractGameManagerService
         $this->entityManager->persist($personalBoard);
         $this->entityManager->flush();
         $this->logService->sendPlayerLog($game, $player,
-            $playerName . " joined game " . $game->getId());
+            $playerName . " a rejoint la partie " . $game->getId());
         return SPLGameManagerService::$SUCCESS;
     }
 
@@ -112,7 +112,7 @@ class SPLGameManagerService extends AbstractGameManagerService
         $this->entityManager->remove($player);
         $this->entityManager->flush();
         $this->logService->sendSystemLog($game,
-            $playerName . " was removed from the game " . $game->getId());
+            $playerName . " a été retiré de la partie " . $game->getId());
         return SPLGameManagerService::$SUCCESS;
     }
 
@@ -128,7 +128,7 @@ class SPLGameManagerService extends AbstractGameManagerService
         foreach ($game->getPlayers() as $player) {
             $this->entityManager->remove($player);
         }
-        $this->logService->sendSystemLog($game, "game " . $game->getId() . "ended");
+        $this->logService->sendSystemLog($game, "la partie " . $game->getId() . " s'est terminée");
         $this->entityManager->remove($game);
         $this->entityManager->flush();
         return SPLGameManagerService::$SUCCESS;
@@ -145,7 +145,8 @@ class SPLGameManagerService extends AbstractGameManagerService
             return SPLGameManagerService::$ERROR_INVALID_GAME;
         }
         $numberOfPlayers = count($game->getPlayers());
-        if ($numberOfPlayers > 4 || $numberOfPlayers < 2) {
+        if ($numberOfPlayers > SplendorParameters::$MAX_NUMBER_OF_PLAYER
+            || $numberOfPlayers < SplendorParameters::$MIN_NUMBER_OF_PLAYER) {
             return SPLGameManagerService::$ERROR_INVALID_NUMBER_OF_PLAYER;
         }
         $game->setLaunched(true);
@@ -153,7 +154,7 @@ class SPLGameManagerService extends AbstractGameManagerService
         $this->entityManager->flush();
         $this->SPLService->initializeNewGame($game);
         $this->tokenSPLService->initializeGameToken($game);
-        $this->logService->sendSystemLog($game, "game " . $game->getId() . " began");
+        $this->logService->sendSystemLog($game, "la partie " . $game->getId() . " a débuté");
         return SPLGameManagerService::$SUCCESS;
     }
 

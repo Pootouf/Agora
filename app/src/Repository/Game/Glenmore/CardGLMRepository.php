@@ -14,6 +14,10 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method CardGLM[]    findAll()
  * @method CardGLM[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
+
+/**
+ * @codeCoverageIgnore
+ */
 class CardGLMRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)

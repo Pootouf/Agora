@@ -1,5 +1,71 @@
 {#
 This section displays the player resources like whisky, leaders, total number of primary resources, property cards
-@param :
+@param : player, whiskyCount
 @return :
 #}
+
+{# Definition of variables #}
+{% set leaderCount = player.personalBoard.leaderCount %}
+{% set money = player.personalBoard.money %}
+
+<div class="grid grid-rows-1 grid-cols-2">
+	<div class="relative grid grid-cols-3 grid-rows-1">
+		<div class="relative justify-center items-center aspect-auto my-auto p-auto
+                            max-h-full">
+			<div class="h-full flex items-center justify-center">
+				<img class="items-center aspect-auto justify-center
+                                max-h-full"
+				     src="{{ asset('resourcesGames/Glenmore/figure.png') }}" alt="leader"/>
+				<span
+						class="absolute -top-2 -right-2 inline-flex items-center justify-center w-6 h-6 text-xs
+                                    font-bold text-white
+                                           bg-red-500 border-2 border-white rounded-full top-2 end-1 dark:border-gray-900"
+				>
+					{{ leaderCount }}
+            </span>
+			</div>
+
+		</div>
+		<div class="relative justify-center items-center aspect-auto my-auto p-auto
+                            max-h-full">
+			<div class="h-full flex items-center justify-center">
+				<img class="items-center aspect-auto justify-center m-auto
+                                max-h-full"
+				     src="{{ asset('resourcesGames/Glenmore/money.png') }}" alt="money"/>
+				<span
+						class="absolute -top-2 -right-2 inline-flex items-center justify-center w-6 h-6 text-xs
+                                    font-bold text-white
+                                           bg-red-500 border-2 border-white rounded-full top-2 end-1 dark:border-gray-900"
+				>
+					{{ money }}
+            </span>
+			</div>
+		</div>
+
+		<div class="relative justify-center items-center aspect-auto my-auto p-auto
+                            max-h-full">
+			<div class="h-full flex items-center justify-center">
+				<img class="items-center aspect-auto justify-center m-auto
+                                max-h-full w-3/4"
+				     src="{{ asset('resourcesGames/Glenmore/whisky.png') }}" alt="whisky"/>
+				<span
+						class="absolute -top-2 -right-2 inline-flex items-center justify-center w-6 h-6 text-xs
+                                    font-bold text-white
+                                           bg-red-500 border-2 border-white rounded-full top-2 end-1 dark:border-gray-900"
+				>
+					{{ whiskyCount }}
+            </span>
+			</div>
+		</div>
+
+	</div>
+	<button {{ stimulus_action('glenmore', 'displayPropertyCards', 'click',
+		{url:path('app_game_glenmore_display_player_property_cards',
+			{idGame: game.id, idPlayer: player.id})
+		}) }}
+			class=" rounded-lg  bg-amber-300 text-black m-3 inline-flex text-2xl
+                    justify-center items-center"
+	>
+		Voir les cartes de propriété
+	</button>
+</div>

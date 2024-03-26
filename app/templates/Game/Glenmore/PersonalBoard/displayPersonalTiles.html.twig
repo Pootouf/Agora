@@ -1,5 +1,99 @@
 {#
 This section displays the player's disposition of tiles
-@param :
-@return :
+@param : personalBoardTiles
+@return : display the personal tiles like the player chosen to put
 #}
+
+{# Constants definition #}
+{% set VILLAGER = 'villager' %}
+{% set PRODUCTION = 'production' %}
+
+
+{# Tailwind loading of placement for productions squares #}
+<div hidden class="left-0 left-8 left-16"></div>
+
+<div class="h-3/4 w-3/4 ">
+    <div class="gap-1 grid grid-rows-{{ personalBoardTiles|length }}
+                grid-cols-{{ personalBoardTiles|first|length }} h-auto w-auto"
+    >
+        {% for row in personalBoardTiles %}
+            {% for personalBox in row %}
+
+                {# Display for empty space #}
+                {% if personalBox.playerTile == null %}
+                    <button type="button"
+                            {% if not personalBox.placeable or activatedResourceSelection %}
+                                disabled
+                            {% endif %}
+                            class="{% if not personalBox.placeable or activatedResourceSelection %}
+                                                     opacity-25 bg-gray-500
+                                                 {% else %}
+                                                    opacity-50 bg-white
+                                                 {% endif %}
+                                                  max-w-full max-h-full "
+                    {{ stimulus_action('glenmore','putTileInPersonalBoard','click',
+                        {url: path('app_game_glenmore_put_tile_on_personal_board',
+                            {idGame: game.id, coordX: personalBox.coordX, coordY: personalBox.coordY})
+                        })
+                    }}></button>
+
+                {# Display for tile #}
+                {% else %}
+                    {% set isActivable = false %}
+                    {% for key,activableTile in activableTiles %}
+                        {% if activableTile.tile.id == personalBox.playerTile.tile.id %}
+                            {% set isActivable = true %}
+                        {% endif %}
+                    {% endfor %}
+                    <button id="{{ player.id }}_tile_{{ personalBox.playerTile.tile.id }}"
+                            {{ stimulus_action('glenmore', 'selectTile', 'click',
+                                {url:path('app_game_glenmore_select_tile_on_personalboard',
+                                    {idGame: game.id, idTile: personalBox.playerTile.id})
+                                })
+                            }}
+                            {% if isSpectator %}
+                                disabled
+                            {% endif %}
+                            class="relative
+                             {% if isActivable %}
+                                shadow-white shadow-lg
+                             {% endif %}
+                             flex justify-center items-center max-h-full max-w-full">
+                        <img
+                                class="aspect-auto max-h-full"
+                                src="{{ asset('resourcesGames/Glenmore/BoardTiles/' ~ personalBox.playerTile.tile.id ~ '.svg')
+                                }}"
+                                alt="{{ personalBox.playerTile.tile.id }}"
+                        />
+
+                        {# Resources display #}
+                        {% set productionPlacement = 0 %}
+                        {% for playerResource in personalBox.playerTile.playerTileResource %}
+                            {# Placement of the villager #}
+                            {% if playerResource.resource.type == VILLAGER and playerResource.quantity > 0 %}
+                                <img class="villager absolute items-center aspect-auto justify-center
+                                            max-h-full"
+                                    src="{{ asset('resourcesGames/Glenmore/figure.svg') }}" alt="leader"
+                                />
+
+                            {# Placement of the productions #}
+                            {% elseif playerResource.resource.type == PRODUCTION and playerResource.quantity > 0 %}
+                                {% for i in 1..playerResource.quantity %}
+                                    <img class="absolute w-1/6 h-1/6 items-center aspect-auto justify-center
+                                                max-h-full left-{{ productionPlacement}} bottom-0"
+                                         src="{{
+                                                asset('resourcesGames/Glenmore/ResourcesProduction/'
+                                                        ~ playerResource.resource.color ~'.png')
+                                              }}"
+                                         alt="{{ playerResource.resource.color }}"
+                                    />
+                                    {% set productionPlacement = productionPlacement + 8 %}
+                                {% endfor %}
+                            {% endif %}
+                        {% endfor %}
+                    </button>
+                {% endif %}
+            {% endfor %}
+        {% endfor %}
+    </div>
+</div>

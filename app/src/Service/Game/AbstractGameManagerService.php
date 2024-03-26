@@ -9,13 +9,15 @@ abstract class AbstractGameManagerService {
     public static string $SIXQP_LABEL = "6QP";
     public static string $SPL_LABEL = "SPL";
     public static string $GLM_LABEL = "GLM";
+    public static string $MYR_LABEL = "MYR";
 
-    public static int $ERROR_INVALID_NUMBER_OF_PLAYER = -4;
-    public static int $ERROR_INVALID_GAME = -2;
-    public static int $ERROR_ALREADY_IN_PARTY = -1;
-    public static int $ERROR_PLAYER_NOT_FOUND = -5;
-    public static int $ERROR_GAME_ALREADY_LAUNCHED = -3;
     public static int $SUCCESS = 1;
+    public static int $ERROR_ALREADY_IN_PARTY = -1;
+    public static int $ERROR_INVALID_GAME = -2;
+    public static int $ERROR_GAME_ALREADY_LAUNCHED = -3;
+    public static int $ERROR_INVALID_NUMBER_OF_PLAYER = -4;
+    public static int $ERROR_PLAYER_NOT_FOUND = -5;
+
 
     /**
      * createGame : create a  game
