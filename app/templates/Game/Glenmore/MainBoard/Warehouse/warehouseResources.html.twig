@@ -19,109 +19,44 @@ This section displays the warehouse of the main board, with available resources
             />
         </div>
 
-        {% if resourceLine.coinNumber == 0 %}
-            <button {% if not needToPlay or isSpectator %}disabled{% endif %}
-                    {{ stimulus_action('glenmore', 'selectResourceWarehouseProductionOnMainBoard', 'click',
-                        {url:path('app_game_glenmore_select_resource_warehouse_production_on_mainboard',
-                            {idGame: game.id, idResourceLine: resourceLine.id })
-                        })
-                    }}
-                    class="flex justify-center items-center h-full w-full"
-            >
-                <span class="bg-yellow-600 rounded-full w-12 h-12 flex items-center justify-center text-xl">1</span>
-            </button>
-        {% else  %}
-            <button {% if not needToPlay or isSpectator %}disabled{% endif %}
-                    {{ stimulus_action('glenmore', 'selectMoneyWarehouseProductionOnMainBoard', 'click',
-                        {url:path('app_game_glenmore_select_money_warehouse_production_on_mainboard',
-                            {idGame: game.id, idResourceLine: resourceLine.id })
-                        })
-                    }}
-                    class="relative justify-center items-center aspect-auto my-auto p-auto
-                            max-h-full w-full h-full">
-                <div class="h-full flex items-center justify-center">
-                    <img class="items-center aspect-auto justify-center m-auto
-                                max-h-full"
-                         src="{{ asset('resourcesGames/Glenmore/money.png') }}" alt="money"/>
-                    <span
-                            class="absolute -top-2 -right-2 inline-flex items-center justify-center w-6 h-6 text-xs
-                                    font-bold text-white
-                                           bg-red-500 border-2 border-white rounded-full top-2 end-1 dark:border-gray-900"
-                    >
-                        1
-                    </span>
-                </div>
-            </button>
-        {% endif %}
-        {% if resourceLine.coinNumber == 3 %}
-        <button {% if not needToPlay or isSpectator %}disabled{% endif %}
-                {{ stimulus_action('glenmore', 'selectMoneyWarehouseProductionOnMainBoard', 'click',
-                    {url:path('app_game_glenmore_select_money_warehouse_production_on_mainboard',
-                        {idGame: game.id, idResourceLine: resourceLine.id })
-                    })
-                }}
-                class="relative justify-center items-center aspect-auto my-auto p-auto
-                            max-h-full w-full h-full"
-        >
-            <div class="h-full flex items-center justify-center">
-                <img class="items-center aspect-auto justify-center m-auto
-                                max-h-full"
-                     src="{{ asset('resourcesGames/Glenmore/money.png') }}" alt="money"/>
-                <span
-                        class="absolute -top-2 -right-2 inline-flex items-center justify-center w-6 h-6 text-xs
-                                    font-bold text-white
-                                           bg-red-500 border-2 border-white rounded-full top-2 end-1 dark:border-gray-900"
+        {% for ind in 0..resourceLine.quantity %}
+            {% if ind >= 1 %}
+                <button {% if not needToPlay or isSpectator %}disabled{% endif %}
+                        {{ stimulus_action('glenmore', 'selectMoneyWarehouseProductionOnMainBoard', 'click',
+                            {url:path('app_game_glenmore_select_money_warehouse_production_on_mainboard',
+                                {idGame: game.id, idResourceLine: resourceLine.id })
+                            })
+                        }}
+                        class="relative justify-center items-center aspect-auto my-auto p-auto
+                                max-h-full w-full h-full">
+                    <div class="h-full flex items-center justify-center">
+                        <img class="items-center aspect-auto justify-center m-auto
+                                    max-h-full"
+                             src="{{ asset('resourcesGames/Glenmore/money.png') }}" alt="money"/>
+                        <span
+                                class="absolute -top-2 -right-2 inline-flex items-center justify-center w-6 h-6 text-xs
+                                        font-bold text-white
+                                               bg-red-500 border-2 border-white rounded-full top-2 end-1 dark:border-gray-900"
+                        >
+                            {{ ind }}
+                        </span>
+                    </div>
+                </button>
+            {% endif %}
+        {% endfor %}
+        {% for ind in resourceLine.quantity..3 %}
+            {% if ind >= (resourceLine.quantity + 1)  %}
+                <button {% if not needToPlay or isSpectator %}disabled{% endif %}
+                        {{ stimulus_action('glenmore', 'selectResourceWarehouseProductionOnMainBoard', 'click',
+                            {url:path('app_game_glenmore_select_resource_warehouse_production_on_mainboard',
+                                {idGame: game.id, idResourceLine: resourceLine.id })
+                            })
+                        }}
+                        class="flex justify-center items-center h-full w-full"
                 >
-                    2
-                </span>
-            </div>
-        </button>
-        {% else %}
-            <button {% if not needToPlay or isSpectator %}disabled{% endif %}
-                    {{ stimulus_action('glenmore', 'selectResourceWarehouseProductionOnMainBoard', 'click',
-                        {url:path('app_game_glenmore_select_resource_warehouse_production_on_mainboard',
-                            {idGame: game.id, idResourceLine: resourceLine.id })
-                        })
-                    }}
-                    class="flex justify-center items-center h-full w-full">
-                <span class="bg-yellow-600 rounded-full w-12 h-12 flex items-center justify-center text-xl">2</span>
-            </button>
-        {% endif %}
-
-        {% if resourceLine.coinNumber == 6 %}
-            <button {% if not needToPlay or isSpectator %}disabled{% endif %}
-                    {{ stimulus_action('glenmore', 'selectMoneyWarehouseProductionOnMainBoard', 'click',
-                        {url:path('app_game_glenmore_select_money_warehouse_production_on_mainboard',
-                            {idGame: game.id, idResourceLine: resourceLine.id })
-                        })
-                    }}
-                    class="relative justify-center items-center aspect-auto my-auto p-auto
-                            max-h-full w-full h-full"
-            >
-                <div class="h-full flex items-center justify-center">
-                    <img class="items-center aspect-auto justify-center m-auto
-                                max-h-full"
-                         src="{{ asset('resourcesGames/Glenmore/money.png') }}" alt="money"/>
-                    <span
-                            class="absolute -top-2 -right-2 inline-flex items-center justify-center w-6 h-6 text-xs
-                                    font-bold text-white
-                                           bg-red-500 border-2 border-white rounded-full top-2 end-1 dark:border-gray-900"
-                    >
-                    2
-                </span>
-                </div>
-            </button>
-        {% else %}
-            <button {% if not needToPlay or isSpectator %}disabled{% endif %}
-                    {{ stimulus_action('glenmore', 'selectResourceWarehouseProductionOnMainBoard', 'click',
-                        {url:path('app_game_glenmore_select_resource_warehouse_production_on_mainboard',
-                            {idGame: game.id, idResourceLine: resourceLine.id })
-                        })
-                    }}
-                    class="flex justify-center items-center h-full w-full">
-                <span class="bg-yellow-600 rounded-full w-12 h-12 flex items-center justify-center text-xl">3</span>
-            </button>
-        {% endif %}
-
+                    <span class="bg-yellow-600 rounded-full w-12 h-12 flex items-center justify-center text-xl">{{ ind }}</span>
+                </button>
+            {% endif %}
+        {% endfor %}
     {% endfor %}
 </div>

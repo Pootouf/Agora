@@ -23,50 +23,29 @@
                                  alt="{{ resourceLine.resource.color }}"
                             />
                         </div>
+                        {% for ind in 0..resourceLine.quantity %}
+                            {% if ind >= 1 %}
+                                <div class="relative justify-center items-center aspect-auto my-auto p-auto
+                            max-h-full w-full h-full">
+                                    <div class="h-full flex items-center justify-center">
+                                        <img class="items-center aspect-auto justify-center m-auto
+                                max-h-full"
+                                             src="{{ asset('resourcesGames/Glenmore/money.png') }}" alt="money"/>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                        {% for ind in resourceLine.quantity..3 %}
+                            {% if ind >= (resourceLine.quantity + 1)  %}
+                                <div class="flex justify-center items-center h-full w-full">
+                                    <span class="bg-yellow-600 rounded-full w-4/5 h-4/5 flex items-center justify-center
+                                                    text-[0rem] lg:text-xs">
+                                        {{ ind }}
+                                    </span>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
 
-                        {% if resourceLine.coinNumber == 0 %}
-                            <div class="flex justify-center items-center h-full w-full">
-                                <span class="bg-yellow-600 rounded-full w-4/5 h-4/5 flex items-center justify-center text-[0rem] lg:text-xs">1</span>
-                            </div>
-                        {% else  %}
-                            <div class="relative justify-center items-center aspect-auto my-auto p-auto
-                            max-h-full w-full h-full">
-                                <div class="h-full flex items-center justify-center">
-                                    <img class="items-center aspect-auto justify-center m-auto
-                                max-h-full"
-                                         src="{{ asset('resourcesGames/Glenmore/money.png') }}" alt="money"/>
-                                </div>
-                            </div>
-                        {% endif %}
-                        {% if resourceLine.coinNumber == 3 %}
-                            <div class="relative justify-center items-center aspect-auto my-auto p-auto
-                            max-h-full w-full h-full">
-                                <div class="h-full flex items-center justify-center">
-                                    <img class="items-center aspect-auto justify-center m-auto
-                                max-h-full"
-                                         src="{{ asset('resourcesGames/Glenmore/money.png') }}" alt="money"/>
-                                </div>
-                            </div>
-                        {% else %}
-                            <div class="flex justify-center items-center h-full w-full">
-                                <span class="bg-yellow-600 rounded-full w-4/5 h-4/5 flex items-center justify-center text-[0rem] lg:text-xs">2</span>
-                            </div>
-                        {% endif %}
-
-                        {% if resourceLine.coinNumber == 6 %}
-                            <div class="relative justify-center items-center aspect-auto my-auto p-auto
-                            max-h-full w-full h-full">
-                                <div class="h-full flex items-center justify-center">
-                                    <img class="items-center aspect-auto justify-center m-auto
-                                max-h-full"
-                                         src="{{ asset('resourcesGames/Glenmore/money.png') }}" alt="money"/>
-                                </div>
-                            </div>
-                        {% else %}
-                            <div class="flex justify-center items-center h-full w-full">
-                                <span class="bg-yellow-600 rounded-full w-4/5 h-4/5 flex items-center justify-center text-[0rem] lg:text-xs">3</span>
-                            </div>
-                        {% endif %}
 
                     {% endfor %}
                 </div>
@@ -80,12 +59,18 @@
                     <span class="bg-green-400 flex items-center justify-center text-[0.33rem] lg:text-xs">Pts</span>
                     {% for i in 0..pointsDifferences|length - 1%}
                         {% if pointsDifferences[i] == 5 %}
-                            <span class="bg-green-400 flex items-center justify-center text-[0.28rem] lg:text-[0.5rem]">+{{ pointsDifferences[i] }}</span>
+                            <span class="bg-green-400 flex items-center justify-center text-[0.28rem] lg:text-[0.5rem]">
+                                +{{ pointsDifferences[i] }}
+                            </span>
                         {% else %}
-                            <span class="bg-green-400 flex items-center justify-center text-[0.28rem] lg:text-[0.5rem]">{{ pointsDifferences[i] }}</span>
+                            <span class="bg-green-400 flex items-center justify-center text-[0.28rem] lg:text-[0.5rem]">
+                                {{ pointsDifferences[i] }}
+                            </span>
                         {% endif %}
 
-                        <span class="bg-green-400 flex items-center justify-center text-[0.28rem] lg:text-[0.5rem]">{{ assignedPoints[i] }}</span>
+                        <span class="bg-green-400 flex items-center justify-center text-[0.28rem] lg:text-[0.5rem]">
+                            {{ assignedPoints[i] }}
+                        </span>
                     {% endfor %}
                 </div>
             </div>

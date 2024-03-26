@@ -48,7 +48,7 @@ class SixQPGameManagerService extends AbstractGameManagerService
 
         $this->entityManager->persist($game);
         $this->entityManager->flush();
-        $this->logService->sendSystemLog($game, "game " . $game->getId() . " was created");
+        $this->logService->sendSystemLog($game, "la partie " . $game->getId() . " a été créée");
         return $game->getId();
     }
 
@@ -79,7 +79,7 @@ class SixQPGameManagerService extends AbstractGameManagerService
         $this->entityManager->persist($discard);
         $this->entityManager->flush();
         $this->logService->sendPlayerLog($game, $player,
-            $playerName . " joined game " . $game->getId());
+            $playerName . " a rejoint la partie " . $game->getId());
         return SixQPGameManagerService::$SUCCESS;
     }
 
@@ -102,7 +102,7 @@ class SixQPGameManagerService extends AbstractGameManagerService
         $this->entityManager->remove($player);
         $this->entityManager->flush();
         $this->logService->sendSystemLog($game,
-            $playerName . " was removed from the game " . $game->getId());
+            $playerName . " a été retiré de la partie " . $game->getId());
         return SixQPGameManagerService::$SUCCESS;
     }
 
@@ -121,7 +121,7 @@ class SixQPGameManagerService extends AbstractGameManagerService
         foreach ($game->getRowSixQPs() as $rowSixQP) {
             $this->entityManager->remove($rowSixQP);
         }
-        $this->logService->sendSystemLog($game, "game " . $game->getId() . "ended");
+        $this->logService->sendSystemLog($game, "la partie " . $game->getId() . " s'est terminée");
         $this->entityManager->remove($game);
         $this->entityManager->flush();
         return SixQPGameManagerService::$SUCCESS;
@@ -146,7 +146,7 @@ class SixQPGameManagerService extends AbstractGameManagerService
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         $this->sixQPService->initializeNewRound($game);
-        $this->logService->sendSystemLog($game, "game " . $game->getId() . " began");
+        $this->logService->sendSystemLog($game, "la partie " . $game->getId() . " a commencé");
         return SixQPGameManagerService::$SUCCESS;
     }
 

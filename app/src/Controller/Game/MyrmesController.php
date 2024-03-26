@@ -6,7 +6,7 @@ use App\Entity\Game\Myrmes\GameMYR;
 use App\Service\Game\Myrmes\MYRService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class MyrmesController extends AbstractController
 {
@@ -22,7 +22,10 @@ class MyrmesController extends AbstractController
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
 
         return $this->render('/Game/Myrmes/index.html.twig', [
-            'player' => $player
+            'player' => $player,
+            'game' => $game,
+            'tiles' => $game->getMainBoardMYR()->getTiles(),
+            'preys' => $game->getMainBoardMYR()->getPreys()
         ]);
     }
 }

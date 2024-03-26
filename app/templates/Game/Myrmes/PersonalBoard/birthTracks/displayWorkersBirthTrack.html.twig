@@ -1,0 +1,34 @@
+{#
+This section displays the birth track for workers.
+@param :
+@return :
+#}
+<div class="relative w-1/6 h-full justify-start align-top inline-flex flex-col gap-3" id="workers">
+    {#workers counter#}
+    <div class="inlineFlex items-center gap-2 w-full h-[3rem] lg:h-[4rem]" id="workerCount">
+        <p class="relative w-10 h-fit text3-4">X</p>
+        <img class="h-full" id="workerIcon"
+             src="{{ asset('resourcesGames/Myrmes/workerIcon.svg') }}"
+             alt="worker icon"/>
+    </div>
+    <div class="inlineFlexCol gap-2 lg:gap-5">
+        {# workers birth track#}
+        <div class="inlineFlexCol items-center gap-1 lg:gap-2.5 relative" id="workersTrack">
+            {% for i in 1..2 %}
+                <img class="w-[90%]"
+                     src="{{ asset('resourcesGames/Myrmes/personalBoard/birthTrack/birthTrackTwo.svg') }}"
+                     alt="worker birth track"/>
+            {% endfor %}
+        </div>
+        {#button to place nurse on workers birth place#}
+        <div class="flex justify-center">
+            <button type="button" class="w-[60%]"
+                    {{ stimulus_action('myrmes','placeNurseOnWorkersTrack','click') }}
+            >
+                <img class="relative" id="workerButton"
+                     src="{{ asset('resourcesGames/Myrmes/myrmesArrow.svg') }}"
+                     alt="place worker"/>
+            </button>
+        </div>
+    </div>
+</div>

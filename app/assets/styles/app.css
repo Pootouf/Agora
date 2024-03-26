@@ -3,6 +3,7 @@
 @import "tailwindcss/utilities";
 @import "./Games/6QP/6QP.css";
 @import "./Games/SPL/SPL.css";
+@import "./Games/Myrmes/Myrmes.css";
 
 @font-face {
     font-family: "Lato";

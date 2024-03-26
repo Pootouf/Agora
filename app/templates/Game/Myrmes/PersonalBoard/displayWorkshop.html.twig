@@ -3,3 +3,14 @@ This section displays the workshop on the personal board to access at the worksh
 @param :
 @return :
 #}
+<div class="inlineFlexCol items-center gap-2 lg:gap-6 relative" id="workshop">
+    <p class="relative w-fit mb-px text2-4">Atelier</p>
+    {#workshop icon#}
+    <button type="button"
+            {{ stimulus_action('myrmes','placeNurseOnWorkshop','click') }}
+    >
+        <img class="w-full" id="workshopIcon"
+             src="{{ asset('resourcesGames/Myrmes/personalBoard/workshop.svg') }}"
+             alt="workshop icon"/>
+    </button>
+</div>

@@ -51,11 +51,17 @@ export default class extends Controller {
 	async removeVillager(tile) {
 		let url = tile.params.url;
 		const response = await fetch(url);
+		if (response.status === 200) {
+			closeSelectedTileWindow();
+		}
 	}
 
 	async moveVillager(tile) {
 		let url = tile.params.url;
 		const response = await fetch(url);
+		if (response.status === 200) {
+			closeSelectedTileWindow();
+		}
 	}
 
 	async validateNewResourcesAcquisition(tile) {
@@ -83,6 +89,11 @@ export default class extends Controller {
 		const response = await fetch(url);
 	}
 
+	async cancelActivatingTile(tile) {
+		let url = tile.params.url;
+		const response = await fetch(url);
+	}
+
 	async endRoundPlayer(player) {
 		let url = player.params.url;
 		const response = await fetch(url);
@@ -97,7 +108,7 @@ export default class extends Controller {
         let url = tile.params.url;
         const response = await fetch(url);
         if (response.status === 200) {
-            personalBoard.togglePersonalBoard(true);
+            closeWindow();
         }
     }
 
@@ -174,11 +185,17 @@ export default class extends Controller {
     async buyResourceFromWarehouse(resourceLine) {
         let url = resourceLine.params.url;
         const response = await fetch(url);
+		if (response.status === 200) {
+			closeSelectedWarehouseResource();
+		}
     }
 
     async sellResourceFromWarehouse(resourceLine) {
         let url = resourceLine.params.url;
         const response = await fetch(url);
+		if (response.status === 200) {
+			closeSelectedWarehouseResource();
+		}
     }
 
 	async showMainBoard(main)  {

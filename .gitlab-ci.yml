@@ -5,6 +5,7 @@ stages:
   - sixqp
   - splendor
   - glenmore
+  - myrmes
   - deploy
 
 cache:
@@ -172,5 +173,23 @@ integrationGlenmore:
     - main
   script:
     - php bin/phpunit tests/Game/Glenmore/Integration
+  allow_failure: false
+  environment: test
+
+unitMyrmes:
+    stage: myrmes
+    script:
+      - php bin/phpunit tests/Game/Myrmes/Unit
+    allow_failure: false
+    environment: test
+
+integrationMyrmes:
+  stage: myrmes
+  only:
+    - develop-game
+    - preprod
+    - main
+  script:
+    - php bin/phpunit tests/Game/Myrmes/Integration
   allow_failure: false
   environment: test

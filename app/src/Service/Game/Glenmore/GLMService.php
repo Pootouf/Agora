@@ -225,7 +225,7 @@ class GLMService
             foreach ($winners as $winner) {
                 $message .=  $winner->getUsername() . " ";
             }
-            $message .= " won the game " . $gameGLM->getId();
+            $message .= " ont gagné la partie " . $gameGLM->getId();
             $this->logService->sendSystemLog($gameGLM, $message);
         } else {
             // TODO RETURN CODE TO PUBLISH
@@ -315,6 +315,19 @@ class GLMService
     public function setPhase(PlayerGLM $playerGLM, int $phase) : void
     {
         $playerGLM->setRoundPhase($phase);
+        $this->entityManager->persist($playerGLM);
+        $this->entityManager->flush();
+    }
+
+    /**
+     * setPreviousPhase : set player's previous phase into selected phase
+     * @param PlayerGLM $playerGLM
+     * @param ?int       $phase
+     * @return void
+     */
+    public function setPreviousPhase(PlayerGLM $playerGLM, ?int $phase) : void
+    {
+        $playerGLM->setPreviousPhase($phase);
         $this->entityManager->persist($playerGLM);
         $this->entityManager->flush();
     }
