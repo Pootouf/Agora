@@ -32,15 +32,14 @@ class UserController extends AbstractController
     {
         $userId = $this->security->getUser()->getId();
         $resultCode = $this->userService->addContact($userId, $contact_id);
-        dump($resultCode);
         if($resultCode < 0){
             $this->addFlash(
                 'failure',
                 'Erreur lors de l\'ajout du contact'
             );
-            return  $this->redirectToRoute('app_home');
+            return  $this->redirectToRoute('app_other_user_profile', ['user_id' => $contact_id]);
         }
-        return $this->redirectToRoute('app_home');
+        return $this->redirectToRoute('app_other_user_profile', ['user_id' => $contact_id]);
     }
 
     #[Route('/user/removeContact/{contact_id}', name: 'app_user_remove_contact', requirements: ['user_id' => '\d+'])]
@@ -53,9 +52,9 @@ class UserController extends AbstractController
                 'failure',
                 'Erreur lors du retrait du contact'
             );
-            return  $this->redirectToRoute('app_home');
+            return  $this->redirectToRoute('app_other_user_profile', ['user_id' => $contact_id]);
         }
-        return $this->redirectToRoute('app_home');
+        return $this->redirectToRoute('app_other_user_profile', ['user_id' => $contact_id]);
     }
 
     #[Route('/dashboard/contacts', name: 'app_contacts')]
