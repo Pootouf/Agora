@@ -26,7 +26,7 @@ class SPLControllerTest extends WebTestCase
     private SPLService $SPLService;
     private TokenSPLService $tokenSPLService;
 
-    /*public function testPlayersHaveAccessToGame(): void
+    public function testPlayersHaveAccessToGame(): void
     {
         //GIVEN
         $gameId = $this->initializeGameWithTwoPlayers();
@@ -36,6 +36,131 @@ class SPLControllerTest extends WebTestCase
         //THEN
         $this->assertResponseStatusCodeSame(Response::HTTP_OK,
             $this->client->getResponse());
+    }
+
+    public function testPlayerSelectCardFromBoard(): void
+    {
+        //GIVEN
+        $gameId = $this->initializeGameWithTwoPlayers();
+        $game = $this->gameSPLRepository->findOneById($gameId);
+        $mainBoard = $game->getMainBoard();
+        $card = $mainBoard->getRowsSPL()->first()->getDevelopmentCards()->first();
+        $url = "/game/" . $gameId . "/splendor/select/board/" . $card->getId();
+        //WHEN
+        $this->client->request("GET", $url);
+        $user = $this->gameUserRepository->findOneByUsername("test0");
+        $this->client->loginUser($user);
+        //THEN
+        $this->expectNotToPerformAssertions();
+    }
+
+    public function testPlayerSelectCardFromDraw(): void
+    {
+        //GIVEN
+        $gameId = $this->initializeGameWithTwoPlayers();
+        $game = $this->gameSPLRepository->findOneById($gameId);
+        $mainBoard = $game->getMainBoard();
+        $level = $mainBoard->getDrawCards()->first()->getLevel();
+        $url = "/game/" . $gameId . "/splendor/select/draw/" . $level;
+        //WHEN
+        $this->client->request("GET", $url);
+        $user = $this->gameUserRepository->findOneByUsername("test0");
+        $this->client->loginUser($user);
+        //THEN
+        $this->expectNotToPerformAssertions();
+    }
+
+    public function testPlayerSelectCardFromPersonalBoard(): void
+    {
+        //GIVEN
+        $gameId = $this->initializeGameWithTwoPlayers();
+        $game = $this->gameSPLRepository->findOneById($gameId);
+        $player = $game->getPlayers()->first();
+        $mainBoard = $game->getMainBoard();
+        $card = $mainBoard->getRowsSPL()->first()->getDevelopmentCards()->first();
+        $url = "/game/" . $gameId . "/splendor/reserve/card/" . $card->getId();
+        $this->client->request("GET", $url);
+
+        $card = $player->getPersonalBoard()->getPlayerCards()->first()->getDevelopmentCard();
+        $url = "/game/" . $gameId . "/splendor/select/reserved/" . $card->getId();
+        //WHEN
+        $this->client->request("GET", $url);
+        $user = $this->gameUserRepository->findOneByUsername("test0");
+        $this->client->loginUser($user);
+        //THEN
+        $this->expectNotToPerformAssertions();
+    }
+
+    public function testBuyCardWhenSpectator(): void
+    {
+        //GIVEN
+        $gameId = $this->initializeGameWithTwoPlayers();
+        $game = $this->gameSPLRepository->findOneById($gameId);
+        $user3 = $this->gameUserRepository->findOneByUsername("test2");
+        $this->client->loginUser($user3);
+        $mainBoard = $game->getMainBoard();
+        $card = $mainBoard->getRowsSPL()->first()->getDevelopmentCards()->first();
+        $url = "/game/" . $gameId . "/splendor/buy/card/" . $card->getId();
+        //WHEN
+        $this->client->request("GET", $url);
+        //THEN
+        $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN,
+            $this->client->getResponse()->getStatusCode());
+    }
+
+    public function testBuyCardWhenNotActivePlayer(): void
+    {
+        //GIVEN
+        $gameId = $this->initializeGameWithTwoPlayers();
+        $game = $this->gameSPLRepository->findOneById($gameId);
+        $user2 = $this->gameUserRepository->findOneByUsername("test1");
+        $this->client->loginUser($user2);
+        $mainBoard = $game->getMainBoard();
+        $card = $mainBoard->getRowsSPL()->first()->getDevelopmentCards()->first();
+        $url = "/game/" . $gameId . "/splendor/buy/card/" . $card->getId();
+        //WHEN
+        $this->client->request("GET", $url);
+        //THEN
+        $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN,
+            $this->client->getResponse()->getStatusCode());
+    }
+
+    public function testBuyCardWhenActivePlayer(): void
+    {
+        //GIVEN
+        $gameId = $this->initializeGameWithTwoPlayers();
+        $game = $this->gameSPLRepository->findOneById($gameId);
+        $user2 = $this->gameUserRepository->findOneByUsername("test0");
+        $this->client->loginUser($user2);
+        $mainBoard = $game->getMainBoard();
+        $card = $mainBoard->getRowsSPL()->first()->getDevelopmentCards()->first();
+        $url = "/game/" . $gameId . "/splendor/buy/card/" . $card->getId();
+        //WHEN
+        $this->client->request("GET", $url);
+        //THEN
+        $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN,
+            $this->client->getResponse()->getStatusCode());
+    }
+
+    public function testBuyCardWhenActivePlayerAndCardReserved(): void
+    {
+        //GIVEN
+        $gameId = $this->initializeGameWithTwoPlayers();
+        $game = $this->gameSPLRepository->findOneById($gameId);
+        $mainBoard = $game->getMainBoard();
+        $card = $mainBoard->getRowsSPL()->first()->getDevelopmentCards()->first();
+        $url = "/game/" . $gameId . "/splendor/reserve/card/" . $card->getId();
+        $user = $this->gameUserRepository->findOneByUsername("test0");
+        $this->client->loginUser($user);
+        $this->client->request("GET", $url);
+        $url = "/game/" . $gameId . "/splendor/buy/card/" . $card->getId();
+        $user = $this->gameUserRepository->findOneByUsername("test0");
+        $this->client->loginUser($user);
+        //WHEN
+        $this->client->request("GET", $url);
+        //THEN
+        $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN,
+            $this->client->getResponse()->getStatusCode());
     }
 
     public function testIsSpectator() : void
@@ -143,7 +268,7 @@ class SPLControllerTest extends WebTestCase
         //THEN
         $this->assertEquals(Response::HTTP_FORBIDDEN,
             $this->client->getResponse()->getStatusCode());
-    }*/
+    }
 
     public function testTakeTokenShouldReturnHTTPOK(): void
     {
