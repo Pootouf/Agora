@@ -12,7 +12,7 @@
 {% set GRASS_TILE_TYPE = "grass" %}
 
 {# Loading of Tailwind data for grid #}
-<div class="hidden grid grid-cols-[repeat(14,_4vw)] grid-rows-15 grid-rows-13 grid-rows-8"></div>
+<div class="hidden grid grid-cols-[repeat(14,_3.5vw)] grid-rows-15 grid-rows-13 grid-rows-8"></div>
 
 {# Loading Tailwind colors #}
 <div class="hidden border-b-green-600 border-b-orange-950 border-b-red-700 border-b-stone-700 border-b-blue-600
@@ -20,10 +20,10 @@
             bg-green-600 bg-orange-950 bg-red-700 bg-stone-700 bg-blue-600">
 </div>
 
-<div class="w-auto h-auto flex flex-row">
+<div class="w-auto h-auto flex flex-row flex items-center">
     <div class="flex-grow"></div>
     <div class="grid grid-rows-{{ boardBoxes|length }}
-                grid-cols-[repeat({{ boardBoxes|first|length + 1}},_4vw)] gap-1"
+                grid-cols-[repeat({{ boardBoxes|first|length + 1}},_3.5vw)] gap-1"
     >
     {% for boardBoxLine in boardBoxes %}
         {% set isShifted = boardBoxLine|filter(box => box.tile != null)|first.tile.coordX % 2 != 0 %}
