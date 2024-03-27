@@ -6,8 +6,6 @@ use App\Entity\Game\Myrmes\GameMYR;
 use App\Service\Game\LogService;
 use App\Service\Game\Myrmes\EventMYRService;
 use App\Service\Game\Myrmes\DataManagementMYRService;
-use App\Service\Game\LogService;
-use App\Service\Game\Myrmes\EventMYRService;
 use App\Service\Game\Myrmes\MYRService;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
