@@ -6,6 +6,8 @@ use App\Entity\Game\Myrmes\GameMYR;
 use App\Service\Game\LogService;
 use App\Service\Game\Myrmes\EventMYRService;
 use App\Service\Game\Myrmes\DataManagementMYRService;
+use App\Service\Game\LogService;
+use App\Service\Game\Myrmes\EventMYRService;
 use App\Service\Game\Myrmes\MYRService;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -21,9 +23,9 @@ class MyrmesController extends AbstractController
 
     public function __construct(private readonly MYRService $service,
                                 private readonly DataManagementMYRService $dataManagementMYRService,
-        private readonly EventMYRService $eventMYRService,
-        private readonly LogService $logService) {}
-    {
+                                private readonly EventMYRService $eventMYRService,
+                                private readonly LogService $logService) {}
+
 
     #[Route('/game/myrmes/{id}', name: 'app_game_show_myr')]
     public function showGame(GameMYR $game): Response
