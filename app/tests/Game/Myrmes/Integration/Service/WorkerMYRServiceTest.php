@@ -149,6 +149,7 @@ class WorkerMYRServiceTest extends KernelTestCase
             $player->setPersonalBoardMYR($personalBoard);
             $player->setScore(0);
             $player->setGoalLevel(0);
+            $player->setRemainingHarvestingBonus(0);
             $entityManager->persist($player);
             $entityManager->persist($personalBoard);
         }
