@@ -23,12 +23,13 @@
     {% endif %}
 " about="{{ boardBox.tile.id }}">
     {% if boardBox.anthillHole != null %}
-        <div class="visible absolute {{ elementsDisplay }} bg-{{ boardBox.anthillHole.player.color }}-500">
-            <img src="{{ asset('resourcesGames/Myrmes/anthillHole.svg') }}" alt="anthill hole">
+        <div class="visible absolute {{ elementsDisplay }}">
+            <img class="rounded rounded-full size-full -p-4 bg-{{ boardBox.anthillHole.player.color }}-500"
+            src="{{ asset('resourcesGames/Myrmes/anthillHole.svg') }}" alt="anthill hole">
         </div>
     {% endif %}
     {% if boardBox.pheromonTile != null %}
-        <div class="visible absolute {{ elementsDisplay }} bg-{{ boardBox.pheromonTile.pheromonMYR.player.color }}-500">
+        <div class="visible absolute {{ elementsDisplay }} pl-3 rounded rounded-full bg-{{ boardBox.pheromonTile.pheromonMYR.player.color }}-500">
             <img src="{{ asset('resourcesGames/Myrmes/pheromone.svg') }}" alt="pheromone">
         </div>
     {% endif %}
@@ -38,7 +39,7 @@
         </div>
     {% endif %}
     {% if boardBox.ant != null %}
-        <div class="visible absolute {{ elementsDisplay }} bg-{{ boardBox.ant.player.color }}-500">
+        <div class="visible absolute {{ elementsDisplay }} p-2 rounded rounded-full bg-{{ boardBox.ant.player.color }}-500">
             <img src="{{ asset('resourcesGames/Myrmes/ant.svg') }}" alt="ant">
         </div>
     {% endif %}
