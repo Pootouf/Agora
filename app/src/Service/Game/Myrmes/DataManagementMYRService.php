@@ -16,8 +16,10 @@ use App\Entity\Game\Myrmes\PheromonTileMYR;
 use App\Entity\Game\Myrmes\TileMYR;
 use App\Entity\Game\Splendor\SplendorParameters;
 use App\Repository\Game\Glenmore\PlayerTileGLMRepository;
+use App\Repository\Game\Myrmes\AnthillHoleMYRRepository;
 use App\Repository\Game\Myrmes\GardenWorkerMYRRepository;
 use App\Repository\Game\Myrmes\PheromonTileMYRRepository;
+use App\Repository\Game\Myrmes\PreyMYRRepository;
 use App\Repository\Game\Myrmes\TileMYRRepository;
 use App\Service\Game\Glenmore\TileGLMService;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -32,6 +34,8 @@ class DataManagementMYRService
 {
 
     public function __construct(private readonly TileMYRRepository $tileMYRRepository,
+                                private readonly AnthillHoleMYRRepository $anthillHoleMYRRepository,
+                                private readonly PreyMYRRepository $preyMYRRepository,
                                 private readonly GardenWorkerMYRRepository $gardenWorkerMYRRepository,
                                 private readonly PheromonTileMYRRepository $pheromonTileMYRRepository)
     {}
@@ -112,6 +116,8 @@ class DataManagementMYRService
     {
         $ant = null;
         $pheromoneTile = null;
+        $anthillHole = null;
+        $prey = null;
         if ($tile != null) {
             $ant = $this->gardenWorkerMYRRepository->findOneBy(
                 [
@@ -125,9 +131,23 @@ class DataManagementMYRService
                     'tile' => $tile->getId()
                 ]
             );
+            $prey = $this->preyMYRRepository->findOneBy(
+                [
+                    'mainBoardMYR' => $game->getMainBoardMYR(),
+                    'tile' => $tile->getId()
+                ]
+            );
+            $anthillHole = $this->anthillHoleMYRRepository->findOneBy(
+                [
+                    'mainBoardMYR' => $game->getMainBoardMYR(),
+                    'tile' => $tile->getId()
+                ]
+            );
             $ant = $ant ?: null;
             $pheromoneTile = $pheromoneTile ?: null;
+            $anthillHole = $anthillHole ?: null;
+            $prey = $prey ?: null;
         }
-        return new BoardBoxMYR($tile, $ant, $pheromoneTile, $x, $y);
+        return new BoardBoxMYR($tile, $ant, $pheromoneTile, $anthillHole, $prey, $x, $y);
     }
 }

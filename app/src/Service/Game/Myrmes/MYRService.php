@@ -55,8 +55,10 @@ class MYRService
 
         $i = 0;
         $anthillPositions = MyrmesParameters::$ANTHILL_HOLE_POSITION_BY_NUMBER_OF_PLAYER[$game->getPlayers()->count()];
+        $playersColors = MyrmesParameters::$PLAYERS_COLORS;
         foreach ($game->getPlayers() as $player) {
-            $this->initializePlayerData($player);
+            $color = $playersColors[$i];
+            $this->initializePlayerData($player, $color);
             $anthillPosition = $anthillPositions[$i];
             $this->initializeAnthillHoleForPlayer($player, $anthillPosition);
             $i++;
@@ -135,9 +137,10 @@ class MYRService
     /**
      * initializePlayerData: initialize the data of the player at the start of the game
      * @param PlayerMYR $player
+     * @param string $color
      * @return void
      */
-    private function initializePlayerData(PlayerMYR $player) : void
+    private function initializePlayerData(PlayerMYR $player, string $color) : void
     {
         $personalBoard = $player->getPersonalBoardMYR();
         for ($i = 0; $i < MyrmesParameters::$START_NURSES_COUNT_PER_PLAYER; $i++) {
@@ -149,6 +152,8 @@ class MYRService
         $personalBoard->setLarvaCount(MyrmesParameters::$NUMBER_OF_LARVAE_AT_START);
         $personalBoard->setAnthillLevel(MyrmesParameters::$ANTHILL_START_LEVEL);
         $player->setScore(MyrmesParameters::$PLAYER_START_SCORE);
+
+        $this->initializeColorForPlayer($player, $color);
 
         $this->entityManager->persist($player);
         $this->entityManager->persist($personalBoard);
@@ -200,6 +205,19 @@ class MYRService
         $player->getGameMyr()->getMainBoardMYR()->addAnthillHole($hole);
         $this->entityManager->persist($hole);
         $this->entityManager->persist($player->getGameMyr()->getMainBoardMYR());
+    }
+
+    /**
+     * initializeColorForPlayer : set the player's color
+     * @param PlayerMYR $player
+     * @param string $color
+     * @return void
+     */
+    private function initializeColorForPlayer(PlayerMYR $player, string $color) : void
+    {
+        $player->setColor($color);
+        $this->entityManager->persist($player);
+        $this->entityManager->flush();
     }
 
 

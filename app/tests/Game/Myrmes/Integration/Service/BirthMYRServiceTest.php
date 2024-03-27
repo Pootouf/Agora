@@ -65,6 +65,7 @@ class BirthMYRServiceTest extends KernelTestCase
             $player = new PlayerMYR('test', $game);
             $game->addPlayer($player);
             $player->setGameMyr($game);
+            $player->setColor("");
             $personalBoard = new PersonalBoardMYR();
             $personalBoard->setLarvaCount(0);
             $personalBoard->setAnthillLevel(0);

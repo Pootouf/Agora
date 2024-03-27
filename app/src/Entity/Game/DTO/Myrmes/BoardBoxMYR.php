@@ -4,8 +4,10 @@ namespace App\Entity\Game\DTO\Myrmes;
 
 use App\Entity\Game\Glenmore\BoardTileGLM;
 use App\Entity\Game\Glenmore\PawnGLM;
+use App\Entity\Game\Myrmes\AnthillHoleMYR;
 use App\Entity\Game\Myrmes\GardenWorkerMYR;
 use App\Entity\Game\Myrmes\PheromonTileMYR;
+use App\Entity\Game\Myrmes\PreyMYR;
 use App\Entity\Game\Myrmes\TileMYR;
 use Exception;
 
@@ -18,6 +20,8 @@ class BoardBoxMYR
     private ?TileMYR $tile;
     private ?GardenWorkerMYR $ant;
     private ?PheromonTileMYR $pheromonTile;
+    private ?AnthillHoleMYR $anthillHole;
+    private ?PreyMYR $prey;
     private int $coordX;
     private int $coordY;
 
@@ -25,7 +29,7 @@ class BoardBoxMYR
      * @throws Exception
      */
     public function __construct(?TileMYR $tile, ?GardenWorkerMYR $ant, ?PheromonTileMYR $pheromonTile,
-                                int $coordX, int $coordY)
+                                ?AnthillHoleMYR $anthillHoleMYR, ?PreyMYR $preyMYR, int $coordX, int $coordY)
     {
         if ($tile == null && ($ant != null || $pheromonTile != null)) {
             throw new Exception("Invalid placement");
@@ -35,6 +39,8 @@ class BoardBoxMYR
         $this->pheromonTile = $pheromonTile;
         $this->coordX = $coordX;
         $this->coordY = $coordY;
+        $this->anthillHole = $anthillHoleMYR;
+        $this->prey = $preyMYR;
     }
 
     /**
@@ -98,5 +104,15 @@ class BoardBoxMYR
     public function getCoordY(): int
     {
         return $this->coordY;
+    }
+
+    public function getAnthillHole(): ?AnthillHoleMYR
+    {
+        return $this->anthillHole;
+    }
+
+    public function getPrey(): ?PreyMYR
+    {
+        return $this->prey;
     }
 }

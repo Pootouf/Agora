@@ -114,6 +114,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($resource);
         $pheromonTile = new PheromonTileMYR();
         $pheromonTile->setPheromonMYR($pheromon);
+        $pheromonTile->setMainBoard($game->getMainBoardMYR());
         $pheromonTile->setTile($tile);
         $pheromonTile->setResource($resource);
         $this->entityManager->persist($pheromonTile);
@@ -138,6 +139,7 @@ class WorkerMYRServiceTest extends KernelTestCase
             $player = new PlayerMYR('test', $game);
             $game->addPlayer($player);
             $player->setGameMyr($game);
+            $player->setColor("");
             $personalBoard = new PersonalBoardMYR();
             $personalBoard->setLarvaCount(0);
             $personalBoard->setAnthillLevel(0);

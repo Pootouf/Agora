@@ -79,6 +79,7 @@ class MYRGameManagerService extends AbstractGameManagerService
         $player = new PlayerMYR($playerName, $game);
         $player->setScore(0);
         $player->setGoalLevel(0);
+        $player->setColor("");
         $personalBoard = new PersonalBoardMYR();
         $personalBoard->setAnthillLevel(0);
         $personalBoard->setLarvaCount(0);
