@@ -66,6 +66,7 @@ class BirthMYRServiceTest extends KernelTestCase
             $game->addPlayer($player);
             $player->setGameMyr($game);
             $player->setColor("");
+            $player->setPhase(MyrmesParameters::$PHASE_EVENT);
             $personalBoard = new PersonalBoardMYR();
             $personalBoard->setLarvaCount(0);
             $personalBoard->setAnthillLevel(0);

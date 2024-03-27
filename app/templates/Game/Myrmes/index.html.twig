@@ -8,9 +8,9 @@
             {% block nav %}
                 {{ include('/Game/Utils/navigation.html.twig') }}
             {% endblock %}
-            {% block endGame %}
-            {# {{ include('/Game/Myrmes/endGameScreenResult.html.twig') }} #}
-            {% endblock %}
+            {#{% block endGame %}
+                {{ include('/Game/Myrmes/endGameScreenResult.html.twig') }}
+            {% endblock %}#}
             {% block ranking %}
                 <div id="ranking"
                      class="absolute bg-gradient-to-b from-[#4C6E9Bff] to-[#20222Dff] w-[25%] h-[60%] top-0 right-0">
@@ -31,11 +31,11 @@
                 </div>
             {% endblock %}#}
             {% block personalBoard %}
-                {% if not isSpectator %}
-                    <div id="personalBoard" class="absolute bottom-0 w-[70%] h-[90%]">
+{#                {% if not isSpectator %}#}
+                    <div id="personalBoard" class="absolute bottom-0 w-[70%] h-full">
                         {{ include('/Game/Myrmes/PersonalBoard/personalBoard.html.twig') }}
                     </div>
-                {% endif %}
+{#                {% endif %}#}
             {% endblock %}
         </div>
     </div>

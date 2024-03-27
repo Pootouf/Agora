@@ -3,3 +3,29 @@ This section displays the personal board of a player
 @param :
 @return :
 #}
+
+{# loading tailwind data#}
+{{ include('Game/Myrmes/PersonalBoard/loadingPersonalBoardData.html.twig') }}
+
+<div class="inlineFlex gap-3 py-10 pr-5 relative bg-[#c67b24] w-full h-full">
+    <div class="inlineFlexCol gap-3 lg:gap-12 relative w-[45%]" id="left-column">
+        {#birth tracks#}
+        {{ include('Game/Myrmes/PersonalBoard/displayBirthTrack.html.twig') }}
+        {#nurse counter#}
+        <div class="relative w-full h-[5%]" id="nurses">
+            <p class="text1-4">Nourrices : X</p>
+        </div>
+        {#event track#}
+        {{ include('Game/Myrmes/PersonalBoard/displayEventTrack.html.twig') }}
+    </div>
+    <div class="inline-flex flex-col items-center justify-around relative w-[20%]" id="rightColumn">
+        {#workshop#}
+        {{ include('Game/Myrmes/PersonalBoard/displayWorkshop.html.twig') }}
+        {#prey counter#}
+        {{ include('Game/Myrmes/PersonalBoard/displayPreyCount.html.twig') }}
+        {#warehouse#}
+        {{ include('Game/Myrmes/PersonalBoard/displayWarehouse.html.twig') }}
+    </div>
+    {#colony level track#}
+    {{ include('Game/Myrmes/PersonalBoard/displayColonyLevelTrack.html.twig') }}
+</div>

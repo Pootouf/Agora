@@ -1101,8 +1101,91 @@ final class VersionMYRMES_DATA extends AbstractMigration
                 'coord_x' => 14,
                 'coord_y' => 13,
                 'type' => MyrmesParameters::$GRASS_TILE_TYPE]);
-        $id ++;
 
+
+        // INSERTION OF PHEROMONES
+
+        $type = MyrmesParameters::$PHEROMONE_TYPE_ZERO;
+        for ($i = 0; $i < 6; ++$i) {
+            $this->connection->insert('tile_type_myr',
+                ['help_id' => null, 'orientation' => $i, 'type' => $type]
+            );
+        }
+        $type = MyrmesParameters::$PHEROMONE_TYPE_ONE;
+        for ($i = 0; $i < 3; ++$i) {
+            $this->connection->insert('tile_type_myr',
+                ['help_id' => null, 'orientation' => $i, 'type' => $type]
+            );
+        }
+        $type = MyrmesParameters::$PHEROMONE_TYPE_TWO;
+        for ($i = 0; $i < 6; ++$i) {
+            $this->connection->insert('tile_type_myr',
+                ['help_id' => null, 'orientation' => $i, 'type' => $type]
+            );
+        }
+        $type = MyrmesParameters::$PHEROMONE_TYPE_THREE;
+        for ($i = 0; $i < 6; ++$i) {
+            $this->connection->insert('tile_type_myr',
+                ['help_id' => null, 'orientation' => $i, 'type' => $type]
+            );
+        }
+        $type = MyrmesParameters::$PHEROMONE_TYPE_FOUR;
+        for ($i = 0; $i < 12; ++$i) {
+            $this->connection->insert('tile_type_myr',
+                ['help_id' => null, 'orientation' => $i, 'type' => $type]
+            );
+        }
+        $type = MyrmesParameters::$PHEROMONE_TYPE_FIVE;
+        for ($i = 0; $i < 6; ++$i) {
+            $this->connection->insert('tile_type_myr',
+                ['help_id' => null, 'orientation' => $i, 'type' => $type]
+            );
+        }
+        $type = MyrmesParameters::$PHEROMONE_TYPE_SIX;
+        for ($i = 0; $i < 6; ++$i) {
+            $this->connection->insert('tile_type_myr',
+                ['help_id' => null, 'orientation' => $i, 'type' => $type]
+            );
+        }
+
+        $type = MyrmesParameters::$SPECIAL_TILE_TYPE_FARM;
+        for ($i = 0; $i < 6; ++$i) {
+            $this->connection->insert('tile_type_myr',
+                ['help_id' => null, 'orientation' => $i, 'type' => $type]
+            );
+        }
+
+        $type = MyrmesParameters::$SPECIAL_TILE_TYPE_QUARRY;
+        for ($i = 0; $i < 6; ++$i) {
+            $this->connection->insert('tile_type_myr',
+                ['help_id' => null, 'orientation' => $i, 'type' => $type]
+            );
+        }
+
+        $type = MyrmesParameters::$SPECIAL_TILE_TYPE_SUBANTHILL;
+        for ($i = 0; $i < 6; ++$i) {
+            $this->connection->insert('tile_type_myr',
+                ['help_id' => null, 'orientation' => $i, 'type' => $type]
+            );
+        }
+
+        //INSERTION OF RESOURCES
+
+        $this->connection->insert('resource_myr',
+            ['help_id' => null, 'description' => MyrmesParameters::$RESOURCE_TYPE_DIRT]
+        );
+
+        $this->connection->insert('resource_myr',
+            ['help_id' => null, 'description' => MyrmesParameters::$RESOURCE_TYPE_STONE]
+        );
+
+        $this->connection->insert('resource_myr',
+            ['help_id' => null, 'description' => MyrmesParameters::$RESOURCE_TYPE_GRASS]
+        );
+
+        $this->connection->insert('resource_myr',
+            ['help_id' => null, 'description' => MyrmesParameters::$RESOURCE_TYPE_LARVAE]
+        );
     }
 
     public function down(Schema $schema): void
@@ -1111,3 +1194,4 @@ final class VersionMYRMES_DATA extends AbstractMigration
 
     }
 }
+
