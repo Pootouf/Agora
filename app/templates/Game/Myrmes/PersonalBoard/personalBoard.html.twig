@@ -7,8 +7,8 @@ This section displays the personal board of a player
 {# loading tailwind data#}
 {{ include('Game/Myrmes/PersonalBoard/loadingPersonalBoardData.html.twig') }}
 
-<div class="inlineFlex gap-3 py-10 pr-5 relative bg-[#c67b24] w-full h-full">
-    <div class="inlineFlexCol gap-3 lg:gap-12 relative w-[45%]" id="left-column">
+<div class="inlineFlex gap-3 pb-2 lg:py-10 pr-5 relative bg-[#c67b24] w-full h-full">
+    <div class="inlineFlexCol gap-2 lg:gap-12 relative w-[45%]" id="left-column">
         {#birth tracks#}
         {{ include('Game/Myrmes/PersonalBoard/displayBirthTrack.html.twig') }}
         {#nurse counter#}
