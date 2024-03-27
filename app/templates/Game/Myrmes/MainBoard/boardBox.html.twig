@@ -1,0 +1,54 @@
+{#
+    Represents an hexagon for a board box in Myrmes
+    param : color (inherit from parent)
+    return : display an hexagon from the color of the tile type
+#}
+
+{% set elementsDisplay = '' %}
+{% set hexType = '' %}
+{% set shift = '' %}
+{% if isPreview %}
+    {% set elementsDisplay = "size-[1.25vw] px-[0.2vw] py-[0.3vw]" %}
+    {% set hexType = "hex_mini" %}
+    {% set shift = "ml-[0.73vw]" %}
+{% else %}
+    {% set elementsDisplay = "size-[3.5vw] px-[0.5vw] py-[0.75vw]" %}
+    {% set hexType = "hex" %}
+    {% set shift = "ml-[1.90vw]" %}
+{% endif %}
+
+<div class="relative {{ hexType }} invisible bg-{{ color }} border-b-{{ color }} border-t-{{ color }}
+    {% if isShifted %}
+        {{ shift }}
+    {% endif %}
+" about="{{ boardBox.tile.id }}">
+    {% if boardBox.anthillHole != null %}
+        <div class="visible absolute {{ elementsDisplay }}">
+            <img class="rounded rounded-full size-full -p-4 bg-{{ boardBox.anthillHole.player.color }}-500"
+            src="{{ asset('resourcesGames/Myrmes/anthillHole.svg') }}" alt="anthill hole">
+        </div>
+    {% endif %}
+    {% if boardBox.pheromonTile != null %}
+        <div class="visible absolute {{ elementsDisplay }}">
+            <img class="rounded rounded-full size-full -p-4 bg-{{ boardBox.pheromonTile.pheromonMYR.player.color }}-500"
+            src="{{ asset('resourcesGames/Myrmes/pheromone.svg') }}" alt="pheromone">
+        </div>
+    {% endif %}
+    {% if boardBox.prey != null %}
+        <div class="visible absolute {{ elementsDisplay}} bg-transparent">
+            <img src="{{ asset('resourcesGames/Myrmes/ladybug.svg') }}" alt="ladybug">
+        </div>
+    {% endif %}
+    {% if boardBox.ant != null %}
+        <div class="visible absolute {{ elementsDisplay }}">
+            <img class="rounded rounded-full size-full -p-4 bg-{{ boardBox.ant.player.color }}-500"
+            src="{{ asset('resourcesGames/Myrmes/ant.svg') }}" alt="ant">
+        </div>
+    {% endif %}
+    <div class="visible top">
+    </div>
+    <div class="visible middle">
+    </div>
+    <div class="visible bottom">
+    </div>
+</div>

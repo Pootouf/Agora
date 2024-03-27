@@ -19,7 +19,8 @@ class MyrmesParameters
     public static int $PHASE_HARVEST = 3;
     public static int $PHASE_WORKSHOP = 4;
 
-
+    // Player color
+    public static array $PLAYERS_COLORS = ['blue', 'yellow', 'red', 'gray'];
 
     // Area's for nurses
     public static int $BASE_AREA = 0;
@@ -41,9 +42,9 @@ class MyrmesParameters
 
 
     // Win by area's nurses
-    public static array $WIN_LARVAE_BY_NURSES_COUNT = array(0, 1, 3, 5);
-    public static array $WIN_SOLDIERS_BY_NURSES_COUNT = array(0, 0, 1, 1);
-    public static array $WIN_WORKERS_BY_NURSES_COUNT = array(0, 0, 1, 0, 2);
+    public static array $WIN_LARVAE_BY_NURSES_COUNT = [0, 1, 3, 5];
+    public static array $WIN_SOLDIERS_BY_NURSES_COUNT = [0, 0, 1, 1];
+    public static array $WIN_WORKERS_BY_NURSES_COUNT = [0, 0, 1, 0, 2];
 
     // Events bonus
 

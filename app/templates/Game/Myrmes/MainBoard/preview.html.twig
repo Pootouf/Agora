@@ -3,3 +3,13 @@ This section displays main board preview
 @param :
 @return :
 #}
+
+{% set isPreview = true %}
+<button class="w-full h-full flex items-center justify-center"
+        {{ stimulus_action('myrmes','showMainBoard','click',
+            {url:path('app_game_myrmes_show_main_board',
+                {id: game.id})})
+        }}
+>
+    {{ include('Game/Myrmes/MainBoard/displayBoardBoxes.html.twig') }}
+</button>

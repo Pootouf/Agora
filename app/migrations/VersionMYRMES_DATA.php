@@ -11,7 +11,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class VersionMYRMESDATA extends AbstractMigration
+final class VersionMYRMES_DATA extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -841,6 +841,13 @@ final class VersionMYRMESDATA extends AbstractMigration
             ['id' => $id, 'help_id' => null,
                 'coord_x' => 6,
                 'coord_y' => 5,
+                'type' => MyrmesParameters::$GRASS_TILE_TYPE]);
+        $id ++;
+
+        $this->connection->insert('tile_myr',
+            ['id' => $id, 'help_id' => null,
+                'coord_x' => 6,
+                'coord_y' => 9,
                 'type' => MyrmesParameters::$GRASS_TILE_TYPE]);
         $id ++;
 

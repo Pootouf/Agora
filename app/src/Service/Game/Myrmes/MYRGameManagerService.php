@@ -83,13 +83,13 @@ class MYRGameManagerService extends AbstractGameManagerService
         $player = new PlayerMYR($playerName, $game);
         $player->setScore(0);
         $player->setGoalLevel(0);
+        $player->setColor("");
         $player->setPhase(MyrmesParameters::$PHASE_EVENT);
         $personalBoard = new PersonalBoardMYR();
         $personalBoard->setAnthillLevel(0);
         $personalBoard->setLarvaCount(0);
         $personalBoard->setWarriorsCount(0);
         $personalBoard->setBonus(0);
-        $personalBoard->setHuntedPreyCount(0);
         $player->setPersonalBoardMYR($personalBoard);
         $game->addPlayer($player);
         $this->entityManager->persist($player);

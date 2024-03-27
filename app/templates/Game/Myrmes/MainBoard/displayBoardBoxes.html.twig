@@ -1,0 +1,62 @@
+{#
+    Represents the display of board boxes on the main board, with the tiles, ants and pheromones.
+    param: boardBoxes, game
+    return : display the board boxes
+#}
+
+{# Declaration of contants #}
+{% set WATER_TILE_TYPE = "water" %}
+{% set DIRT_TILE_TYPE = "dirt" %}
+{% set MUSHROOM_TILE_TYPE = "mushroom" %}
+{% set STONE_TILE_TYPE = "stone" %}
+{% set GRASS_TILE_TYPE = "grass" %}
+
+{# Loading of Tailwind data for grid #}
+<div class="hidden grid grid-cols-[repeat(14,_3.5vw)] grid-cols-[repeat(14,_1.25vw)] grid-rows-15 grid-rows-13 grid-rows-8"></div>
+
+{# Loading Tailwind colors #}
+<div class="hidden border-b-green-600 border-b-orange-950 border-b-red-700 border-b-stone-700 border-b-blue-600
+            border-t-green-600 border-t-orange-950 border-t-red-700 border-t-stone-700 border-t-blue-600
+            bg-green-600 bg-orange-950 bg-red-700 bg-stone-700 bg-blue-600">
+</div>
+
+<div class="hidden bg-gray-500 bg-blue-500 bg-red-500 bg-yellow-500"></div>
+
+<div class="w-auto h-auto flex flex-row flex items-center">
+    <div class="flex-grow"></div>
+    <div class="grid grid-rows-{{ boardBoxes|length }}
+                {% if not isPreview %}
+                    grid-cols-[repeat({{ boardBoxes|first|length + 1}},_3.5vw)]
+                     gap-1
+                {% else %}
+                    grid-cols-[repeat({{ boardBoxes|first|length + 1}},_1.25vw)]
+                     gap-[0.25vw]
+                {% endif %}"
+    >
+    {% for boardBoxLine in boardBoxes %}
+        {% set isShifted = boardBoxLine|filter(box => box.tile != null)|first.tile.coordX % 2 != 0 %}
+        {% for boardBox in boardBoxLine %}
+            {% if boardBox.tile != null %}
+                {% set color = "" %}
+                {% if boardBox.tile.type == WATER_TILE_TYPE %}
+                    {% set color = "blue-600" %}
+                {% elseif boardBox.tile.type == DIRT_TILE_TYPE %}
+                    {% set color = "orange-950" %}
+                {% elseif boardBox.tile.type == MUSHROOM_TILE_TYPE %}
+                    {% set color = "red-700" %}
+                {% elseif boardBox.tile.type == STONE_TILE_TYPE %}
+                    {% set color = "stone-700" %}
+                {% else %}
+                    {% set color = "green-600" %}
+                {% endif %}
+                {{ include('Game/Myrmes/MainBoard/boardBox.html.twig') }}
+
+            {% else %}
+                <div class="hex"></div>
+            {% endif %}
+        {% endfor %}
+        <div class="hex"></div>
+    {% endfor %}
+    </div>
+    <div class="flex-grow"></div>
+</div>
