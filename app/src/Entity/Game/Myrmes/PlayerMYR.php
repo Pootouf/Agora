@@ -46,6 +46,9 @@ class PlayerMYR extends Player
     #[ORM\Column]
     private ?int $phase = null;
 
+    #[ORM\Column]
+    private ?int $remainingHarvestingBonus = null;
+
     public function __construct(string $name, GameMYR $game)
     {
         $this->gardenWorkerMYRs = new ArrayCollection();
@@ -279,6 +282,18 @@ class PlayerMYR extends Player
     public function setPhase(int $phase): static
     {
         $this->phase = $phase;
+
+        return $this;
+    }
+
+    public function getRemainingHarvestingBonus(): ?int
+    {
+        return $this->remainingHarvestingBonus;
+    }
+
+    public function setRemainingHarvestingBonus(int $remainingHarvestingBonus): static
+    {
+        $this->remainingHarvestingBonus = $remainingHarvestingBonus;
 
         return $this;
     }
