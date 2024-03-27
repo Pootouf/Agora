@@ -175,6 +175,7 @@ class MYRService
         $personalBoard->setLarvaCount(MyrmesParameters::$NUMBER_OF_LARVAE_AT_START);
         $personalBoard->setAnthillLevel(MyrmesParameters::$ANTHILL_START_LEVEL);
         $player->setScore(MyrmesParameters::$PLAYER_START_SCORE);
+        $player->setRemainingHarvestingBonus(0);
 
         $this->initializeColorForPlayer($player, $color);
 

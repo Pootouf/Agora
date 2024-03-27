@@ -33,7 +33,12 @@ class HarvestMYRService
             foreach ($playerPheromone->getPheromonTiles() as $tile) {
                 if($tile->getTile() === $tileMYR) {
                     if($playerPheromone->isHarvested()) {
-                        throw new Exception("Pheromone already harvested");
+                        if($playerMYR->getRemainingHarvestingBonus() <= 0) {
+                            throw new Exception("Pheromone already harvested");
+                        }
+                        $playerMYR->setRemainingHarvestingBonus(
+                            $playerMYR->getRemainingHarvestingBonus() - 1);
+                        $this->entityManager->persist($playerMYR);
                     }
                     $resource = $tile->getResource();
                     $tile->setResource(null);

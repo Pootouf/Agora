@@ -75,6 +75,7 @@ class BirthMYRServiceTest extends KernelTestCase
             $player->setPersonalBoardMYR($personalBoard);
             $player->setScore(0);
             $player->setGoalLevel(0);
+            $player->setRemainingHarvestingBonus(0);
             for($j = 0; $j < MyrmesParameters::$START_NURSES_COUNT_PER_PLAYER; $j += 1) {
                 $nurse = new NurseMYR();
                 $nurse->setPosition(-1);
