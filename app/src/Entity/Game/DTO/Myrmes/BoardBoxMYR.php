@@ -31,7 +31,7 @@ class BoardBoxMYR
     public function __construct(?TileMYR $tile, ?GardenWorkerMYR $ant, ?PheromonTileMYR $pheromonTile,
                                 ?AnthillHoleMYR $anthillHoleMYR, ?PreyMYR $preyMYR, int $coordX, int $coordY)
     {
-        if ($tile == null && ($ant != null || $pheromonTile != null)) {
+        if ($tile == null && ($ant != null || $pheromonTile != null || $preyMYR != null || $anthillHoleMYR != null)) {
             throw new Exception("Invalid placement");
         }
         $this->tile = $tile;

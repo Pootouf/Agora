@@ -3,3 +3,8 @@ This section displays main board preview
 @param :
 @return :
 #}
+
+{% set isPreview = true %}
+<button class="w-full h-full flex items-center justify-center">
+    {{ include('Game/Myrmes/MainBoard/displayBoardBoxes.html.twig') }}
+</button>

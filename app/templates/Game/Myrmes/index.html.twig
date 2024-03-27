@@ -13,23 +13,23 @@
             {% endblock %}
             {% block ranking %}
                 <div id="ranking"
-                     class="absolute bg-gradient-to-b from-[#4C6E9Bff] to-[#20222Dff] w-[25%] h-[75%] top-0 right-0">
+                     class="absolute bg-gradient-to-b from-[#4C6E9Bff] to-[#20222Dff] w-[25%] h-[60%] top-0 right-0">
                     {{ include('/Game/Myrmes/Ranking/ranking.html.twig') }}
                 </div>
             {% endblock %}
             {% block previewMainBoard %}
                 <div id="preview"
                      class="absolute bottom-0 flex justify-around items-center
-                     bg-gradient-to-b from-[#4C6E9Bff] to-[#20222Dff] w-[25%] h-[25%] right-0">
+                     bg-gradient-to-b from-[#4C6E9Bff] to-[#20222Dff] w-[25%] h-[40%] right-0">
                     {{ include('/Game/Myrmes/MainBoard/preview.html.twig') }}
                 </div>
             {% endblock %}
-            {% block mainBoard %}
+            {# {% block mainBoard %}
                 <div id="mainBoard"
                      class="w-[75%] h-full bg-gray-500 pb-4">
                     {{ include('/Game/Myrmes/MainBoard/mainBoard.html.twig') }}
                 </div>
-            {% endblock %}
+            {% endblock %}#}
             {% block personalBoard %}
                 {% if not isSpectator %}
                     <div id="personalBoard" class="absolute bottom-0 w-[70%] h-[90%]">

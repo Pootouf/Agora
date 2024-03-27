@@ -13,7 +13,7 @@ class MyrmesParameters
 
     // Player color
 
-    public static array $PLAYERS_COLORS = ['blue', 'yellow', 'red', 'black'];
+    public static array $PLAYERS_COLORS = ['blue', 'yellow', 'red', 'gray'];
 
     // Area's for nurses
     public static int $BASE_AREA = 0;

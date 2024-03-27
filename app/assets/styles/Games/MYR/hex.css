@@ -22,3 +22,29 @@
     border-left: 1.75vw solid transparent;
     border-right: 1.75vw solid transparent;
 }
+
+
+.hex_mini {
+    float: left;
+    margin-bottom: -0.4vw;
+    width: 1.25vw;
+}
+.hex_mini .top {
+    width: 0;
+    border-bottom: 0.3125vw solid;
+    border-bottom-color: inherit;
+    border-left: 0.625vw solid transparent;
+    border-right: 0.625vw solid transparent;
+}
+.hex_mini .middle {
+    background: inherit;
+    width: 1.25vw;
+    height: 0.625vw;
+}
+.hex_mini .bottom {
+    width: 0;
+    border-top: 0.3125vw solid;
+    border-top-color: inherit;
+    border-left: 0.625vw solid transparent;
+    border-right: 0.625vw solid transparent;
+}
