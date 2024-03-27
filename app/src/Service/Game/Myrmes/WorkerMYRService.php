@@ -125,11 +125,14 @@ class WorkerMYRService
     /**
      * isPositionAvailable : checks if any player can place something on the tile in parameters
      * @param GameMYR $gameMYR
-     * @param TileMYR $tileMYR
+     * @param ?TileMYR $tileMYR
      * @return bool
      */
-    private function isPositionAvailable(GameMYR $gameMYR, TileMYR $tileMYR) : bool
+    private function isPositionAvailable(GameMYR $gameMYR, ?TileMYR $tileMYR) : bool
     {
+        if ($tileMYR == null) {
+            return false;
+        }
         if($tileMYR->getType() == MyrmesParameters::$WATER_TILE_TYPE) {
             return false;
         }
@@ -1161,7 +1164,7 @@ class WorkerMYRService
         $anthillLevel = $player->getPersonalBoardMYR()->getAnthillLevel();
         $pheromoneSize = $pheromone->getPheromonTiles()->count();
         $allowedSize = $anthillLevel + 2;
-        if ($player->getPhase() === MyrmesParameters::$BONUS_PHEROMONE) {
+        if ($player->getPersonalBoardMYR()->getBonus() === MyrmesParameters::$BONUS_PHEROMONE) {
             ++$allowedSize;
         }
         if ($pheromoneSize > $allowedSize) {
