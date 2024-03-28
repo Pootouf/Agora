@@ -79,7 +79,7 @@ Tables
             {% endif %}
             <tbody id="table-body">
                {% for board in boards %}
-               {% if board.isAvailble() == true and board.getNbAvailbleSlots() > 0 and board.status != 'FINISH' %}
+               {% if board.getNbAvailbleSlots() > 0 and board.status != 'FINISH' %}
                {% set users = board.listUsers %}
                {% set availableSeats = board.getNbAvailbleSlots() %}
                {% set colorClass = board.status == 'IN_GAME' ? 'bg-gradient-to-r from-transparent to-orange-200' : (board.isAvailble() ? 'bg-gradient-to-r from-transparent to-green-200' : 'bg-gradient-to-r from-transparent to-red-200') %}
@@ -147,31 +147,31 @@ Tables
                      </table>
                   </td>
                   <td class="px-3 py-4">
-                     {% if app.user %}
+                  {% if app.user %}
                      {% if currentUserID in usersIds %}
-                     {% if board.status == 'IN_GAME' %}
-                     <a href="{{ path('app_join_game', {'id': board.id}) }}" class="text-white bg-primary hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
-                     Reprendre
-                     </a>
+                        {% if board.status == 'IN_GAME' %}
+                           <a href="{{ path('app_join_game', {'id': board.id}) }}" class="text-white bg-primary hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
+                              Reprendre
+                           </a>
+                        {% else %}
+                           <a href="{{ path('app_leave_board', {'id': board.id}) }}" class="text-white bg-red-500 hover:bg-red-400 focus:ring-4 focus:outline-none focus:ring-red-300 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
+                              Quitter
+                           </a>
+                        {% endif %}
                      {% else %}
-                     <a href="{{ path('app_leave_board', {'id': board.id}) }}" class="text-white bg-red-500 hover:bg-red-400 focus:ring-4 focus:outline-none focus:ring-red-300 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
-                     Quitter
-                     </a>
+                        {% if board.status == 'IN_GAME' %}
+                           <a href="{{ path('app_join_game', {'id': board.id}) }}" class="text-white bg-primary hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
+                              Visionner
+                           </a>
+                        {% elseif board.status == 'WAITING' %}
+                           {% if board.isAvailble() == true and availableSeats > 0 %} {# test inutile ? déjà fait dans le for #}
+                              <a href="{{ path('app_join_board', {'id': board.id}) }}" class="text-white bg-primary hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
+                                 Rejoindre
+                              </a>
+                           {% endif %}
+                        {% endif %}
                      {% endif %}
-                     {% else %}
-                     {% if board.status == 'IN_GAME' %}
-                     <a href="{{ path('app_join_game', {'id': board.id}) }}" class="text-white bg-primary hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
-                     Visionner
-                     </a>
-                     {% elseif board.status == 'WAITING' %}
-                     {% if board.isAvailble() == true and availableSeats > 0 %} {# test inutile ? déjà fait dans le for #}
-                     <a href="{{ path('app_join_board', {'id': board.id}) }}" class="text-white bg-primary hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
-                     Rejoindre
-                     </a>
-                     {% endif %}
-                     {% endif %}
-                     {% endif %}
-                     {% endif %}
+                  {% endif %}
                   </td>
                </tr>
                {% endif %}
