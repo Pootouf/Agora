@@ -5,9 +5,6 @@
 {% block body %}
     <div class="h-screen w-screen overflow-hidden absolute" {{ stimulus_controller('myrmes') }}>
         <div id="index_myrmes" class="h-full w-full static overflow-hidden">
-            {% block nav %}
-                {{ include('/Game/Utils/navigation.html.twig') }}
-            {% endblock %}
             {#{% block endGame %}
                 {{ include('/Game/Myrmes/endGameScreenResult.html.twig') }}
             {% endblock %}#}
@@ -24,18 +21,15 @@
                     {{ include('/Game/Myrmes/MainBoard/preview.html.twig') }}
                 </div>
             {% endblock %}
-            {# {% block mainBoard %}
-                <div id="mainBoard"
-                     class="w-[75%] h-full bg-gray-500 pb-4">
-                    {{ include('/Game/Myrmes/MainBoard/mainBoard.html.twig') }}
-                </div>
-            {% endblock %}#}
             {% block personalBoard %}
-{#                {% if not isSpectator %}#}
+                {% if not isSpectator %}
                     <div id="personalBoard" class="absolute bottom-0 w-[72%] h-full">
                         {{ include('/Game/Myrmes/PersonalBoard/personalBoard.html.twig') }}
                     </div>
-{#                {% endif %}#}
+                {% endif %}
+            {% endblock %}
+            {% block nav %}
+                {{ include('/Game/Utils/navigation.html.twig') }}
             {% endblock %}
         </div>
     </div>
