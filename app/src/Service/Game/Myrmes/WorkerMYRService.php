@@ -1606,6 +1606,9 @@ class WorkerMYRService
         } else {
             $points = MyrmesParameters::$SPECIAL_TILES_TYPE_LEVEL[$tileTypeMYR->getType()];
         }
+        if ($playerMYR->getPersonalBoardMYR()->getBonus() === MyrmesParameters::$BONUS_POINT) {
+            ++$points;
+        }
         $playerMYR->setScore($playerMYR->getScore() + $points);
         $this->entityManager->persist($playerMYR);
         $this->entityManager->flush();
