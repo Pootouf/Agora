@@ -60,7 +60,7 @@ class BirthMYRService
                     $this->manageWorker($player, $nursesCount);
                     break;
                 default:
-                    break;
+                    throw new Exception("Impossible give bonus");
             }
             $this->entityManager->flush();
         }
