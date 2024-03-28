@@ -193,5 +193,18 @@ class MyrmesParameters
     public static string $RESOURCE_TYPE_GRASS = "grass";
     public static string $RESOURCE_TYPE_LARVAE = "larvae";
 
+    // Goal Difficulty
+
+    public static int $GOAL_DIFFICULTY_LEVEL_ONE = 1;
+    public static int $GOAL_DIFFICULTY_LEVEL_TWO = 2;
+    public static int $GOAL_DIFFICULTY_LEVEL_THREE = 3;
+
+    // Goal Points
+
+    public static int $GOAL_REWARD_LEVEL_ONE = 6;
+    public static int $GOAL_REWARD_LEVEL_TWO = 9;
+    public static int $GOAL_REWARD_LEVEL_THREE = 12;
+    public static int $GOAL_REWARD_WHEN_GOAL_ALREADY_DONE = 3;
+
 
 }
