@@ -4,7 +4,9 @@ namespace App\Service\Game\Myrmes;
 
 use App\Entity\Game\Myrmes\AnthillHoleMYR;
 use App\Entity\Game\Myrmes\AnthillWorkerMYR;
+use App\Entity\Game\Myrmes\GameGoalMYR;
 use App\Entity\Game\Myrmes\GameMYR;
+use App\Entity\Game\Myrmes\GoalMYR;
 use App\Entity\Game\Myrmes\MyrmesParameters;
 use App\Entity\Game\Myrmes\NurseMYR;
 use App\Entity\Game\Myrmes\PlayerMYR;
@@ -337,6 +339,73 @@ class MYRService
                         throw new Exception("Don't manage bonus");
                 }
                 $nurseCount--;
+            }
+        }
+    }
+
+    /**
+     * doGameGoal : Activate a game goal for the player, retrieve the resources associated and gives the points
+     * @param PlayerMYR $playerMYR
+     * @param GameGoalMYR $goalMYR
+     * @return void
+     */
+    public function doGameGoal(PlayerMYR $playerMYR, GameGoalMYR $goalMYR)
+    {
+        // TODO : COMPUTE GOAL COSTS
+        $this->computePlayerRewardPointsWithGoal($playerMYR, $goalMYR->getGoal());
+    }
+
+    /**
+     * computePlayerRewardPointsWithGoal : Computes and gives Player points related to the goal
+     * @param PlayerMYR $playerMYR
+     * @param GoalMYR $goalMYR
+     * @return void
+     */
+    private function computePlayerRewardPointsWithGoal(PlayerMYR $playerMYR, GoalMYR $goalMYR) : void
+    {
+        $gameGoals = $playerMYR->getGameGoalMYRs();
+        foreach ($gameGoals as $gameGoal) {
+            if($gameGoal->getGoal() === $goalMYR) {
+                foreach ($gameGoal->getPrecedentsPlayers() as $player) {
+                    $player->setScore($player->getScore() +
+                        MyrmesParameters::$GOAL_REWARD_WHEN_GOAL_ALREADY_DONE);
+                }
+            }
+        }
+        switch ($goalMYR->getDifficulty()) {
+            case MyrmesParameters::$GOAL_DIFFICULTY_LEVEL_ONE :
+                $playerMYR->setScore($playerMYR->getScore() + MyrmesParameters::$GOAL_REWARD_LEVEL_ONE);
+                break;
+            case MyrmesParameters::$GOAL_DIFFICULTY_LEVEL_TWO :
+                $playerMYR->setScore($playerMYR->getScore() + MyrmesParameters::$GOAL_REWARD_LEVEL_TWO);
+                break;
+            case MyrmesParameters::$GOAL_DIFFICULTY_LEVEL_THREE :
+                $playerMYR->setScore($playerMYR->getScore() + MyrmesParameters::$GOAL_REWARD_LEVEL_THREE);
+                break;
+        }
+        $this->addPlayerToOtherPlayersGoal($playerMYR, $goalMYR);
+        $this->entityManager->persist($playerMYR);
+        $this->entityManager->flush();
+    }
+
+    /**
+     * addPlayerToOtherPlayersGoal : add the player to the others players goal list
+     * @param PlayerMYR $playerMYR
+     * @param GoalMYR $goalMYR
+     * @return void
+     */
+    private function addPlayerToOtherPlayersGoal(PlayerMYR $playerMYR, GoalMYR $goalMYR) : void
+    {
+        $game = $playerMYR->getGameMyr();
+        foreach ($game->getPlayers() as $player) {
+            if($player !== $playerMYR) {
+                $playerGameGoals = $player->getGameGoalMYRs();
+                foreach ($playerGameGoals as $playerGameGoal) {
+                    if($playerGameGoal->getGoal() === $goalMYR) {
+                        $playerGameGoal->addPrecedentsPlayer($player);
+                    }
+                    $this->entityManager->persist($playerGameGoal);
+                }
             }
         }
     }
