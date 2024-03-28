@@ -47,24 +47,15 @@ class MyrmesController extends AbstractController
         ]);
     }
 
-    #[Route('/game/myrmes/{id}/show/mainBoard', name: 'app_game_myrmes_show_main_board')]
-    public function showMainBoard(GameMYR $game): Response
+    #[Route('/game/myrmes/{id}/show/personalBoard', name: 'app_game_myrmes_show_personal_board')]
+    public function showPersonalBoard(GameMYR $game): Response
     {
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
 
-        $boardBoxes = null;
-        try {
-            $boardBoxes = $this->dataManagementMYRService->organizeMainBoardRows($game);
-        } catch (\Exception $e) {
-            return new Response("Error while calculating main board tiles disposition",
-                Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
-
-        return $this->render('/Game/Myrmes/MainBoard/mainBoard.html.twig', [
+        return $this->render('/Game/Myrmes/PersonalBoard/personalBoard.html.twig', [
             'player' => $player,
             'game' => $game,
-            'boardBoxes' => $boardBoxes,
-            'preys' => $game->getMainBoardMYR()->getPreys(),
+            'preys' => $player->getPreyMYRs(),
             'isSpectator' => $player == null,
         ]);
     }
