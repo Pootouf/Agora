@@ -21,6 +21,30 @@ class WinterMYRService
                                 private readonly ResourceMYRRepository $resourceMYRRepository,
                                 private readonly PlayerResourceMYRRepository $playerResourceMYRRepository) {}
 
+
+    /**
+     * Remove one cube's resource belongs to the player
+     * @param PlayerMYR $player
+     * @param PlayerResourceMYR $playerResource
+     * @return void
+     * @throws Exception
+     */
+    public function removeCubeOfWarehouse(PlayerMYR $player, PlayerResourceMYR $playerResource) : void
+    {
+        $pBoard = $player->getPersonalBoardMYR();
+
+        if (!$pBoard->getPlayerResourceMYRs()->contains($playerResource))
+        {
+            throw new Exception("Resource don't belongs to the player");
+        }
+
+        $pBoard->removePlayerResourceMYR($playerResource);
+
+        $this->entityManager->persist($pBoard);
+        $this->entityManager->persist($playerResource);
+        $this->entityManager->flush();
+    }
+
     public function retrievePoints(PlayerMYR $player) : void
     {
         $game = $player->getGameMyr();
