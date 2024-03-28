@@ -58,6 +58,7 @@ class HarvestMYRService
     }
 
     /**
+     * Manage resources and purchase about position of nurse
      * @param PlayerMYR $player
      * @return void
      * @throws Exception
@@ -70,13 +71,17 @@ class HarvestMYRService
             $nursesCount = $nurses->count();
             switch ($i) {
                 case MyrmesParameters::$WORKSHOP_ANTHILL_HOLE_AREA:
-                    $this->manageAnthillHole($nursesCount, $player);
+                    if ($this->canIncreaseLevel($player)) {
+                        $this->manageAnthillHole($nursesCount, $player);
+                    }
                     break;
                 case MyrmesParameters::$WORKSHOP_LEVEL_AREA:
                     $this->manageLevel($nursesCount, $player);
                     break;
                 case MyrmesParameters::$WORKSHOP_NURSE_AREA:
-                    $this->manageNurse($nursesCount, $player);
+                    if ($this->canBuyNurse($player)) {
+                        $this->manageNurse($nursesCount, $player);
+                    }
                     break;
                 case MyrmesParameters::$WORKSHOP_GOAL_AREA:
                     break;
@@ -88,6 +93,7 @@ class HarvestMYRService
     }
 
     /**
+     * Manage all change driven by add anthill hole
      * @param int $nursesCount
      * @param PlayerMYR $player
      * @return void
@@ -104,7 +110,46 @@ class HarvestMYRService
         }
     }
 
+    private function canIncreaseLevel(PlayerMYR $player) : bool
+    {
+        $personalBoard = $player->getPersonalBoardMYR();
+
+        $canIncrease = false;
+        switch ($personalBoard->getAnthillLevel())
+        {
+            case 0:
+            case 1:
+            case 2:
+            default:
+                break;
+        }
+
+        return $canIncrease;
+    }
+
+    private function getBuyForLevel(int $level) : array
+    {
+        $buys = null;
+        switch ($level)
+        {
+            case 0:
+                $buys = MyrmesParameters::$BUY_RESOURCE_FOR_LEVEL_ONE;
+                break;
+            case 1:
+                $buys = MyrmesParameters::$BUY_RESOURCE_FOR_LEVEL_TWO;
+                break;
+            case 2:
+                $buys = MyrmesParameters::$BUY_RESOURCE_FOR_LEVEL_THREE;
+                break;
+            default:
+                break;
+        }
+
+        return $buys;
+    }
+
     /**
+     * Manage all change driven by level increase
      * @param int $nursesCount
      * @param PlayerMYR $player
      * @return void
@@ -115,6 +160,16 @@ class HarvestMYRService
         if ($nursesCount == 1)
         {
             $personalBoard = $player->getPersonalBoardMYR();
+
+            $buys = $this->getBuyForLevel($personalBoard->getAnthillLevel());
+
+            foreach (array_keys($buys) as $key)
+            {
+                $amount = $buys[$key];
+
+
+            }
+
             $level = $personalBoard->getAnthillLevel();
             $personalBoard->setAnthillLevel($level + 1);
             $this->MYRService->manageNursesAfterBonusGive(
@@ -123,13 +178,32 @@ class HarvestMYRService
         }
     }
 
+    /**
+     * Check if player can buy nurse
+     * @param PlayerMYR $player
+     * @return bool
+     */
+    private function canBuyNurse(PlayerMYR $player) : bool
+    {
+        $personalBoard = $player->getPersonalBoardMYR();
+
+        return $personalBoard->getLarvaCount() >= 2;
+    }
+
+    /**
+     * Manage all change driven by add nurse
+     * @param int $nursesCount
+     * @param PlayerMYR $player
+     * @return void
+     * @throws Exception
+     */
     private function manageNurse(int $nursesCount, PlayerMYR $player) : void
     {
-
         $personalBoard = $player->getPersonalBoardMYR();
 
         if ($nursesCount == 1)
         {
+            $personalBoard->setLarvaCount($personalBoard->getLarvaCount() - 2);
             $nurse = new NurseMYR();
             $nurse->setPosition(MyrmesParameters::$BASE_AREA);
             $personalBoard->addNurse($nurse);
