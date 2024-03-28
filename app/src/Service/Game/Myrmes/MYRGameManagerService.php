@@ -84,6 +84,7 @@ class MYRGameManagerService extends AbstractGameManagerService
         $player->setScore(0);
         $player->setGoalLevel(0);
         $player->setColor("");
+        $player->setRemainingHarvestingBonus(0);
         $player->setPhase(MyrmesParameters::$PHASE_EVENT);
         $personalBoard = new PersonalBoardMYR();
         $personalBoard->setAnthillLevel(0);
