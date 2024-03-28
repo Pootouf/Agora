@@ -30,16 +30,15 @@ class EventMYRServiceTest extends KernelTestCase
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
         $personalBoard = $player->getPersonalBoardMYR();
+        $personalBoard->setBonus(1);
         $personalBoard->setLarvaCount(2);
         $this->entityManager->persist($personalBoard);
         $this->entityManager->flush();
-        $bonusWanted = 3;
-        $expectedLarvaCount = 0;
+        $bonusWanted = 2;
         //WHEN
-        $this->eventMYRService->chooseBonus($player, $bonusWanted);
+        $this->eventMYRService->upBonus($player);
 
         //THEN
-        $this->assertSame($expectedLarvaCount, $personalBoard->getLarvaCount());
         $this->assertSame($bonusWanted, $personalBoard->getBonus());
     }
 
@@ -50,15 +49,14 @@ class EventMYRServiceTest extends KernelTestCase
         $player = $game->getPlayers()->first();
         $personalBoard = $player->getPersonalBoardMYR();
         $personalBoard->setLarvaCount(4);
+        $personalBoard->setBonus(5);
         $this->entityManager->persist($personalBoard);
         $this->entityManager->flush();
-        $bonusWanted = 3;
-        $expectedLarvaCount = 2;
+        $bonusWanted = 4;
         //WHEN
-        $this->eventMYRService->chooseBonus($player, $bonusWanted);
+        $this->eventMYRService->lowerBonus($player, $bonusWanted);
 
         //THEN
-        $this->assertSame($expectedLarvaCount, $personalBoard->getLarvaCount());
         $this->assertSame($bonusWanted, $personalBoard->getBonus());
     }
 
@@ -67,11 +65,14 @@ class EventMYRServiceTest extends KernelTestCase
         //GIVEN
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
-        $bonusWanted = 10;
+        $personalBoard = $player->getPersonalBoardMYR();
+        $personalBoard->setBonus(MyrmesParameters::$BONUS_WORKER);
+        $this->entityManager->persist($personalBoard);
+        $this->entityManager->flush();
         //THEN
         $this->expectException(\Exception::class);
         //WHEN
-        $this->eventMYRService->chooseBonus($player, $bonusWanted);
+        $this->eventMYRService->upBonus($player);
     }
 
     public function testChooseBonusShouldFailBecauseNotEnoughLarvae() : void
@@ -80,14 +81,14 @@ class EventMYRServiceTest extends KernelTestCase
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
         $personalBoard = $player->getPersonalBoardMYR();
-        $personalBoard->setLarvaCount(2);
+        $personalBoard->setLarvaCount(0);
+        $personalBoard->setBonus(1);
         $this->entityManager->persist($personalBoard);
         $this->entityManager->flush();
-        $bonusWanted = 1;
         //THEN
         $this->expectException(\Exception::class);
         //WHEN
-        $this->eventMYRService->chooseBonus($player, $bonusWanted);
+        $this->eventMYRService->lowerBonus($player);
     }
 
     public function testChooseBonusShouldFailBecauseNotEventPhase() : void
@@ -105,9 +106,49 @@ class EventMYRServiceTest extends KernelTestCase
         //THEN
         $this->expectException(\Exception::class);
         //WHEN
-        $this->eventMYRService->chooseBonus($player, $bonusWanted);
+        $this->eventMYRService->upBonus($player, $bonusWanted);
     }
 
+    public function testUpBonusTwice() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $personalBoard = $player->getPersonalBoardMYR();
+        $personalBoard->setBonus(1);
+        $personalBoard->setLarvaCount(2);
+        $this->entityManager->persist($personalBoard);
+        $this->entityManager->flush();
+        $bonusWanted = 3;
+        //WHEN
+        $this->eventMYRService->upBonus($player);
+        $this->eventMYRService->upBonus($player);
+
+        //THEN
+        $this->assertSame($bonusWanted, $personalBoard->getBonus());
+    }
+
+    public function testUpBonusThenLowerBonus() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $personalBoard = $player->getPersonalBoardMYR();
+        $personalBoard->setBonus(1);
+        $personalBoard->setLarvaCount(2);
+        $this->entityManager->persist($personalBoard);
+        $this->entityManager->flush();
+        $bonusWanted = 1;
+        $selectedLarvaeExpected = 0;
+        //WHEN
+        $this->eventMYRService->upBonus($player);
+        $this->eventMYRService->lowerBonus($player);
+
+        //THEN
+        $this->assertSame($bonusWanted, $personalBoard->getBonus());
+        $this->assertSame($selectedLarvaeExpected, $personalBoard->getSelectedEventLarvaeAmount());
+
+    }
 
     private function createGame(int $numberOfPlayers) : GameMYR
     {
@@ -127,6 +168,7 @@ class EventMYRServiceTest extends KernelTestCase
             $personalBoard->setLarvaCount(0);
             $personalBoard->setAnthillLevel(0);
             $personalBoard->setWarriorsCount(0);
+            $personalBoard->setSelectedEventLarvaeAmount(0);
             $personalBoard->setBonus(5);
             $player->setPersonalBoardMYR($personalBoard);
             $player->setScore(0);

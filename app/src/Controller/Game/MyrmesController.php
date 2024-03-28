@@ -69,10 +69,9 @@ class MyrmesController extends AbstractController
         ]);
     }
 
-    #[Route('/game/myrmes/{gameId}/choose/bonus/{bonusNb}', name: 'app_game_myrmes_choose_bonus')]
-    public function chooseBonus(
+    #[Route('/game/myrmes/{gameId}/up/bonus/', name: 'app_game_myrmes_up_bonus')]
+    public function upBonus(
         #[MapEntity(id: 'idGame')] GameMYR $game,
-        int $bonus
     ) : Response
     {
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
@@ -80,14 +79,50 @@ class MyrmesController extends AbstractController
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
         }
         try {
-            $this->eventMYRService->chooseBonus($player, $bonus);
+            $this->eventMYRService->upBonus($player);
         } catch (Exception) {
-            $message = $player->getUsername() . " a essayé de choisir le bonus numéro " . $bonus . " mais n'a pas pu";
+            $message = $player->getUsername() . " a essayé d'augmenter son bonus mais n'a pas pu";
             $this->logService->sendPlayerLog($game, $player, $message);
             return new Response("bonus is not reachable for player", Response::HTTP_FORBIDDEN);
         }
-        $message = $player->getUsername() . " a choisi le bonus numéro " . $bonus;
+        $message = $player->getUsername() . " a augmenté son bonus";
         $this->logService->sendPlayerLog($game, $player, $message);
-        return new Response('Bonus chosen', Response::HTTP_OK);
+        return new Response('Bonus upped', Response::HTTP_OK);
+    }
+
+    #[Route('/game/myrmes/{gameId}/lower/bonus/', name: 'app_game_myrmes_lower_bonus')]
+    public function lowerBonus(
+        #[MapEntity(id: 'idGame')] GameMYR $game,
+    ) : Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+        }
+        try {
+            $this->eventMYRService->lowerBonus($player);
+        } catch (Exception) {
+            $message = $player->getUsername() . " a essayé d'abaisser son bonus mais n'a pas pu";
+            $this->logService->sendPlayerLog($game, $player, $message);
+            return new Response("bonus is not reachable for player", Response::HTTP_FORBIDDEN);
+        }
+        $message = $player->getUsername() . " a baissé son bonus";
+        $this->logService->sendPlayerLog($game, $player, $message);
+        return new Response('Bonus lowered', Response::HTTP_OK);
+    }
+
+    #[Route('/game/myrmes/{gameId}/confirm/bonus/', name: 'app_game_myrmes_confirm_bonus')]
+    public function confirmBonus(
+        #[MapEntity(id: 'idGame')] GameMYR $game,
+    ) : Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+        }
+        $this->eventMYRService->confirmBonus($player);
+        $message = $player->getUsername() . " a confirmé son choix de bonus";
+        $this->logService->sendPlayerLog($game, $player, $message);
+        return new Response('Bonus confirmed', Response::HTTP_OK);
     }
 }

@@ -143,6 +143,7 @@ class WorkerMYRServiceTest extends KernelTestCase
             $player->setPhase(MyrmesParameters::$PHASE_EVENT);
             $personalBoard = new PersonalBoardMYR();
             $personalBoard->setLarvaCount(0);
+            $personalBoard->setSelectedEventLarvaeAmount(0);
             $personalBoard->setAnthillLevel(0);
             $personalBoard->setWarriorsCount(0);
             $personalBoard->setBonus(0);

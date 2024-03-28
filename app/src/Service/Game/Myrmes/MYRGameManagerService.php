@@ -90,6 +90,7 @@ class MYRGameManagerService extends AbstractGameManagerService
         $personalBoard->setAnthillLevel(0);
         $personalBoard->setLarvaCount(0);
         $personalBoard->setWarriorsCount(0);
+        $personalBoard->setSelectedEventLarvaeAmount(0);
         $personalBoard->setBonus(0);
         $player->setPersonalBoardMYR($personalBoard);
         $game->addPlayer($player);

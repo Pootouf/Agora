@@ -37,6 +37,9 @@ class PersonalBoardMYR extends Component
     #[ORM\OneToMany(targetEntity: PlayerResourceMYR::class, mappedBy: 'personalBoard', orphanRemoval: true)]
     private Collection $playerResourceMYRs;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $selectedEventLarvaeAmount = null;
+
     public function __construct()
     {
         $this->nurses = new ArrayCollection();
@@ -190,6 +193,18 @@ class PersonalBoardMYR extends Component
                 $playerResourceMYR->setPersonalBoard(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getSelectedEventLarvaeAmount(): ?int
+    {
+        return $this->selectedEventLarvaeAmount;
+    }
+
+    public function setSelectedEventLarvaeAmount(?int $selectedEventLarvaeAmount): static
+    {
+        $this->selectedEventLarvaeAmount = $selectedEventLarvaeAmount;
 
         return $this;
     }
