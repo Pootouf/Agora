@@ -58,6 +58,11 @@ class MyrmesParameters
     public static int $BONUS_WORKER = 7;
 
 
+    // Bonus harvested pheromone
+
+    public static int $HARVESTED_TILE_BONUS = 3;
+
+
 
     // Years
     public static int $FIRST_YEAR_NUM = 1;

@@ -8,16 +8,18 @@ This section displays the main board that every player and spectator can see
 <div id="mainBoard"
      class="absolute top-0 left-0 w-full h-full bg-black bg-opacity-70 flex z-50 text-white items-center justify-center">
     <div class="bg-gradient-to-b from-green-950 to-yellow-900 rounded-lg w-full h-full flex flex-row justify-center items-center">
-        <div class="flex justify-center items-center font-bold w-[80%] h-[80%] pb-4">
+        <div class="flex justify-center items-center font-bold w-[70%] h-[80%] pb-4">
              {{ include('Game/Myrmes/MainBoard/displayBoardBoxes.html.twig') }}
         </div>
-        <button id="return_board" onclick="closeWindow()"
-                class="rounded-lg bg-[#8F901F] py-2 px-3 m-1 portrait:text-2xl items-center"
-        >
-            <img src="{{ asset('resourcesGames/utils/return-arrow.svg') }}" id="returnArrow"
-                 alt="return on board"
-                 class="h-6 max-h-full">
-        </button>
-
+        <div class="inline-flex align-middle justify-evenly items-center flex-col h-full">
+            {{ include('Game/Myrmes/MainBoard/seasonsDices.html.twig') }}
+            <button id="return_board" onclick="closeWindow()"
+                    class="rounded-lg bg-[#8F901F] py-2 px-3 m-1 portrait:text-2xl items-center"
+            >
+                <img src="{{ asset('resourcesGames/utils/return-arrow.svg') }}" id="returnArrow"
+                     alt="return on board"
+                     class="h-6 max-h-full">
+            </button>
+        </div>
     </div>
 </div>

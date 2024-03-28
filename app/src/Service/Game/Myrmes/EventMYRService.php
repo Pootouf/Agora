@@ -43,6 +43,10 @@ class EventMYRService
         if ($newLarvaCount < 0) {
             throw new Exception("Player can't choose this bonus, not enough larvae owned");
         }
+        if($bonus == MyrmesParameters::$BONUS_HARVEST) {
+            $player->setRemainingHarvestingBonus(MyrmesParameters::$HARVESTED_TILE_BONUS);
+            $this->entityManager->persist($player);
+        }
         $personalBoard->setBonus($bonus);
         $personalBoard->setLarvaCount($newLarvaCount);
         $this->entityManager->persist($personalBoard);
