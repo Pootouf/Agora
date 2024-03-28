@@ -79,6 +79,7 @@ Tables en cours
             {% endif %}
             <tbody id="table-body">
                {% for board in boards %}
+               {% if board.status != 'FINISH' %}
                {% set users = board.listUsers %}
                {% set availableSeats = board.getNbAvailbleSlots() %}
                {% set colorClass = board.status == 'IN_GAME' ? 'bg-gradient-to-r from-transparent to-orange-200' : (board.isAvailble() ? 'bg-gradient-to-r from-transparent to-green-200' : 'bg-gradient-to-r from-transparent to-red-200') %}
@@ -162,6 +163,7 @@ Tables en cours
                   </td>
                </tr>
                {% endif %}
+                {% endif %}
                {% endfor %}
             </tbody>
          </table>

@@ -176,6 +176,7 @@ Mon profil
       {% endif %}
       <tbody>
          {% for board in current_boards %}
+         {% if board.status != 'FINISH' %}
          {% set users = board.listUsers %}
          {% set availableSeats = board.getNbAvailbleSlots() %}
          {% set colorClass = board.isAvailble() ? 'bg-gradient-to-r from-transparent to-green-200' : 'bg-gradient-to-r from-transparent to-red-200' %}
@@ -261,6 +262,7 @@ Mon profil
             </td>
          </tr>
          {% endif %}
+         {% endif %}
          {% endfor %}
       </tbody>
    </table>
@@ -290,6 +292,7 @@ Mon profil
       {% endif %}
       <tbody>
          {% for board in past_boards %}
+         {% if board.status == 'FINISH' %}
          {% set users = board.listUsers %}
          {% set availableSeats = board.getNbAvailbleSlots() %}
          {% set colorClass = board.isAvailble() ? 'bg-gradient-to-r from-transparent to-green-200' : 'bg-gradient-to-r from-transparent to-red-200' %}
@@ -357,13 +360,18 @@ Mon profil
             </td>
             <td class="px-3 py-4">
                {% if app.user %}
-               <a href="#" class="text-white bg-primary hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
-               Visionner
-               </a>
+               {% if currentUserID in usersIds %}
+                {% if board.status == 'FINISH' %}
+                  <a href="{{ path('app_join_game', {'id': board.id}) }}" class="text-white bg-primary hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
+                     Visionner
+                  </a>
+                  {% endif %}
+               {% endif %}
                {% endif %}
             </td>
          </tr>
          {% endif %}
+          {% endif %}
          {% endfor %}
       </tbody>
    </table>
