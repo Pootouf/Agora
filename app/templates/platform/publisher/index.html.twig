@@ -23,13 +23,9 @@
     <script>
         let eventSource;
         {% if app.user %}
-        eventSource = new EventSource("{{ mercure('agora/notifications/user/' ~ app.user.id, { subscribe: 'agora/notifications/user/' ~ app.user.id })|escape('js') }}",{
-            withCredentials: true
-        });
+        eventSource = new EventSource("{{ mercure('agora/notifications/user/' ~ app.user.id)|escape('js') }}");
         {% else %}
-        eventSource = new EventSource("{{ mercure('agora/notifications/user/null', { subscribe: 'agora/notifications/user/null'})|escape('js') }}",{
-            withCredentials: true
-        });
+        eventSource = new EventSource("{{ mercure('agora/notifications/user/null')|escape('js') }}");
         {% endif %}
         eventSource.onmessage = event => {
             const data = JSON.parse(event.data);
