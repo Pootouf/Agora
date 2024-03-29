@@ -40,6 +40,19 @@ class BoardBoxMYRTest extends TestCase
         $this->assertFalse($this->boardBoxMYR->isEmptyBox());
     }
 
+    public function testCreateBoardBoxWithError() : void
+    {
+        // THEN
+
+        $this->expectException(Exception::class);
+
+        // WHEN
+
+        new BoardBoxMYR(null, $this->gardenWorkerMYR,
+            $this->pheromoneTileMYR, $this->anthillHoleMYR,
+            $this->preyMYR, 0 ,0);
+    }
+
     /**
      * @throws Exception
      */
