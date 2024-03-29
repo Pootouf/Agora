@@ -103,17 +103,26 @@ class WorkerMYRService
                 $this->placePheromoneTypeSix($player, $tile, $pheromone);
                 break;
             case MyrmesParameters::$SPECIAL_TILE_TYPE_FARM:
-                $this->placePheromoneTypeTwo($player, $tile, $pheromone)
-                    && $this->placePheromoneFarm($player);
-                break;
+                if ($this->placePheromoneFarm($player)) {
+                    $this->placePheromoneTypeTwo($player, $tile, $pheromone);
+                    break;
+                } else {
+                    throw new Exception("cant place this tile");
+                }
             case MyrmesParameters::$SPECIAL_TILE_TYPE_QUARRY:
-                $this->placePheromoneTypeTwo($player, $tile, $pheromone)
-                 && $this->placePheromoneQuarry($player);
-                break;
+                if ($this->placePheromoneQuarry($player)) {
+                    $this->placePheromoneTypeTwo($player, $tile, $pheromone);
+                    break;
+                } else {
+                    throw new Exception("cant place this tile");
+                }
             case MyrmesParameters::$SPECIAL_TILE_TYPE_SUBANTHILL:
-                $this->placePheromoneTypeThree($player, $tile, $pheromone)
-                    && $this->placePheromoneSubanthill($player);
-                break;
+                if ($this->placePheromoneSubanthill($player)) {
+                    $this->placePheromoneTypeThree($player, $tile, $pheromone);
+                    break;
+                } else {
+                    throw new Exception("cant place this tile");
+                }
             default:
                 throw new Exception("unknown tile type");
         }
