@@ -42,6 +42,7 @@ class MyrmesController extends AbstractController
             'player' => $player,
             'game' => $game,
             'boardBoxes' => $boardBoxes,
+            'isPreview' => true,
             'preys' => $game->getMainBoardMYR()->getPreys(),
             'isSpectator' => $player == null,
         ]);
@@ -56,6 +57,7 @@ class MyrmesController extends AbstractController
             'player' => $player,
             'game' => $game,
             'preys' => $player->getPreyMYRs(),
+            'isPreview' => false,
             'isSpectator' => $player == null,
         ]);
     }

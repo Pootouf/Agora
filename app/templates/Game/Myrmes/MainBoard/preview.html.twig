@@ -4,11 +4,11 @@ This section displays main board preview
 @return :
 #}
 
-{% set isPreview = true %}
-<button class="w-auto h-auto flex items-center justify-center"
-        {{ stimulus_action('myrmes','showMainBoard','click',
+<button class="w-full h-full flex items-center justify-center"
+        {{ stimulus_action('myrmes','showPersonalBoard','click',
             {url:path('app_game_myrmes_show_personal_board',
                 {id: game.id})})
         }}
 >
+    {{ include('Game/Myrmes/PersonalBoard/personalBoard.html.twig') }}
 </button>
