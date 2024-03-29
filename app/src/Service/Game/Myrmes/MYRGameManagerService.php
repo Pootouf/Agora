@@ -47,7 +47,7 @@ class MYRGameManagerService extends AbstractGameManagerService
         $game = new GameMYR();
         $game->setGameName(AbstractGameManagerService::$MYR_LABEL);
         $mainBoard = new MainBoardMYR();
-        $mainBoard->setYearNum(-1);
+        $mainBoard->setYearNum(0);
         $season = new SeasonMYR();
         $season->setName(MyrmesParameters::$INVALID_SEASON_NAME);
         $season->setDiceResult(-1);
