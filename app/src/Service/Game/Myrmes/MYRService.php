@@ -351,8 +351,36 @@ class MYRService
      */
     public function doGameGoal(PlayerMYR $playerMYR, GameGoalMYR $goalMYR)
     {
+        if(!$this->canDoGoal($playerMYR, $goalMYR)) {
+            throw new Exception("Player can't do goal");
+        }
         // TODO : COMPUTE GOAL COSTS
         $this->computePlayerRewardPointsWithGoal($playerMYR, $goalMYR->getGoal());
+    }
+
+    /**
+     * canDoGoal : returns true if player do not have done the objective yet,
+     *      and have done at least an objective of inferior level
+     * @param PlayerMYR $playerMYR
+     * @param GameGoalMYR $goalMYR
+     * @return bool
+     */
+    private function canDoGoal(PlayerMYR $playerMYR, GameGoalMYR $goalMYR) : bool
+    {
+        $playerGameGoals = $playerMYR->getGameGoalMYRs();
+        if($playerGameGoals->contains($goalMYR)) {
+            return false;
+        }
+        if($goalMYR->getGoal()->getDifficulty() == MyrmesParameters::$GOAL_DIFFICULTY_LEVEL_ONE) {
+            return true;
+        }
+        foreach ($playerGameGoals as $playerGameGoal) {
+            if($playerGameGoal->getGoal()->getDifficulty() == $goalMYR->getGoal()->getDifficulty()
+                || $playerGameGoal->getGoal()->getDifficulty() == $goalMYR->getGoal()->getDifficulty() - 1) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
