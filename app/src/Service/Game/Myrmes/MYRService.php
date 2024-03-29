@@ -16,6 +16,7 @@ use App\Repository\Game\Myrmes\NurseMYRRepository;
 use App\Entity\Game\Myrmes\TileMYR;
 use App\Entity\Game\Myrmes\TileTypeMYR;
 use App\Repository\Game\Myrmes\PlayerMYRRepository;
+use App\Repository\Game\Myrmes\SeasonMYRRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use App\Repository\Game\Myrmes\TileMYRRepository;
 use App\Repository\Game\Myrmes\TileTypeMYRRepository;
@@ -33,7 +34,8 @@ class MYRService
                 private readonly EntityManagerInterface $entityManager,
                 private readonly NurseMYRRepository $nurseMYRRepository,
                 private readonly TileMYRRepository $tileMYRRepository,
-                private readonly TileTypeMYRRepository $tileTypeMYRRepository)
+                private readonly TileTypeMYRRepository $tileTypeMYRRepository,
+                private readonly SeasonMYRRepository $seasonMYRRepository)
     {
 
     }
@@ -112,6 +114,23 @@ class MYRService
         $this->entityManager->flush();
     }
 
+    /**
+     * getDiceResults : get dice results for all season
+     * @param GameMYR $game
+     * @return ArrayCollection<
+     */
+    public function getDiceResults(GameMYR $game) : ArrayCollection
+    {
+        $result = new ArrayCollection();
+        $mainBoard = $game->getMainBoardMYR();
+        $fall = $this->seasonMYRRepository->findOneBy(["mainBoardMYR" => $mainBoard, "name" => MyrmesParameters::$FALL_SEASON_NAME]);
+        $result[$fall->getName()] = $fall->getDiceResult();
+        $spring = $this->seasonMYRRepository->findOneBy(["mainBoardMYR" => $mainBoard, "name" => MyrmesParameters::$SPRING_SEASON_NAME]);
+        $result[$spring->getName()] = $spring->getDiceResult();
+        $summer = $this->seasonMYRRepository->findOneBy(["mainBoardMYR" => $mainBoard, "name" => MyrmesParameters::$SUMMER_SEASON_NAME]);
+        $result[$summer->getName()] = $summer->getDiceResult();
+        return $result;
+    }
 
     /**
      * initializePreys: initialize random preys on the main board of the game
