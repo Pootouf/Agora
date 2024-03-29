@@ -4,18 +4,9 @@
     return : display an hexagon from the color of the tile type
 #}
 
-{% set elementsDisplay = '' %}
-{% set hexType = '' %}
-{% set shift = '' %}
-{% if isPreview %}
-    {% set elementsDisplay = "size-[1.25vw] px-[0.2vw] py-[0.3vw]" %}
-    {% set hexType = "hex_mini" %}
-    {% set shift = "ml-[0.73vw]" %}
-{% else %}
-    {% set elementsDisplay = "size-[3.5vw] px-[0.5vw] py-[0.75vw]" %}
-    {% set hexType = "hex" %}
-    {% set shift = "ml-[1.90vw]" %}
-{% endif %}
+{% set elementsDisplay = "size-[3.5vw] px-[0.5vw] py-[0.75vw]" %}
+{% set hexType = "hex" %}
+{% set shift = "ml-[1.90vw]" %}
 
 <div class="relative {{ hexType }} invisible bg-{{ color }} border-b-{{ color }} border-t-{{ color }}
     {% if isShifted %}

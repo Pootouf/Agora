@@ -25,13 +25,8 @@
 <div class="w-auto h-auto flex flex-row flex items-center">
     <div class="flex-grow"></div>
     <div class="grid grid-rows-{{ boardBoxes|length }}
-                {% if not isPreview %}
                     grid-cols-[repeat({{ boardBoxes|first|length + 1}},_3.5vw)]
-                     gap-1
-                {% else %}
-                    grid-cols-[repeat({{ boardBoxes|first|length + 1}},_1.25vw)]
-                     gap-[0.25vw]
-                {% endif %}"
+                     gap-1"
     >
     {% for boardBoxLine in boardBoxes %}
         {% set isShifted = boardBoxLine|filter(box => box.tile != null)|first.tile.coordX % 2 != 0 %}

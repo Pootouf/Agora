@@ -10,23 +10,21 @@
             {% endblock %}#}
             {% block ranking %}
                 <div id="ranking"
-                     class="absolute bg-gradient-to-b from-[#4C6E9Bff] to-[#20222Dff] w-[28%] h-[60%] top-0 right-0">
+                     class="absolute bg-gradient-to-b from-[#4C6E9Bff] to-[#20222Dff] w-[28%] h-[70%] top-0 right-0">
                     {{ include('/Game/Myrmes/Ranking/ranking.html.twig') }}
                 </div>
             {% endblock %}
-            {% block previewMainBoard %}
+            {% block previewPersonalBoard %}
                 <div id="preview"
                      class="absolute bottom-0 flex justify-around items-center
-                     bg-gradient-to-b from-[#4C6E9Bff] to-[#20222Dff] w-[28%] h-[40%] right-0">
+                     bg-gradient-to-b from-[#4C6E9Bff] to-[#20222Dff] w-[28%] h-[30%] right-0">
                     {{ include('/Game/Myrmes/MainBoard/preview.html.twig') }}
                 </div>
             {% endblock %}
-            {% block personalBoard %}
-                {% if not isSpectator %}
-                    <div id="personalBoard" class="absolute bottom-0 w-[72%] h-full">
-                        {{ include('/Game/Myrmes/PersonalBoard/personalBoard.html.twig') }}
+            {% block mainBoard %}
+                    <div id="mainBoard" class="absolute bottom-0 w-[72%] h-full">
+                        {{ include('/Game/Myrmes/MainBoard/mainBoard.html.twig') }}
                     </div>
-                {% endif %}
             {% endblock %}
             {% block nav %}
                 {{ include('/Game/Utils/navigation.html.twig') }}
@@ -43,7 +41,7 @@
     {# MAIN BOARD CLOSURE MANAGEMENT #}
     <script>
         function closeWindow() {
-            let window = document.getElementById('mainBoard');
+            let window = document.getElementById('personalBoard');
             window.remove();
         }
     </script>

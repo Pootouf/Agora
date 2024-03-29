@@ -4,28 +4,56 @@ This section displays the personal board of a player
 @return :
 #}
 
-{# loading tailwind data#}
-{{ include('Game/Myrmes/PersonalBoard/loadingPersonalBoardData.html.twig') }}
+{# Definition of variables #}
+{% set gapSize = '' %}
+{% set gapBetweenAreasSize = '' %}
+{% if isPreview %}
+    {% set gapSize = 'gap-[0.3vw]' %}
+    {% set gapBetweenAreasSize = '' %}
+{% else %}
+    {% set gapSize = 'gap-[1.5vw]' %}
+    {% set gapBetweenAreasSize = 'gap-[2vw]' %}
+{% endif %}
 
-<div class="inlineFlex gap-3 pb-2 lg:py-10 pr-5 relative bg-[#c67b24] w-full h-full">
-    <div class="inlineFlexCol gap-2 lg:gap-4 relative w-[45%]" id="left-column">
-        {#birth tracks#}
-        {{ include('Game/Myrmes/PersonalBoard/displayBirthTrack.html.twig') }}
-        {#nurse counter#}
-        <div class="relative w-full h-[5%]" id="nurses">
-            <p class="text1-4">Nourrices : X</p>
+<div {% if not isPreview %}id="personalBoard"{% endif %}
+    class="absolute top-0 left-0 w-full h-full bg-black bg-opacity-70 flex z-50 text-white items-center justify-center"
+>
+    <div class="bg-[#c67b24] rounded-lg
+        {% if isPreview %}
+            w-full h-full
+        {% else %}
+            absolute left-0 w-[75%] h-full
+        {% endif%}
+        inlineFlex gap-[1vw] justify-center items-center"
+    >
+        {# loading tailwind data#}
+        {{ include('Game/Myrmes/PersonalBoard/loadingPersonalBoardData.html.twig') }}
+        <div class="inlineFlexCol {% if isPreview %}gap-[0.3vw]{% else %}gap-[2vw]{% endif %} w-[45%]" id="left-column">
+            {#birth tracks#}
+            {{ include('Game/Myrmes/PersonalBoard/displayBirthTrack.html.twig') }}
+            {#nurse counter#}
+            <div class="w-full" id="nurses">
+                <p class="{% if isPreview %}text_mini {% else %} text1-4 {% endif %}">Nourrices : X</p>
+            </div>
+            {#event track#}
+            {{ include('Game/Myrmes/PersonalBoard/displayEventTrack.html.twig') }}
         </div>
-        {#event track#}
-        {{ include('Game/Myrmes/PersonalBoard/displayEventTrack.html.twig') }}
+        <div class="inline-flex flex-col items-center justify-around w-[20%] {{ gapBetweenAreasSize }}" id="rightColumn">
+            {#workshop#}
+            {{ include('Game/Myrmes/PersonalBoard/displayWorkshop.html.twig') }}
+            {#prey counter#}
+            {{ include('Game/Myrmes/PersonalBoard/displayPreyCount.html.twig') }}
+            {#warehouse#}
+            {{ include('Game/Myrmes/PersonalBoard/displayWarehouse.html.twig') }}
+        </div>
+        {#colony level track#}
+        {{ include('Game/Myrmes/PersonalBoard/displayColonyLevelTrack.html.twig') }}
+        <button id="return_board" onclick="closeWindow()"
+                class="rounded-lg bg-[#8F901F] py-2 px-3 m-1 portrait:text-2xl items-center"
+        >
+            <img src="{{ asset('resourcesGames/utils/return-arrow.svg') }}" id="returnArrow"
+                 alt="return on board"
+                 class="h-6 max-h-full">
+        </button>
     </div>
-    <div class="inline-flex flex-col items-center justify-around relative w-[20%]" id="rightColumn">
-        {#workshop#}
-        {{ include('Game/Myrmes/PersonalBoard/displayWorkshop.html.twig') }}
-        {#prey counter#}
-        {{ include('Game/Myrmes/PersonalBoard/displayPreyCount.html.twig') }}
-        {#warehouse#}
-        {{ include('Game/Myrmes/PersonalBoard/displayWarehouse.html.twig') }}
-    </div>
-    {#colony level track#}
-    {{ include('Game/Myrmes/PersonalBoard/displayColonyLevelTrack.html.twig') }}
 </div>
