@@ -2,6 +2,7 @@
 
 namespace App\Tests\Game\Myrmes\Unit\Entity;
 
+use App\Entity\Game\Myrmes\MainBoardMYR;
 use App\Entity\Game\Myrmes\PheromonMYR;
 use App\Entity\Game\Myrmes\PheromonTileMYR;
 use App\Entity\Game\Myrmes\ResourceMYR;
@@ -67,6 +68,20 @@ class PheromonTileMYRTest extends TestCase
         $this->assertSame($pheromone, $this->pheromonTileMYR->getPheromonMYR());
     }
 
+    public function testSetMainBoard() : void
+    {
+        // GIVEN
+
+        $mainBoard = new MainBoardMYR();
+
+        // WHEN
+
+        $this->pheromonTileMYR->setMainBoard($mainBoard);
+
+        // THEN
+
+        $this->assertSame($mainBoard, $this->pheromonTileMYR->getMainBoard());
+    }
     protected function setUp(): void
     {
         $this->pheromonTileMYR = new PheromonTileMYR();

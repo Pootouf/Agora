@@ -3,6 +3,7 @@
 namespace App\Tests\Game\Myrmes\Unit\Entity;
 
 use App\Entity\Game\Myrmes\GameMYR;
+use App\Entity\Game\Myrmes\MainBoardMYR;
 use App\Entity\Game\Myrmes\PlayerMYR;
 use App\Entity\Game\Myrmes\PreyMYR;
 use App\Entity\Game\Myrmes\TileMYR;
@@ -64,6 +65,21 @@ class PreyMYRTest extends TestCase
         // THEN
 
         $this->assertSame($player, $this->preyMYR->getPlayer());
+    }
+
+    public function testSetMainBoard() : void
+    {
+        // GIVEN
+
+        $mainBoard = new MainBoardMYR();
+
+        // WHEN
+
+        $this->preyMYR->setMainBoardMYR($mainBoard);
+
+        // THEN
+
+        $this->assertSame($mainBoard, $this->preyMYR->getMainBoardMYR());
     }
 
     protected function setUp(): void
