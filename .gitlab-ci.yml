@@ -94,7 +94,7 @@ deploy:dev_platform:
     SERVER_USER: $SERVER_PLATFORM_USER
     SERVER_IP: $SERVER_PLATFORM_IP
     SERVER_LOCATION: /opt/agora
-    DOCKER_COMPOSE_FILE: compose.yaml
+    DOCKER_COMPOSE_FILE: compose-dev.yaml
     GIT_BRANCH_NAME: develop-platform
     ID_RSA: $ID_RSA_PLATFORM
   only:
