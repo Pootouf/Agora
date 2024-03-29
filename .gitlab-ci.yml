@@ -13,7 +13,6 @@ cache:
     - vendor/
     - var/
 
-
 variables:
   MYSQL_ROOT_PASSWORD: password
   MYSQL_TCP_PORT: 3306
@@ -33,14 +32,12 @@ services:
   - name: dunglas/mercure:latest
     alias: mercure
 
-
 before_script:
   - cd app
   - composer install
   - symfony console tailwind:build
   - symfony console --env=test doctrine:migrations:migrate
   - symfony console doctrine:fixtures:load --env=test -n --append
-
 
 .only_game_branches: &only_game_branches
   only:
@@ -73,7 +70,6 @@ before_script:
 
     # Launch project
     - ssh $SERVER_USER@$SERVER_IP "cd $SERVER_LOCATION && docker compose -f compose.yaml -f $DOCKER_COMPOSE_FILE up --build -d"
-
 
 deploy:dev_game:
   <<: *deploy
