@@ -3,27 +3,28 @@ This section displays the birth track for soldiers.
 @param :
 @return :
 #}
-<div class="relative w-1/6 h-full justify-start align-top inline-flex flex-col gap-3" id="soldiers">
+<div class="relative w-1/6 h-full justify-start align-top inline-flex flex-col gap-[0.4vw]" id="soldiers">
     {#soldiers counter#}
-    <div class="inlineFlex gap-3 items-center w-full h-[3rem] lg:h-[4rem]" id="soldierCount">
-        <p class="relative w-10 h-fit text3-4">X</p>
+    <div class="inlineFlex gap-[0.3vw] items-center w-full {% if isPreview %} h-[1.0vw] {% else %} h-[5vw] {% endif %}" id="soldierCount">
+        <p class="relative w-10 h-fit {% if isPreview %}text_mini {% else %} text3-4 {% endif %}">X</p>
         <img class="h-full" id="soldierIcon"
              src="{{ asset('resourcesGames/Myrmes/soldierIcon.svg') }}"
              alt="soldier icon"/>
     </div>
-    <div class="inlineFlexCol gap-2 lg:gap-5">
+    <div class="inlineFlexCol gap-[0.6vw]">
         {# soldiers birth track#}
-        <div class="inlineFlexCol items-center gap-1 lg:gap-2.5 relative" id="soldierTrack">
-            <img class="w-[90%]"
+        <div class="inlineFlexCol items-center gap-[0.3vw] relative" id="soldierTrack">
+            <img class="{{ birthTrackSize }}"
                  src="{{ asset('resourcesGames/Myrmes/personalBoard/birthTrack/birthTrackOne.svg') }}"
                  alt="soldier birth track"/>
-            <img class="w-[90%]"
+            <img class="{{ birthTrackSize }}"
                  src="{{ asset('resourcesGames/Myrmes/personalBoard/birthTrack/birthTrackTwo.svg') }}"
                  alt="soldier birth track"/>
         </div>
         {# button to place nurse on soldiers birth track#}
+        {% if not isPreview %}
         <div class="flex justify-center">
-            <button type="button" class="w-[60%]"
+            <button type="button" class="{{ placeButtonSize }}"
                     {{ stimulus_action('myrmes','placeNurseOnSoldiersTrack','click') }}
             >
                 <img class="relative" id="soldierButton"
@@ -31,5 +32,6 @@ This section displays the birth track for soldiers.
                      alt="place soldier"/>
             </button>
         </div>
+        {% endif %}
     </div>
 </div>
