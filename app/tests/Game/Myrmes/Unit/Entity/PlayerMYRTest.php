@@ -8,6 +8,7 @@ use App\Entity\Game\Myrmes\GameGoalMYR;
 use App\Entity\Game\Myrmes\GameMYR;
 use App\Entity\Game\Myrmes\GardenTileMYR;
 use App\Entity\Game\Myrmes\GardenWorkerMYR;
+use App\Entity\Game\Myrmes\MyrmesParameters;
 use App\Entity\Game\Myrmes\NurseMYR;
 use App\Entity\Game\Myrmes\PersonalBoardMYR;
 use App\Entity\Game\Myrmes\PheromonMYR;
@@ -258,6 +259,36 @@ class PlayerMYRTest extends TestCase
 
         $this->assertNotContains($prey, $this->playerMYR->getPreyMYRs());
         $this->assertNull($prey->getPlayer());
+    }
+
+    public function testSetColor() : void
+    {
+        // GIVEN
+
+        $color = MyrmesParameters::$PLAYERS_COLORS[3];
+
+        // WHEN
+
+        $this->playerMYR->setColor($color);
+
+        // THEN
+
+        $this->assertSame($color, $this->playerMYR->getColor());
+    }
+
+    public function testSetRemainingHarvestingBonus() : void
+    {
+        // GIVEN
+
+        $remainingHarvestingBonus = 5;
+
+        // WHEN
+
+        $this->playerMYR->setRemainingHarvestingBonus($remainingHarvestingBonus);
+
+        // THEN
+
+        $this->assertSame($remainingHarvestingBonus, $this->playerMYR->getRemainingHarvestingBonus());
     }
 
     protected function setUp(): void
