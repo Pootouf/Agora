@@ -1546,6 +1546,9 @@ class WorkerMYRService
         if ($pheromoneSize > $allowedSize) {
             return false;
         }
+        if ($pheromone->getType()->getType() === MyrmesParameters::$SPECIAL_TILE_TYPE_SUBANTHILL) {
+            return $anthillLevel == 3;
+        }
         return MyrmesParameters::$PHEROMONE_TYPE_AMOUNT[$pheromone->getType()->getType()] >= $pheromoneCount;
     }
 
@@ -1597,6 +1600,16 @@ class WorkerMYRService
         }
         $this->entityManager->persist($pheromone);
         $playerMYR->addPheromonMYR($pheromone);
+        $type = $tileTypeMYR->getType();
+        if ($type <= MyrmesParameters::$PHEROMONE_TYPE_SIX) {
+            $points = MyrmesParameters::$PHEROMONE_TYPE_LEVEL[$tileTypeMYR->getType()];
+        } else {
+            $points = MyrmesParameters::$SPECIAL_TILES_TYPE_LEVEL[$tileTypeMYR->getType()];
+        }
+        if ($playerMYR->getPersonalBoardMYR()->getBonus() === MyrmesParameters::$BONUS_POINT) {
+            ++$points;
+        }
+        $playerMYR->setScore($playerMYR->getScore() + $points);
         $this->entityManager->persist($playerMYR);
         $this->entityManager->flush();
     }
