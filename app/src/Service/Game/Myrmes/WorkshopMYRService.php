@@ -22,34 +22,31 @@ class WorkshopMYRService
     /**
      * Manage resources and purchase about position of nurse
      * @param PlayerMYR $player
+     * @param int $workshop
      * @return void
      * @throws Exception
      */
-    public function manageWorkshop(PlayerMYR $player) {
-
-        for ($i = 4; $i < MyrmesParameters::$AREA_COUNT; $i += 1)
-        {
-            $nurses = $this->MYRService->getNursesAtPosition($player ,$i);
-            $nursesCount = $nurses->count();
-            switch ($i) {
-                case MyrmesParameters::$WORKSHOP_ANTHILL_HOLE_AREA:
-                    $this->manageAnthillHole($nursesCount, $player);
-                    break;
-                case MyrmesParameters::$WORKSHOP_LEVEL_AREA:
-                    $this->manageLevel($nursesCount, $player);
-                    break;
-                case MyrmesParameters::$WORKSHOP_NURSE_AREA:
-                    if ($this->canBuyNurse($player)) {
-                        $this->manageNurse($nursesCount, $player);
-                    }
-                    break;
-                case MyrmesParameters::$WORKSHOP_GOAL_AREA:
-                    break;
-                default:
-                    throw new Exception("Don't give bonus");
-            }
-            $this->entityManager->flush();
+    public function manageWorkshop(PlayerMYR $player, int $workshop) {
+        $nurses = $this->MYRService->getNursesAtPosition($player, MyrmesParameters::$WORKSHOP_AREA);
+        $nursesCount = $nurses->count();
+        switch ($workshop) {
+            case MyrmesParameters::$WORKSHOP_ANTHILL_HOLE_AREA:
+                $this->manageAnthillHole($nursesCount, $player);
+                break;
+            case MyrmesParameters::$WORKSHOP_LEVEL_AREA:
+                $this->manageLevel($nursesCount, $player);
+                break;
+            case MyrmesParameters::$WORKSHOP_NURSE_AREA:
+                if ($this->canBuyNurse($player)) {
+                    $this->manageNurse($nursesCount, $player);
+                }
+                break;
+            case MyrmesParameters::$WORKSHOP_GOAL_AREA:
+                break;
+            default:
+                throw new Exception("Don't give bonus");
         }
+        $this->entityManager->flush();
     }
 
     /**
