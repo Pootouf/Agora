@@ -42,15 +42,29 @@ class WorkerMYRService
     {}
 
 
-    private function placeAntInAnthill(PersonalBoardMYR $personalBoard, int $anthillFloor)
+    /**
+     * placeAntInAnthill: place a free worker ant in the selected area of the anthill
+     * @param PersonalBoardMYR $personalBoard
+     * @param int $anthillFloor
+     * @return void
+     * @throws Exception if invalid floor or no more free ants
+     */
+    private function placeAntInAnthill(PersonalBoardMYR $personalBoard, int $anthillFloor) : void
     {
         $maxFloor = $personalBoard->getAnthillLevel();
         if ($maxFloor < $anthillFloor) {
             throw new Exception('Invalid floor level');
         }
-        $this->anthillWorkerMYRRepository->findOneBy([
+        $ant = $this->anthillWorkerMYRRepository->findOneBy([
             'player' => $personalBoard->getPlayer(),
+            'workFloor' => null
         ]);
+        if(!$ant) {
+            throw new Exception('No more free ants');
+        }
+        $ant->setWorkFloor($anthillFloor);
+        $this->entityManager->persist($ant);
+        $this->entityManager->flush();
     }
 
     /**
