@@ -5,6 +5,7 @@ namespace App\Service\Game\Myrmes;
 use App\Entity\Game\Myrmes\AnthillHoleMYR;
 use App\Entity\Game\Myrmes\GameMYR;
 use App\Entity\Game\Myrmes\MyrmesParameters;
+use App\Entity\Game\Myrmes\PersonalBoardMYR;
 use App\Entity\Game\Myrmes\PheromonMYR;
 use App\Entity\Game\Myrmes\PheromonTileMYR;
 use App\Entity\Game\Myrmes\PlayerMYR;
@@ -13,6 +14,7 @@ use App\Entity\Game\Myrmes\ResourceMYR;
 use App\Entity\Game\Myrmes\TileMYR;
 use App\Entity\Game\Myrmes\TileTypeMYR;
 use App\Repository\Game\Myrmes\AnthillHoleMYRRepository;
+use App\Repository\Game\Myrmes\AnthillWorkerMYRRepository;
 use App\Repository\Game\Myrmes\PheromonMYRRepository;
 use App\Repository\Game\Myrmes\PlayerResourceMYRRepository;
 use App\Repository\Game\Myrmes\PreyMYRRepository;
@@ -29,7 +31,7 @@ use Exception;
 class WorkerMYRService
 {
     public function __construct(private readonly EntityManagerInterface $entityManager,
-                                private readonly MYRService $MYRService,
+                                private readonly AnthillWorkerMYRRepository $anthillWorkerMYRRepository,
                                 private readonly AnthillHoleMYRRepository $anthillHoleMYRRepository,
                                 private readonly PheromonMYRRepository $pheromonMYRRepository,
                                 private readonly PreyMYRRepository $preyMYRRepository,
@@ -38,6 +40,18 @@ class WorkerMYRService
                                 private readonly ResourceMYRRepository $resourceMYRRepository
     )
     {}
+
+
+    private function placeAntInAnthill(PersonalBoardMYR $personalBoard, int $anthillFloor)
+    {
+        $maxFloor = $personalBoard->getAnthillLevel();
+        if ($maxFloor < $anthillFloor) {
+            throw new Exception('Invalid floor level');
+        }
+        $this->anthillWorkerMYRRepository->findOneBy([
+            'player' => $personalBoard->getPlayer(),
+        ]);
+    }
 
     /**
      * placeAnthillHole : if player can place an anthill hole, it place it on the tile
