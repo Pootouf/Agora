@@ -135,8 +135,14 @@ class MYRGameManagerService extends AbstractGameManagerService
             return MYRGameManagerService::$ERROR_INVALID_GAME;
         }
         foreach ($game->getPlayers() as $player) {
+            foreach ($player->getPreyMYRs() as $prey) {
+                $this->entityManager->remove($prey);
+            }
             $this->entityManager->remove($player->getPersonalBoardMYR());
             $this->entityManager->remove($player);
+        }
+        foreach ($game->getMainBoardMYR()->getPreys() as $prey) {
+            $this->entityManager->remove($prey);
         }
         $this->entityManager->remove($game->getMainBoardMYR());
         $this->logService->sendSystemLog($game, "la partie " . $game->getId() . " a pris fin");
