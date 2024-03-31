@@ -4,6 +4,7 @@ namespace App\Service\Game\Myrmes;
 
 use App\Entity\Game\Myrmes\AnthillHoleMYR;
 use App\Entity\Game\Myrmes\GameMYR;
+use App\Entity\Game\Myrmes\GardenWorkerMYR;
 use App\Entity\Game\Myrmes\MyrmesParameters;
 use App\Entity\Game\Myrmes\PersonalBoardMYR;
 use App\Entity\Game\Myrmes\PheromonMYR;
@@ -15,6 +16,7 @@ use App\Entity\Game\Myrmes\TileMYR;
 use App\Entity\Game\Myrmes\TileTypeMYR;
 use App\Repository\Game\Myrmes\AnthillHoleMYRRepository;
 use App\Repository\Game\Myrmes\AnthillWorkerMYRRepository;
+use App\Repository\Game\Myrmes\GardenWorkerMYRRepository;
 use App\Repository\Game\Myrmes\PheromonMYRRepository;
 use App\Repository\Game\Myrmes\PlayerResourceMYRRepository;
 use App\Repository\Game\Myrmes\PreyMYRRepository;
@@ -32,6 +34,7 @@ class WorkerMYRService
 {
     public function __construct(private readonly EntityManagerInterface $entityManager,
                                 private readonly AnthillWorkerMYRRepository $anthillWorkerMYRRepository,
+                                private readonly GardenWorkerMYRRepository $gardenWorkerMYRRepository,
                                 private readonly AnthillHoleMYRRepository $anthillHoleMYRRepository,
                                 private readonly PheromonMYRRepository $pheromonMYRRepository,
                                 private readonly PreyMYRRepository $preyMYRRepository,
@@ -64,6 +67,46 @@ class WorkerMYRService
         }
         $ant->setWorkFloor($anthillFloor);
         $this->entityManager->persist($ant);
+        $this->entityManager->flush();
+    }
+
+
+    /**
+     * takeOutAnt: allow the player to transform his ant into a garden worker ant
+     * @param PersonalBoardMYR $personalBoard
+     * @param AnthillHoleMYR $exitHole
+     * @return void
+     * @throws Exception if the hole is not an anthill hole of the player,
+     *                  or if the player doesn't have anymore free ants,
+     *                  or if there is already an ant at this location
+     */
+    private function takeOutAnt(PersonalBoardMYR $personalBoard, AnthillHoleMYR $exitHole) : void
+    {
+        if ($exitHole->getPlayer()->getId() != $personalBoard->getPlayer()->getId()) {
+            throw new Exception('Not an anthill hole of the player');
+        }
+        $ant = $this->anthillWorkerMYRRepository->findOneBy([
+            'player' => $personalBoard->getPlayer(),
+            'workFloor' => null
+        ]);
+        if(!$ant) {
+            throw new Exception('No more free ants');
+        }
+        $gardenWorker = $this->gardenWorkerMYRRepository->findOneBy([
+            'mainBoardMYR' => $personalBoard->getPlayer()->getGameMyr()->getMainBoardMYR()->getId(),
+            'tile' => $exitHole->getTile()
+        ]);
+        if ($gardenWorker != null) {
+            throw new Exception('There is already an ant at this hole');
+        }
+        $gardenWorker = new GardenWorkerMYR();
+        $gardenWorker->setTile($exitHole->getTile());
+        $gardenWorker->setPlayer($personalBoard->getPlayer());
+        $gardenWorker->setMainBoardMYR($personalBoard->getPlayer()->getGameMyr()->getMainBoardMYR());
+        $gardenWorker->setShiftsCount(MyrmesParameters::$DEFAULT_MOVEMENT_NUMBER
+            + ($personalBoard->getBonus() == MyrmesParameters::$BONUS_MOVEMENT ? 3 : 0));
+        $this->entityManager->persist($gardenWorker);
+        $this->entityManager->remove($ant);
         $this->entityManager->flush();
     }
 
