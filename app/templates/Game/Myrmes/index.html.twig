@@ -22,9 +22,9 @@
                 </div>
             {% endblock %}
             {% block mainBoard %}
-                    <div id="mainBoard" class="absolute bottom-0 w-[72%] h-full">
-                        {{ include('/Game/Myrmes/MainBoard/mainBoard.html.twig') }}
-                    </div>
+                <div id="mainBoard" class="absolute bottom-0 w-[72%] h-full">
+                    {{ include('/Game/Myrmes/MainBoard/mainBoard.html.twig') }}
+                </div>
             {% endblock %}
             {% block nav %}
                 {{ include('/Game/Utils/navigation.html.twig') }}
@@ -43,6 +43,19 @@
         function closeWindow() {
             let window = document.getElementById('personalBoard');
             window.remove();
+        }
+    </script>
+
+    {# NOTIFICATION MANAGEMENT #}
+    <script>
+        {% set path = path('app_game_show_myr', {'id': game.id}) ~ 'highlight' ~ player.id %}
+        const eventSourceHighlight = new EventSource("{{ mercure(path)|escape('js') }}");
+        eventSourceHighlight.onmessage = event => {
+            animationQueue.addToQueue(() => {
+                let tile = document.getElementById(event.data);
+                //TODO highlight the tile
+                setTimeout(() => animationQueue.executeNextInQueue(), 100)
+            })
         }
     </script>
 {% endblock %}
