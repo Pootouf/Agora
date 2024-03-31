@@ -30,7 +30,8 @@ class EventMYRServiceTest extends TestCase
         $game->setMainBoardMYR($mainBoard);
         $season = new SeasonMYR();
         $season->setDiceResult(MyrmesParameters::$BONUS_POINT);
-        $mainBoard->setActualSeason($season);
+        $season->setActualSeason(true);
+        $mainBoard->addSeason($season);
         $player = new PlayerMYR("test", $game);
         $personalBoard = new PersonalBoardMYR();
         $player->setPersonalBoardMYR($personalBoard);
@@ -52,7 +53,8 @@ class EventMYRServiceTest extends TestCase
         $game->setMainBoardMYR($mainBoard);
         $season = new SeasonMYR();
         $season->setDiceResult(MyrmesParameters::$BONUS_WARRIOR);
-        $mainBoard->setActualSeason($season);
+        $season->setActualSeason(true);
+        $mainBoard->addSeason($season);
         $player = new PlayerMYR("test", $game);
         $personalBoard = new PersonalBoardMYR();
         $player->setPersonalBoardMYR($personalBoard);
@@ -74,7 +76,8 @@ class EventMYRServiceTest extends TestCase
         $game->setMainBoardMYR($mainBoard);
         $season = new SeasonMYR();
         $season->setDiceResult(MyrmesParameters::$BONUS_WORKER);
-        $mainBoard->setActualSeason($season);
+        $mainBoard->addSeason($season);
+        $season->setActualSeason(true);
         $player = new PlayerMYR("test", $game);
         $personalBoard = new PersonalBoardMYR();
         $player->setPersonalBoardMYR($personalBoard);
@@ -94,7 +97,8 @@ class EventMYRServiceTest extends TestCase
         $game->setMainBoardMYR($mainBoard);
         $season = new SeasonMYR();
         $season->setDiceResult(MyrmesParameters::$BONUS_POINT);
-        $mainBoard->setActualSeason($season);
+        $season->setActualSeason(true);
+        $mainBoard->addSeason($season);
         $player = new PlayerMYR("test", $game);
         $personalBoard = new PersonalBoardMYR();
         $player->setPersonalBoardMYR($personalBoard);
@@ -114,7 +118,8 @@ class EventMYRServiceTest extends TestCase
         $game->setMainBoardMYR($mainBoard);
         $season = new SeasonMYR();
         $season->setDiceResult(MyrmesParameters::$PHASE_BIRTH);
-        $mainBoard->setActualSeason($season);
+        $season->setActualSeason(true);
+        $mainBoard->addSeason($season);
         $player = new PlayerMYR("test", $game);
         $personalBoard = new PersonalBoardMYR();
         $player->setPhase(MyrmesParameters::$PHASE_BIRTH);
@@ -134,7 +139,8 @@ class EventMYRServiceTest extends TestCase
         $game->setMainBoardMYR($mainBoard);
         $season = new SeasonMYR();
         $season->setDiceResult(MyrmesParameters::$BONUS_POINT);
-        $mainBoard->setActualSeason($season);
+        $season->setActualSeason(true);
+        $mainBoard->addSeason($season);
         $player = new PlayerMYR("test", $game);
         $personalBoard = new PersonalBoardMYR();
         $player->setPersonalBoardMYR($personalBoard);
@@ -157,7 +163,7 @@ class EventMYRServiceTest extends TestCase
         $game->setMainBoardMYR($mainBoard);
         $season = new SeasonMYR();
         $season->setDiceResult(MyrmesParameters::$BONUS_POINT);
-        $mainBoard->setActualSeason($season);
+        $season->setActualSeason(true);
         $player = new PlayerMYR("test", $game);
         $personalBoard = new PersonalBoardMYR();
         $player->setPersonalBoardMYR($personalBoard);

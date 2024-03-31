@@ -13,11 +13,15 @@ class SeasonMYR extends Component
     #[ORM\Column]
     private ?int $diceResult = null;
 
-    #[ORM\OneToOne(mappedBy: 'actualSeason', cascade: ['persist', 'remove'])]
-    private ?MainBoardMYR $mainBoardMYR = null;
-
     #[ORM\Column(length: 255)]
     private ?string $name = null;
+
+    #[ORM\ManyToOne(inversedBy: 'seasons')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?MainBoardMYR $mainBoard = null;
+
+    #[ORM\Column]
+    private ?bool $actualSeason = null;
 
     public function getDiceResult(): ?int
     {
@@ -31,23 +35,6 @@ class SeasonMYR extends Component
         return $this;
     }
 
-    public function getMainBoardMYR(): ?MainBoardMYR
-    {
-        return $this->mainBoardMYR;
-    }
-
-    public function setMainBoardMYR(MainBoardMYR $mainBoardMYR): static
-    {
-        // set the owning side of the relation if necessary
-        if ($mainBoardMYR->getActualSeason() !== $this) {
-            $mainBoardMYR->setActualSeason($this);
-        }
-
-        $this->mainBoardMYR = $mainBoardMYR;
-
-        return $this;
-    }
-
     public function getName(): ?string
     {
         return $this->name;
@@ -56,6 +43,30 @@ class SeasonMYR extends Component
     public function setName(string $name): static
     {
         $this->name = $name;
+
+        return $this;
+    }
+
+    public function getMainBoard(): ?MainBoardMYR
+    {
+        return $this->mainBoard;
+    }
+
+    public function setMainBoard(?MainBoardMYR $mainBoard): static
+    {
+        $this->mainBoard = $mainBoard;
+
+        return $this;
+    }
+
+    public function isActualSeason(): ?bool
+    {
+        return $this->actualSeason;
+    }
+
+    public function setActualSeason(bool $actualSeason): static
+    {
+        $this->actualSeason = $actualSeason;
 
         return $this;
     }
