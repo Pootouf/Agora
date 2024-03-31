@@ -5,6 +5,7 @@ namespace App\Tests\Game\Myrmes\Unit\Service;
 use App\Entity\Game\Myrmes\AnthillHoleMYR;
 use App\Entity\Game\Myrmes\AnthillWorkerMYR;
 use App\Entity\Game\Myrmes\GameMYR;
+use App\Entity\Game\Myrmes\GardenWorkerMYR;
 use App\Entity\Game\Myrmes\MainBoardMYR;
 use App\Entity\Game\Myrmes\MyrmesParameters;
 use App\Entity\Game\Myrmes\NurseMYR;
@@ -60,6 +61,94 @@ class WorkerMYRServiceTest extends TestCase
             $this->tileMYRRepository,
             $this->playerResourceMYRRepository,
             $this->resourceMYRRepository);
+    }
+
+
+    public function testTakeOutAntSuccessWithValidAntAndAnthillHole()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $ant = new AnthillWorkerMYR();
+        $ant->setPlayer($player);
+        $ant->setPersonalBoardMYR($player->getPersonalBoardMYR());
+        $player->getPersonalBoardMYR()->addAnthillWorker($ant);
+        $hole = new AnthillHoleMYR();
+        $hole->setMainBoardMYR($game->getMainBoardMYR());
+        $hole->setPlayer($player);
+        $this->anthillWorkerMYRRepository->method("findOneBy")->willReturn($ant);
+
+        // WHEN
+        $this->workerMYRService->takeOutAnt($player->getPersonalBoardMYR(), $hole);
+
+        // THEN
+        $this->expectNotToPerformAssertions();
+    }
+
+    public function testTakeOutAntFailWithNoMoreFreeAnts()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $ant = new AnthillWorkerMYR();
+        $ant->setPlayer($player);
+        $ant->setWorkFloor(2);
+        $ant->setPersonalBoardMYR($player->getPersonalBoardMYR());
+        $player->getPersonalBoardMYR()->addAnthillWorker($ant);
+        $hole = new AnthillHoleMYR();
+        $hole->setMainBoardMYR($game->getMainBoardMYR());
+        $hole->setPlayer($player);
+        $this->anthillWorkerMYRRepository->method("findOneBy")->willReturn(null);
+
+        // THEN
+        $this->expectException(\Exception::class);
+
+        // THEN
+        $this->workerMYRService->takeOutAnt($player->getPersonalBoardMYR(), $hole);
+    }
+
+    public function testTakeOutAntFailIfNotAnthillHoleOfThePlayer()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $ant = new AnthillWorkerMYR();
+        $ant->setPlayer($player);
+        $ant->setPersonalBoardMYR($player->getPersonalBoardMYR());
+        $player->getPersonalBoardMYR()->addAnthillWorker($ant);
+        $hole = new AnthillHoleMYR();
+        $hole->setMainBoardMYR($game->getMainBoardMYR());
+        $hole->setPlayer($game->getPlayers()->last());
+        $this->anthillWorkerMYRRepository->method("findOneBy")->willReturn($ant);
+
+        // THEN
+        $this->expectException(\Exception::class);
+
+        // THEN
+        $this->workerMYRService->takeOutAnt($player->getPersonalBoardMYR(), $hole);
+    }
+
+    public function testTakeOutAntFailIfAlreadyAnAntAtThisLocation()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $ant = new AnthillWorkerMYR();
+        $ant->setPlayer($player);
+        $ant->setPersonalBoardMYR($player->getPersonalBoardMYR());
+        $player->getPersonalBoardMYR()->addAnthillWorker($ant);
+        $hole = new AnthillHoleMYR();
+        $hole->setMainBoardMYR($game->getMainBoardMYR());
+        $hole->setPlayer($player);
+        $gardenWorker = new GardenWorkerMYR();
+        $this->anthillWorkerMYRRepository->method("findOneBy")->willReturn($ant);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($gardenWorker);
+
+        // THEN
+        $this->expectException(\Exception::class);
+
+        // THEN
+        $this->workerMYRService->takeOutAnt($player->getPersonalBoardMYR(), $hole);
     }
 
     public function testPlaceAntInAnthillSuccessWithValidFloorAndAnt()

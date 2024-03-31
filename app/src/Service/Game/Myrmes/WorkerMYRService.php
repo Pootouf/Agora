@@ -82,7 +82,7 @@ class WorkerMYRService
      */
     public function takeOutAnt(PersonalBoardMYR $personalBoard, AnthillHoleMYR $exitHole) : void
     {
-        if ($exitHole->getPlayer()->getId() != $personalBoard->getPlayer()->getId()) {
+        if ($exitHole->getPlayer() !== $personalBoard->getPlayer()) {
             throw new Exception('Not an anthill hole of the player');
         }
         $ant = $this->anthillWorkerMYRRepository->findOneBy([
