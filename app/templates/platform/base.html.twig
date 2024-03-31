@@ -25,5 +25,18 @@
 			{% include 'platform/shared/navbar.html.twig' %}
 			{% block body %}{% endblock %}
 		{% endif %}
+		<script src="{{ asset('js/Platform/notify.js') }}"></script>
+		<script>
+			let eventSource;
+			{% if app.user %}
+			eventSource = new EventSource("{{ mercure('agora/notifications/user/' ~ app.user.id)|escape('js') }}");
+			{% else %}
+			eventSource = new EventSource("{{ mercure('agora/notifications/user/null')|escape('js') }}");
+			{% endif %}
+			eventSource.onmessage = event => {
+				const data = JSON.parse(event.data);
+				notify(data.content, "Agora: ");
+			}
+		</script>
 	</body>
 </html>

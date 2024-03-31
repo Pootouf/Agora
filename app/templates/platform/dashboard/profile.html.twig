@@ -162,8 +162,6 @@ Mon profil
       {% endif %}
       eventSource.onmessage = event => {
          const data = JSON.parse(event.data);
-         console.log(data.content);
-         notify(data.content, "Notification: ");
          updateNotificationFrame(data);
       }
 
