@@ -32,8 +32,9 @@
     {% endif %}
     {% if boardBox.ant != null %}
         <div class="visible absolute {{ elementsDisplay }}">
-            <img class="rounded rounded-full size-full -p-4 bg-{{ boardBox.ant.player.color }}-500"
-            src="{{ asset('resourcesGames/Myrmes/ant.svg') }}" alt="ant">
+            <img class="rounded rounded-full size-full bg-opacity-25 bg-black"
+            src="{{ asset('resourcesGames/Myrmes/ants/ant-' ~ boardBox.ant.player.color ~ '.svg') }}"
+             alt="ant {{ boardBox.ant/player.color }}">
         </div>
     {% endif %}
     <div class="visible top">
