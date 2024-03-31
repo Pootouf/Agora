@@ -52,7 +52,7 @@ class WorkerMYRService
      * @return void
      * @throws Exception if invalid floor or no more free ants
      */
-    private function placeAntInAnthill(PersonalBoardMYR $personalBoard, int $anthillFloor) : void
+    public function placeAntInAnthill(PersonalBoardMYR $personalBoard, int $anthillFloor) : void
     {
         $maxFloor = $personalBoard->getAnthillLevel();
         if ($maxFloor < $anthillFloor) {
@@ -80,7 +80,7 @@ class WorkerMYRService
      *                  or if the player doesn't have anymore free ants,
      *                  or if there is already an ant at this location
      */
-    private function takeOutAnt(PersonalBoardMYR $personalBoard, AnthillHoleMYR $exitHole) : void
+    public function takeOutAnt(PersonalBoardMYR $personalBoard, AnthillHoleMYR $exitHole) : void
     {
         if ($exitHole->getPlayer()->getId() != $personalBoard->getPlayer()->getId()) {
             throw new Exception('Not an anthill hole of the player');

@@ -3,6 +3,7 @@
 namespace App\Tests\Game\Myrmes\Unit\Service;
 
 use App\Entity\Game\Myrmes\AnthillHoleMYR;
+use App\Entity\Game\Myrmes\AnthillWorkerMYR;
 use App\Entity\Game\Myrmes\GameMYR;
 use App\Entity\Game\Myrmes\MainBoardMYR;
 use App\Entity\Game\Myrmes\MyrmesParameters;
@@ -13,6 +14,8 @@ use App\Entity\Game\Myrmes\PheromonTileMYR;
 use App\Entity\Game\Myrmes\PlayerMYR;
 use App\Entity\Game\Myrmes\TileMYR;
 use App\Repository\Game\Myrmes\AnthillHoleMYRRepository;
+use App\Repository\Game\Myrmes\AnthillWorkerMYRRepository;
+use App\Repository\Game\Myrmes\GardenWorkerMYRRepository;
 use App\Repository\Game\Myrmes\PheromonMYRRepository;
 use App\Repository\Game\Myrmes\PlayerResourceMYRRepository;
 use App\Repository\Game\Myrmes\PreyMYRRepository;
@@ -26,28 +29,110 @@ use PHPUnit\Framework\TestCase;
 
 class WorkerMYRServiceTest extends TestCase
 {
+    private WorkerMYRService $workerMYRService;
+    private EntityManagerInterface $entityManager;
+    private AnthillHoleMYRRepository $anthillHoleMYRRepository;
+    private PheromonMYRRepository $pheromonMYRRepository;
+    private PreyMYRRepository $preyMYRRepository;
+    private TileMYRRepository $tileMYRRepository;
+    private PlayerResourceMYRRepository $playerResourceMYRRepository;
+    private ResourceMYRRepository $resourceMYRRepository;
+    private GardenWorkerMYRRepository $gardenWorkerMYRRepository;
+    private AnthillWorkerMYRRepository $anthillWorkerMYRRepository;
+
+    protected function setUp(): void
+    {
+        $this->entityManager = $this->createMock(EntityManagerInterface::class);
+        $this->anthillHoleMYRRepository = $this->createMock(AnthillHoleMYRRepository::class);
+        $this->pheromonMYRRepository = $this->createMock(PheromonMYRRepository::class);
+        $this->preyMYRRepository = $this->createMock(PreyMYRRepository::class);
+        $this->tileMYRRepository = $this->createMock(TileMYRRepository::class);
+        $this->playerResourceMYRRepository = $this->createMock(PlayerResourceMYRRepository::class);
+        $this->resourceMYRRepository = $this->createMock(ResourceMYRRepository::class);
+        $this->gardenWorkerMYRRepository = $this->createMock(GardenWorkerMYRRepository::class);
+        $this->anthillWorkerMYRRepository = $this->createMock(AnthillWorkerMYRRepository::class);
+        $this->workerMYRService = new WorkerMYRService($this->entityManager,
+            $this->anthillWorkerMYRRepository,
+            $this->gardenWorkerMYRRepository,
+            $this->anthillHoleMYRRepository,
+            $this->pheromonMYRRepository,
+            $this->preyMYRRepository,
+            $this->tileMYRRepository,
+            $this->playerResourceMYRRepository,
+            $this->resourceMYRRepository);
+    }
+
+    public function testPlaceAntInAnthillSuccessWithValidFloorAndAnt()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $player->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::$ANTHILL_LEVEL_TWO);
+        $selectedFloor = 2;
+        $ant = new AnthillWorkerMYR();
+        $ant->setPlayer($player);
+        $ant->setPersonalBoardMYR($player->getPersonalBoardMYR());
+        $player->getPersonalBoardMYR()->addAnthillWorker($ant);
+        $this->anthillWorkerMYRRepository->method("findOneBy")->willReturn($ant);
+
+        // WHEN
+        $this->workerMYRService->placeAntInAnthill($player->getPersonalBoardMYR(), $selectedFloor);
+
+        // THEN
+        $this->assertEquals($ant->getWorkFloor(), $selectedFloor);
+    }
+
+    public function testPlaceAntInAnthillFailIfSelectedFloorIsGreaterThanAnthillLevel()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $player->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::$ANTHILL_LEVEL_TWO);
+        $selectedFloor = 3;
+        $ant = new AnthillWorkerMYR();
+        $ant->setPlayer($player);
+        $ant->setPersonalBoardMYR($player->getPersonalBoardMYR());
+        $player->getPersonalBoardMYR()->addAnthillWorker($ant);
+        $this->anthillWorkerMYRRepository->method("findOneBy")->willReturn($ant);
+
+        // THEN
+        $this->expectException(\Exception::class);
+
+        // WHEN
+        $this->workerMYRService->placeAntInAnthill($player->getPersonalBoardMYR(), $selectedFloor);
+    }
+
+
+    public function testPlaceAntInAnthillFailIfNoMoreFreeAnts()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $player->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::$ANTHILL_LEVEL_TWO);
+        $selectedFloor = 2;
+        $ant = new AnthillWorkerMYR();
+        $ant->setPlayer($player);
+        $ant->setWorkFloor(1);
+        $ant->setPersonalBoardMYR($player->getPersonalBoardMYR());
+        $player->getPersonalBoardMYR()->addAnthillWorker($ant);
+
+        // THEN
+        $this->expectException(\Exception::class);
+
+        // THEN
+        $this->workerMYRService->placeAntInAnthill($player->getPersonalBoardMYR(), $selectedFloor);
+    }
 
     public function testPlaceAnthillHoleWhenPlaceIsAvailable()
     {
         // GIVEN
-        $entityManager = $this->createMock(EntityManagerInterface::class);
-        $MYRService = $this->createMock(MYRService::class);
-        $anthillHoleRepository = $this->createMock(AnthillHoleMYRRepository::class);
-        $anthillHoleRepository->method("findOneBy")->willReturn(null);
-        $pheromonRepository = $this->createMock(PheromonMYRRepository::class);
-        $pheromonRepository->method("findBy")->willReturn(array());
-        $preyRepository = $this->createMock(PreyMYRRepository::class);
-        $tileRepository = $this->createMock(TileMYRRepository::class);
-        $playerResourceRepository = $this->createMock(PlayerResourceMYRRepository::class);
-        $resourceRepository = $this->createMock(ResourceMYRRepository::class);
-        $workerMYRService = new WorkerMYRService($entityManager, $MYRService,
-            $anthillHoleRepository, $pheromonRepository, $preyRepository,
-            $tileRepository, $playerResourceRepository, $resourceRepository);
+        $this->anthillHoleMYRRepository->method("findOneBy")->willReturn(null);
+        $this->pheromonMYRRepository->method("findBy")->willReturn(array());
         $game = $this->createGame(2);
         $tile = new TileMYR();
         $player = $game->getPlayers()->first();
         // WHEN
-        $workerMYRService->placeAnthillHole($player, $tile);
+        $this->workerMYRService->placeAnthillHole($player, $tile);
         // THEN
         $this->assertNotEmpty($player->getAnthillHoleMYRs());
     }
@@ -55,42 +140,20 @@ class WorkerMYRServiceTest extends TestCase
     public function testPlaceAnthillHoleWhenPlaceIsNotAvailableBecauseThereIsAnthillHole()
     {
         // GIVEN
-        $entityManager = $this->createMock(EntityManagerInterface::class);
-        $MYRService = $this->createMock(MYRService::class);
-        $anthillHoleRepository = $this->createMock(AnthillHoleMYRRepository::class);
-        $anthillHoleRepository->method("findOneBy")->willReturn(new AnthillHoleMYR());
-        $pheromonRepository = $this->createMock(PheromonMYRRepository::class);
-        $pheromonRepository->method("findBy")->willReturn(array());
-        $preyRepository = $this->createMock(PreyMYRRepository::class);
-        $tileRepository = $this->createMock(TileMYRRepository::class);
-        $playerResourceRepository = $this->createMock(PlayerResourceMYRRepository::class);
-        $resourceRepository = $this->createMock(ResourceMYRRepository::class);
-        $workerMYRService = new WorkerMYRService($entityManager, $MYRService,
-            $anthillHoleRepository, $pheromonRepository, $preyRepository,
-            $tileRepository, $playerResourceRepository, $resourceRepository);
+        $this->anthillHoleMYRRepository->method("findOneBy")->willReturn(new AnthillHoleMYR());
+        $this->pheromonMYRRepository->method("findBy")->willReturn(array());
         $game = $this->createGame(2);
         $tile = new TileMYR();
         $player = $game->getPlayers()->first();
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
-        $workerMYRService->placeAnthillHole($player, $tile);
+        $this->workerMYRService->placeAnthillHole($player, $tile);
     }
 
     public function testPlaceAnthillHoleWhenPlaceIsNotAvailableBecauseTileIsWater()
     {
         // GIVEN
-        $entityManager = $this->createMock(EntityManagerInterface::class);
-        $MYRService = $this->createMock(MYRService::class);
-        $anthillHoleRepository = $this->createMock(AnthillHoleMYRRepository::class);
-        $pheromonRepository = $this->createMock(PheromonMYRRepository::class);
-        $preyRepository = $this->createMock(PreyMYRRepository::class);
-        $tileRepository = $this->createMock(TileMYRRepository::class);
-        $playerResourceRepository = $this->createMock(PlayerResourceMYRRepository::class);
-        $resourceRepository = $this->createMock(ResourceMYRRepository::class);
-        $workerMYRService = new WorkerMYRService($entityManager, $MYRService,
-            $anthillHoleRepository, $pheromonRepository, $preyRepository,
-            $tileRepository, $playerResourceRepository, $resourceRepository);
         $game = $this->createGame(2);
         $tile = new TileMYR();
         $tile->setType(MyrmesParameters::$WATER_TILE_TYPE);
@@ -98,36 +161,25 @@ class WorkerMYRServiceTest extends TestCase
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
-        $workerMYRService->placeAnthillHole($player, $tile);
+        $this->workerMYRService->placeAnthillHole($player, $tile);
     }
 
     public function testPlaceAnthillHoleWhenPlaceIsNotAvailableBecauseThereIsAPheromone()
     {
         // GIVEN
-        $entityManager = $this->createMock(EntityManagerInterface::class);
-        $MYRService = $this->createMock(MYRService::class);
-        $anthillHoleRepository = $this->createMock(AnthillHoleMYRRepository::class);
-        $anthillHoleRepository->method("findOneBy")->willReturn(null);
-        $pheromonRepository = $this->createMock(PheromonMYRRepository::class);
+        $this->anthillHoleMYRRepository->method("findOneBy")->willReturn(null);
         $tile = new TileMYR();
         $pheromonTile = new PheromonTileMYR();
         $pheromonTile->setTile($tile);
         $pheromon = new PheromonMYR();
         $pheromon->addPheromonTile($pheromonTile);
-        $pheromonRepository->method("findBy")->willReturn(array($pheromon));
-        $preyRepository = $this->createMock(PreyMYRRepository::class);
-        $tileRepository = $this->createMock(TileMYRRepository::class);
-        $playerResourceRepository = $this->createMock(PlayerResourceMYRRepository::class);
-        $resourceRepository = $this->createMock(ResourceMYRRepository::class);
-        $workerMYRService = new WorkerMYRService($entityManager, $MYRService,
-            $anthillHoleRepository, $pheromonRepository, $preyRepository,
-            $tileRepository, $playerResourceRepository, $resourceRepository);
+        $this->pheromonMYRRepository->method("findBy")->willReturn(array($pheromon));
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
-        $workerMYRService->placeAnthillHole($player, $tile);
+        $this->workerMYRService->placeAnthillHole($player, $tile);
     }
 
     private function createGame(int $numberOfPlayers) : GameMYR

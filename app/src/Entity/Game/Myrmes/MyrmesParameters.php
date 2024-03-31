@@ -188,6 +188,12 @@ class MyrmesParameters
     public static int $PLAYER_START_SCORE = 10;
 
 
+    //Anthill levels
+    public static int $ANTHILL_LEVEL_ONE = 1;
+    public static int $ANTHILL_LEVEL_TWO = 2;
+    public static int $ANTHILL_LEVEL_THREE = 3;
+
+
     //Anthill hole start position
     public static array $ANTHILL_HOLE_POSITION_BY_NUMBER_OF_PLAYER = [
         2 => [[11, 6], [11, 18]],
