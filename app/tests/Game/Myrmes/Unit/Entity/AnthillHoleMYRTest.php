@@ -4,6 +4,7 @@ namespace App\Tests\Game\Myrmes\Unit\Entity;
 
 use App\Entity\Game\Myrmes\AnthillHoleMYR;
 use App\Entity\Game\Myrmes\GameMYR;
+use App\Entity\Game\Myrmes\MainBoardMYR;
 use App\Entity\Game\Myrmes\PlayerMYR;
 use App\Entity\Game\Myrmes\TileMYR;
 use PHPUnit\Framework\TestCase;
@@ -50,6 +51,21 @@ class AnthillHoleMYRTest extends TestCase
         // THEN
 
         $this->assertSame($player, $this->anthillHoleMYR->getPlayer());
+    }
+
+    public function testSetMainBoard() : void
+    {
+        // GIVEN
+
+        $mainBoard = new MainBoardMYR();
+
+        // WHEN
+
+        $this->anthillHoleMYR->setMainBoardMYR($mainBoard);
+
+        // THEN
+
+        $this->assertSame($mainBoard, $this->anthillHoleMYR->getMainBoardMYR());
     }
 
     protected function setUp(): void

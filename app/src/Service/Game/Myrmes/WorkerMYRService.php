@@ -103,17 +103,26 @@ class WorkerMYRService
                 $this->placePheromoneTypeSix($player, $tile, $pheromone);
                 break;
             case MyrmesParameters::$SPECIAL_TILE_TYPE_FARM:
-                $this->placePheromoneTypeTwo($player, $tile, $pheromone)
-                    && $this->placePheromoneFarm($player);
-                break;
+                if ($this->placePheromoneFarm($player)) {
+                    $this->placePheromoneTypeTwo($player, $tile, $pheromone);
+                    break;
+                } else {
+                    throw new Exception("cant place this tile");
+                }
             case MyrmesParameters::$SPECIAL_TILE_TYPE_QUARRY:
-                $this->placePheromoneTypeTwo($player, $tile, $pheromone)
-                 && $this->placePheromoneQuarry($player);
-                break;
+                if ($this->placePheromoneQuarry($player)) {
+                    $this->placePheromoneTypeTwo($player, $tile, $pheromone);
+                    break;
+                } else {
+                    throw new Exception("cant place this tile");
+                }
             case MyrmesParameters::$SPECIAL_TILE_TYPE_SUBANTHILL:
-                $this->placePheromoneTypeThree($player, $tile, $pheromone)
-                    && $this->placePheromoneSubanthill($player);
-                break;
+                if ($this->placePheromoneSubanthill($player)) {
+                    $this->placePheromoneTypeThree($player, $tile, $pheromone);
+                    break;
+                } else {
+                    throw new Exception("cant place this tile");
+                }
             default:
                 throw new Exception("unknown tile type");
         }
@@ -1546,6 +1555,9 @@ class WorkerMYRService
         if ($pheromoneSize > $allowedSize) {
             return false;
         }
+        if ($pheromone->getType()->getType() === MyrmesParameters::$SPECIAL_TILE_TYPE_SUBANTHILL) {
+            return $anthillLevel == 3;
+        }
         return MyrmesParameters::$PHEROMONE_TYPE_AMOUNT[$pheromone->getType()->getType()] >= $pheromoneCount;
     }
 
@@ -1597,6 +1609,16 @@ class WorkerMYRService
         }
         $this->entityManager->persist($pheromone);
         $playerMYR->addPheromonMYR($pheromone);
+        $type = $tileTypeMYR->getType();
+        if ($type <= MyrmesParameters::$PHEROMONE_TYPE_SIX) {
+            $points = MyrmesParameters::$PHEROMONE_TYPE_LEVEL[$tileTypeMYR->getType()];
+        } else {
+            $points = MyrmesParameters::$SPECIAL_TILES_TYPE_LEVEL[$tileTypeMYR->getType()];
+        }
+        if ($playerMYR->getPersonalBoardMYR()->getBonus() === MyrmesParameters::$BONUS_POINT) {
+            ++$points;
+        }
+        $playerMYR->setScore($playerMYR->getScore() + $points);
         $this->entityManager->persist($playerMYR);
         $this->entityManager->flush();
     }

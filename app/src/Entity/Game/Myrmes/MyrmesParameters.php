@@ -29,11 +29,15 @@ class MyrmesParameters
     public static int $LARVAE_AREA = 1;
     public static int $SOLDIERS_AREA = 2;
     public static int $WORKER_AREA = 3;
-    public static int $WORKSHOP_GOAL_AREA = 4;
-    public static int $WORKSHOP_ANTHILL_HOLE_AREA = 5;
-    public static int $WORKSHOP_LEVEL_AREA = 6;
-    public static int $WORKSHOP_NURSE_AREA = 7;
-    public static int $AREA_COUNT = 8;
+    public static int $WORKSHOP_AREA = 4;
+    public static int $AREA_COUNT = 5;
+
+    // Workshop areas
+
+    public static int $WORKSHOP_GOAL_AREA = 1;
+    public static int $WORKSHOP_ANTHILL_HOLE_AREA = 2;
+    public static int $WORKSHOP_LEVEL_AREA = 3;
+    public static int $WORKSHOP_NURSE_AREA = 4;
 
     //Nurses parameters
 
@@ -207,5 +211,19 @@ class MyrmesParameters
     public static string $RESOURCE_TYPE_STONE = "stone";
     public static string $RESOURCE_TYPE_GRASS = "grass";
     public static string $RESOURCE_TYPE_LARVAE = "larvae";
+
+    // Goal Difficulty
+
+    public static int $GOAL_DIFFICULTY_LEVEL_ONE = 1;
+    public static int $GOAL_DIFFICULTY_LEVEL_TWO = 2;
+    public static int $GOAL_DIFFICULTY_LEVEL_THREE = 3;
+
+    // Goal Points
+
+    public static int $GOAL_REWARD_LEVEL_ONE = 6;
+    public static int $GOAL_REWARD_LEVEL_TWO = 9;
+    public static int $GOAL_REWARD_LEVEL_THREE = 12;
+    public static int $GOAL_REWARD_WHEN_GOAL_ALREADY_DONE = 3;
+
 
 }
