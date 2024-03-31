@@ -3,6 +3,7 @@
 namespace App\Controller\Game;
 
 use App\Entity\Game\Myrmes\GameMYR;
+use App\Entity\Game\Myrmes\MyrmesParameters;
 use App\Service\Game\LogService;
 use App\Service\Game\Myrmes\EventMYRService;
 use App\Service\Game\Myrmes\DataManagementMYRService;

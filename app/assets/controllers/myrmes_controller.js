@@ -22,12 +22,14 @@ export default class extends Controller  {
 
     //move on event track
 
-    moveToLeftOnEventTrack() {
-        alert("event track left");
+    async moveToLeftOnEventTrack(event) {
+        let url = event.params.url;
+        const response = await fetch(url);
     }
 
-    moveToRightOnEventTrack() {
-        alert("event track right");
+    async moveToRightOnEventTrack(event) {
+        let url = event.params.url;
+        const response = await fetch(url);
     }
 
     //throw resources from storage
