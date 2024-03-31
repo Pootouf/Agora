@@ -103,9 +103,13 @@ class MYRService
     public function initializeNewSeason(GameMYR $game, string $seasonName) : void
     {
         $season = new SeasonMYR();
-        $season->setMainBoardMYR($game->getMainBoardMYR());
+        $mainBoard = $game->getMainBoardMYR();
+        $season->setMainBoard($mainBoard);
         $season->setName($seasonName);
         $season->setDiceResult(rand(1, 6));
+        $season->setActualSeason(false);
+        $mainBoard->addSeason($season);
+        $this->entityManager->persist($mainBoard);
         $this->entityManager->persist($season);
         $this->entityManager->flush();
     }
@@ -119,13 +123,29 @@ class MYRService
     {
         $result = new ArrayCollection();
         $mainBoard = $game->getMainBoardMYR();
-        $fall = $this->seasonMYRRepository->findOneBy(["mainBoardMYR" => $mainBoard, "name" => MyrmesParameters::$FALL_SEASON_NAME]);
+        $fall = $this->seasonMYRRepository->findOneBy(["mainBoard" => $mainBoard, "name" => MyrmesParameters::$FALL_SEASON_NAME]);
         $result[$fall->getName()] = $fall->getDiceResult();
-        $spring = $this->seasonMYRRepository->findOneBy(["mainBoardMYR" => $mainBoard, "name" => MyrmesParameters::$SPRING_SEASON_NAME]);
+        $spring = $this->seasonMYRRepository->findOneBy(["mainBoard" => $mainBoard, "name" => MyrmesParameters::$SPRING_SEASON_NAME]);
         $result[$spring->getName()] = $spring->getDiceResult();
-        $summer = $this->seasonMYRRepository->findOneBy(["mainBoardMYR" => $mainBoard, "name" => MyrmesParameters::$SUMMER_SEASON_NAME]);
+        $summer = $this->seasonMYRRepository->findOneBy(["mainBoard" => $mainBoard, "name" => MyrmesParameters::$SUMMER_SEASON_NAME]);
         $result[$summer->getName()] = $summer->getDiceResult();
         return $result;
+    }
+
+    /**
+     * getActualSeason : returns the actual season
+     *
+     * @param GameMYR $game
+     * @return SeasonMYR|null
+     */
+    private function getActualSeason(GameMYR $game) : ?SeasonMYR
+    {
+        foreach ($game->getMainBoardMYR()->getSeasons() as $season) {
+            if ($season->isActualSeason()) {
+                return $season;
+            }
+        }
+        return null;
     }
 
     /**
@@ -331,7 +351,7 @@ class MYRService
     private function initializeEventBonus(GameMYR $game) : void
     {
         foreach ($game->getPlayers() as $player) {
-            $player->getPersonalBoardMYR()->setBonus($game->getMainBoardMYR()->getActualSeason()->getDiceResult());
+            $player->getPersonalBoardMYR()->setBonus($this->getActualSeason($game)->getDiceResult());
             $this->entityManager->persist($player);
         }
         $this->entityManager->flush();
@@ -516,27 +536,32 @@ class MYRService
      */
     private function endSeason(GameMYR $game) : void
     {
-        $actualSeason = $game->getMainBoardMYR()->getActualSeason();
+        $actualSeason = $this->getActualSeason($game);
         $mainBoard = $game->getMainBoardMYR();
-        $fall = $this->seasonMYRRepository->findOneBy(["mainBoardMYR" => $mainBoard, "name" => MyrmesParameters::$FALL_SEASON_NAME]);
-        $summer = $this->seasonMYRRepository->findOneBy(["mainBoardMYR" => $mainBoard, "name" => MyrmesParameters::$SUMMER_SEASON_NAME]);
-        $winter = $this->seasonMYRRepository->findOneBy(["mainBoardMYR" => $mainBoard, "name" => MyrmesParameters::$WINTER_SEASON_NAME]);
+        $fall = $this->seasonMYRRepository->findOneBy(["mainBoard" => $mainBoard, "name" => MyrmesParameters::$FALL_SEASON_NAME]);
+        $summer = $this->seasonMYRRepository->findOneBy(["mainBoard" => $mainBoard, "name" => MyrmesParameters::$SUMMER_SEASON_NAME]);
+        $winter = $this->seasonMYRRepository->findOneBy(["mainBoard" => $mainBoard, "name" => MyrmesParameters::$WINTER_SEASON_NAME]);
         if ($actualSeason->getName() === MyrmesParameters::$WINTER_SEASON_NAME) {
             $this->initializeNewYear($game);
             return;
         }
         if ($actualSeason->getName() === MyrmesParameters::$SPRING_SEASON_NAME) {
-            $game->getMainBoardMYR()->setActualSeason($summer);
+            $summer->setActualSeason(true);
+            $this->entityManager->persist($summer);
             $this->initializeEventBonus($game);
             $this->entityManager->persist($game);
         } else if ($actualSeason->getName() === MyrmesParameters::$SUMMER_SEASON_NAME) {
-            $game->getMainBoardMYR()->setActualSeason($fall);
+            $fall->setActualSeason(true);
+            $this->entityManager->persist($fall);
             $this->initializeEventBonus($game);
             $this->entityManager->persist($game);
         } else if ($actualSeason->getName() === MyrmesParameters::$FALL_SEASON_NAME) {
-            $game->getMainBoardMYR()->setActualSeason($winter);
+            $winter->setActualSeason(true);
+            $this->entityManager->persist($winter);
             $this->entityManager->persist($game);
         }
+        $actualSeason->setActualSeason(false);
+        $this->entityManager->persist($actualSeason);
         $this->entityManager->flush();
     }
 
@@ -556,8 +581,9 @@ class MYRService
         $this->initializeNewSeason($game, MyrmesParameters::$SPRING_SEASON_NAME);
         $this->initializeNewSeason($game, MyrmesParameters::$SUMMER_SEASON_NAME);
         $this->initializeNewSeason($game, MyrmesParameters::$FALL_SEASON_NAME);
-        $spring = $this->seasonMYRRepository->findOneBy(["mainBoardMYR" => $game->getMainBoardMYR(), "name" => MyrmesParameters::$SPRING_SEASON_NAME]);
-        $game->getMainBoardMYR()->setActualSeason($spring);
+        $spring = $this->seasonMYRRepository->findOneBy(["mainBoard" => $game->getMainBoardMYR(), "name" => MyrmesParameters::$SPRING_SEASON_NAME]);
+        $spring->setActualSeason(true);
+        $this->entityManager->persist($spring);
         $this->entityManager->persist($game);
         $this->entityManager->flush();
     }
@@ -570,12 +596,11 @@ class MYRService
      */
     private function clearSeasons(GameMYR $game) : void
     {
-        $seasons = $this->seasonMYRRepository->findBy(["mainBoardMYR" => $game->getMainBoardMYR()]);
+        $seasons = $game->getMainBoardMYR()->getSeasons();
         foreach ($seasons as $season) {
-            if ($season != null) {
-                $this->entityManager->remove($season);
-            }
+            $game->getMainBoardMYR()->removeSeason($season);
         }
+        $this->entityManager->persist($game->getMainBoardMYR());
         $this->entityManager->flush();
     }
 }
