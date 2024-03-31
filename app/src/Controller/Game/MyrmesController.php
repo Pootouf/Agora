@@ -2,11 +2,16 @@
 
 namespace App\Controller\Game;
 
+use App\Entity\Game\DTO\Myrmes\BoardBoxMYR;
 use App\Entity\Game\Myrmes\GameMYR;
+use App\Entity\Game\Myrmes\PlayerMYR;
+use App\Entity\Game\Myrmes\TileMYR;
 use App\Service\Game\LogService;
 use App\Service\Game\Myrmes\EventMYRService;
 use App\Service\Game\Myrmes\DataManagementMYRService;
 use App\Service\Game\Myrmes\MYRService;
+use App\Service\Game\PublishService;
+use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,7 +27,9 @@ class MyrmesController extends AbstractController
     public function __construct(private readonly MYRService $service,
                                 private readonly DataManagementMYRService $dataManagementMYRService,
                                 private readonly EventMYRService $eventMYRService,
-                                private readonly LogService $logService) {}
+                                private readonly LogService $logService,
+                                private readonly PublishService $publishService,
+                                ) {}
 
 
     #[Route('/game/myrmes/{id}', name: 'app_game_show_myr')]
@@ -45,11 +52,14 @@ class MyrmesController extends AbstractController
             'isPreview' => true,
             'preys' => $game->getMainBoardMYR()->getPreys(),
             'isSpectator' => $player == null,
+            'needToPlay' => true,//$player == null ? false : $player->isTurnOfPlayer(),
+            'selectedBox' => null,
         ]);
     }
 
     #[Route('/game/myrmes/{id}/show/personalBoard', name: 'app_game_myrmes_show_personal_board')]
-    public function showPersonalBoard(GameMYR $game): Response
+    public function showPersonalBoard(
+        #[MapEntity(id: 'id')] GameMYR $game): Response
     {
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
 
@@ -59,12 +69,33 @@ class MyrmesController extends AbstractController
             'preys' => $player->getPreyMYRs(),
             'isPreview' => false,
             'isSpectator' => $player == null,
+            'needToPlay' => true,//$player == null ? false : $player->isTurnOfPlayer()
         ]);
+    }
+
+    #[Route('/game/myrmes/{id}/display/mainBoard/box/{tileId}/actions',
+        name: 'app_game_myrmes_display_main_board_box_actions')]
+    public function displayMainBoardBoxActions(
+        #[MapEntity(id: 'id')] GameMYR $game,
+        #[MapEntity(id: 'tileId')] TileMYR $tile): Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+        }
+        $boardBox = $this->dataManagementMYRService->createBoardBox($game, $tile, 0, 0);
+        $this->publishHighlightTile($game, $player, $tile);
+        return $this->render('Game/Myrmes/MainBoard/displayBoardBoxActions.html.twig', [
+            'game' => $game,
+            'player' => $player,
+            'selectedBox' => $boardBox
+        ]);
+
     }
 
     #[Route('/game/myrmes/{gameId}/up/bonus/', name: 'app_game_myrmes_up_bonus')]
     public function upBonus(
-        #[MapEntity(id: 'idGame')] GameMYR $game,
+        #[MapEntity(id: 'gameId')] GameMYR $game,
     ) : Response
     {
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
@@ -85,7 +116,7 @@ class MyrmesController extends AbstractController
 
     #[Route('/game/myrmes/{gameId}/lower/bonus/', name: 'app_game_myrmes_lower_bonus')]
     public function lowerBonus(
-        #[MapEntity(id: 'idGame')] GameMYR $game,
+        #[MapEntity(id: 'gameId')] GameMYR $game,
     ) : Response
     {
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
@@ -106,7 +137,7 @@ class MyrmesController extends AbstractController
 
     #[Route('/game/myrmes/{gameId}/confirm/bonus/', name: 'app_game_myrmes_confirm_bonus')]
     public function confirmBonus(
-        #[MapEntity(id: 'idGame')] GameMYR $game,
+        #[MapEntity(id: 'gameId')] GameMYR $game,
     ) : Response
     {
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
@@ -118,4 +149,46 @@ class MyrmesController extends AbstractController
         $this->logService->sendPlayerLog($game, $player, $message);
         return new Response('Bonus confirmed', Response::HTTP_OK);
     }
+
+    /**
+     * publishMainBoard: publish with mercure the main board
+     * @param GameMYR $game
+     * @return void
+     */
+    private function publishMainBoard(GameMYR $game, BoardBoxMYR $selectedBox) : void
+    {
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        $response = $this->render('Game/Myrmes/MainBoard/mainBoard.html.twig',
+            [
+                'game' => $game,
+                'player' => $player,
+                'boardBoxes' =>  $this->dataManagementMYRService->organizeMainBoardRows($game),
+                'isPreview' => true,
+                'preys' => $game->getMainBoardMYR()->getPreys(),
+                'isSpectator' => $player == null,
+                'needToPlay' => $player == null ? false : $player->isTurnOfPlayer(),
+                'selectedBox' => $selectedBox,
+            ]);
+        $this->publishService->publish(
+            $this->generateUrl('app_game_show_glm',
+                ['id' => $game->getId()]).'mainBoard'.$player->getId(),
+            $response
+        );
+    }
+
+    /**
+     * @param GameMYR $game
+     * @param PlayerMYR $player
+     * @param TileMYR $tile
+     * @return void
+     */
+    private function publishHighlightTile(GameMYR $game, PlayerMYR $player, TileMYR $tile) : void
+    {
+        $this->publishService->publish(
+            $this->generateUrl('app_game_show_glm',
+                ['id' => $game->getId()]).'highlight'.$player->getId(),
+            new Response($tile->getId())
+        );
+    }
+
 }
