@@ -45,6 +45,13 @@ class WinterMYRService
         $this->entityManager->flush();
     }
 
+
+    /**
+     * retrievePoints : during winter season, retrieves food and points from the player
+     * @param PlayerMYR $player
+     * @return void
+     * @throws Exception
+     */
     public function retrievePoints(PlayerMYR $player) : void
     {
         $game = $player->getGameMyr();
@@ -62,6 +69,9 @@ class WinterMYRService
         $this->entityManager->persist($playerFood);
         for ($i = 0; $i < $remaining; ++$i) {
             $player->setScore($player->getScore() - 3);
+        }
+        if ($player->getScore() < 0) {
+            $player->setScore(0);
         }
         $this->entityManager->persist($player);
         $this->entityManager->flush();
