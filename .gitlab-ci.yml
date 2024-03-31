@@ -5,6 +5,7 @@ stages:
   - sixqp
   - splendor
   - glenmore
+  - platform
   - deploy
 
 cache:
@@ -99,6 +100,14 @@ deploy:dev_platform:
     ID_RSA: $ID_RSA_PLATFORM
   only:
     - develop-platform
+
+unitPlatform:
+  stage: platform
+  <<: *only_platform_branches
+  script:
+  - php bin/phpunit tests/Platform/Unit
+  allow_failure: false
+  environment: test
 
 unitFactory:
   stage: factory
