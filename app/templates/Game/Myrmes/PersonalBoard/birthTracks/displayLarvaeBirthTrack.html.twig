@@ -37,7 +37,9 @@ This section displays the birth track for larvae.
         {% if not isPreview %}
         <div class="flex justify-center">
             <button type="button" class="{{ placeButtonSize }}"
-                    {{ stimulus_action('myrmes','placeNurseOnLarvaeTrack','click') }}
+                    {{ stimulus_action('myrmes','placeNurseOnLarvaeTrack','click',
+                        {url: path('app_game_myrmes_place_nurse', {gameId: game.id, position: LARVAE_BIRTH_TRACK_POSITION})})
+                    }}
             >
                 <img id="larvaeButton"
                      src="{{ asset('resourcesGames/Myrmes/myrmesArrow.svg') }}"

@@ -39,7 +39,9 @@ This section displays the birth track for workers.
         {% if not isPreview %}
         <div class="flex justify-center">
             <button type="button" class="{{ placeButtonSize }}"
-                    {{ stimulus_action('myrmes','placeNurseOnWorkersTrack','click') }}
+                    {{ stimulus_action('myrmes','placeNurseOnWorkersTrack','click',
+                        {url: path('app_game_myrmes_place_nurse', {gameId: game.id, position: WORKERS_BIRTH_TRACK_POSITION})})
+                    }}
             >
                 <img class="relative" id="workerButton"
                      src="{{ asset('resourcesGames/Myrmes/myrmesArrow.svg') }}"

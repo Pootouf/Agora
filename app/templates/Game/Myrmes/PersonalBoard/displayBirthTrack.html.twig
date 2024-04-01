@@ -14,6 +14,9 @@ This section displays the birthing rooms where the player can place nurses to cr
     {% set birthTrackSize = 'w-[80%]' %}
     {% set placeButtonSize = 'w-[50%]' %}
 {% endif %}
+{% set LARVAE_BIRTH_TRACK_POSITION = 1 %}
+{% set SOLDIERS_BIRTH_TRACK_POSITION = 2 %}
+{% set WORKERS_BIRTH_TRACK_POSITION = 3 %}
 
 <div class="w-full inlineFlexCol {% if isPreview %}gap-[0.3vw]{% else %}gap-[1vw]{% endif %}" id="birth_track">
     <p class="{% if isPreview %}text_mini {% else %} text2-4 {% endif %}">Pistes de naissances</p>

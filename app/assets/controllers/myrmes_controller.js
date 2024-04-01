@@ -4,16 +4,19 @@ export default class extends Controller  {
 
     //place nurse
 
-    placeNurseOnLarvaeTrack() {
-        alert("larva");
+    async placeNurseOnLarvaeTrack(position) {
+        let url = position.params.url;
+        const response = await fetch(url);
     }
 
-    placeNurseOnSoldiersTrack() {
-        alert("soldier");
+    async placeNurseOnSoldiersTrack(position) {
+        let url = position.params.url;
+        const response = await fetch(url);
     }
 
-    placeNurseOnWorkersTrack() {
-        alert("worker");
+    async placeNurseOnWorkersTrack(position) {
+        let url = position.params.url;
+        const response = await fetch(url);
     }
 
     placeNurseOnWorkshop() {

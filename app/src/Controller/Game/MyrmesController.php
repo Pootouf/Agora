@@ -123,7 +123,7 @@ class MyrmesController extends AbstractController
 
     #[Route('/game/myrmes/{gameId}/placeNurse/{position}', name: 'app_game_myrmes_place_nurse')]
     public function placeNurse(
-        #[MapEntity(id: 'idGame')] GameMYR $game,
+        #[MapEntity(id: 'gameId')] GameMYR $game,
         int $position
     ) : Response
     {
