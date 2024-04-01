@@ -47,6 +47,16 @@ Accueil
             </div>
          </div>
          <div>
+            {{ form_label(form.invitedContacts, 'Contacts à inviter', {'label_attr': {
+               'class': 'block text-sm font-medium leading-6 text-gray-900'
+            }}) }}
+            <div class="mt-2">
+               {{ form_widget(form.invitedContacts, { 'id': 'invitedContacts','attr': {
+                  'class': 'block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6'
+               }}) }}
+            </div>
+         </div>
+         <div>
             <label for="inactivity" class="block text-sm font-medium leading-6 text-gray-900">Temps d'inactivité</label>
             <p class="block text-sm font-medium leading-6 text-gray-600">Permet de définir le temps de jeu max avant l'expulsion du joueur (de 24 à 168 heures).</p>
             <div class="relative mt-2 rounded-md shadow-sm">
@@ -77,25 +87,75 @@ Accueil
 </div>
 <script>
    document.addEventListener('DOMContentLoaded', function () {
-   const nbUsers = document.getElementById('nbUsers');
-   const nbInvitations = document.getElementById('nbInvitations');
-   
-   // Change the options of nbInvitation depending on the selected value in nbUsers
-   function dynamicNbInvitations() {
-   var selectedValue = parseInt(nbUsers.value); // Récupérer la valeur sélectionnée et convertir en entier
-   nbInvitations.innerHTML = "";
-   
-   for (var i = 0; i < selectedValue; i++) {
-   var option = document.createElement('option');
-   option.value = i;
-   option.textContent = i;
-   nbInvitations.appendChild(option);
-   }
-   }
-   // Initialize the nbInvitations select input
-   dynamicNbInvitations();
-   
-   nbUsers.addEventListener('change', dynamicNbInvitations);
+      const nbUsers = document.getElementById('nbUsers');
+      const nbInvitations = document.getElementById('nbInvitations');
+      const invitedContacts = document.getElementById('invitedContacts');
+
+      //Displaying checboxes of contacts in a list
+
+      const list = document.createElement("ul");
+      const checkboxes = invitedContacts.querySelectorAll('input[type="checkbox"]');
+      const labels = invitedContacts.querySelectorAll('label');
+      for (let i = 0; i < checkboxes.length; i++ ){
+         checkboxes[i].addEventListener('change', checkNbOfInvitedContacts);
+         let li = document.createElement("li");
+         li.appendChild(labels[i]);
+         li.appendChild(checkboxes[i]);
+         list.appendChild(li);
+      }
+      invitedContacts.appendChild(list);
+
+      // Change the options of nbInvitation depending on the selected value in nbUsers
+      function dynamicNbInvitations() {
+         var selectedValue = parseInt(nbUsers.value); // Récupérer la valeur sélectionnée et convertir en entier
+         nbInvitations.innerHTML = "";
+
+         for (var i = 0; i < selectedValue; i++) {
+         var option = document.createElement('option');
+         option.value = i;
+         option.textContent = i;
+         nbInvitations.appendChild(option);
+         }
+      }
+      //reset all choices for the invited contacts when changing the nb of players
+      function resetInvitedContacts(){
+         checkboxes.forEach(function(checkbox){
+            checkbox.checked = false;
+         })
+      }
+
+      //limits the number of checks in the contact list, depending on the value of "number of players"
+      function checkNbOfInvitedContacts()
+      {
+         let nbOfChecks = 0;
+         for (let i = 0; i < checkboxes.length; i++ ){
+            if (checkboxes[i].checked){
+               nbOfChecks++;
+            }
+         }
+         if (nbOfChecks == (parseInt(nbUsers.value) - 1)){
+            for (let i = 0; i < checkboxes.length; i++ ){
+               if (!checkboxes[i].checked){
+                  checkboxes[i].disabled = true;
+               }
+            }
+         }
+         else{
+            for (let i = 0; i < checkboxes.length; i++ ){
+               if (!checkboxes[i].checked){
+                  checkboxes[i].disabled = false;
+               }
+            }
+         }
+      }
+      // Initialize the nbInvitations select input
+      dynamicNbInvitations();
+
+      nbUsers.addEventListener('change', dynamicNbInvitations);
+      nbUsers.addEventListener('change', resetInvitedContacts);
+
+
+
    
    });
 </script>

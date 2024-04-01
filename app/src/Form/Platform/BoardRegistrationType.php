@@ -3,17 +3,33 @@
 namespace App\Form\Platform;
 
 use App\Entity\Platform\Board;
+use App\Entity\Platform\User;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Bundle\SecurityBundle\Security;
+
 
 class BoardRegistrationType extends AbstractType
 {
+    private Security $security;
+    private EntityManagerInterface $entityManager;
+
+
+    public function __construct(Security $security, EntityManagerInterface $entityManager)
+    {
+        $this->security = $security;
+        $this->entityManager = $entityManager;
+    }
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        $userId = $this->security->getUser()->getId();
+        $user = $this->entityManager->find(User::class, $userId);
         $game = $options["game"];
 
         $choices = range($game->getMinPlayers(), $game->getMaxPlayers(), 1);
@@ -33,7 +49,13 @@ class BoardRegistrationType extends AbstractType
             ->add('nbInvitations', ChoiceType::class, [
                 'choices' => $dummy
             ])
-            ->add('invitationHash')
+            ->add('invitedContacts', EntityType::class, [
+                'placeholder' => "Liste de vos contacts",
+                'class' => User::class,
+                'choices' => $user->getContacts(),
+                'multiple' => true,
+                'expanded' => true
+            ])
             ->add('inactivityHours', NumberType::class, [
                 'attr' => array(
                     "min" => 24,
