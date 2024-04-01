@@ -22,7 +22,10 @@ This section displays the birthing rooms where the player can place nurses to cr
     <div class="inlineFlex gap-5">
         <p class="{% if isPreview %}text_mini {% else %} text2-4 {% endif %}">Pistes de naissances</p>
         {% if not isPreview %}
-        <button type="button" class="rounded-lg bg-[#8F901F] py-2 px-3 m-1 portrait:text-2xl items-center">
+        <button type="button" class="rounded-lg bg-[#8F901F] py-2 px-3 m-1 portrait:text-2xl items-center"
+        {{ stimulus_action('myrmes','confirmNursesPlacement','click',
+            {url: path('app_game_myrmes_confirm_nurses', {gameId: game.id})})
+        }}>
             <img class="h-6 max-h-full"
                  src="{{ asset('resourcesGames/utils/checkmark.svg') }}"
                  alt="confirm nurses placement">
