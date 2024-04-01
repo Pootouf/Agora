@@ -8,7 +8,11 @@ This section displays the event track which the player can see and change the se
         {#button to move event track bonus selector to left#}
         <div class="inline-flex flex-col align-top">
             <{% if not isPreview %}button{% else %}div{% endif%} type="button"
-                    {{ stimulus_action('myrmes','moveToLeftOnEventTrack','click') }}
+                    {{ stimulus_action('myrmes','moveToLeftOnEventTrack','click',
+                        {url:path('app_game_myrmes_lower_bonus',
+                            {gameId: game.id})
+                        })
+                    }}
             >
                 <img class="relative h-full mt-0.5 lg:mt-1.5 -rotate-90" id="eventTrackLeftButton"
                      src="{{ asset('resourcesGames/Myrmes/myrmesArrow.svg') }}"
@@ -30,7 +34,11 @@ This section displays the event track which the player can see and change the se
         {#button to move event track bonus selector to right#}
         <div class="inline-flex flex-col align-top">
             <{% if not isPreview %}button{% else %}div{% endif%} type="button"
-                    {{ stimulus_action('myrmes','moveToRightOnEventTrack','click') }}
+                    {{ stimulus_action('myrmes','moveToRightOnEventTrack','click',
+                        {url:path('app_game_myrmes_up_bonus',
+                            {gameId: game.id})
+                        })
+                    }}
             >
                 <img class="relative h-full mt-0.5 lg:mt-1.5 rotate-90" id="eventTrackRightButton"
                      src="{{ asset('resourcesGames/Myrmes/myrmesArrow.svg') }}"
