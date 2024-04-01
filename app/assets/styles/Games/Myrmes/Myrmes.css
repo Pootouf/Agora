@@ -1,4 +1,5 @@
 @import "hex.css";
+@import "birthTrack.css";
 
 .inlineFlex {
     @apply inline-flex align-middle justify-center;

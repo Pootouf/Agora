@@ -14,13 +14,13 @@ This section displays the birth track for soldiers.
     <div class="inlineFlexCol gap-[0.6vw]">
         {# soldiers birth track#}
         <div class="inlineFlexCol items-center gap-[0.3vw] relative" id="soldierTrack">
-            <div class="{{ birthTrackSize }} inlineFlexCol bg-[#D9D9D995] gap-2.5 rounded-[10px] p-2 border-2 border-black">
+            <div class="{{ birthTrackSize }} {% if isPreview %}birthTrackIconMini{% else %}birthTrackIcon{% endif %}">
                 <svg viewBox="0 0 300 300"
                      fill="black">
                     <polygon points="100,0 200,0 300,100 300,200 200,300 100,300 0,200 0,100"/>
                 </svg>
             </div>
-            <div class="{{ birthTrackSize }} inlineFlexCol bg-[#D9D9D995] gap-2.5 rounded-[10px] p-2 border-2 border-black">
+            <div class="{{ birthTrackSize }} {% if isPreview %}birthTrackIconMini{% else %}birthTrackIcon{% endif %}">
                 <svg viewBox="0 0 300 300"
                      fill="black">
                     <polygon points="100,0 200,0 300,100 300,200 200,300 100,300 0,200 0,100"/>
