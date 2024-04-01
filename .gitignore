@@ -3,4 +3,5 @@
 .vscode
 .idea
 .git
-.env.local
+var
+vendor
