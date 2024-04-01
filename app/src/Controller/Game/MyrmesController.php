@@ -154,4 +154,25 @@ class MyrmesController extends AbstractController
         $this->logService->sendPlayerLog($game, $player, $message);
         return new Response("nurse placed on birth track " . $position, Response::HTTP_OK);
     }
+
+    #[Route('/game/myrmes/{gameId}/confirmNursesPlacement', name: 'app_game_myrmes_confirm_nurses')]
+    public function confirmNurses(
+        #[MapEntity(id: 'gameId')] GameMYR $game
+    ) : Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('invalid player', Response::HTTP_FORBIDDEN);
+        }
+        try {
+            $this->birthMYRService->giveBirthBonus($player);
+        } catch (Exception) {
+            $message = $player->getUsername() . " a essayé de confirmé le placement de ses nourrices mais n'a pas pu";
+            $this->logService->sendPlayerLog($game, $player, $message);
+            return new Response('failed to confirm nurses', Response::HTTP_FORBIDDEN);
+        }
+        $message = $player->getUsername() . " a confirmé le placement de ses nourrices";
+        $this->logService->sendPlayerLog($game, $player, $message);
+        return new Response("nurses placement confirmed", Response::HTTP_OK);
+    }
 }
