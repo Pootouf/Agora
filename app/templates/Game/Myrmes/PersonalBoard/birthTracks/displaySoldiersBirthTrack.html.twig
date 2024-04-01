@@ -15,19 +15,34 @@ This section displays the birth track for soldiers.
         {# soldiers birth track#}
         <div class="inlineFlexCol items-center gap-[0.3vw] relative" id="soldierTrack">
             <div class="{{ birthTrackSize }} {% if isPreview %}birthTrackIconMini{% else %}birthTrackIcon{% endif %}">
-                <svg viewBox="0 0 300 300"
-                     fill="black">
-                    <polygon points="100,0 200,0 300,100 300,200 200,300 100,300 0,200 0,100"/>
+                <svg viewBox="0 0 300 300">
+                    <polygon points="100,0 200,0 300,100 300,200 200,300 100,300 0,200 0,100"
+                             fill="
+                                {% if nursesOnSoldiersBirthTrack == 0 %}
+                                    black
+                                {% elseif nursesOnSoldiersBirthTrack >= 3 %}
+                                    {{ player.color }}
+                                {% endif %}"/>
                 </svg>
             </div>
             <div class="{{ birthTrackSize }} {% if isPreview %}birthTrackIconMini{% else %}birthTrackIcon{% endif %}">
-                <svg viewBox="0 0 300 300"
-                     fill="black">
-                    <polygon points="100,0 200,0 300,100 300,200 200,300 100,300 0,200 0,100"/>
+                <svg viewBox="0 0 300 300">
+                    <polygon points="100,0 200,0 300,100 300,200 200,300 100,300 0,200 0,100"
+                             fill="
+                                {% if nursesOnSoldiersBirthTrack == 0 %}
+                                    black
+                                {% elseif nursesOnSoldiersBirthTrack >= 2 %}
+                                    {{ player.color }}
+                                {% endif %}"/>
                 </svg>
-                <svg viewBox="0 0 300 300"
-                     fill="black">
-                    <polygon points="100,0 200,0 300,100 300,200 200,300 100,300 0,200 0,100"/>
+                <svg viewBox="0 0 300 300">
+                    <polygon points="100,0 200,0 300,100 300,200 200,300 100,300 0,200 0,100"
+                             fill="
+                                {% if nursesOnSoldiersBirthTrack == 0 %}
+                                    black
+                                {% elseif nursesOnSoldiersBirthTrack >= 1 %}
+                                    {{ player.color }}
+                                {% endif %}"/>
                 </svg>
             </div>
         </div>

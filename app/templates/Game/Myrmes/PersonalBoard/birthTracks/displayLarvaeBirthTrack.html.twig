@@ -17,19 +17,41 @@ This section displays the birth track for larvae.
         <div class="inlineFlexCol items-center gap-[0.3vw]" id="larvaeTrack">
             <div class="{{ birthTrackSize }} {% if isPreview %}birthTrackIconMini{% else %}birthTrackIcon{% endif %}">
                 <svg viewBox="0 0 300 300">
-                    <polygon points="100,0 200,0 300,100 300,200 200,300 100,300 0,200 0,100" fill="black"/>
-                    <text x="95" y="220" fill="white" class="text-[10vw] font-extrabold">2</text>
+                    <polygon points="100,0 200,0 300,100 300,200 200,300 100,300 0,200 0,100"
+                             fill="
+                                {% if nursesOnLarvaeBirthTrack == 0 %}
+                                    black
+                                {% elseif nursesOnLarvaeBirthTrack >= 3 %}
+                                    {{ player.color }}
+                                {% endif %}"/>
+                    {% if nursesOnLarvaeBirthTrack < 3 %}
+                        <text x="95" y="220" fill="white" class="text-[10vw] font-extrabold">2</text>
+                    {% endif %}
                 </svg>
             </div>
             <div class="{{ birthTrackSize }} {% if isPreview %}birthTrackIconMini{% else %}birthTrackIcon{% endif %}">
                 <svg viewBox="0 0 300 300">
-                    <polygon points="100,0 200,0 300,100 300,200 200,300 100,300 0,200 0,100" fill="black"/>
-                    <text x="95" y="220" fill="white" class="text-[10vw] font-extrabold">2</text>
+                    <polygon points="100,0 200,0 300,100 300,200 200,300 100,300 0,200 0,100"
+                             fill="
+                                {% if nursesOnLarvaeBirthTrack == 0 %}
+                                    black
+                                {% elseif nursesOnLarvaeBirthTrack >= 2 %}
+                                    {{ player.color }}
+                                {% endif %}"/>
+                    {% if nursesOnLarvaeBirthTrack < 2 %}
+                        <text x="95" y="220" fill="white" class="text-[10vw] font-extrabold">2</text>
+                    {% endif %}
                 </svg>
             </div>
             <div class="{{ birthTrackSize }} {% if isPreview %}birthTrackIconMini{% else %}birthTrackIcon{% endif %}">
                 <svg viewBox="0 0 300 300">
-                    <polygon points="100,0 200,0 300,100 300,200 200,300 100,300 0,200 0,100" fill="black"/>
+                    <polygon points="100,0 200,0 300,100 300,200 200,300 100,300 0,200 0,100"
+                             fill="
+                                {% if nursesOnLarvaeBirthTrack == 0 %}
+                                    black
+                                {% elseif nursesOnLarvaeBirthTrack >= 1 %}
+                                    {{ player.color }}
+                                {% endif %}"/>
                 </svg>
             </div>
         </div>
