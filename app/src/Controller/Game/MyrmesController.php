@@ -3,6 +3,7 @@
 namespace App\Controller\Game;
 
 use App\Entity\Game\Myrmes\GameMYR;
+use App\Entity\Game\Myrmes\PlayerMYR;
 use App\Service\Game\LogService;
 use App\Service\Game\Myrmes\EventMYRService;
 use App\Service\Game\Myrmes\DataManagementMYRService;
@@ -60,6 +61,21 @@ class MyrmesController extends AbstractController
             'isPreview' => false,
             'isSpectator' => $player == null,
         ]);
+    }
+
+    #[Route('/game/myrmes/{idGame}/displayPersonalBoard/{idPlayer}', name: 'app_game_myrmes_display_player_personal_board')]
+    public function showPlayerPersonalBoard(
+        #[MapEntity(id: 'idGame')] GameMYR $gameMYR,
+        #[MapEntity(id: 'idPlayer')] PlayerMYR $playerMYR): Response
+    {
+        return $this->render('Game/Myrmes/PersonalBoard/playerPersonalBoard.html.twig',
+            [
+                'game' => $gameMYR,
+                'player' => $playerMYR,
+                'preys' => $playerMYR->getPreyMYRs(),
+                'isPreview' => false,
+                'isSpectator' => true,
+            ]);
     }
 
     #[Route('/game/myrmes/{gameId}/up/bonus/', name: 'app_game_myrmes_up_bonus')]

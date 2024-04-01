@@ -1,0 +1,27 @@
+{#
+This section displays the personal board of a player other than the current one
+@param :
+@return :
+#}
+<div id="openedPlayerPersonalBoard" class="bg-[#09090b] w-full h-full lg:w-[70%] lg:h-full absolute bottom-0
+                            lg:rounded-tr-2xl z-10
+                            overflow-y-hidden" hidden
+        {{ stimulus_controller('myrmes') }}
+>
+    <div class="h-1/30 w-full flex justify-center cursor-pointer text-white text-5xl landscape:text-2xl lg:text-base"
+            {{ stimulus_action('myrmes', 'displayPlayerPersonalBoard', 'click', { 'open': false}) }}>
+        <img src="{{ asset('resourcesGames/utils/arrow_up_white.svg') }}" id="openArrow"
+             alt="arrow up" class="h-10 landscape:h-6 lg:h-4 rotate-180 mt-1 mr-2">
+        <p>Fermer le plateau personnel de <b>{{ player.username }}</b></p>
+    </div>
+    <div class="bg-gradient-to-b from-[#09090b] to-[#052e16]  flex justify-center w-full h-[95%]">
+        <div id="persoBoard" class="overflow-y-scroll overflow-x-scroll w-auto h-auto p-1">
+            {{ include('Game/Myrmes/PersonalBoard/displayBirthTrack.html.twig') }}
+            {{ include('Game/Myrmes/PersonalBoard/displayColonyLevelTrack.html.twig') }}
+            {{ include('Game/Myrmes/PersonalBoard/displayEventTrack.html.twig') }}
+            {{ include('Game/Myrmes/PersonalBoard/displayPreyCount.html.twig') }}
+            {{ include('Game/Myrmes/PersonalBoard/displayWarehouse.html.twig') }}
+            {{ include('Game/Myrmes/PersonalBoard/displayWorkshop.html.twig') }}
+        </div>
+    </div>
+</div>

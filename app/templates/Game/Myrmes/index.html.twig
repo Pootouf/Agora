@@ -21,6 +21,9 @@
                     {{ include('/Game/Myrmes/MainBoard/preview.html.twig') }}
                 </div>
             {% endblock %}
+            {% block playerPersonalBoard %}
+                <div id="playerPersonalBoard" class="flow float-start w-[70%] h-[5/6]"></div>
+            {% endblock %}
             {% block mainBoard %}
                     <div id="mainBoard" class="absolute bottom-0 w-[72%] h-full">
                         {{ include('/Game/Myrmes/MainBoard/mainBoard.html.twig') }}
