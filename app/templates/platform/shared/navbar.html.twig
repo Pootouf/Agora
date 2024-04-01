@@ -3,6 +3,11 @@
 		AGORA
 	</a>
 	<div class="justify-between space-x-4">
+		{% if app.user %}
+		<a href="/dashboard/user" class="text-sm font-semibold leading-6 text-gray-900">
+			Dashboard
+		</a>
+		{% endif %}
 		<a href="/games" class="text-sm font-semibold leading-6 text-gray-900">
 			Jeux
 		</a>

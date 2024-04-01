@@ -1,6 +1,6 @@
 {% extends 'platform/dashboard/layout.html.twig' %}
 {% block title %}
-Tables en cours
+Mes tables
 {% endblock %}
 {% block content %}
 <style>
@@ -82,6 +82,7 @@ Tables en cours
             {% endif %}
             <tbody id="table-body">
                {% for board in boards %}
+               {% if board.status != 'FINISH' %}
                {% set users = board.listUsers %}
                {% set availableSeats = board.getNbAvailbleSlots() %}
                {% set colorClass = board.status == 'IN_GAME' ? 'bg-gradient-to-r from-transparent to-orange-200' : (board.isAvailble() ? 'bg-gradient-to-r from-transparent to-green-200' : 'bg-gradient-to-r from-transparent to-red-200') %}
@@ -155,7 +156,7 @@ Tables en cours
                      <a href="{{ path('app_join_game', {'id': board.id}) }}" class="text-white bg-primary hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
                      Reprendre
                      </a>
-                     {% else %}
+                     {% elseif board.status == 'WAITING' %}
                      <a href="{{ path('app_leave_board', {'id': board.id}) }}" class="text-white bg-red-500 hover:bg-red-400 focus:ring-4 focus:outline-none focus:ring-red-300 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
                      Quitter
                      </a>
@@ -164,6 +165,7 @@ Tables en cours
                      {% endif %}
                   </td>
                </tr>
+               {% endif %}
                {% endif %}
                {% endfor %}
             </tbody>
@@ -180,7 +182,7 @@ Tables en cours
    function submitSearchForm() {
        document.getElementById('searchForm').submit();
    }
-
+   
    // Ajouter des écouteurs d'événements pour les changements de sélection
    document.getElementById('statusSelect').addEventListener('change', submitSearchForm);
    document.getElementById('availabilitySelect').addEventListener('change', submitSearchForm);
