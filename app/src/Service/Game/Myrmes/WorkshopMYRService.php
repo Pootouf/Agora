@@ -26,7 +26,11 @@ class WorkshopMYRService
      * @return void
      * @throws Exception
      */
-    public function manageWorkshop(PlayerMYR $player, int $workshop) {
+    public function manageWorkshop(PlayerMYR $player, int $workshop): void
+    {
+        if (!$this->canChooseThisBonus($player, $workshop)) {
+            throw new Exception("player can not choose this bonus");
+        }
         $nurses = $this->MYRService->getNursesAtPosition($player, MyrmesParameters::$WORKSHOP_AREA);
         $nursesCount = $nurses->count();
         switch ($workshop) {
@@ -47,6 +51,20 @@ class WorkshopMYRService
                 throw new Exception("Don't give bonus");
         }
         $this->entityManager->flush();
+    }
+
+    /**
+     * canChooseThisBonus : checks if the player can choose the selected bonus in the workshopArea
+     * @param PlayerMYR $player
+     * @param int       $workshopArea
+     * @return bool
+     */
+    private function canChooseThisBonus(PlayerMYR $player, int $workshopArea) : bool
+    {
+        if ($player->getPhase() != MyrmesParameters::$PHASE_WORKSHOP) {
+            return false;
+        }
+        return $this->MYRService->getNursesAtPosition($player, $workshopArea) >= 0;
     }
 
     /**
