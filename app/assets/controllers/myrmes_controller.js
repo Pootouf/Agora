@@ -19,6 +19,11 @@ export default class extends Controller  {
         const response = await fetch(url);
     }
 
+    async confirmNursesPlacement(confirm) {
+        let url = confirm.params.url;
+        const response = await fetch(url);
+    }
+
     placeNurseOnWorkshop() {
         alert("workshop");
     }

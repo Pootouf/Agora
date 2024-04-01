@@ -156,7 +156,7 @@ class MyrmesController extends AbstractController
     }
 
     #[Route('/game/myrmes/{gameId}/confirmNursesPlacement', name: 'app_game_myrmes_confirm_nurses')]
-    public function confirmNurses(
+    public function confirmNursesPlacement(
         #[MapEntity(id: 'gameId')] GameMYR $game
     ) : Response
     {
