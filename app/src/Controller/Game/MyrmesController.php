@@ -3,6 +3,7 @@
 namespace App\Controller\Game;
 
 use App\Entity\Game\Myrmes\GameMYR;
+use App\Entity\Game\Myrmes\MyrmesParameters;
 use App\Service\Game\LogService;
 use App\Service\Game\Myrmes\BirthMYRService;
 use App\Service\Game\Myrmes\EventMYRService;
@@ -47,6 +48,9 @@ class MyrmesController extends AbstractController
             'isPreview' => true,
             'preys' => $game->getMainBoardMYR()->getPreys(),
             'isSpectator' => $player == null,
+            'nursesOnLarvaeBirthTrack' => $this->service->getNursesAtPosition($player, MyrmesParameters::$LARVAE_AREA)->count(),
+            'nursesOnSoldiersBirthTrack' => $this->service->getNursesAtPosition($player, MyrmesParameters::$SOLDIERS_AREA)->count(),
+            'nursesOnWorkersBirthTrack' => $this->service->getNursesAtPosition($player, MyrmesParameters::$WORKER_AREA)->count()
         ]);
     }
 
@@ -61,6 +65,9 @@ class MyrmesController extends AbstractController
             'preys' => $player->getPreyMYRs(),
             'isPreview' => false,
             'isSpectator' => $player == null,
+            'nursesOnLarvaeBirthTrack' => $this->service->getNursesAtPosition($player, MyrmesParameters::$LARVAE_AREA)->count(),
+            'nursesOnSoldiersBirthTrack' => $this->service->getNursesAtPosition($player, MyrmesParameters::$SOLDIERS_AREA)->count(),
+            'nursesOnWorkersBirthTrack' => $this->service->getNursesAtPosition($player, MyrmesParameters::$WORKER_AREA)->count()
         ]);
     }
 
