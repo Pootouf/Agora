@@ -4,6 +4,7 @@ namespace App\Controller\Game;
 
 use App\Entity\Game\Myrmes\GameMYR;
 use App\Service\Game\LogService;
+use App\Service\Game\Myrmes\BirthMYRService;
 use App\Service\Game\Myrmes\EventMYRService;
 use App\Service\Game\Myrmes\DataManagementMYRService;
 use App\Service\Game\Myrmes\MYRService;
@@ -22,7 +23,8 @@ class MyrmesController extends AbstractController
     public function __construct(private readonly MYRService $service,
                                 private readonly DataManagementMYRService $dataManagementMYRService,
                                 private readonly EventMYRService $eventMYRService,
-                                private readonly LogService $logService) {}
+                                private readonly LogService $logService,
+                                private readonly BirthMYRService $birthMYRService) {}
 
 
     #[Route('/game/myrmes/{id}', name: 'app_game_show_myr')]
@@ -117,5 +119,32 @@ class MyrmesController extends AbstractController
         $message = $player->getUsername() . " a confirmé son choix de bonus";
         $this->logService->sendPlayerLog($game, $player, $message);
         return new Response('Bonus confirmed', Response::HTTP_OK);
+    }
+
+    #[Route('/game/myrmes/{gameId}/placeNurse/{position}', name: 'app_game_myrmes_place_nurse')]
+    public function placeNurse(
+        #[MapEntity(id: 'idGame')] GameMYR $game,
+        int $position
+    ) : Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('invalid player', Response::HTTP_FORBIDDEN);
+        }
+        try {
+                $this->birthMYRService->placeNurse($player->getPersonalBoardMYR()->getNurses()->filter(function ($value) {
+                    return $value->getPosition() == 0;
+                })->first(),$position);
+        } catch (Exception) {
+            $message = $player->getUsername()
+                . " a essayé de placer une nourrice sur la piste de naissance "
+                . $position
+                . " mais n'a pas pu";
+            $this->logService->sendPlayerLog($game, $player, $message);
+            return new Response("nurse not available for placing", Response::HTTP_FORBIDDEN);
+        }
+        $message = $player->getUsername() . " a placé une nourrice sur une piste de naissance " . $position;
+        $this->logService->sendPlayerLog($game, $player, $message);
+        return new Response("nurse placed on birth track " . $position, Response::HTTP_OK);
     }
 }
