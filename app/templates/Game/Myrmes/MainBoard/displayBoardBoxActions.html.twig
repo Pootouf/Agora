@@ -4,4 +4,19 @@
     return : display possible action if it's turn of player
 #}
 
-<div class="bg-gray-500 h-full w-[25%]"></div>
+<div id="selectedBoxActions"
+     class="absolute top-0 left-0 w-full h-full flex z-50 text-white">
+
+
+    <div class="absolute bg-green-950 p-5 top-0 right-0 w-[28%] h-full rounded-lg flex flex-col">
+
+
+        <button id="return_board" onclick="closeSelectedBoxWindow()"
+                class="absolute rounded-lg bg-[#8F901F] py-2 px-3 m-1 text-2xl right-0 bottom-0 items-center"
+        >
+            <img src="{{ asset('resourcesGames/utils/return-arrow.svg') }}" id="returnArrow"
+                 alt="return on board"
+                 class="h-8 max-h-full">
+        </button>
+    </div>
+</div>
