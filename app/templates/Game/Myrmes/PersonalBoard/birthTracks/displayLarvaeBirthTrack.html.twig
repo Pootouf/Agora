@@ -15,14 +15,23 @@ This section displays the birth track for larvae.
     <div class="inlineFlexCol gap-[0.6vw]">
         {#larvae birth track#}
         <div class="inlineFlexCol items-center gap-[0.3vw]" id="larvaeTrack">
-            {% for i in 1..2 %}
-                <img class="{{ birthTrackSize }}"
-                     src="{{ asset('resourcesGames/Myrmes/personalBoard/birthTrack/birthTrackOneBis.svg') }}"
-                     alt="larvae birth track"/>
-            {% endfor %}
-            <img class="{{ birthTrackSize }}"
-                 src="{{ asset('resourcesGames/Myrmes/personalBoard/birthTrack/birthTrackTwo.svg') }}"
-                 alt="larvae birth track"/>
+            <div class="{{ birthTrackSize }} inlineFlexCol bg-[#D9D9D995] gap-2.5 rounded-[10px] p-2 border-2 border-black">
+                <svg viewBox="0 0 300 300">
+                    <polygon points="100,0 200,0 300,100 300,200 200,300 100,300 0,200 0,100" fill="black"/>
+                    <text x="95" y="220" fill="white" class="text-[10vw] font-extrabold">2</text>
+                </svg>
+            </div>
+            <div class="{{ birthTrackSize }} inlineFlexCol bg-[#D9D9D995] gap-2.5 rounded-[10px] p-2 border-2 border-black">
+                <svg viewBox="0 0 300 300">
+                    <polygon points="100,0 200,0 300,100 300,200 200,300 100,300 0,200 0,100" fill="black"/>
+                    <text x="95" y="220" fill="white" class="text-[10vw] font-extrabold">2</text>
+                </svg>
+            </div>
+            <div class="{{ birthTrackSize }} inlineFlexCol bg-[#D9D9D995] gap-2.5 rounded-[10px] p-2 border-2 border-black">
+                <svg viewBox="0 0 300 300">
+                    <polygon points="100,0 200,0 300,100 300,200 200,300 100,300 0,200 0,100" fill="black"/>
+                </svg>
+            </div>
         </div>
         {#button to place nurse on larvae birth track#}
         {% if not isPreview %}
