@@ -61,6 +61,64 @@ class WinterMYRServiceTest extends TestCase
         $this->assertSame($expectedScore, $player->getScore());
     }
 
+    public function testRetrievePointsDuringYearTwoAndNoWarriors() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $initialScore = 25;
+        $player->setScore($initialScore);
+        $game->getMainBoardMYR()->setYearNum(MyrmesParameters::SECOND_YEAR_NUM);
+        $expectedScore = 22;
+        //WHEN
+        $this->winterMYRService->retrievePoints($player);
+        //THEN
+        $this->assertSame($expectedScore, $player->getScore());
+    }
+
+    public function testRetrievePointsDuringYearThreeAndNoWarriors() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $initialScore = 25;
+        $player->setScore($initialScore);
+        $game->getMainBoardMYR()->setYearNum(MyrmesParameters::THIRD_YEAR_NUM);
+        $expectedScore = 19;
+        //WHEN
+        $this->winterMYRService->retrievePoints($player);
+        //THEN
+        $this->assertSame($expectedScore, $player->getScore());
+    }
+
+    public function testRetrievePointsDuringYearThreeAndOneWarrior() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $initialScore = 25;
+        $player->setScore($initialScore);
+        $player->getPersonalBoardMYR()->setWarriorsCount(1);
+        $game->getMainBoardMYR()->setYearNum(MyrmesParameters::THIRD_YEAR_NUM);
+        $expectedScore = 22;
+        //WHEN
+        $this->winterMYRService->retrievePoints($player);
+        //THEN
+        $this->assertSame($expectedScore, $player->getScore());
+    }
+
+    public function testRetrievePointsDuringNonExistingYear() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $game->getMainBoardMYR()->setYearNum(4);
+        //THEN
+        $this->expectException(\Exception::class);
+        //WHEN
+        $this->winterMYRService->retrievePoints($player);
+    }
+
     private function createGame(int $numberOfPlayers) : GameMYR
     {
         if($numberOfPlayers < MyrmesParameters::MIN_NUMBER_OF_PLAYER ||
