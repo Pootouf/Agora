@@ -12,9 +12,6 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 
-/**
- * @codeCoverageIgnore
- */
 class WinterMYRService
 {
     public function __construct(private readonly EntityManagerInterface $entityManager,
@@ -59,14 +56,20 @@ class WinterMYRService
         $amountToSpend = $this->getAmountToSpend($player, $currentYear);
         $food = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::$RESOURCE_TYPE_GRASS]);
         $playerFood = $this->playerResourceMYRRepository->findOneBy(["resource" => $food]);
-        $foodStock = $playerFood->getQuantity();
-        $remaining = $amountToSpend - $foodStock;
-        if ($remaining > 0) {
-            $playerFood->setQuantity(0);
+        if ($playerFood == null) {
+            $foodStock = 0;
         } else {
-            $playerFood->setQuantity($foodStock - $remaining);
+            $foodStock = $playerFood->getQuantity();
         }
-        $this->entityManager->persist($playerFood);
+        $remaining = $amountToSpend - $foodStock;
+        if ($playerFood != null) {
+            if ($remaining > 0) {
+                $playerFood->setQuantity(0);
+            } else {
+                $playerFood->setQuantity($foodStock - $amountToSpend);
+            }
+            $this->entityManager->persist($playerFood);
+        }
         for ($i = 0; $i < $remaining; ++$i) {
             $player->setScore($player->getScore() - 3);
         }
