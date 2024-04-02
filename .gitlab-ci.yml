@@ -186,6 +186,19 @@ integrationGlenmore:
   allow_failure: false
   environment: test
 
+applicationGlenmore:
+  needs: []
+  stage: glenmore
+  only:
+    - develop-game
+    - preprod
+    - main
+  script:
+    - symfony console tailwind:build
+    - php bin/phpunit tests/Game/Glenmore/Application
+  allow_failure: false
+  environment: test
+
 unitMyrmes:
     needs: []
     stage: myrmes
