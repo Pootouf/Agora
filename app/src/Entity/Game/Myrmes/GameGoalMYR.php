@@ -21,7 +21,7 @@ class GameGoalMYR extends Component
     #[ORM\ManyToOne(inversedBy: 'gameGoalsLevelOne')]
     private ?MainBoardMYR $mainBoardLevelOne = null;
 
-    #[ORM\ManyToOne(inversedBy: 'gameGoaldLevelTwo')]
+    #[ORM\ManyToOne(inversedBy: 'gameGoalsLevelTwo')]
     private ?MainBoardMYR $mainBoardLevelTwo = null;
 
     #[ORM\ManyToOne(inversedBy: 'gameGoalsLevelThree')]
