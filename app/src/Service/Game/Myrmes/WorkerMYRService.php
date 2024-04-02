@@ -147,32 +147,29 @@ class WorkerMYRService
             $gardenWorker->setTile($tile);
 
             $prey = $this->getPreyOnTile($tile);
+            $pheromone = $this->getPheromoneOnTile($tile);
             if ($prey != null)
             {
-                $player->setScore($player->getScore()
-                    + MyrmesParameters::$VICTORY_GAIN_BY_ATTACK_PREY[
-                        $prey->getType()
-                    ]);
+                $this->attackPrey($player, $prey);
+            } else if ($pheromone != null
+                && $pheromone->getPheromonMYR()->getPlayer() !== $player)
+            {
+                $personalBoard = $player->getPersonalBoardMYR();
 
-                $playerResource = $this->MYRService->getPlayerResourceOfType(
-                    $player,
-                    MyrmesParameters::$RESOURCE_TYPE_GRASS);
-
-                $playerResource->setQuantity($playerResource->getQuantity()
-                    + MyrmesParameters::$FOOD_GAIN_BY_ATTACK_PREY[$prey->getType()]
+                $personalBoard->setWarriorsCount(
+                    $personalBoard->getWarriorsCount() - 1
                 );
-
-                $player->addPreyMYR($prey);
-                $prey->setTile(null);
-
-                $this->entityManager->persist($playerResource);
-                $this->entityManager->persist($player);
-                $this->entityManager->persist($prey);
             }
 
             $this->entityManager->persist($gardenWorker);
-        }
 
+            if ($pheromone->getPheromonMYR()->getPlayer() !== $player)
+            {
+                $gardenWorker->setShiftsCount(
+                    $gardenWorker->getShiftsCount() - 1
+                );
+            }
+        }
         $this->entityManager->flush();
     }
 
@@ -189,19 +186,23 @@ class WorkerMYRService
         $tile =
             $this->getTileAtDirection($gardenWorker->getTile(), $direction);
 
-        if ($tile == null)
+        if ($tile == null
+            || $tile->getType() != MyrmesParameters::$WATER_TILE_TYPE)
         {
             return false;
         }
 
         $prey = $this->getPreyOnTile($tile);
-        $canAttack = $prey == null
-            || $this->canWorkerAttackPrey($player, $prey)
+        $pheromone = $this->getPheromoneOnTile($tile);
+
+        $canMove = ($prey == null && $pheromone == null)
+            || ($prey != null && $this->canWorkerAttackPrey($player, $prey))
+            || ($pheromone != null
+                && $this->canWorkerWalkAroundPheromone($player, $pheromone))
         ;
 
-        return $tile->getType() != MyrmesParameters::$WATER_TILE_TYPE
-            && $gardenWorker->getShiftsCount() > 0
-            && $canAttack;
+        return $gardenWorker->getShiftsCount() > 0
+            && $canMove;
     }
 
     /**
@@ -211,11 +212,23 @@ class WorkerMYRService
      */
     private function getPreyOnTile(TileMYR $tile) : ?PreyMYR
     {
-        return $this->preyMYRRepository->findOneBy(["tile" => $tile]);
+        return $this->preyMYRRepository->findOneBy(["tile" => $tile->getId()]);
     }
 
     /**
-     *
+     * getPheromoneOnTile : return pheromone on the tile or null
+     * @param TileMYR $tile
+     * @return PheromonTileMYR|null
+     */
+    private function getPheromoneOnTile(TileMYR $tile) : ?PheromonTileMYR
+    {
+        return $this->pheromonMYRRepository->findOneBy(
+            ["tile" => $tile->getId()]
+        );
+    }
+
+    /**
+     * canWorkerAttackPrey : check if worker can attack prey depend on soldiers of player
      * @param PlayerMYR $player
      * @param PreyMYR $prey
      * @return bool
@@ -230,6 +243,18 @@ class WorkerMYRService
             ];
 
         return $personalBoard->getWarriorsCount() >= $needSoldiers;
+    }
+
+    private function canWorkerWalkAroundPheromone(PlayerMYR $player, PheromonTileMYR $pheromonTile) : bool
+    {
+        if ($pheromonTile->getPheromonMYR()->getPlayer() === $player)
+        {
+            return true;
+        }
+
+        $personalBoard = $player->getPersonalBoardMYR();
+
+        return $personalBoard->getWarriorsCount() >= 1;
     }
 
     /**
@@ -306,6 +331,46 @@ class WorkerMYRService
             }
         }
         return true;
+    }
+
+    /**
+     * attackPrey :
+     * @param PlayerMYR $player
+     * @param PreyMYR $prey
+     * @return void
+     */
+    private function attackPrey(PlayerMYR $player, PreyMYR $prey) : void
+    {
+        $player->addPreyMYR($prey);
+        $prey->setTile(null);
+
+        // Manage count of soldiers
+        $personalBoard = $player->getPersonalBoardMYR();
+        $personalBoard->setWarriorsCount($personalBoard->getWarriorsCount()
+            - MyrmesParameters::$NUMBER_SOLDIERS_FOR_ATTACK_PREY[
+                $prey->getType()
+            ]);
+
+        // Manage score of player
+        $player->setScore($player->getScore()
+            + MyrmesParameters::$VICTORY_GAIN_BY_ATTACK_PREY[
+            $prey->getType()
+            ]);
+
+        // Manage quantity of resource
+        $playerResource = $this->MYRService->getPlayerResourceOfType(
+            $player,
+            MyrmesParameters::$RESOURCE_TYPE_GRASS);
+
+        $playerResource->setQuantity($playerResource->getQuantity()
+            + MyrmesParameters::$FOOD_GAIN_BY_ATTACK_PREY[$prey->getType()]
+        );
+
+        // Update
+        $this->entityManager->persist($playerResource);
+        $this->entityManager->persist($player);
+        $this->entityManager->persist($prey);
+        $this->entityManager->persist($personalBoard);
     }
 
     /**
