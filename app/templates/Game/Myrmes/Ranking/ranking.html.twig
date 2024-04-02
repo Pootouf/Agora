@@ -1,11 +1,11 @@
 {#
 This section displays the ranking with a view of the other players' possessions
-@param :
+@param : game, players
 @return :
 #}
 {# Myrmes Logo with actual season dice #}
 {% set seasons = game.mainBoardMYR.seasons %}
-<div id="logo" class="w-full h-[10%] landscape:1/6  lg:h-1/5 justify-center flex">
+<div id="logo" class="w-full h-[10vw] landscape:1/6  lg:h-1/5 justify-center flex">
     <div>
         {% for season in seasons %}
             <div class="flex justify-center items-center size-[70%] mt-5 mr-4 ml-4">
@@ -63,20 +63,6 @@ This section displays the ranking with a view of the other players' possessions
                          src="{{ arrowColor }}"
                          alt="arrow">
                 </button>
-                {#<button class="w-full h-full flex items-center justify-center"
-                        {{ stimulus_action('myrmes','displayPlayerPersonalBoard','click',
-                            {url:path('app_game_myrmes_display_player_personal_board',
-                                {idGame: game.id, idPlayer: p.id})})
-                        }}
-                        {% if isSpectator %}
-                            disabled
-                        {% endif %}
-                        class=""
-                >
-                    <img class="h-5 -rotate-90 -ml-3"
-                         src="{{ arrowColor }}"
-                         alt="arrow">
-                </button>#}
                 {# Display the player's username with a specific color if the background is dark or light #}
                 <p class="landscape:ml-3 landscape:text-sm landscape:lg:text-lg
                         {% if playerColor == 'yellow' or playerColor == 'gray' %}text-black{% else %}
