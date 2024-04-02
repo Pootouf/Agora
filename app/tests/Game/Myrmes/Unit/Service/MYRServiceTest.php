@@ -10,8 +10,10 @@ use App\Entity\Game\Myrmes\MyrmesParameters;
 use App\Entity\Game\Myrmes\NurseMYR;
 use App\Entity\Game\Myrmes\PersonalBoardMYR;
 use App\Entity\Game\Myrmes\PlayerMYR;
+use App\Entity\Game\Myrmes\SeasonMYR;
 use App\Repository\Game\Myrmes\NurseMYRRepository;
 use App\Repository\Game\Myrmes\PlayerMYRRepository;
+use App\Repository\Game\Myrmes\SeasonMYRRepository;
 use App\Repository\Game\Myrmes\TileMYRRepository;
 use App\Repository\Game\Myrmes\TileTypeMYRRepository;
 use App\Service\Game\Myrmes\MYRService;
@@ -28,8 +30,9 @@ class MYRServiceTest extends TestCase
         $nurseMYRRepository = $this->createMock(NurseMYRRepository::class);
         $tileMYRRepository = $this->createMock(TileMYRRepository::class);
         $tileTypeMYRRepository = $this->createMock(TileTypeMYRRepository::class);
+        $seasonMYRRepository = $this->createMock(SeasonMYRRepository::class);
         $this->MYRService = new MYRService($playerMYRRepository, $entityManager, $nurseMYRRepository,
-            $tileMYRRepository, $tileTypeMYRRepository);
+            $tileMYRRepository, $tileTypeMYRRepository, $seasonMYRRepository);
     }
 
     public function testActivateGoalWhenGoalIsLevelOne() : void
