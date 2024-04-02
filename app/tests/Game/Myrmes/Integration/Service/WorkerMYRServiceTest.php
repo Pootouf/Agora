@@ -35,7 +35,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $workerMYRService = static::getContainer()->get(WorkerMYRService::class);
         $game = $this->createGame(2);
         $tile = new TileMYR();
-        $tile->setType(MyrmesParameters::$DIRT_TILE_TYPE);
+        $tile->setType(MyrmesParameters::DIRT_TILE_TYPE);
         $tile->setCoordX(0);
         $tile->setCoordY(0);
         $this->entityManager->persist($tile);
@@ -53,7 +53,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $workerMYRService = static::getContainer()->get(WorkerMYRService::class);
         $game = $this->createGame(2);
         $tile = new TileMYR();
-        $tile->setType(MyrmesParameters::$DIRT_TILE_TYPE);
+        $tile->setType(MyrmesParameters::DIRT_TILE_TYPE);
         $tile->setCoordX(0);
         $tile->setCoordY(0);
         $this->entityManager->persist($tile);
@@ -77,7 +77,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $workerMYRService = static::getContainer()->get(WorkerMYRService::class);
         $game = $this->createGame(2);
         $tile = new TileMYR();
-        $tile->setType(MyrmesParameters::$WATER_TILE_TYPE);
+        $tile->setType(MyrmesParameters::WATER_TILE_TYPE);
         $tile->setCoordX(0);
         $tile->setCoordY(0);
         $this->entityManager->persist($tile);
@@ -95,7 +95,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $workerMYRService = static::getContainer()->get(WorkerMYRService::class);
         $game = $this->createGame(2);
         $tile = new TileMYR();
-        $tile->setType(MyrmesParameters::$DIRT_TILE_TYPE);
+        $tile->setType(MyrmesParameters::DIRT_TILE_TYPE);
         $tile->setCoordX(0);
         $tile->setCoordY(0);
         $this->entityManager->persist($tile);
@@ -130,8 +130,8 @@ class WorkerMYRServiceTest extends KernelTestCase
     private function createGame(int $numberOfPlayers) : GameMYR
     {
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);
-        if($numberOfPlayers < MyrmesParameters::$MIN_NUMBER_OF_PLAYER ||
-            $numberOfPlayers > MyrmesParameters::$MAX_NUMBER_OF_PLAYER) {
+        if($numberOfPlayers < MyrmesParameters::MIN_NUMBER_OF_PLAYER ||
+            $numberOfPlayers > MyrmesParameters::MAX_NUMBER_OF_PLAYER) {
             throw new \Exception("TOO MUCH PLAYERS ON CREATE GAME");
         }
         $game = new GameMYR();
@@ -140,7 +140,7 @@ class WorkerMYRServiceTest extends KernelTestCase
             $game->addPlayer($player);
             $player->setGameMyr($game);
             $player->setColor("");
-            $player->setPhase(MyrmesParameters::$PHASE_EVENT);
+            $player->setPhase(MyrmesParameters::PHASE_EVENT);
             $personalBoard = new PersonalBoardMYR();
             $personalBoard->setLarvaCount(0);
             $personalBoard->setSelectedEventLarvaeAmount(0);

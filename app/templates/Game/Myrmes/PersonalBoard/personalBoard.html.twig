@@ -56,6 +56,15 @@ This section displays the personal board of a player
         </div>
         {#colony level track#}
         {{ include('Game/Myrmes/PersonalBoard/displayColonyLevelTrack.html.twig') }}
+        {% if not isPreview %}
+        <button id="return_board" onclick="closeWindow()"
+                class="rounded-lg bg-[#8F901F] py-2 px-3 m-1 portrait:text-2xl items-center"
+        >
+            <img src="{{ asset('resourcesGames/utils/return-arrow.svg') }}" id="returnArrow"
+                 alt="return on board"
+                 class="h-6 max-h-full">
+        </button>
+        {% endif %}
         {% if not isAnotherPlayerBoard %}
             <button id="return_board" onclick="closeWindow()"
                     class="rounded-lg bg-[#8F901F] py-2 px-3 m-1 portrait:text-2xl items-center"

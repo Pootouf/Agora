@@ -61,6 +61,16 @@ export default class extends Controller  {
         tree.appendChild(node);
     }
 
+    async displayBoxActions(boardBox) {
+        let url = boardBox.params.url
+        const response = await fetch(url);
+        let tree = document.getElementById("index_myrmes");
+        let placeholder = document.createElement("div");
+        placeholder.innerHTML = await response.text();
+        const node = placeholder.firstElementChild;
+        tree.appendChild(node);
+    }
+
     async displayPlayerPersonalBoard(board) {
         let url = board.params.url;
         let open = board.params.open;

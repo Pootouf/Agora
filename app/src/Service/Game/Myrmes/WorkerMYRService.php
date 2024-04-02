@@ -81,42 +81,42 @@ class WorkerMYRService
             throw new Exception("player can't place more pheromones of this type");
         }
         switch ($tileType->getType()) {
-            case MyrmesParameters::$PHEROMONE_TYPE_ZERO:
+            case MyrmesParameters::PHEROMONE_TYPE_ZERO:
                 $this->placePheromoneTypeZero($player, $tile, $pheromone);
                 break;
-            case MyrmesParameters::$PHEROMONE_TYPE_ONE:
+            case MyrmesParameters::PHEROMONE_TYPE_ONE:
                 $this->placePheromoneTypeOne($player, $tile, $pheromone);
                 break;
-            case MyrmesParameters::$PHEROMONE_TYPE_TWO:
+            case MyrmesParameters::PHEROMONE_TYPE_TWO:
                 $this->placePheromoneTypeTwo($player, $tile, $pheromone);
                 break;
-            case MyrmesParameters::$PHEROMONE_TYPE_THREE:
+            case MyrmesParameters::PHEROMONE_TYPE_THREE:
                 $this->placePheromoneTypeThree($player, $tile, $pheromone);
                 break;
-            case MyrmesParameters::$PHEROMONE_TYPE_FOUR:
+            case MyrmesParameters::PHEROMONE_TYPE_FOUR:
                 $this->placePheromoneTypeFour($player, $tile, $pheromone);
                 break;
-            case MyrmesParameters::$PHEROMONE_TYPE_FIVE:
+            case MyrmesParameters::PHEROMONE_TYPE_FIVE:
                 $this->placePheromoneTypeFive($player, $tile, $pheromone);
                 break;
-            case MyrmesParameters::$PHEROMONE_TYPE_SIX:
+            case MyrmesParameters::PHEROMONE_TYPE_SIX:
                 $this->placePheromoneTypeSix($player, $tile, $pheromone);
                 break;
-            case MyrmesParameters::$SPECIAL_TILE_TYPE_FARM:
+            case MyrmesParameters::SPECIAL_TILE_TYPE_FARM:
                 if ($this->placePheromoneFarm($player)) {
                     $this->placePheromoneTypeTwo($player, $tile, $pheromone);
                     break;
                 } else {
                     throw new Exception("cant place this tile");
                 }
-            case MyrmesParameters::$SPECIAL_TILE_TYPE_QUARRY:
+            case MyrmesParameters::SPECIAL_TILE_TYPE_QUARRY:
                 if ($this->placePheromoneQuarry($player)) {
                     $this->placePheromoneTypeTwo($player, $tile, $pheromone);
                     break;
                 } else {
                     throw new Exception("cant place this tile");
                 }
-            case MyrmesParameters::$SPECIAL_TILE_TYPE_SUBANTHILL:
+            case MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL:
                 if ($this->placePheromoneSubanthill($player)) {
                     $this->placePheromoneTypeThree($player, $tile, $pheromone);
                     break;
@@ -139,7 +139,7 @@ class WorkerMYRService
         if ($tileMYR == null) {
             return false;
         }
-        if($tileMYR->getType() == MyrmesParameters::$WATER_TILE_TYPE) {
+        if($tileMYR->getType() == MyrmesParameters::WATER_TILE_TYPE) {
             return false;
         }
         $players = $gameMYR->getPlayers();
@@ -534,7 +534,7 @@ class WorkerMYRService
     private function placePheromoneFarm(PlayerMYR $player) : bool
     {
         $personalBoard = $player->getPersonalBoardMYR();
-        $grass = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::$RESOURCE_TYPE_GRASS]);
+        $grass = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::RESOURCE_TYPE_GRASS]);
         return $this->playerResourceMYRRepository->findOneBy(
             ["personalBoard" => $personalBoard, "resource" => $grass]
         ) != null;
@@ -548,8 +548,8 @@ class WorkerMYRService
     private function placePheromoneQuarry(PlayerMYR $player) : bool
     {
         $personalBoard = $player->getPersonalBoardMYR();
-        $grass = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::$RESOURCE_TYPE_GRASS]);
-        $stone = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::$RESOURCE_TYPE_STONE]);
+        $grass = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::RESOURCE_TYPE_GRASS]);
+        $stone = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::RESOURCE_TYPE_STONE]);
         return
             $this->playerResourceMYRRepository->findOneBy(
                 ["personalBoard" => $personalBoard, "resource" => $grass]
@@ -568,9 +568,9 @@ class WorkerMYRService
     private function placePheromoneSubanthill(PlayerMYR $player) : bool
     {
         $personalBoard = $player->getPersonalBoardMYR();
-        $grass = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::$RESOURCE_TYPE_GRASS]);
-        $stone = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::$RESOURCE_TYPE_STONE]);
-        $dirt = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::$RESOURCE_TYPE_DIRT]);
+        $grass = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::RESOURCE_TYPE_GRASS]);
+        $stone = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::RESOURCE_TYPE_STONE]);
+        $dirt = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::RESOURCE_TYPE_DIRT]);
         return
             $this->playerResourceMYRRepository->findOneBy(
                 ["personalBoard" => $personalBoard, "resource" => $grass]
@@ -627,16 +627,16 @@ class WorkerMYRService
         $anthillLevel = $player->getPersonalBoardMYR()->getAnthillLevel();
         $pheromoneSize = $pheromone->getPheromonTiles()->count();
         $allowedSize = $anthillLevel + 2;
-        if ($player->getPersonalBoardMYR()->getBonus() === MyrmesParameters::$BONUS_PHEROMONE) {
+        if ($player->getPersonalBoardMYR()->getBonus() === MyrmesParameters::BONUS_PHEROMONE) {
             ++$allowedSize;
         }
         if ($pheromoneSize > $allowedSize) {
             return false;
         }
-        if ($pheromone->getType()->getType() === MyrmesParameters::$SPECIAL_TILE_TYPE_SUBANTHILL) {
+        if ($pheromone->getType()->getType() === MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL) {
             return $anthillLevel == 3;
         }
-        return MyrmesParameters::$PHEROMONE_TYPE_AMOUNT[$pheromone->getType()->getType()] >= $pheromoneCount;
+        return MyrmesParameters::PHEROMONE_TYPE_AMOUNT[$pheromone->getType()->getType()] >= $pheromoneCount;
     }
 
     /**
@@ -646,17 +646,17 @@ class WorkerMYRService
      */
     private function placeResourceOnTile(PheromonTileMYR $tile) : void
     {
-        $grass = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::$RESOURCE_TYPE_GRASS]);
-        $stone = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::$RESOURCE_TYPE_STONE]);
-        $dirt = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::$RESOURCE_TYPE_DIRT]);
+        $grass = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::RESOURCE_TYPE_GRASS]);
+        $stone = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::RESOURCE_TYPE_STONE]);
+        $dirt = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::RESOURCE_TYPE_DIRT]);
         switch ($tile->getTile()->getType()) {
-            case MyrmesParameters::$DIRT_TILE_TYPE:
+            case MyrmesParameters::DIRT_TILE_TYPE:
                 $tile->setResource($dirt);
                 break;
-            case MyrmesParameters::$GRASS_TILE_TYPE:
+            case MyrmesParameters::GRASS_TILE_TYPE:
                 $tile->setResource($grass);
                 break;
-            case MyrmesParameters::$STONE_TILE_TYPE:
+            case MyrmesParameters::STONE_TILE_TYPE:
                 $tile->setResource($stone);
                 break;
         }
@@ -688,12 +688,12 @@ class WorkerMYRService
         $this->entityManager->persist($pheromone);
         $playerMYR->addPheromonMYR($pheromone);
         $type = $tileTypeMYR->getType();
-        if ($type <= MyrmesParameters::$PHEROMONE_TYPE_SIX) {
-            $points = MyrmesParameters::$PHEROMONE_TYPE_LEVEL[$tileTypeMYR->getType()];
+        if ($type <= MyrmesParameters::PHEROMONE_TYPE_SIX) {
+            $points = MyrmesParameters::PHEROMONE_TYPE_LEVEL[$tileTypeMYR->getType()];
         } else {
-            $points = MyrmesParameters::$SPECIAL_TILES_TYPE_LEVEL[$tileTypeMYR->getType()];
+            $points = MyrmesParameters::SPECIAL_TILES_TYPE_LEVEL[$tileTypeMYR->getType()];
         }
-        if ($playerMYR->getPersonalBoardMYR()->getBonus() === MyrmesParameters::$BONUS_POINT) {
+        if ($playerMYR->getPersonalBoardMYR()->getBonus() === MyrmesParameters::BONUS_POINT) {
             ++$points;
         }
         $playerMYR->setScore($playerMYR->getScore() + $points);
