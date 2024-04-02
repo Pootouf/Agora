@@ -40,6 +40,11 @@ export default class extends Controller  {
         const response = await fetch(url);
     }
 
+    async confirmBonus(event) {
+        let url = event.params.url;
+        const response = await fetch(url);
+    }
+
     //throw resources from storage
 
     throwResourceFromWarehouse() {

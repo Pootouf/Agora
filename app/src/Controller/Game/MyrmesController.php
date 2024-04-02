@@ -89,10 +89,13 @@ class MyrmesController extends AbstractController
                 'isSpectator' => true,
                 'isAnotherPlayerBoard' => true,
                 'isBirthPhase' => $this->service->isInPhase($playerMYR, MyrmesParameters::$PHASE_BIRTH),
+                'nursesOnLarvaeBirthTrack' => $this->service->getNursesAtPosition($playerMYR, MyrmesParameters::$LARVAE_AREA)->count(),
+                'nursesOnSoldiersBirthTrack' => $this->service->getNursesAtPosition($playerMYR, MyrmesParameters::$SOLDIERS_AREA)->count(),
+                'nursesOnWorkersBirthTrack' => $this->service->getNursesAtPosition($playerMYR, MyrmesParameters::$WORKER_AREA)->count()
             ]);
     }
 
-    #[Route('/game/myrmes/{gameId}/up/bonus/', name: 'app_game_myrmes_up_bonus')]
+    #[Route('/game/myrmes/{idGame}/up/bonus/', name: 'app_game_myrmes_up_bonus')]
     public function upBonus(
         #[MapEntity(id: 'idGame')] GameMYR $game,
     ) : Response
@@ -113,7 +116,7 @@ class MyrmesController extends AbstractController
         return new Response('Bonus upped', Response::HTTP_OK);
     }
 
-    #[Route('/game/myrmes/{gameId}/lower/bonus/', name: 'app_game_myrmes_lower_bonus')]
+    #[Route('/game/myrmes/{idGame}/lower/bonus/', name: 'app_game_myrmes_lower_bonus')]
     public function lowerBonus(
         #[MapEntity(id: 'idGame')] GameMYR $game,
     ) : Response
@@ -134,7 +137,7 @@ class MyrmesController extends AbstractController
         return new Response('Bonus lowered', Response::HTTP_OK);
     }
 
-    #[Route('/game/myrmes/{gameId}/confirm/bonus/', name: 'app_game_myrmes_confirm_bonus')]
+    #[Route('/game/myrmes/{idGame}/confirm/bonus/', name: 'app_game_myrmes_confirm_bonus')]
     public function confirmBonus(
         #[MapEntity(id: 'idGame')] GameMYR $game,
     ) : Response
