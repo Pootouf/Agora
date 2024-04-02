@@ -150,11 +150,6 @@ class WorkerMYRServiceTest extends KernelTestCase
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_ZERO);
         $tileType->setOrientation(0);
         $this->entityManager->persist($tileType);
-        $pheromone = new PheromonMYR();
-        $pheromone->setType($tileType);
-        $pheromone->setPlayer($firstPlayer);
-        $pheromone->setHarvested(false);
-        $this->entityManager->persist($pheromone);
         $gardenWorker = new GardenWorkerMYR();
         $gardenWorker->setPlayer($firstPlayer);
         $gardenWorker->setTile($tile);
@@ -165,7 +160,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $pheromone);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -189,11 +184,6 @@ class WorkerMYRServiceTest extends KernelTestCase
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_ZERO);
         $tileType->setOrientation(1);
         $this->entityManager->persist($tileType);
-        $pheromone = new PheromonMYR();
-        $pheromone->setType($tileType);
-        $pheromone->setPlayer($firstPlayer);
-        $pheromone->setHarvested(false);
-        $this->entityManager->persist($pheromone);
         $gardenWorker = new GardenWorkerMYR();
         $gardenWorker->setPlayer($firstPlayer);
         $gardenWorker->setTile($tile);
@@ -204,7 +194,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $pheromone);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -228,11 +218,6 @@ class WorkerMYRServiceTest extends KernelTestCase
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_ZERO);
         $tileType->setOrientation(2);
         $this->entityManager->persist($tileType);
-        $pheromone = new PheromonMYR();
-        $pheromone->setType($tileType);
-        $pheromone->setPlayer($firstPlayer);
-        $pheromone->setHarvested(false);
-        $this->entityManager->persist($pheromone);
         $gardenWorker = new GardenWorkerMYR();
         $gardenWorker->setPlayer($firstPlayer);
         $gardenWorker->setTile($tile);
@@ -243,7 +228,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $pheromone);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -267,11 +252,6 @@ class WorkerMYRServiceTest extends KernelTestCase
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_ZERO);
         $tileType->setOrientation(3);
         $this->entityManager->persist($tileType);
-        $pheromone = new PheromonMYR();
-        $pheromone->setType($tileType);
-        $pheromone->setPlayer($firstPlayer);
-        $pheromone->setHarvested(false);
-        $this->entityManager->persist($pheromone);
         $gardenWorker = new GardenWorkerMYR();
         $gardenWorker->setPlayer($firstPlayer);
         $gardenWorker->setTile($tile);
@@ -282,7 +262,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $pheromone);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -306,11 +286,6 @@ class WorkerMYRServiceTest extends KernelTestCase
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_ZERO);
         $tileType->setOrientation(4);
         $this->entityManager->persist($tileType);
-        $pheromone = new PheromonMYR();
-        $pheromone->setType($tileType);
-        $pheromone->setPlayer($firstPlayer);
-        $pheromone->setHarvested(false);
-        $this->entityManager->persist($pheromone);
         $gardenWorker = new GardenWorkerMYR();
         $gardenWorker->setPlayer($firstPlayer);
         $gardenWorker->setTile($tile);
@@ -321,7 +296,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $pheromone);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -345,11 +320,6 @@ class WorkerMYRServiceTest extends KernelTestCase
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_ZERO);
         $tileType->setOrientation(5);
         $this->entityManager->persist($tileType);
-        $pheromone = new PheromonMYR();
-        $pheromone->setType($tileType);
-        $pheromone->setPlayer($firstPlayer);
-        $pheromone->setHarvested(false);
-        $this->entityManager->persist($pheromone);
         $gardenWorker = new GardenWorkerMYR();
         $gardenWorker->setPlayer($firstPlayer);
         $gardenWorker->setTile($tile);
@@ -360,7 +330,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $pheromone);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -384,11 +354,6 @@ class WorkerMYRServiceTest extends KernelTestCase
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_ZERO);
         $tileType->setOrientation(6);
         $this->entityManager->persist($tileType);
-        $pheromone = new PheromonMYR();
-        $pheromone->setType($tileType);
-        $pheromone->setPlayer($firstPlayer);
-        $pheromone->setHarvested(false);
-        $this->entityManager->persist($pheromone);
         $gardenWorker = new GardenWorkerMYR();
         $gardenWorker->setPlayer($firstPlayer);
         $gardenWorker->setTile($tile);
@@ -401,7 +366,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $pheromone);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
     }
 
     public function testPlacePheromoneOfTypeZeroWhenTileContainPrey()
@@ -423,11 +388,6 @@ class WorkerMYRServiceTest extends KernelTestCase
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_ZERO);
         $tileType->setOrientation(5);
         $this->entityManager->persist($tileType);
-        $pheromone = new PheromonMYR();
-        $pheromone->setType($tileType);
-        $pheromone->setPlayer($firstPlayer);
-        $pheromone->setHarvested(false);
-        $this->entityManager->persist($pheromone);
         $gardenWorker = new GardenWorkerMYR();
         $gardenWorker->setPlayer($firstPlayer);
         $gardenWorker->setTile($tile);
@@ -445,7 +405,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $pheromone);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
     }
 
     private function createGame(int $numberOfPlayers) : GameMYR
