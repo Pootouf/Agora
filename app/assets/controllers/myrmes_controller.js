@@ -44,6 +44,11 @@ export default class extends Controller  {
         alert("warehouse");
     }
 
+    async selectAntHillHoleToSendWorker(select) {
+        let url = select.params.url;
+        const response = await fetch(url);
+    }
+
     //place worker on colony level track
 
     async placeWorkerOnColonyLevelTrack(level) {
