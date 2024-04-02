@@ -50,6 +50,97 @@ class WinterMYRServiceTest extends KernelTestCase
         $this->assertSame($expectedScore, $player->getScore());
     }
 
+    public function testRetrievePointsDuringYearTwoAndNoWarriors() : void
+    {
+        //GIVEN
+        $resourceMYRRepository = static::getContainer()->get(ResourceMYRRepository::class);
+        $playerResourceMYRRepository = static::getContainer()->get(PlayerResourceMYRRepository::class);
+        $game = $this->createGame(2);
+        $game->getMainBoardMYR()->setYearNum(MyrmesParameters::SECOND_YEAR_NUM);
+        $player = $game->getPlayers()->first();
+        $initialScore = 25;
+        $player->setScore($initialScore);
+        $this->entityManager->persist($game->getMainBoardMYR());
+        $this->entityManager->persist($player);
+        $this->entityManager->flush();
+        $expectedScore = 10;
+        $expectedFood = 0;
+        //WHEN
+        $this->winterMYRService->retrievePoints($player);
+        //THEN
+        $food = $resourceMYRRepository->findOneBy(["description" => MyrmesParameters::RESOURCE_TYPE_GRASS]);
+        $playerFood = $playerResourceMYRRepository->findOneBy(["resource" => $food]);
+        $playerFood = $playerFood != null ? $playerFood->getQuantity() : 0;
+        $this->assertSame($expectedFood, $playerFood);
+        $this->assertSame($expectedScore, $player->getScore());
+    }
+
+    public function testRetrievePointsDuringYearThreeAndNoWarriors() : void
+    {
+        //GIVEN
+        $resourceMYRRepository = static::getContainer()->get(ResourceMYRRepository::class);
+        $playerResourceMYRRepository = static::getContainer()->get(PlayerResourceMYRRepository::class);
+        $game = $this->createGame(2);
+        $game->getMainBoardMYR()->setYearNum(MyrmesParameters::THIRD_YEAR_NUM);
+        $player = $game->getPlayers()->first();
+        $initialScore = 2;
+        $player->setScore($initialScore);
+        $this->entityManager->persist($game->getMainBoardMYR());
+        $this->entityManager->persist($player);
+        $this->entityManager->flush();
+        $expectedScore = 0;
+        $expectedFood = 0;
+        //WHEN
+        $this->winterMYRService->retrievePoints($player);
+        //THEN
+        $food = $resourceMYRRepository->findOneBy(["description" => MyrmesParameters::RESOURCE_TYPE_GRASS]);
+        $playerFood = $playerResourceMYRRepository->findOneBy(["resource" => $food]);
+        $playerFood = $playerFood != null ? $playerFood->getQuantity() : 0;
+        $this->assertSame($expectedFood, $playerFood);
+        $this->assertSame($expectedScore, $player->getScore());
+    }
+
+    public function testRetrievePointsDuringYearOneAndOneWarrior() : void
+    {
+        //GIVEN
+        $resourceMYRRepository = static::getContainer()->get(ResourceMYRRepository::class);
+        $playerResourceMYRRepository = static::getContainer()->get(PlayerResourceMYRRepository::class);
+        $game = $this->createGame(2);
+        $game->getMainBoardMYR()->setYearNum(MyrmesParameters::FIRST_YEAR_NUM);
+        $player = $game->getPlayers()->first();
+        $player->getPersonalBoardMYR()->setWarriorsCount(1);
+        $initialScore = 10;
+        $player->setScore($initialScore);
+        $this->entityManager->persist($game->getMainBoardMYR());
+        $this->entityManager->persist($player);
+        $this->entityManager->persist($player->getPersonalBoardMYR());
+        $this->entityManager->flush();
+        $expectedScore = 1;
+        $expectedFood = 0;
+        //WHEN
+        $this->winterMYRService->retrievePoints($player);
+        //THEN
+        $food = $resourceMYRRepository->findOneBy(["description" => MyrmesParameters::RESOURCE_TYPE_GRASS]);
+        $playerFood = $playerResourceMYRRepository->findOneBy(["resource" => $food]);
+        $playerFood = $playerFood != null ? $playerFood->getQuantity() : 0;
+        $this->assertSame($expectedFood, $playerFood);
+        $this->assertSame($expectedScore, $player->getScore());
+    }
+
+    public function testRetrievePointsDuringNonExistingYear() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $game->getMainBoardMYR()->setYearNum(4);
+        $this->entityManager->persist($game->getMainBoardMYR());
+        $this->entityManager->flush();
+        //THEN
+        $this->expectException(\Exception::class);
+        //WHEN
+        $this->winterMYRService->retrievePoints($player);
+    }
+
     private function createGame(int $numberOfPlayers) : GameMYR
     {
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);
