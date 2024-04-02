@@ -40,6 +40,13 @@ This section displays the personal board of a player
             {{ include('Game/Myrmes/PersonalBoard/displayEventTrack.html.twig') }}
         </div>
         <div class="inline-flex flex-col items-center justify-around w-[20%] {{ gapBetweenAreasSize }}" id="rightColumn">
+            {#send worker on garden#}
+            {% if not isPreview %}
+            <button type="button" class="h-[4vw]">
+                <img class="h-full" src="{{ asset('resourcesGames/Myrmes/personalBoard/sendWorkerToGardenButton.svg') }}"
+                     alt="send a worker to garden">
+            </button>
+            {% endif %}
             {#workshop#}
             {{ include('Game/Myrmes/PersonalBoard/displayWorkshop.html.twig') }}
             {#prey counter#}
