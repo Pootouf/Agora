@@ -150,6 +150,7 @@ class MYRService
     }
 
     /**
+     * getPlayerResourceOfType : return player resource associate with the type
      * @param PlayerMYR $player
      * @param string $type
      * @return PlayerResourceMYR|null
@@ -425,7 +426,7 @@ class MYRService
     }
 
     /**
-     * manageNursesAfterBonusGive : Replace use nurses
+     * manageNursesAfterBonusGive : Replace all nurses that have been used
      * @param PlayerMYR $player
      * @param int $nurseCount
      * @param int $positionOfNurse

@@ -130,10 +130,17 @@ class WorkerMYRService
         }
     }
 
+    /**
+     * workerMove : garden worker move on main board
+     * @param PlayerMYR $player
+     * @param GardenWorkerMYR $gardenWorker
+     * @param int $direction
+     * @return void
+     */
     public function workerMove(PlayerMYR $player,
        GardenWorkerMYR $gardenWorker, int $direction) : void
     {
-        if ($this->workerCanMove($player, $gardenWorker, $direction))
+        if ($this->canWorkerMove($player, $gardenWorker, $direction))
         {
             $tile =
                 $this->getTileAtDirection($gardenWorker->getTile(), $direction);
@@ -155,6 +162,7 @@ class WorkerMYRService
                     + MyrmesParameters::$FOOD_GAIN_BY_ATTACK_PREY[$prey->getType()]
                 );
 
+                $player->addPreyMYR($prey);
                 $prey->setTile(null);
 
                 $this->entityManager->persist($playerResource);
@@ -168,7 +176,14 @@ class WorkerMYRService
         $this->entityManager->flush();
     }
 
-    public function workerCanMove(PlayerMYR $player,
+    /**
+     * canWorkerMove : check if worker can move depend on new tile.
+     * @param PlayerMYR $player
+     * @param GardenWorkerMYR $gardenWorker
+     * @param int $direction
+     * @return bool
+     */
+    public function canWorkerMove(PlayerMYR $player,
           GardenWorkerMYR $gardenWorker, int $direction) : bool
     {
         $tile =
@@ -181,8 +196,7 @@ class WorkerMYRService
 
         $prey = $this->getPreyOnTile($tile);
         $canAttack = $prey == null
-            || $this->workerCanAttackPrey($player, $prey)
-
+            || $this->canWorkerAttackPrey($player, $prey)
         ;
 
         return $tile->getType() != MyrmesParameters::$WATER_TILE_TYPE
@@ -191,6 +205,7 @@ class WorkerMYRService
     }
 
     /**
+     * getPreyOnTile : return prey on the tile or null
      * @param TileMYR $tile
      * @return PreyMYR|null
      */
@@ -200,11 +215,12 @@ class WorkerMYRService
     }
 
     /**
+     *
      * @param PlayerMYR $player
      * @param PreyMYR $prey
      * @return bool
      */
-    private function workerCanAttackPrey(PlayerMYR $player,
+    private function canWorkerAttackPrey(PlayerMYR $player,
          PreyMYR $prey) : bool
     {
         $personalBoard = $player->getPersonalBoardMYR();
@@ -217,6 +233,7 @@ class WorkerMYRService
     }
 
     /**
+     * getTileAtDirection : return tile which is on the given direction or null when tile not exists
      * @param TileMYR $tile
      * @param int $direction
      * @return TileMYR|null
@@ -245,6 +262,7 @@ class WorkerMYRService
     }
 
     /**
+     * getTileAtCoordinate : return tile at coordinate
      * @param int $x
      * @param int $y
      * @return TileMYR|null
