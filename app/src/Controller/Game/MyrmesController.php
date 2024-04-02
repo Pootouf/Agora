@@ -271,6 +271,22 @@ class MyrmesController extends AbstractController
         return new Response("nurses placement confirmed", Response::HTTP_OK);
     }
 
+    #[Route('/game/myrmes/{gameId}/confirmNursesPlacement', name: 'app_game_myrmes_cancel_nurses')]
+    public function cancelNursesPlacement(
+        #[MapEntity(id: 'gameId')] GameMYR $game
+    ) : Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('invalid player', Response::HTTP_FORBIDDEN);
+        }
+        $this->birthMYRService->cancelNursesPlacement($player);
+
+        $message = $player->getUsername() . " a annulé le placement de ses nourrices";
+        $this->logService->sendPlayerLog($game, $player, $message);
+        return new Response("nurses placement canceled", Response::HTTP_OK);
+    }
+
     #[Route('/game/myrmes/{gameId}/placeWorkerOnColonyLevelTrack/{level}', name: 'app_game_myrmes_place_worker_colony')]
     public function placeWorkerOnColonyLevelTrack(
         #[MapEntity(id: 'gameId')] GameMYR $game,
