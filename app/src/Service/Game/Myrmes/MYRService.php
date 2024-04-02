@@ -10,6 +10,7 @@ use App\Entity\Game\Myrmes\GoalMYR;
 use App\Entity\Game\Myrmes\MyrmesParameters;
 use App\Entity\Game\Myrmes\NurseMYR;
 use App\Entity\Game\Myrmes\PlayerMYR;
+use App\Entity\Game\Myrmes\PlayerResourceMYR;
 use App\Entity\Game\Myrmes\PreyMYR;
 use App\Entity\Game\Myrmes\SeasonMYR;
 use App\Repository\Game\Myrmes\NurseMYRRepository;
@@ -151,6 +152,27 @@ class MYRService
                 return $season;
             }
         }
+        return null;
+    }
+
+    /**
+     * getPlayerResourceOfType : return player resource associate with the type
+     * @param PlayerMYR $player
+     * @param string $type
+     * @return PlayerResourceMYR|null
+     */
+    public function getPlayerResourceOfType(PlayerMYR $player, string $type) : ?PlayerResourceMYR
+    {
+        $personalBoard = $player->getPersonalBoardMYR();
+
+        foreach ($personalBoard->getPlayerResourceMYRs() as $playerResource)
+        {
+            if ($playerResource->getResource()->getDescription() === $type)
+            {
+                return $playerResource;
+            }
+        }
+
         return null;
     }
 
@@ -410,7 +432,7 @@ class MYRService
     }
 
     /**
-     * manageNursesAfterBonusGive : Replace use nurses
+     * manageNursesAfterBonusGive : Replace all nurses that have been used
      * @param PlayerMYR $player
      * @param int $nurseCount
      * @param int $positionOfNurse

@@ -170,19 +170,27 @@ class MyrmesParameters
         9 => 4
     ];
 
+    // Direction's tiles
 
-    //Prey Types
+    public const int DIRECTION_NORTH_WEST = 1;
+    public const int DIRECTION_NORTH_EAST = 2;
+    public const int DIRECTION_EAST = 3;
+    public const int DIRECTION_SOUTH_EAST = 4;
+    public const int DIRECTION_SOUTH_WEST = 5;
+    public const int DIRECTION_WEST = 6;
+
+    // Prey Types
 
     public const string LADYBUG_TYPE = "ladybug";
     public const string TERMITE_TYPE = "termite";
     public const string SPIDER_TYPE = "spider";
 
-    //Prey Numbers
+    // Prey Numbers
     public const int LADYBUG_NUMBER = 6;
     public const int TERMITE_NUMBER = 6;
     public const int SPIDER_NUMBER = 6;
 
-    //Prey Position
+    // Prey Position
     public const array PREY_POSITIONS = [[1, 6], [1, 18], [4, 9], [4, 15], [5, 12], [6, 9], [6, 15], [7, 0], [7, 6],
         [7, 18], [7, 24], [8, 9], [8, 15], [9, 12], [10, 9], [10, 15], [13, 6], [13, 18]];
 
@@ -191,6 +199,30 @@ class MyrmesParameters
     public const int NUMBER_OF_LARVAE_AT_START = 1;
     public const int ANTHILL_START_LEVEL = 0;
     public const int PLAYER_START_SCORE = 10;
+    // Number of soldiers for attack preys
+
+    public const array NUMBER_SOLDIERS_FOR_ATTACK_PREY = array(
+        "ladybug" => 1,
+        "termite" => 1,
+        "spider" => 2
+    );
+
+    // Food gain by attack preys
+
+    public const array FOOD_GAIN_BY_ATTACK_PREY = array(
+        "ladybug" => 2,
+        "termite" => 1,
+        "spider" => 1
+    );
+
+    // Victory gain by attack preys
+
+    public const array VICTORY_GAIN_BY_ATTACK_PREY = array(
+        "ladybug" => 0,
+        "termite" => 2,
+        "spider" => 4
+    );
+
 
     //Anthill hole start position
     public const array ANTHILL_HOLE_POSITION_BY_NUMBER_OF_PLAYER = [
