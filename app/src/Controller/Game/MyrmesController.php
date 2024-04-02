@@ -54,6 +54,7 @@ class MyrmesController extends AbstractController
             'isSpectator' => $player == null,
             'needToPlay' => true,//$player == null ? false : $player->isTurnOfPlayer(),
             'selectedBox' => null,
+            'playerPhase' => $player->getPhase()
         ]);
     }
 
@@ -89,7 +90,8 @@ class MyrmesController extends AbstractController
             'game' => $game,
             'player' => $player,
             'selectedBox' => $boardBox,
-            'needToPlay' => true, //$player == null ? false : $player->isTurnOfPlayer()
+            'needToPlay' => true, //$player == null ? false : $player->isTurnOfPlayer(),
+            'playerPhase' => $player->getPhase()
         ]);
 
     }

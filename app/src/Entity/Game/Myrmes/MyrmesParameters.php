@@ -15,7 +15,7 @@ class MyrmesParameters
 
     public const int PHASE_EVENT = 0;
     public const int PHASE_BIRTH = 1;
-    public const int PHASE_WORRKER = 2;
+    public const int PHASE_WORKER = 2;
     public const int PHASE_HARVEST = 3;
     public const int PHASE_WORKSHOP = 4;
 
