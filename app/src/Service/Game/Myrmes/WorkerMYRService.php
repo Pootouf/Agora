@@ -20,6 +20,7 @@ use App\Repository\Game\Myrmes\PlayerResourceMYRRepository;
 use App\Repository\Game\Myrmes\PreyMYRRepository;
 use App\Repository\Game\Myrmes\ResourceMYRRepository;
 use App\Repository\Game\Myrmes\TileMYRRepository;
+use App\Repository\Game\Myrmes\TileTypeMYRRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
@@ -37,9 +38,35 @@ class WorkerMYRService
                                 private readonly PreyMYRRepository $preyMYRRepository,
                                 private readonly TileMYRRepository $tileMYRRepository,
                                 private readonly PlayerResourceMYRRepository $playerResourceMYRRepository,
-                                private readonly ResourceMYRRepository $resourceMYRRepository
+                                private readonly ResourceMYRRepository $resourceMYRRepository,
+                                private readonly TileTypeMYRRepository $tileTypeMYRRepository
     )
     {}
+
+    /**
+     * getAvailablePheromones : returns a collection of couples (type, amount) of all tile types for a player
+     * @param PlayerMYR $playerMYR
+     * @return ArrayCollection
+     */
+    public function getAvailablePheromones(PlayerMYR $playerMYR) : ArrayCollection
+    {
+        $result = new ArrayCollection();
+        for ($i = MyrmesParameters::PHEROMONE_TYPE_ZERO; $i <= MyrmesParameters::PHEROMONE_TYPE_SIX; ++$i) {
+            $tileType = $this->tileTypeMYRRepository->findOneBy(["type" => $i]);
+            $remaining = MyrmesParameters::PHEROMONE_TYPE_AMOUNT[$i] - $this->getPheromoneCountOfType($playerMYR, $tileType);
+            if ($remaining > 0) {
+                $result->add([$i, $remaining]);
+            }
+        }
+        for ($i = MyrmesParameters::SPECIAL_TILE_TYPE_FARM; $i <= MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL; ++$i) {
+            $tileType = $this->tileTypeMYRRepository->findOneBy(["type" => $i]);
+            $remaining = MyrmesParameters::SPECIAL_TILE_TYPE_AMOUNT[$i] - $this->getPheromoneCountOfType($playerMYR, $tileType);
+            if ($remaining > 0) {
+                $result->add([$i, $remaining]);
+            }
+        }
+        return $result;
+    }
 
     /**
      * placeAnthillHole : if player can place an anthill hole, it place it on the tile
@@ -68,59 +95,58 @@ class WorkerMYRService
      *
      * @param PlayerMYR   $player
      * @param TileMYR     $tile
-     * @param PheromonMYR $pheromone
+     * @param TileTypeMYR $tileType
      * @return void
      * @throws Exception
      */
-    public function placePheromone(PlayerMYR $player, TileMYR $tile, PheromonMYR $pheromone) : void
+    public function placePheromone(PlayerMYR $player, TileMYR $tile, TileTypeMYR $tileType) : void
     {
-        $tileType = $pheromone->getType();
         if (!$this->isWorkerOnTile($player, $tile)) {
             throw new Exception("no garden worker on this tile");
         }
-        $pheromoneCount = $this->getPheromoneCountOfType($player, $pheromone);
-        if (!$this->canChoosePheromone($player, $pheromone, $pheromoneCount)) {
+        $pheromoneCount = $this->getPheromoneCountOfType($player, $tileType);
+        if (!$this->canChoosePheromone($player, $tileType, $pheromoneCount)) {
             throw new Exception("player can't place more pheromones of this type");
         }
         switch ($tileType->getType()) {
             case MyrmesParameters::PHEROMONE_TYPE_ZERO:
-                $this->placePheromoneTypeZero($player, $tile, $pheromone);
+                $this->placePheromoneTypeZero($player, $tile, $tileType);
                 break;
             case MyrmesParameters::PHEROMONE_TYPE_ONE:
-                $this->placePheromoneTypeOne($player, $tile, $pheromone);
+                $this->placePheromoneTypeOne($player, $tile, $tileType);
                 break;
             case MyrmesParameters::PHEROMONE_TYPE_TWO:
-                $this->placePheromoneTypeTwo($player, $tile, $pheromone);
+                $this->placePheromoneTypeTwo($player, $tile, $tileType);
                 break;
             case MyrmesParameters::PHEROMONE_TYPE_THREE:
-                $this->placePheromoneTypeThree($player, $tile, $pheromone);
+                $this->placePheromoneTypeThree($player, $tile, $tileType);
                 break;
             case MyrmesParameters::PHEROMONE_TYPE_FOUR:
-                $this->placePheromoneTypeFour($player, $tile, $pheromone);
+                $this->placePheromoneTypeFour($player, $tile, $tileType);
                 break;
             case MyrmesParameters::PHEROMONE_TYPE_FIVE:
-                $this->placePheromoneTypeFive($player, $tile, $pheromone);
+                $this->placePheromoneTypeFive($player, $tile, $tileType);
                 break;
             case MyrmesParameters::PHEROMONE_TYPE_SIX:
-                $this->placePheromoneTypeSix($player, $tile, $pheromone);
+                $this->placePheromoneTypeSix($player, $tile, $tileType);
                 break;
             case MyrmesParameters::SPECIAL_TILE_TYPE_FARM:
                 if ($this->placePheromoneFarm($player)) {
-                    $this->placePheromoneTypeTwo($player, $tile, $pheromone);
+                    $this->placePheromoneTypeTwo($player, $tile, $tileType);
                     break;
                 } else {
                     throw new Exception("cant place this tile");
                 }
             case MyrmesParameters::SPECIAL_TILE_TYPE_QUARRY:
                 if ($this->placePheromoneQuarry($player)) {
-                    $this->placePheromoneTypeTwo($player, $tile, $pheromone);
+                    $this->placePheromoneTypeTwo($player, $tile, $tileType);
                     break;
                 } else {
                     throw new Exception("cant place this tile");
                 }
             case MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL:
                 if ($this->placePheromoneSubanthill($player)) {
-                    $this->placePheromoneTypeThree($player, $tile, $pheromone);
+                    $this->placePheromoneTypeThree($player, $tile, $tileType);
                     break;
                 } else {
                     throw new Exception("cant place this tile");
@@ -385,13 +411,12 @@ class WorkerMYRService
      *
      * @param PlayerMYR   $player
      * @param TileMYR     $tile
-     * @param PheromonMYR $pheromone
+     * @param TileTypeMYR $tileType
      * @return void
      * @throws Exception
      */
-    private function placePheromoneTypeZero(PlayerMYR $player, TileMYR $tile, PheromonMYR $pheromone) : void
+    private function placePheromoneTypeZero(PlayerMYR $player, TileMYR $tile, TileTypeMYR $tileType) : void
     {
-        $tileType = $pheromone->getType();
         $coordX = $tile->getCoordX();
         $coordY = $tile->getCoordY();
         $game = $player->getGameMyr();
@@ -433,13 +458,12 @@ class WorkerMYRService
      *
      * @param PlayerMYR   $player
      * @param TileMYR     $tile
-     * @param PheromonMYR $pheromone
+     * @param TileTypeMYR $tileType
      * @return void
      * @throws Exception
      */
-    private function placePheromoneTypeOne(PlayerMYR $player, TileMYR $tile, PheromonMYR $pheromone) : void
+    private function placePheromoneTypeOne(PlayerMYR $player, TileMYR $tile, TileTypeMYR $tileType) : void
     {
-        $tileType = $pheromone->getType();
         $coordX = $tile->getCoordX();
         $coordY = $tile->getCoordY();
         $game = $player->getGameMyr();
@@ -469,20 +493,18 @@ class WorkerMYRService
      *
      * @param PlayerMYR   $player
      * @param TileMYR     $tile
-     * @param PheromonMYR $pheromone
+     * @param TileTypeMYR $tileType
      * @return void
      * @throws Exception
      */
-    private function placePheromoneTypeTwo(PlayerMYR $player, TileMYR $tile, PheromonMYR $pheromone) : void
+    private function placePheromoneTypeTwo(PlayerMYR $player, TileMYR $tile, TileTypeMYR $tileType) : void
     {
-        $tileType = $pheromone->getType();
         $coordX = $tile->getCoordX();
         $coordY = $tile->getCoordY();
         $game = $player->getGameMyr();
         if (!$this->isPositionAvailable($game, $tile) || $this->containsPrey($game, $tile)) {
             throw new Exception("can't place this tile");
         }
-        $tiles = new ArrayCollection();
         switch ($tileType->getOrientation()) {
             case 0:
                 $coords = [[1, -1], [1, 1]];
@@ -518,13 +540,12 @@ class WorkerMYRService
      *
      * @param PlayerMYR   $player
      * @param TileMYR     $tile
-     * @param PheromonMYR $pheromone
+     * @param TileTypeMYR $tileType
      * @return void
      * @throws Exception
      */
-    private function placePheromoneTypeThree(PlayerMYR $player, TileMYR $tile, PheromonMYR $pheromone) : void
+    private function placePheromoneTypeThree(PlayerMYR $player, TileMYR $tile, TileTypeMYR $tileType) : void
     {
-        $tileType = $pheromone->getType();
         $coordX = $tile->getCoordX();
         $coordY = $tile->getCoordY();
         $game = $player->getGameMyr();
@@ -567,13 +588,12 @@ class WorkerMYRService
      *
      * @param PlayerMYR   $player
      * @param TileMYR     $tile
-     * @param PheromonMYR $pheromone
+     * @param TileTypeMYR $tileType
      * @return void
      * @throws Exception
      */
-    private function placePheromoneTypeFour(PlayerMYR $player, TileMYR $tile, PheromonMYR $pheromone) : void
+    private function placePheromoneTypeFour(PlayerMYR $player, TileMYR $tile, TileTypeMYR $tileType) : void
     {
-        $tileType = $pheromone->getType();
         $coordX = $tile->getCoordX();
         $coordY = $tile->getCoordY();
         $game = $player->getGameMyr();
@@ -639,13 +659,12 @@ class WorkerMYRService
      *
      * @param PlayerMYR   $player
      * @param TileMYR     $tile
-     * @param PheromonMYR $pheromone
+     * @param TileTypeMYR $tileType
      * @return void
      * @throws Exception
      */
-    private function placePheromoneTypeFive(PlayerMYR $player, TileMYR $tile, PheromonMYR $pheromone) : void
+    private function placePheromoneTypeFive(PlayerMYR $player, TileMYR $tile, TileTypeMYR $tileType) : void
     {
-        $tileType = $pheromone->getType();
         $coordX = $tile->getCoordX();
         $coordY = $tile->getCoordY();
         $game = $player->getGameMyr();
@@ -687,13 +706,12 @@ class WorkerMYRService
      *
      * @param PlayerMYR   $player
      * @param TileMYR     $tile
-     * @param PheromonMYR $pheromone
+     * @param TileTypeMYR $tileType
      * @return void
      * @throws Exception
      */
-    private function placePheromoneTypeSix(PlayerMYR $player, TileMYR $tile, PheromonMYR $pheromone) : void
+    private function placePheromoneTypeSix(PlayerMYR $player, TileMYR $tile, TileTypeMYR $tileType) : void
     {
-        $tileType = $pheromone->getType();
         $coordX = $tile->getCoordX();
         $coordY = $tile->getCoordY();
         $game = $player->getGameMyr();
@@ -823,15 +841,15 @@ class WorkerMYRService
 
     /**
      * getPheromoneCountOfType : returns the amount of pheromones from a type a player already has placed
+     *
      * @param PlayerMYR   $player
-     * @param PheromonMYR $pheromone
+     * @param TileTypeMYR $type
      * @return int
      */
-    private function getPheromoneCountOfType(PlayerMYR $player, PheromonMYR $pheromone) : int
+    private function getPheromoneCountOfType(PlayerMYR $player, TileTypeMYR $type) : int
     {
         $pheromones = $player->getPheromonMYRs();
         $result = 0;
-        $type = $pheromone->getType()->getType();
         foreach ($pheromones as $pheromone) {
             if ($pheromone->getType()->getType() == $type) {
                 ++$result;
@@ -840,9 +858,17 @@ class WorkerMYRService
         return $result;
     }
 
-    private function canChoosePheromone(PlayerMYR $player, PheromonMYR $pheromone, int $pheromoneCount) : bool
+    /**
+     * canChoosePheromone : checks if player can choose a pheromone of this type
+     * @param PlayerMYR   $player
+     * @param TileTypeMYR $tileType
+     * @param int         $pheromoneCount
+     * @return bool
+     */
+    private function canChoosePheromone(PlayerMYR $player, TileTypeMYR $tileType, int $pheromoneCount) : bool
     {
         $anthillLevel = $player->getPersonalBoardMYR()->getAnthillLevel();
+        $pheromone = $this->pheromonMYRRepository->findOneBy(["tileType" => $tileType]);
         $pheromoneSize = $pheromone->getPheromonTiles()->count();
         $allowedSize = $anthillLevel + 2;
         if ($player->getPersonalBoardMYR()->getBonus() === MyrmesParameters::BONUS_PHEROMONE) {
