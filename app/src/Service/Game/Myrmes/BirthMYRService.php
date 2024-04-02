@@ -101,9 +101,11 @@ class BirthMYRService
             MyrmesParameters::WIN_LARVAE_BY_NURSES_COUNT,
             $nursesCount
         );
+
         $personalBoard = $player->getPersonalBoardMYR();
         $personalBoard->setLarvaCount($personalBoard->getLarvaCount() + $winLarvae);
         $this->entityManager->persist($personalBoard);
+
         if ($winLarvae != 0)
         {
             $this->MYRService->manageNursesAfterBonusGive(
@@ -127,10 +129,13 @@ class BirthMYRService
             MyrmesParameters::WIN_SOLDIERS_BY_NURSES_COUNT,
             $nursesCount
         );
+
         $personalBoard = $player->getPersonalBoardMYR();
         $oldCountSoldiers = $personalBoard->getWarriorsCount();
         $newCountSoldiers = $oldCountSoldiers + $winSoldiers;
+
         $personalBoard->setWarriorsCount($newCountSoldiers);
+
         $this->entityManager->persist($personalBoard);
 
         if ($winSoldiers != 0)
@@ -158,13 +163,18 @@ class BirthMYRService
         );
 
         $personalBoard = $player->getPersonalBoardMYR();
+
         for ($count = 0; $count < $winWorker; $count++)
         {
             $worker = new AnthillWorkerMYR();
+            $worker->setPlayer($player);
+            $worker->setWorkFloor(-1); // TODO use parameters
+
             $personalBoard->addAnthillWorker($worker);
             $this->entityManager->persist($worker);
-            $this->entityManager->persist($personalBoard);
         }
+
+        $this->entityManager->persist($personalBoard);
 
         if ($winWorker != 0)
         {
