@@ -60,7 +60,7 @@ class WorkerMYRService
         }
         $ant = $this->anthillWorkerMYRRepository->findOneBy([
             'player' => $personalBoard->getPlayer(),
-            'workFloor' => null
+            'workFloor' => MyrmesParameters::$NO_WORKFLOOR
         ]);
         if(!$ant) {
             throw new Exception('No more free ants');
@@ -87,7 +87,7 @@ class WorkerMYRService
         }
         $ant = $this->anthillWorkerMYRRepository->findOneBy([
             'player' => $personalBoard->getPlayer(),
-            'workFloor' => null
+            'workFloor' => MyrmesParameters::$NO_WORKFLOOR
         ]);
         if(!$ant) {
             throw new Exception('No more free ants');

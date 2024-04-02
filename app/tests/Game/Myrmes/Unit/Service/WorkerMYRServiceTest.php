@@ -168,7 +168,7 @@ class WorkerMYRServiceTest extends TestCase
         $this->workerMYRService->placeAntInAnthill($player->getPersonalBoardMYR(), $selectedFloor);
 
         // THEN
-        $this->assertEquals($ant->getWorkFloor(), $selectedFloor);
+        $this->assertEquals($selectedFloor, $ant->getWorkFloor());
     }
 
     public function testPlaceAntInAnthillFailIfSelectedFloorIsGreaterThanAnthillLevel()

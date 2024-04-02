@@ -234,4 +234,8 @@ class MyrmesParameters
     public static int $DEFAULT_MOVEMENT_NUMBER = 3;
 
 
+    // Anthill worker parameters
+    public static int $NO_WORKFLOOR = -1;
+
+
 }
