@@ -74,7 +74,32 @@ This section displays the ranking with a view of the other players' possessions
                         text-white{% endif %}">{{ p.score }}</p>
                 </div>
             </div>
-
+            <div>
+                <div class="relative w-[1/4]">
+                    <img class="relative items-center justify-center ml-3
+                                        max-h-8"
+                         src="{{ asset('resourcesGames/Myrmes/resources/larva.svg') }}" alt="larva"/>
+                    <span
+                            class="absolute inline-flex items-center justify-center w-5 h-5 text-xs
+                                    font-bold text-white
+                                    bg-red-500 border-2 border-white rounded-full top-0 start-8 dark:border-gray-900"
+                    >
+                        {{ p.personalBoardMYR.larvaCount }}
+                    </span>
+                </div>
+                <div class="relative w-[1/4]">
+                    <img class="relative items-center justify-center ml-3
+                                        max-h-8"
+                         src="{{ asset('resourcesGames/Myrmes/resources/larva.svg') }}" alt="larva"/>
+                    <span
+                            class="absolute inline-flex items-center justify-center w-5 h-5 text-xs
+                                    font-bold text-white
+                                    bg-red-500 border-2 border-white rounded-full top-0 start-8 dark:border-gray-900"
+                    >
+                        {{ p.personalBoardMYR.larvaCount }}
+                    </span>
+                </div>
+            </div>
         </div>
     {% endfor %}
 </div>

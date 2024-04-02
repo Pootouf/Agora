@@ -34,7 +34,7 @@ This section displays the personal board of a player
             {{ include('Game/Myrmes/PersonalBoard/displayBirthTrack.html.twig') }}
             {#nurse counter#}
             <div class="w-full" id="nurses">
-                <p class="{% if isPreview %}text_mini {% else %} text1-4 {% endif %}">Nourrices : X</p>
+                <p class="{% if isPreview %}text_mini {% else %} text1-4 {% endif %}">Nourrices : {{ player.personalBoardMYR.nurses.count }}</p>
             </div>
             {#event track#}
             {{ include('Game/Myrmes/PersonalBoard/displayEventTrack.html.twig') }}
