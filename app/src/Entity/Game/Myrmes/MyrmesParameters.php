@@ -29,11 +29,15 @@ class MyrmesParameters
     public static int $LARVAE_AREA = 1;
     public static int $SOLDIERS_AREA = 2;
     public static int $WORKER_AREA = 3;
-    public static int $WORKSHOP_GOAL_AREA = 4;
-    public static int $WORKSHOP_ANTHILL_HOLE_AREA = 5;
-    public static int $WORKSHOP_LEVEL_AREA = 6;
-    public static int $WORKSHOP_NURSE_AREA = 7;
-    public static int $AREA_COUNT = 8;
+    public static int $WORKSHOP_AREA = 4;
+    public static int $AREA_COUNT = 5;
+
+    // Workshop areas
+
+    public static int $WORKSHOP_GOAL_AREA = 1;
+    public static int $WORKSHOP_ANTHILL_HOLE_AREA = 2;
+    public static int $WORKSHOP_LEVEL_AREA = 3;
+    public static int $WORKSHOP_NURSE_AREA = 4;
 
     //Nurses parameters
 
@@ -194,6 +198,11 @@ class MyrmesParameters
         3 => [[5, 4], [4, 19], [12, 13]],
         4 => [[3, 6], [3, 18], [11, 6], [11, 18]]
     ];
+
+
+    // Max anthill holes number by player
+
+    public static int $MAX_ANTHILL_HOLE_NB = 4;
 
     //Excluded tile with 2 players
     public static array $EXCLUDED_TILES_2_PLAYERS = [

@@ -13,22 +13,22 @@ This section displays player's colony level track with the crafts available for 
 <div class="relative w-[35%] inlineFlexCol items-center p-4 h-auto scale-[0.8]"
      id="colonyLevelTrack">
     {#colony track level 0#}
-    <button  type="button" id="colonyLevel0"
+    <{% if not isPreview %}button{% else %}div{% endif%}  type="button" id="colonyLevel0"
             {{ stimulus_action('myrmes','placeWorkerOnLevel0','click') }}>
         <img src="{{ asset('resourcesGames/Myrmes/personalBoard/colonyTrack/levels/level0.svg') }}"
              alt="colony track level zero">
-    </button>
+    </{% if not isPreview %}button{% else %}div{% endif %}>
     {% for i in 1..3 %}
         {#colony upgrades costs#}
         <img id="upgrade{{ i }}" class="-translate-y-[{{ upgradesGap|column(i)|first }}%] z-10"
              src="{{ asset('resourcesGames/Myrmes/personalBoard/colonyTrack/upgrades/upgrade' ~ i ~ '.svg') }}"
              alt="upgrade cost to level {{ i }}">
         {#colony track levels 1 to 3#}
-        <button class="-translate-y-[{{ 15*i }}%]" type="button" id="level{{ i }}"
+        <{% if not isPreview %}button{% else %}div{% endif %} class="-translate-y-[{{ 15*i }}%]" type="button" id="level{{ i }}"
                 {{ stimulus_action('myrmes','placeWorkerOnLevel' ~ i,'click') }}
         >
             <img src="{{ asset('resourcesGames/Myrmes/personalBoard/colonyTrack/levels/level' ~ i ~ '.svg') }}"
                  alt="colony track level {{ i }}">
-        </button>
+        </{% if not isPreview %}button{% else %}div{% endif %}>
     {% endfor %}
 </div>

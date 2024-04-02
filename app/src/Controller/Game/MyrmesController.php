@@ -3,7 +3,9 @@
 namespace App\Controller\Game;
 
 use App\Entity\Game\Myrmes\GameMYR;
+use App\Entity\Game\Myrmes\MyrmesParameters;
 use App\Service\Game\LogService;
+use App\Service\Game\Myrmes\BirthMYRService;
 use App\Service\Game\Myrmes\EventMYRService;
 use App\Service\Game\Myrmes\DataManagementMYRService;
 use App\Service\Game\Myrmes\MYRService;
@@ -22,7 +24,8 @@ class MyrmesController extends AbstractController
     public function __construct(private readonly MYRService $service,
                                 private readonly DataManagementMYRService $dataManagementMYRService,
                                 private readonly EventMYRService $eventMYRService,
-                                private readonly LogService $logService) {}
+                                private readonly LogService $logService,
+                                private readonly BirthMYRService $birthMYRService) {}
 
 
     #[Route('/game/myrmes/{id}', name: 'app_game_show_myr')]
@@ -42,30 +45,29 @@ class MyrmesController extends AbstractController
             'player' => $player,
             'game' => $game,
             'boardBoxes' => $boardBoxes,
+            'isPreview' => true,
             'preys' => $game->getMainBoardMYR()->getPreys(),
             'isSpectator' => $player == null,
+            'nursesOnLarvaeBirthTrack' => $this->service->getNursesAtPosition($player, MyrmesParameters::$LARVAE_AREA)->count(),
+            'nursesOnSoldiersBirthTrack' => $this->service->getNursesAtPosition($player, MyrmesParameters::$SOLDIERS_AREA)->count(),
+            'nursesOnWorkersBirthTrack' => $this->service->getNursesAtPosition($player, MyrmesParameters::$WORKER_AREA)->count()
         ]);
     }
 
-    #[Route('/game/myrmes/{id}/show/mainBoard', name: 'app_game_myrmes_show_main_board')]
-    public function showMainBoard(GameMYR $game): Response
+    #[Route('/game/myrmes/{id}/show/personalBoard', name: 'app_game_myrmes_show_personal_board')]
+    public function showPersonalBoard(GameMYR $game): Response
     {
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
 
-        $boardBoxes = null;
-        try {
-            $boardBoxes = $this->dataManagementMYRService->organizeMainBoardRows($game);
-        } catch (\Exception $e) {
-            return new Response("Error while calculating main board tiles disposition",
-                Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
-
-        return $this->render('/Game/Myrmes/MainBoard/mainBoard.html.twig', [
+        return $this->render('/Game/Myrmes/PersonalBoard/personalBoard.html.twig', [
             'player' => $player,
             'game' => $game,
-            'boardBoxes' => $boardBoxes,
-            'preys' => $game->getMainBoardMYR()->getPreys(),
+            'preys' => $player->getPreyMYRs(),
+            'isPreview' => false,
             'isSpectator' => $player == null,
+            'nursesOnLarvaeBirthTrack' => $this->service->getNursesAtPosition($player, MyrmesParameters::$LARVAE_AREA)->count(),
+            'nursesOnSoldiersBirthTrack' => $this->service->getNursesAtPosition($player, MyrmesParameters::$SOLDIERS_AREA)->count(),
+            'nursesOnWorkersBirthTrack' => $this->service->getNursesAtPosition($player, MyrmesParameters::$WORKER_AREA)->count()
         ]);
     }
 
@@ -124,5 +126,53 @@ class MyrmesController extends AbstractController
         $message = $player->getUsername() . " a confirmé son choix de bonus";
         $this->logService->sendPlayerLog($game, $player, $message);
         return new Response('Bonus confirmed', Response::HTTP_OK);
+    }
+
+    #[Route('/game/myrmes/{gameId}/placeNurse/{position}', name: 'app_game_myrmes_place_nurse')]
+    public function placeNurse(
+        #[MapEntity(id: 'gameId')] GameMYR $game,
+        int $position
+    ) : Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('invalid player', Response::HTTP_FORBIDDEN);
+        }
+        try {
+                $this->birthMYRService->placeNurse(
+                    $this->service->getNursesAtPosition($player, MyrmesParameters::$BASE_AREA)->first(),
+                    $position);
+        } catch (Exception) {
+            $message = $player->getUsername()
+                . " a essayé de placer une nourrice sur la piste de naissance "
+                . $position
+                . " mais n'a pas pu";
+            $this->logService->sendPlayerLog($game, $player, $message);
+            return new Response("nurse not available for placing", Response::HTTP_FORBIDDEN);
+        }
+        $message = $player->getUsername() . " a placé une nourrice sur une piste de naissance " . $position;
+        $this->logService->sendPlayerLog($game, $player, $message);
+        return new Response("nurse placed on birth track " . $position, Response::HTTP_OK);
+    }
+
+    #[Route('/game/myrmes/{gameId}/confirmNursesPlacement', name: 'app_game_myrmes_confirm_nurses')]
+    public function confirmNursesPlacement(
+        #[MapEntity(id: 'gameId')] GameMYR $game
+    ) : Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('invalid player', Response::HTTP_FORBIDDEN);
+        }
+        try {
+            $this->birthMYRService->giveBirthBonus($player);
+        } catch (Exception) {
+            $message = $player->getUsername() . " a essayé de confirmé le placement de ses nourrices mais n'a pas pu";
+            $this->logService->sendPlayerLog($game, $player, $message);
+            return new Response('failed to confirm nurses', Response::HTTP_FORBIDDEN);
+        }
+        $message = $player->getUsername() . " a confirmé le placement de ses nourrices";
+        $this->logService->sendPlayerLog($game, $player, $message);
+        return new Response("nurses placement confirmed", Response::HTTP_OK);
     }
 }

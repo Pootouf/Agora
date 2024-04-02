@@ -16,10 +16,6 @@ class MainBoardMYR extends Component
 
     #[ORM\OneToOne(inversedBy: 'mainBoardMYR', cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
-    private ?SeasonMYR $actualSeason = null;
-
-    #[ORM\OneToOne(inversedBy: 'mainBoardMYR', cascade: ['persist', 'remove'])]
-    #[ORM\JoinColumn(nullable: false)]
     private ?GameMYR $game = null;
 
     #[ORM\OneToMany(targetEntity: GardenWorkerMYR::class, mappedBy: 'mainBoardMYR', orphanRemoval: true)]
@@ -34,12 +30,16 @@ class MainBoardMYR extends Component
     #[ORM\OneToMany(targetEntity: AnthillHoleMYR::class, mappedBy: 'mainBoardMYR', orphanRemoval: true)]
     private Collection $anthillHoles;
 
+    #[ORM\OneToMany(targetEntity: SeasonMYR::class, mappedBy: 'mainBoard', orphanRemoval: true)]
+    private Collection $seasons;
+
     public function __construct()
     {
         $this->gardenWorkers = new ArrayCollection();
         $this->preys = new ArrayCollection();
         $this->tiles = new ArrayCollection();
         $this->anthillHoles = new ArrayCollection();
+        $this->seasons = new ArrayCollection();
     }
 
     public function getYearNum(): ?int
@@ -50,18 +50,6 @@ class MainBoardMYR extends Component
     public function setYearNum(int $yearNum): static
     {
         $this->yearNum = $yearNum;
-
-        return $this;
-    }
-
-    public function getActualSeason(): ?SeasonMYR
-    {
-        return $this->actualSeason;
-    }
-
-    public function setActualSeason(SeasonMYR $actualSeason): static
-    {
-        $this->actualSeason = $actualSeason;
 
         return $this;
     }
@@ -186,6 +174,36 @@ class MainBoardMYR extends Component
             // set the owning side to null (unless already changed)
             if ($anthillHole->getMainBoardMYR() === $this) {
                 $anthillHole->setMainBoardMYR(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, SeasonMYR>
+     */
+    public function getSeasons(): Collection
+    {
+        return $this->seasons;
+    }
+
+    public function addSeason(SeasonMYR $season): static
+    {
+        if (!$this->seasons->contains($season)) {
+            $this->seasons->add($season);
+            $season->setMainBoard($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSeason(SeasonMYR $season): static
+    {
+        if ($this->seasons->removeElement($season)) {
+            // set the owning side to null (unless already changed)
+            if ($season->getMainBoard() === $this) {
+                $season->setMainBoard(null);
             }
         }
 

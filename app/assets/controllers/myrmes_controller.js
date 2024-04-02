@@ -4,16 +4,24 @@ export default class extends Controller  {
 
     //place nurse
 
-    placeNurseOnLarvaeTrack() {
-        alert("larva");
+    async placeNurseOnLarvaeTrack(position) {
+        let url = position.params.url;
+        const response = await fetch(url);
     }
 
-    placeNurseOnSoldiersTrack() {
-        alert("soldier");
+    async placeNurseOnSoldiersTrack(position) {
+        let url = position.params.url;
+        const response = await fetch(url);
     }
 
-    placeNurseOnWorkersTrack() {
-        alert("worker");
+    async placeNurseOnWorkersTrack(position) {
+        let url = position.params.url;
+        const response = await fetch(url);
+    }
+
+    async confirmNursesPlacement(confirm) {
+        let url = confirm.params.url;
+        const response = await fetch(url);
     }
 
     placeNurseOnWorkshop() {
@@ -54,7 +62,7 @@ export default class extends Controller  {
         alert("lvl 3");
     }
 
-    async showMainBoard(main)  {
+    async showPersonalBoard(main)  {
         let url = main.params.url;
         const response = await fetch(url);
         let tree = document.getElementById("index_myrmes");

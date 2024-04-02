@@ -47,12 +47,13 @@ class MYRGameManagerService extends AbstractGameManagerService
         $game = new GameMYR();
         $game->setGameName(AbstractGameManagerService::$MYR_LABEL);
         $mainBoard = new MainBoardMYR();
-        $mainBoard->setYearNum(-1);
+        $mainBoard->setYearNum(0);
         $season = new SeasonMYR();
         $season->setName(MyrmesParameters::$INVALID_SEASON_NAME);
         $season->setDiceResult(-1);
+        $season->setMainBoard($mainBoard);
+        $season->setActualSeason(true);
         $this->entityManager->persist($season);
-        $mainBoard->setActualSeason($season);
         $game->setMainBoardMYR($mainBoard);
         $this->entityManager->persist($game);
         $this->entityManager->persist($mainBoard);
@@ -135,8 +136,14 @@ class MYRGameManagerService extends AbstractGameManagerService
             return MYRGameManagerService::$ERROR_INVALID_GAME;
         }
         foreach ($game->getPlayers() as $player) {
+            foreach ($player->getPreyMYRs() as $prey) {
+                $this->entityManager->remove($prey);
+            }
             $this->entityManager->remove($player->getPersonalBoardMYR());
             $this->entityManager->remove($player);
+        }
+        foreach ($game->getMainBoardMYR()->getPreys() as $prey) {
+            $this->entityManager->remove($prey);
         }
         $this->entityManager->remove($game->getMainBoardMYR());
         $this->logService->sendSystemLog($game, "la partie " . $game->getId() . " a pris fin");
