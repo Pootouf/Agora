@@ -27,21 +27,21 @@ class WorkshopMYRService
      * @throws Exception
      */
     public function manageWorkshop(PlayerMYR $player, int $workshop) {
-        $nurses = $this->MYRService->getNursesAtPosition($player, MyrmesParameters::$WORKSHOP_AREA);
+        $nurses = $this->MYRService->getNursesAtPosition($player, MyrmesParameters::WORKSHOP_AREA);
         $nursesCount = $nurses->count();
         switch ($workshop) {
-            case MyrmesParameters::$WORKSHOP_ANTHILL_HOLE_AREA:
+            case MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA:
                 $this->manageAnthillHole($nursesCount, $player);
                 break;
-            case MyrmesParameters::$WORKSHOP_LEVEL_AREA:
+            case MyrmesParameters::WORKSHOP_LEVEL_AREA:
                 $this->manageLevel($nursesCount, $player);
                 break;
-            case MyrmesParameters::$WORKSHOP_NURSE_AREA:
+            case MyrmesParameters::WORKSHOP_NURSE_AREA:
                 if ($this->canBuyNurse($player)) {
                     $this->manageNurse($nursesCount, $player);
                 }
                 break;
-            case MyrmesParameters::$WORKSHOP_GOAL_AREA:
+            case MyrmesParameters::WORKSHOP_GOAL_AREA:
                 break;
             default:
                 throw new Exception("Don't give bonus");
@@ -62,7 +62,7 @@ class WorkshopMYRService
         {
             $player->addAnthillHoleMYR(new AnthillHoleMYR());
             $this->MYRService->manageNursesAfterBonusGive(
-                $player, 1, MyrmesParameters::$WORKSHOP_ANTHILL_HOLE_AREA
+                $player, 1, MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA
             );
         }
     }
@@ -108,9 +108,9 @@ class WorkshopMYRService
     private function getBuyForLevel(int $level) : array
     {
         return match ($level) {
-            0 => MyrmesParameters::$BUY_RESOURCE_FOR_LEVEL_ONE,
-            1 => MyrmesParameters::$BUY_RESOURCE_FOR_LEVEL_TWO,
-            2 => MyrmesParameters::$BUY_RESOURCE_FOR_LEVEL_THREE,
+            0 => MyrmesParameters::BUY_RESOURCE_FOR_LEVEL_ONE,
+            1 => MyrmesParameters::BUY_RESOURCE_FOR_LEVEL_TWO,
+            2 => MyrmesParameters::BUY_RESOURCE_FOR_LEVEL_THREE,
             default => throw new Exception("Don't buy"),
         };
     }
@@ -164,7 +164,7 @@ class WorkshopMYRService
             $level = $personalBoard->getAnthillLevel();
             $personalBoard->setAnthillLevel($level + 1);
             $this->MYRService->manageNursesAfterBonusGive(
-                $player, 1, MyrmesParameters::$WORKSHOP_LEVEL_AREA
+                $player, 1, MyrmesParameters::WORKSHOP_LEVEL_AREA
             );
         }
     }
@@ -205,10 +205,10 @@ class WorkshopMYRService
             }
 
             $nurse = new NurseMYR();
-            $nurse->setPosition(MyrmesParameters::$BASE_AREA);
+            $nurse->setPosition(MyrmesParameters::BASE_AREA);
             $pBoard->addNurse($nurse);
             $this->MYRService->manageNursesAfterBonusGive(
-                $player, 1, MyrmesParameters::$WORKSHOP_NURSE_AREA
+                $player, 1, MyrmesParameters::WORKSHOP_NURSE_AREA
             );
         }
     }

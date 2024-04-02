@@ -50,7 +50,7 @@ class WinterMYRService
         $game = $player->getGameMyr();
         $currentYear = $game->getMainBoardMYR()->getYearNum();
         $amountToSpend = $this->getAmountToSpend($player, $currentYear);
-        $food = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::$RESOURCE_TYPE_GRASS]);
+        $food = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::RESOURCE_TYPE_GRASS]);
         $playerFood = $this->playerResourceMYRRepository->findOneBy(["resource" => $food]);
         $foodStock = $playerFood->getQuantity();
         $remaining = $amountToSpend - $foodStock;

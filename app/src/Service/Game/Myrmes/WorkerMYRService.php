@@ -81,36 +81,36 @@ class WorkerMYRService
             throw new Exception("player can't place more pheromones of this type");
         }
         switch ($tileType->getType()) {
-            case MyrmesParameters::$PHEROMONE_TYPE_ZERO:
+            case MyrmesParameters::PHEROMONE_TYPE_ZERO:
                 $this->placePheromoneTypeZero($player, $tile, $pheromone);
                 break;
-            case MyrmesParameters::$PHEROMONE_TYPE_ONE:
+            case MyrmesParameters::PHEROMONE_TYPE_ONE:
                 $this->placePheromoneTypeOne($player, $tile, $pheromone);
                 break;
-            case MyrmesParameters::$PHEROMONE_TYPE_TWO:
+            case MyrmesParameters::PHEROMONE_TYPE_TWO:
                 $this->placePheromoneTypeTwo($player, $tile, $pheromone);
                 break;
-            case MyrmesParameters::$PHEROMONE_TYPE_THREE:
+            case MyrmesParameters::PHEROMONE_TYPE_THREE:
                 $this->placePheromoneTypeThree($player, $tile, $pheromone);
                 break;
-            case MyrmesParameters::$PHEROMONE_TYPE_FOUR:
+            case MyrmesParameters::PHEROMONE_TYPE_FOUR:
                 $this->placePheromoneTypeFour($player, $tile, $pheromone);
                 break;
-            case MyrmesParameters::$PHEROMONE_TYPE_FIVE:
+            case MyrmesParameters::PHEROMONE_TYPE_FIVE:
                 $this->placePheromoneTypeFive($player, $tile, $pheromone);
                 break;
-            case MyrmesParameters::$PHEROMONE_TYPE_SIX:
+            case MyrmesParameters::PHEROMONE_TYPE_SIX:
                 $this->placePheromoneTypeSix($player, $tile, $pheromone);
                 break;
-            case MyrmesParameters::$SPECIAL_TILE_TYPE_FARM:
+            case MyrmesParameters::SPECIAL_TILE_TYPE_FARM:
                 $this->placePheromoneTypeTwo($player, $tile, $pheromone)
                     && $this->placePheromoneFarm($player);
                 break;
-            case MyrmesParameters::$SPECIAL_TILE_TYPE_QUARRY:
+            case MyrmesParameters::SPECIAL_TILE_TYPE_QUARRY:
                 $this->placePheromoneTypeTwo($player, $tile, $pheromone)
                  && $this->placePheromoneQuarry($player);
                 break;
-            case MyrmesParameters::$SPECIAL_TILE_TYPE_SUBANTHILL:
+            case MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL:
                 $this->placePheromoneTypeThree($player, $tile, $pheromone)
                     && $this->placePheromoneSubanthill($player);
                 break;

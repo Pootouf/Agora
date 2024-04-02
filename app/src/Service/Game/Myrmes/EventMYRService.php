@@ -28,14 +28,14 @@ class EventMYRService
      */
     public function upBonus(PlayerMYR $player) : void
     {
-        if ($player->getPhase() != MyrmesParameters::$PHASE_EVENT) {
+        if ($player->getPhase() != MyrmesParameters::PHASE_EVENT) {
             throw new Exception("Player is not in event phase");
         }
         $personalBoard = $player->getPersonalBoardMYR();
         $larvaeCount = $personalBoard->getLarvaCount();
         $selectedLarvae = $personalBoard->getSelectedEventLarvaeAmount();
         $playerBonus = $personalBoard->getBonus();
-        if ($playerBonus + 1 > MyrmesParameters::$BONUS_WORKER) {
+        if ($playerBonus + 1 > MyrmesParameters::BONUS_WORKER) {
             throw new Exception("this bonus does not exist");
         }
         $gameBonus = $player->getGameMyr()->getMainBoardMYR()->getActualSeason()->getDiceResult();
@@ -61,14 +61,14 @@ class EventMYRService
      */
     public function lowerBonus(PlayerMYR $player) : void
     {
-        if ($player->getPhase() != MyrmesParameters::$PHASE_EVENT) {
+        if ($player->getPhase() != MyrmesParameters::PHASE_EVENT) {
             throw new Exception("Player is not in event phase");
         }
         $personalBoard = $player->getPersonalBoardMYR();
         $larvaeCount = $personalBoard->getLarvaCount();
         $selectedLarvae = $personalBoard->getSelectedEventLarvaeAmount();
         $playerBonus = $personalBoard->getBonus();
-        if ($playerBonus - 1 < MyrmesParameters::$BONUS_LEVEL) {
+        if ($playerBonus - 1 < MyrmesParameters::BONUS_LEVEL) {
             throw new Exception("this bonus does not exist");
         }
         $gameBonus = $player->getGameMyr()->getMainBoardMYR()->getActualSeason()->getDiceResult();
@@ -94,10 +94,10 @@ class EventMYRService
      */
     public function confirmBonus(PlayerMYR $player) : void
     {
-        $player->setPhase(MyrmesParameters::$PHASE_BIRTH);
+        $player->setPhase(MyrmesParameters::PHASE_BIRTH);
         $bonus = $player->getPersonalBoardMYR()->getBonus();
-        if($bonus == MyrmesParameters::$BONUS_HARVEST) {
-            $player->setRemainingHarvestingBonus(MyrmesParameters::$HARVESTED_TILE_BONUS);
+        if($bonus == MyrmesParameters::BONUS_HARVEST) {
+            $player->setRemainingHarvestingBonus(MyrmesParameters::HARVESTED_TILE_BONUS);
         }
         $this->entityManager->persist($player);
         $this->entityManager->flush();

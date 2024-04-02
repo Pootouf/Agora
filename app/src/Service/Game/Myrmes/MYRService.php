@@ -56,19 +56,19 @@ class MYRService
      */
     public function initializeNewGame(GameMYR $game) : void
     {
-        $game->getMainBoardMYR()->setYearNum(MyrmesParameters::$FIRST_YEAR_NUM);
+        $game->getMainBoardMYR()->setYearNum(MyrmesParameters::FIRST_YEAR_NUM);
 
-        $this->initializeNewSeason($game, MyrmesParameters::$SPRING_SEASON_NAME);
-        $this->initializeNewSeason($game, MyrmesParameters::$SUMMER_SEASON_NAME);
-        $this->initializeNewSeason($game, MyrmesParameters::$FALL_SEASON_NAME);
+        $this->initializeNewSeason($game, MyrmesParameters::SPRING_SEASON_NAME);
+        $this->initializeNewSeason($game, MyrmesParameters::SUMMER_SEASON_NAME);
+        $this->initializeNewSeason($game, MyrmesParameters::FALL_SEASON_NAME);
 
         $this->initializePreys($game);
 
         //TODO: initialize game objective
 
         $i = 0;
-        $anthillPositions = MyrmesParameters::$ANTHILL_HOLE_POSITION_BY_NUMBER_OF_PLAYER[$game->getPlayers()->count()];
-        $playersColors = MyrmesParameters::$PLAYERS_COLORS;
+        $anthillPositions = MyrmesParameters::ANTHILL_HOLE_POSITION_BY_NUMBER_OF_PLAYER[$game->getPlayers()->count()];
+        $playersColors = MyrmesParameters::PLAYERS_COLORS;
         foreach ($game->getPlayers() as $player) {
             $color = $playersColors[$i];
             $this->initializePlayerData($player, $color);
@@ -120,21 +120,21 @@ class MYRService
      */
     private function initializePreys(GameMYR $game) : void
     {
-        $positions = MyrmesParameters::$PREY_POSITIONS;
+        $positions = MyrmesParameters::PREY_POSITIONS;
         shuffle($positions);
         $count = 0;
-        for ($i = 0; $i < MyrmesParameters::$LADYBUG_NUMBER; $i++) {
-            $this->initializePrey($game, MyrmesParameters::$LADYBUG_TYPE, $positions[$i]);
+        for ($i = 0; $i < MyrmesParameters::LADYBUG_NUMBER; $i++) {
+            $this->initializePrey($game, MyrmesParameters::LADYBUG_TYPE, $positions[$i]);
         }
-        $count += MyrmesParameters::$LADYBUG_NUMBER;
+        $count += MyrmesParameters::LADYBUG_NUMBER;
 
-        for ($i = $count; $i < $count + MyrmesParameters::$TERMITE_NUMBER; $i++) {
-            $this->initializePrey($game, MyrmesParameters::$TERMITE_TYPE, $positions[$i]);
+        for ($i = $count; $i < $count + MyrmesParameters::TERMITE_NUMBER; $i++) {
+            $this->initializePrey($game, MyrmesParameters::TERMITE_TYPE, $positions[$i]);
         }
-        $count += MyrmesParameters::$TERMITE_NUMBER;
+        $count += MyrmesParameters::TERMITE_NUMBER;
 
-        for ($i = $count; $i < $count + MyrmesParameters::$SPIDER_NUMBER; $i++) {
-            $this->initializePrey($game, MyrmesParameters::$SPIDER_TYPE, $positions[$i]);
+        for ($i = $count; $i < $count + MyrmesParameters::SPIDER_NUMBER; $i++) {
+            $this->initializePrey($game, MyrmesParameters::SPIDER_TYPE, $positions[$i]);
         }
 
         $this->entityManager->flush();
@@ -168,15 +168,15 @@ class MYRService
     private function initializePlayerData(PlayerMYR $player, string $color) : void
     {
         $personalBoard = $player->getPersonalBoardMYR();
-        for ($i = 0; $i < MyrmesParameters::$START_NURSES_COUNT_PER_PLAYER; $i++) {
+        for ($i = 0; $i < MyrmesParameters::START_NURSES_COUNT_PER_PLAYER; $i++) {
             $this->initializeNurse($player);
         }
-        for ($i = 0; $i < MyrmesParameters::$NUMBER_OF_WORKER_AT_START; $i++) {
+        for ($i = 0; $i < MyrmesParameters::NUMBER_OF_WORKER_AT_START; $i++) {
             $this->initializeWorker($player);
         }
-        $personalBoard->setLarvaCount(MyrmesParameters::$NUMBER_OF_LARVAE_AT_START);
-        $personalBoard->setAnthillLevel(MyrmesParameters::$ANTHILL_START_LEVEL);
-        $player->setScore(MyrmesParameters::$PLAYER_START_SCORE);
+        $personalBoard->setLarvaCount(MyrmesParameters::NUMBER_OF_LARVAE_AT_START);
+        $personalBoard->setAnthillLevel(MyrmesParameters::ANTHILL_START_LEVEL);
+        $player->setScore(MyrmesParameters::PLAYER_START_SCORE);
         $player->setRemainingHarvestingBonus(0);
 
         $this->initializeColorForPlayer($player, $color);
@@ -195,7 +195,7 @@ class MYRService
     {
         $nurse = new NurseMYR();
         $nurse->setPlayer($player);
-        $nurse->setArea(MyrmesParameters::$BASE_AREA);
+        $nurse->setArea(MyrmesParameters::BASE_AREA);
         $nurse->setAvailable(true);
         $nurse->setPosition(0);
         $nurse->setPersonalBoardMYR($player->getPersonalBoardMYR());
@@ -275,7 +275,7 @@ class MYRService
             case 4:
                 break;
             case 3:
-                $excludedTiles = MyrmesParameters::$EXCLUDED_TILES_2_PLAYERS;
+                $excludedTiles = MyrmesParameters::EXCLUDED_TILES_2_PLAYERS;
                 $tiles = array_filter($tiles, function (TileMYR $tile) use ($excludedTiles) {
                     return $tile->getCoordX() >= 2
                         && !in_array([$tile->getCoordX(), $tile->getCoordY()], $excludedTiles);
@@ -324,16 +324,16 @@ class MYRService
                     return;
                 }
                 switch ($positionOfNurse) {
-                    case MyrmesParameters::$LARVAE_AREA:
-                    case MyrmesParameters::$SOLDIERS_AREA:
-                    case MyrmesParameters::$WORKER_AREA:
-                        $n->setPosition(MyrmesParameters::$BASE_AREA);
+                    case MyrmesParameters::LARVAE_AREA:
+                    case MyrmesParameters::SOLDIERS_AREA:
+                    case MyrmesParameters::WORKER_AREA:
+                        $n->setPosition(MyrmesParameters::BASE_AREA);
                         $this->entityManager->persist($n);
                         break;
-                    case MyrmesParameters::$WORKSHOP_ANTHILL_HOLE_AREA:
-                    case MyrmesParameters::$WORKSHOP_LEVEL_AREA:
-                    case MyrmesParameters::$WORKSHOP_NURSE_AREA:
-                    case MyrmesParameters::$WORKSHOP_GOAL_AREA:
+                    case MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA:
+                    case MyrmesParameters::WORKSHOP_LEVEL_AREA:
+                    case MyrmesParameters::WORKSHOP_NURSE_AREA:
+                    case MyrmesParameters::WORKSHOP_GOAL_AREA:
                         break;
                     default:
                         throw new Exception("Don't manage bonus");
@@ -371,7 +371,7 @@ class MYRService
         if($playerGameGoals->contains($goalMYR)) {
             return false;
         }
-        if($goalMYR->getGoal()->getDifficulty() == MyrmesParameters::$GOAL_DIFFICULTY_LEVEL_ONE) {
+        if($goalMYR->getGoal()->getDifficulty() == MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE) {
             return true;
         }
         foreach ($playerGameGoals as $playerGameGoal) {
@@ -396,19 +396,19 @@ class MYRService
             if($gameGoal->getGoal() === $goalMYR) {
                 foreach ($gameGoal->getPrecedentsPlayers() as $player) {
                     $player->setScore($player->getScore() +
-                        MyrmesParameters::$GOAL_REWARD_WHEN_GOAL_ALREADY_DONE);
+                        MyrmesParameters::GOAL_REWARD_WHEN_GOAL_ALREADY_DONE);
                 }
             }
         }
         switch ($goalMYR->getDifficulty()) {
-            case MyrmesParameters::$GOAL_DIFFICULTY_LEVEL_ONE :
-                $playerMYR->setScore($playerMYR->getScore() + MyrmesParameters::$GOAL_REWARD_LEVEL_ONE);
+            case MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE :
+                $playerMYR->setScore($playerMYR->getScore() + MyrmesParameters::GOAL_REWARD_LEVEL_ONE);
                 break;
-            case MyrmesParameters::$GOAL_DIFFICULTY_LEVEL_TWO :
-                $playerMYR->setScore($playerMYR->getScore() + MyrmesParameters::$GOAL_REWARD_LEVEL_TWO);
+            case MyrmesParameters::GOAL_DIFFICULTY_LEVEL_TWO :
+                $playerMYR->setScore($playerMYR->getScore() + MyrmesParameters::GOAL_REWARD_LEVEL_TWO);
                 break;
-            case MyrmesParameters::$GOAL_DIFFICULTY_LEVEL_THREE :
-                $playerMYR->setScore($playerMYR->getScore() + MyrmesParameters::$GOAL_REWARD_LEVEL_THREE);
+            case MyrmesParameters::GOAL_DIFFICULTY_LEVEL_THREE :
+                $playerMYR->setScore($playerMYR->getScore() + MyrmesParameters::GOAL_REWARD_LEVEL_THREE);
                 break;
         }
         $this->addPlayerToOtherPlayersGoal($playerMYR, $goalMYR);

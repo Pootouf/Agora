@@ -49,7 +49,7 @@ class MYRGameManagerService extends AbstractGameManagerService
         $mainBoard = new MainBoardMYR();
         $mainBoard->setYearNum(-1);
         $season = new SeasonMYR();
-        $season->setName(MyrmesParameters::$INVALID_SEASON_NAME);
+        $season->setName(MyrmesParameters::INVALID_SEASON_NAME);
         $season->setDiceResult(-1);
         $this->entityManager->persist($season);
         $mainBoard->setActualSeason($season);
@@ -73,7 +73,7 @@ class MYRGameManagerService extends AbstractGameManagerService
         if($game->isLaunched()) {
             return MYRGameManagerService::$ERROR_GAME_ALREADY_LAUNCHED;
         }
-        if (count($game->getPlayers()) >= MyrmesParameters::$MAX_NUMBER_OF_PLAYER) {
+        if (count($game->getPlayers()) >= MyrmesParameters::MAX_NUMBER_OF_PLAYER) {
             return MYRGameManagerService::$ERROR_INVALID_NUMBER_OF_PLAYER;
         }
         if ($this->playerMYRRepository->findOneBy(
@@ -85,7 +85,7 @@ class MYRGameManagerService extends AbstractGameManagerService
         $player->setGoalLevel(0);
         $player->setColor("");
         $player->setRemainingHarvestingBonus(0);
-        $player->setPhase(MyrmesParameters::$PHASE_EVENT);
+        $player->setPhase(MyrmesParameters::PHASE_EVENT);
         $personalBoard = new PersonalBoardMYR();
         $personalBoard->setAnthillLevel(0);
         $personalBoard->setLarvaCount(0);
@@ -162,8 +162,8 @@ class MYRGameManagerService extends AbstractGameManagerService
             return MYRGameManagerService::$ERROR_INVALID_GAME;
         }
         $numberOfPlayers = count($game->getPlayers());
-        if ($numberOfPlayers > MyrmesParameters::$MAX_NUMBER_OF_PLAYER
-            || $numberOfPlayers < MyrmesParameters::$MIN_NUMBER_OF_PLAYER) {
+        if ($numberOfPlayers > MyrmesParameters::MAX_NUMBER_OF_PLAYER
+            || $numberOfPlayers < MyrmesParameters::MIN_NUMBER_OF_PLAYER) {
             return MYRGameManagerService::$ERROR_INVALID_NUMBER_OF_PLAYER;
         }
         if ($game->isLaunched()) {
