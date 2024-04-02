@@ -4,27 +4,26 @@ namespace App\Entity\Game\Myrmes;
 
 class MyrmesParameters
 {
+
     // GAME
-
     // MIN AND MAX NUMBER OF PLAYER
-
     public static int $MAX_NUMBER_OF_PLAYER = 4;
     public static int $MIN_NUMBER_OF_PLAYER = 2;
 
-    // Player phases
 
+    // Player phases
     public static int $PHASE_EVENT = 0;
     public static int $PHASE_BIRTH = 1;
-    public static int $PHASE_WORRKER = 2;
+    public static int $PHASE_WORKER = 2;
     public static int $PHASE_HARVEST = 3;
     public static int $PHASE_WORKSHOP = 4;
 
-    // Player color
 
+    // Player color
     public static array $PLAYERS_COLORS = ['blue', 'yellow', 'red', 'gray'];
 
-    // Area's for nurses
 
+    // Area's for nurses
     public static int $BASE_AREA = 0;
     public static int $LARVAE_AREA = 1;
     public static int $SOLDIERS_AREA = 2;
@@ -40,30 +39,27 @@ class MyrmesParameters
     public static int $WORKSHOP_NURSE_AREA = 4;
 
     //Nurses parameters
-
     public static int $START_NURSES_COUNT_PER_PLAYER = 3;
     public static int $MAX_NURSES_COUNT_PER_PLAYER = 8;
 
-    // Win by area's nurses
 
+    // Win by area's nurses
     public static array $WIN_LARVAE_BY_NURSES_COUNT = array(
         1 => 1,
         2 => 3,
         3 => 5
     );
-
     public static array $WIN_SOLDIERS_BY_NURSES_COUNT = array(
         2 => 1,
         3 => 2
     );
-
     public static array $WIN_WORKERS_BY_NURSES_COUNT = array(
         2 => 1,
         4 => 2
     );
 
-    // Events bonus
 
+    // Events bonus
     public static int $BONUS_LEVEL = 0;
     public static int $BONUS_POINT = 1;
     public static int $BONUS_LARVAE = 2;
@@ -73,57 +69,55 @@ class MyrmesParameters
     public static int $BONUS_PHEROMONE = 6;
     public static int $BONUS_WORKER = 7;
 
-    // Bonus harvested pheromone
 
+    // Bonus harvested pheromone
     public static int $HARVESTED_TILE_BONUS = 3;
 
-    // Years
 
+    // Years
     public static int $FIRST_YEAR_NUM = 1;
     public static int $SECOND_YEAR_NUM = 2;
     public static int $THIRD_YEAR_NUM = 3;
 
-    // Seasons
 
+    // Seasons
     public static string $SPRING_SEASON_NAME = "spring";
     public static string $SUMMER_SEASON_NAME = "summer";
     public static string $WINTER_SEASON_NAME = "winter";
     public static string $FALL_SEASON_NAME = "fall";
     public static string $INVALID_SEASON_NAME = "invalid";
 
-    // TILE TYPES
 
+    // TILE TYPES
     public static string $WATER_TILE_TYPE = "water";
     public static string $DIRT_TILE_TYPE = "dirt";
     public static string $MUSHROOM_TILE_TYPE = "mushroom";
     public static string $STONE_TILE_TYPE = "stone";
     public static string $GRASS_TILE_TYPE = "grass";
 
-    // Buy for add anthill level
 
+    // Buy for add anthill level
     public static array $BUY_RESOURCE_FOR_LEVEL_ONE = array(
         "grass" => 2
     );
-
     public static array $BUY_RESOURCE_FOR_LEVEL_TWO = array(
         "grass" => 2,
         "stone" => 1
     );
-
     public static array $BUY_RESOURCE_FOR_LEVEL_THREE = array(
         "stone" => 3
     );
 
-    // Pheromone Level
 
+    // Pheromone Level
     public static int $PHEROMONE_LEVEL_ZERO = 0;
     public static int $PHEROMONE_LEVEL_TWO = 2;
     public static int $PHEROMONE_LEVEL_FOUR = 4;
     public static int $PHEROMONE_LEVEL_SIX = 6;
     public static int $PHEROMONE_LEVEL_EIGHT = 8;
 
-    // Pheromone Type
 
+    // Pheromone Type
     public static int $PHEROMONE_TYPE_ZERO = 0;
     public static int $PHEROMONE_TYPE_ONE = 1;
     public static int $PHEROMONE_TYPE_TWO = 2;
@@ -132,12 +126,12 @@ class MyrmesParameters
     public static int $PHEROMONE_TYPE_FIVE = 5;
     public static int $PHEROMONE_TYPE_SIX = 6;
 
-    // Pheromone Amount
 
+    // Pheromone Amount
     public static array $PHEROMONE_TYPE_AMOUNT = [6, 2, 2, 2, 2, 2, 1];
 
-    // Pheromone Type Level
 
+    // Pheromone Type Level
     public static array $PHEROMONE_TYPE_LEVEL = [
         0 => 0,
         1 => 2,
@@ -148,13 +142,14 @@ class MyrmesParameters
         6 => 8
     ];
 
+
     // Special tiles
 
     // Special tiles Type
-
     public static int $SPECIAL_TILE_TYPE_FARM = 7;
     public static int $SPECIAL_TILE_TYPE_QUARRY = 8;
     public static int $SPECIAL_TILE_TYPE_SUBANTHILL = 9;
+
 
     // Special tiles amount
     public static array $SPECIAL_TILE_TYPE_AMOUNT = [
@@ -162,6 +157,7 @@ class MyrmesParameters
         8 => 4,
         9 => 8
     ];
+
 
     // Special tiles level
     public static array $SPECIAL_TILES_TYPE_LEVEL = [
@@ -172,12 +168,12 @@ class MyrmesParameters
 
 
     //Prey Types
-
     public static string $LADYBUG_TYPE = "ladybug";
     public static string $TERMITE_TYPE = "termite";
     public static string $SPIDER_TYPE = "spider";
 
-    //Prey Numbers
+
+    //Prey Numbers, sum must be equal to the size of PREY_POSITIONS
     public static int $LADYBUG_NUMBER = 6;
     public static int $TERMITE_NUMBER = 6;
     public static int $SPIDER_NUMBER = 6;
@@ -192,6 +188,13 @@ class MyrmesParameters
     public static int $ANTHILL_START_LEVEL = 0;
     public static int $PLAYER_START_SCORE = 10;
 
+
+    //Anthill levels
+    public static int $ANTHILL_LEVEL_ONE = 1;
+    public static int $ANTHILL_LEVEL_TWO = 2;
+    public static int $ANTHILL_LEVEL_THREE = 3;
+
+
     //Anthill hole start position
     public static array $ANTHILL_HOLE_POSITION_BY_NUMBER_OF_PLAYER = [
         2 => [[11, 6], [11, 18]],
@@ -201,7 +204,6 @@ class MyrmesParameters
 
 
     // Max anthill holes number by player
-
     public static int $MAX_ANTHILL_HOLE_NB = 4;
 
     //Excluded tile with 2 players
@@ -211,24 +213,40 @@ class MyrmesParameters
     ];
 
     // Resources Type
-
     public static string $RESOURCE_TYPE_DIRT = "dirt";
     public static string $RESOURCE_TYPE_STONE = "stone";
     public static string $RESOURCE_TYPE_GRASS = "grass";
     public static string $RESOURCE_TYPE_LARVAE = "larvae";
 
-    // Goal Difficulty
 
+    // Goal Difficulty
     public static int $GOAL_DIFFICULTY_LEVEL_ONE = 1;
     public static int $GOAL_DIFFICULTY_LEVEL_TWO = 2;
     public static int $GOAL_DIFFICULTY_LEVEL_THREE = 3;
 
-    // Goal Points
 
+    // Goal Points
     public static int $GOAL_REWARD_LEVEL_ONE = 6;
     public static int $GOAL_REWARD_LEVEL_TWO = 9;
     public static int $GOAL_REWARD_LEVEL_THREE = 12;
     public static int $GOAL_REWARD_WHEN_GOAL_ALREADY_DONE = 3;
 
 
+
+    // Garden worker parameters
+    public static int $DEFAULT_MOVEMENT_NUMBER = 3;
+
+
+
+    // Goal names
+    public static string $GOAL_RESOURCE_FOOD_NAME = "resource_food";
+    public static string $GOAL_RESOURCE_STONE_NAME = "resource_stone";
+    public static string $GOAL_RESOURCE_STONE_OR_DIRT_NAME = "resource_stone_dirt";
+    public static string $GOAL_LARVAE_NAME = "larvae";
+    public static string $GOAL_PREY_NAME = "prey";
+    public static string $GOAL_SOLDIER_NAME = "soldier";
+    public static string $GOAL_SPECIAL_TILE_NAME = "special_tile";
+    public static string $GOAL_NURSES_NAME = "nurses";
+    public static string $GOAL_ANTHILL_LEVEL_NAME = "anthill_level";
+    public static string $GOAL_PHEROMONE_NAME = "pheromone";
 }

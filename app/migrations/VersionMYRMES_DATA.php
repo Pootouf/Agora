@@ -1186,6 +1186,123 @@ final class VersionMYRMES_DATA extends AbstractMigration
         $this->connection->insert('resource_myr',
             ['help_id' => null, 'description' => MyrmesParameters::$RESOURCE_TYPE_LARVAE]
         );
+
+
+
+        // INSERTION OF GOALS
+        $id = 1;
+        $this->connection->insert('goal_myr',
+            ['id' => $id, 'name' => MyrmesParameters::$GOAL_RESOURCE_FOOD_NAME,
+                'difficulty' => MyrmesParameters::$GOAL_DIFFICULTY_LEVEL_ONE]
+        );
+
+        $id++;
+        $this->connection->insert('goal_myr',
+            ['id' => $id, 'name' => MyrmesParameters::$GOAL_RESOURCE_FOOD_NAME,
+                'difficulty' => MyrmesParameters::$GOAL_DIFFICULTY_LEVEL_TWO]
+        );
+
+        $id++;
+        $this->connection->insert('goal_myr',
+            ['id' => $id, 'name' => MyrmesParameters::$GOAL_RESOURCE_STONE_NAME,
+                'difficulty' => MyrmesParameters::$GOAL_DIFFICULTY_LEVEL_TWO]
+        );
+
+        $id++;
+        $this->connection->insert('goal_myr',
+            ['id' => $id, 'name' => MyrmesParameters::$GOAL_RESOURCE_STONE_NAME,
+                'difficulty' => MyrmesParameters::$GOAL_DIFFICULTY_LEVEL_THREE]
+        );
+
+        $id++;
+        $this->connection->insert('goal_myr',
+            ['id' => $id, 'name' => MyrmesParameters::$GOAL_RESOURCE_STONE_OR_DIRT_NAME,
+                'difficulty' => MyrmesParameters::$GOAL_DIFFICULTY_LEVEL_ONE]
+        );
+
+        $id++;
+        $this->connection->insert('goal_myr',
+            ['id' => $id, 'name' => MyrmesParameters::$GOAL_RESOURCE_STONE_OR_DIRT_NAME,
+                'difficulty' => MyrmesParameters::$GOAL_DIFFICULTY_LEVEL_THREE]
+        );
+
+        $id++;
+        $this->connection->insert('goal_myr',
+            ['id' => $id, 'name' => MyrmesParameters::$GOAL_LARVAE_NAME,
+                'difficulty' => MyrmesParameters::$GOAL_DIFFICULTY_LEVEL_ONE]
+        );
+
+        $id++;
+        $this->connection->insert('goal_myr',
+            ['id' => $id, 'name' => MyrmesParameters::$GOAL_LARVAE_NAME,
+                'difficulty' => MyrmesParameters::$GOAL_DIFFICULTY_LEVEL_TWO]
+        );
+
+        $id++;
+        $this->connection->insert('goal_myr',
+            ['id' => $id, 'name' => MyrmesParameters::$GOAL_PREY_NAME,
+                'difficulty' => MyrmesParameters::$GOAL_DIFFICULTY_LEVEL_ONE]
+        );
+
+        $id++;
+        $this->connection->insert('goal_myr',
+            ['id' => $id, 'name' => MyrmesParameters::$GOAL_PREY_NAME,
+                'difficulty' => MyrmesParameters::$GOAL_DIFFICULTY_LEVEL_TWO]
+        );
+
+        $id++;
+        $this->connection->insert('goal_myr',
+            ['id' => $id, 'name' => MyrmesParameters::$GOAL_PREY_NAME,
+                'difficulty' => MyrmesParameters::$GOAL_DIFFICULTY_LEVEL_THREE]
+        );
+
+        $id++;
+        $this->connection->insert('goal_myr',
+            ['id' => $id, 'name' => MyrmesParameters::$GOAL_SOLDIER_NAME,
+                'difficulty' => MyrmesParameters::$GOAL_DIFFICULTY_LEVEL_ONE]
+        );
+
+        $id++;
+        $this->connection->insert('goal_myr',
+            ['id' => $id, 'name' => MyrmesParameters::$GOAL_SPECIAL_TILE_NAME,
+                'difficulty' => MyrmesParameters::$GOAL_DIFFICULTY_LEVEL_ONE]
+        );
+
+        $id++;
+        $this->connection->insert('goal_myr',
+            ['id' => $id, 'name' => MyrmesParameters::$GOAL_SPECIAL_TILE_NAME,
+                'difficulty' => MyrmesParameters::$GOAL_DIFFICULTY_LEVEL_TWO]
+        );
+
+        $id++;
+        $this->connection->insert('goal_myr',
+            ['id' => $id, 'name' => MyrmesParameters::$GOAL_NURSES_NAME,
+                'difficulty' => MyrmesParameters::$GOAL_DIFFICULTY_LEVEL_TWO]
+        );
+
+        $id++;
+        $this->connection->insert('goal_myr',
+            ['id' => $id, 'name' => MyrmesParameters::$GOAL_NURSES_NAME,
+                'difficulty' => MyrmesParameters::$GOAL_DIFFICULTY_LEVEL_THREE]
+        );
+
+        $id++;
+        $this->connection->insert('goal_myr',
+            ['id' => $id, 'name' => MyrmesParameters::$GOAL_ANTHILL_LEVEL_NAME,
+                'difficulty' => MyrmesParameters::$GOAL_DIFFICULTY_LEVEL_TWO]
+        );
+
+        $id++;
+        $this->connection->insert('goal_myr',
+            ['id' => $id, 'name' => MyrmesParameters::$GOAL_PHEROMONE_NAME,
+                'difficulty' => MyrmesParameters::$GOAL_DIFFICULTY_LEVEL_ONE]
+        );
+
+        $id++;
+        $this->connection->insert('goal_myr',
+            ['id' => $id, 'name' => MyrmesParameters::$GOAL_PHEROMONE_NAME,
+                'difficulty' => MyrmesParameters::$GOAL_DIFFICULTY_LEVEL_THREE]
+        );
     }
 
     public function down(Schema $schema): void
