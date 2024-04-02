@@ -14,12 +14,13 @@ This section displays the personal board of a player
     {% set gapSize = 'gap-[1.5vw]' %}
     {% set gapBetweenAreasSize = 'gap-[2vw]' %}
 {% endif %}
-
+{% if not isAnotherPlayerBoard %}
 <div {% if not isPreview %}id="personalBoard"{% endif %}
-    class="absolute top-0 left-0 w-full h-full bg-black bg-opacity-70 flex z-50 text-white items-center justify-center"
+     class="absolute top-0 left-0 w-full h-full bg-black bg-opacity-70 flex z-50 text-white items-center justify-center"
 >
+    {% endif %}
     <div class="bg-[#c67b24] rounded-lg
-        {% if isPreview %}
+        {% if isPreview or isAnotherPlayerBoard %}
             w-full h-full
         {% else %}
             absolute left-0 w-[75%] h-full
@@ -48,6 +49,7 @@ This section displays the personal board of a player
         </div>
         {#colony level track#}
         {{ include('Game/Myrmes/PersonalBoard/displayColonyLevelTrack.html.twig') }}
+        {% if not isPreview %}
         <button id="return_board" onclick="closeWindow()"
                 class="rounded-lg bg-[#8F901F] py-2 px-3 m-1 portrait:text-2xl items-center"
         >
@@ -55,5 +57,17 @@ This section displays the personal board of a player
                  alt="return on board"
                  class="h-6 max-h-full">
         </button>
+        {% endif %}
+        {% if not isAnotherPlayerBoard %}
+            <button id="return_board" onclick="closeWindow()"
+                    class="rounded-lg bg-[#8F901F] py-2 px-3 m-1 portrait:text-2xl items-center"
+            >
+                <img src="{{ asset('resourcesGames/utils/return-arrow.svg') }}" id="returnArrow"
+                     alt="return on board"
+                     class="h-6 max-h-full">
+            </button>
+        {% endif %}
     </div>
+    {% if not isAnotherPlayerBoard %}
 </div>
+{% endif %}

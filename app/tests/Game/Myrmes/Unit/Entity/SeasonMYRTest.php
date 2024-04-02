@@ -54,7 +54,7 @@ class SeasonMYRTest extends TestCase
     {
         // GIVEN
 
-        $name = MyrmesParameters::$SUMMER_SEASON_NAME;
+        $name = MyrmesParameters::SUMMER_SEASON_NAME;
 
         // WHEN
 
