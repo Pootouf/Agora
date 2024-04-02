@@ -38,7 +38,14 @@ class EventMYRService
         if ($playerBonus + 1 > MyrmesParameters::BONUS_WORKER) {
             throw new Exception("this bonus does not exist");
         }
-        $gameBonus = $player->getGameMyr()->getMainBoardMYR()->getActualSeason()->getDiceResult();
+        $seasons = $player->getGameMyr()->getMainBoardMYR()->getSeasons();
+        $gameBonus = 0;
+        foreach ($seasons as $season) {
+            if ($season->isActualSeason()) {
+                $gameBonus = $season->getDiceResult();
+                break;
+            }
+        }
         $newBonus = $playerBonus + 1;
         if ($playerBonus < $gameBonus) {
             $personalBoard->setSelectedEventLarvaeAmount($selectedLarvae - 1);
@@ -71,7 +78,14 @@ class EventMYRService
         if ($playerBonus - 1 < MyrmesParameters::BONUS_LEVEL) {
             throw new Exception("this bonus does not exist");
         }
-        $gameBonus = $player->getGameMyr()->getMainBoardMYR()->getActualSeason()->getDiceResult();
+        $gameBonus = 0;
+        $seasons = $player->getGameMyr()->getMainBoardMYR()->getSeasons();
+        foreach ($seasons as $season) {
+            if ($season->isActualSeason()) {
+                $gameBonus = $season->getDiceResult();
+                break;
+            }
+        }
 
         $newBonus = $playerBonus - 1;
         if ($playerBonus > $gameBonus) {

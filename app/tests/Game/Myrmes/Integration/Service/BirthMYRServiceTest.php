@@ -94,10 +94,11 @@ class BirthMYRServiceTest extends KernelTestCase
         $mainBoard->setGame($game);
         $season = new SeasonMYR();
         $season->setName("Spring");
-        $season->setMainBoardMYR($mainBoard);
+        $season->setMainBoard($mainBoard);
+        $season->setActualSeason(true);
+        $mainBoard->addSeason($season);
         $season->setDiceResult(1);
         $entityManager->persist($season);
-        $mainBoard->setActualSeason($season);
         $game->setMainBoardMYR($mainBoard);
         $game->setGameName("test");
         $game->setLaunched(true);

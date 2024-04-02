@@ -5,7 +5,18 @@ namespace App\Service\Game\Myrmes;
 use App\Entity\Game\Myrmes\AnthillHoleMYR;
 use App\Entity\Game\Myrmes\MyrmesParameters;
 use App\Entity\Game\Myrmes\NurseMYR;
+use App\Entity\Game\Myrmes\PheromonMYR;
+use App\Entity\Game\Myrmes\PheromonTileMYR;
 use App\Entity\Game\Myrmes\PlayerMYR;
+use App\Entity\Game\Myrmes\PlayerResourceMYR;
+use App\Entity\Game\Myrmes\TileMYR;
+use App\Repository\Game\Myrmes\PheromonMYRRepository;
+use App\Repository\Game\Myrmes\PheromonTileMYRRepository;
+use App\Repository\Game\Myrmes\PlayerResourceMYRRepository;
+use App\Repository\Game\Myrmes\PreyMYRRepository;
+use App\Repository\Game\Myrmes\ResourceMYRRepository;
+use App\Repository\Game\Myrmes\TileMYRRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 
@@ -16,22 +27,34 @@ class WorkshopMYRService
 {
 
     public function __construct(private readonly EntityManagerInterface $entityManager,
-                                private readonly MYRService $MYRService)
+                                private readonly MYRService $MYRService,
+                                private readonly PheromonTileMYRRepository $pheromoneTileMYRRepository,
+                                private readonly PreyMYRRepository $preyMYRRepository,
+                                private readonly TileMYRRepository $tileMYRRepository,
+                                private readonly PheromonMYRRepository $pheromonMYRRepository,
+                                private readonly ResourceMYRRepository $resourceMYRRepository,
+                                private readonly PlayerResourceMYRRepository $playerResourceMYRRepository)
     {}
 
     /**
      * Manage resources and purchase about position of nurse
-     * @param PlayerMYR $player
-     * @param int $workshop
+     *
+     * @param PlayerMYR    $player
+     * @param int          $workshop
+     * @param TileMYR|null $tile
      * @return void
      * @throws Exception
      */
-    public function manageWorkshop(PlayerMYR $player, int $workshop) {
+    public function manageWorkshop(PlayerMYR $player, int $workshop, TileMYR $tile = null): void
+    {
+        if (!$this->canChooseThisBonus($player, $workshop)) {
+            throw new Exception("player can not choose this bonus");
+        }
         $nurses = $this->MYRService->getNursesAtPosition($player, MyrmesParameters::WORKSHOP_AREA);
         $nursesCount = $nurses->count();
         switch ($workshop) {
             case MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA:
-                $this->manageAnthillHole($nursesCount, $player);
+                $this->manageAnthillHole($nursesCount, $player, $tile);
                 break;
             case MyrmesParameters::WORKSHOP_LEVEL_AREA:
                 $this->manageLevel($nursesCount, $player);
@@ -50,17 +73,110 @@ class WorkshopMYRService
     }
 
     /**
+     * canChooseThisBonus : checks if the player can choose the selected bonus in the workshopArea
+     * @param PlayerMYR $player
+     * @param int       $workshopArea
+     * @return bool
+     */
+    private function canChooseThisBonus(PlayerMYR $player, int $workshopArea) : bool
+    {
+        if ($player->getPhase() != MyrmesParameters::$PHASE_WORKSHOP) {
+            return false;
+        }
+        return $this->MYRService->getNursesAtPosition($player, $workshopArea) >= 0;
+    }
+
+    /**
+     * playerReachedAnthillHoleLimit : checks if the player reached his limit of anthill holes
+     * @param PlayerMYR $player
+     * @return bool
+     */
+    private function playerReachedAnthillHoleLimit(PlayerMYR $player) : bool
+    {
+        return $player->getAnthillHoleMYRs()->count() >= MyrmesParameters::$MAX_ANTHILL_HOLE_NB;
+    }
+
+    /**
+     * isValidPosition : checks if the tile chosen is valid for the player to place a new anthill hole
+     * @param PlayerMYR $player
+     * @param TileMYR   $tile
+     * @return bool
+     */
+    private function isValidPosition(PlayerMYR $player, TileMYR $tile) : bool
+    {
+        if ($tile->getType() === MyrmesParameters::$WATER_TILE_TYPE) {
+            return false;
+        }
+        $mainBoard = $player->getGameMyr()->getMainBoardMYR();
+        $pheromoneTile = $this->pheromoneTileMYRRepository->findBy(["mainBoard" => $mainBoard, "tile" => $tile]);
+        if ($pheromoneTile != null) {
+            return false;
+        }
+        $prey = $this->preyMYRRepository->findBy(["mainBoardMYR" => $mainBoard, "tile" => $tile]);
+        if ($prey != null) {
+            return false;
+        }
+        $adjacentTiles = $this->getAdjacentTiles($tile);
+        $playerPheromones = $this->pheromonMYRRepository->findBy(["player" => $player]);
+        foreach ($adjacentTiles as $adjacentTile) {
+            foreach ($playerPheromones as $playerPheromone) {
+                if ($playerPheromone->contains($adjacentTile)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * getAdjacentTiles : return all adjacent tiles of a tile
+     * @param TileMYR $tile
+     * @return ArrayCollection<Int, TileMYR>
+     */
+    private function getAdjacentTiles(TileMYR $tile) : ArrayCollection
+    {
+        $coordX = $tile->getCoordX();
+        $coordY = $tile->getCoordY();
+        $result = new ArrayCollection();
+        $newTile = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY - 2]);
+        $result->add($newTile);
+        $newTile = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY + 2]);
+        $result->add($newTile);
+        $newTile = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 1, "coord_Y" => $coordY - 1]);
+        $result->add($newTile);
+        $newTile = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 1, "coord_Y" => $coordY + 1]);
+        $result->add($newTile);
+        $newTile = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 1, "coord_Y" => $coordY - 1]);
+        $result->add($newTile);
+        $newTile = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 1, "coord_Y" => $coordY + 2]);
+        $result->add($newTile);
+        return $result;
+    }
+
+    /**
      * Manage all change driven by add anthill hole
      * @param int $nursesCount
      * @param PlayerMYR $player
      * @return void
      * @throws Exception
      */
-    private function manageAnthillHole(int $nursesCount, PlayerMYR $player) : void
+    private function manageAnthillHole(int $nursesCount, PlayerMYR $player, TileMYR $tile) : void
     {
-        if ($nursesCount == 1)
-        {
-            $player->addAnthillHoleMYR(new AnthillHoleMYR());
+        if ($this->playerReachedAnthillHoleLimit($player)) {
+            throw new Exception("can't place more anthill holes");
+        }
+        if (!$this->isValidPosition($player, $tile)) {
+            throw new Exception("can't place an anthill hole there");
+        }
+        if ($nursesCount == 1) {
+            $anthillHole = new AnthillHoleMYR();
+            $anthillHole->setTile($tile);
+            $anthillHole->setPlayer($player);
+            $anthillHole->setMainBoardMYR($player->getGameMyr()->getMainBoardMYR());
+            $this->entityManager->persist($anthillHole);
+            $player->addAnthillHoleMYR($anthillHole);
+            $this->giveDirtToPlayer($player);
+            $this->entityManager->persist($player);
             $this->MYRService->manageNursesAfterBonusGive(
                 $player, 1, MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA
             );
@@ -211,5 +327,29 @@ class WorkshopMYRService
                 $player, 1, MyrmesParameters::WORKSHOP_NURSE_AREA
             );
         }
+    }
+
+    /**
+     * giveDirtToPlayer : gives a resource of dirt to the player
+     * @param PlayerMYR $player
+     * @return void
+     */
+    private function giveDirtToPlayer(PlayerMYR $player) : void
+    {
+        $dirt = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::$RESOURCE_TYPE_DIRT]);
+        $playerDirt = $this->playerResourceMYRRepository->findOneBy(["resource" => $dirt]);
+        if ($playerDirt != null) {
+            $playerDirt->setQuantity($playerDirt->getQuantity() + 1);
+            $this->entityManager->persist($playerDirt);
+        } else {
+            $playerDirt = new PlayerResourceMYR();
+            $playerDirt->setResource($dirt);
+            $playerDirt->setQuantity(1);
+            $playerDirt->setPersonalBoard($player->getPersonalBoardMYR());
+            $this->entityManager->persist($playerDirt);
+            $player->getPersonalBoardMYR()->addPlayerResourceMYR($playerDirt);
+            $this->entityManager->persist($player->getPersonalBoardMYR());
+        }
+        $this->entityManager->flush();
     }
 }

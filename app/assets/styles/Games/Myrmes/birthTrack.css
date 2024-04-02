@@ -1,0 +1,7 @@
+.birthTrackIcon {
+    @apply inlineFlexCol bg-[#D9D9D995] gap-2.5 rounded-[10px] p-2 border-2 border-black;
+}
+
+.birthTrackIconMini {
+    @apply inlineFlexCol bg-[#D9D9D995] gap-1 rounded-[5px] p-[0.1vw] border-[1px] border-black;
+}

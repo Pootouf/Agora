@@ -44,21 +44,6 @@ class MainBoardMYRTest extends TestCase
         $this->assertSame($yearNum, $this->mainBoardMYR->getYearNum());
     }
 
-    public function testSetActualSeason() : void
-    {
-        // GIVEN
-
-        $season = new SeasonMYR();
-
-        // WHEN
-
-        $this->mainBoardMYR->setActualSeason($season);
-
-        // THEN
-
-        $this->assertSame($season, $this->mainBoardMYR->getActualSeason());
-    }
-
     public function testSetGame() : void
     {
         // GIVEN

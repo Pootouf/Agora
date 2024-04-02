@@ -199,6 +199,11 @@ class MyrmesParameters
         4 => [[3, 6], [3, 18], [11, 6], [11, 18]]
     ];
 
+
+    // Max anthill holes number by player
+
+    public static int $MAX_ANTHILL_HOLE_NB = 4;
+
     //Excluded tile with 2 players
     public const array EXCLUDED_TILES_2_PLAYERS = [
         [7, 0], [8, 1], [9, 0], [9, 2], [10, 1], [10, 3], [11, 2], [11, 4], [12, 3], [12, 5], [13, 6],
