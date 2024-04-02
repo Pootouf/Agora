@@ -37,6 +37,16 @@ class MYRService
     }
 
     /**
+     * isInPhase : checks if player phase is equal to the phase
+     * @param PlayerMYR $playerMYR
+     * @param int $phase
+     * @return bool
+     */
+    public function isInPhase(PlayerMYR $playerMYR, int $phase): bool {
+        return $playerMYR->getPhase() == $phase;
+    }
+
+    /**
      * getPlayerFromNameAndGame : return the player associated with a username and a game
      * @param GameMYR $game
      * @param string  $name

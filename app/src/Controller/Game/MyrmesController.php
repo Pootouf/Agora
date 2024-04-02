@@ -4,6 +4,7 @@ namespace App\Controller\Game;
 
 use App\Entity\Game\Myrmes\GameMYR;
 use App\Entity\Game\Myrmes\MyrmesParameters;
+use App\Entity\Game\Myrmes\PlayerMYR;
 use App\Service\Game\LogService;
 use App\Service\Game\Myrmes\BirthMYRService;
 use App\Service\Game\Myrmes\EventMYRService;
@@ -48,6 +49,8 @@ class MyrmesController extends AbstractController
             'isPreview' => true,
             'preys' => $game->getMainBoardMYR()->getPreys(),
             'isSpectator' => $player == null,
+            'isAnotherPlayerBoard' => false,
+            'isBirthPhase' => $this->service->isInPhase($player, MyrmesParameters::$PHASE_BIRTH),
             'nursesOnLarvaeBirthTrack' => $this->service->getNursesAtPosition($player, MyrmesParameters::$LARVAE_AREA)->count(),
             'nursesOnSoldiersBirthTrack' => $this->service->getNursesAtPosition($player, MyrmesParameters::$SOLDIERS_AREA)->count(),
             'nursesOnWorkersBirthTrack' => $this->service->getNursesAtPosition($player, MyrmesParameters::$WORKER_AREA)->count()
@@ -65,10 +68,28 @@ class MyrmesController extends AbstractController
             'preys' => $player->getPreyMYRs(),
             'isPreview' => false,
             'isSpectator' => $player == null,
+            'isAnotherPlayerBoard' => false,
             'nursesOnLarvaeBirthTrack' => $this->service->getNursesAtPosition($player, MyrmesParameters::$LARVAE_AREA)->count(),
             'nursesOnSoldiersBirthTrack' => $this->service->getNursesAtPosition($player, MyrmesParameters::$SOLDIERS_AREA)->count(),
             'nursesOnWorkersBirthTrack' => $this->service->getNursesAtPosition($player, MyrmesParameters::$WORKER_AREA)->count()
         ]);
+    }
+
+    #[Route('/game/myrmes/{idGame}/displayPersonalBoard/{idPlayer}', name: 'app_game_myrmes_display_player_personal_board')]
+    public function showPlayerPersonalBoard(
+        #[MapEntity(id: 'idGame')] GameMYR $gameMYR,
+        #[MapEntity(id: 'idPlayer')] PlayerMYR $playerMYR): Response
+    {
+        return $this->render('Game/Myrmes/PersonalBoard/playerPersonalBoard.html.twig',
+            [
+                'game' => $gameMYR,
+                'player' => $playerMYR,
+                'preys' => $playerMYR->getPreyMYRs(),
+                'isPreview' => false,
+                'isSpectator' => true,
+                'isAnotherPlayerBoard' => true,
+                'isBirthPhase' => $this->service->isInPhase($playerMYR, MyrmesParameters::$PHASE_BIRTH),
+            ]);
     }
 
     #[Route('/game/myrmes/{gameId}/up/bonus/', name: 'app_game_myrmes_up_bonus')]
