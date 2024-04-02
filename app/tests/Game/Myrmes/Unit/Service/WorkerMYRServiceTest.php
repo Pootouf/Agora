@@ -12,6 +12,7 @@ use App\Entity\Game\Myrmes\PersonalBoardMYR;
 use App\Entity\Game\Myrmes\PheromonMYR;
 use App\Entity\Game\Myrmes\PheromonTileMYR;
 use App\Entity\Game\Myrmes\PlayerMYR;
+use App\Entity\Game\Myrmes\PreyMYR;
 use App\Entity\Game\Myrmes\TileMYR;
 use App\Entity\Game\Myrmes\TileTypeMYR;
 use App\Repository\Game\Myrmes\AnthillHoleMYRRepository;
@@ -365,6 +366,74 @@ class WorkerMYRServiceTest extends TestCase
         $this->workerMYRService->placePheromone($firstPlayer, $tile, $pheromone);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
+    }
+
+    public function testPlacePheromoneOfTypeZeroWithOrientationImpossible()
+    {
+        // GIVEN
+        $this->anthillHoleMYRRepository->method("findOneBy")->willReturn(null);
+        $this->pheromonMYRRepository->method("findBy")->willReturn(array());
+        $this->preyMYRRepository->method("findOneBy")->willReturn(null);
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $tile = new TileMYR();
+        $tile->setType(MyrmesParameters::$DIRT_TILE_TYPE);
+        $tile->setCoordX(0);
+        $tile->setCoordY(0);
+        $newTile = new TileMYR();
+        $newTile->setType(MyrmesParameters::$GRASS_TILE_TYPE);
+        $newTile->setCoordX(0);
+        $newTile->setCoordY(2);
+        $this->tileMYRRepository->method("findOneBy")->willReturn($newTile);
+        $tileType = new TileTypeMYR();
+        $tileType->setType(MyrmesParameters::$PHEROMONE_TYPE_ZERO);
+        $tileType->setOrientation(6);
+        $pheromone = new PheromonMYR();
+        $pheromone->setType($tileType);
+        $pheromone->setHarvested(false);
+        $gardenWorker = new GardenWorkerMYR();
+        $gardenWorker->setTile($tile);
+        $gardenWorker->setPlayer($firstPlayer);
+        $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
+        // THEN
+        $this->expectException(\Exception::class);
+        // WHEN
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $pheromone);
+    }
+
+    public function testPlacePheromoneOfTypeZeroWhenTileContainPrey()
+    {
+        // GIVEN
+        $this->anthillHoleMYRRepository->method("findOneBy")->willReturn(null);
+        $this->pheromonMYRRepository->method("findBy")->willReturn(array());
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $tile = new TileMYR();
+        $tile->setType(MyrmesParameters::$DIRT_TILE_TYPE);
+        $tile->setCoordX(0);
+        $tile->setCoordY(0);
+        $newTile = new TileMYR();
+        $newTile->setType(MyrmesParameters::$GRASS_TILE_TYPE);
+        $newTile->setCoordX(0);
+        $newTile->setCoordY(2);
+        $this->tileMYRRepository->method("findOneBy")->willReturn($newTile);
+        $tileType = new TileTypeMYR();
+        $tileType->setType(MyrmesParameters::$PHEROMONE_TYPE_ZERO);
+        $tileType->setOrientation(5);
+        $pheromone = new PheromonMYR();
+        $pheromone->setType($tileType);
+        $pheromone->setHarvested(false);
+        $gardenWorker = new GardenWorkerMYR();
+        $gardenWorker->setTile($tile);
+        $gardenWorker->setPlayer($firstPlayer);
+        $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
+        $prey = new PreyMYR();
+        $prey->setTile($tile);
+        $this->preyMYRRepository->method("findOneBy")->willReturn($prey);
+        // THEN
+        $this->expectException(\Exception::class);
+        // WHEN
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $pheromone);
     }
 
     private function createGame(int $numberOfPlayers) : GameMYR
