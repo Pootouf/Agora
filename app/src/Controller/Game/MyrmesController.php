@@ -175,4 +175,30 @@ class MyrmesController extends AbstractController
         $this->logService->sendPlayerLog($game, $player, $message);
         return new Response("nurses placement confirmed", Response::HTTP_OK);
     }
+
+    #[Route('/game/myrmes/{gameId}/placeWorkerOnColonyLevelTrack/{level}', name: 'app_game_myrmes_place_worker_colony')]
+    public function placeWorkerOnColonyLevelTrack(
+        #[MapEntity(id: 'gameId')] GameMYR $game,
+        int $level
+    )
+    {
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('invalid player', Response::HTTP_FORBIDDEN);
+        }
+        $personalBoard = $player->getPersonalBoardMYR();
+        try {
+            //TODO: call service function to place worker on colony level track
+        } catch (Exception) {
+            $message = $player->getUsername()
+                . " a essayé de placer une ouvrière sur le niveau de fourmilière "
+                . $level
+                . " mais n'a pas pu.";
+            $this->logService->sendPlayerLog($game, $player, $message);
+            return new Response('failed to place worker on colony', Response::HTTP_FORBIDDEN);
+        }
+        $message = $player->getUsername() . " a placé une ouvrière sur le niveau de fourmilière " . $level;
+        $this->logService->sendPlayerLog($game, $player, $message);
+        return new Response("placed worker on colony", Response::HTTP_OK);
+    }
 }
