@@ -18,6 +18,15 @@ class GameGoalMYR extends Component
     #[ORM\JoinColumn(nullable: false)]
     private ?GoalMYR $goal = null;
 
+    #[ORM\ManyToOne(inversedBy: 'gameGoalsLevelOne')]
+    private ?MainBoardMYR $mainBoardLevelOne = null;
+
+    #[ORM\ManyToOne(inversedBy: 'gameGoaldLevelTwo')]
+    private ?MainBoardMYR $mainBoardLevelTwo = null;
+
+    #[ORM\ManyToOne(inversedBy: 'gameGoalsLevelThree')]
+    private ?MainBoardMYR $mainBoardLevelThree = null;
+
     public function __construct()
     {
         $this->precedentsPlayers = new ArrayCollection();
@@ -55,6 +64,42 @@ class GameGoalMYR extends Component
     public function setGoal(?GoalMYR $goal): static
     {
         $this->goal = $goal;
+
+        return $this;
+    }
+
+    public function getMainBoardLevelOne(): ?MainBoardMYR
+    {
+        return $this->mainBoardLevelOne;
+    }
+
+    public function setMainBoardLevelOne(?MainBoardMYR $mainBoardLevelOne): static
+    {
+        $this->mainBoardLevelOne = $mainBoardLevelOne;
+
+        return $this;
+    }
+
+    public function getMainBoardLevelTwo(): ?MainBoardMYR
+    {
+        return $this->mainBoardLevelTwo;
+    }
+
+    public function setMainBoardLevelTwo(?MainBoardMYR $mainBoardLevelTwo): static
+    {
+        $this->mainBoardLevelTwo = $mainBoardLevelTwo;
+
+        return $this;
+    }
+
+    public function getMainBoardLevelThree(): ?MainBoardMYR
+    {
+        return $this->mainBoardLevelThree;
+    }
+
+    public function setMainBoardLevelThree(?MainBoardMYR $mainBoardLevelThree): static
+    {
+        $this->mainBoardLevelThree = $mainBoardLevelThree;
 
         return $this;
     }
