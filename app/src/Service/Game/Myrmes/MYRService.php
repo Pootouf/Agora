@@ -603,7 +603,7 @@ class MYRService
         $this->clearSeasons($game);
         $yearNum = $game->getMainBoardMYR()->getYearNum();
         if ($yearNum === MyrmesParameters::$THIRD_YEAR_NUM) {
-            // TODO ?
+            return;
         }
         $game->getMainBoardMYR()->setYearNum($yearNum + 1);
         $this->initializeNewSeason($game, MyrmesParameters::$SPRING_SEASON_NAME);
