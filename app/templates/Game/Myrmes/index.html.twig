@@ -46,6 +46,9 @@
         }
         function closeSelectedBoxWindow() {
             let window = document.getElementById('selectedBoxActions');
+            let tile = document.getElementsByClassName("displayedActionsTile").item(0);
+            tile.classList.value = "";
+            tile.classList.add("fill-[rgba(0,_0,_0,_0)]")
             window.remove();
         }
     </script>
@@ -56,10 +59,10 @@
         {% set path = path('app_game_show_myr', {'id': game.id}) ~ 'highlight' ~ player.id %}
         const eventSourceHighlight = new EventSource("{{ mercure(path)|escape('js') }}");
         eventSourceHighlight.onmessage = event => {
-                alert(event.data)
                 let tile = document.getElementById(event.data + "-clickable-zone").firstElementChild;
                 tile.classList.value = "";
                 tile.classList.add("fill-[rgba(255,_255,_255,_0.35)]")
+                tile.classList.add("displayedActionsTile")
         }
     </script>
 {% endblock %}
