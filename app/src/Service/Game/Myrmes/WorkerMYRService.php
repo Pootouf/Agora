@@ -4,11 +4,13 @@ namespace App\Service\Game\Myrmes;
 
 use App\Entity\Game\Myrmes\AnthillHoleMYR;
 use App\Entity\Game\Myrmes\GameMYR;
+use App\Entity\Game\Myrmes\GardenWorkerMYR;
 use App\Entity\Game\Myrmes\MyrmesParameters;
 use App\Entity\Game\Myrmes\PheromonMYR;
 use App\Entity\Game\Myrmes\PheromonTileMYR;
 use App\Entity\Game\Myrmes\PlayerMYR;
 use App\Entity\Game\Myrmes\PlayerResourceMYR;
+use App\Entity\Game\Myrmes\PreyMYR;
 use App\Entity\Game\Myrmes\ResourceMYR;
 use App\Entity\Game\Myrmes\TileMYR;
 use App\Entity\Game\Myrmes\TileTypeMYR;
@@ -126,6 +128,132 @@ class WorkerMYRService
             default:
                 throw new Exception("unknown tile type");
         }
+    }
+
+    public function workerMove(PlayerMYR $player,
+       GardenWorkerMYR $gardenWorker, int $direction) : void
+    {
+        if ($this->workerCanMove($player, $gardenWorker, $direction))
+        {
+            $tile =
+                $this->getTileAtDirection($gardenWorker->getTile(), $direction);
+            $gardenWorker->setTile($tile);
+
+            $prey = $this->getPreyOnTile($tile);
+            if ($prey != null)
+            {
+                $player->setScore($player->getScore()
+                    + MyrmesParameters::$VICTORY_GAIN_BY_ATTACK_PREY[
+                        $prey->getType()
+                    ]);
+
+                $playerResource = $this->MYRService->getPlayerResourceOfType(
+                    $player,
+                    MyrmesParameters::$RESOURCE_TYPE_GRASS);
+
+                $playerResource->setQuantity($playerResource->getQuantity()
+                    + MyrmesParameters::$FOOD_GAIN_BY_ATTACK_PREY[$prey->getType()]
+                );
+
+                $prey->setTile(null);
+
+                $this->entityManager->persist($playerResource);
+                $this->entityManager->persist($player);
+                $this->entityManager->persist($prey);
+            }
+
+            $this->entityManager->persist($gardenWorker);
+        }
+
+        $this->entityManager->flush();
+    }
+
+    public function workerCanMove(PlayerMYR $player,
+          GardenWorkerMYR $gardenWorker, int $direction) : bool
+    {
+        $tile =
+            $this->getTileAtDirection($gardenWorker->getTile(), $direction);
+
+        if ($tile == null)
+        {
+            return false;
+        }
+
+        $prey = $this->getPreyOnTile($tile);
+        $canAttack = $prey == null
+            || $this->workerCanAttackPrey($player, $prey)
+
+        ;
+
+        return $tile->getType() != MyrmesParameters::$WATER_TILE_TYPE
+            && $gardenWorker->getShiftsCount() > 0
+            && $canAttack;
+    }
+
+    /**
+     * @param TileMYR $tile
+     * @return PreyMYR|null
+     */
+    private function getPreyOnTile(TileMYR $tile) : ?PreyMYR
+    {
+        return $this->preyMYRRepository->findOneBy(["tile" => $tile]);
+    }
+
+    /**
+     * @param PlayerMYR $player
+     * @param PreyMYR $prey
+     * @return bool
+     */
+    private function workerCanAttackPrey(PlayerMYR $player,
+         PreyMYR $prey) : bool
+    {
+        $personalBoard = $player->getPersonalBoardMYR();
+        $needSoldiers =
+            MyrmesParameters::$NUMBER_SOLDIERS_FOR_ATTACK_PREY[
+                $prey->getType()
+            ];
+
+        return $personalBoard->getWarriorsCount() >= $needSoldiers;
+    }
+
+    /**
+     * @param TileMYR $tile
+     * @param int $direction
+     * @return TileMYR|null
+     */
+    private function getTileAtDirection(TileMYR $tile
+        , int $direction) : ?TileMYR
+    {
+        $abscissa = $tile->getCoordX();
+        $ordinate = $tile->getCoordY();
+
+        return match ($direction) {
+            MyrmesParameters::$DIRECTION_NORTH_WEST =>
+            $this->getTileAtCoordinate($abscissa - 1, $ordinate - 1),
+            MyrmesParameters::$DIRECTION_NORTH_EAST =>
+            $this->getTileAtCoordinate($abscissa - 1, $ordinate + 1),
+            MyrmesParameters::$DIRECTION_EAST =>
+            $this->getTileAtCoordinate($abscissa, $ordinate + 2),
+            MyrmesParameters::$DIRECTION_SOUTH_WEST =>
+            $this->getTileAtCoordinate($abscissa + 1, $ordinate - 1),
+            MyrmesParameters::$DIRECTION_SOUTH_EAST =>
+            $this->getTileAtCoordinate($abscissa + 1, $ordinate + 1),
+            MyrmesParameters::$DIRECTION_WEST =>
+            $this->getTileAtCoordinate($abscissa, $ordinate - 2),
+            default => null,
+        };
+    }
+
+    /**
+     * @param int $x
+     * @param int $y
+     * @return TileMYR|null
+     */
+    private function getTileAtCoordinate(int $x, int $y) : ?TileMYR
+    {
+        return $this->tileMYRRepository->findOneBy([
+        "coord_X" =>  $x,
+        "coord_Y" => $y]);
     }
 
     /**
