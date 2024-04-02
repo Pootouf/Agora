@@ -15,7 +15,7 @@ class MyrmesParameters
 
     public static int $PHASE_EVENT = 0;
     public static int $PHASE_BIRTH = 1;
-    public static int $PHASE_WORRKER = 2;
+    public static int $PHASE_WORKER = 2;
     public static int $PHASE_HARVEST = 3;
     public static int $PHASE_WORKSHOP = 4;
 
@@ -170,29 +170,62 @@ class MyrmesParameters
         9 => 4
     ];
 
+    // Direction's tiles
 
-    //Prey Types
+    public static int $DIRECTION_NORTH_WEST = 1;
+    public static int $DIRECTION_NORTH_EAST = 2;
+    public static int $DIRECTION_EAST = 3;
+    public static int $DIRECTION_SOUTH_EAST = 4;
+    public static int $DIRECTION_SOUTH_WEST = 5;
+    public static int $DIRECTION_WEST = 6;
+
+    // Prey Types
 
     public static string $LADYBUG_TYPE = "ladybug";
     public static string $TERMITE_TYPE = "termite";
     public static string $SPIDER_TYPE = "spider";
 
-    //Prey Numbers
+    // Prey Numbers
     public static int $LADYBUG_NUMBER = 6;
     public static int $TERMITE_NUMBER = 6;
     public static int $SPIDER_NUMBER = 6;
 
-    //Prey Position
+    // Prey Position
     public static array $PREY_POSITIONS = [[1, 6], [1, 18], [4, 9], [4, 15], [5, 12], [6, 9], [6, 15], [7, 0], [7, 6],
         [7, 18], [7, 24], [8, 9], [8, 15], [9, 12], [10, 9], [10, 15], [13, 6], [13, 18]];
 
-    //Player start data
+    // Number of soldiers for attack preys
+
+    public static array $NUMBER_SOLDIERS_FOR_ATTACK_PREY = array(
+        "ladybug" => 1,
+        "termite" => 1,
+        "spider" => 2
+    );
+
+    // Food gain by attack preys
+
+    public static array $FOOD_GAIN_BY_ATTACK_PREY = array(
+        "ladybug" => 2,
+        "termite" => 1,
+        "spider" => 1
+    );
+
+    // Victory gain by attack preys
+
+    public static array $VICTORY_GAIN_BY_ATTACK_PREY = array(
+        "ladybug" => 0,
+        "termite" => 2,
+        "spider" => 4
+    );
+
+    // Player start data
+
     public static int $NUMBER_OF_WORKER_AT_START = 2;
     public static int $NUMBER_OF_LARVAE_AT_START = 1;
     public static int $ANTHILL_START_LEVEL = 0;
     public static int $PLAYER_START_SCORE = 10;
 
-    //Anthill hole start position
+    // Anthill hole start position
     public static array $ANTHILL_HOLE_POSITION_BY_NUMBER_OF_PLAYER = [
         2 => [[11, 6], [11, 18]],
         3 => [[5, 4], [4, 19], [12, 13]],
