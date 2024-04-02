@@ -606,5 +606,3 @@ class MYRService
         $this->entityManager->flush();
     }
 }
-
-}

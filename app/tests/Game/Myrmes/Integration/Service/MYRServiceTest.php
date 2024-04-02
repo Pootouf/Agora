@@ -206,8 +206,8 @@ class MYRServiceTest extends KernelTestCase
         $entityManager->persist($mainBoard);
         $season = new SeasonMYR();
         $season->setName("Spring");
-        $season->setDiceResult(1);
         $season->setActualSeason(true);
+        $season->setDiceResult(1);
         $season->setMainBoard($mainBoard);
         $entityManager->persist($season);
         $game->setMainBoardMYR($mainBoard);
