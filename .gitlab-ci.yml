@@ -81,6 +81,7 @@ deploy:dev_game:
     ID_RSA: $ID_RSA_GAME
 
 unitFactory:
+  needs: []
   stage: factory
   script:
     - php bin/phpunit tests/Game/Factory/Unit
@@ -88,6 +89,7 @@ unitFactory:
   environment: test
 
 integrationFactory:
+  needs: []
   stage: factory
   only:
     - develop-game
@@ -99,6 +101,7 @@ integrationFactory:
   environment: test
 
 unit6QP:
+  needs: []
   stage: sixqp
   script:
     - php bin/phpunit tests/Game/SixQP/Unit
@@ -106,6 +109,7 @@ unit6QP:
   environment: test
 
 integration6QP:
+  needs : []
   stage: sixqp
   only:
     - develop-game
@@ -117,6 +121,7 @@ integration6QP:
   environment: test
 
 application6QP:
+  needs: []
   stage: sixqp
   only:
     - develop-game
@@ -129,6 +134,7 @@ application6QP:
   environment: test
 
 unitSplendor:
+  needs: []
   stage: splendor
   script:
     - php bin/phpunit tests/Game/Splendor/Unit
@@ -136,6 +142,7 @@ unitSplendor:
   environment: test
 
 integrationSplendor:
+  needs: []
   stage: splendor
   only:
     - develop-game
@@ -147,6 +154,7 @@ integrationSplendor:
   environment: test
 
 applicationSplendor:
+  needs: []
   stage: splendor
   only:
     - develop-game
@@ -159,6 +167,7 @@ applicationSplendor:
   environment: test
 
 unitGlenmore:
+  needs: []
   stage: glenmore
   script:
     - php bin/phpunit tests/Game/Glenmore/Unit
@@ -166,6 +175,7 @@ unitGlenmore:
   environment: test
 
 integrationGlenmore:
+  needs: []
   stage: glenmore
   only:
     - develop-game
@@ -177,6 +187,7 @@ integrationGlenmore:
   environment: test
 
 unitMyrmes:
+    needs: []
     stage: myrmes
     script:
       - php bin/phpunit tests/Game/Myrmes/Unit
@@ -184,6 +195,7 @@ unitMyrmes:
     environment: test
 
 integrationMyrmes:
+  needs: []
   stage: myrmes
   only:
     - develop-game
