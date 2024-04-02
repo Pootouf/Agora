@@ -33,7 +33,7 @@ class BirthMYRServiceTest extends KernelTestCase
         // WHEN
         $birthMYRService->placeNurse($nurse, $position);
         // THEN
-        $this->assertEquals($position, $nurse->getPosition());
+        $this->assertEquals($position, $nurse->getArea());
     }
 
     public function testPlaceNurseWhenNurseIsNotAvailable()
