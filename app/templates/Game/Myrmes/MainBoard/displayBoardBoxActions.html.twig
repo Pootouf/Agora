@@ -4,15 +4,60 @@
     return : display possible action if it's turn of player
 #}
 
+{# Declaration of contants #}
+{% set WATER_TILE_TYPE = "water" %}
+{% set DIRT_TILE_TYPE = "dirt" %}
+{% set MUSHROOM_TILE_TYPE = "mushroom" %}
+{% set STONE_TILE_TYPE = "stone" %}
+{% set GRASS_TILE_TYPE = "grass" %}
+
+
 <div id="selectedBoxActions"
-     class="absolute top-0 left-0 w-full h-full flex z-50 text-white">
+     class="absolute top-0 right-0 w-[28%] h-full flex z-50 text-white">
 
 
-    <div class="absolute bg-green-950 p-5 top-0 right-0 w-[28%] h-full rounded-lg flex flex-col">
+    <div class="absolute bg-orange-500 p-5 w-full h-full rounded-lg flex flex-col">
 
+        {% if selectedBox.tile != null %}
+            {% set color = "" %}
+            {% if selectedBox.tile.type == WATER_TILE_TYPE %}
+                {% set color = "blue-600" %}
+            {% elseif selectedBox.tile.type == DIRT_TILE_TYPE %}
+                {% set color = "orange-950" %}
+            {% elseif selectedBox.tile.type == MUSHROOM_TILE_TYPE %}
+                {% set color = "red-700" %}
+            {% elseif selectedBox.tile.type == STONE_TILE_TYPE %}
+                {% set color = "stone-700" %}
+            {% else %}
+                {% set color = "green-600" %}
+            {% endif %}
+            {% set boardBox = selectedBox %}
+            {% set isShifted = false %}
+            <div class="flex flex-row items-center justify-center rounded-xl bg-black bg-opacity-25 p-5">
+                {% set isActionable = true %}
+                {{ include('Game/Myrmes/MainBoard/boardBox.html.twig') }}
+            </div>
+            <button id="pheromone_placement"
+                    class="rounded-lg bg-green-900 py-2 px-3 m-5 text-2xl items-center"
+            >
+                Placer une phéromone
+            </button>
 
+            <button id="clean_phermone"
+                    class="rounded-lg bg-green-900 py-2 px-3 m-5 text-2xl items-center"
+            >
+                Nettoyer la phéromone adverse
+            </button>
+
+            <button id="anthill_hole_placement"
+                    class="rounded-lg bg-green-900 py-2 px-3 m-5 text-2xl items-center"
+            >
+                Placer un trou de fourmis
+            </button>
+
+        {% endif %}
         <button id="return_board" onclick="closeSelectedBoxWindow()"
-                class="absolute rounded-lg bg-[#8F901F] py-2 px-3 m-1 text-2xl right-0 bottom-0 items-center"
+                class="absolute rounded-lg bg-green-900 py-2 px-3 m-1 text-2xl right-0 bottom-0 items-center"
         >
             <img src="{{ asset('resourcesGames/utils/return-arrow.svg') }}" id="returnArrow"
                  alt="return on board"

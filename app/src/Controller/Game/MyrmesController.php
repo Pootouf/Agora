@@ -88,7 +88,8 @@ class MyrmesController extends AbstractController
         return $this->render('Game/Myrmes/MainBoard/displayBoardBoxActions.html.twig', [
             'game' => $game,
             'player' => $player,
-            'selectedBox' => $boardBox
+            'selectedBox' => $boardBox,
+            'needToPlay' => true, //$player == null ? false : $player->isTurnOfPlayer()
         ]);
 
     }
@@ -185,7 +186,7 @@ class MyrmesController extends AbstractController
     private function publishHighlightTile(GameMYR $game, PlayerMYR $player, TileMYR $tile) : void
     {
         $this->publishService->publish(
-            $this->generateUrl('app_game_show_glm',
+            $this->generateUrl('app_game_show_myr',
                 ['id' => $game->getId()]).'highlight'.$player->getId(),
             new Response($tile->getId())
         );

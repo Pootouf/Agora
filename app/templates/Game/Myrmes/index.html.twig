@@ -51,15 +51,15 @@
     </script>
 
     {# NOTIFICATION MANAGEMENT #}
+    <div class="hidden drop-shadow-2xl"></div>
     <script>
         {% set path = path('app_game_show_myr', {'id': game.id}) ~ 'highlight' ~ player.id %}
         const eventSourceHighlight = new EventSource("{{ mercure(path)|escape('js') }}");
         eventSourceHighlight.onmessage = event => {
-            animationQueue.addToQueue(() => {
-                let tile = document.getElementById(event.data);
-                //TODO highlight the tile
-                setTimeout(() => animationQueue.executeNextInQueue(), 100)
-            })
+                alert(event.data)
+                let tile = document.getElementById(event.data + "-clickable-zone").firstElementChild;
+                tile.classList.value = "";
+                tile.classList.add("fill-[rgba(255,_255,_255,_0.35)]")
         }
     </script>
 {% endblock %}

@@ -43,6 +43,7 @@
                 {% else %}
                     {% set color = "green-600" %}
                 {% endif %}
+                {% set isActionable = false %}
                 {{ include('Game/Myrmes/MainBoard/boardBox.html.twig') }}
 
             {% else %}
