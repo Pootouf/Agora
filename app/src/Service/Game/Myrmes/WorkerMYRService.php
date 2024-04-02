@@ -188,7 +188,7 @@ class WorkerMYRService
             $this->getTileAtDirection($gardenWorker->getTile(), $direction);
 
         if ($tile == null
-            || $tile->getType() != MyrmesParameters::$WATER_TILE_TYPE)
+            || $tile->getType() != MyrmesParameters::WATER_TILE_TYPE)
         {
             return false;
         }
@@ -239,7 +239,7 @@ class WorkerMYRService
     {
         $personalBoard = $player->getPersonalBoardMYR();
         $needSoldiers =
-            MyrmesParameters::$NUMBER_SOLDIERS_FOR_ATTACK_PREY[
+            MyrmesParameters::NUMBER_SOLDIERS_FOR_ATTACK_PREY[
                 $prey->getType()
             ];
 
@@ -277,17 +277,17 @@ class WorkerMYRService
         $ordinate = $tile->getCoordY();
 
         return match ($direction) {
-            MyrmesParameters::$DIRECTION_NORTH_WEST =>
+            MyrmesParameters::DIRECTION_NORTH_WEST =>
             $this->getTileAtCoordinate($abscissa - 1, $ordinate - 1),
-            MyrmesParameters::$DIRECTION_NORTH_EAST =>
+            MyrmesParameters::DIRECTION_NORTH_EAST =>
             $this->getTileAtCoordinate($abscissa - 1, $ordinate + 1),
-            MyrmesParameters::$DIRECTION_EAST =>
+            MyrmesParameters::DIRECTION_EAST =>
             $this->getTileAtCoordinate($abscissa, $ordinate + 2),
-            MyrmesParameters::$DIRECTION_SOUTH_WEST =>
+            MyrmesParameters::DIRECTION_SOUTH_WEST =>
             $this->getTileAtCoordinate($abscissa + 1, $ordinate - 1),
-            MyrmesParameters::$DIRECTION_SOUTH_EAST =>
+            MyrmesParameters::DIRECTION_SOUTH_EAST =>
             $this->getTileAtCoordinate($abscissa + 1, $ordinate + 1),
-            MyrmesParameters::$DIRECTION_WEST =>
+            MyrmesParameters::DIRECTION_WEST =>
             $this->getTileAtCoordinate($abscissa, $ordinate - 2),
             default => null,
         };
@@ -354,23 +354,23 @@ class WorkerMYRService
         // Manage count of soldiers
         $personalBoard = $player->getPersonalBoardMYR();
         $personalBoard->setWarriorsCount($personalBoard->getWarriorsCount()
-            - MyrmesParameters::$NUMBER_SOLDIERS_FOR_ATTACK_PREY[
+            - MyrmesParameters::NUMBER_SOLDIERS_FOR_ATTACK_PREY[
                 $prey->getType()
             ]);
 
         // Manage score of player
         $player->setScore($player->getScore()
-            + MyrmesParameters::$VICTORY_GAIN_BY_ATTACK_PREY[
+            + MyrmesParameters::VICTORY_GAIN_BY_ATTACK_PREY[
             $prey->getType()
             ]);
 
         // Manage quantity of resource
         $playerResource = $this->MYRService->getPlayerResourceOfType(
             $player,
-            MyrmesParameters::$RESOURCE_TYPE_GRASS);
+            MyrmesParameters::RESOURCE_TYPE_GRASS);
 
         $playerResource->setQuantity($playerResource->getQuantity()
-            + MyrmesParameters::$FOOD_GAIN_BY_ATTACK_PREY[$prey->getType()]
+            + MyrmesParameters::FOOD_GAIN_BY_ATTACK_PREY[$prey->getType()]
         );
 
         // Update
