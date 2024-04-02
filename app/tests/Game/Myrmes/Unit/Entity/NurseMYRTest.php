@@ -87,7 +87,7 @@ class NurseMYRTest extends TestCase
     {
         // GIVEN
 
-        $area = MyrmesParameters::$WORKER_AREA;
+        $area = MyrmesParameters::WORKER_AREA;
 
         // WHEN
 
