@@ -168,6 +168,7 @@ class WorkerMYRService
                 $gardenWorker->setShiftsCount(
                     $gardenWorker->getShiftsCount() - 1
                 );
+                $this->entityManager->persist($gardenWorker);
             }
         }
         $this->entityManager->flush();
@@ -245,6 +246,12 @@ class WorkerMYRService
         return $personalBoard->getWarriorsCount() >= $needSoldiers;
     }
 
+    /**
+     * canWorkerWalkAroundPheromone : check if player can move his garden worker on tile
+     * @param PlayerMYR $player
+     * @param PheromonTileMYR $pheromonTile
+     * @return bool
+     */
     private function canWorkerWalkAroundPheromone(PlayerMYR $player, PheromonTileMYR $pheromonTile) : bool
     {
         if ($pheromonTile->getPheromonMYR()->getPlayer() === $player)
@@ -334,7 +341,7 @@ class WorkerMYRService
     }
 
     /**
-     * attackPrey :
+     * attackPrey : soldiers of players attack prey
      * @param PlayerMYR $player
      * @param PreyMYR $prey
      * @return void
