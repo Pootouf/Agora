@@ -34,27 +34,6 @@ class GameController extends AbstractController
         ]);
     }
 
-     /**
-     * Displays a list of games.
-     *
-     * This method retrieves all games from the database using the entity manager (when the user is connected)
-     *
-     * @param EntityManagerInterface $entityManager The entity manager to interact with the database
-     *
-     * @return Response  HTTP response: list of games page
-    */
-    #[Route('/dashboard/games', name: 'app_dashboard_games')]
-    public function dashboard_game_index(EntityManagerInterface $entityManager): Response
-    {
-        $gameRepository = $entityManager->getRepository(Game::class);
-
-        $games = $gameRepository->findAll();
-
-        return $this->render('platform/dashboard/games/games.html.twig', [
-            'controller_name' => 'GameController',
-            'games' => $games,
-        ]);
-    }
 
 
     /**
@@ -77,29 +56,6 @@ class GameController extends AbstractController
         }
 
         return $this->render('platform/home/description.html.twig', [
-            'game' => $game,
-        ]);
-    }
-    /**
-     * Fetches the game information from the database based on the provided game ID (when the user is connected)
-     * 
-     * @param EntityManagerInterface $entityManager The entity manager to interact with the database
-     * @param int @game_id ID of the game to displayed on description page
-     * 
-     * @return Response HTTP response: game description by ID page
-     */
-    #[Route('/dashboard/games/{game_id}', name: 'app_dashboard_game_description', requirements: ['game_id' => '\d+'], methods: ['GET', 'HEAD'])]
-    public function dashboard_game_description(EntityManagerInterface $entityManager, int $game_id): Response
-    {
-        $gameRepository = $entityManager->getRepository(Game::class);
-        $game = $gameRepository->find($game_id);
-
-        if(!$game) {
-            $this->addFlash('warning', 'Le jeu n\'existe pas');
-            return $this->redirectToRoute('app_games');
-        }
-
-        return $this->render('platform/dashboard/games/description.html.twig', [
             'game' => $game,
         ]);
     }

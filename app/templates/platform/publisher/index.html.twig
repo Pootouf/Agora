@@ -19,17 +19,17 @@
             </div>
         {% endfor %}
     </div>
-    <script src="{{ asset('js/Platform/notify.js') }}"></script>
-    <script>
-        let eventSource;
-        {% if app.user %}
-        eventSource = new EventSource("{{ mercure('agora/notifications/user/' ~ app.user.id)|escape('js') }}");
-        {% else %}
-        eventSource = new EventSource("{{ mercure('agora/notifications/user/null')|escape('js') }}");
-        {% endif %}
-        eventSource.onmessage = event => {
-            const data = JSON.parse(event.data);
-            addNotification(data, "Notification Type");
-        }
-    </script>
+{#    <script src="{{ asset('js/Platform/notify.js') }}"></script>#}
+{#    <script>#}
+{#        let eventSource;#}
+{#        {% if app.user %}#}
+{#        eventSource = new EventSource("{{ mercure('agora/notifications/user/' ~ app.user.id)|escape('js') }}");#}
+{#        {% else %}#}
+{#        eventSource = new EventSource("{{ mercure('agora/notifications/user/null')|escape('js') }}");#}
+{#        {% endif %}#}
+{#        eventSource.onmessage = event => {#}
+{#            const data = JSON.parse(event.data);#}
+{#            addNotification(data, "Notification Type");#}
+{#        }#}
+{#    </script>#}
 {% endblock %}
