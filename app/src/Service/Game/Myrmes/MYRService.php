@@ -605,4 +605,5 @@ class MYRService
         $this->entityManager->persist($game->getMainBoardMYR());
         $this->entityManager->flush();
     }
+
 }
