@@ -865,7 +865,6 @@ class WorkerMYRService
     private function canChoosePheromone(PlayerMYR $player, TileTypeMYR $tileType, int $pheromoneCount) : bool
     {
         $anthillLevel = $player->getPersonalBoardMYR()->getAnthillLevel();
-        $pheromone = $this->pheromonMYRRepository->findOneBy(["type" => $tileType]);
 
         switch ($tileType->getType()) {
             case MyrmesParameters::PHEROMONE_TYPE_ZERO:

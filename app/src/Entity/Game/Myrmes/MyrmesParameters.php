@@ -262,5 +262,9 @@ class MyrmesParameters
     public const int GOAL_REWARD_LEVEL_THREE = 12;
     public const int GOAL_REWARD_WHEN_GOAL_ALREADY_DONE = 3;
 
+    // Anthill Level
 
+    public const int ANTHILL_LEVEL_ONE = 1;
+    public const int ANTHILL_LEVEL_TWO = 2;
+    public const int ANTHILL_LEVEL_THREE = 3;
 }
