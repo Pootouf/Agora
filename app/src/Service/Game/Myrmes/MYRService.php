@@ -299,7 +299,6 @@ class MYRService
         $nurse->setPlayer($player);
         $nurse->setArea(MyrmesParameters::BASE_AREA);
         $nurse->setAvailable(true);
-        $nurse->setPosition(0);
         $nurse->setPersonalBoardMYR($player->getPersonalBoardMYR());
         $this->entityManager->persist($nurse);
     }
