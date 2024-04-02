@@ -32,7 +32,7 @@ class BirthMYRService
         if(!$nurseMYR->isAvailable()) {
             throw new Exception("NURSE NOT AVAILABLE");
         }
-        $nurseMYR->setPosition($newPosition);
+        $nurseMYR->setArea($newPosition);
         $this->entityManager->persist($nurseMYR);
         $this->entityManager->flush();
     }
@@ -64,6 +64,22 @@ class BirthMYRService
             }
             $this->entityManager->flush();
         }
+    }
+
+    /**
+     * cancelNursesPlacement : cancel the nurses placement on the birth tracks or workshop
+     * @param PlayerMYR $playerMYR
+     * @return void
+     */
+    public function cancelNursesPlacement(PlayerMYR $playerMYR): void
+    {
+        $nurses = $playerMYR->getPersonalBoardMYR()->getNurses();
+        foreach($nurses as $nurse) {
+            $nurse->setArea(MyrmesParameters::BASE_AREA);
+            $this->entityManager->persist($nurse);
+        }
+        $this->entityManager->persist($playerMYR->getPersonalBoardMYR());
+        $this->entityManager->flush();
     }
 
     private function getGainByCountNurse(array $gainsByCountNurse, int $countNurse) : int
