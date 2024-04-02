@@ -25,10 +25,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 
-
-/**
- * @codeCoverageIgnore
- */
 class WorkerMYRService
 {
     public function __construct(private readonly EntityManagerInterface $entityManager,
@@ -926,6 +922,7 @@ class WorkerMYRService
             $pheromoneTile->setTile($tile);
             $pheromoneTile->setPheromonMYR($pheromone);
             $this->placeResourceOnTile($pheromoneTile);
+            $pheromoneTile->setMainBoard($playerMYR->getGameMyr()->getMainBoardMYR());
             $this->entityManager->persist($pheromoneTile);
             $pheromone->addPheromonTile($pheromoneTile);
         }
