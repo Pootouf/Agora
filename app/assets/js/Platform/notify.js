@@ -25,20 +25,3 @@ function notify($content, $type) {
         });
     }
 }
-// -------------------------Refresh Notification frame---------------------------
-function updateNotificationFrame($data) {
-    const notificationDiv = document.createElement('div');
-    notificationDiv.classList.add('notification');
-    notificationDiv.innerHTML = `
-        <p>${$data.content}</p>
-        <p> -- Date: ${new Date($data.date).toISOString()}</p>
-    `;
-    const notificationFrame = document.getElementById('notification-frame');
-    notificationFrame.insertBefore(notificationDiv, notificationFrame.firstChild);
-}
-
-//--------------------------Add Notification------------------------------
-function addNotification($data,$type){
-    updateNotificationFrame($data);
-    notify($data.content, $type);
-}

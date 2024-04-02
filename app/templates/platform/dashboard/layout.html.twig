@@ -182,28 +182,25 @@
     <div class="px-4">
         <h2 class="text-lg font-semibold text-gray-800 mb-0">Mes notifications</h2>
         <div class="mt-1 py-0 text-base text-gray-700 hover:bg-gray-100 hover:text-gray-900 border-b border-gray-900 last:border-b-0 transition duration-150"></div>
-
+		<div id="notif-content">
         <!-- Contenu du menu de notifications avec des notifications plus grandes -->
-        <div class="notification-item py-3 text-base text-gray-700 hover:bg-gray-100 hover:text-gray-900">
-            <p>Notification 1 avec un contenu plus long pour s'assurer qu'elle est bien plus grande</p>
-            <div class="mt-4 flex justify-center">
-                <a href="#" class="text-sm text-primary hover:text-blue-400 font-semibold rounded-lg px-3 py-1.5 text-center mr-2 mb-2 mark-as-read">Voir</a>
-                <a href="#" class="text-sm text-primary hover:text-blue-400 font-semibold rounded-lg px-3 py-1.5 text-center mr-2 mb-2 mark-as-read">Marquer comme lu</a>
-            </div>
-            <div class="mt-1 py-0 text-base text-gray-700 hover:bg-gray-100 hover:text-gray-900 border-b border-gray-900 last:border-b-0 transition duration-150"></div>
-        </div>
-    </div>
-
-
-    <div class="px-4 relative">
-        <div class="notification-item py-3 text-base text-gray-700 hover:bg-gray-100 hover:text-gray-900">
-            <p>Notification 2 avec un contenu plus long pour s'assurer qu'elle est bien plus grande</p>
-            <div class="mt-4 flex justify-center">
-                <a href="#" class="text-sm text-primary hover:text-blue-400 font-semibold rounded-lg px-3 py-1.5 text-center mr-2 mb-2 mark-as-read">Voir</a>
-                <a href="#" class="text-sm text-primary hover:text-blue-400 font-semibold rounded-lg px-3 py-1.5 text-center mr-2 mb-2 mark-as-read">Marquer comme lu</a>
-            </div>
-            <div class="mt-1 py-0 text-base text-gray-700 hover:bg-gray-100 hover:text-gray-900 border-b border-gray-900 last:border-b-0 transition duration-150"></div>
-        </div>
+			{% for notification in notifications %}
+				<div class="notification-item py-3 text-base text-gray-700 hover:bg-gray-100 hover:text-gray-900">
+					<p>{{notification.content}}</p>
+					<div class="flex items-end">
+						<svg class="h-5 w-5 text-gray-400 ml-2" viewBox="0 0 20 20" fill="currentColor">
+							<path fill-rule="evenodd" d="M13 10a3 3 0 11-6 0 3 3 0 016 0zm-2 0a1 1 0 10-2 0 1 1 0 002 0z" clip-rule="evenodd"/>
+						</svg>
+						<div class="text-right text-xs text-gray-500">{{ notification.createdAt | date }}</div>
+					</div>
+					<div class="mt-4 flex justify-center">
+						<a href="#" class="text-sm text-primary hover:text-blue-400 font-semibold rounded-lg px-3 py-1.5 text-center mr-2 mb-2 mark-as-read">Voir</a>
+						<a href="#" class="text-sm text-primary hover:text-blue-400 font-semibold rounded-lg px-3 py-1.5 text-center mr-2 mb-2 mark-as-read">Marquer comme lu</a>
+					</div>
+					<div class="mt-1 py-0 text-base text-gray-700 hover:bg-gray-100 hover:text-gray-900 border-b border-gray-900 last:border-b-0 transition duration-150"></div>
+				</div>
+			{% endfor %}
+		</div>
 
 
         <!-- Bouton Tout marquer comme lu -->
@@ -251,6 +248,56 @@
 			</main>
 		</div>
 	</div>
+
+{#	Notifications ---------------------------------------------------#}
+
+	<script src="{{ asset('js/Platform/notify.js') }}"></script>
+	<script>
+		let eventSource;
+		{% if app.user %}
+		eventSource = new EventSource("{{ mercure('agora/notifications/user/' ~ app.user.id)|escape('js') }}");
+		{% else %}
+		eventSource = new EventSource("{{ mercure('agora/notifications/user/null')|escape('js') }}");
+		{% endif %}
+		eventSource.onmessage = event => {
+			const data = JSON.parse(event.data);
+			notify(data.content, "Agora");
+			updateNotificationFrame(data);
+		}
+		function updateNotificationFrame(notification) {
+			const notificationsList = document.getElementById('notif-content');
+			const date = new Date(notification.date);
+
+			const formattedDate = date.toLocaleString('fr-FR', {
+				hour: 'numeric',
+				minute: 'numeric',
+				month: 'long',
+				day: '2-digit',
+				year: 'numeric'
+			}).replace(' à ', ' ');
+
+			const notif = document.createElement('div');
+			notif.innerHTML = `
+            <div class="notification-item py-3 text-base text-gray-700 hover:bg-gray-100 hover:text-gray-900">
+            <p>${notification.content}</p>
+			<div class="flex items-end">
+            	<svg class="h-5 w-5 text-gray-400 ml-2" viewBox="0 0 20 20" fill="currentColor">
+            		<path fill-rule="evenodd" d="M13 10a3 3 0 11-6 0 3 3 0 016 0zm-2 0a1 1 0 10-2 0 1 1 0 002 0z" clip-rule="evenodd"/>
+            	</svg>
+            	<div class="text-right text-xs text-gray-500">${formattedDate}</div>
+            </div>
+            <div class="mt-4 flex justify-center">
+                <a href="#" class="text-sm text-primary hover:text-blue-400 font-semibold rounded-lg px-3 py-1.5 text-center mr-2 mb-2 mark-as-read">Voir</a>
+                <a href="#" class="text-sm text-primary hover:text-blue-400 font-semibold rounded-lg px-3 py-1.5 text-center mr-2 mb-2 mark-as-read">Marquer comme lu</a>
+            </div>
+            <div class="mt-1 py-0 text-base text-gray-700 hover:bg-gray-100 hover:text-gray-900 border-b border-gray-900 last:border-b-0 transition duration-150"></div>
+        </div>
+        `;
+			notificationsList.prepend(notif);
+		}
+	</script>
+
+{#	End notifications ---------------------------------------------------------------------#}
 
 	<script>
 		const dropdownButton = document.getElementById("user-menu-button");
