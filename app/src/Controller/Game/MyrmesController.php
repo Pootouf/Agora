@@ -31,8 +31,6 @@ class MyrmesController extends AbstractController
                                 private readonly EventMYRService $eventMYRService,
                                 private readonly LogService $logService,
                                 private readonly PublishService $publishService,
-                                ) {}
-                                private readonly LogService $logService,
                                 private readonly BirthMYRService $birthMYRService) {}
 
 
@@ -58,12 +56,12 @@ class MyrmesController extends AbstractController
             'isSpectator' => $player == null,
             'needToPlay' => true,//$player == null ? false : $player->isTurnOfPlayer(),
             'selectedBox' => null,
-            'playerPhase' => $player->getPhase()
+            'playerPhase' => $player->getPhase(),
             'isAnotherPlayerBoard' => false,
-            'isBirthPhase' => $this->service->isInPhase($player, MyrmesParameters::$PHASE_BIRTH),
-            'nursesOnLarvaeBirthTrack' => $this->service->getNursesAtPosition($player, MyrmesParameters::$LARVAE_AREA)->count(),
-            'nursesOnSoldiersBirthTrack' => $this->service->getNursesAtPosition($player, MyrmesParameters::$SOLDIERS_AREA)->count(),
-            'nursesOnWorkersBirthTrack' => $this->service->getNursesAtPosition($player, MyrmesParameters::$WORKER_AREA)->count()
+            'isBirthPhase' => $this->service->isInPhase($player, MyrmesParameters::PHASE_BIRTH),
+            'nursesOnLarvaeBirthTrack' => $this->service->getNursesAtPosition($player, MyrmesParameters::LARVAE_AREA)->count(),
+            'nursesOnSoldiersBirthTrack' => $this->service->getNursesAtPosition($player, MyrmesParameters::SOLDIERS_AREA)->count(),
+            'nursesOnWorkersBirthTrack' => $this->service->getNursesAtPosition($player, MyrmesParameters::WORKER_AREA)->count()
         ]);
     }
 
@@ -81,9 +79,9 @@ class MyrmesController extends AbstractController
             'isSpectator' => $player == null,
             'needToPlay' => true,//$player == null ? false : $player->isTurnOfPlayer()
             'isAnotherPlayerBoard' => false,
-            'nursesOnLarvaeBirthTrack' => $this->service->getNursesAtPosition($player, MyrmesParameters::$LARVAE_AREA)->count(),
-            'nursesOnSoldiersBirthTrack' => $this->service->getNursesAtPosition($player, MyrmesParameters::$SOLDIERS_AREA)->count(),
-            'nursesOnWorkersBirthTrack' => $this->service->getNursesAtPosition($player, MyrmesParameters::$WORKER_AREA)->count()
+            'nursesOnLarvaeBirthTrack' => $this->service->getNursesAtPosition($player, MyrmesParameters::LARVAE_AREA)->count(),
+            'nursesOnSoldiersBirthTrack' => $this->service->getNursesAtPosition($player, MyrmesParameters::SOLDIERS_AREA)->count(),
+            'nursesOnWorkersBirthTrack' => $this->service->getNursesAtPosition($player, MyrmesParameters::WORKER_AREA)->count()
         ]);
     }
 
@@ -100,7 +98,7 @@ class MyrmesController extends AbstractController
                 'isPreview' => false,
                 'isSpectator' => true,
                 'isAnotherPlayerBoard' => true,
-                'isBirthPhase' => $this->service->isInPhase($playerMYR, MyrmesParameters::$PHASE_BIRTH),
+                'isBirthPhase' => $this->service->isInPhase($playerMYR, MyrmesParameters::PHASE_BIRTH),
             ]);
     }
 
@@ -237,7 +235,7 @@ class MyrmesController extends AbstractController
         }
         try {
                 $this->birthMYRService->placeNurse(
-                    $this->service->getNursesAtPosition($player, MyrmesParameters::$BASE_AREA)->first(),
+                    $this->service->getNursesAtPosition($player, MyrmesParameters::BASE_AREA)->first(),
                     $position);
         } catch (Exception) {
             $message = $player->getUsername()

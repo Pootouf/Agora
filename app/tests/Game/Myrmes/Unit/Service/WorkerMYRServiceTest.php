@@ -93,7 +93,7 @@ class WorkerMYRServiceTest extends TestCase
             $tileRepository, $playerResourceRepository, $resourceRepository);
         $game = $this->createGame(2);
         $tile = new TileMYR();
-        $tile->setType(MyrmesParameters::$WATER_TILE_TYPE);
+        $tile->setType(MyrmesParameters::WATER_TILE_TYPE);
         $player = $game->getPlayers()->first();
         // THEN
         $this->expectException(\Exception::class);
@@ -132,8 +132,8 @@ class WorkerMYRServiceTest extends TestCase
 
     private function createGame(int $numberOfPlayers) : GameMYR
     {
-        if($numberOfPlayers < MyrmesParameters::$MIN_NUMBER_OF_PLAYER ||
-            $numberOfPlayers > MyrmesParameters::$MAX_NUMBER_OF_PLAYER) {
+        if($numberOfPlayers < MyrmesParameters::MIN_NUMBER_OF_PLAYER ||
+            $numberOfPlayers > MyrmesParameters::MAX_NUMBER_OF_PLAYER) {
             throw new \Exception("TOO MUCH PLAYERS ON CREATE GAME");
         }
         $game = new GameMYR();

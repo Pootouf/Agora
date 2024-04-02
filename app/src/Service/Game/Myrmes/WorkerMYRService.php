@@ -139,7 +139,7 @@ class WorkerMYRService
         if ($tileMYR == null) {
             return false;
         }
-        if($tileMYR->getType() == MyrmesParameters::$WATER_TILE_TYPE) {
+        if($tileMYR->getType() == MyrmesParameters::WATER_TILE_TYPE) {
             return false;
         }
         $players = $gameMYR->getPlayers();
@@ -534,7 +534,7 @@ class WorkerMYRService
     private function placePheromoneFarm(PlayerMYR $player) : bool
     {
         $personalBoard = $player->getPersonalBoardMYR();
-        $grass = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::$RESOURCE_TYPE_GRASS]);
+        $grass = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::RESOURCE_TYPE_GRASS]);
         return $this->playerResourceMYRRepository->findOneBy(
             ["personalBoard" => $personalBoard, "resource" => $grass]
         ) != null;
@@ -548,8 +548,8 @@ class WorkerMYRService
     private function placePheromoneQuarry(PlayerMYR $player) : bool
     {
         $personalBoard = $player->getPersonalBoardMYR();
-        $grass = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::$RESOURCE_TYPE_GRASS]);
-        $stone = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::$RESOURCE_TYPE_STONE]);
+        $grass = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::RESOURCE_TYPE_GRASS]);
+        $stone = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::RESOURCE_TYPE_STONE]);
         return
             $this->playerResourceMYRRepository->findOneBy(
                 ["personalBoard" => $personalBoard, "resource" => $grass]
@@ -568,9 +568,9 @@ class WorkerMYRService
     private function placePheromoneSubanthill(PlayerMYR $player) : bool
     {
         $personalBoard = $player->getPersonalBoardMYR();
-        $grass = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::$RESOURCE_TYPE_GRASS]);
-        $stone = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::$RESOURCE_TYPE_STONE]);
-        $dirt = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::$RESOURCE_TYPE_DIRT]);
+        $grass = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::RESOURCE_TYPE_GRASS]);
+        $stone = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::RESOURCE_TYPE_STONE]);
+        $dirt = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::RESOURCE_TYPE_DIRT]);
         return
             $this->playerResourceMYRRepository->findOneBy(
                 ["personalBoard" => $personalBoard, "resource" => $grass]
@@ -627,13 +627,13 @@ class WorkerMYRService
         $anthillLevel = $player->getPersonalBoardMYR()->getAnthillLevel();
         $pheromoneSize = $pheromone->getPheromonTiles()->count();
         $allowedSize = $anthillLevel + 2;
-        if ($player->getPersonalBoardMYR()->getBonus() === MyrmesParameters::$BONUS_PHEROMONE) {
+        if ($player->getPersonalBoardMYR()->getBonus() === MyrmesParameters::BONUS_PHEROMONE) {
             ++$allowedSize;
         }
         if ($pheromoneSize > $allowedSize) {
             return false;
         }
-        if ($pheromone->getType()->getType() === MyrmesParameters::$SPECIAL_TILE_TYPE_SUBANTHILL) {
+        if ($pheromone->getType()->getType() === MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL) {
             return $anthillLevel == 3;
         }
         return MyrmesParameters::PHEROMONE_TYPE_AMOUNT[$pheromone->getType()->getType()] >= $pheromoneCount;
@@ -646,9 +646,9 @@ class WorkerMYRService
      */
     private function placeResourceOnTile(PheromonTileMYR $tile) : void
     {
-        $grass = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::$RESOURCE_TYPE_GRASS]);
-        $stone = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::$RESOURCE_TYPE_STONE]);
-        $dirt = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::$RESOURCE_TYPE_DIRT]);
+        $grass = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::RESOURCE_TYPE_GRASS]);
+        $stone = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::RESOURCE_TYPE_STONE]);
+        $dirt = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::RESOURCE_TYPE_DIRT]);
         switch ($tile->getTile()->getType()) {
             case MyrmesParameters::DIRT_TILE_TYPE:
                 $tile->setResource($dirt);
@@ -693,7 +693,7 @@ class WorkerMYRService
         } else {
             $points = MyrmesParameters::SPECIAL_TILES_TYPE_LEVEL[$tileTypeMYR->getType()];
         }
-        if ($playerMYR->getPersonalBoardMYR()->getBonus() === MyrmesParameters::$BONUS_POINT) {
+        if ($playerMYR->getPersonalBoardMYR()->getBonus() === MyrmesParameters::BONUS_POINT) {
             ++$points;
         }
         $playerMYR->setScore($playerMYR->getScore() + $points);

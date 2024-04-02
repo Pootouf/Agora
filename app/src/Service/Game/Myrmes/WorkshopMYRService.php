@@ -80,7 +80,7 @@ class WorkshopMYRService
      */
     private function canChooseThisBonus(PlayerMYR $player, int $workshopArea) : bool
     {
-        if ($player->getPhase() != MyrmesParameters::$PHASE_WORKSHOP) {
+        if ($player->getPhase() != MyrmesParameters::PHASE_WORKSHOP) {
             return false;
         }
         return $this->MYRService->getNursesAtPosition($player, $workshopArea) >= 0;
@@ -104,7 +104,7 @@ class WorkshopMYRService
      */
     private function isValidPosition(PlayerMYR $player, TileMYR $tile) : bool
     {
-        if ($tile->getType() === MyrmesParameters::$WATER_TILE_TYPE) {
+        if ($tile->getType() === MyrmesParameters::WATER_TILE_TYPE) {
             return false;
         }
         $mainBoard = $player->getGameMyr()->getMainBoardMYR();
@@ -336,7 +336,7 @@ class WorkshopMYRService
      */
     private function giveDirtToPlayer(PlayerMYR $player) : void
     {
-        $dirt = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::$RESOURCE_TYPE_DIRT]);
+        $dirt = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::RESOURCE_TYPE_DIRT]);
         $playerDirt = $this->playerResourceMYRRepository->findOneBy(["resource" => $dirt]);
         if ($playerDirt != null) {
             $playerDirt->setQuantity($playerDirt->getQuantity() + 1);

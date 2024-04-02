@@ -129,11 +129,11 @@ class MYRService
     {
         $result = new ArrayCollection();
         $mainBoard = $game->getMainBoardMYR();
-        $fall = $this->seasonMYRRepository->findOneBy(["mainBoard" => $mainBoard, "name" => MyrmesParameters::$FALL_SEASON_NAME]);
+        $fall = $this->seasonMYRRepository->findOneBy(["mainBoard" => $mainBoard, "name" => MyrmesParameters::FALL_SEASON_NAME]);
         $result[$fall->getName()] = $fall->getDiceResult();
-        $spring = $this->seasonMYRRepository->findOneBy(["mainBoard" => $mainBoard, "name" => MyrmesParameters::$SPRING_SEASON_NAME]);
+        $spring = $this->seasonMYRRepository->findOneBy(["mainBoard" => $mainBoard, "name" => MyrmesParameters::SPRING_SEASON_NAME]);
         $result[$spring->getName()] = $spring->getDiceResult();
-        $summer = $this->seasonMYRRepository->findOneBy(["mainBoard" => $mainBoard, "name" => MyrmesParameters::$SUMMER_SEASON_NAME]);
+        $summer = $this->seasonMYRRepository->findOneBy(["mainBoard" => $mainBoard, "name" => MyrmesParameters::SUMMER_SEASON_NAME]);
         $result[$summer->getName()] = $summer->getDiceResult();
         return $result;
     }
@@ -210,7 +210,7 @@ class MYRService
     {
         $nurses = $player->getPersonalBoardMYR()->getNurses();
         foreach ($nurses as $nurse) {
-            $nurse->setArea(MyrmesParameters::$BASE_AREA);
+            $nurse->setArea(MyrmesParameters::BASE_AREA);
         }
         $this->entityManager->flush();
     }
@@ -553,9 +553,9 @@ class MYRService
             $this->initializeNewYear($game);
             return;
         }
-        $fall = $this->seasonMYRRepository->findOneBy(["mainBoard" => $mainBoard, "name" => MyrmesParameters::$FALL_SEASON_NAME]);
-        $summer = $this->seasonMYRRepository->findOneBy(["mainBoard" => $mainBoard, "name" => MyrmesParameters::$SUMMER_SEASON_NAME]);
-        $winter = $this->seasonMYRRepository->findOneBy(["mainBoard" => $mainBoard, "name" => MyrmesParameters::$WINTER_SEASON_NAME]);
+        $fall = $this->seasonMYRRepository->findOneBy(["mainBoard" => $mainBoard, "name" => MyrmesParameters::FALL_SEASON_NAME]);
+        $summer = $this->seasonMYRRepository->findOneBy(["mainBoard" => $mainBoard, "name" => MyrmesParameters::SUMMER_SEASON_NAME]);
+        $winter = $this->seasonMYRRepository->findOneBy(["mainBoard" => $mainBoard, "name" => MyrmesParameters::WINTER_SEASON_NAME]);
         if ($actualSeason->getName() === MyrmesParameters::SPRING_SEASON_NAME) {
             $summer->setActualSeason(true);
             $this->entityManager->persist($summer);
@@ -592,7 +592,7 @@ class MYRService
         $this->initializeNewSeason($game, MyrmesParameters::SPRING_SEASON_NAME);
         $this->initializeNewSeason($game, MyrmesParameters::SUMMER_SEASON_NAME);
         $this->initializeNewSeason($game, MyrmesParameters::FALL_SEASON_NAME);
-        $spring = $this->seasonMYRRepository->findOneBy(["mainBoard" => $game->getMainBoardMYR(), "name" => MyrmesParameters::$SPRING_SEASON_NAME]);
+        $spring = $this->seasonMYRRepository->findOneBy(["mainBoard" => $game->getMainBoardMYR(), "name" => MyrmesParameters::SPRING_SEASON_NAME]);
         $spring->setActualSeason(true);
         $this->entityManager->persist($game->getMainBoardMYR());
         $this->entityManager->persist($spring);
