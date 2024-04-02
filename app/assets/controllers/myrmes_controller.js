@@ -46,20 +46,9 @@ export default class extends Controller  {
 
     //place worker on colony level track
 
-    placeWorkerOnLevel0() {
-        alert("lvl 0");
-    }
-
-    placeWorkerOnLevel1() {
-        alert("lvl 1");
-    }
-
-    placeWorkerOnLevel2() {
-        alert("lvl 2");
-    }
-
-    placeWorkerOnLevel3() {
-        alert("lvl 3");
+    async placeWorkerOnColonyLevelTrack(level) {
+        let url = level.params.url;
+        const response = await fetch(url);
     }
 
     async showPersonalBoard(main)  {
