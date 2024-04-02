@@ -164,7 +164,7 @@ class WorkerMYRServiceTest extends TestCase
         $workerMYRService->placeAnthillHole($player, $tile);
     }
 
-    public function testPlacePheromoneOfTypeZeroShouldReturnSuccess()
+    public function testPlacePheromoneOfTypeZeroWithOrientation0()
     {
         // GIVEN
         $this->anthillHoleMYRRepository->method("findOneBy")->willReturn(null);
@@ -184,6 +184,39 @@ class WorkerMYRServiceTest extends TestCase
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::$PHEROMONE_TYPE_ZERO);
         $tileType->setOrientation(0);
+        $pheromone = new PheromonMYR();
+        $pheromone->setType($tileType);
+        $pheromone->setHarvested(false);
+        $gardenWorker = new GardenWorkerMYR();
+        $gardenWorker->setTile($tile);
+        $gardenWorker->setPlayer($firstPlayer);
+        $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
+        // WHEN
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $pheromone);
+        // THEN
+        $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
+    }
+
+    public function testPlacePheromoneOfTypeZeroWithOrientation1()
+    {
+        // GIVEN
+        $this->anthillHoleMYRRepository->method("findOneBy")->willReturn(null);
+        $this->pheromonMYRRepository->method("findBy")->willReturn(array());
+        $this->preyMYRRepository->method("findOneBy")->willReturn(null);
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $tile = new TileMYR();
+        $tile->setType(MyrmesParameters::$DIRT_TILE_TYPE);
+        $tile->setCoordX(1);
+        $tile->setCoordY(1);
+        $newTile = new TileMYR();
+        $newTile->setType(MyrmesParameters::$GRASS_TILE_TYPE);
+        $newTile->setCoordX(2);
+        $newTile->setCoordY(0);
+        $this->tileMYRRepository->method("findOneBy")->willReturn($newTile);
+        $tileType = new TileTypeMYR();
+        $tileType->setType(MyrmesParameters::$PHEROMONE_TYPE_ZERO);
+        $tileType->setOrientation(1);
         $pheromone = new PheromonMYR();
         $pheromone->setType($tileType);
         $pheromone->setHarvested(false);

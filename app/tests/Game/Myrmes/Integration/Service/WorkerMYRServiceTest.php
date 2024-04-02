@@ -130,7 +130,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $workerMYRService->placeAnthillHole($player, $tile);
     }
 
-    public function testPlacePheromoneOfTypeZeroShouldReturnSuccess()
+    public function testPlacePheromoneOfTypeZeroWithOrientation0()
     {
         // GIVEN
         $game = $this->createGame(2);
@@ -148,6 +148,45 @@ class WorkerMYRServiceTest extends KernelTestCase
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::$PHEROMONE_TYPE_ZERO);
         $tileType->setOrientation(0);
+        $this->entityManager->persist($tileType);
+        $pheromone = new PheromonMYR();
+        $pheromone->setType($tileType);
+        $pheromone->setPlayer($firstPlayer);
+        $pheromone->setHarvested(false);
+        $this->entityManager->persist($pheromone);
+        $gardenWorker = new GardenWorkerMYR();
+        $gardenWorker->setPlayer($firstPlayer);
+        $gardenWorker->setTile($tile);
+        $gardenWorker->setMainBoardMYR($game->getMainBoardMYR());
+        $gardenWorker->setShiftsCount(0);
+        $this->entityManager->persist($gardenWorker);
+        $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
+        $this->entityManager->persist($game);
+        $this->entityManager->flush();
+        // WHEN
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $pheromone);
+        // THEN
+        $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
+    }
+
+    public function testPlacePheromoneOfTypeZeroWithOrientation1()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $tile = new TileMYR();
+        $tile->setType(MyrmesParameters::$DIRT_TILE_TYPE);
+        $tile->setCoordX(1);
+        $tile->setCoordY(1);
+        $this->entityManager->persist($tile);
+        $newTile = new TileMYR();
+        $newTile->setType(MyrmesParameters::$GRASS_TILE_TYPE);
+        $newTile->setCoordX(2);
+        $newTile->setCoordY(0);
+        $this->entityManager->persist($newTile);
+        $tileType = new TileTypeMYR();
+        $tileType->setType(MyrmesParameters::$PHEROMONE_TYPE_ZERO);
+        $tileType->setOrientation(1);
         $this->entityManager->persist($tileType);
         $pheromone = new PheromonMYR();
         $pheromone->setType($tileType);
