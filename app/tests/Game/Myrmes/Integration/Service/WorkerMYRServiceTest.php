@@ -208,6 +208,45 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
 
+    public function testPlacePheromoneOfTypeZeroWithOrientation2()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $tile = new TileMYR();
+        $tile->setType(MyrmesParameters::$DIRT_TILE_TYPE);
+        $tile->setCoordX(0);
+        $tile->setCoordY(2);
+        $this->entityManager->persist($tile);
+        $newTile = new TileMYR();
+        $newTile->setType(MyrmesParameters::$GRASS_TILE_TYPE);
+        $newTile->setCoordX(0);
+        $newTile->setCoordY(0);
+        $this->entityManager->persist($newTile);
+        $tileType = new TileTypeMYR();
+        $tileType->setType(MyrmesParameters::$PHEROMONE_TYPE_ZERO);
+        $tileType->setOrientation(2);
+        $this->entityManager->persist($tileType);
+        $pheromone = new PheromonMYR();
+        $pheromone->setType($tileType);
+        $pheromone->setPlayer($firstPlayer);
+        $pheromone->setHarvested(false);
+        $this->entityManager->persist($pheromone);
+        $gardenWorker = new GardenWorkerMYR();
+        $gardenWorker->setPlayer($firstPlayer);
+        $gardenWorker->setTile($tile);
+        $gardenWorker->setMainBoardMYR($game->getMainBoardMYR());
+        $gardenWorker->setShiftsCount(0);
+        $this->entityManager->persist($gardenWorker);
+        $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
+        $this->entityManager->persist($game);
+        $this->entityManager->flush();
+        // WHEN
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $pheromone);
+        // THEN
+        $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
+    }
+
     private function createGame(int $numberOfPlayers) : GameMYR
     {
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);
