@@ -34,7 +34,7 @@ class WinterMYRServiceTest extends TestCase
             ->setConstructorArgs([$managerRegistry])
             ->getMock();
         $food = new ResourceMYR();
-        $food->setDescription(MyrmesParameters::$RESOURCE_TYPE_GRASS);
+        $food->setDescription(MyrmesParameters::RESOURCE_TYPE_GRASS);
         $resourceMYRRepository->method("findOneBy")->willReturn($food);
         $playerResourceMYRRepository = $this->getMockBuilder(PlayerResourceMYRRepository::class)
             ->setConstructorArgs([$managerRegistry])
@@ -63,8 +63,8 @@ class WinterMYRServiceTest extends TestCase
 
     private function createGame(int $numberOfPlayers) : GameMYR
     {
-        if($numberOfPlayers < MyrmesParameters::$MIN_NUMBER_OF_PLAYER ||
-            $numberOfPlayers > MyrmesParameters::$MAX_NUMBER_OF_PLAYER) {
+        if($numberOfPlayers < MyrmesParameters::MIN_NUMBER_OF_PLAYER ||
+            $numberOfPlayers > MyrmesParameters::MAX_NUMBER_OF_PLAYER) {
             throw new \Exception("TOO MUCH PLAYERS ON CREATE GAME");
         }
         $game = new GameMYR();
@@ -74,20 +74,20 @@ class WinterMYRServiceTest extends TestCase
             $player->setGameMyr($game);
             $personalBoard = new PersonalBoardMYR();
             $resource = new ResourceMYR();
-            $resource->setDescription(MyrmesParameters::$RESOURCE_TYPE_GRASS);
+            $resource->setDescription(MyrmesParameters::RESOURCE_TYPE_GRASS);
             $playerFood = new PlayerResourceMYR();
             $playerFood->setQuantity(4);
             $playerFood->setResource($resource);
             $playerFood->setPersonalBoard($personalBoard);
             $personalBoard->addPlayerResourceMYR($playerFood);
             $player->setPersonalBoardMYR($personalBoard);
-            for($j = 0; $j < MyrmesParameters::$START_NURSES_COUNT_PER_PLAYER; $j += 1) {
+            for($j = 0; $j < MyrmesParameters::START_NURSES_COUNT_PER_PLAYER; $j += 1) {
                 $nurse = new NurseMYR();
                 $personalBoard->addNurse($nurse);
             }
         }
         $mainBoard = new MainBoardMYR();
-        $mainBoard->setYearNum(MyrmesParameters::$FIRST_YEAR_NUM);
+        $mainBoard->setYearNum(MyrmesParameters::FIRST_YEAR_NUM);
         $game->setMainBoardMYR($mainBoard);
         return $game;
     }
