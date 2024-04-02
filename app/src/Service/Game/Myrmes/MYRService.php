@@ -23,10 +23,6 @@ use App\Repository\Game\Myrmes\TileTypeMYRRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 
-
-/**
- * @codeCoverageIgnore
- */
 class MYRService
 {
 
@@ -38,6 +34,16 @@ class MYRService
                 private readonly SeasonMYRRepository $seasonMYRRepository)
     {
 
+    }
+
+    /**
+     * isInPhase : checks if player phase is equal to the phase
+     * @param PlayerMYR $playerMYR
+     * @param int $phase
+     * @return bool
+     */
+    public function isInPhase(PlayerMYR $playerMYR, int $phase): bool {
+        return $playerMYR->getPhase() == $phase;
     }
 
     /**
@@ -444,14 +450,15 @@ class MYRService
      * @param PlayerMYR $playerMYR
      * @param GameGoalMYR $goalMYR
      * @return void
+     * @throws Exception
      */
-    public function doGameGoal(PlayerMYR $playerMYR, GameGoalMYR $goalMYR)
+    public function doGameGoal(PlayerMYR $playerMYR, GameGoalMYR $goalMYR): void
     {
         if(!$this->canDoGoal($playerMYR, $goalMYR)) {
             throw new Exception("Player can't do goal");
         }
         // TODO : COMPUTE GOAL COSTS
-        $this->computePlayerRewardPointsWithGoal($playerMYR, $goalMYR->getGoal());
+        $this->computePlayerRewardPointsWithGoal($playerMYR, $goalMYR);
     }
 
     /**
@@ -482,21 +489,19 @@ class MYRService
     /**
      * computePlayerRewardPointsWithGoal : Computes and gives Player points related to the goal
      * @param PlayerMYR $playerMYR
-     * @param GoalMYR $goalMYR
+     * @param GameGoalMYR $goalMYR
      * @return void
      */
-    private function computePlayerRewardPointsWithGoal(PlayerMYR $playerMYR, GoalMYR $goalMYR) : void
+    private function computePlayerRewardPointsWithGoal(PlayerMYR $playerMYR, GameGoalMYR $goalMYR) : void
     {
-        $gameGoals = $playerMYR->getGameGoalMYRs();
-        foreach ($gameGoals as $gameGoal) {
-            if($gameGoal->getGoal() === $goalMYR) {
-                foreach ($gameGoal->getPrecedentsPlayers() as $player) {
-                    $player->setScore($player->getScore() +
-                        MyrmesParameters::$GOAL_REWARD_WHEN_GOAL_ALREADY_DONE);
-                }
-            }
+        $precedentPlayers = $goalMYR->getPrecedentsPlayers();
+        foreach ($precedentPlayers as $player) {
+            $player->setScore($player->getScore() +
+                MyrmesParameters::$GOAL_REWARD_WHEN_GOAL_ALREADY_DONE);
+            $this->entityManager->persist($player);
         }
-        switch ($goalMYR->getDifficulty()) {
+        $gameGoals = $playerMYR->getGameGoalMYRs();
+        switch ($goalMYR->getGoal()->getDifficulty()) {
             case MyrmesParameters::$GOAL_DIFFICULTY_LEVEL_ONE :
                 $playerMYR->setScore($playerMYR->getScore() + MyrmesParameters::$GOAL_REWARD_LEVEL_ONE);
                 break;
@@ -507,31 +512,9 @@ class MYRService
                 $playerMYR->setScore($playerMYR->getScore() + MyrmesParameters::$GOAL_REWARD_LEVEL_THREE);
                 break;
         }
-        $this->addPlayerToOtherPlayersGoal($playerMYR, $goalMYR);
+        $goalMYR->addPrecedentsPlayer($playerMYR);
         $this->entityManager->persist($playerMYR);
         $this->entityManager->flush();
-    }
-
-    /**
-     * addPlayerToOtherPlayersGoal : add the player to the others players goal list
-     * @param PlayerMYR $playerMYR
-     * @param GoalMYR $goalMYR
-     * @return void
-     */
-    private function addPlayerToOtherPlayersGoal(PlayerMYR $playerMYR, GoalMYR $goalMYR) : void
-    {
-        $game = $playerMYR->getGameMyr();
-        foreach ($game->getPlayers() as $player) {
-            if($player !== $playerMYR) {
-                $playerGameGoals = $player->getGameGoalMYRs();
-                foreach ($playerGameGoals as $playerGameGoal) {
-                    if($playerGameGoal->getGoal() === $goalMYR) {
-                        $playerGameGoal->addPrecedentsPlayer($player);
-                    }
-                    $this->entityManager->persist($playerGameGoal);
-                }
-            }
-        }
     }
 
     /**
@@ -566,13 +549,13 @@ class MYRService
     {
         $actualSeason = $this->getActualSeason($game);
         $mainBoard = $game->getMainBoardMYR();
-        $fall = $this->seasonMYRRepository->findOneBy(["mainBoard" => $mainBoard, "name" => MyrmesParameters::$FALL_SEASON_NAME]);
-        $summer = $this->seasonMYRRepository->findOneBy(["mainBoard" => $mainBoard, "name" => MyrmesParameters::$SUMMER_SEASON_NAME]);
-        $winter = $this->seasonMYRRepository->findOneBy(["mainBoard" => $mainBoard, "name" => MyrmesParameters::$WINTER_SEASON_NAME]);
         if ($actualSeason->getName() === MyrmesParameters::$WINTER_SEASON_NAME) {
             $this->initializeNewYear($game);
             return;
         }
+        $fall = $this->seasonMYRRepository->findOneBy(["mainBoard" => $mainBoard, "name" => MyrmesParameters::$FALL_SEASON_NAME]);
+        $summer = $this->seasonMYRRepository->findOneBy(["mainBoard" => $mainBoard, "name" => MyrmesParameters::$SUMMER_SEASON_NAME]);
+        $winter = $this->seasonMYRRepository->findOneBy(["mainBoard" => $mainBoard, "name" => MyrmesParameters::$WINTER_SEASON_NAME]);
         if ($actualSeason->getName() === MyrmesParameters::$SPRING_SEASON_NAME) {
             $summer->setActualSeason(true);
             $this->entityManager->persist($summer);
@@ -603,7 +586,7 @@ class MYRService
         $this->clearSeasons($game);
         $yearNum = $game->getMainBoardMYR()->getYearNum();
         if ($yearNum === MyrmesParameters::$THIRD_YEAR_NUM) {
-            // TODO ?
+            return;
         }
         $game->getMainBoardMYR()->setYearNum($yearNum + 1);
         $this->initializeNewSeason($game, MyrmesParameters::$SPRING_SEASON_NAME);
@@ -611,6 +594,7 @@ class MYRService
         $this->initializeNewSeason($game, MyrmesParameters::$FALL_SEASON_NAME);
         $spring = $this->seasonMYRRepository->findOneBy(["mainBoard" => $game->getMainBoardMYR(), "name" => MyrmesParameters::$SPRING_SEASON_NAME]);
         $spring->setActualSeason(true);
+        $this->entityManager->persist($game->getMainBoardMYR());
         $this->entityManager->persist($spring);
         $this->entityManager->persist($game);
         $this->entityManager->flush();
@@ -631,4 +615,5 @@ class MYRService
         $this->entityManager->persist($game->getMainBoardMYR());
         $this->entityManager->flush();
     }
+
 }

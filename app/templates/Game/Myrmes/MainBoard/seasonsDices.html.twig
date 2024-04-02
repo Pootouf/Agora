@@ -9,14 +9,25 @@ This section displays seasons dices.
 
 {# Definition of constants and variables #}
 {% set height = 'h-[6vw]' %}
+{% set arrow = 'h-[3vw] -rotate-90' %}
+{% set seasonDiv = 'inlineFlex gap-[1vw] items-center' %}
 
-<div class="inlineFlexCol gap-[2.5vw] h-fit">
-    {#spring dice#}
-    <img class="{{ height }}" src="{{ asset('resourcesGames/Myrmes/seasonsDices/spring/springDice2.svg') }}" alt="spring dice 2">
-    {#summer dice#}
-    <img class="{{ height }}" src="{{ asset('resourcesGames/Myrmes/seasonsDices/summer/summerDice4.svg') }}" alt="spring dice 6">
-    {#fall dice#}
-    <img class="{{ height }}" src="{{ asset('resourcesGames/Myrmes/seasonsDices/fall/fallDice6.svg') }}" alt="fall dice 6">
+{% set seasons = game.mainBoardMYR.seasons %}
+
+<div class="inlineFlexCol gap-[2.5vw] h-fit items-start">
+    {#year dices (spring to fall)#}
+    {% for season in seasons %}
+        <div class="{{ seasonDiv }}">
+            <img class="{{ height }}"
+                 src="{{ asset('resourcesGames/Myrmes/seasonsDices/' ~ season.name ~ '/' ~ season.name ~ 'Dice' ~ season.diceResult ~ '.svg') }}"
+                 alt="{{ season.name }} dice {{ season.diceResult }}">
+            {% if season.actualSeason %}
+                <img class="{{ arrow }}"
+                     src="{{ asset('resourcesGames/Myrmes/myrmesArrow.svg') }}"
+                     alt="actual season {{ season.name }}">
+            {% endif %}
+        </div>
+    {% endfor %}
     {#winter dice#}
     <img class="{{ height }}" src="{{ asset('resourcesGames/Myrmes/seasonsDices/winter/winterDice.svg') }}" alt="winter information">
 </div>

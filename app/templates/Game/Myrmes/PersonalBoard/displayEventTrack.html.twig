@@ -3,6 +3,8 @@ This section displays the event track which the player can see and change the se
 @param :
 @return :
 #}
+{% set playerColor = player.color %}
+<div class="shadow-yellow-800 shadow-blue-800 shadow-gray-800 shadow-red-800" hidden></div>
 <div class="inline-flex flex-col w-full h-[3vw] ml-3" id="eventTrack">
     <div class="inlineFlex w-full gap-[0.4vw]" id="eventTrackDices">
         {#button to move event track bonus selector to left#}
@@ -22,9 +24,12 @@ This section displays the event track which the player can see and change the se
         {% for i in 0..7 %}
             <div class="inlineFlexCol gap-[0.2vw] items-center h-full">
                 {#event track dices#}
-                <img class="w-full"
-                     src="{{ asset('resourcesGames/Myrmes/personalBoard/dices/dice' ~ i ~ '.svg') }}"
-                     alt="dice {{ i }}">
+                <div class="size-full
+                    {% if i == player.personalBoardMYR.bonus %}shadow-lg shadow-{{ playerColor }}-800{% endif %}">
+                    <img class="w-full"
+                         src="{{ asset('resourcesGames/Myrmes/personalBoard/dices/dice' ~ i ~ '.svg') }}"
+                         alt="dice {{ i }}">
+                </div>
                 {#event track bonus#}
                 <img class="{% if isPreview %}h-[2vw]{% else %}h-[3vw]{% endif %}"
                      src="{{ asset('resourcesGames/Myrmes/personalBoard/eventBonus/eventBonus' ~ i ~ '.svg') }}"
