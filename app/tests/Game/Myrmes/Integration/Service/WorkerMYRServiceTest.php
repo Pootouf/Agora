@@ -4,6 +4,7 @@ namespace App\Tests\Game\Myrmes\Integration\Service;
 
 use App\Entity\Game\Myrmes\AnthillHoleMYR;
 use App\Entity\Game\Myrmes\GameMYR;
+use App\Entity\Game\Myrmes\GardenWorkerMYR;
 use App\Entity\Game\Myrmes\MainBoardMYR;
 use App\Entity\Game\Myrmes\MyrmesParameters;
 use App\Entity\Game\Myrmes\NurseMYR;
@@ -23,10 +24,12 @@ class WorkerMYRServiceTest extends KernelTestCase
 {
 
     private EntityManagerInterface $entityManager;
+    private WorkerMYRService $workerMYRService;
 
     protected function setUp() : void
     {
         $this->entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $this->workerMYRService = static::getContainer()->get(WorkerMYRService::class);
     }
 
     public function testPlaceAnthillHoleWhenPlaceIsAvailable()
@@ -125,6 +128,45 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->expectException(\Exception::class);
         // WHEN
         $workerMYRService->placeAnthillHole($player, $tile);
+    }
+
+    public function testPlacePheromoneOfTypeZeroShouldReturnSuccess()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $tile = new TileMYR();
+        $tile->setType(MyrmesParameters::$DIRT_TILE_TYPE);
+        $tile->setCoordX(0);
+        $tile->setCoordY(0);
+        $this->entityManager->persist($tile);
+        $newTile = new TileMYR();
+        $newTile->setType(MyrmesParameters::$GRASS_TILE_TYPE);
+        $newTile->setCoordX(1);
+        $newTile->setCoordY(1);
+        $this->entityManager->persist($newTile);
+        $tileType = new TileTypeMYR();
+        $tileType->setType(MyrmesParameters::$PHEROMONE_TYPE_ZERO);
+        $tileType->setOrientation(0);
+        $this->entityManager->persist($tileType);
+        $pheromone = new PheromonMYR();
+        $pheromone->setType($tileType);
+        $pheromone->setPlayer($firstPlayer);
+        $pheromone->setHarvested(false);
+        $this->entityManager->persist($pheromone);
+        $gardenWorker = new GardenWorkerMYR();
+        $gardenWorker->setPlayer($firstPlayer);
+        $gardenWorker->setTile($tile);
+        $gardenWorker->setMainBoardMYR($game->getMainBoardMYR());
+        $gardenWorker->setShiftsCount(0);
+        $this->entityManager->persist($gardenWorker);
+        $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
+        $this->entityManager->persist($game);
+        $this->entityManager->flush();
+        // WHEN
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $pheromone);
+        // THEN
+        $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
 
     private function createGame(int $numberOfPlayers) : GameMYR
