@@ -28,7 +28,7 @@ class MessageService
      */
     public function sendMessage(int $playerId, int $gameId, string $content, string $authorUsername): int
     {
-        if ($content == null || $content == "" || $authorUsername == null || $authorUsername == "") {
+        if (empty($content) || empty($authorUsername)) {
             return -1;
         }
 
@@ -47,7 +47,7 @@ class MessageService
     /**
      * receiveMessage : return an array of message from a game
      * @param int $gameId the id of the game
-     * @return array of message from game
+     * @return array<Message> of message from game
      */
     public function receiveMessage(int $gameId): array
     {

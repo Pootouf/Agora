@@ -21,9 +21,10 @@ class LogService
 
     /**
      * sendPlayerLog : register in database the action performed by the player during the game
-     * @param : Game $game : the game in which the action occurred
-     * @param : Player $player : the player who did the action
-     * @param : String $message : the action performed
+     *
+     * @param Game   $game
+     * @param Player $player
+     * @param String $message
      */
     public function sendPlayerLog(Game $game, Player $player, String $message) : void
     {
@@ -32,8 +33,9 @@ class LogService
 
     /**
      * sendSystemLog : register in database the action performed by the system during the game
-     * @param : Game $game : the game in which the action occurred
-     * @param : String $message : the action performed
+     *
+     * @param Game   $game
+     * @param String $message
      */
     public function sendSystemLog(Game $game, String $message) : void
     {
@@ -42,10 +44,12 @@ class LogService
 
     /**
      * sendLog : register in database the action performed by the player during the game
-     * @param : Game $game : the game in which the action occurred
-     * @param : Player $player : the player who did the action
-     * @param : String $gameLabel : the name of the game
-     * @param : String $message : the action performed
+     *
+     * @param int    $gameId
+     * @param int    $playerId
+     * @param String $gameLabel
+     * @param String $message
+     * @throws \Exception
      */
     private function sendLog(int $gameId, int $playerId, String $gameLabel, String $message) : void
     {
