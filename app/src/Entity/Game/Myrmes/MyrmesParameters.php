@@ -2,7 +2,7 @@
 
 namespace App\Entity\Game\Myrmes;
 
-class MyrmesParameters
+interface MyrmesParameters
 {
     // GAME
 
