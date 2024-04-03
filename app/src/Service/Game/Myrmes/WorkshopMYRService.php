@@ -85,7 +85,7 @@ class WorkshopMYRService
         if ($player->getPhase() != MyrmesParameters::PHASE_WORKSHOP) {
             return false;
         }
-        return $this->MYRService->getNursesAtPosition($player, $workshopArea) >= 0;
+        return $this->MYRService->getNursesAtPosition($player, $workshopArea)->count() > 0;
     }
 
     /**
@@ -156,9 +156,11 @@ class WorkshopMYRService
     }
 
     /**
-     * Manage all change driven by add anthill hole
-     * @param int $nursesCount
+     * manageAnthillHole : Manage all change driven by add anthill hole
+     *
+     * @param int       $nursesCount
      * @param PlayerMYR $player
+     * @param TileMYR   $tile
      * @return void
      * @throws Exception
      */
@@ -188,7 +190,7 @@ class WorkshopMYRService
     /**
      * Check if player can increase anthill level
      * @param PlayerMYR $player
-     * @param array $requestResources
+     * @param array<Int> $requestResources
      * @return bool
      */
     private function canIncreaseLevel(PlayerMYR $player, array $requestResources) : bool
@@ -220,7 +222,7 @@ class WorkshopMYRService
     /**
      * Get buy about start anthill level
      * @param int $level
-     * @return array
+     * @return array<Int>
      * @throws Exception
      */
     private function getBuyForLevel(int $level) : array

@@ -33,8 +33,7 @@ use Psr\Log\LoggerInterface;
 class DataManagementMYRService
 {
 
-    public function __construct(private readonly TileMYRRepository $tileMYRRepository,
-                                private readonly AnthillHoleMYRRepository $anthillHoleMYRRepository,
+    public function __construct(private readonly AnthillHoleMYRRepository $anthillHoleMYRRepository,
                                 private readonly PreyMYRRepository $preyMYRRepository,
                                 private readonly GardenWorkerMYRRepository $gardenWorkerMYRRepository,
                                 private readonly PheromonTileMYRRepository $pheromonTileMYRRepository)
@@ -45,7 +44,7 @@ class DataManagementMYRService
      * organizeMainBoardRows : return a collection of rows, a row is a collection of tiles or null.
      *  It represents each row of the main board from top to bottom.
      * @param GameMYR $game
-     * @return Collection
+     * @return Collection<Int, ArrayCollection<Int, BoardBoxMYR>>
      * @throws \Exception
      */
     public function organizeMainBoardRows(GameMYR $game) : Collection

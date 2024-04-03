@@ -96,9 +96,11 @@ class MYRService
      */
     public function getPhermononesFromType(int $type) : ArrayCollection
     {
-        return new ArrayCollection($this->tileTypeMYRRepository->findBy(
+        /** @var array<TileTypeMYR> $result */
+        $result = $this->tileTypeMYRRepository->findBy(
             ["type" => $type]
-        ));
+        );
+        return new ArrayCollection($result);
     }
 
     /**
@@ -124,7 +126,7 @@ class MYRService
     /**
      * getDiceResults : get dice results for all season
      * @param GameMYR $game
-     * @return ArrayCollection<
+     * @return ArrayCollection<String, Int>
      */
     public function getDiceResults(GameMYR $game) : ArrayCollection
     {
@@ -269,7 +271,7 @@ class MYRService
      * initializePrey: initialize one prey of the game
      * @param GameMYR $game
      * @param string $type
-     * @param array $position
+     * @param array<Int, Int> $position
      * @return void
      */
     private function initializePrey(GameMYR $game, string $type, array $position) : void
@@ -342,7 +344,7 @@ class MYRService
     /**
      * initializeAnthillHoleForPlayer: create and initialize a new anthill hole for the player at the selected position
      * @param PlayerMYR $player
-     * @param array $position
+     * @param array<Int, Int> $position
      * @return void
      */
     private function initializeAnthillHoleForPlayer(PlayerMYR $player, array $position) : void
@@ -421,10 +423,11 @@ class MYRService
      * getNursesAtPosition : return nurses which is in $position
      * @param PlayerMYR $player
      * @param int $position
-     * @return ArrayCollection
+     * @return ArrayCollection<Int, NurseMYR>
      */
     public function getNursesAtPosition(PlayerMYR $player, int $position): ArrayCollection
     {
+        /** @var array<NurseMYR> $nurses */
         $nurses =  $this->nurseMYRRepository->findBy(["area" => $position,
             "player" => $player]);
         return new ArrayCollection($nurses);

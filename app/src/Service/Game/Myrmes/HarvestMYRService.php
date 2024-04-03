@@ -12,8 +12,7 @@ use Exception;
  */
 class HarvestMYRService
 {
-    public function __construct(private readonly EntityManagerInterface $entityManager,
-                                private readonly MYRService $MYRService)
+    public function __construct(private readonly EntityManagerInterface $entityManager)
     {}
 
     /**
@@ -41,7 +40,7 @@ class HarvestMYRService
                     $tile->setResource(null);
                     $playerResources = $playerMYR->getPersonalBoardMYR()->getPlayerResourceMYRs();
                     foreach ($playerResources as $playerResource) {
-                        if($playerResource === $resource) {
+                        if($playerResource->getResource() === $resource) {
                             $playerResource->setQuantity($playerResource->getQuantity() + 1);
                             $playerPheromone->setHarvested(true);
                             $this->entityManager->persist($playerResource);

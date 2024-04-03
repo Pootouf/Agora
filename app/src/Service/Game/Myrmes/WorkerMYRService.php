@@ -42,7 +42,7 @@ class WorkerMYRService
     /**
      * getAvailablePheromones : returns a collection of couples (type, amount) of all tile types for a player
      * @param PlayerMYR $playerMYR
-     * @return ArrayCollection
+     * @return ArrayCollection<Int, Int>
      */
     public function getAvailablePheromones(PlayerMYR $playerMYR) : ArrayCollection
     {
@@ -870,12 +870,15 @@ class WorkerMYRService
             case MyrmesParameters::PHEROMONE_TYPE_ZERO:
                 $pheromoneSize = 2;
                 break;
-            case MyrmesParameters::PHEROMONE_TYPE_ONE || MyrmesParameters::PHEROMONE_TYPE_TWO ||
-                    MyrmesParameters::SPECIAL_TILE_TYPE_FARM || MyrmesParameters::SPECIAL_TILE_TYPE_QUARRY:
+            case MyrmesParameters::PHEROMONE_TYPE_ONE:
+            case MyrmesParameters::PHEROMONE_TYPE_TWO:
+            case MyrmesParameters::SPECIAL_TILE_TYPE_FARM:
+            case MyrmesParameters::SPECIAL_TILE_TYPE_QUARRY:
                 $pheromoneSize = 3;
                 break;
-            case MyrmesParameters::PHEROMONE_TYPE_THREE || MyrmesParameters::PHEROMONE_TYPE_FOUR ||
-                    MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL:
+            case MyrmesParameters::PHEROMONE_TYPE_THREE:
+            case MyrmesParameters::PHEROMONE_TYPE_FOUR:
+            case MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL:
                 $pheromoneSize = 4;
                 break;
             case MyrmesParameters::PHEROMONE_TYPE_FIVE:
@@ -965,7 +968,7 @@ class WorkerMYRService
 
     /**
      * tryToPlacePheromone : tries to place a pheromone
-     * @param array       $coords all the coords of the neighbors tiles of the asked tile
+     * @param array<Int, array<Int, Int>>       $coords all the coords of the neighbors tiles of the asked tile
      * @param GameMYR     $game
      * @param PlayerMYR   $player
      * @param TileTypeMYR $tileType

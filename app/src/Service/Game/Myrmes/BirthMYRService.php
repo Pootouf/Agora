@@ -82,6 +82,12 @@ class BirthMYRService
         $this->entityManager->flush();
     }
 
+    /**
+     * getGainByCountNurse : returns the gain the player gets from his nurses amount
+     * @param array<Int> $gainsByCountNurse
+     * @param int   $countNurse
+     * @return int
+     */
     private function getGainByCountNurse(array $gainsByCountNurse, int $countNurse) : int
     {
         $isWin = array_key_exists($countNurse, $gainsByCountNurse);
