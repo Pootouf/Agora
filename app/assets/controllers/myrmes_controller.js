@@ -19,13 +19,19 @@ export default class extends Controller  {
         const response = await fetch(url);
     }
 
+    async placeNurseOnWorkshop(position) {
+        let url = position.params.url;
+        const response = await fetch(url);
+    }
+
     async confirmNursesPlacement(confirm) {
         let url = confirm.params.url;
         const response = await fetch(url);
     }
 
-    placeNurseOnWorkshop() {
-        alert("workshop");
+    async cancelNursesPlacement(confirm) {
+        let url = confirm.params.url;
+        const response = await fetch(url);
     }
 
     //move on event track
@@ -53,6 +59,16 @@ export default class extends Controller  {
 
     async showPersonalBoard(main)  {
         let url = main.params.url;
+        const response = await fetch(url);
+        let tree = document.getElementById("index_myrmes");
+        let placeholder = document.createElement("div");
+        placeholder.innerHTML = await response.text();
+        const node = placeholder.firstElementChild;
+        tree.appendChild(node);
+    }
+
+    async displayBoxActions(boardBox) {
+        let url = boardBox.params.url
         const response = await fetch(url);
         let tree = document.getElementById("index_myrmes");
         let placeholder = document.createElement("div");

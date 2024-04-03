@@ -32,7 +32,7 @@ class BirthMYRService
         if(!$nurseMYR->isAvailable()) {
             throw new Exception("NURSE NOT AVAILABLE");
         }
-        $nurseMYR->setPosition($newPosition);
+        $nurseMYR->setArea($newPosition);
         $this->entityManager->persist($nurseMYR);
         $this->entityManager->flush();
     }
@@ -45,18 +45,18 @@ class BirthMYRService
      */
     public function giveBirthBonus(PlayerMYR $player) : void
     {
-        for ($i = 1; $i < MyrmesParameters::$AREA_COUNT; $i += 1)
+        for ($i = 1; $i < MyrmesParameters::AREA_COUNT; $i += 1)
         {
             $nurses = $this->MYRService->getNursesAtPosition($player ,$i);
             $nursesCount = $nurses->count();
             switch ($i) {
-                case MyrmesParameters::$LARVAE_AREA:
+                case MyrmesParameters::LARVAE_AREA:
                     $this->manageLarvae($player, $nursesCount);
                     break;
-                case MyrmesParameters::$SOLDIERS_AREA:
+                case MyrmesParameters::SOLDIERS_AREA:
                     $this->manageSoldiers($player, $nursesCount);
                     break;
-                case MyrmesParameters::$WORKER_AREA:
+                case MyrmesParameters::WORKER_AREA:
                     $this->manageWorker($player, $nursesCount);
                     break;
                 default:
@@ -64,6 +64,22 @@ class BirthMYRService
             }
             $this->entityManager->flush();
         }
+    }
+
+    /**
+     * cancelNursesPlacement : cancel the nurses placement on the birth tracks or workshop
+     * @param PlayerMYR $playerMYR
+     * @return void
+     */
+    public function cancelNursesPlacement(PlayerMYR $playerMYR): void
+    {
+        $nurses = $playerMYR->getPersonalBoardMYR()->getNurses();
+        foreach($nurses as $nurse) {
+            $nurse->setArea(MyrmesParameters::BASE_AREA);
+            $this->entityManager->persist($nurse);
+        }
+        $this->entityManager->persist($playerMYR->getPersonalBoardMYR());
+        $this->entityManager->flush();
     }
 
     private function getGainByCountNurse(array $gainsByCountNurse, int $countNurse) : int
@@ -82,18 +98,20 @@ class BirthMYRService
     private function manageLarvae(PlayerMYR $player, int $nursesCount) : void
     {
         $winLarvae = $this->getGainByCountNurse(
-            MyrmesParameters::$WIN_LARVAE_BY_NURSES_COUNT,
+            MyrmesParameters::WIN_LARVAE_BY_NURSES_COUNT,
             $nursesCount
         );
+
         $personalBoard = $player->getPersonalBoardMYR();
         $personalBoard->setLarvaCount($personalBoard->getLarvaCount() + $winLarvae);
         $this->entityManager->persist($personalBoard);
+
         if ($winLarvae != 0)
         {
             $this->MYRService->manageNursesAfterBonusGive(
                 $player,
                 $nursesCount,
-                MyrmesParameters::$LARVAE_AREA
+                MyrmesParameters::LARVAE_AREA
             );
         }
     }
@@ -108,13 +126,16 @@ class BirthMYRService
     private function manageSoldiers(PlayerMYR $player, int $nursesCount) : void
     {
         $winSoldiers = $this->getGainByCountNurse(
-            MyrmesParameters::$WIN_SOLDIERS_BY_NURSES_COUNT,
+            MyrmesParameters::WIN_SOLDIERS_BY_NURSES_COUNT,
             $nursesCount
         );
+
         $personalBoard = $player->getPersonalBoardMYR();
         $oldCountSoldiers = $personalBoard->getWarriorsCount();
         $newCountSoldiers = $oldCountSoldiers + $winSoldiers;
+
         $personalBoard->setWarriorsCount($newCountSoldiers);
+
         $this->entityManager->persist($personalBoard);
 
         if ($winSoldiers != 0)
@@ -122,7 +143,7 @@ class BirthMYRService
             $this->MYRService->manageNursesAfterBonusGive(
                 $player,
                 $nursesCount,
-                MyrmesParameters::$SOLDIERS_AREA
+                MyrmesParameters::SOLDIERS_AREA
             );
         }
     }
@@ -137,25 +158,30 @@ class BirthMYRService
     private function manageWorker(PlayerMYR $player, int $nursesCount) : void
     {
         $winWorker = $this->getGainByCountNurse(
-            MyrmesParameters::$WIN_WORKERS_BY_NURSES_COUNT,
+            MyrmesParameters::WIN_WORKERS_BY_NURSES_COUNT,
             $nursesCount
         );
 
         $personalBoard = $player->getPersonalBoardMYR();
+
         for ($count = 0; $count < $winWorker; $count++)
         {
             $worker = new AnthillWorkerMYR();
+            $worker->setPlayer($player);
+            $worker->setWorkFloor(-1); // TODO use parameters
+
             $personalBoard->addAnthillWorker($worker);
             $this->entityManager->persist($worker);
-            $this->entityManager->persist($personalBoard);
         }
+
+        $this->entityManager->persist($personalBoard);
 
         if ($winWorker != 0)
         {
             $this->MYRService->manageNursesAfterBonusGive(
                 $player,
                 $nursesCount,
-                MyrmesParameters::$WORKER_AREA
+                MyrmesParameters::WORKER_AREA
             );
         }
     }

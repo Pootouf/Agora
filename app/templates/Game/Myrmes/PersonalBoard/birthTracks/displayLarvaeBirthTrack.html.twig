@@ -23,7 +23,7 @@ This section displays the birth track for larvae.
                                     black
                                 {% elseif nursesOnLarvaeBirthTrack >= 3 %}
                                     {{ player.color }}
-                                {% endif %}"/>
+                                {% endif %}"></polygon>
                     {% if nursesOnLarvaeBirthTrack < 3 %}
                         <text x="95" y="220" fill="white" class="text-[10vw] font-extrabold">2</text>
                     {% endif %}
@@ -37,7 +37,7 @@ This section displays the birth track for larvae.
                                     black
                                 {% elseif nursesOnLarvaeBirthTrack >= 2 %}
                                     {{ player.color }}
-                                {% endif %}"/>
+                                {% endif %}"></polygon>
                     {% if nursesOnLarvaeBirthTrack < 2 %}
                         <text x="95" y="220" fill="white" class="text-[10vw] font-extrabold">2</text>
                     {% endif %}
@@ -51,22 +51,25 @@ This section displays the birth track for larvae.
                                     black
                                 {% elseif nursesOnLarvaeBirthTrack >= 1 %}
                                     {{ player.color }}
-                                {% endif %}"/>
+                                {% endif %}"></polygon>
                 </svg>
             </div>
         </div>
         {#button to place nurse on larvae birth track#}
         {% if not isPreview %}
         <div class="flex justify-center">
-            <button type="button" class="{{ placeButtonSize }}"
+            <{% if playerPhase == PHASE_BIRTH %}button {% else %}div{% endif%}
+                    type="button" class="{{ placeButtonSize }}"
+                    {% if playerPhase == PHASE_BIRTH %}
                     {{ stimulus_action('myrmes','placeNurseOnLarvaeTrack','click',
                         {url: path('app_game_myrmes_place_nurse', {gameId: game.id, position: LARVAE_BIRTH_TRACK_POSITION})})
                     }}
+                    {% endif %}
             >
                 <img id="larvaeButton"
                      src="{{ asset('resourcesGames/Myrmes/myrmesArrow.svg') }}"
                      alt="place larvae"/>
-            </button>
+            </{% if playerPhase == PHASE_BIRTH %}button {% else %}div{% endif%}>
         </div>
         {% endif %}
     </div>
