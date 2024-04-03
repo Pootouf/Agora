@@ -95,7 +95,7 @@ class WorkshopMYRService
      */
     private function playerReachedAnthillHoleLimit(PlayerMYR $player) : bool
     {
-        return $player->getAnthillHoleMYRs()->count() >= MyrmesParameters::$MAX_ANTHILL_HOLE_NB;
+        return $player->getAnthillHoleMYRs()->count() >= MyrmesParameters::MAX_ANTHILL_HOLE_NB;
     }
 
     /**
