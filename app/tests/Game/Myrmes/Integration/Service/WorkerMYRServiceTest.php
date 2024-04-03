@@ -2386,6 +2386,467 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
     }
 
+    public function testPlacePheromoneOfTypeSixWithOrientation0()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $firstPlayer->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::ANTHILL_LEVEL_THREE);
+        $firstPlayer->getPersonalBoardMYR()->setBonus(MyrmesParameters::BONUS_PHEROMONE);
+        $this->entityManager->persist($firstPlayer->getPersonalBoardMYR());
+        $tile = new TileMYR();
+        $tile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $tile->setCoordX(0);
+        $tile->setCoordY(0);
+        $this->entityManager->persist($tile);
+        $newTile = new TileMYR();
+        $newTile->setType(MyrmesParameters::GRASS_TILE_TYPE);
+        $newTile->setCoordX(1);
+        $newTile->setCoordY(1);
+        $this->entityManager->persist($newTile);
+        $newTile2 = new TileMYR();
+        $newTile2->setType(MyrmesParameters::GRASS_TILE_TYPE);
+        $newTile2->setCoordX(2);
+        $newTile2->setCoordY(2);
+        $this->entityManager->persist($newTile2);
+        $newTile3 = new TileMYR();
+        $newTile3->setType(MyrmesParameters::STONE_TILE_TYPE);
+        $newTile3->setCoordX(2);
+        $newTile3->setCoordY(0);
+        $this->entityManager->persist($newTile3);
+        $newTile4 = new TileMYR();
+        $newTile4->setType(MyrmesParameters::STONE_TILE_TYPE);
+        $newTile4->setCoordX(2);
+        $newTile4->setCoordY(-2);
+        $this->entityManager->persist($newTile4);
+        $newTile5 = new TileMYR();
+        $newTile5->setType(MyrmesParameters::STONE_TILE_TYPE);
+        $newTile5->setCoordX(1);
+        $newTile5->setCoordY(-1);
+        $this->entityManager->persist($newTile5);
+        $tileType = new TileTypeMYR();
+        $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_SIX);
+        $tileType->setOrientation(0);
+        $this->entityManager->persist($tileType);
+        $gardenWorker = new GardenWorkerMYR();
+        $gardenWorker->setPlayer($firstPlayer);
+        $gardenWorker->setTile($tile);
+        $gardenWorker->setMainBoardMYR($game->getMainBoardMYR());
+        $gardenWorker->setShiftsCount(0);
+        $this->entityManager->persist($gardenWorker);
+        $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
+        $this->entityManager->persist($game);
+        $this->entityManager->flush();
+        // WHEN
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        // THEN
+        $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
+    }
+
+    public function testPlacePheromoneOfTypeSixWithOrientation1()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $firstPlayer->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::ANTHILL_LEVEL_THREE);
+        $firstPlayer->getPersonalBoardMYR()->setBonus(MyrmesParameters::BONUS_PHEROMONE);
+        $this->entityManager->persist($firstPlayer->getPersonalBoardMYR());
+        $tile = new TileMYR();
+        $tile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $tile->setCoordX(0);
+        $tile->setCoordY(0);
+        $this->entityManager->persist($tile);
+        $newTile = new TileMYR();
+        $newTile->setType(MyrmesParameters::GRASS_TILE_TYPE);
+        $newTile->setCoordX(1);
+        $newTile->setCoordY(-1);
+        $this->entityManager->persist($newTile);
+        $newTile2 = new TileMYR();
+        $newTile2->setType(MyrmesParameters::GRASS_TILE_TYPE);
+        $newTile2->setCoordX(2);
+        $newTile2->setCoordY(-2);
+        $this->entityManager->persist($newTile2);
+        $newTile3 = new TileMYR();
+        $newTile3->setType(MyrmesParameters::STONE_TILE_TYPE);
+        $newTile3->setCoordX(1);
+        $newTile3->setCoordY(-3);
+        $this->entityManager->persist($newTile3);
+        $newTile4 = new TileMYR();
+        $newTile4->setType(MyrmesParameters::STONE_TILE_TYPE);
+        $newTile4->setCoordX(0);
+        $newTile4->setCoordY(-4);
+        $this->entityManager->persist($newTile4);
+        $newTile5 = new TileMYR();
+        $newTile5->setType(MyrmesParameters::STONE_TILE_TYPE);
+        $newTile5->setCoordX(0);
+        $newTile5->setCoordY(-2);
+        $this->entityManager->persist($newTile5);
+        $tileType = new TileTypeMYR();
+        $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_SIX);
+        $tileType->setOrientation(1);
+        $this->entityManager->persist($tileType);
+        $gardenWorker = new GardenWorkerMYR();
+        $gardenWorker->setPlayer($firstPlayer);
+        $gardenWorker->setTile($tile);
+        $gardenWorker->setMainBoardMYR($game->getMainBoardMYR());
+        $gardenWorker->setShiftsCount(0);
+        $this->entityManager->persist($gardenWorker);
+        $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
+        $this->entityManager->persist($game);
+        $this->entityManager->flush();
+        // WHEN
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        // THEN
+        $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
+    }
+
+    public function testPlacePheromoneOfTypeSixWithOrientation2()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $firstPlayer->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::ANTHILL_LEVEL_THREE);
+        $firstPlayer->getPersonalBoardMYR()->setBonus(MyrmesParameters::BONUS_PHEROMONE);
+        $this->entityManager->persist($firstPlayer->getPersonalBoardMYR());
+        $tile = new TileMYR();
+        $tile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $tile->setCoordX(0);
+        $tile->setCoordY(0);
+        $this->entityManager->persist($tile);
+        $newTile = new TileMYR();
+        $newTile->setType(MyrmesParameters::GRASS_TILE_TYPE);
+        $newTile->setCoordX(0);
+        $newTile->setCoordY(-2);
+        $this->entityManager->persist($newTile);
+        $newTile2 = new TileMYR();
+        $newTile2->setType(MyrmesParameters::GRASS_TILE_TYPE);
+        $newTile2->setCoordX(0);
+        $newTile2->setCoordY(-4);
+        $this->entityManager->persist($newTile2);
+        $newTile3 = new TileMYR();
+        $newTile3->setType(MyrmesParameters::STONE_TILE_TYPE);
+        $newTile3->setCoordX(-1);
+        $newTile3->setCoordY(-3);
+        $this->entityManager->persist($newTile3);
+        $newTile4 = new TileMYR();
+        $newTile4->setType(MyrmesParameters::STONE_TILE_TYPE);
+        $newTile4->setCoordX(-2);
+        $newTile4->setCoordY(-2);
+        $this->entityManager->persist($newTile4);
+        $newTile5 = new TileMYR();
+        $newTile5->setType(MyrmesParameters::STONE_TILE_TYPE);
+        $newTile5->setCoordX(-1);
+        $newTile5->setCoordY(-1);
+        $this->entityManager->persist($newTile5);
+        $tileType = new TileTypeMYR();
+        $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_SIX);
+        $tileType->setOrientation(2);
+        $this->entityManager->persist($tileType);
+        $gardenWorker = new GardenWorkerMYR();
+        $gardenWorker->setPlayer($firstPlayer);
+        $gardenWorker->setTile($tile);
+        $gardenWorker->setMainBoardMYR($game->getMainBoardMYR());
+        $gardenWorker->setShiftsCount(0);
+        $this->entityManager->persist($gardenWorker);
+        $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
+        $this->entityManager->persist($game);
+        $this->entityManager->flush();
+        // WHEN
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        // THEN
+        $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
+    }
+
+    public function testPlacePheromoneOfTypeSixWithOrientation3()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $firstPlayer->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::ANTHILL_LEVEL_THREE);
+        $firstPlayer->getPersonalBoardMYR()->setBonus(MyrmesParameters::BONUS_PHEROMONE);
+        $this->entityManager->persist($firstPlayer->getPersonalBoardMYR());
+        $tile = new TileMYR();
+        $tile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $tile->setCoordX(0);
+        $tile->setCoordY(0);
+        $this->entityManager->persist($tile);
+        $newTile = new TileMYR();
+        $newTile->setType(MyrmesParameters::GRASS_TILE_TYPE);
+        $newTile->setCoordX(-1);
+        $newTile->setCoordY(-1);
+        $this->entityManager->persist($newTile);
+        $newTile2 = new TileMYR();
+        $newTile2->setType(MyrmesParameters::GRASS_TILE_TYPE);
+        $newTile2->setCoordX(-2);
+        $newTile2->setCoordY(-2);
+        $this->entityManager->persist($newTile2);
+        $newTile3 = new TileMYR();
+        $newTile3->setType(MyrmesParameters::STONE_TILE_TYPE);
+        $newTile3->setCoordX(-2);
+        $newTile3->setCoordY(0);
+        $this->entityManager->persist($newTile3);
+        $newTile4 = new TileMYR();
+        $newTile4->setType(MyrmesParameters::STONE_TILE_TYPE);
+        $newTile4->setCoordX(-2);
+        $newTile4->setCoordY(2);
+        $this->entityManager->persist($newTile4);
+        $newTile5 = new TileMYR();
+        $newTile5->setType(MyrmesParameters::STONE_TILE_TYPE);
+        $newTile5->setCoordX(-1);
+        $newTile5->setCoordY(1);
+        $this->entityManager->persist($newTile5);
+        $tileType = new TileTypeMYR();
+        $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_SIX);
+        $tileType->setOrientation(3);
+        $this->entityManager->persist($tileType);
+        $gardenWorker = new GardenWorkerMYR();
+        $gardenWorker->setPlayer($firstPlayer);
+        $gardenWorker->setTile($tile);
+        $gardenWorker->setMainBoardMYR($game->getMainBoardMYR());
+        $gardenWorker->setShiftsCount(0);
+        $this->entityManager->persist($gardenWorker);
+        $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
+        $this->entityManager->persist($game);
+        $this->entityManager->flush();
+        // WHEN
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        // THEN
+        $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
+    }
+
+    public function testPlacePheromoneOfTypeSixWithOrientation4()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $firstPlayer->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::ANTHILL_LEVEL_THREE);
+        $firstPlayer->getPersonalBoardMYR()->setBonus(MyrmesParameters::BONUS_PHEROMONE);
+        $this->entityManager->persist($firstPlayer->getPersonalBoardMYR());
+        $tile = new TileMYR();
+        $tile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $tile->setCoordX(0);
+        $tile->setCoordY(0);
+        $this->entityManager->persist($tile);
+        $newTile = new TileMYR();
+        $newTile->setType(MyrmesParameters::GRASS_TILE_TYPE);
+        $newTile->setCoordX(-1);
+        $newTile->setCoordY(1);
+        $this->entityManager->persist($newTile);
+        $newTile2 = new TileMYR();
+        $newTile2->setType(MyrmesParameters::GRASS_TILE_TYPE);
+        $newTile2->setCoordX(-2);
+        $newTile2->setCoordY(2);
+        $this->entityManager->persist($newTile2);
+        $newTile3 = new TileMYR();
+        $newTile3->setType(MyrmesParameters::STONE_TILE_TYPE);
+        $newTile3->setCoordX(0);
+        $newTile3->setCoordY(2);
+        $this->entityManager->persist($newTile3);
+        $newTile4 = new TileMYR();
+        $newTile4->setType(MyrmesParameters::STONE_TILE_TYPE);
+        $newTile4->setCoordX(0);
+        $newTile4->setCoordY(4);
+        $this->entityManager->persist($newTile4);
+        $newTile5 = new TileMYR();
+        $newTile5->setType(MyrmesParameters::STONE_TILE_TYPE);
+        $newTile5->setCoordX(-1);
+        $newTile5->setCoordY(3);
+        $this->entityManager->persist($newTile5);
+        $tileType = new TileTypeMYR();
+        $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_SIX);
+        $tileType->setOrientation(4);
+        $this->entityManager->persist($tileType);
+        $gardenWorker = new GardenWorkerMYR();
+        $gardenWorker->setPlayer($firstPlayer);
+        $gardenWorker->setTile($tile);
+        $gardenWorker->setMainBoardMYR($game->getMainBoardMYR());
+        $gardenWorker->setShiftsCount(0);
+        $this->entityManager->persist($gardenWorker);
+        $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
+        $this->entityManager->persist($game);
+        $this->entityManager->flush();
+        // WHEN
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        // THEN
+        $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
+    }
+
+    public function testPlacePheromoneOfTypeSixWithOrientation5()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $firstPlayer->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::ANTHILL_LEVEL_THREE);
+        $firstPlayer->getPersonalBoardMYR()->setBonus(MyrmesParameters::BONUS_PHEROMONE);
+        $this->entityManager->persist($firstPlayer->getPersonalBoardMYR());
+        $tile = new TileMYR();
+        $tile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $tile->setCoordX(0);
+        $tile->setCoordY(0);
+        $this->entityManager->persist($tile);
+        $newTile = new TileMYR();
+        $newTile->setType(MyrmesParameters::GRASS_TILE_TYPE);
+        $newTile->setCoordX(0);
+        $newTile->setCoordY(2);
+        $this->entityManager->persist($newTile);
+        $newTile2 = new TileMYR();
+        $newTile2->setType(MyrmesParameters::GRASS_TILE_TYPE);
+        $newTile2->setCoordX(0);
+        $newTile2->setCoordY(4);
+        $this->entityManager->persist($newTile2);
+        $newTile3 = new TileMYR();
+        $newTile3->setType(MyrmesParameters::STONE_TILE_TYPE);
+        $newTile3->setCoordX(1);
+        $newTile3->setCoordY(3);
+        $this->entityManager->persist($newTile3);
+        $newTile4 = new TileMYR();
+        $newTile4->setType(MyrmesParameters::STONE_TILE_TYPE);
+        $newTile4->setCoordX(2);
+        $newTile4->setCoordY(2);
+        $this->entityManager->persist($newTile4);
+        $newTile5 = new TileMYR();
+        $newTile5->setType(MyrmesParameters::STONE_TILE_TYPE);
+        $newTile5->setCoordX(1);
+        $newTile5->setCoordY(1);
+        $this->entityManager->persist($newTile5);
+        $tileType = new TileTypeMYR();
+        $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_SIX);
+        $tileType->setOrientation(5);
+        $this->entityManager->persist($tileType);
+        $gardenWorker = new GardenWorkerMYR();
+        $gardenWorker->setPlayer($firstPlayer);
+        $gardenWorker->setTile($tile);
+        $gardenWorker->setMainBoardMYR($game->getMainBoardMYR());
+        $gardenWorker->setShiftsCount(0);
+        $this->entityManager->persist($gardenWorker);
+        $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
+        $this->entityManager->persist($game);
+        $this->entityManager->flush();
+        // WHEN
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        // THEN
+        $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
+    }
+
+    public function testPlacePheromoneOfTypeSixWithOrientationImpossible()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $firstPlayer->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::ANTHILL_LEVEL_THREE);
+        $firstPlayer->getPersonalBoardMYR()->setBonus(MyrmesParameters::BONUS_PHEROMONE);
+        $this->entityManager->persist($firstPlayer->getPersonalBoardMYR());
+        $tile = new TileMYR();
+        $tile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $tile->setCoordX(0);
+        $tile->setCoordY(0);
+        $this->entityManager->persist($tile);
+        $newTile = new TileMYR();
+        $newTile->setType(MyrmesParameters::GRASS_TILE_TYPE);
+        $newTile->setCoordX(0);
+        $newTile->setCoordY(2);
+        $this->entityManager->persist($newTile);
+        $newTile2 = new TileMYR();
+        $newTile2->setType(MyrmesParameters::GRASS_TILE_TYPE);
+        $newTile2->setCoordX(-1);
+        $newTile2->setCoordY(3);
+        $this->entityManager->persist($newTile2);
+        $newTile3 = new TileMYR();
+        $newTile3->setType(MyrmesParameters::STONE_TILE_TYPE);
+        $newTile3->setCoordX(-1);
+        $newTile3->setCoordY(1);
+        $this->entityManager->persist($newTile3);
+        $newTile4 = new TileMYR();
+        $newTile4->setType(MyrmesParameters::STONE_TILE_TYPE);
+        $newTile4->setCoordX(-1);
+        $newTile4->setCoordY(1);
+        $this->entityManager->persist($newTile4);
+        $newTile5 = new TileMYR();
+        $newTile5->setType(MyrmesParameters::STONE_TILE_TYPE);
+        $newTile5->setCoordX(1);
+        $newTile5->setCoordY(1);
+        $this->entityManager->persist($newTile5);
+        $tileType = new TileTypeMYR();
+        $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_SIX);
+        $tileType->setOrientation(6);
+        $this->entityManager->persist($tileType);
+        $gardenWorker = new GardenWorkerMYR();
+        $gardenWorker->setPlayer($firstPlayer);
+        $gardenWorker->setTile($tile);
+        $gardenWorker->setMainBoardMYR($game->getMainBoardMYR());
+        $gardenWorker->setShiftsCount(0);
+        $this->entityManager->persist($gardenWorker);
+        $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
+        $this->entityManager->persist($game);
+        $this->entityManager->flush();
+        // THEN
+        $this->expectException(\Exception::class);
+        // WHEN
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+    }
+
+    public function testPlacePheromoneOfTypeSixWhenTileContainPrey()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $firstPlayer->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::ANTHILL_LEVEL_THREE);
+        $firstPlayer->getPersonalBoardMYR()->setBonus(MyrmesParameters::BONUS_PHEROMONE);
+        $this->entityManager->persist($firstPlayer->getPersonalBoardMYR());
+        $tile = new TileMYR();
+        $tile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $tile->setCoordX(0);
+        $tile->setCoordY(0);
+        $this->entityManager->persist($tile);
+        $newTile = new TileMYR();
+        $newTile->setType(MyrmesParameters::GRASS_TILE_TYPE);
+        $newTile->setCoordX(0);
+        $newTile->setCoordY(2);
+        $this->entityManager->persist($newTile);
+        $newTile2 = new TileMYR();
+        $newTile2->setType(MyrmesParameters::GRASS_TILE_TYPE);
+        $newTile2->setCoordX(-1);
+        $newTile2->setCoordY(3);
+        $this->entityManager->persist($newTile2);
+        $newTile3 = new TileMYR();
+        $newTile3->setType(MyrmesParameters::STONE_TILE_TYPE);
+        $newTile3->setCoordX(-1);
+        $newTile3->setCoordY(1);
+        $this->entityManager->persist($newTile3);
+        $newTile4 = new TileMYR();
+        $newTile4->setType(MyrmesParameters::STONE_TILE_TYPE);
+        $newTile4->setCoordX(-1);
+        $newTile4->setCoordY(1);
+        $this->entityManager->persist($newTile4);
+        $newTile5 = new TileMYR();
+        $newTile5->setType(MyrmesParameters::STONE_TILE_TYPE);
+        $newTile5->setCoordX(1);
+        $newTile5->setCoordY(1);
+        $this->entityManager->persist($newTile5);
+        $tileType = new TileTypeMYR();
+        $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_SIX);
+        $tileType->setOrientation(6);
+        $this->entityManager->persist($tileType);
+        $gardenWorker = new GardenWorkerMYR();
+        $gardenWorker->setPlayer($firstPlayer);
+        $gardenWorker->setTile($tile);
+        $gardenWorker->setMainBoardMYR($game->getMainBoardMYR());
+        $gardenWorker->setShiftsCount(0);
+        $this->entityManager->persist($gardenWorker);
+        $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
+        $this->entityManager->persist($game);
+        $prey = new PreyMYR();
+        $prey->setTile($tile);
+        $prey->setType("tests");
+        $prey->setMainBoardMYR($game->getMainBoardMYR());
+        $this->entityManager->persist($prey);
+        $this->entityManager->flush();
+        // THEN
+        $this->expectException(\Exception::class);
+        // WHEN
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+    }
+
     private function createGame(int $numberOfPlayers) : GameMYR
     {
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);
