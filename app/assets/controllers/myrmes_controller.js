@@ -63,4 +63,11 @@ export default class extends Controller  {
         const node = placeholder.firstElementChild;
         tree.appendChild(node);
     }
+
+    async showPheromonPlacement(main)  {
+        let url = main.params.url;
+        const response = await fetch(url);
+        let placeholder = document.getElementById("objectPlacement");
+        placeholder.innerHTML = await response.text();
+    }
 }

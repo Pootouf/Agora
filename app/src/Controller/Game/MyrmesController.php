@@ -3,6 +3,7 @@
 namespace App\Controller\Game;
 
 use App\Entity\Game\Myrmes\GameMYR;
+use App\Entity\Game\Myrmes\PlayerMYR;
 use App\Service\Game\LogService;
 use App\Service\Game\Myrmes\EventMYRService;
 use App\Service\Game\Myrmes\DataManagementMYRService;
@@ -117,5 +118,16 @@ class MyrmesController extends AbstractController
         $message = $player->getUsername() . " a confirmé son choix de bonus";
         $this->logService->sendPlayerLog($game, $player, $message);
         return new Response('Bonus confirmed', Response::HTTP_OK);
+    }
+
+    #[Route('/game/myrmes/{gameId}/displayPersonalObjectToPlace/{idPlayer}', name: 'app_game_display_personal_object_to_place')]
+    public function displayPersonalObjectToPlace(
+        #[MapEntity(id: 'idGame')] GameMYR $gameMYR,
+        #[MapEntity(id: 'idPlayer')] PlayerMYR $playerMYR
+    ) : Response
+    {
+        return $this->render('Game/Myrmes/MainBoard/displayObjectPlacement.html.twig', [
+            'objects' => $playerMYR->getPheromonMYRs(),
+        ]);
     }
 }
