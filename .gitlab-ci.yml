@@ -6,6 +6,7 @@ stages:
   - splendor
   - glenmore
   - myrmes
+  - sonarqube
   - deploy
 
 cache:
@@ -221,6 +222,7 @@ integrationMyrmes:
 
 
 sonarqube-check:
+  stage: sonarqube
   image: 
     name: sonarsource/sonar-scanner-cli:latest
     entrypoint: [""]
