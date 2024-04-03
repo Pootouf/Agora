@@ -223,6 +223,8 @@ integrationMyrmes:
 
 sonarqube-check:
   stage: sonarqube
+  before_script:
+    - ''
   image: 
     name: sonarsource/sonar-scanner-cli:latest
     entrypoint: [""]
