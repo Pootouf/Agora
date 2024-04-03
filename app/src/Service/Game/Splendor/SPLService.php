@@ -38,7 +38,12 @@ class SPLService
         private DrawCardsSPLRepository $drawCardsSPLRepository)
     { }
 
-    public function getRowsFromGame(GameSPL $game)
+    /**
+     * getRowsFromGame : returns all rows from the game
+     * @param GameSPL $game
+     * @return array<RowSPL>
+     */
+    public function getRowsFromGame(GameSPL $game): array
     {
         return $this->rowSPLRepository->findBy(['mainBoardSPL' => $game->getMainBoard()->getId()]);
     }
@@ -55,7 +60,13 @@ class SPLService
         return sizeof($cards) == 0 ? null : $cards[0];
     }
 
-    public function getDrawFromGameAndLevel(GameSPL $game, int $level)
+    /**
+     * getDrawFromGameAndLevel : returns a draw from a game and a level of draw tiles
+     * @param GameSPL $game
+     * @param int     $level
+     * @return ?DrawCardsSPL
+     */
+    public function getDrawFromGameAndLevel(GameSPL $game, int $level) : ?DrawCardsSPL
     {
         return $this->drawCardsSPLRepository->findOneBy([
             'mainBoardSPL' => $game->getMainBoard()->getId(),
@@ -165,7 +176,7 @@ class SPLService
      * getRanking : returns a sorted array of player
      *
      * @param GameSPL $gameSPL
-     * @return array
+     * @return array<PlayerSPL>
      */
     public function getRanking(GameSPL $gameSPL): array
     {
@@ -192,7 +203,7 @@ class SPLService
      * getDrawCardsByLevel : return a list of development cards from the draw indicated by its level
      * @param int $level
      * @param GameSPL $game
-     * @return Collection<DevelopmentCardsSPL>
+     * @return Collection<Int, DevelopmentCardsSPL>
      */
     public function getDrawCardsByLevel(int $level, GameSPL $game) : Collection
     {
@@ -236,7 +247,7 @@ class SPLService
      * getPurchasableCardsOnBoard : return a list of purchasable development cards for the player on the main board
      * @param GameSPL $gameSPL
      * @param PlayerSPL $playerSPL
-     * @return ArrayCollection
+     * @return ArrayCollection<Int, DevelopmentCardsSPL>
      */
     public function getPurchasableCardsOnBoard(GameSPL $gameSPL, PlayerSPL $playerSPL): ArrayCollection
     {
@@ -255,7 +266,7 @@ class SPLService
      * getPurchasableCardsOnPersonalBoard : return a list of purchasable development cards for the player
      *      between its reserved cards.
      * @param PlayerSPL $playerSPL
-     * @return ArrayCollection
+     * @return ArrayCollection<Int, DevelopmentCardsSPL>
      */
     public function getPurchasableCardsOnPersonalBoard(PlayerSPL $playerSPL): ArrayCollection
     {
@@ -283,7 +294,7 @@ class SPLService
 
     /**
      * getNumberOfTokenAtColor : return the number of tokens of the selected color
-     * @param Collection $tokens
+     * @param Collection<Int, TokenSPL> $tokens
      * @param string $color
      * @return int
      */
@@ -369,7 +380,7 @@ class SPLService
      * reserveCard : a player reserve a development card
      * @param PlayerSPL $player
      * @param DevelopmentCardsSPL $card
-     * @return array
+     * @return array<boolean>
      * @throws Exception
      */
     public function reserveCard(PlayerSPL $player, DevelopmentCardsSPL $card) : array
@@ -460,7 +471,7 @@ class SPLService
      * buyCard : check if player can buy a card and remove the card from the main board
      * @param PlayerSPL $playerSPL
      * @param DevelopmentCardsSPL $developmentCardsSPL
-     * @return array retrievePlayerMoney => money removed from the player,
+     * @return array<String, ?DevelopmentCardsSPL> y retrievePlayerMoney => money removed from the player,
      *               newDevCard => the card added on the main board
      * @throws \Exception if it's not the card of the player
      */
@@ -559,8 +570,8 @@ class SPLService
 
     /**
      * filterCardsByColor: take an array of playerCards and filter it by color
-     * @param Collection $playerCards
-     * @return array<String, Collection<PlayerCardSPL>> an array associating color with the cards of the player
+     * @param Collection<Int, PlayerCardSPL> $playerCards
+     * @return array<String, Collection<Int, PlayerCardSPL>> an array associating color with the cards of the player
      */
     private function filterCardsByColor(Collection $playerCards): array {
         return [
@@ -574,9 +585,9 @@ class SPLService
 
     /**
      * getCardOfColor: select all the $playerCards with the $color
-     * @param Collection<DevelopmentCardsSPL> $playerCards
+     * @param Collection<Int, PlayerCardSPL> $playerCards
      * @param string $color
-     * @return Collection<DevelopmentCardsSPL> the card of the selected color
+     * @return Collection<Int, PlayerCardSPL> the card of the selected color
      */
     private function getCardOfColor(Collection $playerCards, string $color): Collection
     {
@@ -585,6 +596,12 @@ class SPLService
         });
     }
 
+    /**
+     * canReserveCard : checks if a player can reserve a card
+     * @param PlayerSPL           $player
+     * @param DevelopmentCardsSPL $card
+     * @return bool
+     */
     private function canReserveCard(PlayerSPL $player, DevelopmentCardsSPL $card): bool
     {
         $playerCard = $this->getPlayerCardFromDevelopmentCard($player->getGameSPL(), $card);
@@ -592,28 +609,12 @@ class SPLService
             && $playerCard == null;
     }
 
-    private function checkInRowAtLevel(MainBoardSPL $mainBoard
-        , DevelopmentCardsSPL $card) : bool
-    {
-        $level = $card->getLevel() - 1;
-        $rowAtLevel = $mainBoard->getRowsSPL()->get($level);
-        return $this->isCardInRow($rowAtLevel, $card);
-    }
-
-    private function isCardInRow(RowSPL $row, DevelopmentCardsSPL $card): bool
-    {
-        return $row->getDevelopmentCards()->contains($card);
-    }
-
-    private function checkInDiscardAtLevel(MainBoardSPL $mainBoard
-        , DevelopmentCardsSPL $card) : bool
-    {
-        $level = $card->getLevel() -1;
-        $discardsAtLevel = $mainBoard->getDrawCards()->get($level);
-        $testCard = $discardsAtLevel->getDevelopmentCards()->last();
-        return $card === $testCard;
-    }
-
+    /**
+     * manageRow : puts a new card from the row on the main board
+     * @param MainBoardSPL        $mainBoard
+     * @param DevelopmentCardsSPL $card
+     * @return DevelopmentCardsSPL
+     */
     private function manageRow(MainBoardSPL $mainBoard, DevelopmentCardsSPL $card): DevelopmentCardsSPL
     {
         $level = $card->getLevel() - 1;
@@ -636,6 +637,12 @@ class SPLService
         return $discard;
     }
 
+    /**
+     * manageDiscard : puts a card from the discard on the main board
+     * @param MainBoardSPL        $mainBoard
+     * @param DevelopmentCardsSPL $card
+     * @return void
+     */
     private function manageDiscard(MainBoardSPL $mainBoard, DevelopmentCardsSPL $card): void
     {
         $level = $card->getLevel();
@@ -644,6 +651,11 @@ class SPLService
         $this->entityManager->persist($discardsAtLevel);
     }
 
+    /**
+     * manageJokerToken : gives a joker token to the player, if possible
+     * @param PlayerSPL $player
+     * @return bool
+     */
     private function manageJokerToken(PlayerSPL $player): bool
     {
         $personalBoard = $player->getPersonalBoard();
@@ -666,19 +678,25 @@ class SPLService
         return false;
     }
 
+    /**
+     * getNumberOfTokenAtColorAtMainBoard : returns all tokens from a color available on the main board
+     * @param MainBoardSPL $mainBoard
+     * @param string       $color
+     * @return int
+     */
     private function getNumberOfTokenAtColorAtMainBoard(MainBoardSPL $mainBoard, string $color) : int
     {
         $tokens = $mainBoard->getTokens();
         return $this->getNumberOfTokenAtColor($tokens, $color);
     }
 
-    private function getNumberOfTokenAtColorAtPlayer(PlayerSPL $player, string $color) : int
-    {
-        $personalBoard = $player->getPersonalBoard();
-        $tokens = $personalBoard->getTokens();
-        return $this->getNumberOfTokenAtColor($tokens, $color);
-    }
 
+    /**
+     * whereIsThisCard : indicates where the card comes from
+     * @param MainBoardSPL        $mainBoard
+     * @param DevelopmentCardsSPL $card
+     * @return int
+     */
     private function whereIsThisCard(MainBoardSPL $mainBoard, DevelopmentCardsSPL $card) : int
     {
         $level = $card->getLevel() - 1;
@@ -697,6 +715,11 @@ class SPLService
         return -1;
     }
 
+    /**
+     * getJokerToken : returns a joker token
+     * @param MainBoardSPL $mainBoard
+     * @return TokenSPL
+     */
     private function getJokerToken(MainBoardSPL $mainBoard) : TokenSPL
     {
         $token = null;
@@ -710,16 +733,6 @@ class SPLService
             }
         }
         return $token;
-    }
-
-    /**
-     * @param Game $game
-     * @return ?GameSPL
-     */
-    private function getGameSplFromGame(Game $game): ?GameSpl
-    {
-        /** @var GameSpl $game */
-        return $game->getGameName() == AbstractGameManagerService::$SPL_LABEL ? $game : null;
     }
 
     /**
@@ -750,7 +763,7 @@ class SPLService
     /**
      * computePlayerMoney : calculate player money from his cards and his tokens
      * @param PlayerSPL $playerSPL
-     * @return array
+     * @return array<String, Int>
      */
     private function computePlayerMoney(PlayerSPL $playerSPL): array
     {
@@ -773,7 +786,7 @@ class SPLService
     /**
      * computeCardPrice : calculate the price of a card and put it in an array
      * @param DevelopmentCardsSPL $developmentCardsSPL
-     * @return array
+     * @return array<String, Int>
      */
     private function computeCardPrice(DevelopmentCardsSPL $developmentCardsSPL): array
     {
@@ -840,6 +853,10 @@ class SPLService
         return $selectedTokensForAnimation;
     }
 
+    /**
+     * initializeColorTab : initializes all tokens with amount 0
+     * @return array<String, int>
+     */
     private function initializeColorTab():array
     {
         $array[SplendorParameters::$COLOR_YELLOW] = 0;

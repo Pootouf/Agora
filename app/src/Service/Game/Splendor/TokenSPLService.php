@@ -28,8 +28,8 @@ class TokenSPLService
     }
 
     /**
-     * @param Collection<TokenSPL> $tokens
-     * @return Collection<TokenSPL> the red tokens
+     * @param Collection<Int, TokenSPL> $tokens
+     * @return Collection<Int, TokenSPL> the red tokens
      */
     public function getRedTokensFromCollection(Collection $tokens): Collection
     {
@@ -39,8 +39,8 @@ class TokenSPLService
     }
 
     /**
-     * @param Collection<TokenSPL> $tokens
-     * @return Collection<TokenSPL> the blue tokens
+     * @param Collection<Int, TokenSPL> $tokens
+     * @return Collection<Int, TokenSPL> the blue tokens
      */
     public function getBlueTokensFromCollection(Collection $tokens): Collection
     {
@@ -50,8 +50,8 @@ class TokenSPLService
     }
 
     /**
-     * @param Collection<TokenSPL> $tokens
-     * @return Collection<TokenSPL> the green tokens
+     * @param Collection<Int, TokenSPL> $tokens
+     * @return Collection<Int, TokenSPL> the green tokens
      */
     public function getGreenTokensFromCollection(Collection $tokens): Collection
     {
@@ -61,8 +61,8 @@ class TokenSPLService
     }
 
     /**
-     * @param Collection<TokenSPL> $tokens
-     * @return Collection<TokenSPL> the white tokens
+     * @param Collection<Int, TokenSPL> $tokens
+     * @return Collection<Int, TokenSPL> the white tokens
      */
     public function getWhiteTokensFromCollection(Collection $tokens): Collection
     {
@@ -72,8 +72,8 @@ class TokenSPLService
     }
 
     /**
-     * @param Collection<TokenSPL> $tokens
-     * @return Collection<TokenSPL> the black tokens
+     * @param Collection<Int, TokenSPL> $tokens
+     * @return Collection<Int, TokenSPL> the black tokens
      */
     public function getBlackTokensFromCollection(Collection $tokens): Collection
     {
@@ -83,8 +83,8 @@ class TokenSPLService
     }
 
     /**
-     * @param Collection<TokenSPL> $tokens
-     * @return Collection<TokenSPL> the yellow tokens
+     * @param Collection<Int, TokenSPL> $tokens
+     * @return Collection<Int, TokenSPL> the yellow tokens
      */
     public function getYellowTokensFromCollection(Collection $tokens): Collection
     {
@@ -245,6 +245,9 @@ class TokenSPLService
      */
     public function initializeGameToken(GameSPL $gameSPL) : void
     {
+        /**
+         * @var ArrayCollection<Int, TokenSPL> $tokens
+         */
         $tokens = new ArrayCollection($this->tokenSPLRepository->findAll());
         $blackTokens = array_values($this->getBlackTokensFromCollection($tokens)->toArray());
         $redTokens = array_values($this->getRedTokensFromCollection($tokens)->toArray());
@@ -286,7 +289,7 @@ class TokenSPLService
      * canSelectTokenOfOtherColors: return true if there is at least one color of token
      *              available except the selected tokens
      * @param GameSPL $game
-     * @param Collection $tokens
+     * @param Collection<Int, SelectedTokenSPL> $tokens
      * @return bool
      */
     private function canSelectTokenOfOtherColors(GameSPL $game, Collection $tokens): bool
@@ -334,11 +337,11 @@ class TokenSPLService
     /**
      * addATokenOfEachColor : add a token of each color of index $i from the collections in parameter
      * @param GameSPL $gameSPL
-     * @param array $blackTokens
-     * @param array $blueTokens
-     * @param array $redTokens
-     * @param array $greenTokens
-     * @param array $whiteTokens
+     * @param array<TokenSPL> $blackTokens
+     * @param array<TokenSPL> $blueTokens
+     * @param array<TokenSPL> $redTokens
+     * @param array<TokenSPL> $greenTokens
+     * @param array<TokenSPL> $whiteTokens
      * @param int $i
      * @return void
      */
