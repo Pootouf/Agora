@@ -38,6 +38,40 @@ class BirthMYRService
     }
 
     /**
+     * giveBonusesFromEvent : get bonus from event phase
+     * @param PlayerMYR $player
+     * @return void
+     */
+    public function giveBonusesFromEvent(PlayerMYR $player) : void
+    {
+        $personalBoard = $player->getPersonalBoardMYR();
+        switch ($personalBoard->getBonus())
+        {
+            case MyrmesParameters::BONUS_LARVAE:
+                $oldLarvaCount = $personalBoard->getLarvaCount();
+                $personalBoard->setLarvaCount($oldLarvaCount + 2);
+                $this->entityManager->persist($personalBoard);
+                break;
+            case MyrmesParameters::BONUS_WARRIOR:
+                $oldWarriorCount =  $personalBoard->getWarriorsCount();
+                $personalBoard->setWarriorsCount($oldWarriorCount + 1);
+                $this->entityManager->persist($personalBoard);
+                break;
+            case MyrmesParameters::BONUS_WORKER:
+                $anthillWorker = new AnthillWorkerMYR();
+                $anthillWorker->setPlayer($player);
+                $anthillWorker->setWorkFloor(-1); // TODO use parameters
+                $personalBoard->addAnthillWorker($anthillWorker);
+                $this->entityManager->persist($anthillWorker);
+                $this->entityManager->persist($personalBoard);
+                break;
+            default:
+                break;
+        }
+        $this->entityManager->flush();
+    }
+
+    /**
      * giveBirthBonus : give player birth bonus depending on nurses on areas
      * @param PlayerMYR $player
      * @return void
