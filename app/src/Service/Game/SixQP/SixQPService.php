@@ -100,7 +100,7 @@ class SixQPService
             throw new Exception("Player has already chosen a card");
         }
 
-        $chosenCardSixQP = new ChosenCardSixQP($player, $player->getGame(), $cardSixQP, false);
+        $chosenCardSixQP = new ChosenCardSixQP($player, $player->getGame(), $cardSixQP);
         $player->removeCard($cardSixQP);
         $player->setChosenCardSixQP($chosenCardSixQP);
         $this->entityManager->persist($chosenCardSixQP);
@@ -134,7 +134,7 @@ class SixQPService
     /**
      * getRanking : get the ranking by player points (ascending)
      * @param GameSixQP $gameSixQP
-     * @return array
+     * @return array<PlayerSixQP>
      * @throws Exception
      */
     public function getRanking(GameSixQP $gameSixQP): array
@@ -304,7 +304,7 @@ class SixQPService
 
     /**
      * hasCardLeft : checks if at least one player still has a card
-     * @param Collection<PlayerSixQP> $players : a collection of 6QP players
+     * @param Collection<Int, PlayerSixQP> $players : a collection of 6QP players
      * @return bool
      */
     public function hasCardLeft(Collection $players): bool
@@ -355,7 +355,7 @@ class SixQPService
 
      /**
      * hasPlayerLost : checks if at least one player has reached limit of points
-     * @param Collection<PlayerSixQP> $players : a collection of 6QP players
+     * @param Collection<Int, PlayerSixQP> $players : a collection of 6QP players
      * @return bool
      */
     private function hasPlayerLost(Collection $players): bool
@@ -366,10 +366,5 @@ class SixQPService
             }
         }
         return false;
-    }
-
-    private function getGameSixQPFromGame(Game $game): ?GameSixQP {
-        /** @var GameSixQP $game */
-        return $game->getGameName() == AbstractGameManagerService::$SIXQP_LABEL ? $game : null;
     }
 }
