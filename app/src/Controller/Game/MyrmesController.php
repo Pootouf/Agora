@@ -58,7 +58,11 @@ class MyrmesController extends AbstractController
             'selectedBox' => null,
             'playerPhase' => $player->getPhase(),
             'isAnotherPlayerBoard' => false,
+            'availableLarvae' => $this->service->getAvailableLarvae($player),
             'isBirthPhase' => $this->service->isInPhase($player, MyrmesParameters::PHASE_BIRTH),
+            'dirt' => $this->service->getPlayerResourceAmount($player, MyrmesParameters::RESOURCE_TYPE_DIRT),
+            'grass' => $this->service->getPlayerResourceAmount($player, MyrmesParameters::RESOURCE_TYPE_GRASS),
+            'stone' => $this->service->getPlayerResourceAmount($player, MyrmesParameters::RESOURCE_TYPE_STONE),
             'nursesOnLarvaeBirthTrack' => $this->service->getNursesAtPosition($player, MyrmesParameters::LARVAE_AREA)->count(),
             'nursesOnSoldiersBirthTrack' => $this->service->getNursesAtPosition($player, MyrmesParameters::SOLDIERS_AREA)->count(),
             'nursesOnWorkersBirthTrack' => $this->service->getNursesAtPosition($player, MyrmesParameters::WORKER_AREA)->count()
@@ -79,6 +83,7 @@ class MyrmesController extends AbstractController
             'isSpectator' => $player == null,
             'needToPlay' => true,//$player == null ? false : $player->isTurnOfPlayer()
             'isAnotherPlayerBoard' => false,
+            'availableLarvae' => $this->service->getAvailableLarvae($player),
             'nursesOnLarvaeBirthTrack' => $this->service->getNursesAtPosition($player, MyrmesParameters::LARVAE_AREA)->count(),
             'nursesOnSoldiersBirthTrack' => $this->service->getNursesAtPosition($player, MyrmesParameters::SOLDIERS_AREA)->count(),
             'nursesOnWorkersBirthTrack' => $this->service->getNursesAtPosition($player, MyrmesParameters::WORKER_AREA)->count()
@@ -98,10 +103,11 @@ class MyrmesController extends AbstractController
                 'isPreview' => false,
                 'isSpectator' => true,
                 'isAnotherPlayerBoard' => true,
+                'availableLarvae' => $this->service->getAvailableLarvae($player),
                 'isBirthPhase' => $this->service->isInPhase($playerMYR, MyrmesParameters::PHASE_BIRTH),
-                'nursesOnLarvaeBirthTrack' => $this->service->getNursesAtPosition($playerMYR, MyrmesParameters::$LARVAE_AREA)->count(),
-                'nursesOnSoldiersBirthTrack' => $this->service->getNursesAtPosition($playerMYR, MyrmesParameters::$SOLDIERS_AREA)->count(),
-                'nursesOnWorkersBirthTrack' => $this->service->getNursesAtPosition($playerMYR, MyrmesParameters::$WORKER_AREA)->count()
+                'nursesOnLarvaeBirthTrack' => $this->service->getNursesAtPosition($playerMYR, MyrmesParameters::LARVAE_AREA)->count(),
+                'nursesOnSoldiersBirthTrack' => $this->service->getNursesAtPosition($playerMYR, MyrmesParameters::SOLDIERS_AREA)->count(),
+                'nursesOnWorkersBirthTrack' => $this->service->getNursesAtPosition($playerMYR, MyrmesParameters::WORKER_AREA)->count()
             ]);
     }
 

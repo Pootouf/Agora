@@ -10,12 +10,16 @@ use App\Entity\Game\Myrmes\GoalMYR;
 use App\Entity\Game\Myrmes\MyrmesParameters;
 use App\Entity\Game\Myrmes\NurseMYR;
 use App\Entity\Game\Myrmes\PlayerMYR;
+use App\Entity\Game\Myrmes\PlayerResourceMYR;
 use App\Entity\Game\Myrmes\PreyMYR;
+use App\Entity\Game\Myrmes\ResourceMYR;
 use App\Entity\Game\Myrmes\SeasonMYR;
 use App\Repository\Game\Myrmes\NurseMYRRepository;
 use App\Entity\Game\Myrmes\TileMYR;
 use App\Entity\Game\Myrmes\TileTypeMYR;
 use App\Repository\Game\Myrmes\PlayerMYRRepository;
+use App\Repository\Game\Myrmes\PlayerResourceMYRRepository;
+use App\Repository\Game\Myrmes\ResourceMYRRepository;
 use App\Repository\Game\Myrmes\SeasonMYRRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use App\Repository\Game\Myrmes\TileMYRRepository;
@@ -31,9 +35,35 @@ class MYRService
                 private readonly NurseMYRRepository $nurseMYRRepository,
                 private readonly TileMYRRepository $tileMYRRepository,
                 private readonly TileTypeMYRRepository $tileTypeMYRRepository,
-                private readonly SeasonMYRRepository $seasonMYRRepository)
+                private readonly SeasonMYRRepository $seasonMYRRepository,
+                private readonly ResourceMYRRepository $resourceMYRRepository,
+                private readonly PlayerResourceMYRRepository $playerResourceMYRRepository)
     {
 
+    }
+
+    /**
+     * getPlayerResourceAmount : returns the quantity of player's resource type
+     * @param PlayerMYR $playerMYR
+     * @param string $resourceName
+     * @return int
+     */
+    public function getPlayerResourceAmount(PlayerMYR $playerMYR, string $resourceName): int
+    {
+        $resource = $this->resourceMYRRepository->findOneBy(["description"=>$resourceName]);
+        $playerResource = $this->playerResourceMYRRepository->findOneBy(["resource"=>$resource]);
+        return $playerResource== null ? 0 : $playerResource->getQuantity();
+    }
+
+    /**
+     * getAvailableLarvae : returns available player larvae
+     * @param PlayerMYR $playerMYR
+     * @return int
+     */
+    public function getAvailableLarvae(PlayerMYR $playerMYR): int
+    {
+        $personalBoard = $playerMYR->getPersonalBoardMYR();
+        return $personalBoard->getLarvaCount() - $personalBoard->getSelectedEventLarvaeAmount();
     }
 
     /**
@@ -42,7 +72,8 @@ class MYRService
      * @param int $phase
      * @return bool
      */
-    public function isInPhase(PlayerMYR $playerMYR, int $phase): bool {
+    public function isInPhase(PlayerMYR $playerMYR, int $phase): bool
+    {
         return $playerMYR->getPhase() == $phase;
     }
 

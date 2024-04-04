@@ -22,14 +22,14 @@ This section displays the ranking with a view of the other players' possessions
     </div>
 </div>
 
-<div class="mt-5">
+<div class="flex-grow-0 w-full lg:h-[80%] md:h-[70%] overflow-y-auto">
     {% for p in game.players %}
 
         {# Tailwind loading of background color in order red yellow blue gray #}
         <div hidden class="bg-[#910016] bg-[#e3d400] bg-[#1105f5] bg-[#374151]"></div>
 
         {% set playerColor = p.color %}
-        {% if playerColor == 'gray' or playerColor == 'yellow' %}
+        {% if playerColor == 'yellow' %}
             {% set arrowColor %}
                 {{ asset("resourcesGames/utils/arrow_up.svg") }}
             {% endset %}
@@ -40,10 +40,9 @@ This section displays the ranking with a view of the other players' possessions
         {% endif %}
 
         <div class= "border-solid border-[1px] border-[white] rounded-2xl
-                        h-[23.5%] landscape:md:h-1/4 landscape:lg:h-[23.5%]
                         mx-3 landscape:mx-2 lg:mx-5
                         my-6 landscape:my-2
-                        text-3xl py-2
+                        text-3xl
                         {% if playerColor == 'red' %}bg-[#910016]{% elseif playerColor == 'yellow' %}bg-[#e3d400]
                         {% elseif playerColor == 'blue' %}bg-[#1105f5]{% else %}bg-[#374151]{% endif %}">
             <div class="w-full h-[12%] landscape:h-1/5
@@ -65,7 +64,7 @@ This section displays the ranking with a view of the other players' possessions
                 </button>
                 {# Display the player's username with a specific color if the background is dark or light #}
                 <p class="landscape:ml-3 landscape:text-sm landscape:lg:text-lg
-                        {% if playerColor == 'yellow' or playerColor == 'gray' %}text-black{% else %}
+                        {% if playerColor == 'yellow' %}text-black{% else %}
                         text-white{% endif %}">{{ p.username }}</p>
                 {# Display the player's points with a specific color if the background is dark or light #}
                 <div class="flex landscape:mr-2">
@@ -74,30 +73,94 @@ This section displays the ranking with a view of the other players' possessions
                         text-white{% endif %}">{{ p.score }}</p>
                 </div>
             </div>
-            <div>
-                <div class="relative w-[1/4]">
-                    <img class="relative items-center justify-center ml-3
-                                        max-h-8"
-                         src="{{ asset('resourcesGames/Myrmes/resources/larva.svg') }}" alt="larva"/>
-                    <span
-                            class="absolute inline-flex items-center justify-center w-5 h-5 text-xs
+            <div class="bg-slate-950 bg-opacity-15 py-1 shadow-inner space-y-1">
+                <div class="relative flex flex-row justify-around justify-between">
+                    <div class="relative w-[1/6]">
+                        <img class="relative items-center justify-center
+                                        max-h-7 mt-1"
+                             src="{{ asset('resourcesGames/Myrmes/Gilbertonin.svg') }}" alt="larva"/>
+                        <span
+                                class="absolute inline-flex items-center justify-center w-5 h-5 text-xs
                                     font-bold text-white
-                                    bg-red-500 border-2 border-white rounded-full top-0 start-8 dark:border-gray-900"
-                    >
-                        {{ p.personalBoardMYR.larvaCount }}
+                                    bg-red-500 border-2 border-white rounded-full top-0 start-5 dark:border-gray-900"
+                        >
+                        {{ availableLarvae }}
                     </span>
+                    </div>
+                    <div class="relative w-[1/6]">
+                        <img class="relative items-center justify-center
+                                        max-h-7 mt-1"
+                             src="{{ asset('resourcesGames/Myrmes/resources/nurse.svg') }}" alt="nurses"/>
+                        <span
+                                class="absolute inline-flex items-center justify-center w-5 h-5 text-xs
+                                    font-bold text-white
+                                    bg-red-500 border-2 border-white rounded-full top-0 start-5 dark:border-gray-900"
+                        >
+                        {{ player.personalBoardMYR.nurses.count }}
+                    </span>
+                    </div>
+                    <div class="relative w-[1/6]">
+                        <img class="relative items-center justify-center
+                                        max-h-8"
+                             src="{{ asset('resourcesGames/Myrmes/soldierIcon.svg') }}" alt="soldier"/>
+                        <span
+                                class="absolute inline-flex items-center justify-center w-5 h-5 text-xs
+                                    font-bold text-white
+                                    bg-red-500 border-2 border-white rounded-full top-0 lg:start-3 sm:start-2 dark:border-gray-900"
+                        >
+                            {{ p.personalBoardMYR.warriorsCount }}
+                        </span>
+                    </div>
+                    <div class="relative w-[1/6]">
+                        <img class="relative items-center justify-center
+                                        max-h-8"
+                             src="{{ asset('resourcesGames/Myrmes/workerIcon.svg') }}" alt="worker"/>
+                        <span
+                                class="absolute inline-flex items-center justify-center w-5 h-5 text-xs
+                                    font-bold text-white
+                                    bg-red-500 border-2 border-white rounded-full top-0 lg:start-3 sm:start-2 dark:border-gray-900"
+                        >
+                            {{ p.personalBoardMYR.anthillWorkers.count }}
+                        </span>
+                    </div>
                 </div>
-                <div class="relative w-[1/4]">
-                    <img class="relative items-center justify-center ml-3
-                                        max-h-8"
-                         src="{{ asset('resourcesGames/Myrmes/resources/larva.svg') }}" alt="larva"/>
-                    <span
-                            class="absolute inline-flex items-center justify-center w-5 h-5 text-xs
+                <div class="relative flex flex-row justify-around justify-between">
+                    <div class="relative w-[1/6]">
+                        <img class="relative items-center justify-center
+                                        max-h-7 mt-1"
+                             src="{{ asset('resourcesGames/Myrmes/resources/grass.svg') }}" alt="grass"/>
+                        <span
+                                class="absolute inline-flex items-center justify-center w-5 h-5 text-xs
                                     font-bold text-white
-                                    bg-red-500 border-2 border-white rounded-full top-0 start-8 dark:border-gray-900"
-                    >
-                        {{ p.personalBoardMYR.larvaCount }}
-                    </span>
+                                    bg-red-500 border-2 border-white rounded-full top-0 start-5 dark:border-gray-900"
+                        >
+                            {{ grass }}
+                        </span>
+                    </div>
+                    <div class="relative w-[1/6]">
+                        <img class="relative items-center justify-center
+                                        max-h-7 mt-1"
+                             src="{{ asset('resourcesGames/Myrmes/resources/dirt.svg') }}" alt="dirt"/>
+                        <span
+                                class="absolute inline-flex items-center justify-center w-5 h-5 text-xs
+                                    font-bold text-white
+                                    bg-red-500 border-2 border-white rounded-full top-0 start-5 dark:border-gray-900"
+                        >
+                            {{ dirt }}
+                        </span>
+                    </div>
+                    <div class="relative w-[1/6]">
+                        <img class="relative items-center justify-center
+                                        max-h-7 mt-1"
+                             src="{{ asset('resourcesGames/Myrmes/resources/stone.svg') }}" alt="stone"/>
+                        <span
+                                class="absolute inline-flex items-center justify-center w-5 h-5 text-xs
+                                    font-bold text-white
+                                    bg-red-500 border-2 border-white rounded-full top-0 start-5 dark:border-gray-900"
+                        >
+                            {{ stone }}
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>
