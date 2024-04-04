@@ -23,21 +23,6 @@ class NurseMYRTest extends TestCase
         $this->assertTrue($this->nurseMYR->getId() >= 0);
     }
 
-    public function testSetPosition() : void
-    {
-        // GIVEN
-
-        $position = 7;
-
-        // WHEN
-
-        $this->nurseMYR->setPosition($position);
-
-        // THEN
-
-        $this->assertSame($position, $this->nurseMYR->getPosition());
-    }
-
     public function testSetPlayer() : void
     {
         // GIVEN

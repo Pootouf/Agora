@@ -33,7 +33,7 @@ class BirthMYRServiceTest extends KernelTestCase
         // WHEN
         $birthMYRService->placeNurse($nurse, $position);
         // THEN
-        $this->assertEquals($position, $nurse->getPosition());
+        $this->assertEquals($position, $nurse->getArea());
     }
 
     public function testPlaceNurseWhenNurseIsNotAvailable()
@@ -79,7 +79,6 @@ class BirthMYRServiceTest extends KernelTestCase
             $player->setRemainingHarvestingBonus(0);
             for($j = 0; $j < MyrmesParameters::START_NURSES_COUNT_PER_PLAYER; $j += 1) {
                 $nurse = new NurseMYR();
-                $nurse->setPosition(-1);
                 $nurse->setArea(MyrmesParameters::LARVAE_AREA);
                 $nurse->setAvailable(true);
                 $nurse->setPlayer($player);

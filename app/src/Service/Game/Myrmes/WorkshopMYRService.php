@@ -10,6 +10,8 @@ use App\Entity\Game\Myrmes\PheromonTileMYR;
 use App\Entity\Game\Myrmes\PlayerMYR;
 use App\Entity\Game\Myrmes\PlayerResourceMYR;
 use App\Entity\Game\Myrmes\TileMYR;
+use App\Repository\Game\Myrmes\AnthillHoleMYRRepository;
+use App\Repository\Game\Myrmes\NurseMYRRepository;
 use App\Repository\Game\Myrmes\PheromonMYRRepository;
 use App\Repository\Game\Myrmes\PheromonTileMYRRepository;
 use App\Repository\Game\Myrmes\PlayerResourceMYRRepository;
@@ -33,7 +35,9 @@ class WorkshopMYRService
                                 private readonly TileMYRRepository $tileMYRRepository,
                                 private readonly PheromonMYRRepository $pheromonMYRRepository,
                                 private readonly ResourceMYRRepository $resourceMYRRepository,
-                                private readonly PlayerResourceMYRRepository $playerResourceMYRRepository)
+                                private readonly PlayerResourceMYRRepository $playerResourceMYRRepository,
+                                private readonly NurseMYRRepository $nurseMYRRepository,
+                                private readonly AnthillHoleMYRRepository $anthillHoleMYRRepository)
     {}
 
     /**
@@ -73,6 +77,30 @@ class WorkshopMYRService
     }
 
     /**
+     * getAvailableAnthillHolesPositions : returns a list of possible new anthill holes positions
+     * @param PlayerMYR $player
+     * @return ArrayCollection<Int, TileMYR>
+     */
+    public function getAvailableAnthillHolesPositions(PlayerMYR $player) : ArrayCollection
+    {
+        $pheromones = $player->getPheromonMYRs();
+        $result = new ArrayCollection();
+        foreach ($pheromones as $pheromone) {
+            $pheromoneTiles = $pheromone->getPheromonTiles();
+            foreach ($pheromoneTiles as $pheromoneTile) {
+                $tile = $pheromoneTile->getTile();
+                $adjacentTiles = $this->getAdjacentTiles($tile);
+                foreach ($adjacentTiles as $adjacentTile) {
+                    if ($this->isValidPosition($player, $adjacentTile)) {
+                        $result->add($adjacentTile);
+                    }
+                }
+            }
+        }
+        return $result;
+    }
+
+    /**
      * canChooseThisBonus : checks if the player can choose the selected bonus in the workshopArea
      * @param PlayerMYR $player
      * @param int       $workshopArea
@@ -93,7 +121,7 @@ class WorkshopMYRService
      */
     private function playerReachedAnthillHoleLimit(PlayerMYR $player) : bool
     {
-        return $player->getAnthillHoleMYRs()->count() >= MyrmesParameters::$MAX_ANTHILL_HOLE_NB;
+        return $player->getAnthillHoleMYRs()->count() >= MyrmesParameters::MAX_ANTHILL_HOLE_NB;
     }
 
     /**
@@ -110,6 +138,10 @@ class WorkshopMYRService
         $mainBoard = $player->getGameMyr()->getMainBoardMYR();
         $pheromoneTile = $this->pheromoneTileMYRRepository->findBy(["mainBoard" => $mainBoard, "tile" => $tile]);
         if ($pheromoneTile != null) {
+            return false;
+        }
+        $anthillHole = $this->anthillHoleMYRRepository->findBy(["mainBoard" => $mainBoard, "tile" => $tile]);
+        if ($anthillHole != null) {
             return false;
         }
         $prey = $this->preyMYRRepository->findBy(["mainBoardMYR" => $mainBoard, "tile" => $tile]);
@@ -155,8 +187,10 @@ class WorkshopMYRService
 
     /**
      * Manage all change driven by add anthill hole
-     * @param int $nursesCount
+     *
+     * @param int       $nursesCount
      * @param PlayerMYR $player
+     * @param TileMYR   $tile
      * @return void
      * @throws Exception
      */
@@ -320,9 +354,15 @@ class WorkshopMYRService
                 $pBoard->removePlayerResourceMYR($playerResource);
             }
 
-            $nurse = new NurseMYR();
-            $nurse->setPosition(MyrmesParameters::BASE_AREA);
-            $pBoard->addNurse($nurse);
+            $nurse = $this->nurseMYRRepository->findOneBy(['available' => false]);
+            if($nurse != null) {
+                $nurse->setAvailable(true);
+                $nurse->setArea(MyrmesParameters::BASE_AREA);
+                $this->entityManager->persist($nurse);
+                $this->entityManager->persist($pBoard);
+            } else {
+                throw new Exception("Can't have a new nurse, already reach the limit");
+            }
             $this->MYRService->manageNursesAfterBonusGive(
                 $player, 1, MyrmesParameters::WORKSHOP_NURSE_AREA
             );
