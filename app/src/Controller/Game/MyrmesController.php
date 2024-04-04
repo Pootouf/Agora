@@ -61,7 +61,8 @@ class MyrmesController extends AbstractController
             'isBirthPhase' => $this->service->isInPhase($player, MyrmesParameters::PHASE_BIRTH),
             'nursesOnLarvaeBirthTrack' => $this->service->getNursesAtPosition($player, MyrmesParameters::LARVAE_AREA)->count(),
             'nursesOnSoldiersBirthTrack' => $this->service->getNursesAtPosition($player, MyrmesParameters::SOLDIERS_AREA)->count(),
-            'nursesOnWorkersBirthTrack' => $this->service->getNursesAtPosition($player, MyrmesParameters::WORKER_AREA)->count()
+            'nursesOnWorkersBirthTrack' => $this->service->getNursesAtPosition($player, MyrmesParameters::WORKER_AREA)->count(),
+            'isSelectingAnthillHoleToSendWorker' => false
         ]);
     }
 
@@ -275,7 +276,7 @@ class MyrmesController extends AbstractController
     public function placeWorkerOnColonyLevelTrack(
         #[MapEntity(id: 'gameId')] GameMYR $game,
         int $level
-    )
+    ) : Response
     {
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
@@ -295,5 +296,39 @@ class MyrmesController extends AbstractController
         $message = $player->getUsername() . " a placé une ouvrière sur le niveau de fourmilière " . $level;
         $this->logService->sendPlayerLog($game, $player, $message);
         return new Response("placed worker on colony", Response::HTTP_OK);
+    }
+
+    #[Route('/games/myrmes/{gameId}/selectAntHillHoleToSendWorker', name: 'app_game_myrmes_select_anthillhole')]
+    public function selectAntHillHoleToSendWorker(
+        #[MapEntity(id: 'gameId')] GameMYR $game
+    ) : Response
+    {
+        return $this->render('/Game/Myrmes/index.html.twig', [
+            'isSelectingAnthillHoleToSendWorker' => true
+        ]);
+    }
+
+    #[Route('/games/myrmes/{gameId}/placeWorkerOnAntHillHole/{tileX}/{tileY}', name: 'app_game_myrmes_place_worker_anthillhole')]
+    public function placeWorkerOnAntHillHole(
+        #[MapEntity(id: 'gameId')] GameMYR $game,
+        int $tileX,
+        int $tileY
+    ) : Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('invalid player', Response::HTTP_FORBIDDEN);
+        }
+        try {
+            //TODO: call function to place worker on garden
+        } catch (Exception) {
+            $message = $player->getUsername()
+                . " a essayé de sortir une ouvrière sur sa sortie de fourmilière  mais n'a pas pu.";
+            $this->logService->sendPlayerLog($game, $player, $message);
+            return new Response("failed to place worker on garden", Response::HTTP_FORBIDDEN);
+        }
+        $message = $player->getUsername() . " a placé une ouvrière sur sa sortie de fourmilière";
+        $this->logService->sendPlayerLog($game, $player, $message);
+        return new Response("placed worker on garden", Response::HTTP_OK);
     }
 }
