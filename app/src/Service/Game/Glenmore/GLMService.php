@@ -219,7 +219,6 @@ class GLMService
             }
         }
         if ($this->isGameEnded($gameGLM)) {
-            // TODO RETURN CODE TO PUBLISH WINNERS
             $winners = $this->getWinner($gameGLM);
             $message = "";
             foreach ($winners as $winner) {
@@ -227,8 +226,6 @@ class GLMService
             }
             $message .= " ont gagné la partie " . $gameGLM->getId();
             $this->logService->sendSystemLog($gameGLM, $message);
-        } else {
-            // TODO RETURN CODE TO PUBLISH
         }
         if ($newPlayer->isBot()) {
             $this->manageBotAction($newPlayer);
@@ -546,7 +543,7 @@ class GLMService
      * getSortedListTile : returns sorted list of (players, resourceAmount) by amount of tile
      *
      * @param GameGLM $gameGLM
-     * @return array
+     * @return array<Int, array<Int, CardGLMService>>
      */
     private function getSortedListTile(GameGLM $gameGLM): array
     {
@@ -569,10 +566,11 @@ class GLMService
     /**
      * computePoints : adds points to each player
      *
-     * @param $playersResources
+     * @param array<PlayerGLM, array<Int>> $playersResources
      * @return void
+     * @throws Exception
      */
-    private function computePoints($playersResources): void
+    private function computePoints(array $playersResources): void
     {
         $minResource = $playersResources[0][1];
         for ($i = 1; $i < count($playersResources); ++$i) {
@@ -608,10 +606,10 @@ class GLMService
     /**
      * retrievePoints : removes points to each player
      *
-     * @param $playersResources
+     * @param array $playersResources
      * @return void
      */
-    private function retrievePoints($playersResources): void
+    private function retrievePoints(array $playersResources): void
     {
         $minResource = $playersResources[0][1];
         for ($i = 1; $i < count($playersResources); ++$i) {
@@ -666,8 +664,11 @@ class GLMService
 
     /**
      * initializeBot: initialize the bot
-     * @param GameGLM $game
-     * @param int $position
+     *
+     * @param GameGLM     $game
+     * @param int         $position
+     * @param array<TileGLM>       $startVillages
+     * @param ResourceGLM $villager
      * @return void
      */
     private function initializeBot(GameGLM $game, int $position, array &$startVillages, ResourceGLM $villager) : void
@@ -701,8 +702,8 @@ class GLMService
      * initializeNewTile: initialize a new tile on the main board
      * @param GameGLM $game
      * @param int $position
-     * @param array $tilesLevelZero
-     * @param array $tilesLevelOne
+     * @param array<TileGLM> $tilesLevelZero
+     * @param array<TileGLM> $tilesLevelOne
      * @return void
      */
     private function initializeNewTile(GameGLM $game, int $position, array &$tilesLevelZero, array &$tilesLevelOne) : void
@@ -724,7 +725,7 @@ class GLMService
     /**
      * initializePlayerBoard: initialize the personalBoard of a player
      * @param PlayerGLM $player
-     * @param array $startVillages
+     * @param array<TileGLM> $startVillages
      * @param ResourceGLM $villager
      * @return void
      */
@@ -802,10 +803,10 @@ class GLMService
 
     /**
      * initializeDraws: initialize the draws of the game
-     * @param array $tilesLevelZero
-     * @param array $tilesLevelOne
-     * @param array $tilesLevelTwo
-     * @param array $tilesLevelThree
+     * @param array<TileGLM> $tilesLevelZero
+     * @param array<TileGLM> $tilesLevelOne
+     * @param array<TileGLM> $tilesLevelTwo
+     * @param array<TileGLM> $tilesLevelThree
      * @param DrawTilesGLM $drawLevelZero
      * @param DrawTilesGLM $drawLevelOne
      * @param DrawTilesGLM $drawLevelTwo

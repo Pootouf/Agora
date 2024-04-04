@@ -184,14 +184,14 @@ class TileGLMService
         $tileDownRight = $this->playerTileGLMRepository->findOneBy(['coord_X' => $x + 1, 'coord_Y' => $y + 1
             , 'personalBoard' => $player->getPersonalBoard()]);
 
+        /** @var ArrayCollection<Int, PlayerTileGLM> $tiles */
+        $tiles = new ArrayCollection(
+            [$tileLeft, $tileRight, $tileUp, $tileDown,
+                $tileUpLeft, $tileUpRight, $tileDownLeft, $tileDownRight]
+        );
         //Verification of the constraints
         return $this->verifyRoadAndRiverConstraints($tile, $tileLeft, $tileRight, $tileUp, $tileDown)
-            && $this->isVillagerInAdjacentTiles(
-                new ArrayCollection(
-                    [$tileLeft, $tileRight, $tileUp, $tileDown,
-                        $tileUpLeft, $tileUpRight, $tileDownLeft, $tileDownRight]
-                )
-            );
+            && $this->isVillagerInAdjacentTiles($tiles);
     }
 
     /**
@@ -253,13 +253,14 @@ class TileGLMService
     public function canBuyLochOich(TileGLM $tile, PlayerGLM $player) : bool
     {
         $playerTiles = $player->getPersonalBoard()->getPlayerTiles();
+        /** @var ArrayCollection<Int, ResourceGLM> $playerResources */
         $playerResources = new ArrayCollection();
         $warehouse = $player->getGameGLM()->getMainBoard()->getWarehouse();
         $money = $player->getPersonalBoard()->getMoney();
         foreach ($playerTiles as $playerTile) {
             foreach ($playerTile->getPlayerTileResource() as $playerTileResource) {
                 if (!$playerResources->contains($playerTileResource->getResource())) {
-                    $playerResources->add($playerTileResource);
+                    $playerResources->add($playerTileResource->getResource());
                 }
             }
         }
@@ -267,7 +268,13 @@ class TileGLMService
         while ($playerResources->count() < 2 && $i < 5) {
             $line = $warehouse->getWarehouseLine()->get($i);
             ++$i;
-            if ($playerResources->contains($line->getResource())) {
+            $found = false;
+            foreach ($playerResources as $playerResource) {
+                if ($playerResource === $line->getResource()) {
+                    $found = true;
+                }
+            }
+            if ($found) {
                 continue;
             }
             if ($line->getQuantity() == 3) {
@@ -426,7 +433,7 @@ class TileGLMService
      *
      * @param PlayerTileGLM   $tileGLM
      * @param PlayerGLM       $playerGLM
-     * @param ArrayCollection $activableTiles
+     * @param ArrayCollection<Int, PlayerTileGLM> $activableTiles
      * @return void
      * @throws Exception
      */
@@ -896,7 +903,7 @@ class TileGLMService
      * verifyAllPositionOnPersonalBoard : for each player tile, verify if the tile in parameter can be placed next to it
      * @param PersonalBoardGLM $personalBoardGLM
      * @param TileGLM $tileGLM
-     * @return array
+     * @return array<array<Int, Int>>
      */
     public function verifyAllPositionOnPersonalBoard(PersonalBoardGLM $personalBoardGLM, TileGLM $tileGLM): array
     {
@@ -922,8 +929,10 @@ class TileGLMService
 
     /**
      * Assign tile for player when conditions are verified
+     *
      * @param BoardTileGLM $boardTile
-     * @param PlayerGLM $player
+     * @param PlayerGLM    $player
+     * @return array<array<Int, Int>>
      * @throws Exception
      */
     public function assignTileToPlayer(BoardTileGLM $boardTile, PlayerGLM $player) : array
@@ -1237,7 +1246,7 @@ class TileGLMService
 
     /**
      * isVillagerInAdjacentTiles: return true if a villager is found in at least one of the adjacentTiles
-     * @param Collection $adjacentTiles
+     * @param Collection<Int, PlayerTileGLM> $adjacentTiles
      * @return bool
      */
     private function isVillagerInAdjacentTiles(Collection $adjacentTiles) : bool
@@ -1281,15 +1290,14 @@ class TileGLMService
      * @param PlayerGLM $playerGLM
      * @param MainBoardGLM $mainBoard
      * @param int $position
-     * @return BoardTileGLM|null
+     * @return PawnGLM|null
      */
     private function getPawnsAtPosition(PlayerGLM $playerGLM, MainBoardGLM $mainBoard, int $position): PawnGLM|null
     {
+        /** @var ArrayCollection<Int, PawnGLM> $pawns */
        $pawns = new ArrayCollection();
        foreach ($mainBoard->getPawns() as $pawn) {
-           //if ($pawn->getPlayerGLM() !== $playerGLM) {
-               $pawns->add($pawn);
-           //}
+           $pawns->add($pawn);
        }
         foreach ($pawns as $pawn) {
             if ($pawn->getPosition() == $position)
@@ -1305,10 +1313,10 @@ class TileGLMService
      * getTileInPosition : return BoardTileGLM in position $position,
      *      or null if there is no tile here
      * @param MainBoardGLM $mainBoardGLM
-     * @param $position
+     * @param int $position
      * @return BoardTileGLM|null
      */
-    private function getTileInPosition(MainBoardGLM $mainBoardGLM, $position): BoardTileGLM | null
+    private function getTileInPosition(MainBoardGLM $mainBoardGLM, int $position): BoardTileGLM | null
     {
         $mainBoardTiles = $mainBoardGLM->getBoardTiles();
         foreach ($mainBoardTiles as $boardTile){
@@ -1325,7 +1333,7 @@ class TileGLMService
      * @param PlayerGLM $playerGLM
      * @param PlayerTileGLM|null $playerTileGLM
      * @param ResourceGLM $resource
-     * @param Collection<TileBuyCostGLM> $cost cost of the tile
+     * @param Collection<Int, mixed> $cost cost of the tile
      * @return void
      * @throws Exception if the selected resources can't be used to buy the tile
      */
@@ -1641,7 +1649,7 @@ class TileGLMService
 
     /**
      * canPickThisResource : checks if resource is different from all other resources contained in selectedResources
-     * @param Collection  $selectedResources
+     * @param Collection<Int, SelectedResourceGLM>  $selectedResources
      * @param ResourceGLM $resource
      * @return bool
      */
@@ -1723,7 +1731,7 @@ class TileGLMService
      * @param PlayerGLM          $playerGLM
      * @param PlayerTileGLM|null $playerTileGLM
      * @param ResourceGLM        $resource
-     * @param Collection         $cost
+     * @param Collection<Int, TileBuyCostGLM|TileActivationCostGLM>         $cost
      * @return void
      * @throws Exception
      */
@@ -1752,7 +1760,7 @@ class TileGLMService
      * @param PlayerGLM          $playerGLM
      * @param PlayerTileGLM|null $playerTileGLM
      * @param ResourceGLM        $resource
-     * @param Collection         $cost
+     * @param Collection<Int, TileBuyCostGLM|TileActivationCostGLM>         $cost
      * @return void
      * @throws Exception
      */
@@ -1776,11 +1784,11 @@ class TileGLMService
     }
 
     /**
-     * selectResourceForLochOich : select a resource for grocer tile
+     * selectResourceForLochOich : select a resource for Loch Oich
      * @param PlayerGLM          $playerGLM
      * @param PlayerTileGLM|null $playerTileGLM
      * @param ResourceGLM        $resource
-     * @param Collection         $cost
+     * @param Collection<Int, TileBuyCostGLM|TileActivationCostGLM>         $cost
      * @return void
      * @throws Exception
      */

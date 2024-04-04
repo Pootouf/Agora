@@ -25,8 +25,10 @@ class WarehouseGLMService
 
     /**
      * sellResource : A player sells one resource when conditions are verified
-     * @param PlayerGLM $player
-     * @param ResourceGLM $resource
+     *
+     * @param PlayerGLM           $player
+     * @param ResourceGLM         $resource
+     * @param SelectedResourceGLM $selectedResourceGLM
      * @return void
      * @throws Exception
      */
@@ -106,7 +108,7 @@ class WarehouseGLMService
         }
         $buyingTile = $player->getPersonalBoard()->getBuyingTile();
         $activatingTile = $player->getPersonalBoard()->getActivatedTile();
-        if ($buyingTile == null && $activatingTile == null) {
+        if ($buyingTile == null && $activatingTile == null || $activatingTile != null && $buyingTile != null) {
             throw new Exception("player does not need to buy resources, not correct phase");
         }
 
@@ -114,8 +116,10 @@ class WarehouseGLMService
         $found = false;
         if ($buyingTile != null) {
             if ($buyingTile->getBoardTile()->getTile()->getName() === GlenmoreParameters::$CARD_LOCH_OICH) {
-                if ($player->getPersonalBoard()->getSelectedResources()->contains($resource)) {
-                    throw new Exception("player does not need to buy this resource for Loch Oich");
+                foreach ($player->getPersonalBoard()->getSelectedResources() as $selectedResource) {
+                    if ($selectedResource->getResource() === $resource) {
+                        throw new Exception("player does not need to buy this resource for Loch Oich");
+                    }
                 }
             } else {
                 $buyPrice = $buyingTile->getBoardTile()->getTile()->getBuyPrice();
