@@ -49,6 +49,11 @@ export default class extends Controller  {
         const response = await fetch(url);
     }
 
+    async placeWorkerOnAntHillHole(hole) {
+        let url = hole.params.url;
+        await fetch(url);
+    }
+
     //place worker on colony level track
 
     async placeWorkerOnColonyLevelTrack(level) {

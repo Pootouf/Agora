@@ -65,6 +65,20 @@
                     Placer un trou de fourmis
                 </button>
             {% endif %}
+            {% if selectedBox.anthillHole != null and isSelectingAnthillHoleToSendWorker %}
+                <button type="button">
+                    {{ stimulus_action('myrmes', 'placeWorkerOnAntHillHole', 'click',
+                        {url: path('app_game_myrmes_place_worker_anthillhole',
+                            {
+                                gameId: game.id,
+                                tileX: selectedBox.tile.coord_X,
+                                tileY: selectBox.tile.coord_Y
+                            })})
+                    }}
+                    <img src="{{ asset('resourcesGames/Myrmes/personalBoard/sendWorkerToGardenButton.svg') }}"
+                         alt="place worker on this anthill hole">
+                </button>
+            {% endif %}
 
         {% endif %}
         <button id="return_board" onclick="closeSelectedBoxWindow()"
