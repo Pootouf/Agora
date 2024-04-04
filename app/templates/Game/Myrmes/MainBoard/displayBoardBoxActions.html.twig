@@ -68,7 +68,7 @@
                     <p>Sélectionner la ressource pour la récolter :</p>
                     <img class="max-h-[5vw]"
                          src="{{ asset('resourcesGames/Myrmes/resources/' ~
-                             {{ boardBox.pheromonTile.resource }} ~ '.svg') }}"
+                             boardBox.pheromonTile.resource ~ '.svg') }}"
                          alt="dirt"
                             {{ stimulus_action('myrmes','harvestResource','click',
                                 {url:path('app_game_myrmes_harvest_resource',

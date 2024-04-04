@@ -52,10 +52,12 @@
         }
         function closeSelectedBoxWindow() {
             let window = document.getElementById('selectedBoxActions');
-            let tile = document.getElementsByClassName("displayedActionsTile").item(0);
-            tile.classList.value = "";
-            tile.classList.add("fill-[rgba(0,_0,_0,_0)]")
-            window.remove();
+            if(window !== null) {
+                let tile = document.getElementsByClassName("displayedActionsTile").item(0);
+                tile.classList.value = "";
+                tile.classList.add("fill-[rgba(0,_0,_0,_0)]")
+                window.remove();
+            }
         }
     </script>
 

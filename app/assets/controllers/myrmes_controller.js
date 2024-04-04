@@ -75,6 +75,7 @@ export default class extends Controller  {
     }
 
     async displayBoxActions(boardBox) {
+        closeSelectedBoxWindow();
         let url = boardBox.params.url
         const response = await fetch(url);
         let tree = document.getElementById("index_myrmes");
