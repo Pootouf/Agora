@@ -301,8 +301,8 @@ sonarqube-check:
       - .sonar/cache
   script: 
     - sonar-scanner \
-       -Dsonar.php.tests.reportPath=reports/$(ls app/reports/ | tr '\n' ' ' | sed 's/ /reports\//g') \
-       -Dsonar.php.coverage.reportPaths=coverage/$(ls app/coverage/ | tr '\n' ' ' | sed 's/ /coverage\//g')
+       -Dsonar.php.tests.reportPath=reports/$(ls app/reports/ | tr '\n' ' ' | sed 's/ /,reports\//g') \
+       -Dsonar.php.coverage.reportPaths=coverage/$(ls app/coverage/ | tr '\n' ' ' | sed 's/ /,coverage\//g')
 
   allow_failure: true
   only:
