@@ -301,12 +301,7 @@ sonarqube-check:
     paths:
       - .sonar/cache
   script: 
-    - sonar-scanner \
-        -Dsonar.language=php \
-        -Dsonar.sources=app/src \
-        -Dsonar.test=app/tests \
-        -Dsonar.php.tests.reportPath=app/reports/$(ls | tr '\n' ' ' | sed 's/ /app\/reports\//g')
-        -Dsonar.php.coverage.reportPaths=app/coverage/$(ls | tr '\n' ' ' | sed 's/ /app\/coverage\//g')
+    - sonar-scanner
   allow_failure: true
   only:
     - develop-game
