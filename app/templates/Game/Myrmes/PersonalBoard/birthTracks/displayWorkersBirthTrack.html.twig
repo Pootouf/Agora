@@ -5,8 +5,11 @@ This section displays the birth track for workers.
 #}
 <div class="relative w-1/6 h-full justify-start align-top inline-flex flex-col gap-[0.4vw]" id="workers">
     {#workers counter#}
-    <div class="inlineFlex items-center gap-[0.3vw] w-full {% if isPreview %} h-[1.0vw] {% else %} h-[5vw] {% endif %}" id="workerCount">
-        <p class="relative w-10 h-fit {% if isPreview %}text_mini {% else %} text3-4 {% endif %}">X</p>
+    <div class="inlineFlex items-center gap-[0.3vw] w-full {% if isPreview %} h-[1.0vw] {% else %} h-[5vw] {% endif %}"
+         id="workerCount">
+        <p class="relative w-10 h-fit {% if isPreview %}text_mini {% else %} text3-4 {% endif %}">
+            {{ player.personalBoardMYR.anthillWorkers.count }}
+        </p>
         <img class="h-full" id="workerIcon"
              src="{{ asset('resourcesGames/Myrmes/workerIcon.svg') }}"
              alt="worker icon"/>
