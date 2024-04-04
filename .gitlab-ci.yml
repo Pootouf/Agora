@@ -85,12 +85,13 @@ unitFactory:
   needs: []
   stage: factory
   script:
-    - php bin/phpunit --coverage-text --log-junit build/phpUnitFactory.xml --coverage-clover build/coverageUnitFactory.xml --colors=never tests/Game/Factory/Unit
+    - php bin/phpunit --coverage-text --log-junit reports/phpUnitFactory.xml --coverage-clover coverage/coverageUnitFactory.xml --colors=never tests/Game/Factory/Unit
   allow_failure: false
   environment: test
   artifacts:
     paths:
-      - build/*
+      - reports/*
+      - coverage/*
     expire_in: 30 min
 
 integrationFactory:
@@ -101,12 +102,13 @@ integrationFactory:
     - preprod
     - main
   script:
-    - php bin/phpunit --coverage-text --log-junit build/phpIntegrationFactory.xml --coverage-clover build/coverageIntegrationFactory.xml --colors=never tests/Game/Factory/Integration
+    - php bin/phpunit --coverage-text --log-junit reports/phpIntegrationFactory.xml --coverage-clover coverage/coverageIntegrationFactory.xml --colors=never tests/Game/Factory/Integration
   allow_failure: false
   environment: test
   artifacts:
     paths:
-      - build/*
+      - reports/*
+      - coverage/*
     expire_in: 30 min
 
 unit6QP:
@@ -118,7 +120,8 @@ unit6QP:
   environment: test
   artifacts:
     paths:
-      - build/*
+      - reports/*
+      - coverage/*
     expire_in: 30 min
 
 integration6QP:
@@ -134,7 +137,8 @@ integration6QP:
   environment: test
   artifacts:
     paths:
-      - build/*
+      - reports/*
+      - coverage/*
     expire_in: 30 min
 
 application6QP:
@@ -151,7 +155,8 @@ application6QP:
   environment: test
   artifacts:
     paths:
-      - build/*
+      - reports/*
+      - coverage/*
     expire_in: 30 min
 
 unitSplendor:
@@ -163,7 +168,8 @@ unitSplendor:
   environment: test
   artifacts:
     paths:
-      - build/*
+      - reports/*
+      - coverage/*
     expire_in: 30 min
 
 integrationSplendor:
@@ -179,7 +185,8 @@ integrationSplendor:
   environment: test
   artifacts:
     paths:
-      - build/*
+      - reports/*
+      - coverage/*
     expire_in: 30 min
 
 applicationSplendor:
@@ -196,7 +203,8 @@ applicationSplendor:
   environment: test
   artifacts:
     paths:
-      - build/*
+      - reports/*
+      - coverage/*
     expire_in: 30 min
 
 unitGlenmore:
@@ -208,7 +216,8 @@ unitGlenmore:
   environment: test
   artifacts:
     paths:
-      - build/*
+      - reports/*
+      - coverage/*
     expire_in: 30 min
 
 integrationGlenmore:
@@ -224,7 +233,8 @@ integrationGlenmore:
   environment: test
   artifacts:
     paths:
-      - build/*
+      - reports/*
+      - coverage/*
     expire_in: 30 min
 
 applicationGlenmore:
@@ -241,7 +251,8 @@ applicationGlenmore:
   environment: test
   artifacts:
     paths:
-      - build/*
+      - reports/*
+      - coverage/*
     expire_in: 30 min
 
 unitMyrmes:
@@ -253,7 +264,8 @@ unitMyrmes:
   environment: test
   artifacts:
     paths:
-      - build/*
+      - reports/*
+      - coverage/*
     expire_in: 30 min
 
 integrationMyrmes:
@@ -269,7 +281,8 @@ integrationMyrmes:
   environment: test
   artifacts:
     paths:
-      - build/*
+      - reports/*
+      - coverage/*
     expire_in: 30 min
 
 
