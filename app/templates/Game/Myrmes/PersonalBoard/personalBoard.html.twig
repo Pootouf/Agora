@@ -11,7 +11,7 @@ This section displays the personal board of a player
     {% set gapSize = 'gap-[0.3vw]' %}
     {% set gapBetweenAreasSize = '' %}
 {% else %}
-    {% set gapSize = 'gap-[1.5vw]' %}
+    {% set gapSize = 'gap-[1vw]' %}
     {% set gapBetweenAreasSize = 'gap-[2vw]' %}
 {% endif %}
 {% if not isAnotherPlayerBoard %}
@@ -39,16 +39,17 @@ This section displays the personal board of a player
         {% else %}
             absolute left-0 w-[75%] h-full
         {% endif%}
-        inlineFlex gap-[1vw] justify-center items-center"
+        inlineFlex gap-[1vw]"
     >
         {# loading tailwind data#}
         {{ include('Game/Myrmes/PersonalBoard/loadingPersonalBoardData.html.twig') }}
-        <div class="inlineFlexCol {% if isPreview %}gap-[0.3vw]{% else %}gap-[2vw]{% endif %} w-[45%]" id="left-column">
+        <div class="inlineFlexCol {% if isPreview %}gap-[0.3vw]{% else %}gap-[1vw]{% endif %} w-[45%]" id="left-column">
             {#birth tracks#}
             {{ include('Game/Myrmes/PersonalBoard/displayBirthTrack.html.twig') }}
             {#nurse counter#}
             <div class="w-full" id="nurses">
-                <p class="{% if isPreview %}text_mini {% else %} text1-4 {% endif %}">Nourrices : X</p>
+                <p class="{% if isPreview %}text_mini {% else %} text1-4 {% endif %}">
+                    Nourrices : {{ player.personalBoardMYR.nurses.count }}</p>
             </div>
             {#event track#}
             {{ include('Game/Myrmes/PersonalBoard/displayEventTrack.html.twig') }}
