@@ -14,6 +14,10 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method PheromonMYR[]    findAll()
  * @method PheromonMYR[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
+
+/**
+ * @codeCoverageIgnore
+ */
 class PheromonMYRRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)

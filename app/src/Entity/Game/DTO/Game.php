@@ -10,7 +10,8 @@ use Doctrine\ORM\Mapping\MappedSuperclass;
 class Game
 {
     #[ORM\Id]
-    #[ORM\GeneratedValue]
+    #[ORM\GeneratedValue(strategy: "CUSTOM")]
+    #[ORM\CustomIdGenerator(class: "App\Generator\Game\GameIdGenerator")]
     #[ORM\Column]
     protected ?int $id = null;
 

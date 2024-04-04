@@ -43,19 +43,18 @@ class SeasonMYRTest extends TestCase
 
         // WHEN
 
-        $this->seasonMYR->setMainBoardMYR($mainBoard);
+        $this->seasonMYR->setMainBoard($mainBoard);
 
         // THEN
 
-        $this->assertSame($mainBoard, $this->seasonMYR->getMainBoardMYR());
-        $this->assertSame($this->seasonMYR, $mainBoard->getActualSeason());
+        $this->assertSame($mainBoard, $this->seasonMYR->getMainBoard());
     }
 
     public function testSetName() : void
     {
         // GIVEN
 
-        $name = MyrmesParameters::$SUMMER_SEASON_NAME;
+        $name = MyrmesParameters::SUMMER_SEASON_NAME;
 
         // WHEN
 

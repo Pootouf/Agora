@@ -64,6 +64,21 @@ class GLMControllerTest extends WebTestCase
             $this->client->getResponse()->getStatusCode());
     }
 
+    public function testPlayerSelectCardFromBoard(): void
+    {
+        //GIVEN
+        $gameId = $this->initializeGameWithFivePlayers();
+        $game = $this->gameGLMRepository->findOneById($gameId);
+        $player = $game->getPlayers()->first();
+        $url = "/game/glenmore/" . $gameId . "/display/propertyCards/" . $player->getId();
+        //WHEN
+        $this->client->request("GET", $url);
+        $user = $this->gameUserRepository->findOneByUsername("test0");
+        $this->client->loginUser($user);
+        //THEN
+        $this->expectNotToPerformAssertions();
+    }
+
     // TODO uncomment
     /*public function testBuyResourceWhenPlayerIsNotActive() : void
     {

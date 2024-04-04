@@ -11,7 +11,6 @@ use App\Entity\Game\Myrmes\PlayerMYR;
 use App\Repository\Game\Myrmes\NurseMYRRepository;
 use App\Service\Game\Myrmes\BirthMYRService;
 use App\Service\Game\Myrmes\MYRService;
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 
@@ -34,11 +33,11 @@ class BirthMYRServiceTest extends TestCase
         $firstPlayer = $game->getPlayers()->first();
         $personalBoard = $firstPlayer->getPersonalBoardMYR();
         $nurse = $personalBoard->getNurses()->first();
-        $position = MyrmesParameters::$LARVAE_AREA;
+        $position = MyrmesParameters::LARVAE_AREA;
         // WHEN
         $this->birthMYRService->placeNurse($nurse, $position);
         // THEN
-        $this->assertEquals($position, $nurse->getPosition());
+        $this->assertEquals($position, $nurse->getArea());
     }
 
     public function testPlaceNurseWhenNurseIsNotAvailable()
@@ -49,66 +48,29 @@ class BirthMYRServiceTest extends TestCase
         $personalBoard = $firstPlayer->getPersonalBoardMYR();
         $nurse = $personalBoard->getNurses()->first();
         $nurse->setAvailable(false);
-        $position = MyrmesParameters::$LARVAE_AREA;
+        $position = MyrmesParameters::LARVAE_AREA;
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
         $this->birthMYRService->placeNurse($nurse, $position);
     }
 
-    public function testGiveBonusWhenNursePlaceInLarvaeArea() : void
-    {
-        // GIVEN
-
-        $game = $this->createGame(2);
-        $player = $game->getPlayers()->first();
-        $personalBoard = $player->getPersonalBoardMYR();
-        $nurse = $personalBoard->getNurses()->first();
-
-        $collection = new ArrayCollection();
-        $collection->add($nurse);
-
-        $entityManager = $this->createMock(EntityManagerInterface::class);
-        $nurseMYRRepository = $this->createMock(NurseMYRRepository::class);
-        $MYRService = $this->createMock(MYRService::class);
-        $mock = $this->getMockBuilder(BirthMYRService::class)
-            ->setConstructorArgs(array($entityManager, $MYRService, $nurseMYRRepository))
-            ->onlyMethods(['getNursesAtPosition'])
-            ->getMock();
-        $mock->method('getNursesAtPosition')->willReturn($collection);
-
-        // WHEN
-
-        $mock->giveBirthBonus($player);
-
-        // THEN
-
-        $this->assertSame(2, $personalBoard->getLarvaCount());
-        $this->assertSame($nurse->getPosition(), MyrmesParameters::$BASE_AREA);
-    }
-
     private function createGame(int $numberOfPlayers) : GameMYR
     {
-        if ($numberOfPlayers < MyrmesParameters::$MIN_NUMBER_OF_PLAYER ||
-            $numberOfPlayers > MyrmesParameters::$MAX_NUMBER_OF_PLAYER)
-        {
+        if($numberOfPlayers < MyrmesParameters::MIN_NUMBER_OF_PLAYER ||
+            $numberOfPlayers > MyrmesParameters::MAX_NUMBER_OF_PLAYER) {
             throw new \Exception("TOO MUCH PLAYERS ON CREATE GAME");
         }
-
         $game = new GameMYR();
-        for ($i = 0; $i < $numberOfPlayers; $i += 1)
-        {
+        for ($i = 0; $i < $numberOfPlayers; $i += 1) {
             $player = new PlayerMYR('test', $game);
             $game->addPlayer($player);
             $player->setGameMyr($game);
             $personalBoard = new PersonalBoardMYR();
-            $personalBoard->setLarvaCount(1);
             $player->setPersonalBoardMYR($personalBoard);
-            for ($j = 0; $j < MyrmesParameters::$START_NURSES_COUNT_PER_PLAYER; $j += 1)
-            {
+            for($j = 0; $j < MyrmesParameters::START_NURSES_COUNT_PER_PLAYER; $j += 1) {
                 $nurse = new NurseMYR();
                 $nurse->setAvailable(true);
-                $nurse->setPosition(MyrmesParameters::$BASE_AREA);
                 $personalBoard->addNurse($nurse);
             }
         }

@@ -39,58 +39,69 @@ export default class extends Controller {
 
 	async selectResource(resource) {
 		let url = resource.params.url;
-		const response = await fetch(url);
+		await fetch(url);
 	}
 
 	async activateTile(tile) {
 		let url = tile.params.url;
 		document.getElementById("returnArrow").click();
-		const response = await fetch(url);
+		await fetch(url);
 	}
 
 	async removeVillager(tile) {
 		let url = tile.params.url;
 		const response = await fetch(url);
+		if (response.status === 200) {
+			closeSelectedTileWindow();
+		}
 	}
 
 	async moveVillager(tile) {
 		let url = tile.params.url;
 		const response = await fetch(url);
+		if (response.status === 200) {
+			closeSelectedTileWindow();
+		}
 	}
 
 	async validateNewResourcesAcquisition(tile) {
 		let url = tile.params.url;
-		const response = await fetch(url);
+		await fetch(url);
 	}
 
 	async cancelNewResourcesAcquisition(tile) {
 		let url = tile.params.url;
-		const response = await fetch(url);
+		await fetch(url);
 	}
 
 	async validateResourcesSelection(tile) {
 		let url = tile.params.url;
-		const response = await fetch(url);
+		await fetch(url);
 	}
 
 	async cancelResourcesSelection(tile) {
 		let url = tile.params.url;
-		const response = await fetch(url);
+		await fetch(url);
 	}
 
 	async cancelBuyingTile(tile) {
 		let url = tile.params.url;
-		const response = await fetch(url);
+		await fetch(url);
+	}
+
+	async cancelActivatingTile(tile) {
+		let url = tile.params.url;
+		await fetch(url);
 	}
 
 	async endRoundPlayer(player) {
 		let url = player.params.url;
-		const response = await fetch(url);
+		await fetch(url);
 	}
 
 	async endActivationTilesPhase(player) {
 		let url = player.params.url;
-		const response = await fetch(url);
+		await fetch(url);
 	}
 
     async buyTile(tile) {
@@ -115,7 +126,7 @@ export default class extends Controller {
 
 	async putTileInPersonalBoard(tile) {
 		let url = tile.params.url;
-		const response = await fetch(url);
+		await fetch(url);
 	}
 
 	async togglePlayerPersonalBoard(open) {
@@ -199,6 +210,6 @@ export default class extends Controller {
 
 	async selectNewResourceAcquisition(resource) {
 		let url = resource.params.url;
-		const response = await fetch(url);
+		await fetch(url);
 	}
 }

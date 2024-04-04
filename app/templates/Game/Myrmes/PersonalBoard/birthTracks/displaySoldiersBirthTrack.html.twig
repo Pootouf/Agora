@@ -1,0 +1,69 @@
+{#
+This section displays the birth track for soldiers.
+@param :
+@return :
+#}
+<div class="relative w-1/6 h-full justify-start align-top inline-flex flex-col gap-[0.4vw]" id="soldiers">
+    {#soldiers counter#}
+    <div class="inlineFlex gap-[0.3vw] items-center w-full {% if isPreview %} h-[1.0vw] {% else %} h-[5vw] {% endif %}" id="soldierCount">
+        <p class="relative w-10 h-fit {% if isPreview %}text_mini {% else %} text3-4 {% endif %}">X</p>
+        <img class="h-full" id="soldierIcon"
+             src="{{ asset('resourcesGames/Myrmes/soldierIcon.svg') }}"
+             alt="soldier icon"/>
+    </div>
+    <div class="inlineFlexCol gap-[0.6vw]">
+        {# soldiers birth track#}
+        <div class="inlineFlexCol items-center gap-[0.3vw] relative" id="soldierTrack">
+            <div class="{{ birthTrackSize }} {% if isPreview %}birthTrackIconMini{% else %}birthTrackIcon{% endif %}">
+                <svg viewBox="0 0 300 300">
+                    <polygon points="100,0 200,0 300,100 300,200 200,300 100,300 0,200 0,100"
+                             fill="
+                                {% if nursesOnSoldiersBirthTrack == 0 %}
+                                    black
+                                {% elseif nursesOnSoldiersBirthTrack >= 3 %}
+                                    {{ player.color }}
+                                {% endif %}"></polygon>
+                </svg>
+            </div>
+            <div class="{{ birthTrackSize }} {% if isPreview %}birthTrackIconMini{% else %}birthTrackIcon{% endif %}">
+                <svg viewBox="0 0 300 300">
+                    <polygon points="100,0 200,0 300,100 300,200 200,300 100,300 0,200 0,100"
+                             fill="
+                                {% if nursesOnSoldiersBirthTrack == 0 %}
+                                    black
+                                {% elseif nursesOnSoldiersBirthTrack >= 2 %}
+                                    {{ player.color }}
+                                {% endif %}"></polygon>
+                </svg>
+                <svg viewBox="0 0 300 300">
+                    <polygon points="100,0 200,0 300,100 300,200 200,300 100,300 0,200 0,100"
+                             fill="
+                                {% if nursesOnSoldiersBirthTrack == 0 %}
+                                    black
+                                {% elseif nursesOnSoldiersBirthTrack >= 1 %}
+                                    {{ player.color }}
+                                {% endif %}"></polygon>
+                </svg>
+            </div>
+        </div>
+        {# button to place nurse on soldiers birth track#}
+        {% if not isPreview %}
+        <div class="flex justify-center">
+            <{% if playerPhase == PHASE_BIRTH %}button {% else %}div{% endif%}
+                    type="button" class="{{ placeButtonSize }}"
+                    {% if playerPhase == PHASE_BIRTH %}
+                        {{ stimulus_action('myrmes','placeNurseOnSoldiersTrack','click',
+                            {url: path('app_game_myrmes_place_nurse',
+                                {gameId: game.id, position: SOLDIERS_BIRTH_TRACK_POSITION})
+                            })
+                        }}
+                    {% endif %}
+            >
+                <img class="relative" id="soldierButton"
+                     src="{{ asset('resourcesGames/Myrmes/myrmesArrow.svg') }}"
+                     alt="place soldier"/>
+            </{% if playerPhase == PHASE_BIRTH %}button {% else %}div{% endif%}>
+        </div>
+        {% endif %}
+    </div>
+</div>

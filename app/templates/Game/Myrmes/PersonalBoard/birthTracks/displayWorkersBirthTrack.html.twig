@@ -1,0 +1,78 @@
+{#
+This section displays the birth track for workers.
+@param :
+@return :
+#}
+<div class="relative w-1/6 h-full justify-start align-top inline-flex flex-col gap-[0.4vw]" id="workers">
+    {#workers counter#}
+    <div class="inlineFlex items-center gap-[0.3vw] w-full {% if isPreview %} h-[1.0vw] {% else %} h-[5vw] {% endif %}" id="workerCount">
+        <p class="relative w-10 h-fit {% if isPreview %}text_mini {% else %} text3-4 {% endif %}">X</p>
+        <img class="h-full" id="workerIcon"
+             src="{{ asset('resourcesGames/Myrmes/workerIcon.svg') }}"
+             alt="worker icon"/>
+    </div>
+    <div class="inlineFlexCol gap-[0.6vw]">
+        {# workers birth track#}
+        <div class="inlineFlexCol items-center gap-[0.3vw] relative" id="workersTrack">
+            <div class="{{ birthTrackSize }} {% if isPreview %}birthTrackIconMini{% else %}birthTrackIcon{% endif %}">
+                <svg viewBox="0 0 300 300">
+                    <polygon points="100,0 200,0 300,100 300,200 200,300 100,300 0,200 0,100"
+                             fill="
+                                {% if nursesOnWorkersBirthTrack == 0 %}
+                                    black
+                                {% elseif nursesOnWorkersBirthTrack >= 4 %}
+                                    {{ player.color }}
+                                {% endif %}"></polygon>
+                </svg>
+                <svg viewBox="0 0 300 300">
+                    <polygon points="100,0 200,0 300,100 300,200 200,300 100,300 0,200 0,100"
+                             fill="
+                                {% if nursesOnWorkersBirthTrack == 0 %}
+                                    black
+                                {% elseif nursesOnWorkersBirthTrack >= 3 %}
+                                    {{ player.color }}
+                                {% endif %}"></polygon>
+                </svg>
+            </div>
+            <div class="{{ birthTrackSize }} {% if isPreview %}birthTrackIconMini{% else %}birthTrackIcon{% endif %}">
+                <svg viewBox="0 0 300 300">
+                    <polygon points="100,0 200,0 300,100 300,200 200,300 100,300 0,200 0,100"
+                             fill="
+                                {% if nursesOnWorkersBirthTrack == 0 %}
+                                    black
+                                {% elseif nursesOnWorkersBirthTrack >= 2 %}
+                                    {{ player.color }}
+                                {% endif %}"></polygon>
+                </svg>
+                <svg viewBox="0 0 300 300">
+                    <polygon points="100,0 200,0 300,100 300,200 200,300 100,300 0,200 0,100"
+                             fill="
+                                {% if nursesOnWorkersBirthTrack == 0 %}
+                                    black
+                                {% elseif nursesOnWorkersBirthTrack >= 1 %}
+                                    {{ player.color }}
+                                {% endif %}"></polygon>
+                </svg>
+            </div>
+        </div>
+        {#button to place nurse on workers birth place#}
+        {% if not isPreview %}
+        <div class="flex justify-center">
+            <{% if playerPhase == PHASE_BIRTH %}button {% else %}div{% endif%}
+                    type="button" class="{{ placeButtonSize }}"
+                    {% if playerPhase == PHASE_BIRTH %}
+                        {{ stimulus_action('myrmes','placeNurseOnWorkersTrack','click',
+                            {url: path('app_game_myrmes_place_nurse',
+                                {gameId: game.id, position: WORKERS_BIRTH_TRACK_POSITION})
+                            })
+                        }}
+                    {% endif %}
+            >
+                <img class="relative" id="workerButton"
+                     src="{{ asset('resourcesGames/Myrmes/myrmesArrow.svg') }}"
+                     alt="place worker"/>
+            </{% if playerPhase == PHASE_BIRTH %}button {% else %}div{% endif%}>
+        </div>
+        {% endif %}
+    </div>
+</div>

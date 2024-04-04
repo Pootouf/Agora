@@ -113,13 +113,19 @@ class WarehouseGLMService
         $playerResources = $this->tileGLMService->getPlayerProductionResources($player);
         $found = false;
         if ($buyingTile != null) {
-            $buyPrice = $buyingTile->getBoardTile()->getTile()->getBuyPrice();
-            foreach ($buyPrice as $price) {
-                if ($price->getResource() === $resource) {
-                    $requiredResource = $price;
-                    $found = true;
-                    if ($playerResources[$resource->getColor()] >= $requiredResource->getPrice()) {
-                        throw new Exception("player does not need to buy this resource, too much possessed to buy");
+            if ($buyingTile->getBoardTile()->getTile()->getName() === GlenmoreParameters::$CARD_LOCH_OICH) {
+                if ($player->getPersonalBoard()->getSelectedResources()->contains($resource)) {
+                    throw new Exception("player does not need to buy this resource for Loch Oich");
+                }
+            } else {
+                $buyPrice = $buyingTile->getBoardTile()->getTile()->getBuyPrice();
+                foreach ($buyPrice as $price) {
+                    if ($price->getResource() === $resource) {
+                        $requiredResource = $price;
+                        $found = true;
+                        if ($playerResources[$resource->getColor()] >= $requiredResource->getPrice()) {
+                            throw new Exception("player does not need to buy this resource, too much possessed to buy");
+                        }
                     }
                 }
             }

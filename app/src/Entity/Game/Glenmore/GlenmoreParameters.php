@@ -142,4 +142,7 @@ class GlenmoreParameters {
     public static int $MINIMUM_NUMBER_PLAYER_FOR_NO_BOT = 4;
     public static string $BOT_NAME = 'bot';
 
+    //NOTIFICATIONS
+    public static int $NOTIFICATION_DURATION = 10;
+
 }

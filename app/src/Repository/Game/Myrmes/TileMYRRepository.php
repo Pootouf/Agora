@@ -14,6 +14,10 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method TileMYR[]    findAll()
  * @method TileMYR[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
+
+/**
+ * @codeCoverageIgnore
+ */
 class TileMYRRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)

@@ -14,7 +14,7 @@ This section displays the ranking with a view of the other players' possessions
 	</div>
 </div>
 
-<div class="overflow-y-auto">
+<div class="flex-grow-0 w-full h-[80%] lg:h-[2/5] landscape:5/6 overflow-y-auto">
 	{% for playerData in playersDataResources %}
 		{% if not playerData.player.isBot %}
 			{# Tailwind loading of background color in order red yellow blue white green #}
@@ -80,7 +80,7 @@ This section displays the ranking with a view of the other players' possessions
 								{url:path('app_game_glenmore_display_player_property_cards',
 									{idGame: game.id, idPlayer: playerData.player.id})
 								}) }}
-									class="relative w-[1/4]">
+									class="relative p-1 bg-[#ca8a04] rounded-lg shadow-black shadow-md w-[1/4]">
 								<img class="relative items-center justify-center
 									max-h-8"
 								     src="{{ asset('resourcesGames/utils/propertyCardIcon.svg') }}" alt="leader"/>

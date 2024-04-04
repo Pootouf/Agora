@@ -1,0 +1,25 @@
+{#
+This section displays the storage of the player
+@param :
+@return :
+#}
+<div class="inlineFlexCol {{ gapSize }} items-center" id="warehouse">
+    <p class="relative w-fit mb-px {% if isPreview %}text_mini {% else %} text2-4 {% endif %}">Entrepôt</p>
+    <div class="grid grid-cols-2 grid-rows-3 w-fit items-start gap-[0.3vw]" id="warehouseCases">
+        {#warehouse's cases#}
+        {% for i in 1..6 %}
+            <{% if not isPreview %}button{% else %}div{% endif%} type="button"
+                                                                 class="relative
+                                                                    {% if isPreview %}
+                                                                        w-[1vw] h-[1vw]
+                                                                    {% else %}
+                                                                        w-[3vw] h-[3vw]
+                                                                    {% endif %}
+                        {% if i < 5 %} bg-[#ffffff99]
+                        {% else %} bg-[#00000099]
+                        {% endif %}"
+                    {{ stimulus_action('myrmes','throwResourceFromWarehouse','click') }}
+            ></{% if not isPreview %}button{% else %}div{% endif %}>
+        {% endfor %}
+    </div>
+</div>

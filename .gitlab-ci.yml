@@ -6,6 +6,7 @@ stages:
   - splendor
   - glenmore
   - myrmes
+  - sonarqube
   - deploy
 
 cache:
@@ -62,7 +63,7 @@ before_script:
     - ssh $SERVER_USER@$SERVER_IP "cd $SERVER_LOCATION && docker compose down && docker volume prune -a"
 
     # Launch project
-    - ssh $SERVER_USER@$SERVER_IP "cd $SERVER_LOCATION && docker compose -f compose.yaml -f $DOCKER_COMPOSE_FILE up --build -d"
+    - ssh $SERVER_USER@$SERVER_IP "cd $SERVER_LOCATION && docker compose -f compose_monitor_light.yaml -f $DOCKER_COMPOSE_FILE up --build -d"
   only:
     - develop-game
 
@@ -81,6 +82,7 @@ deploy:dev_game:
     ID_RSA: $ID_RSA_GAME
 
 unitFactory:
+  needs: []
   stage: factory
   script:
     - php bin/phpunit tests/Game/Factory/Unit
@@ -88,6 +90,7 @@ unitFactory:
   environment: test
 
 integrationFactory:
+  needs: []
   stage: factory
   only:
     - develop-game
@@ -99,6 +102,7 @@ integrationFactory:
   environment: test
 
 unit6QP:
+  needs: []
   stage: sixqp
   script:
     - php bin/phpunit tests/Game/SixQP/Unit
@@ -106,6 +110,7 @@ unit6QP:
   environment: test
 
 integration6QP:
+  needs : []
   stage: sixqp
   only:
     - develop-game
@@ -117,6 +122,7 @@ integration6QP:
   environment: test
 
 application6QP:
+  needs: []
   stage: sixqp
   only:
     - develop-game
@@ -129,6 +135,7 @@ application6QP:
   environment: test
 
 unitSplendor:
+  needs: []
   stage: splendor
   script:
     - php bin/phpunit tests/Game/Splendor/Unit
@@ -136,6 +143,7 @@ unitSplendor:
   environment: test
 
 integrationSplendor:
+  needs: []
   stage: splendor
   only:
     - develop-game
@@ -147,6 +155,7 @@ integrationSplendor:
   environment: test
 
 applicationSplendor:
+  needs: []
   stage: splendor
   only:
     - develop-game
@@ -159,6 +168,7 @@ applicationSplendor:
   environment: test
 
 unitGlenmore:
+  needs: []
   stage: glenmore
   script:
     - php bin/phpunit tests/Game/Glenmore/Unit
@@ -166,6 +176,7 @@ unitGlenmore:
   environment: test
 
 integrationGlenmore:
+  needs: []
   stage: glenmore
   only:
     - develop-game
@@ -176,7 +187,21 @@ integrationGlenmore:
   allow_failure: false
   environment: test
 
+applicationGlenmore:
+  needs: []
+  stage: glenmore
+  only:
+    - develop-game
+    - preprod
+    - main
+  script:
+    - symfony console tailwind:build
+    - php bin/phpunit tests/Game/Glenmore/Application
+  allow_failure: false
+  environment: test
+
 unitMyrmes:
+    needs: []
     stage: myrmes
     script:
       - php bin/phpunit tests/Game/Myrmes/Unit
@@ -184,6 +209,7 @@ unitMyrmes:
     environment: test
 
 integrationMyrmes:
+  needs: []
   stage: myrmes
   only:
     - develop-game
@@ -193,3 +219,26 @@ integrationMyrmes:
     - php bin/phpunit tests/Game/Myrmes/Integration
   allow_failure: false
   environment: test
+
+
+sonarqube-check:
+  stage: sonarqube
+  before_script:
+    - ''
+  image: 
+    name: sonarsource/sonar-scanner-cli:latest
+    entrypoint: [""]
+  variables:
+    SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
+    GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
+  cache:
+    key: "${CI_JOB_NAME}"
+    paths:
+      - .sonar/cache
+  script: 
+    - sonar-scanner
+  allow_failure: true
+  only:
+    - develop-game
+    - preprod
+    - main
