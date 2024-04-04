@@ -10,6 +10,7 @@ use App\Entity\Game\Myrmes\PheromonTileMYR;
 use App\Entity\Game\Myrmes\PlayerMYR;
 use App\Entity\Game\Myrmes\PlayerResourceMYR;
 use App\Entity\Game\Myrmes\TileMYR;
+use App\Repository\Game\Myrmes\NurseMYRRepository;
 use App\Repository\Game\Myrmes\PheromonMYRRepository;
 use App\Repository\Game\Myrmes\PheromonTileMYRRepository;
 use App\Repository\Game\Myrmes\PlayerResourceMYRRepository;
@@ -33,7 +34,8 @@ class WorkshopMYRService
                                 private readonly TileMYRRepository $tileMYRRepository,
                                 private readonly PheromonMYRRepository $pheromonMYRRepository,
                                 private readonly ResourceMYRRepository $resourceMYRRepository,
-                                private readonly PlayerResourceMYRRepository $playerResourceMYRRepository)
+                                private readonly PlayerResourceMYRRepository $playerResourceMYRRepository,
+                                private readonly NurseMYRRepository $nurseMYRRepository)
     {}
 
     /**
@@ -93,7 +95,7 @@ class WorkshopMYRService
      */
     private function playerReachedAnthillHoleLimit(PlayerMYR $player) : bool
     {
-        return $player->getAnthillHoleMYRs()->count() >= MyrmesParameters::$MAX_ANTHILL_HOLE_NB;
+        return $player->getAnthillHoleMYRs()->count() >= MyrmesParameters::MAX_ANTHILL_HOLE_NB;
     }
 
     /**
@@ -320,9 +322,15 @@ class WorkshopMYRService
                 $pBoard->removePlayerResourceMYR($playerResource);
             }
 
-            $nurse = new NurseMYR();
-            $nurse->setPosition(MyrmesParameters::BASE_AREA);
-            $pBoard->addNurse($nurse);
+            $nurse = $this->nurseMYRRepository->findOneBy(['available' => false]);
+            if($nurse != null) {
+                $nurse->setAvailable(true);
+                $nurse->setArea(MyrmesParameters::BASE_AREA);
+                $this->entityManager->persist($nurse);
+                $this->entityManager->persist($pBoard);
+            } else {
+                throw new Exception("Can't have a new nurse, already reach the limit");
+            }
             $this->MYRService->manageNursesAfterBonusGive(
                 $player, 1, MyrmesParameters::WORKSHOP_NURSE_AREA
             );

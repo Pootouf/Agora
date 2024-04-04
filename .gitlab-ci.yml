@@ -6,6 +6,7 @@ stages:
   - splendor
   - glenmore
   - myrmes
+  - sonarqube
   - deploy
 
 cache:
@@ -84,9 +85,14 @@ unitFactory:
   needs: []
   stage: factory
   script:
-    - php bin/phpunit tests/Game/Factory/Unit
+    - php bin/phpunit --coverage-text --log-junit reports/phpUnitFactory.xml --coverage-clover coverage/coverageUnitFactory.xml --colors=never tests/Game/Factory/Unit
   allow_failure: false
   environment: test
+  artifacts:
+    paths:
+      - reports/*
+      - coverage/*
+    expire_in: 30 min
 
 integrationFactory:
   needs: []
@@ -96,17 +102,27 @@ integrationFactory:
     - preprod
     - main
   script:
-    - php bin/phpunit tests/Game/Factory/Integration
+    - php bin/phpunit --coverage-text --log-junit reports/phpIntegrationFactory.xml --coverage-clover coverage/coverageIntegrationFactory.xml --colors=never tests/Game/Factory/Integration
   allow_failure: false
   environment: test
+  artifacts:
+    paths:
+      - reports/*
+      - coverage/*
+    expire_in: 30 min
 
 unit6QP:
   needs: []
   stage: sixqp
   script:
-    - php bin/phpunit tests/Game/SixQP/Unit
+    - php bin/phpunit --coverage-text --log-junit reports/phpUnit6QP.xml --coverage-clover coverage/coverageUnit6QP.xml --colors=never tests/Game/SixQP/Unit
   allow_failure: false
   environment: test
+  artifacts:
+    paths:
+      - reports/*
+      - coverage/*
+    expire_in: 30 min
 
 integration6QP:
   needs : []
@@ -116,9 +132,14 @@ integration6QP:
     - preprod
     - main
   script:
-    - php bin/phpunit tests/Game/SixQP/Integration
+    - php bin/phpunit --coverage-text --log-junit reports/phpIntegration6QP.xml --coverage-clover coverage/coverageIntegration6QP.xml --colors=never tests/Game/SixQP/Integration
   allow_failure: false
   environment: test
+  artifacts:
+    paths:
+      - reports/*
+      - coverage/*
+    expire_in: 30 min
 
 application6QP:
   needs: []
@@ -129,17 +150,27 @@ application6QP:
     - main
   script:
     - symfony console tailwind:build
-    - php bin/phpunit tests/Game/SixQP/Application
+    - php bin/phpunit --coverage-text --log-junit reports/phpApp6QP.xml --coverage-clover coverage/coverageApp6QP.xml --colors=never tests/Game/SixQP/Application
   allow_failure: false
   environment: test
+  artifacts:
+    paths:
+      - reports/*
+      - coverage/*
+    expire_in: 30 min
 
 unitSplendor:
   needs: []
   stage: splendor
   script:
-    - php bin/phpunit tests/Game/Splendor/Unit
+    - php bin/phpunit --coverage-text --log-junit reports/phpUnitSplendor.xml --coverage-clover coverage/coverageUnitSplendor.xml --colors=never tests/Game/Splendor/Unit
   allow_failure: false
   environment: test
+  artifacts:
+    paths:
+      - reports/*
+      - coverage/*
+    expire_in: 30 min
 
 integrationSplendor:
   needs: []
@@ -149,9 +180,14 @@ integrationSplendor:
     - preprod
     - main
   script:
-    - php bin/phpunit tests/Game/Splendor/Integration
+    - php bin/phpunit --coverage-text --log-junit reports/phpIntegrationSplendor.xml --coverage-clover coverage/coverageIntegrationSplendor.xml --colors=never tests/Game/Splendor/Integration
   allow_failure: false
   environment: test
+  artifacts:
+    paths:
+      - reports/*
+      - coverage/*
+    expire_in: 30 min
 
 applicationSplendor:
   needs: []
@@ -162,17 +198,27 @@ applicationSplendor:
     - main
   script:
     - symfony console tailwind:build
-    - php bin/phpunit tests/Game/Splendor/Application
+    - php bin/phpunit --coverage-text --log-junit reports/phpAppSplendor.xml --coverage-clover coverage/coverageAppSplendor.xml --colors=never tests/Game/Splendor/Application
   allow_failure: false
   environment: test
+  artifacts:
+    paths:
+      - reports/*
+      - coverage/*
+    expire_in: 30 min
 
 unitGlenmore:
   needs: []
   stage: glenmore
   script:
-    - php bin/phpunit tests/Game/Glenmore/Unit
+    - php bin/phpunit --coverage-text --log-junit reports/phpUnitGlenmore.xml --coverage-clover coverage/coverageUnitGlenmore.xml --colors=never tests/Game/Glenmore/Unit
   allow_failure: false
   environment: test
+  artifacts:
+    paths:
+      - reports/*
+      - coverage/*
+    expire_in: 30 min
 
 integrationGlenmore:
   needs: []
@@ -182,9 +228,14 @@ integrationGlenmore:
     - preprod
     - main
   script:
-    - php bin/phpunit tests/Game/Glenmore/Integration
+    - php bin/phpunit --coverage-text --log-junit reports/phpIntegrationGlenmore.xml --coverage-clover coverage/coverageIntegrationGlenmore.xml --colors=never tests/Game/Glenmore/Integration
   allow_failure: false
   environment: test
+  artifacts:
+    paths:
+      - reports/*
+      - coverage/*
+    expire_in: 30 min
 
 applicationGlenmore:
   needs: []
@@ -195,17 +246,27 @@ applicationGlenmore:
     - main
   script:
     - symfony console tailwind:build
-    - php bin/phpunit tests/Game/Glenmore/Application
+    - php bin/phpunit --coverage-text --log-junit reports/phpAppGlenmore.xml --coverage-clover coverage/coverageAppGlenmore.xml --colors=never tests/Game/Glenmore/Application
   allow_failure: false
   environment: test
+  artifacts:
+    paths:
+      - reports/*
+      - coverage/*
+    expire_in: 30 min
 
 unitMyrmes:
-    needs: []
-    stage: myrmes
-    script:
-      - php bin/phpunit tests/Game/Myrmes/Unit
-    allow_failure: false
-    environment: test
+  needs: []
+  stage: myrmes
+  script:
+    - php bin/phpunit --coverage-text --log-junit reports/phpUnitMyrmes.xml --coverage-clover coverage/coverageUnitMyrmes.xml --colors=never tests/Game/Myrmes/Unit
+  allow_failure: false
+  environment: test
+  artifacts:
+    paths:
+      - reports/*
+      - coverage/*
+    expire_in: 30 min
 
 integrationMyrmes:
   needs: []
@@ -215,6 +276,40 @@ integrationMyrmes:
     - preprod
     - main
   script:
-    - php bin/phpunit tests/Game/Myrmes/Integration
+    - php bin/phpunit --coverage-text --log-junit reports/phpIntegrationMyrmes.xml --coverage-clover coverage/coverageIntegrationMyrmes.xml --colors=never tests/Game/Myrmes/Integration
   allow_failure: false
   environment: test
+  artifacts:
+    paths:
+      - reports/*
+      - coverage/*
+    expire_in: 30 min
+
+
+sonarqube-check:
+  stage: sonarqube
+  before_script:
+    - ''
+  image: 
+    name: sonarsource/sonar-scanner-cli:latest
+    entrypoint: [""]
+  variables:
+    SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
+    GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
+  cache:
+    key: "${CI_JOB_NAME}"
+    paths:
+      - .sonar/cache
+  script: 
+    - sonar-scanner \
+        -Dsonar.language=php \
+        -Dsonar.qualitygate.wait=true \
+        -Dsonar.sources=src \
+        -Dsonar.test=tests \
+        -Dsonar.php.tests.reportPath=reports/$(ls -m | sed 's/ /reports\//g')
+        -Dsonar.php.coverage.reportPaths=coverage/$(ls -m | sed 's/ /coverage\//g')
+  allow_failure: true
+  only:
+    - develop-game
+    - preprod
+    - main

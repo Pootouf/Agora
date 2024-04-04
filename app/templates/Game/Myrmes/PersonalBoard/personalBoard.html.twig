@@ -15,6 +15,20 @@ This section displays the personal board of a player
     {% set gapBetweenAreasSize = 'gap-[2vw]' %}
 {% endif %}
 {% if not isAnotherPlayerBoard %}
+
+{# Definition of constants #}
+{% set PHASE_EVENT = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::PHASE_EVENT') %}
+{% set PHASE_BIRTH = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::PHASE_BIRTH') %}
+{% set PHASE_WORKER = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::PHASE_WORKER') %}
+{% set PHASE_HARVEST = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::PHASE_HARVEST') %}
+{% set PHASE_WORKSHOP = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::PHASE_WORKSHOP') %}
+
+{% set LARVAE_BIRTH_TRACK_POSITION = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::LARVAE_AREA') %}
+{% set SOLDIERS_BIRTH_TRACK_POSITION = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::SOLDIERS_AREA') %}
+{% set WORKERS_BIRTH_TRACK_POSITION = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::WORKER_AREA') %}
+{% set WORKSHOP_AREA = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::WORKSHOP_AREA') %}
+
+
 <div {% if not isPreview %}id="personalBoard"{% endif %}
      class="absolute top-0 left-0 w-full h-full bg-black bg-opacity-70 flex z-50 text-white items-center justify-center"
 >
@@ -58,16 +72,29 @@ This section displays the personal board of a player
         </div>
         {#colony level track#}
         {{ include('Game/Myrmes/PersonalBoard/displayColonyLevelTrack.html.twig') }}
-        {% if not isPreview %}
-        <button id="return_board" onclick="closeWindow()"
-                class="rounded-lg bg-[#8F901F] py-2 px-3 m-1 portrait:text-2xl items-center"
-        >
-            <img src="{{ asset('resourcesGames/utils/return-arrow.svg') }}" id="returnArrow"
-                 alt="return on board"
-                 class="h-6 max-h-full">
-        </button>
+
+        {% if not isPreview and playerPhase == PHASE_BIRTH %}
+            <div class="flex flex-col justify-center items-center">
+                <button type="button" class="rounded-lg bg-[#8F901F] py-2 px-3 m-1 portrait:text-2xl items-center"
+                        {{ stimulus_action('myrmes','confirmNursesPlacement','click',
+                            {url: path('app_game_myrmes_confirm_nurses', {gameId: game.id})})
+                        }}>
+                    <img class="h-6 max-h-full"
+                         src="{{ asset('resourcesGames/utils/checkmark.svg') }}"
+                         alt="confirm nurses placement">
+                </button>
+                <button type="button" class="rounded-lg bg-[#8F901F] py-2 px-3 m-1 portrait:text-2xl items-center"
+                        {{ stimulus_action('myrmes','cancelNursesPlacement','click',
+                            {url: path('app_game_myrmes_cancel_nurses', {gameId: game.id})})
+                        }}>
+                    <img class="h-6 max-h-full"
+                         src="{{ asset('resourcesGames/utils/cross.svg') }}"
+                         alt="confirm nurses placement">
+                </button>
+            </div>
         {% endif %}
-        {% if not isAnotherPlayerBoard %}
+
+        {% if not isAnotherPlayerBoard and not isPreview %}
             <button id="return_board" onclick="closeWindow()"
                     class="rounded-lg bg-[#8F901F] py-2 px-3 m-1 portrait:text-2xl items-center"
             >

@@ -56,12 +56,21 @@ class MyrmesController extends AbstractController
             'isSpectator' => $player == null,
             'needToPlay' => true,//$player == null ? false : $player->isTurnOfPlayer(),
             'selectedBox' => null,
-            'playerPhase' => $player->getPhase(),
+            'playerPhase' => $player== null ? $game->getPlayers()->first()->getPhase() : $player->getPhase(),
             'isAnotherPlayerBoard' => false,
             'isBirthPhase' => $this->service->isInPhase($player, MyrmesParameters::PHASE_BIRTH),
-            'nursesOnLarvaeBirthTrack' => $this->service->getNursesAtPosition($player, MyrmesParameters::LARVAE_AREA)->count(),
-            'nursesOnSoldiersBirthTrack' => $this->service->getNursesAtPosition($player, MyrmesParameters::SOLDIERS_AREA)->count(),
-            'nursesOnWorkersBirthTrack' => $this->service->getNursesAtPosition($player, MyrmesParameters::WORKER_AREA)->count(),
+            'nursesOnLarvaeBirthTrack' => $this->service->getNursesAtPosition(
+                $player,
+                MyrmesParameters::LARVAE_AREA
+            )->count(),
+            'nursesOnSoldiersBirthTrack' => $this->service->getNursesAtPosition(
+                $player,
+                MyrmesParameters::SOLDIERS_AREA
+            )->count(),
+            'nursesOnWorkersBirthTrack' => $this->service->getNursesAtPosition(
+                $player,
+                MyrmesParameters::WORKER_AREA
+            )->count(),
             'isSelectingAnthillHoleToSendWorker' => false
         ]);
     }
@@ -80,13 +89,24 @@ class MyrmesController extends AbstractController
             'isSpectator' => $player == null,
             'needToPlay' => true,//$player == null ? false : $player->isTurnOfPlayer()
             'isAnotherPlayerBoard' => false,
-            'nursesOnLarvaeBirthTrack' => $this->service->getNursesAtPosition($player, MyrmesParameters::LARVAE_AREA)->count(),
-            'nursesOnSoldiersBirthTrack' => $this->service->getNursesAtPosition($player, MyrmesParameters::SOLDIERS_AREA)->count(),
-            'nursesOnWorkersBirthTrack' => $this->service->getNursesAtPosition($player, MyrmesParameters::WORKER_AREA)->count()
+            'playerPhase' => $player->getPhase(),
+            'nursesOnLarvaeBirthTrack' => $this->service->getNursesAtPosition(
+                $player,
+                MyrmesParameters::LARVAE_AREA
+            )->count(),
+            'nursesOnSoldiersBirthTrack' => $this->service->getNursesAtPosition(
+                $player,
+                MyrmesParameters::SOLDIERS_AREA
+            )->count(),
+            'nursesOnWorkersBirthTrack' => $this->service->getNursesAtPosition(
+                $player,
+                MyrmesParameters::WORKER_AREA
+            )->count()
         ]);
     }
 
-    #[Route('/game/myrmes/{idGame}/displayPersonalBoard/{idPlayer}', name: 'app_game_myrmes_display_player_personal_board')]
+    #[Route('/game/myrmes/{idGame}/displayPersonalBoard/{idPlayer}',
+        name: 'app_game_myrmes_display_player_personal_board')]
     public function showPlayerPersonalBoard(
         #[MapEntity(id: 'idGame')] GameMYR $gameMYR,
         #[MapEntity(id: 'idPlayer')] PlayerMYR $playerMYR): Response
@@ -99,6 +119,7 @@ class MyrmesController extends AbstractController
                 'isPreview' => false,
                 'isSpectator' => true,
                 'isAnotherPlayerBoard' => true,
+                'playerPhase' => $playerMYR->getPhase(),
                 'isBirthPhase' => $this->service->isInPhase($playerMYR, MyrmesParameters::PHASE_BIRTH),
             ]);
     }
@@ -270,6 +291,22 @@ class MyrmesController extends AbstractController
         $message = $player->getUsername() . " a confirmé le placement de ses nourrices";
         $this->logService->sendPlayerLog($game, $player, $message);
         return new Response("nurses placement confirmed", Response::HTTP_OK);
+    }
+
+    #[Route('/game/myrmes/{gameId}/confirmNursesPlacement', name: 'app_game_myrmes_cancel_nurses')]
+    public function cancelNursesPlacement(
+        #[MapEntity(id: 'gameId')] GameMYR $game
+    ) : Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('invalid player', Response::HTTP_FORBIDDEN);
+        }
+        $this->birthMYRService->cancelNursesPlacement($player);
+
+        $message = $player->getUsername() . " a annulé le placement de ses nourrices";
+        $this->logService->sendPlayerLog($game, $player, $message);
+        return new Response("nurses placement canceled", Response::HTTP_OK);
     }
 
     #[Route('/game/myrmes/{gameId}/placeWorkerOnColonyLevelTrack/{level}', name: 'app_game_myrmes_place_worker_colony')]

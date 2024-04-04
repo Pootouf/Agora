@@ -32,8 +32,42 @@ class BirthMYRService
         if(!$nurseMYR->isAvailable()) {
             throw new Exception("NURSE NOT AVAILABLE");
         }
-        $nurseMYR->setPosition($newPosition);
+        $nurseMYR->setArea($newPosition);
         $this->entityManager->persist($nurseMYR);
+        $this->entityManager->flush();
+    }
+
+    /**
+     * giveBonusesFromEvent : get bonus from event phase
+     * @param PlayerMYR $player
+     * @return void
+     */
+    public function giveBonusesFromEvent(PlayerMYR $player) : void
+    {
+        $personalBoard = $player->getPersonalBoardMYR();
+        switch ($personalBoard->getBonus())
+        {
+            case MyrmesParameters::BONUS_LARVAE:
+                $oldLarvaCount = $personalBoard->getLarvaCount();
+                $personalBoard->setLarvaCount($oldLarvaCount + 2);
+                $this->entityManager->persist($personalBoard);
+                break;
+            case MyrmesParameters::BONUS_WARRIOR:
+                $oldWarriorCount =  $personalBoard->getWarriorsCount();
+                $personalBoard->setWarriorsCount($oldWarriorCount + 1);
+                $this->entityManager->persist($personalBoard);
+                break;
+            case MyrmesParameters::BONUS_WORKER:
+                $anthillWorker = new AnthillWorkerMYR();
+                $anthillWorker->setPlayer($player);
+                $anthillWorker->setWorkFloor(-1); // TODO use parameters
+                $personalBoard->addAnthillWorker($anthillWorker);
+                $this->entityManager->persist($anthillWorker);
+                $this->entityManager->persist($personalBoard);
+                break;
+            default:
+                break;
+        }
         $this->entityManager->flush();
     }
 
@@ -66,6 +100,22 @@ class BirthMYRService
         }
     }
 
+    /**
+     * cancelNursesPlacement : cancel the nurses placement on the birth tracks or workshop
+     * @param PlayerMYR $playerMYR
+     * @return void
+     */
+    public function cancelNursesPlacement(PlayerMYR $playerMYR): void
+    {
+        $nurses = $playerMYR->getPersonalBoardMYR()->getNurses();
+        foreach($nurses as $nurse) {
+            $nurse->setArea(MyrmesParameters::BASE_AREA);
+            $this->entityManager->persist($nurse);
+        }
+        $this->entityManager->persist($playerMYR->getPersonalBoardMYR());
+        $this->entityManager->flush();
+    }
+
     private function getGainByCountNurse(array $gainsByCountNurse, int $countNurse) : int
     {
         $isWin = array_key_exists($countNurse, $gainsByCountNurse);
@@ -85,9 +135,11 @@ class BirthMYRService
             MyrmesParameters::WIN_LARVAE_BY_NURSES_COUNT,
             $nursesCount
         );
+
         $personalBoard = $player->getPersonalBoardMYR();
         $personalBoard->setLarvaCount($personalBoard->getLarvaCount() + $winLarvae);
         $this->entityManager->persist($personalBoard);
+
         if ($winLarvae != 0)
         {
             $this->MYRService->manageNursesAfterBonusGive(
@@ -111,10 +163,13 @@ class BirthMYRService
             MyrmesParameters::WIN_SOLDIERS_BY_NURSES_COUNT,
             $nursesCount
         );
+
         $personalBoard = $player->getPersonalBoardMYR();
         $oldCountSoldiers = $personalBoard->getWarriorsCount();
         $newCountSoldiers = $oldCountSoldiers + $winSoldiers;
+
         $personalBoard->setWarriorsCount($newCountSoldiers);
+
         $this->entityManager->persist($personalBoard);
 
         if ($winSoldiers != 0)
@@ -142,13 +197,18 @@ class BirthMYRService
         );
 
         $personalBoard = $player->getPersonalBoardMYR();
+
         for ($count = 0; $count < $winWorker; $count++)
         {
             $worker = new AnthillWorkerMYR();
+            $worker->setPlayer($player);
+            $worker->setWorkFloor(-1); // TODO use parameters
+
             $personalBoard->addAnthillWorker($worker);
             $this->entityManager->persist($worker);
-            $this->entityManager->persist($personalBoard);
         }
+
+        $this->entityManager->persist($personalBoard);
 
         if ($winWorker != 0)
         {

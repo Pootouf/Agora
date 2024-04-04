@@ -37,7 +37,7 @@ class BirthMYRServiceTest extends TestCase
         // WHEN
         $this->birthMYRService->placeNurse($nurse, $position);
         // THEN
-        $this->assertEquals($position, $nurse->getPosition());
+        $this->assertEquals($position, $nurse->getArea());
     }
 
     public function testPlaceNurseWhenNurseIsNotAvailable()

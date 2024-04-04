@@ -6,26 +6,32 @@ export default class extends Controller  {
 
     async placeNurseOnLarvaeTrack(position) {
         let url = position.params.url;
-        const response = await fetch(url);
+        await fetch(url);
     }
 
     async placeNurseOnSoldiersTrack(position) {
         let url = position.params.url;
-        const response = await fetch(url);
+        await fetch(url);
     }
 
     async placeNurseOnWorkersTrack(position) {
         let url = position.params.url;
-        const response = await fetch(url);
+        await fetch(url);
+    }
+
+    async placeNurseOnWorkshop(position) {
+        let url = position.params.url;
+        await fetch(url);
     }
 
     async confirmNursesPlacement(confirm) {
         let url = confirm.params.url;
-        const response = await fetch(url);
+        await fetch(url);
     }
 
-    placeNurseOnWorkshop() {
-        alert("workshop");
+    async cancelNursesPlacement(confirm) {
+        let url = confirm.params.url;
+        await fetch(url);
     }
 
     //move on event track
@@ -58,7 +64,7 @@ export default class extends Controller  {
 
     async placeWorkerOnColonyLevelTrack(level) {
         let url = level.params.url;
-        const response = await fetch(url);
+        await fetch(url);
     }
 
     async showPersonalBoard(main)  {
