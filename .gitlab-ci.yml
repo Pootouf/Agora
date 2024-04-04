@@ -306,8 +306,8 @@ sonarqube-check:
         -Dsonar.qualitygate.wait=true \
         -Dsonar.sources=src \
         -Dsonar.test=tests \
-        -Dsonar.php.tests.reportPath=reports/$(ls -m | sed 's/ /reports\//g')
-        -Dsonar.php.coverage.reportPaths=coverage/$(ls -m | sed 's/ /coverage\//g')
+        -Dsonar.php.tests.reportPath=reports/$(ls | tr '\n' ' ' | sed 's/ /reports\//g')
+        -Dsonar.php.coverage.reportPaths=coverage/$(ls | tr '\n' ' ' | sed 's/ /coverage\//g')
   allow_failure: true
   only:
     - develop-game
