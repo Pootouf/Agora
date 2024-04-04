@@ -57,6 +57,13 @@ export default class extends Controller  {
         await fetch(url);
     }
 
+    //harvest a resource
+
+    async harvestResource(resource){
+        let url = resource.params.url;
+        await fetch(url)
+    }
+
     async showPersonalBoard(main)  {
         let url = main.params.url;
         const response = await fetch(url);
