@@ -60,6 +60,7 @@ class MyrmesController extends AbstractController
             'needToPlay' => true,//$player == null ? false : $player->isTurnOfPlayer(),
             'selectedBox' => null,
             'playerPhase' => $player== null ? $game->getPlayers()->first()->getPhase() : $player->getPhase(),
+            'actualSeason' => $this->service->getActualSeason($game),
             'isAnotherPlayerBoard' => false,
             'availableLarvae' => $this->service->getAvailableLarvae($player),
             'isBirthPhase' => $this->service->isInPhase($player, MyrmesParameters::PHASE_BIRTH),
@@ -96,6 +97,7 @@ class MyrmesController extends AbstractController
             'needToPlay' => true,//$player == null ? false : $player->isTurnOfPlayer()
             'isAnotherPlayerBoard' => false,
             'playerPhase' => $player->getPhase(),
+            'actualSeason' => $this->service->getActualSeason($game),
             'availableLarvae' => $this->service->getAvailableLarvae($player),
             'nursesOnLarvaeBirthTrack' => $this->service->getNursesAtPosition(
                 $player,
@@ -127,11 +129,19 @@ class MyrmesController extends AbstractController
                 'isSpectator' => true,
                 'isAnotherPlayerBoard' => true,
                 'playerPhase' => $playerMYR->getPhase(),
-                'availableLarvae' => $this->service->getAvailableLarvae($player),
+                'actualSeason' => $this->service->getActualSeason($gameMYR),
+                'availableLarvae' => $this->service->getAvailableLarvae($playerMYR),
                 'isBirthPhase' => $this->service->isInPhase($playerMYR, MyrmesParameters::PHASE_BIRTH),
-                'nursesOnLarvaeBirthTrack' => $this->service->getNursesAtPosition($playerMYR, MyrmesParameters::LARVAE_AREA)->count(),
-                'nursesOnSoldiersBirthTrack' => $this->service->getNursesAtPosition($playerMYR, MyrmesParameters::SOLDIERS_AREA)->count(),
-                'nursesOnWorkersBirthTrack' => $this->service->getNursesAtPosition($playerMYR, MyrmesParameters::WORKER_AREA)->count()
+                'nursesOnLarvaeBirthTrack' => $this->service->getNursesAtPosition(
+                    $playerMYR,
+                    MyrmesParameters::LARVAE_AREA
+                )->count(),
+                'nursesOnSoldiersBirthTrack' => $this->service->getNursesAtPosition(
+                    $playerMYR, MyrmesParameters::SOLDIERS_AREA
+                )->count(),
+                'nursesOnWorkersBirthTrack' => $this->service->getNursesAtPosition(
+                    $playerMYR, MyrmesParameters::WORKER_AREA
+                )->count()
             ]);
     }
 
