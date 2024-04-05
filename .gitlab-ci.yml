@@ -6,6 +6,7 @@ stages:
   - splendor
   - glenmore
   - myrmes
+  - report
   - sonarqube
   - deploy
 
@@ -284,6 +285,21 @@ integrationMyrmes:
       - app/coverage/*
     expire_in: 30 min
 
+report:
+  stage: report
+  before_script:
+    - ''
+  script:
+    - cd app
+    - composer install
+    - vendor/bin/phpunit-merger coverage coverage/ coverage/coverage.xml
+    - vendor/bin/phpunit-merger log reports/ reports/report.xml
+  allow_failure: false
+  artifacts:
+    paths:
+      - app/reports/report.xml
+      - app/coverage/coverage.xml
+    expire_in: 30 min
 
 sonarqube-check:
   stage: sonarqube
@@ -300,10 +316,7 @@ sonarqube-check:
     paths:
       - .sonar/cache
   script: 
-    - sonar-scanner \
-       -Dsonar.php.tests.reportPath=reports/$(ls app/reports/ | tr '\n' ' ' | sed 's/.$//' | sed 's/ /,reports\//g') \
-       -Dsonar.php.coverage.reportPaths=coverage/$(ls app/coverage/ | tr '\n' ' ' | sed 's/.$//' | sed 's/ /,coverage\//g')
-
+    - sonar-scanner
   allow_failure: true
   only:
     - develop-game

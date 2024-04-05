@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "45bc2be5a3ca755721f781c40f7116c7",
+    "content-hash": "343c9870804a3b94f1db73746c55c586",
     "packages": [
         {
             "name": "composer/semver",
@@ -8311,6 +8311,78 @@
                 "source": "https://github.com/nikic/PHP-Parser/tree/v5.0.1"
             },
             "time": "2024-02-21T19:24:10+00:00"
+        },
+        {
+            "name": "nimut/phpunit-merger",
+            "version": "2.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Nimut/phpunit-merger.git",
+                "reference": "87d4f86c254852ec1beacabe54a118a452c2f350"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Nimut/phpunit-merger/zipball/87d4f86c254852ec1beacabe54a118a452c2f350",
+                "reference": "87d4f86c254852ec1beacabe54a118a452c2f350",
+                "shasum": ""
+            },
+            "require": {
+                "ext-dom": "*",
+                "ext-json": "*",
+                "ext-simplexml": "*",
+                "php": "^8.0",
+                "phpunit/php-code-coverage": "^9.0 || ^10.0",
+                "symfony/console": ">=2.7 <7.0",
+                "symfony/finder": ">=2.7 <7.0"
+            },
+            "require-dev": {
+                "phpspec/prophecy": "^1.0",
+                "phpunit/phpunit": "^9.3 || ^10.0",
+                "symfony/filesystem": ">=2.7 <7.0"
+            },
+            "suggest": {
+                "friendsofphp/php-cs-fixer": "Tool to automatically fix PHP coding standards issues"
+            },
+            "bin": [
+                "bin/phpunit-merger"
+            ],
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Nimut\\PhpunitMerger\\": "src/PhpunitMerger/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0+"
+            ],
+            "authors": [
+                {
+                    "name": "Nicole Cordes",
+                    "email": "typo3@cordes.co",
+                    "homepage": "https://www.biz-design.biz",
+                    "role": "Developer"
+                },
+                {
+                    "name": "Helmut Hummel",
+                    "email": "info@helhum.io",
+                    "homepage": "https://helhum.io",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Merge multiple PHPUnit reports into one file",
+            "homepage": "https://github.com/Nimut/phpunit-merger",
+            "keywords": [
+                "TYPO3 CMS",
+                "coverage",
+                "phpunit",
+                "sonarqube"
+            ],
+            "support": {
+                "issues": "https://github.com/Nimut/phpunit-merger/issues",
+                "source": "https://github.com/Nimut/phpunit-merger/tree/2.0.0"
+            },
+            "time": "2023-10-02T17:41:59+00:00"
         },
         {
             "name": "phar-io/manifest",
