@@ -292,8 +292,8 @@ report:
     - composer install
   script:
     - vendor/bin/phpunit-merger coverage coverage/ coverage/coverage.xml
-    - vendor/bin/phpunit-merger log reports/ reports/report.xml
-    - cat reports/report.xml | sed 's/file="0"//' > reports/report.xml
+    - vendor/bin/phpunit-merger log reports/ reports/report_temp.xml
+    - cat reports/report_temp.xml | sed 's/file="0" //' > reports/report.xml
   allow_failure: false
   artifacts:
     paths:
