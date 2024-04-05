@@ -85,7 +85,7 @@ unitFactory:
   needs: []
   stage: factory
   script:
-    - php bin/phpunit --coverage-text --log-junit reports/phpUnitFactory.xml --coverage-clover coverage/coverageUnitFactory.xml --colors=never tests/Game/Factory/Unit
+    - php bin/phpunit --coverage-text --log-junit reports/phpUnitFactory.xml --coverage-php coverage/coverageUnitFactory.php --colors=never tests/Game/Factory/Unit
   allow_failure: false
   environment: test
   artifacts:
@@ -102,7 +102,7 @@ integrationFactory:
     - preprod
     - main
   script:
-    - php bin/phpunit --coverage-text --log-junit reports/phpIntegrationFactory.xml --coverage-clover coverage/coverageIntegrationFactory.xml --colors=never tests/Game/Factory/Integration
+    - php bin/phpunit --coverage-text --log-junit reports/phpIntegrationFactory.xml --coverage-php coverage/coverageIntegrationFactory.php --colors=never tests/Game/Factory/Integration
   allow_failure: false
   environment: test
   artifacts:
@@ -115,7 +115,7 @@ unit6QP:
   needs: []
   stage: sixqp
   script:
-    - php bin/phpunit --coverage-text --log-junit reports/phpUnit6QP.xml --coverage-clover coverage/coverageUnit6QP.xml --colors=never tests/Game/SixQP/Unit
+    - php bin/phpunit --coverage-text --log-junit reports/phpUnit6QP.xml --coverage-php coverage/coverageUnit6QP.php --colors=never tests/Game/SixQP/Unit
   allow_failure: false
   environment: test
   artifacts:
@@ -132,7 +132,7 @@ integration6QP:
     - preprod
     - main
   script:
-    - php bin/phpunit --coverage-text --log-junit reports/phpIntegration6QP.xml --coverage-clover coverage/coverageIntegration6QP.xml --colors=never tests/Game/SixQP/Integration
+    - php bin/phpunit --coverage-text --log-junit reports/phpIntegration6QP.xml --coverage-php coverage/coverageIntegration6QP.php --colors=never tests/Game/SixQP/Integration
   allow_failure: false
   environment: test
   artifacts:
@@ -150,7 +150,7 @@ application6QP:
     - main
   script:
     - symfony console tailwind:build
-    - php bin/phpunit --coverage-text --log-junit reports/phpApp6QP.xml --coverage-clover coverage/coverageApp6QP.xml --colors=never tests/Game/SixQP/Application
+    - php bin/phpunit --coverage-text --log-junit reports/phpApp6QP.xml --coverage-php coverage/coverageApp6QP.php --colors=never tests/Game/SixQP/Application
   allow_failure: false
   environment: test
   artifacts:
@@ -163,7 +163,7 @@ unitSplendor:
   needs: []
   stage: splendor
   script:
-    - php bin/phpunit --coverage-text --log-junit reports/phpUnitSplendor.xml --coverage-clover coverage/coverageUnitSplendor.xml --colors=never tests/Game/Splendor/Unit
+    - php bin/phpunit --coverage-text --log-junit reports/phpUnitSplendor.xml --coverage-php coverage/coverageUnitSplendor.php --colors=never tests/Game/Splendor/Unit
   allow_failure: false
   environment: test
   artifacts:
@@ -180,7 +180,7 @@ integrationSplendor:
     - preprod
     - main
   script:
-    - php bin/phpunit --coverage-text --log-junit reports/phpIntegrationSplendor.xml --coverage-clover coverage/coverageIntegrationSplendor.xml --colors=never tests/Game/Splendor/Integration
+    - php bin/phpunit --coverage-text --log-junit reports/phpIntegrationSplendor.xml --coverage-php coverage/coverageIntegrationSplendor.php --colors=never tests/Game/Splendor/Integration
   allow_failure: false
   environment: test
   artifacts:
@@ -198,7 +198,7 @@ applicationSplendor:
     - main
   script:
     - symfony console tailwind:build
-    - php bin/phpunit --coverage-text --log-junit reports/phpAppSplendor.xml --coverage-clover coverage/coverageAppSplendor.xml --colors=never tests/Game/Splendor/Application
+    - php bin/phpunit --coverage-text --log-junit reports/phpAppSplendor.xml --coverage-php coverage/coverageAppSplendor.php --colors=never tests/Game/Splendor/Application
   allow_failure: false
   environment: test
   artifacts:
@@ -211,7 +211,7 @@ unitGlenmore:
   needs: []
   stage: glenmore
   script:
-    - php bin/phpunit --coverage-text --log-junit reports/phpUnitGlenmore.xml --coverage-clover coverage/coverageUnitGlenmore.xml --colors=never tests/Game/Glenmore/Unit
+    - php bin/phpunit --coverage-text --log-junit reports/phpUnitGlenmore.xml --coverage-php coverage/coverageUnitGlenmore.php --colors=never tests/Game/Glenmore/Unit
   allow_failure: false
   environment: test
   artifacts:
@@ -228,7 +228,7 @@ integrationGlenmore:
     - preprod
     - main
   script:
-    - php bin/phpunit --coverage-text --log-junit reports/phpIntegrationGlenmore.xml --coverage-clover coverage/coverageIntegrationGlenmore.xml --colors=never tests/Game/Glenmore/Integration
+    - php bin/phpunit --coverage-text --log-junit reports/phpIntegrationGlenmore.xml --coverage-php coverage/coverageIntegrationGlenmore.php --colors=never tests/Game/Glenmore/Integration
   allow_failure: false
   environment: test
   artifacts:
@@ -246,7 +246,7 @@ applicationGlenmore:
     - main
   script:
     - symfony console tailwind:build
-    - php bin/phpunit --coverage-text --log-junit reports/phpAppGlenmore.xml --coverage-clover coverage/coverageAppGlenmore.xml --colors=never tests/Game/Glenmore/Application
+    - php bin/phpunit --coverage-text --log-junit reports/phpAppGlenmore.xml --coverage-php coverage/coverageAppGlenmore.php --colors=never tests/Game/Glenmore/Application
   allow_failure: false
   environment: test
   artifacts:
@@ -259,7 +259,7 @@ unitMyrmes:
   needs: []
   stage: myrmes
   script:
-    - php bin/phpunit --coverage-text --log-junit reports/phpUnitMyrmes.xml --coverage-clover coverage/coverageUnitMyrmes.xml --colors=never tests/Game/Myrmes/Unit
+    - php bin/phpunit --coverage-text --log-junit reports/phpUnitMyrmes.xml --coverage-php coverage/coverageUnitMyrmes.php --colors=never tests/Game/Myrmes/Unit
   allow_failure: false
   environment: test
   artifacts:
@@ -276,7 +276,7 @@ integrationMyrmes:
     - preprod
     - main
   script:
-    - php bin/phpunit --coverage-text --log-junit reports/phpIntegrationMyrmes.xml --coverage-clover coverage/coverageIntegrationMyrmes.xml --colors=never tests/Game/Myrmes/Integration
+    - php bin/phpunit --coverage-text --log-junit reports/phpIntegrationMyrmes.xml --coverage-php coverage/coverageIntegrationMyrmes.php --colors=never tests/Game/Myrmes/Integration
   allow_failure: false
   environment: test
   artifacts:
