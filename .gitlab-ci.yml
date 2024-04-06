@@ -300,7 +300,7 @@ report:
   before_script:
     - cd app
     - composer require nimut/phpunit-merger
-    - composer require sweetchuck/junit-merger-cli
+    - composer require sweetchuck/junit-merger-cli 1.0.0 -W
   script:
     - vendor/bin/phpunit-merger coverage coverage/ coverage/coverage.xml
     - find reports/ -type f -name '*.xml' | vendor/bin/junit-merger merge:files > reports/report.xml
