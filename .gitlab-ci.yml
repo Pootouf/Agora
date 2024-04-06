@@ -289,11 +289,13 @@ report:
   stage: report
   before_script:
     - cd app
-    - composer install
+    - composer require nimut/phpunit-merger
+    - composer require andreas-weber/php-junit-merge
+    - composer install andreas-weber/php-junit-merge
+    - composer install nimut/phpunit-merger
   script:
     - vendor/bin/phpunit-merger coverage coverage/ coverage/coverage.xml
-    - vendor/bin/phpunit-merger log reports/ reports/report_temp.xml
-    - cat reports/report_temp.xml | sed 's/file="0" //' > reports/report.xml
+    - vendor/bin/phpjunitmerge reports/ reports/report.xml
   allow_failure: false
   artifacts:
     paths:
