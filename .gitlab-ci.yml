@@ -300,6 +300,7 @@ report:
   before_script:
     - cd app
     - rm composer.lock
+    - composer require psr/log 1.1.4
     - composer require nimut/phpunit-merger
     - composer require sweetchuck/junit-merger-cli 1.0.0 -W
   script:
