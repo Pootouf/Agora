@@ -31,17 +31,9 @@ variables:
   MERCURE_PUBLIC_URL: ''
   APP_ENV_SERVER: test
 
-services:
-  - name: mariadb:10.11.2
-    alias: database
-  - name: dunglas/mercure:latest
-    alias: mercure
-
 
 before_script:
   - cd app
-  - symfony console --env=test doctrine:migrations:migrate
-  - symfony console doctrine:fixtures:load --env=test -n --append
 
   
 
@@ -116,9 +108,14 @@ integrationFactory:
     - preprod
     - main
   script:
+    - symfony console --env=test doctrine:migrations:migrate
+    - symfony console doctrine:fixtures:load --env=test -n --append
     - php bin/phpunit --coverage-text --coverage-cobertura coverage-cobertura/coverageIntegrationFactory.xml --log-junit reports/phpIntegrationFactory.xml --coverage-php coverage/coverageIntegrationFactory.php --colors=never tests/Game/Factory/Integration
   allow_failure: false
   environment: test
+  services:
+    - name: mariadb:10.11.2
+      alias: database
   artifacts:
     paths:
       - app/reports/*
@@ -148,9 +145,14 @@ integration6QP:
     - preprod
     - main
   script:
+    - symfony console --env=test doctrine:migrations:migrate
+    - symfony console doctrine:fixtures:load --env=test -n --append
     - php bin/phpunit --coverage-text --coverage-cobertura coverage-cobertura/coverageIntegration6QP.xml --log-junit reports/phpIntegration6QP.xml --coverage-php coverage/coverageIntegration6QP.php --colors=never tests/Game/SixQP/Integration
   allow_failure: false
   environment: test
+  services:
+    - name: mariadb:10.11.2
+      alias: database
   artifacts:
     paths:
       - app/reports/*
@@ -166,9 +168,16 @@ application6QP:
     - preprod
     - main
   script:
+    - symfony console --env=test doctrine:migrations:migrate
+    - symfony console doctrine:fixtures:load --env=test -n --append
     - php bin/phpunit --coverage-text --coverage-cobertura coverage-cobertura/coverageApp6QP.xml --log-junit reports/phpApp6QP.xml --coverage-php coverage/coverageApp6QP.php --colors=never tests/Game/SixQP/Application
   allow_failure: false
   environment: test
+  services:
+    - name: mariadb:10.11.2
+      alias: database
+    - name: dunglas/mercure:latest
+      alias: mercure
   artifacts:
     paths:
       - app/reports/*
@@ -198,9 +207,14 @@ integrationSplendor:
     - preprod
     - main
   script:
+    - symfony console --env=test doctrine:migrations:migrate
+    - symfony console doctrine:fixtures:load --env=test -n --append
     - php bin/phpunit --coverage-text --coverage-cobertura coverage-cobertura/coverageIntegrationSplendor.xml --log-junit reports/phpIntegrationSplendor.xml --coverage-php coverage/coverageIntegrationSplendor.php --colors=never tests/Game/Splendor/Integration
   allow_failure: false
   environment: test
+  services:
+    - name: mariadb:10.11.2
+      alias: database
   artifacts:
     paths:
       - app/reports/*
@@ -216,9 +230,16 @@ applicationSplendor:
     - preprod
     - main
   script:
+    - symfony console --env=test doctrine:migrations:migrate
+    - symfony console doctrine:fixtures:load --env=test -n --append
     - php bin/phpunit --coverage-text --coverage-cobertura coverage-cobertura/coverageAppSplendor.xml --log-junit reports/phpAppSplendor.xml --coverage-php coverage/coverageAppSplendor.php --colors=never tests/Game/Splendor/Application
   allow_failure: false
   environment: test
+  services:
+    - name: mariadb:10.11.2
+      alias: database
+    - name: dunglas/mercure:latest
+      alias: mercure
   artifacts:
     paths:
       - app/reports/*
@@ -248,9 +269,14 @@ integrationGlenmore:
     - preprod
     - main
   script:
+    - symfony console --env=test doctrine:migrations:migrate
+    - symfony console doctrine:fixtures:load --env=test -n --append
     - php bin/phpunit --coverage-text --coverage-cobertura coverage-cobertura/coverageIntegrationGlenmore.xml --log-junit reports/phpIntegrationGlenmore.xml --coverage-php coverage/coverageIntegrationGlenmore.php --colors=never tests/Game/Glenmore/Integration
   allow_failure: false
   environment: test
+  services:
+    - name: mariadb:10.11.2
+      alias: database
   artifacts:
     paths:
       - app/reports/*
@@ -266,9 +292,16 @@ applicationGlenmore:
     - preprod
     - main
   script:
+    - symfony console --env=test doctrine:migrations:migrate
+    - symfony console doctrine:fixtures:load --env=test -n --append
     - php bin/phpunit --coverage-text --coverage-cobertura coverage-cobertura/coverageAppGlenmore.xml --log-junit reports/phpAppGlenmore.xml --coverage-php coverage/coverageAppGlenmore.php --colors=never tests/Game/Glenmore/Application
   allow_failure: false
   environment: test
+  services:
+    - name: mariadb:10.11.2
+      alias: database
+    - name: dunglas/mercure:latest
+      alias: mercure
   artifacts:
     paths:
       - app/reports/*
@@ -298,9 +331,14 @@ integrationMyrmes:
     - preprod
     - main
   script:
+    - symfony console --env=test doctrine:migrations:migrate
+    - symfony console doctrine:fixtures:load --env=test -n --append
     - php bin/phpunit --coverage-text --coverage-cobertura coverage-cobertura/coverageIntegrationMyrmes.xml --log-junit reports/phpIntegrationMyrmes.xml --coverage-php coverage/coverageIntegrationMyrmes.php --colors=never tests/Game/Myrmes/Integration
   allow_failure: false
   environment: test
+  services:
+    - name: mariadb:10.11.2
+      alias: database
   artifacts:
     paths:
       - app/reports/*
