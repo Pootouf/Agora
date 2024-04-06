@@ -84,6 +84,8 @@ deploy:dev_game:
 
 build:
   stage: build
+  before_script:
+    - ''
   script:
     - cd app
     - composer install
