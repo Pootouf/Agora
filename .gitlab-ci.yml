@@ -40,6 +40,8 @@ services:
 
 before_script:
   - cd app
+  - symfony console --env=test doctrine:migrations:migrate
+  - symfony console doctrine:fixtures:load --env=test -n --append
 
   
 
@@ -88,8 +90,6 @@ build:
     - cd app
     - composer install
     - symfony console tailwind:build
-    - symfony console --env=test doctrine:migrations:migrate
-    - symfony console doctrine:fixtures:load --env=test -n --append
   artifacts:
     untracked: true
 
