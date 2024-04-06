@@ -299,6 +299,7 @@ report:
   stage: report
   before_script:
     - cd app
+    - rm composer.lock
     - composer require nimut/phpunit-merger
     - composer require sweetchuck/junit-merger-cli 1.0.0 -W
   script:
