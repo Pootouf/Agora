@@ -40,8 +40,6 @@ services:
 
 before_script:
   - cd app
-  - symfony console --env=test doctrine:migrations:migrate
-  - symfony console doctrine:fixtures:load --env=test -n --append
 
   
 
@@ -90,6 +88,8 @@ build:
     - cd app
     - composer install
     - symfony console tailwind:build
+    - symfony console --env=test doctrine:migrations:migrate
+    - symfony console doctrine:fixtures:load --env=test -n --append
   artifacts:
     untracked: true
 
@@ -300,9 +300,7 @@ report:
   before_script:
     - cd app
     - composer require nimut/phpunit-merger
-    - composer install nimut/phpunit-merger
     - composer require andreas-weber/php-junit-merge -W
-    - composer install andreas-weber/php-junit-merge
   script:
     - vendor/bin/phpunit-merger coverage coverage/ coverage/coverage.xml
     - vendor/bin/phpjunitmerge reports/ reports/report.xml
