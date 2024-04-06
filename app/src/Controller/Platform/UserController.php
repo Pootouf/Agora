@@ -108,6 +108,31 @@ class UserController extends AbstractController
         ]);
     }
 
+    #[Route('/user/delete', name: 'app_user_delete')]
+public function deleteUser(EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): RedirectResponse
+{
+    // Récupérer l'utilisateur actuellement connecté
+    $user = $this->getUser();
     
+    // Vérifier si l'utilisateur est authentifié
+    if (!$user) {
+        // Rediriger vers une page d'erreur ou une autre page appropriée
+        // par exemple, vous pouvez rediriger vers la page d'accueil
+        return $this->redirectToRoute('app_homepage');
+    }
+
+    // Supprimer les entités associées à l'utilisateur (par exemple, les notifications, les contacts, etc.)
+    // Vous devrez implémenter ces logiques de suppression dans votre entité User.
+
+    // Supprimer l'utilisateur
+    $entityManager->remove($user);
+    $entityManager->flush();
+
+    // Déconnecter l'utilisateur
+    $this->get('security.token_storage')->setToken(null);
+
+    // Rediriger vers une page de confirmation ou une autre page appropriée
+    return $this->redirectToRoute('app_homepage');
+}
 
 }
