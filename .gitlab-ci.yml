@@ -87,8 +87,7 @@ build:
     - symfony console tailwind:build
     - symfony console --env=test doctrine:migrations:migrate
     - symfony console doctrine:fixtures:load --env=test -n --append
-    - mkdir db
-    - symfony console doctrine:schema:create --dump-sql > db/dump.sql
+    - symfony console doctrine:schema:create --dump-sql > app/db/dump.sql
   artifacts:
     untracked: true
 
