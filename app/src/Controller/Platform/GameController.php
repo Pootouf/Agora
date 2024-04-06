@@ -88,5 +88,33 @@ class GameController extends AbstractController
 
         return $this->redirectToRoute('app_dashboard_games');
     }
+
+    #[Route('/game/{game_id}/removefavorite', name: 'app_game_remove_favorite', requirements: ['game_id' => '\d+'], methods: ['GET', 'POST'])]
+    public function removeFavoriteGame(int $game_id, EntityManagerInterface $entityManager, Security $security): Response
+    {
+        $gameRepository = $entityManager->getRepository(Game::class);
+        $game = $gameRepository->find($game_id);
+    
+        if (!$game) {
+            $this->addFlash('warning', 'Le jeu n\'existe pas');
+            return $this->redirectToRoute('app_dashboard_games');
+        }
+    
+        $user = $security->getUser();
+        if ($user) {
+            // Remove the game from the user's favorite games
+            if ($user->getFavoriteGames()->contains($game)) {
+                $user->removeFavoriteGame($game);
+                $entityManager->flush();
+                $this->addFlash('success', 'Le jeu ' . $game->getLabel() . ' a été retiré de vos favoris.');
+            } else {
+                $this->addFlash('warning', 'Le jeu ' . $game->getLabel() . ' n\'est pas dans vos favoris.');
+            }
+        } else {
+            $this->addFlash('warning', 'Le joueur n\'est pas connecté.');
+        }
+    
+        return $this->redirectToRoute('app_dashboard_games');
+    }
 }
 
