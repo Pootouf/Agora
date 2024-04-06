@@ -78,10 +78,16 @@ build:
   stage: build
   before_script:
     - ''
+  services:
+    - name: mariadb:10.11.2
+      alias: database
   script:
     - cd app
     - composer install
     - symfony console tailwind:build
+    - symfony console --env=test doctrine:migrations:migrate
+    - symfony console doctrine:fixtures:load --env=test -n --append
+    - symfony console doctrine:schema:create --dump-sql > app/db/dump.sql
   artifacts:
     untracked: true
 
@@ -108,7 +114,6 @@ integrationFactory:
     - preprod
     - main
   script:
-    - symfony console --env=test doctrine:migrations:migrate
     - symfony console doctrine:fixtures:load --env=test -n --append
     - php bin/phpunit --coverage-text --coverage-cobertura coverage-cobertura/coverageIntegrationFactory.xml --log-junit reports/phpIntegrationFactory.xml --coverage-php coverage/coverageIntegrationFactory.php --colors=never tests/Game/Factory/Integration
   allow_failure: false
@@ -116,6 +121,9 @@ integrationFactory:
   services:
     - name: mariadb:10.11.2
       alias: database
+      command:
+        - 'mysql --user=root --password="$MYSQL_ROOT_PASSWORD" "$MYSQL_DATABASE" < app/db/dump.sql'
+        - 'mysql start'
   artifacts:
     paths:
       - app/reports/*
@@ -145,7 +153,6 @@ integration6QP:
     - preprod
     - main
   script:
-    - symfony console --env=test doctrine:migrations:migrate
     - symfony console doctrine:fixtures:load --env=test -n --append
     - php bin/phpunit --coverage-text --coverage-cobertura coverage-cobertura/coverageIntegration6QP.xml --log-junit reports/phpIntegration6QP.xml --coverage-php coverage/coverageIntegration6QP.php --colors=never tests/Game/SixQP/Integration
   allow_failure: false
@@ -153,6 +160,9 @@ integration6QP:
   services:
     - name: mariadb:10.11.2
       alias: database
+      command:
+        - 'mysql --user=root --password="$MYSQL_ROOT_PASSWORD" "$MYSQL_DATABASE" < app/db/dump.sql'
+        - 'mysql start'
   artifacts:
     paths:
       - app/reports/*
@@ -168,7 +178,6 @@ application6QP:
     - preprod
     - main
   script:
-    - symfony console --env=test doctrine:migrations:migrate
     - symfony console doctrine:fixtures:load --env=test -n --append
     - php bin/phpunit --coverage-text --coverage-cobertura coverage-cobertura/coverageApp6QP.xml --log-junit reports/phpApp6QP.xml --coverage-php coverage/coverageApp6QP.php --colors=never tests/Game/SixQP/Application
   allow_failure: false
@@ -176,6 +185,9 @@ application6QP:
   services:
     - name: mariadb:10.11.2
       alias: database
+      command:
+        - 'mysql --user=root --password="$MYSQL_ROOT_PASSWORD" "$MYSQL_DATABASE" < app/db/dump.sql'
+        - 'mysql start'
     - name: dunglas/mercure:latest
       alias: mercure
   artifacts:
@@ -207,7 +219,6 @@ integrationSplendor:
     - preprod
     - main
   script:
-    - symfony console --env=test doctrine:migrations:migrate
     - symfony console doctrine:fixtures:load --env=test -n --append
     - php bin/phpunit --coverage-text --coverage-cobertura coverage-cobertura/coverageIntegrationSplendor.xml --log-junit reports/phpIntegrationSplendor.xml --coverage-php coverage/coverageIntegrationSplendor.php --colors=never tests/Game/Splendor/Integration
   allow_failure: false
@@ -215,6 +226,9 @@ integrationSplendor:
   services:
     - name: mariadb:10.11.2
       alias: database
+      command:
+        - 'mysql --user=root --password="$MYSQL_ROOT_PASSWORD" "$MYSQL_DATABASE" < app/db/dump.sql'
+        - 'mysql start'
   artifacts:
     paths:
       - app/reports/*
@@ -230,7 +244,6 @@ applicationSplendor:
     - preprod
     - main
   script:
-    - symfony console --env=test doctrine:migrations:migrate
     - symfony console doctrine:fixtures:load --env=test -n --append
     - php bin/phpunit --coverage-text --coverage-cobertura coverage-cobertura/coverageAppSplendor.xml --log-junit reports/phpAppSplendor.xml --coverage-php coverage/coverageAppSplendor.php --colors=never tests/Game/Splendor/Application
   allow_failure: false
@@ -238,6 +251,9 @@ applicationSplendor:
   services:
     - name: mariadb:10.11.2
       alias: database
+      command:
+        - 'mysql --user=root --password="$MYSQL_ROOT_PASSWORD" "$MYSQL_DATABASE" < app/db/dump.sql'
+        - 'mysql start'
     - name: dunglas/mercure:latest
       alias: mercure
   artifacts:
@@ -269,7 +285,6 @@ integrationGlenmore:
     - preprod
     - main
   script:
-    - symfony console --env=test doctrine:migrations:migrate
     - symfony console doctrine:fixtures:load --env=test -n --append
     - php bin/phpunit --coverage-text --coverage-cobertura coverage-cobertura/coverageIntegrationGlenmore.xml --log-junit reports/phpIntegrationGlenmore.xml --coverage-php coverage/coverageIntegrationGlenmore.php --colors=never tests/Game/Glenmore/Integration
   allow_failure: false
@@ -277,6 +292,9 @@ integrationGlenmore:
   services:
     - name: mariadb:10.11.2
       alias: database
+      command:
+        - 'mysql --user=root --password="$MYSQL_ROOT_PASSWORD" "$MYSQL_DATABASE" < app/db/dump.sql'
+        - 'mysql start'
   artifacts:
     paths:
       - app/reports/*
@@ -292,7 +310,6 @@ applicationGlenmore:
     - preprod
     - main
   script:
-    - symfony console --env=test doctrine:migrations:migrate
     - symfony console doctrine:fixtures:load --env=test -n --append
     - php bin/phpunit --coverage-text --coverage-cobertura coverage-cobertura/coverageAppGlenmore.xml --log-junit reports/phpAppGlenmore.xml --coverage-php coverage/coverageAppGlenmore.php --colors=never tests/Game/Glenmore/Application
   allow_failure: false
@@ -300,6 +317,9 @@ applicationGlenmore:
   services:
     - name: mariadb:10.11.2
       alias: database
+      command:
+        - 'mysql --user=root --password="$MYSQL_ROOT_PASSWORD" "$MYSQL_DATABASE" < app/db/dump.sql'
+        - 'mysql start'
     - name: dunglas/mercure:latest
       alias: mercure
   artifacts:
@@ -331,7 +351,6 @@ integrationMyrmes:
     - preprod
     - main
   script:
-    - symfony console --env=test doctrine:migrations:migrate
     - symfony console doctrine:fixtures:load --env=test -n --append
     - php bin/phpunit --coverage-text --coverage-cobertura coverage-cobertura/coverageIntegrationMyrmes.xml --log-junit reports/phpIntegrationMyrmes.xml --coverage-php coverage/coverageIntegrationMyrmes.php --colors=never tests/Game/Myrmes/Integration
   allow_failure: false
@@ -339,6 +358,9 @@ integrationMyrmes:
   services:
     - name: mariadb:10.11.2
       alias: database
+      command:
+        - 'mysql --user=root --password="$MYSQL_ROOT_PASSWORD" "$MYSQL_DATABASE" < app/db/dump.sql'
+        - 'mysql start'
   artifacts:
     paths:
       - app/reports/*
