@@ -729,4 +729,28 @@ class WorkshopMYRService
         $this->entityManager->persist($resource);
         $this->entityManager->flush();
     }
+
+    /**
+     * retrieveResourcesToDoLarvaeGoal: retrieve the resources needed from the player to accomplish the larvae goal
+     * @param PlayerMYR $player
+     * @param int $goalDifficulty
+     * @return void
+     * @throws Exception
+     */
+    private function retrieveResourcesToDoLarvaeGoal(PlayerMYR $player, int $goalDifficulty): void
+    {
+        if (!$this->canPlayerDoLarvaeGoal($player, $goalDifficulty)) {
+            throw new Exception('Player cannot do larvae goal');
+        }
+        $numberOfLarva = $player->getPersonalBoardMYR()->getLarvaCount();
+        match ($goalDifficulty) {
+            MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE =>
+            $player->getPersonalBoardMYR()->setLarvaCount($numberOfLarva - 5),
+            MyrmesParameters::GOAL_DIFFICULTY_LEVEL_TWO =>
+            $player->getPersonalBoardMYR()->setLarvaCount($numberOfLarva - 9),
+            default => throw new Exception("Goal difficulty invalid for larvae goal"),
+        };
+        $this->entityManager->persist($player->getPersonalBoardMYR());
+        $this->entityManager->flush();
+    }
 }
