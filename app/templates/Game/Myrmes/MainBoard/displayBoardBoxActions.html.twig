@@ -11,6 +11,7 @@
 {% set PHASE_WORKER = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::PHASE_WORKER') %}
 {% set PHASE_HARVEST = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::PHASE_HARVEST') %}
 {% set PHASE_WORKSHOP = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::PHASE_WORKSHOP') %}
+{% set PHASE_WINTER =  constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::PHASE_WINTER') %}
 
 {# Tile types #}
 {% set WATER_TILE_TYPE = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::WATER_TILE_TYPE') %}
@@ -64,7 +65,7 @@
                 </button>
             {% endif %}
             {% if boardBox.pheromonTile != null and boardBox.pheromonTile.resource != null %}
-                {% if playerPhase == PHASE_HARVEST and not boardBox.pheromonTile.pheromon.harvested %}
+                {% if playerPhase == PHASE_HARVEST and (not hasFinishedObligatoryHarvesting or canStillHarvest) %}
                     <p>Sélectionner la ressource pour la récolter :</p>
                     <img class="max-h-[5vw]"
                          src="{{ asset('resourcesGames/Myrmes/resources/' ~
@@ -79,16 +80,16 @@
                                 })
                             }}
                     >
-                {% elseif playerPhase == PHASE_HARVEST and boardBox.pheromonTile.pheromon.harvested %}
+                {% elseif playerPhase == PHASE_HARVEST and not hasFinishedObligatoryHarvesting and not canStillHarvest %}
                     <p>Vous avez déjà récolté une ressource sur cette phéromone </p>
                     <img class="max-h-[5vw] opacity-25"
-                         src="{{ asset('resourcesGames/Myrmes/resources/' ~ 'dirt' ~ '.svg') }}"
-                         alt="dirt">
+                         src="{{ asset('resourcesGames/Myrmes/resources/' ~ boardBox.pheromonTile.resource ~ '.svg') }}"
+                         alt="{{ boardBox.pheromonTile.resource }}">
                 {% else %}
                     <p>Ressource présente sur la tuile : </p>
                     <img class="max-h-[5vw]"
-                         src="{{ asset('resourcesGames/Myrmes/resources/' ~ 'dirt' ~ '.svg') }}"
-                         alt="dirt">
+                         src="{{ asset('resourcesGames/Myrmes/resources/' ~ boardBox.pheromonTile.resource ~ '.svg') }}"
+                         alt="{{ boardBox.pheromonTile.resource }}">
                 {% endif %}
             {% endif %}
         {% endif %}
