@@ -18,6 +18,7 @@ interface MyrmesParameters
     const int PHASE_WORKER = 2;
     const int PHASE_HARVEST = 3;
     const int PHASE_WORKSHOP = 4;
+    const int PHASE_WINTER = 5;
 
     // Player color
 
@@ -90,6 +91,11 @@ interface MyrmesParameters
     const string WINTER_SEASON_NAME = "winter";
     const string FALL_SEASON_NAME = "fall";
     const string INVALID_SEASON_NAME = "invalid";
+
+    // Warehouse available emplacements
+
+    const int WAREHOUSE_LOCATIONS_AVAILABLE_ANTHILL_LEVEL_LESS_THAN_2 = 4;
+    const int WAREHOUSE_LOCATIONS_AVAILABLE_ANTHILL_LEVEL_AT_LEAST_2 = 6;
 
     // TILE TYPES
 

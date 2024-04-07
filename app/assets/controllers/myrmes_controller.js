@@ -38,23 +38,24 @@ export default class extends Controller  {
 
     async moveToLeftOnEventTrack(event) {
         let url = event.params.url;
-        const response = await fetch(url);
+        await fetch(url);
     }
 
     async moveToRightOnEventTrack(event) {
         let url = event.params.url;
-        const response = await fetch(url);
+        await fetch(url);
     }
 
     async confirmBonus(event) {
         let url = event.params.url;
-        const response = await fetch(url);
+        await fetch(url);
     }
 
     //throw resources from storage
 
-    throwResourceFromWarehouse() {
-        alert("warehouse");
+    async throwResourceFromWarehouse(resource) {
+        let url = resource.params.url;
+        await fetch(url);
     }
 
     //place worker on colony level track

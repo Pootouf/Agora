@@ -44,12 +44,13 @@
     <div class="visible flex items-center justify-center size-[3.5vw] pt-[0.2vw] {{ isAbsolute }}">
         <div class="flex items-center rounded-full justify-center flex-row bg-black bg-opacity-25">
             <img class="max-h-[3vw]"
-                 src="{{ asset('resourcesGames/Myrmes/ants/ant-' ~ 'blue' ~ '.svg') }}"
-                 alt="ant">
+                 src="{{ asset('resourcesGames/Myrmes/ants/ant-' ~ boardBox.ant.player.color ~ '.svg') }}"
+                 alt="ant {{ boardBox.ant.player.color }}">
             {% if boardBox.pheromonTile != null and boardBox.pheromonTile.resource != null %}
                 <img class="max-h-[1.5vw]"
-                     src="{{ asset('resourcesGames/Myrmes/resources/' ~ 'dirt' ~ '.svg') }}"
-                     alt="dirt">
+                     src="{{ asset('resourcesGames/Myrmes/resources/' ~
+                         boardBox.pheromonTile.resource.description ~ '.svg') }}"
+                     alt="{{boardBox.pheromonTile.resource.description}}">
             {% endif %}
         </div>
     </div>

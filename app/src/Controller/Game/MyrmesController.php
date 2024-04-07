@@ -7,6 +7,7 @@ use App\Entity\Game\Myrmes\GameMYR;
 use App\Entity\Game\Myrmes\MyrmesParameters;
 use App\Entity\Game\Myrmes\PheromonTileMYR;
 use App\Entity\Game\Myrmes\PlayerMYR;
+use App\Entity\Game\Myrmes\PlayerResourceMYR;
 use App\Entity\Game\Myrmes\TileMYR;
 use App\Service\Game\LogService;
 use App\Service\Game\Myrmes\BirthMYRService;
@@ -14,6 +15,7 @@ use App\Service\Game\Myrmes\EventMYRService;
 use App\Service\Game\Myrmes\DataManagementMYRService;
 use App\Service\Game\Myrmes\HarvestMYRService;
 use App\Service\Game\Myrmes\MYRService;
+use App\Service\Game\Myrmes\WinterMYRService;
 use App\Service\Game\PublishService;
 use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
@@ -34,7 +36,8 @@ class MyrmesController extends AbstractController
                                 private readonly LogService $logService,
                                 private readonly PublishService $publishService,
                                 private readonly BirthMYRService $birthMYRService,
-                                private readonly HarvestMYRService $harvestMYRService) {}
+                                private readonly HarvestMYRService $harvestMYRService,
+                                private readonly WinterMYRService $winterMYRService) {}
 
 
     #[Route('/game/myrmes/{id}', name: 'app_game_show_myr')]
@@ -60,12 +63,19 @@ class MyrmesController extends AbstractController
             'needToPlay' => true,//$player == null ? false : $player->isTurnOfPlayer(),
             'selectedBox' => null,
             'playerPhase' => $player== null ? $game->getPlayers()->first()->getPhase() : $player->getPhase(),
+            'actualSeason' => $this->service->getActualSeason($game),
             'isAnotherPlayerBoard' => false,
             'availableLarvae' => $this->service->getAvailableLarvae($player),
             'isBirthPhase' => $this->service->isInPhase($player, MyrmesParameters::PHASE_BIRTH),
-            'dirt' => $this->service->getPlayerResourceAmount($player, MyrmesParameters::RESOURCE_TYPE_DIRT),
-            'grass' => $this->service->getPlayerResourceAmount($player, MyrmesParameters::RESOURCE_TYPE_GRASS),
-            'stone' => $this->service->getPlayerResourceAmount($player, MyrmesParameters::RESOURCE_TYPE_STONE),
+            'dirt' => $this->service->getPlayerResourceAmount(
+                $player,
+                MyrmesParameters::RESOURCE_TYPE_DIRT),
+            'grass' => $this->service->getPlayerResourceAmount(
+                $player,
+                MyrmesParameters::RESOURCE_TYPE_GRASS),
+            'stone' => $this->service->getPlayerResourceAmount(
+                $player,
+                MyrmesParameters::RESOURCE_TYPE_STONE),
             'nursesOnLarvaeBirthTrack' => $this->service->getNursesAtPosition(
                 $player,
                 MyrmesParameters::LARVAE_AREA
@@ -77,7 +87,10 @@ class MyrmesController extends AbstractController
             'nursesOnWorkersBirthTrack' => $this->service->getNursesAtPosition(
                 $player,
                 MyrmesParameters::WORKER_AREA
-            )->count()
+            )->count(),
+            'mustThrowResources' => $player != null
+                && $this->service->isInPhase($player, MyrmesParameters::PHASE_WINTER)
+                && $this->winterMYRService->mustDropResourcesForWinter($player)
         ]);
     }
 
@@ -108,7 +121,10 @@ class MyrmesController extends AbstractController
             'nursesOnWorkersBirthTrack' => $this->service->getNursesAtPosition(
                 $player,
                 MyrmesParameters::WORKER_AREA
-            )->count()
+            )->count(),
+            'mustThrowResources' => $player != null
+                && $this->service->isInPhase($player, MyrmesParameters::PHASE_WINTER)
+                && $this->winterMYRService->mustDropResourcesForWinter($player)
         ]);
     }
 
@@ -127,11 +143,20 @@ class MyrmesController extends AbstractController
                 'isSpectator' => true,
                 'isAnotherPlayerBoard' => true,
                 'playerPhase' => $playerMYR->getPhase(),
-                'availableLarvae' => $this->service->getAvailableLarvae($player),
+                'actualSeason' => $this->service->getActualSeason($gameMYR),
+                'availableLarvae' => $this->service->getAvailableLarvae($playerMYR),
                 'isBirthPhase' => $this->service->isInPhase($playerMYR, MyrmesParameters::PHASE_BIRTH),
-                'nursesOnLarvaeBirthTrack' => $this->service->getNursesAtPosition($playerMYR, MyrmesParameters::LARVAE_AREA)->count(),
-                'nursesOnSoldiersBirthTrack' => $this->service->getNursesAtPosition($playerMYR, MyrmesParameters::SOLDIERS_AREA)->count(),
-                'nursesOnWorkersBirthTrack' => $this->service->getNursesAtPosition($playerMYR, MyrmesParameters::WORKER_AREA)->count()
+                'nursesOnLarvaeBirthTrack' => $this->service->getNursesAtPosition(
+                    $playerMYR,
+                    MyrmesParameters::LARVAE_AREA
+                )->count(),
+                'nursesOnSoldiersBirthTrack' => $this->service->getNursesAtPosition(
+                    $playerMYR, MyrmesParameters::SOLDIERS_AREA
+                )->count(),
+                'nursesOnWorkersBirthTrack' => $this->service->getNursesAtPosition(
+                    $playerMYR, MyrmesParameters::WORKER_AREA
+                )->count(),
+                'mustThrowResources' => false
             ]);
     }
 
@@ -327,6 +352,45 @@ class MyrmesController extends AbstractController
         $message = $player->getUsername() . " a récolté la ressource sur la tuile " . $tileMYR->getId();
         $this->logService->sendPlayerLog($game, $player, $message);
         return new Response("harvested resource on this tile", Response::HTTP_OK);
+    }
+
+    #[Route('/game/myrmes/{gameId}/throwResource/warehouse/{playerResourceId}',
+        name: 'app_game_myrmes_throw_resource_warehouse')]
+    public function throwResourceFromWarehouse(
+        #[MapEntity(id: 'gameId')] GameMYR $game,
+        #[MapEntity(id: 'playerResourceId')] PlayerResourceMYR $playerResourceMYR
+    ): Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('invalid player', Response::HTTP_FORBIDDEN);
+        }
+        try {
+            $this->winterMYRService->removeCubeOfWarehouse($player, $playerResourceMYR);
+        } catch (Exception $e) {
+            $message = $player->getUsername()
+                . " a essayé de jeter la ressource "
+                . $playerResourceMYR->getId()
+                . " de son entrepôt, mais n'a pas pu.";
+            $this->logService->sendPlayerLog($game, $player, $message);
+            return new Response('failed to throw this resource from warehouse', Response::HTTP_FORBIDDEN);
+        }
+        $message = $player->getUsername() . " a jeté la ressource " . $playerResourceMYR->getId() . " de son entrepôt";
+        $this->logService->sendPlayerLog($game, $player, $message);
+        if($this->winterMYRService->canManageEndOfWinter($game)) {
+            try {
+                $this->winterMYRService->manageEndOfWinter($game);
+            } catch (Exception $e) {
+                $message =
+                    "Le système a essayé de terminer la phase hiver "
+                    . ", mais n'a pas pu.";
+                $this->logService->sendSystemLog($game, $message);
+                return new Response('failed to manage end of winter', Response::HTTP_FORBIDDEN);
+            }
+            $message = "Le système a mis fin à la phase hiver ";
+            $this->logService->sendSystemLog($game, $message);
+        }
+        return new Response("threw resource from warehouse", Response::HTTP_OK);
     }
 
     /**

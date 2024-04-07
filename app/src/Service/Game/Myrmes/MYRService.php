@@ -175,7 +175,7 @@ class MYRService
      * @param GameMYR $game
      * @return SeasonMYR|null
      */
-    private function getActualSeason(GameMYR $game) : ?SeasonMYR
+    public function getActualSeason(GameMYR $game) : ?SeasonMYR
     {
         foreach ($game->getMainBoardMYR()->getSeasons() as $season) {
             if ($season->isActualSeason()) {
