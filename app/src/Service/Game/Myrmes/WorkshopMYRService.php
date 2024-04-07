@@ -753,4 +753,44 @@ class WorkshopMYRService
         $this->entityManager->persist($player->getPersonalBoardMYR());
         $this->entityManager->flush();
     }
+
+    /**
+     * retrieveResourcesToDoPreyGoal: retrieve the resources needed from the player to accomplish the prey goal
+     * @param PlayerMYR $player
+     * @param int $goalDifficulty
+     * @return void
+     * @throws Exception
+     */
+    private function retrieveResourcesToDoPreyGoal(PlayerMYR $player, int $goalDifficulty): void
+    {
+        if (!$this->canPlayerDoPreyGoal($player, $goalDifficulty)) {
+            throw new Exception('Player cannot do prey goal');
+        }
+        match ($goalDifficulty) {
+            MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE =>
+            $this->removeSelectedNumberOfPreyFromPlayer($player, 2),
+            MyrmesParameters::GOAL_DIFFICULTY_LEVEL_TWO =>
+            $this->removeSelectedNumberOfPreyFromPlayer($player, 3),
+            MyrmesParameters::GOAL_DIFFICULTY_LEVEL_THREE =>
+            $this->removeSelectedNumberOfPreyFromPlayer($player, 4),
+            default => throw new Exception("Goal difficulty invalid for prey goal"),
+        };
+        $this->entityManager->persist($player);
+        $this->entityManager->flush();
+    }
+
+    /**
+     * removeSelectedNumberOfPreyFromPlayer: remove the selected number of prey from the player inventory
+     * @param PlayerMYR $player
+     * @param int $preyToRemove
+     * @return void
+     */
+    private function removeSelectedNumberOfPreyFromPlayer(PlayerMYR $player, int $preyToRemove) : void
+    {
+        $prey = $player->getPreyMYRs();
+        for ($i = 0; $i < $preyToRemove; $i++) {
+            $player->removePreyMYR($prey[$i]);
+            $this->entityManager->remove($prey[$i]);
+        }
+    }
 }
