@@ -207,6 +207,22 @@ class MYRService
     }
 
     /**
+     * canManageEndOfPhase : indicate if all players have played this phase and are waiting for the next one
+     * @param GameMYR $gameMYR
+     * @param int $phase
+     * @return bool
+     */
+    public function canManageEndOfPhase(GameMYR $gameMYR, int $phase): bool
+    {
+        foreach ($gameMYR->getPlayers() as $player) {
+            if($player->getPhase() == $phase) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * manageEndOfRound : does all actions concerning the end of a round
      * @param GameMYR $game
      * @return void

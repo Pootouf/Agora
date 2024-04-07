@@ -3,6 +3,7 @@
 namespace App\Service\Game\Myrmes;
 
 use App\Entity\Game\Myrmes\AnthillHoleMYR;
+use App\Entity\Game\Myrmes\GameMYR;
 use App\Entity\Game\Myrmes\MyrmesParameters;
 use App\Entity\Game\Myrmes\NurseMYR;
 use App\Entity\Game\Myrmes\PheromonMYR;
@@ -10,6 +11,7 @@ use App\Entity\Game\Myrmes\PheromonTileMYR;
 use App\Entity\Game\Myrmes\PlayerMYR;
 use App\Entity\Game\Myrmes\PlayerResourceMYR;
 use App\Entity\Game\Myrmes\TileMYR;
+use App\Repository\Game\MessageRepository;
 use App\Repository\Game\Myrmes\AnthillHoleMYRRepository;
 use App\Repository\Game\Myrmes\NurseMYRRepository;
 use App\Repository\Game\Myrmes\PheromonMYRRepository;
@@ -39,6 +41,30 @@ class WorkshopMYRService
                                 private readonly NurseMYRRepository $nurseMYRRepository,
                                 private readonly AnthillHoleMYRRepository $anthillHoleMYRRepository)
     {}
+
+    /**
+     * getAvailableAnthillHolesPositions : returns a list of possible new anthill holes positions
+     * @param PlayerMYR $player
+     * @return ArrayCollection<Int, TileMYR>
+     */
+    public function getAvailableAnthillHolesPositions(PlayerMYR $player) : ArrayCollection
+    {
+        $pheromones = $player->getPheromonMYRs();
+        $result = new ArrayCollection();
+        foreach ($pheromones as $pheromone) {
+            $pheromoneTiles = $pheromone->getPheromonTiles();
+            foreach ($pheromoneTiles as $pheromoneTile) {
+                $tile = $pheromoneTile->getTile();
+                $adjacentTiles = $this->getAdjacentTiles($tile);
+                foreach ($adjacentTiles as $adjacentTile) {
+                    if ($this->isValidPosition($player, $adjacentTile)) {
+                        $result->add($adjacentTile);
+                    }
+                }
+            }
+        }
+        return $result;
+    }
 
     /**
      * Manage resources and purchase about position of nurse
@@ -77,27 +103,18 @@ class WorkshopMYRService
     }
 
     /**
-     * getAvailableAnthillHolesPositions : returns a list of possible new anthill holes positions
-     * @param PlayerMYR $player
-     * @return ArrayCollection<Int, TileMYR>
+     * manageEndOfWinter : retrieve points after every player disposed of their
+     *              resources and manage the end of round
+     * @param GameMYR $gameMYR
+     * @return void
+     * @throws Exception
      */
-    public function getAvailableAnthillHolesPositions(PlayerMYR $player) : ArrayCollection
+    public function manageEndOfWorkshop(GameMYR $gameMYR): void
     {
-        $pheromones = $player->getPheromonMYRs();
-        $result = new ArrayCollection();
-        foreach ($pheromones as $pheromone) {
-            $pheromoneTiles = $pheromone->getPheromonTiles();
-            foreach ($pheromoneTiles as $pheromoneTile) {
-                $tile = $pheromoneTile->getTile();
-                $adjacentTiles = $this->getAdjacentTiles($tile);
-                foreach ($adjacentTiles as $adjacentTile) {
-                    if ($this->isValidPosition($player, $adjacentTile)) {
-                        $result->add($adjacentTile);
-                    }
-                }
-            }
+        if($this->MYRService->canManageEndOfPhase($gameMYR, MyrmesParameters::PHASE_WORKSHOP)) {
+            throw new Exception("All members have not played yes");
         }
-        return $result;
+        $this->MYRService->manageEndOfRound($gameMYR);
     }
 
     /**
@@ -392,4 +409,5 @@ class WorkshopMYRService
         }
         $this->entityManager->flush();
     }
+
 }
