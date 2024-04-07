@@ -110,6 +110,7 @@ unitFactory:
   artifacts:
     paths:
       - app/coverage/*
+      - app/reports/*
     <<: *publishReport
     expire_in: 30 min
   coverage: /^\s*Lines:\s*\d+.\d+\%/
@@ -137,6 +138,7 @@ integrationFactory:
   artifacts:
     paths:
       - app/coverage/*
+      - app/reports/*
     <<: *publishReport
     expire_in: 30 min
   coverage: /^\s*Lines:\s*\d+.\d+\%/
@@ -155,6 +157,7 @@ unit6QP:
   artifacts:
     paths:
       - app/coverage/*
+      - app/reports/*
     <<: *publishReport
     expire_in: 30 min
   coverage: /^\s*Lines:\s*\d+.\d+\%/
@@ -182,6 +185,7 @@ integration6QP:
   artifacts:
     paths:
       - app/coverage/*
+      - app/reports/*
     <<: *publishReport
     expire_in: 30 min
   coverage: /^\s*Lines:\s*\d+.\d+\%/
@@ -212,6 +216,7 @@ application6QP:
   artifacts:
     paths:
       - app/coverage/*
+      - app/reports/*
     <<: *publishReport
     expire_in: 30 min
   coverage: /^\s*Lines:\s*\d+.\d+\%/
@@ -230,6 +235,7 @@ unitSplendor:
   artifacts:
     paths:
       - app/coverage/*
+      - app/reports/*
     <<: *publishReport
     expire_in: 30 min
   coverage: /^\s*Lines:\s*\d+.\d+\%/
@@ -257,6 +263,7 @@ integrationSplendor:
   artifacts:
     paths:
       - app/coverage/*
+      - app/reports/*
     <<: *publishReport
     expire_in: 30 min
   coverage: /^\s*Lines:\s*\d+.\d+\%/
@@ -286,6 +293,7 @@ applicationSplendor:
   artifacts:
     paths:
       - app/coverage/*
+      - app/reports/*
     <<: *publishReport
     expire_in: 30 min
   coverage: /^\s*Lines:\s*\d+.\d+\%/
@@ -304,6 +312,7 @@ unitGlenmore:
   artifacts:
     paths:
       - app/coverage/*
+      - app/reports/*
     <<: *publishReport
     expire_in: 30 min
   coverage: /^\s*Lines:\s*\d+.\d+\%/
@@ -331,6 +340,7 @@ integrationGlenmore:
   artifacts:
     paths:
       - app/coverage/*
+      - app/reports/*
     <<: *publishReport
     expire_in: 30 min
   coverage: /^\s*Lines:\s*\d+.\d+\%/
@@ -360,6 +370,7 @@ applicationGlenmore:
   artifacts:
     paths:
       - app/coverage/*
+      - app/reports/*
     <<: *publishReport
     expire_in: 30 min
   coverage: /^\s*Lines:\s*\d+.\d+\%/
@@ -378,6 +389,7 @@ unitMyrmes:
   artifacts:
     paths:
       - app/coverage/*
+      - app/reports/*
     <<: *publishReport
     expire_in: 30 min
   coverage: /^\s*Lines:\s*\d+.\d+\%/
@@ -405,6 +417,7 @@ integrationMyrmes:
   artifacts:
     paths:
       - app/coverage/*
+      - app/reports/*
     <<: *publishReport
     expire_in: 30 min
   coverage: /^\s*Lines:\s*\d+.\d+\%/
