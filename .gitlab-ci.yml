@@ -347,10 +347,11 @@ integrationMyrmes:
 
 
 report:
+  image: node:lts-alpine3.19
   stage: report
   before_script:
     - cd app
-    - apt -y install cobertura
+    - npm install cobertura-merge
   script:
     - |+
       for file in coverage-cobertura/*.xml 
@@ -359,7 +360,7 @@ report:
         sed -i 's;filename=";filename="app/src/;g' ${file}
         sed -i "s;/builds/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}/app/src;;g" ${file}
       done
-      cobertura-merge --datafile coverage.xml coverage-cobertura/*
+      cobertura-merge -o coverage.xml $(ls cobertura-coverage/ | awk -v ORS=" " -v OFS="" '{ print "package", NR, "=", $0 }')
   allow_failure: false
   coverage: /^\s*Lines:\s*\d+.\d+\%/
   artifacts:
