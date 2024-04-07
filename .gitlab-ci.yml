@@ -350,7 +350,7 @@ report:
   stage: report
   before_script:
     - cd app
-    - apt install cobertura
+    - apt -y install cobertura
   script:
     - |+
       for file in coverage-cobertura/*.xml 
