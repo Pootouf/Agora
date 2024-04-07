@@ -55,10 +55,10 @@ variables:
 
 .cleanReport: &cleanReport
   #FIX Cobertura report
-  - sed -i 's;filename=";filename="app/src/;g' $COBERTURA_REPORT
-  - sed -i "s;/builds/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}/app/src;;g" $COBERTURA_REPORT
+  - sed -i 's;filename=";filename="app/src/;g' coverage-cobertura/$COBERTURA_REPORT
+  - sed -i "s;/builds/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}/app/src;;g" coverage-cobertura/$COBERTURA_REPORT
   #FIX Junit report
-  - sed -i "s;/builds/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}/;;g" $JUNIT_REPORT
+  - sed -i "s;/builds/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}/;;g" reports/$JUNIT_REPORT
 
 .publishReport: &publishReport
   reports:
