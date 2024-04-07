@@ -92,7 +92,8 @@ class MyrmesController extends AbstractController
             'mustThrowResources' => $player != null
                 && $this->service->isInPhase($player, MyrmesParameters::PHASE_WINTER)
                 && $this->winterMYRService->mustDropResourcesForWinter($player),
-
+            'hasFinishedObligatoryHarvesting' => !($player != null) || $this->harvestMYRService->areAllPheromonesHarvested($player),
+            'canStillHarvest' => $player != null && $this->harvestMYRService->canStillHarvest($player),
         ]);
     }
 
@@ -179,7 +180,9 @@ class MyrmesController extends AbstractController
             'player' => $player,
             'selectedBox' => $boardBox,
             'needToPlay' => true, //$player == null ? false : $player->isTurnOfPlayer(),
-            'playerPhase' => $player->getPhase()
+            'playerPhase' => $player->getPhase(),
+            'hasFinishedObligatoryHarvesting' => $this->harvestMYRService->areAllPheromonesHarvested($player),
+            'canStillHarvest' => $this->harvestMYRService->canStillHarvest($player),
         ]);
 
     }
@@ -253,6 +256,7 @@ class MyrmesController extends AbstractController
         if ($player == null) {
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
         }
+        $this->service->setPhase($player, MyrmesParameters::PHASE_BIRTH);
         $this->eventMYRService->confirmBonus($player);
         $message = $player->getUsername() . " a confirmé son choix de bonus";
         $this->logService->sendPlayerLog($game, $player, $message);
@@ -302,6 +306,7 @@ class MyrmesController extends AbstractController
             $this->logService->sendPlayerLog($game, $player, $message);
             return new Response('failed to confirm nurses', Response::HTTP_FORBIDDEN);
         }
+        $this->service->setPhase($player, MyrmesParameters::PHASE_WORKER);
         $message = $player->getUsername() . " a confirmé le placement de ses nourrices";
         $this->logService->sendPlayerLog($game, $player, $message);
         return new Response("nurses placement confirmed", Response::HTTP_OK);
@@ -372,6 +377,29 @@ class MyrmesController extends AbstractController
         $message = $player->getUsername() . " a récolté la ressource sur la tuile " . $tileMYR->getId();
         $this->logService->sendPlayerLog($game, $player, $message);
         return new Response("harvested resource on this tile", Response::HTTP_OK);
+    }
+
+    #[Route('/game/myrmes/{gameId}/end/harvestPhase/{tileId}', name: 'app_game_myrmes_end_harvest_phase')]
+    public function endHarvestPhase(
+        #[MapEntity(id: 'gameId')] GameMYR $game
+    ): Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('invalid player', Response::HTTP_FORBIDDEN);
+        }
+        if(!$this->harvestMYRService->areAllPheromonesHarvested($player)) {
+            $message = $player->getUsername()
+                . " a essayé de mettre fin à la phase de récolte "
+                . " mais n'a pas pu car la récolte obligatoire n'est pas finie.";
+            $this->logService->sendPlayerLog($game, $player, $message);
+            return new Response('failed to end harvest phase', Response::HTTP_FORBIDDEN);
+        }
+        $this->service->setPhase($player, MyrmesParameters::PHASE_WORKSHOP);
+        $message = $player->getUsername()
+            . " a mis fin à la phase de récolte ";
+        $this->logService->sendPlayerLog($game, $player, $message);
+        return new Response('ended harvest phase', Response::HTTP_OK);
     }
 
     #[Route('/game/myrmes/{gameId}/throwResource/warehouse/{playerResourceId}',
