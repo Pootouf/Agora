@@ -17,6 +17,7 @@ use App\Entity\Game\Myrmes\ResourceMYR;
 use App\Entity\Game\Myrmes\SeasonMYR;
 use App\Entity\Game\Myrmes\TileMYR;
 use App\Entity\Game\Myrmes\TileTypeMYR;
+use App\Repository\Game\Myrmes\GardenWorkerMYRRepository;
 use App\Service\Game\Myrmes\WorkerMYRService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -33,6 +34,133 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->workerMYRService = static::getContainer()->get(WorkerMYRService::class);
     }
 
+    public function testTakeOutAntSuccessWithValidExitHole()
+    {
+        // GIVEN
+
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $player->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::ANTHILL_LEVEL_TWO);
+        $this->entityManager->persist($player);
+        $ant = new AnthillWorkerMYR();
+        $ant->setPlayer($player);
+        $ant->setPersonalBoardMYR($player->getPersonalBoardMYR());
+        $ant->setWorkFloor(MyrmesParameters::NO_WORKFLOOR);
+        $player->getPersonalBoardMYR()->addAnthillWorker($ant);
+        $tile = new TileMYR();
+        $tile->setCoordX(0);
+        $tile->setCoordY(0);
+        $tile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $hole = new AnthillHoleMYR();
+        $hole->setMainBoardMYR($game->getMainBoardMYR());
+        $hole->setPlayer($player);
+        $hole->setTile($tile);
+        $this->entityManager->persist($tile);
+        $this->entityManager->persist($hole);
+        $this->entityManager->persist($ant);
+        $this->entityManager->persist($player->getPersonalBoardMYR());
+        $this->entityManager->flush();
+        $gardenWorkerRepository = static::getContainer()->get(GardenWorkerMYRRepository::class);
+        // WHEN
+        $this->workerMYRService->takeOutAnt($player->getPersonalBoardMYR(), $hole);
+        // THEN
+        $gardenWorker = $gardenWorkerRepository->findOneBy(['player' => $player->getId()]);
+        $this->assertNotNull($gardenWorker);
+    }
+
+    public function testTakeOutAntFailWithExitHoleOfOtherPlayer()
+    {
+        // GIVEN
+
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $player->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::ANTHILL_LEVEL_TWO);
+        $this->entityManager->persist($player);
+        $ant = new AnthillWorkerMYR();
+        $ant->setPlayer($player);
+        $ant->setPersonalBoardMYR($player->getPersonalBoardMYR());
+        $ant->setWorkFloor(MyrmesParameters::NO_WORKFLOOR);
+        $player->getPersonalBoardMYR()->addAnthillWorker($ant);
+        $tile = new TileMYR();
+        $tile->setCoordX(0);
+        $tile->setCoordY(0);
+        $tile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $hole = new AnthillHoleMYR();
+        $hole->setMainBoardMYR($game->getMainBoardMYR());
+        $hole->setPlayer($game->getPlayers()->last());
+        $hole->setTile($tile);
+        $this->entityManager->persist($tile);
+        $this->entityManager->persist($hole);
+        $this->entityManager->persist($ant);
+        $this->entityManager->persist($player->getPersonalBoardMYR());
+        $this->entityManager->flush();
+        // THEN
+        $this->expectException(\Exception::class);
+        // WHEN
+        $this->workerMYRService->takeOutAnt($player->getPersonalBoardMYR(), $hole);
+    }
+
+    public function testTakeOutAntFailWithNoMoreFreeAnts()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $player->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::ANTHILL_LEVEL_TWO);
+        $this->entityManager->persist($player);
+        $tile = new TileMYR();
+        $tile->setCoordX(0);
+        $tile->setCoordY(0);
+        $tile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $hole = new AnthillHoleMYR();
+        $hole->setMainBoardMYR($game->getMainBoardMYR());
+        $hole->setPlayer($player);
+        $hole->setTile($tile);
+        $this->entityManager->persist($tile);
+        $this->entityManager->persist($hole);
+        $this->entityManager->persist($player->getPersonalBoardMYR());
+        $this->entityManager->flush();
+        // THEN
+        $this->expectException(\Exception::class);
+        // WHEN
+        $this->workerMYRService->takeOutAnt($player->getPersonalBoardMYR(), $hole);
+    }
+
+    public function testTakeOutAntFailWithAntAlreadyAtTheExitHole()
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $player->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::ANTHILL_LEVEL_TWO);
+        $this->entityManager->persist($player);
+        $ant = new AnthillWorkerMYR();
+        $ant->setPlayer($player);
+        $ant->setPersonalBoardMYR($player->getPersonalBoardMYR());
+        $ant->setWorkFloor(MyrmesParameters::NO_WORKFLOOR);
+        $player->getPersonalBoardMYR()->addAnthillWorker($ant);
+        $tile = new TileMYR();
+        $tile->setCoordX(0);
+        $tile->setCoordY(0);
+        $tile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $hole = new AnthillHoleMYR();
+        $hole->setMainBoardMYR($game->getMainBoardMYR());
+        $hole->setPlayer($player);
+        $hole->setTile($tile);
+        $gardenWorker = new GardenWorkerMYR();
+        $gardenWorker->setTile($tile);
+        $gardenWorker->setPlayer($player);
+        $gardenWorker->setMainBoardMYR($game->getMainBoardMYR());
+        $gardenWorker->setShiftsCount(0);
+        $this->entityManager->persist($gardenWorker);
+        $this->entityManager->persist($tile);
+        $this->entityManager->persist($hole);
+        $this->entityManager->persist($ant);
+        $this->entityManager->persist($player->getPersonalBoardMYR());
+        $this->entityManager->flush();
+        // THEN
+        $this->expectException(\Exception::class);
+        // WHEN
+        $this->workerMYRService->takeOutAnt($player->getPersonalBoardMYR(), $hole);
+    }
 
     public function testPlaceAntInAnthillSuccessWithValidFloorAndValidAnt()
     {
