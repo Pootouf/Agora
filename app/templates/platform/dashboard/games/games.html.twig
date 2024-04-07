@@ -72,9 +72,63 @@ Jeux
                {% endfor %}
             </div>
          </div>
-      </div>
-   </div>
+         {# Pagination Tailwind CSS
+<div class="flex justify-center mt-6">
+    <nav aria-label="Pagination">
+        <ul class="inline-flex">
+            {% if pagination.currentPage != 1 %}
+                <li><a href="{{ pagination.firstPageUrl }}" class="border border-gray-300 bg-white text-gray-500 hover:bg-gray-100 px-3 py-1 rounded-l-md">Premier</a></li>
+                <li><a href="{{ pagination.previousPageUrl }}" class="border-t border-b border-gray-300 bg-white text-gray-500 hover:bg-gray-100 px-3 py-1">Précédent</a></li>
+            {% endif %}
+            {% for page in pagination.pages %}
+                {% if page == pagination.currentPage %}
+                    <li><span class="border-t border-b border-gray-300 bg-blue-500 text-white px-3 py-1">{{ page }}</span></li>
+                {% else %}
+                    <li><a href="{{ pagination.pageUrl(page) }}" class="border-t border-b border-gray-300 bg-white text-gray-500 hover:bg-gray-100 px-3 py-1">{{ page }}</a></li>
+                {% endif %}
+            {% endfor %}
+            {% if pagination.currentPage != pagination.pageCount %}
+                <li><a href="{{ pagination.nextPageUrl }}" class="border-t border-b border-r border-gray-300 bg-white text-gray-500 hover:bg-gray-100 px-3 py-1">Suivant</a></li>
+                <li><a href="{{ pagination.lastPageUrl }}" class="border border-gray-300 bg-white text-gray-500 hover:bg-gray-100 px-3 py-1 rounded-r-md">Dernier</a></li>
+            {% endif %}
+        </ul>
+    </nav>
 </div>
+ #}
+
+<div class="flex justify-center mt-6">
+    <nav aria-label="Page navigation example">
+  <ul class="inline-flex -space-x-px text-sm">
+    <li>
+      <a href="#" class="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 bg-white border border-e-0 border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">Previous</a>
+    </li>
+    <li>
+      <a href="#" class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">1</a>
+    </li>
+    <li>
+      <a href="#" class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">2</a>
+    </li>
+    <li>
+      <a href="#" aria-current="page" class="flex items-center justify-center px-3 h-8 text-blue-600 border border-gray-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white">3</a>
+    </li>
+    <li>
+      <a href="#" class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">4</a>
+    </li>
+    <li>
+      <a href="#" class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">5</a>
+    </li>
+    <li>
+      <a href="#" class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">Next</a>
+    </li>
+  </ul>
+</nav>
+</div>
+      </div>
+        
+   </div>
+   
+</div>
+
 </div></div>
 <div class="absolute inset-x-0 top-[calc(100%-13rem)] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[calc(100%-30rem)]" aria-hidden="true">
    <div class="relative left-[calc(50%+3rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 bg-gradient-to-tr from-primary to-danger opacity-30 sm:left-[calc(50%+36rem)] sm:w-[72.1875rem]" style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%);"></div>
