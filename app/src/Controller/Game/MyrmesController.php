@@ -4,6 +4,7 @@ namespace App\Controller\Game;
 
 use App\Entity\Game\DTO\Myrmes\BoardBoxMYR;
 use App\Entity\Game\Myrmes\GameMYR;
+use App\Entity\Game\Myrmes\GardenWorkerMYR;
 use App\Entity\Game\Myrmes\MyrmesParameters;
 use App\Entity\Game\Myrmes\PheromonTileMYR;
 use App\Entity\Game\Myrmes\PlayerMYR;
@@ -17,6 +18,7 @@ use App\Service\Game\Myrmes\DataManagementMYRService;
 use App\Service\Game\Myrmes\HarvestMYRService;
 use App\Service\Game\Myrmes\MYRService;
 use App\Service\Game\Myrmes\WinterMYRService;
+use App\Service\Game\Myrmes\WorkerMYRService;
 use App\Service\Game\PublishService;
 use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
@@ -37,6 +39,7 @@ class MyrmesController extends AbstractController
                                 private readonly LogService $logService,
                                 private readonly PublishService $publishService,
                                 private readonly BirthMYRService $birthMYRService,
+                                private readonly WorkerMYRService $workerMYRService,
                                 private readonly HarvestMYRService $harvestMYRService,
                                 private readonly WinterMYRService $winterMYRService) {}
 
@@ -352,6 +355,36 @@ class MyrmesController extends AbstractController
         $message = $player->getUsername() . " a placé une ouvrière sur le niveau de fourmilière " . $level;
         $this->logService->sendPlayerLog($game, $player, $message);
         return new Response("placed worker on colony", Response::HTTP_OK);
+    }
+
+    #[Route('/game/muyrmes/{gameId}/moveAnt/{antId}/direction/{dir}', name:'app_game_myrmes_move_ant')]
+    public function moveAnt(
+        #[MapEntity(id: 'gameId')] GameMYR $gameMYR,
+        #[MapEntity(id: 'antId')] GardenWorkerMYR $ant,
+        int $direction
+
+    ): Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('invalid player', Response::HTTP_FORBIDDEN);
+        }
+        if ($player !== $ant->getPlayer()) {
+            return new Response('failed to move ant, not the correct player', Response::HTTP_FORBIDDEN);
+        }
+        try {
+            $this->workerMYRService->workerMove($player, $ant, $direction);
+        } catch (Exception) {
+            $message = $player->getUsername()
+                . " a essayé de déplacer la fourmi dans la direction "
+                . $direction
+                . " mais n'a pas pu.";
+            $this->logService->sendPlayerLog($gameMYR, $player, $message);
+            return new Response('failed to move ant in this direction', Response::HTTP_FORBIDDEN);
+        }
+        $message = $player->getUsername() . " a déplacé la fourmi ". $ant->getId() . "dans la direction " . $direction;
+        $this->logService->sendPlayerLog($gameMYR, $player, $message);
+        return new Response("moved ant in this direction", Response::HTTP_OK);
     }
 
     #[Route('/game/myrmes/{gameId}/harvestResource/{tileId}', name: 'app_game_myrmes_harvest_resource')]

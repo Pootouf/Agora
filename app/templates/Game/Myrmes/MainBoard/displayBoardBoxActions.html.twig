@@ -39,12 +39,12 @@
             {% endif %}
             {% set boardBox = selectedBox %}
             {% set isShifted = false %}
-            <div class="flex flex-row items-center justify-center rounded-xl bg-black bg-opacity-25 p-5">
+            <div class="flex flex-col items-center justify-center rounded-xl bg-black bg-opacity-25">
                 {% set isActionable = true %}
                 {{ include('Game/Myrmes/MainBoard/boardBox.html.twig') }}
             </div>
 
-            {% if playerPhase == PHASE_WORKER %}
+            {% if game.gamePhase == PHASE_WORKER and needToPlay %}
                 <button id="pheromone_placement"
                         class="rounded-lg bg-green-900 py-2 px-3 m-5 text-2xl items-center"
                 >
