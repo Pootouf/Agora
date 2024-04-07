@@ -356,8 +356,8 @@ report:
       for file in coverage-cobertura/*.xml 
       do 
         #FIX Cobertura report
-        sed -i 's;filename=";filename="app/src/;g' coverage-cobertura/${file}
-        sed -i "s;/builds/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}/app/src;;g" coverage-cobertura/${file}
+        sed -i 's;filename=";filename="app/src/;g' ${file}
+        sed -i "s;/builds/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}/app/src;;g" ${file}
       done
   allow_failure: false
   coverage: /^\s*Lines:\s*\d+.\d+\%/
