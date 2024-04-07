@@ -211,7 +211,7 @@ interface MyrmesParameters
     const string TERMITE_TYPE = "termite";
     const string SPIDER_TYPE = "spider";
 
-    // Prey Numbers
+    // Prey Numbers, sum must be equal to the size of PREY_POSITIONS
     const int LADYBUG_NUMBER = 6;
     const int TERMITE_NUMBER = 6;
     const int SPIDER_NUMBER = 6;
@@ -272,7 +272,6 @@ interface MyrmesParameters
 
 
     // Resources Type
-
     const string RESOURCE_TYPE_DIRT = "dirt";
     const string RESOURCE_TYPE_STONE = "stone";
     const string RESOURCE_TYPE_GRASS = "grass";
@@ -280,24 +279,35 @@ interface MyrmesParameters
 
 
     // Goal Difficulty
-
     const int GOAL_DIFFICULTY_LEVEL_ONE = 1;
     const int GOAL_DIFFICULTY_LEVEL_TWO = 2;
     const int GOAL_DIFFICULTY_LEVEL_THREE = 3;
 
 
     // Goal Points
-
     const int GOAL_REWARD_LEVEL_ONE = 6;
     const int GOAL_REWARD_LEVEL_TWO = 9;
     const int GOAL_REWARD_LEVEL_THREE = 12;
     const int GOAL_REWARD_WHEN_GOAL_ALREADY_DONE = 3;
 
-    // Anthill Level
 
+    // Anthill Level
     const int ANTHILL_LEVEL_ONE = 1;
     const int ANTHILL_LEVEL_TWO = 2;
     const int ANTHILL_LEVEL_THREE = 3;
+
+    // Goal names
+    const string GOAL_RESOURCE_FOOD_NAME = "resource_food";
+    const string GOAL_RESOURCE_STONE_NAME = "resource_stone";
+    const string GOAL_RESOURCE_STONE_OR_DIRT_NAME = "resource_stone_dirt";
+    const string GOAL_LARVAE_NAME = "larvae";
+    const string GOAL_PREY_NAME = "prey";
+    const string GOAL_SOLDIER_NAME = "soldier";
+    const string GOAL_SPECIAL_TILE_NAME = "special_tile";
+    const string GOAL_NURSES_NAME = "nurses";
+    const string GOAL_ANTHILL_LEVEL_NAME = "anthill_level";
+    const string GOAL_PHEROMONE_NAME = "pheromone";
+
 
     // Garden worker parameters
     const int DEFAULT_MOVEMENT_NUMBER = 3;

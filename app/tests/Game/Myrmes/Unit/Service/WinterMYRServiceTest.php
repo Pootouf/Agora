@@ -10,6 +10,7 @@ use App\Entity\Game\Myrmes\PersonalBoardMYR;
 use App\Entity\Game\Myrmes\PlayerMYR;
 use App\Entity\Game\Myrmes\PlayerResourceMYR;
 use App\Entity\Game\Myrmes\ResourceMYR;
+use App\Repository\Game\Myrmes\GoalMYRRepository;
 use App\Repository\Game\Myrmes\NurseMYRRepository;
 use App\Repository\Game\Myrmes\PlayerMYRRepository;
 use App\Repository\Game\Myrmes\PlayerResourceMYRRepository;
@@ -57,8 +58,11 @@ class WinterMYRServiceTest extends TestCase
         $seasonMYRRepository = $this->getMockBuilder(SeasonMYRRepository::class)
             ->setConstructorArgs([$managerRegistry])
             ->getMock();
+        $goalMYRRepository = $this->getMockBuilder(GoalMYRRepository::class)
+            ->setConstructorArgs([$managerRegistry])
+            ->getMock();
         $myrService = new MYRService($playerMYRRepository, $entityManager, $nurseMYRRepository,
-            $tileMYRRepository, $tileTypeMYRRepository, $seasonMYRRepository,
+            $tileMYRRepository, $tileTypeMYRRepository, $seasonMYRRepository, $goalMYRRepository,
             $resourceMYRRepository, $playerResourceMYRRepository );
         $playerResourceMYRRepository->method("findOneBy")->willReturn($playerFood);
         $this->winterMYRService = new WinterMYRService($entityManager, $resourceMYRRepository,
