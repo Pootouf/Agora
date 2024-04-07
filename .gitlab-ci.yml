@@ -351,6 +351,7 @@ report:
   stage: report
   before_script:
     - cd app
+    - apk add --update --no-cache python3 && ln -sf python3 /usr/bin/python
     - npm install cobertura-merge
   script:
     - |+
