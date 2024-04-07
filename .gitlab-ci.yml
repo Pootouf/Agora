@@ -215,8 +215,8 @@ application6QP:
     expire_in: 30 min
   coverage: /^\s*Lines:\s*\d+.\d+\%/
   variables:
-    JUNIT_REPORT: phpIntegration6QP.xml
-    COBERTURA_REPORT: coverageIntegration6QP.xml
+    JUNIT_REPORT: phpApp6QP.xml
+    COBERTURA_REPORT: coverageApp6QP.xml
 
 unitSplendor:
   needs: [build]
