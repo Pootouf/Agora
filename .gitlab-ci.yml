@@ -1,11 +1,13 @@
 image: etiennebinginot/agora:1.4
 
 stages:
+  - build
   - factory
   - sixqp
   - splendor
   - glenmore
   - myrmes
+  - report
   - sonarqube
   - deploy
 
@@ -28,21 +30,6 @@ variables:
   MERCURE_URL: http://mercure/.well-known/mercure
   MERCURE_PUBLIC_URL: ''
   APP_ENV_SERVER: test
-
-services:
-  - name: mariadb:10.11.2
-    alias: database
-  - name: dunglas/mercure:latest
-    alias: mercure
-
-
-before_script:
-  - cd app
-  - composer install
-  - symfony console --env=test doctrine:migrations:migrate
-  - symfony console doctrine:fixtures:load --env=test -n --append
-
-  
 
 .deploy: &deploy
   stage: deploy
@@ -80,210 +67,313 @@ deploy:dev_game:
     GIT_BRANCH_NAME: develop-game
     ID_RSA: $ID_RSA_GAME
 
+
+
+before_script:
+  - cd app
+
+
+build:
+  stage: build
+  before_script:
+    - ''
+  script:
+    - cd app
+    - composer install
+    - symfony console tailwind:build
+  artifacts:
+    untracked: true
+
+
 unitFactory:
-  needs: []
+  needs: [build]
   stage: factory
   script:
-    - php bin/phpunit --coverage-text --log-junit reports/phpUnitFactory.xml --coverage-clover coverage/coverageUnitFactory.xml --colors=never tests/Game/Factory/Unit
+    - php bin/phpunit --coverage-text --coverage-cobertura coverage-cobertura/coverageUnitFactory.xml --log-junit reports/phpUnitFactory.xml --coverage-php coverage/coverageUnitFactory.php --colors=never tests/Game/Factory/Unit
   allow_failure: false
   environment: test
   artifacts:
     paths:
       - app/reports/*
       - app/coverage/*
+      - app/coverage-cobertura/*
     expire_in: 30 min
 
 integrationFactory:
-  needs: []
+  needs: [build]
   stage: factory
   only:
     - develop-game
     - preprod
     - main
   script:
-    - php bin/phpunit --coverage-text --log-junit reports/phpIntegrationFactory.xml --coverage-clover coverage/coverageIntegrationFactory.xml --colors=never tests/Game/Factory/Integration
+    - symfony console --env=test doctrine:migrations:migrate
+    - symfony console doctrine:fixtures:load --env=test -n --append
+    - php bin/phpunit --coverage-text --coverage-cobertura coverage-cobertura/coverageIntegrationFactory.xml --log-junit reports/phpIntegrationFactory.xml --coverage-php coverage/coverageIntegrationFactory.php --colors=never tests/Game/Factory/Integration
   allow_failure: false
   environment: test
+  services:
+    - name: mariadb:10.11.2
+      alias: database
   artifacts:
     paths:
       - app/reports/*
       - app/coverage/*
+      - app/coverage-cobertura/*
     expire_in: 30 min
 
 unit6QP:
-  needs: []
+  needs: [build]
   stage: sixqp
   script:
-    - php bin/phpunit --coverage-text --log-junit reports/phpUnit6QP.xml --coverage-clover coverage/coverageUnit6QP.xml --colors=never tests/Game/SixQP/Unit
+    - php bin/phpunit --coverage-text --coverage-cobertura coverage-cobertura/coverageUnit6QP.xml --log-junit reports/phpUnit6QP.xml --coverage-php coverage/coverageUnit6QP.php --colors=never tests/Game/SixQP/Unit
   allow_failure: false
   environment: test
   artifacts:
     paths:
       - app/reports/*
       - app/coverage/*
+      - app/coverage-cobertura/*
     expire_in: 30 min
 
 integration6QP:
-  needs : []
+  needs : [build]
   stage: sixqp
   only:
     - develop-game
     - preprod
     - main
   script:
-    - php bin/phpunit --coverage-text --log-junit reports/phpIntegration6QP.xml --coverage-clover coverage/coverageIntegration6QP.xml --colors=never tests/Game/SixQP/Integration
+    - symfony console --env=test doctrine:migrations:migrate
+    - symfony console doctrine:fixtures:load --env=test -n --append
+    - php bin/phpunit --coverage-text --coverage-cobertura coverage-cobertura/coverageIntegration6QP.xml --log-junit reports/phpIntegration6QP.xml --coverage-php coverage/coverageIntegration6QP.php --colors=never tests/Game/SixQP/Integration
   allow_failure: false
   environment: test
+  services:
+    - name: mariadb:10.11.2
+      alias: database
   artifacts:
     paths:
       - app/reports/*
       - app/coverage/*
+      - app/coverage-cobertura/*
     expire_in: 30 min
 
 application6QP:
-  needs: []
+  needs: [build]
   stage: sixqp
   only:
     - develop-game
     - preprod
     - main
   script:
-    - symfony console tailwind:build
-    - php bin/phpunit --coverage-text --log-junit reports/phpApp6QP.xml --coverage-clover coverage/coverageApp6QP.xml --colors=never tests/Game/SixQP/Application
+    - symfony console --env=test doctrine:migrations:migrate
+    - symfony console doctrine:fixtures:load --env=test -n --append
+    - php bin/phpunit --coverage-text --coverage-cobertura coverage-cobertura/coverageApp6QP.xml --log-junit reports/phpApp6QP.xml --coverage-php coverage/coverageApp6QP.php --colors=never tests/Game/SixQP/Application
   allow_failure: false
   environment: test
+  services:
+    - name: mariadb:10.11.2
+      alias: database
+    - name: dunglas/mercure:latest
+      alias: mercure
   artifacts:
     paths:
       - app/reports/*
       - app/coverage/*
+      - app/coverage-cobertura/*
     expire_in: 30 min
 
 unitSplendor:
-  needs: []
+  needs: [build]
   stage: splendor
   script:
-    - php bin/phpunit --coverage-text --log-junit reports/phpUnitSplendor.xml --coverage-clover coverage/coverageUnitSplendor.xml --colors=never tests/Game/Splendor/Unit
+    - php bin/phpunit --coverage-text --coverage-cobertura coverage-cobertura/coverageUnitSplendor.xml --log-junit reports/phpUnitSplendor.xml --coverage-php coverage/coverageUnitSplendor.php --colors=never tests/Game/Splendor/Unit
   allow_failure: false
   environment: test
   artifacts:
     paths:
       - app/reports/*
       - app/coverage/*
+      - app/coverage-cobertura/*
     expire_in: 30 min
 
 integrationSplendor:
-  needs: []
+  needs: [build]
   stage: splendor
   only:
     - develop-game
     - preprod
     - main
   script:
-    - php bin/phpunit --coverage-text --log-junit reports/phpIntegrationSplendor.xml --coverage-clover coverage/coverageIntegrationSplendor.xml --colors=never tests/Game/Splendor/Integration
+    - symfony console --env=test doctrine:migrations:migrate
+    - symfony console doctrine:fixtures:load --env=test -n --append
+    - php bin/phpunit --coverage-text --coverage-cobertura coverage-cobertura/coverageIntegrationSplendor.xml --log-junit reports/phpIntegrationSplendor.xml --coverage-php coverage/coverageIntegrationSplendor.php --colors=never tests/Game/Splendor/Integration
   allow_failure: false
   environment: test
+  services:
+    - name: mariadb:10.11.2
+      alias: database
   artifacts:
     paths:
       - app/reports/*
       - app/coverage/*
+      - app/coverage-cobertura/*
     expire_in: 30 min
 
 applicationSplendor:
-  needs: []
+  needs: [build]
   stage: splendor
   only:
     - develop-game
     - preprod
     - main
   script:
-    - symfony console tailwind:build
-    - php bin/phpunit --coverage-text --log-junit reports/phpAppSplendor.xml --coverage-clover coverage/coverageAppSplendor.xml --colors=never tests/Game/Splendor/Application
+    - symfony console --env=test doctrine:migrations:migrate
+    - symfony console doctrine:fixtures:load --env=test -n --append
+    - php bin/phpunit --coverage-text --coverage-cobertura coverage-cobertura/coverageAppSplendor.xml --log-junit reports/phpAppSplendor.xml --coverage-php coverage/coverageAppSplendor.php --colors=never tests/Game/Splendor/Application
   allow_failure: false
   environment: test
+  services:
+    - name: mariadb:10.11.2
+      alias: database
+    - name: dunglas/mercure:latest
+      alias: mercure
   artifacts:
     paths:
       - app/reports/*
       - app/coverage/*
+      - app/coverage-cobertura/*
     expire_in: 30 min
 
 unitGlenmore:
-  needs: []
+  needs: [build]
   stage: glenmore
   script:
-    - php bin/phpunit --coverage-text --log-junit reports/phpUnitGlenmore.xml --coverage-clover coverage/coverageUnitGlenmore.xml --colors=never tests/Game/Glenmore/Unit
+    - php bin/phpunit --coverage-text --coverage-cobertura coverage-cobertura/coverageUnitGlenmore.xml --log-junit reports/phpUnitGlenmore.xml --coverage-php coverage/coverageUnitGlenmore.php --colors=never tests/Game/Glenmore/Unit
   allow_failure: false
   environment: test
   artifacts:
     paths:
       - app/reports/*
       - app/coverage/*
+      - app/coverage-cobertura/*
     expire_in: 30 min
 
 integrationGlenmore:
-  needs: []
+  needs: [build]
   stage: glenmore
   only:
     - develop-game
     - preprod
     - main
   script:
-    - php bin/phpunit --coverage-text --log-junit reports/phpIntegrationGlenmore.xml --coverage-clover coverage/coverageIntegrationGlenmore.xml --colors=never tests/Game/Glenmore/Integration
+    - symfony console --env=test doctrine:migrations:migrate
+    - symfony console doctrine:fixtures:load --env=test -n --append
+    - php bin/phpunit --coverage-text --coverage-cobertura coverage-cobertura/coverageIntegrationGlenmore.xml --log-junit reports/phpIntegrationGlenmore.xml --coverage-php coverage/coverageIntegrationGlenmore.php --colors=never tests/Game/Glenmore/Integration
   allow_failure: false
   environment: test
+  services:
+    - name: mariadb:10.11.2
+      alias: database
   artifacts:
     paths:
       - app/reports/*
       - app/coverage/*
+      - app/coverage-cobertura/*
     expire_in: 30 min
 
 applicationGlenmore:
-  needs: []
+  needs: [build]
   stage: glenmore
   only:
     - develop-game
     - preprod
     - main
   script:
-    - symfony console tailwind:build
-    - php bin/phpunit --coverage-text --log-junit reports/phpAppGlenmore.xml --coverage-clover coverage/coverageAppGlenmore.xml --colors=never tests/Game/Glenmore/Application
+    - symfony console --env=test doctrine:migrations:migrate
+    - symfony console doctrine:fixtures:load --env=test -n --append
+    - php bin/phpunit --coverage-text --coverage-cobertura coverage-cobertura/coverageAppGlenmore.xml --log-junit reports/phpAppGlenmore.xml --coverage-php coverage/coverageAppGlenmore.php --colors=never tests/Game/Glenmore/Application
   allow_failure: false
   environment: test
+  services:
+    - name: mariadb:10.11.2
+      alias: database
+    - name: dunglas/mercure:latest
+      alias: mercure
   artifacts:
     paths:
       - app/reports/*
       - app/coverage/*
+      - app/coverage-cobertura/*
     expire_in: 30 min
 
 unitMyrmes:
-  needs: []
+  needs: [build]
   stage: myrmes
   script:
-    - php bin/phpunit --coverage-text --log-junit reports/phpUnitMyrmes.xml --coverage-clover coverage/coverageUnitMyrmes.xml --colors=never tests/Game/Myrmes/Unit
+    - php bin/phpunit --coverage-text --coverage-cobertura coverage-cobertura/coverageUnitMyrmes.xml --log-junit reports/phpUnitMyrmes.xml --coverage-php coverage/coverageUnitMyrmes.php --colors=never tests/Game/Myrmes/Unit
   allow_failure: false
   environment: test
   artifacts:
     paths:
       - app/reports/*
       - app/coverage/*
+      - app/coverage-cobertura/*
     expire_in: 30 min
 
 integrationMyrmes:
-  needs: []
+  needs: [build]
   stage: myrmes
   only:
     - develop-game
     - preprod
     - main
   script:
-    - php bin/phpunit --coverage-text --log-junit reports/phpIntegrationMyrmes.xml --coverage-clover coverage/coverageIntegrationMyrmes.xml --colors=never tests/Game/Myrmes/Integration
+    - symfony console --env=test doctrine:migrations:migrate
+    - symfony console doctrine:fixtures:load --env=test -n --append
+    - php bin/phpunit --coverage-text --coverage-cobertura coverage-cobertura/coverageIntegrationMyrmes.xml --log-junit reports/phpIntegrationMyrmes.xml --coverage-php coverage/coverageIntegrationMyrmes.php --colors=never tests/Game/Myrmes/Integration
   allow_failure: false
   environment: test
+  services:
+    - name: mariadb:10.11.2
+      alias: database
   artifacts:
     paths:
       - app/reports/*
       - app/coverage/*
+      - app/coverage-cobertura/*
     expire_in: 30 min
 
+report:
+  stage: report
+  before_script:
+    - cd app
+    - rm composer.lock
+    - composer require psr/log 1.1.4
+    - composer require nimut/phpunit-merger
+    - curl -L https://github.com/tobni/merge-junit/releases/download/v0.1.4/merge-junit-v0.1.4-x86_64-unknown-linux-musl.tar.gz | tar -xz
+  script:
+    - vendor/bin/phpunit-merger coverage coverage/ coverage/coverage.xml
+    - ./merge-junit-v0.1.4-x86_64-unknown-linux-musl/merge-junit reports/* -o reports/report.xml
+    - |+
+      for file in coverage-cobertura/*.xml 
+      do 
+        sed -i 's;filename=";filename="app/src/;g' ${file} #FIX Cobertura report
+        sed -i "s;/${CI_BUILDS_DIR}/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}/app/src;;g" ${file} #FIX Cobertura report
+      done
+  allow_failure: false
+  coverage: /^\s*Lines:\s*\d+.\d+\%/
+  artifacts:
+    paths:
+      - app/reports/report.xml
+      - app/coverage/coverage.xml
+      - app/coverage-cobertura/*.xml
+    reports:
+      junit: app/reports/report.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: app/coverage-cobertura/*.xml
 
 sonarqube-check:
   stage: sonarqube
