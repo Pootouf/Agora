@@ -82,7 +82,8 @@ class WorkshopMYRService
         match ($goalName) {
             MyrmesParameters::GOAL_RESOURCE_FOOD_NAME => $this->retrieveResourcesToDoFoodGoal($player, $goalDifficulty),
             MyrmesParameters::GOAL_RESOURCE_STONE_NAME => $this->retrieveResourcesToDoStoneGoal($player, $goalDifficulty),
-            MyrmesParameters::GOAL_RESOURCE_STONE_OR_DIRT_NAME => $this->retrieveResourcesToDoStoneOrDirtGoal($player, $goalDifficulty),
+            MyrmesParameters::GOAL_RESOURCE_STONE_OR_DIRT_NAME => throw new Exception("Call method 
+                                                                 retrieveResourcesToDoStoneOrDirtGoal to do this Goal"),
             MyrmesParameters::GOAL_LARVAE_NAME => $this->retrieveResourcesToDoLarvaeGoal($player, $goalDifficulty),
             MyrmesParameters::GOAL_PREY_NAME => $this->retrieveResourcesToDoPreyGoal($player, $goalDifficulty),
             MyrmesParameters::GOAL_SOLDIER_NAME => $this->retrieveResourcesToDoSoldierGoal($player, $goalDifficulty),
@@ -700,6 +701,30 @@ class WorkshopMYRService
             MyrmesParameters::GOAL_DIFFICULTY_LEVEL_TWO =>
                 $resource->setQuantity($resource->getQuantity() - 6),
             default => throw new Exception("Goal difficulty invalid for food goal"),
+        };
+        $this->entityManager->persist($resource);
+        $this->entityManager->flush();
+    }
+
+    /**
+     * retrieveResourcesToDoStoneGoal: retrieve the resources needed from the player to accomplish the stone goal
+     * @param PlayerMYR $player
+     * @param int $goalDifficulty
+     * @return void
+     * @throws Exception
+     */
+    private function retrieveResourcesToDoStoneGoal(PlayerMYR $player, int $goalDifficulty): void
+    {
+        if (!$this->canPlayerDoStoneGoal($player, $goalDifficulty)) {
+            throw new Exception('Player cannot do stone goal');
+        }
+        $resource = $this->getPlayerResourcesFromSelectedType($player, MyrmesParameters::RESOURCE_TYPE_STONE);
+        match ($goalDifficulty) {
+            MyrmesParameters::GOAL_DIFFICULTY_LEVEL_TWO =>
+            $resource->setQuantity($resource->getQuantity() - 3),
+            MyrmesParameters::GOAL_DIFFICULTY_LEVEL_THREE =>
+            $resource->setQuantity($resource->getQuantity() - 6),
+            default => throw new Exception("Goal difficulty invalid for stone goal"),
         };
         $this->entityManager->persist($resource);
         $this->entityManager->flush();
