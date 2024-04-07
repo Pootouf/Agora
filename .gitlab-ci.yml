@@ -7,7 +7,6 @@ stages:
   - splendor
   - glenmore
   - myrmes
-  - report
   - sonarqube
   - deploy
 
@@ -54,6 +53,20 @@ variables:
     - develop-game
 
 
+.cleanReport: &cleanReport
+  #FIX Cobertura report
+  - sed -i 's;filename=";filename="app/src/;g' $COBERTURA_REPORT
+  - sed -i "s;/builds/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}/app/src;;g" $COBERTURA_REPORT
+  #FIX Junit report
+  - sed -i "s;/builds/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}/;;g" $JUNIT_REPORT
+
+.publishReport: &publishReport
+  reports:
+    junit: app/reports/$JUNIT_REPORT
+    coverage_report:
+      coverage_format: cobertura
+      path: app/coverage-cobertura/$COBERTURA_REPORT
+
 deploy:dev_game:
   <<: *deploy
   environment:
@@ -90,14 +103,18 @@ unitFactory:
   stage: factory
   script:
     - php bin/phpunit --coverage-text --coverage-cobertura coverage-cobertura/coverageUnitFactory.xml --log-junit reports/phpUnitFactory.xml --coverage-php coverage/coverageUnitFactory.php --colors=never tests/Game/Factory/Unit
+    - *cleanReport
   allow_failure: false
   environment: test
   artifacts:
     paths:
-      - app/reports/*
       - app/coverage/*
-      - app/coverage-cobertura/*
+    <<: *publishReport
     expire_in: 30 min
+  coverage: /^\s*Lines:\s*\d+.\d+\%/
+  variables:
+    JUNIT_REPORT: phpUnitFactory.xml
+    COBERTURA_REPORT: coverageUnitFactory.xml
 
 integrationFactory:
   needs: [build]
@@ -110,6 +127,7 @@ integrationFactory:
     - symfony console --env=test doctrine:migrations:migrate
     - symfony console doctrine:fixtures:load --env=test -n --append
     - php bin/phpunit --coverage-text --coverage-cobertura coverage-cobertura/coverageIntegrationFactory.xml --log-junit reports/phpIntegrationFactory.xml --coverage-php coverage/coverageIntegrationFactory.php --colors=never tests/Game/Factory/Integration
+    - *cleanReport
   allow_failure: false
   environment: test
   services:
@@ -117,24 +135,31 @@ integrationFactory:
       alias: database
   artifacts:
     paths:
-      - app/reports/*
       - app/coverage/*
-      - app/coverage-cobertura/*
+    <<: *publishReport
     expire_in: 30 min
+  coverage: /^\s*Lines:\s*\d+.\d+\%/
+  variables:
+    JUNIT_REPORT: phpIntegrationFactory.xml
+    COBERTURA_REPORT: coverageIntegrationFactory.xml
 
 unit6QP:
   needs: [build]
   stage: sixqp
   script:
     - php bin/phpunit --coverage-text --coverage-cobertura coverage-cobertura/coverageUnit6QP.xml --log-junit reports/phpUnit6QP.xml --coverage-php coverage/coverageUnit6QP.php --colors=never tests/Game/SixQP/Unit
+    - *cleanReport
   allow_failure: false
   environment: test
   artifacts:
     paths:
-      - app/reports/*
       - app/coverage/*
-      - app/coverage-cobertura/*
+    <<: *publishReport
     expire_in: 30 min
+  coverage: /^\s*Lines:\s*\d+.\d+\%/
+  variables:
+    JUNIT_REPORT: phpUnit6QP.xml
+    COBERTURA_REPORT: coverageUnit6QP.xml
 
 integration6QP:
   needs : [build]
@@ -147,6 +172,7 @@ integration6QP:
     - symfony console --env=test doctrine:migrations:migrate
     - symfony console doctrine:fixtures:load --env=test -n --append
     - php bin/phpunit --coverage-text --coverage-cobertura coverage-cobertura/coverageIntegration6QP.xml --log-junit reports/phpIntegration6QP.xml --coverage-php coverage/coverageIntegration6QP.php --colors=never tests/Game/SixQP/Integration
+    - *cleanReport
   allow_failure: false
   environment: test
   services:
@@ -154,10 +180,14 @@ integration6QP:
       alias: database
   artifacts:
     paths:
-      - app/reports/*
       - app/coverage/*
-      - app/coverage-cobertura/*
+    <<: *publishReport
     expire_in: 30 min
+  coverage: /^\s*Lines:\s*\d+.\d+\%/
+  variables:
+    JUNIT_REPORT: phpIntegration6QP.xml
+    COBERTURA_REPORT: coverageIntegration6QP.xml
+
 
 application6QP:
   needs: [build]
@@ -170,6 +200,7 @@ application6QP:
     - symfony console --env=test doctrine:migrations:migrate
     - symfony console doctrine:fixtures:load --env=test -n --append
     - php bin/phpunit --coverage-text --coverage-cobertura coverage-cobertura/coverageApp6QP.xml --log-junit reports/phpApp6QP.xml --coverage-php coverage/coverageApp6QP.php --colors=never tests/Game/SixQP/Application
+    - *cleanReport
   allow_failure: false
   environment: test
   services:
@@ -179,24 +210,31 @@ application6QP:
       alias: mercure
   artifacts:
     paths:
-      - app/reports/*
       - app/coverage/*
-      - app/coverage-cobertura/*
+    <<: *publishReport
     expire_in: 30 min
+  coverage: /^\s*Lines:\s*\d+.\d+\%/
+  variables:
+    JUNIT_REPORT: phpIntegration6QP.xml
+    COBERTURA_REPORT: coverageIntegration6QP.xml
 
 unitSplendor:
   needs: [build]
   stage: splendor
   script:
     - php bin/phpunit --coverage-text --coverage-cobertura coverage-cobertura/coverageUnitSplendor.xml --log-junit reports/phpUnitSplendor.xml --coverage-php coverage/coverageUnitSplendor.php --colors=never tests/Game/Splendor/Unit
+    - *cleanReport
   allow_failure: false
   environment: test
   artifacts:
     paths:
-      - app/reports/*
       - app/coverage/*
-      - app/coverage-cobertura/*
+    <<: *publishReport
     expire_in: 30 min
+  coverage: /^\s*Lines:\s*\d+.\d+\%/
+  variables:
+    JUNIT_REPORT: phpUnitSplendor.xml
+    COBERTURA_REPORT: coverageUnitSplendor.xml
 
 integrationSplendor:
   needs: [build]
@@ -209,6 +247,7 @@ integrationSplendor:
     - symfony console --env=test doctrine:migrations:migrate
     - symfony console doctrine:fixtures:load --env=test -n --append
     - php bin/phpunit --coverage-text --coverage-cobertura coverage-cobertura/coverageIntegrationSplendor.xml --log-junit reports/phpIntegrationSplendor.xml --coverage-php coverage/coverageIntegrationSplendor.php --colors=never tests/Game/Splendor/Integration
+    - *cleanReport
   allow_failure: false
   environment: test
   services:
@@ -216,10 +255,13 @@ integrationSplendor:
       alias: database
   artifacts:
     paths:
-      - app/reports/*
       - app/coverage/*
-      - app/coverage-cobertura/*
+    <<: *publishReport
     expire_in: 30 min
+  coverage: /^\s*Lines:\s*\d+.\d+\%/
+  variables:
+    JUNIT_REPORT: phpIntegrationSplendor.xml
+    COBERTURA_REPORT: coverageIntegrationSplendor.xml
 
 applicationSplendor:
   needs: [build]
@@ -232,6 +274,7 @@ applicationSplendor:
     - symfony console --env=test doctrine:migrations:migrate
     - symfony console doctrine:fixtures:load --env=test -n --append
     - php bin/phpunit --coverage-text --coverage-cobertura coverage-cobertura/coverageAppSplendor.xml --log-junit reports/phpAppSplendor.xml --coverage-php coverage/coverageAppSplendor.php --colors=never tests/Game/Splendor/Application
+    - *cleanReport
   allow_failure: false
   environment: test
   services:
@@ -241,24 +284,31 @@ applicationSplendor:
       alias: mercure
   artifacts:
     paths:
-      - app/reports/*
       - app/coverage/*
-      - app/coverage-cobertura/*
+    <<: *publishReport
     expire_in: 30 min
+  coverage: /^\s*Lines:\s*\d+.\d+\%/
+  variables:
+    JUNIT_REPORT: phpAppSplendor.xml
+    COBERTURA_REPORT: coverageAppSplendor.xml
 
 unitGlenmore:
   needs: [build]
   stage: glenmore
   script:
     - php bin/phpunit --coverage-text --coverage-cobertura coverage-cobertura/coverageUnitGlenmore.xml --log-junit reports/phpUnitGlenmore.xml --coverage-php coverage/coverageUnitGlenmore.php --colors=never tests/Game/Glenmore/Unit
+    - *cleanReport
   allow_failure: false
   environment: test
   artifacts:
     paths:
-      - app/reports/*
       - app/coverage/*
-      - app/coverage-cobertura/*
+    <<: *publishReport
     expire_in: 30 min
+  coverage: /^\s*Lines:\s*\d+.\d+\%/
+  variables:
+    JUNIT_REPORT: phpUnitGlenmore.xml
+    COBERTURA_REPORT: coverageUnitGlenmore.xml
 
 integrationGlenmore:
   needs: [build]
@@ -271,6 +321,7 @@ integrationGlenmore:
     - symfony console --env=test doctrine:migrations:migrate
     - symfony console doctrine:fixtures:load --env=test -n --append
     - php bin/phpunit --coverage-text --coverage-cobertura coverage-cobertura/coverageIntegrationGlenmore.xml --log-junit reports/phpIntegrationGlenmore.xml --coverage-php coverage/coverageIntegrationGlenmore.php --colors=never tests/Game/Glenmore/Integration
+    - *cleanReport
   allow_failure: false
   environment: test
   services:
@@ -278,10 +329,13 @@ integrationGlenmore:
       alias: database
   artifacts:
     paths:
-      - app/reports/*
       - app/coverage/*
-      - app/coverage-cobertura/*
+    <<: *publishReport
     expire_in: 30 min
+  coverage: /^\s*Lines:\s*\d+.\d+\%/
+  variables:
+    JUNIT_REPORT: phpIntegrationGlenmore.xml
+    COBERTURA_REPORT: coverageIntegrationGlenmore.xml
 
 applicationGlenmore:
   needs: [build]
@@ -294,6 +348,7 @@ applicationGlenmore:
     - symfony console --env=test doctrine:migrations:migrate
     - symfony console doctrine:fixtures:load --env=test -n --append
     - php bin/phpunit --coverage-text --coverage-cobertura coverage-cobertura/coverageAppGlenmore.xml --log-junit reports/phpAppGlenmore.xml --coverage-php coverage/coverageAppGlenmore.php --colors=never tests/Game/Glenmore/Application
+    - *cleanReport
   allow_failure: false
   environment: test
   services:
@@ -303,24 +358,31 @@ applicationGlenmore:
       alias: mercure
   artifacts:
     paths:
-      - app/reports/*
       - app/coverage/*
-      - app/coverage-cobertura/*
+    <<: *publishReport
     expire_in: 30 min
+  coverage: /^\s*Lines:\s*\d+.\d+\%/
+  variables:
+    JUNIT_REPORT: phpAppGlenmore.xml
+    COBERTURA_REPORT: coverageAppGlenmore.xml
 
 unitMyrmes:
   needs: [build]
   stage: myrmes
   script:
     - php bin/phpunit --coverage-text --coverage-cobertura coverage-cobertura/coverageUnitMyrmes.xml --log-junit reports/phpUnitMyrmes.xml --coverage-php coverage/coverageUnitMyrmes.php --colors=never tests/Game/Myrmes/Unit
+    - *cleanReport
   allow_failure: false
   environment: test
   artifacts:
     paths:
-      - app/reports/*
       - app/coverage/*
-      - app/coverage-cobertura/*
+    <<: *publishReport
     expire_in: 30 min
+  coverage: /^\s*Lines:\s*\d+.\d+\%/
+  variables:
+    JUNIT_REPORT: phpUnitMyrmes.xml
+    COBERTURA_REPORT: coverageUnitMyrmes.xml
 
 integrationMyrmes:
   needs: [build]
@@ -333,6 +395,7 @@ integrationMyrmes:
     - symfony console --env=test doctrine:migrations:migrate
     - symfony console doctrine:fixtures:load --env=test -n --append
     - php bin/phpunit --coverage-text --coverage-cobertura coverage-cobertura/coverageIntegrationMyrmes.xml --log-junit reports/phpIntegrationMyrmes.xml --coverage-php coverage/coverageIntegrationMyrmes.php --colors=never tests/Game/Myrmes/Integration
+    - *cleanReport
   allow_failure: false
   environment: test
   services:
@@ -340,46 +403,19 @@ integrationMyrmes:
       alias: database
   artifacts:
     paths:
-      - app/reports/*
       - app/coverage/*
-      - app/coverage-cobertura/*
+    <<: *publishReport
     expire_in: 30 min
-
-report:
-  stage: report
-  before_script:
-    - cd app
-    - rm composer.lock
-    - composer require psr/log 1.1.4
-    - composer require nimut/phpunit-merger
-    - curl -L https://github.com/tobni/merge-junit/releases/download/v0.1.4/merge-junit-v0.1.4-x86_64-unknown-linux-musl.tar.gz | tar -xz
-  script:
-    - vendor/bin/phpunit-merger coverage coverage/ coverage/coverage.xml
-    - ./merge-junit-v0.1.4-x86_64-unknown-linux-musl/merge-junit reports/* -o reports/report.xml
-    - |+
-      for file in coverage-cobertura/*.xml 
-      do 
-        sed -i 's;filename=";filename="app/src/;g' ${file} #FIX Cobertura report
-        sed -i "s;/${CI_BUILDS_DIR}/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}/app/src;;g" ${file} #FIX Cobertura report
-      done
-  allow_failure: false
   coverage: /^\s*Lines:\s*\d+.\d+\%/
-  artifacts:
-    paths:
-      - app/reports/report.xml
-      - app/coverage/coverage.xml
-      - app/coverage-cobertura/*.xml
-    reports:
-      junit: app/reports/report.xml
-      coverage_report:
-        coverage_format: cobertura
-        path: app/coverage-cobertura/*.xml
+  variables:
+    JUNIT_REPORT: phpIntegrationMyrmes.xml
+    COBERTURA_REPORT: coverageIntegrationMyrmes.xml
 
 sonarqube-check:
   stage: sonarqube
   before_script:
     - ''
-  image: 
+  image:
     name: sonarsource/sonar-scanner-cli:latest
     entrypoint: [""]
   variables:
@@ -389,7 +425,7 @@ sonarqube-check:
     key: "${CI_JOB_NAME}"
     paths:
       - .sonar/cache
-  script: 
+  script:
     - sonar-scanner
   allow_failure: true
   only:
