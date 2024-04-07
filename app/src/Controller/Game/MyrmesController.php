@@ -67,9 +67,15 @@ class MyrmesController extends AbstractController
             'isAnotherPlayerBoard' => false,
             'availableLarvae' => $this->service->getAvailableLarvae($player),
             'isBirthPhase' => $this->service->isInPhase($player, MyrmesParameters::PHASE_BIRTH),
-            'dirt' => $this->service->getPlayerResourceAmount($player, MyrmesParameters::RESOURCE_TYPE_DIRT),
-            'grass' => $this->service->getPlayerResourceAmount($player, MyrmesParameters::RESOURCE_TYPE_GRASS),
-            'stone' => $this->service->getPlayerResourceAmount($player, MyrmesParameters::RESOURCE_TYPE_STONE),
+            'dirt' => $this->service->getPlayerResourceAmount(
+                $player,
+                MyrmesParameters::RESOURCE_TYPE_DIRT),
+            'grass' => $this->service->getPlayerResourceAmount(
+                $player,
+                MyrmesParameters::RESOURCE_TYPE_GRASS),
+            'stone' => $this->service->getPlayerResourceAmount(
+                $player,
+                MyrmesParameters::RESOURCE_TYPE_STONE),
             'nursesOnLarvaeBirthTrack' => $this->service->getNursesAtPosition(
                 $player,
                 MyrmesParameters::LARVAE_AREA
@@ -81,7 +87,10 @@ class MyrmesController extends AbstractController
             'nursesOnWorkersBirthTrack' => $this->service->getNursesAtPosition(
                 $player,
                 MyrmesParameters::WORKER_AREA
-            )->count()
+            )->count(),
+            'mustThrowResources' => $player != null
+                && $this->service->isInPhase($player, MyrmesParameters::PHASE_WINTER)
+                && $this->winterMYRService->mustDropResourcesForWinter($player)
         ]);
     }
 
@@ -100,7 +109,6 @@ class MyrmesController extends AbstractController
             'needToPlay' => true,//$player == null ? false : $player->isTurnOfPlayer()
             'isAnotherPlayerBoard' => false,
             'playerPhase' => $player->getPhase(),
-            'actualSeason' => $this->service->getActualSeason($game),
             'availableLarvae' => $this->service->getAvailableLarvae($player),
             'nursesOnLarvaeBirthTrack' => $this->service->getNursesAtPosition(
                 $player,
@@ -113,7 +121,10 @@ class MyrmesController extends AbstractController
             'nursesOnWorkersBirthTrack' => $this->service->getNursesAtPosition(
                 $player,
                 MyrmesParameters::WORKER_AREA
-            )->count()
+            )->count(),
+            'mustThrowResources' => $player != null
+                && $this->service->isInPhase($player, MyrmesParameters::PHASE_WINTER)
+                && $this->winterMYRService->mustDropResourcesForWinter($player)
         ]);
     }
 
@@ -144,7 +155,8 @@ class MyrmesController extends AbstractController
                 )->count(),
                 'nursesOnWorkersBirthTrack' => $this->service->getNursesAtPosition(
                     $playerMYR, MyrmesParameters::WORKER_AREA
-                )->count()
+                )->count(),
+                'mustThrowResources' => false
             ]);
     }
 
@@ -365,6 +377,19 @@ class MyrmesController extends AbstractController
         }
         $message = $player->getUsername() . " a jeté la ressource " . $playerResourceMYR->getId() . " de son entrepôt";
         $this->logService->sendPlayerLog($game, $player, $message);
+        if($this->winterMYRService->canManageEndOfWinter($game)) {
+            try {
+                $this->winterMYRService->manageEndOfWinter($game);
+            } catch (Exception $e) {
+                $message =
+                    "Le système a essayé de terminer la phase hiver "
+                    . ", mais n'a pas pu.";
+                $this->logService->sendSystemLog($game, $message);
+                return new Response('failed to manage end of winter', Response::HTTP_FORBIDDEN);
+            }
+            $message = "Le système a mis fin à la phase hiver ";
+            $this->logService->sendSystemLog($game, $message);
+        }
         return new Response("threw resource from warehouse", Response::HTTP_OK);
     }
 
