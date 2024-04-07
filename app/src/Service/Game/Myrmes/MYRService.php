@@ -338,6 +338,7 @@ class MYRService
         $this->entityManager->persist($player);
         $this->entityManager->persist($personalBoard);
         $this->entityManager->flush();
+        $this->setPhase($player, MyrmesParameters::PHASE_EVENT);
     }
 
     /**
@@ -510,6 +511,29 @@ class MYRService
         }
         // TODO : COMPUTE GOAL COSTS
         $this->computePlayerRewardPointsWithGoal($playerMYR, $goalMYR);
+    }
+
+    /**
+     * setPhase: Set a new phase of the game for a player, and change the game phase if all player have the same
+     * @param PlayerMYR $playerMYR
+     * @param int $phase
+     * @return void
+     */
+    public function setPhase(PlayerMYR $playerMYR, int $phase): void
+    {
+        $playerMYR->setPhase($phase);
+        $areAllPlayerAtTheSamePhase = true;
+        foreach($playerMYR->getGameMyr()->getPlayers() as $player) {
+            if($player->getPhase() != $phase) {
+                $areAllPlayerAtTheSamePhase = false;
+            }
+        }
+        if($areAllPlayerAtTheSamePhase) {
+            $playerMYR->getGameMyr()->setGamePhase($phase);
+            $this->entityManager->persist($playerMYR->getGameMyr());
+        }
+        $this->entityManager->persist($playerMYR);
+        $this->entityManager->flush();
     }
 
     /**
