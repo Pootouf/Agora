@@ -73,6 +73,17 @@ class WorkshopMYRService
         };
     }
 
+    /**
+     * doGoal: retrieve the needed resources from the player to accomplish the goal
+     * @param PlayerMYR $player
+     * @param GameGoalMYR $gameGoalMYR
+     * @return void
+     * @throws Exception if the selected goal possessed a command like :
+     *                          STONE OR DIRT
+     *                          SPECIAL TILE
+     *                          PHEROMONE
+     *                   these goals needs player interactivity and other parameters
+     */
     public function doGoal(PlayerMYR $player, GameGoalMYR $gameGoalMYR): void
     {
         $goal = $gameGoalMYR->getGoal();
@@ -821,6 +832,33 @@ class WorkshopMYRService
             default => throw new Exception("Goal difficulty invalid for nurses goal"),
         };
     }
+
+
+    /**
+     * retrieveResourcesToDoAnthillLevelGoal: retrieve the resources needed from the player to accomplish
+     *                                        the anthill level goal
+     * @param PlayerMYR $player
+     * @param int $goalDifficulty
+     * @return void
+     * @throws Exception
+     */
+    private function retrieveResourcesToDoAnthillLevelGoal(PlayerMYR $player, int $goalDifficulty): void
+    {
+        if (!$this->canPlayerDoAnthillLevelGoal($player, $goalDifficulty)) {
+            throw new Exception('Player cannot do anthill level goal');
+        }
+        $anthillLevel = $player->getPersonalBoardMYR()->getAnthillLevel();
+        match ($goalDifficulty) {
+            MyrmesParameters::GOAL_DIFFICULTY_LEVEL_TWO =>
+            $player->getPersonalBoardMYR()->setAnthillLevel($anthillLevel - 1),
+            MyrmesParameters::GOAL_DIFFICULTY_LEVEL_THREE =>
+            $player->getPersonalBoardMYR()->setAnthillLevel($anthillLevel - 2),
+            default => throw new Exception("Goal difficulty invalid for anthill level goal"),
+        };
+        $this->entityManager->persist($player->getPersonalBoardMYR());
+        $this->entityManager->flush();
+    }
+
 
     /**
      * removeSelectedNumberOfPreyFromPlayer: remove the selected number of prey from the player inventory
