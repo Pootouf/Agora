@@ -37,7 +37,7 @@
         <svg id="{{ boardBox.tile.id }}-clickable-zone"
              class="visible z-99 bg-transparent absolute h-full w-full" fill="#000000"
              viewbox="0 0 300 300" width="100%" height="100%" >
-            <polygon points="150,309 300,225 300,76 150,-11 0,75 0,225" class="{% if isTileAvailableForAnthillHolePlacement %}
+            <polygon points="150,309 300,225 300,76 150,-11 0,75 0,225" class="{% if not isTileAvailableForAnthillHolePlacement %}
                                                                                         fill-[rgba(0,_0,_0,_0)]
                                                                                 {% else %}
                                                                                         fill-[rgba(255,_255,_255,_0.35)]
