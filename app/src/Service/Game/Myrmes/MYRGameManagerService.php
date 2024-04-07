@@ -47,12 +47,13 @@ class MYRGameManagerService extends AbstractGameManagerService
         $game = new GameMYR();
         $game->setGameName(AbstractGameManagerService::$MYR_LABEL);
         $mainBoard = new MainBoardMYR();
-        $mainBoard->setYearNum(-1);
+        $mainBoard->setYearNum(0);
         $season = new SeasonMYR();
-        $season->setName(MyrmesParameters::$INVALID_SEASON_NAME);
+        $season->setName(MyrmesParameters::INVALID_SEASON_NAME);
         $season->setDiceResult(-1);
+        $season->setMainBoard($mainBoard);
+        $season->setActualSeason(true);
         $this->entityManager->persist($season);
-        $mainBoard->setActualSeason($season);
         $game->setMainBoardMYR($mainBoard);
         $this->entityManager->persist($game);
         $this->entityManager->persist($mainBoard);
@@ -73,7 +74,7 @@ class MYRGameManagerService extends AbstractGameManagerService
         if($game->isLaunched()) {
             return MYRGameManagerService::$ERROR_GAME_ALREADY_LAUNCHED;
         }
-        if (count($game->getPlayers()) >= MyrmesParameters::$MAX_NUMBER_OF_PLAYER) {
+        if (count($game->getPlayers()) >= MyrmesParameters::MAX_NUMBER_OF_PLAYER) {
             return MYRGameManagerService::$ERROR_INVALID_NUMBER_OF_PLAYER;
         }
         if ($this->playerMYRRepository->findOneBy(
@@ -85,7 +86,7 @@ class MYRGameManagerService extends AbstractGameManagerService
         $player->setGoalLevel(0);
         $player->setColor("");
         $player->setRemainingHarvestingBonus(0);
-        $player->setPhase(MyrmesParameters::$PHASE_EVENT);
+        $player->setPhase(MyrmesParameters::PHASE_EVENT);
         $personalBoard = new PersonalBoardMYR();
         $personalBoard->setAnthillLevel(0);
         $personalBoard->setLarvaCount(0);
@@ -135,8 +136,14 @@ class MYRGameManagerService extends AbstractGameManagerService
             return MYRGameManagerService::$ERROR_INVALID_GAME;
         }
         foreach ($game->getPlayers() as $player) {
+            foreach ($player->getPreyMYRs() as $prey) {
+                $this->entityManager->remove($prey);
+            }
             $this->entityManager->remove($player->getPersonalBoardMYR());
             $this->entityManager->remove($player);
+        }
+        foreach ($game->getMainBoardMYR()->getPreys() as $prey) {
+            $this->entityManager->remove($prey);
         }
         $this->entityManager->remove($game->getMainBoardMYR());
         $this->logService->sendSystemLog($game, "la partie " . $game->getId() . " a pris fin");
@@ -156,8 +163,8 @@ class MYRGameManagerService extends AbstractGameManagerService
             return MYRGameManagerService::$ERROR_INVALID_GAME;
         }
         $numberOfPlayers = count($game->getPlayers());
-        if ($numberOfPlayers > MyrmesParameters::$MAX_NUMBER_OF_PLAYER
-            || $numberOfPlayers < MyrmesParameters::$MIN_NUMBER_OF_PLAYER) {
+        if ($numberOfPlayers > MyrmesParameters::MAX_NUMBER_OF_PLAYER
+            || $numberOfPlayers < MyrmesParameters::MIN_NUMBER_OF_PLAYER) {
             return MYRGameManagerService::$ERROR_INVALID_NUMBER_OF_PLAYER;
         }
         if ($game->isLaunched()) {

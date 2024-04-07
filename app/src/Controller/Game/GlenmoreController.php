@@ -831,12 +831,16 @@ class GlenmoreController extends AbstractController
         #[MapEntity(id: 'idGame')] GameGLM $gameGLM,
         #[MapEntity(id: 'idPlayer')] PlayerGLM $playerGLM): Response
     {
+        $personalBoard = $playerGLM->getPersonalBoard();
         return $this->render('Game/Glenmore/MainBoard/playerPersonalBoard.html.twig', [
             'isSpectator' => true,
             'game' => $gameGLM,
             'player' => $playerGLM,
             'personalBoardTiles' => $this->dataManagementGLMService->organizePersonalBoardRows($playerGLM, []),
             'whiskyCount' => $this->dataManagementGLMService->getWhiskyCount($playerGLM),
+            'activableTiles' => $this->service->isInActivationPhase($playerGLM) ?
+                $this->tileGLMService->getActivableTiles($personalBoard->getPlayerTiles()->last())
+                : null,
         ]);
     }
 

@@ -1,4 +1,5 @@
 @import "hex.css";
+@import "birthTrack.css";
 
 .inlineFlex {
     @apply inline-flex align-middle justify-center;
@@ -25,5 +26,13 @@
 
 .text3-5 {
     @apply font-extrabold text-white text-3xl lg:text-5xl
+    text-center tracking-normal whitespace-nowrap;
+}
+
+
+
+
+.text_mini {
+    @apply font-extrabold text-white text-xs
     text-center tracking-normal whitespace-nowrap;
 }

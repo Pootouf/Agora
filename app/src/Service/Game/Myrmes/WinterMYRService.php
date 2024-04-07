@@ -3,6 +3,8 @@
 namespace App\Service\Game\Myrmes;
 
 
+use App\Entity\Game\DTO\Game;
+use App\Entity\Game\Myrmes\GameMYR;
 use App\Entity\Game\Myrmes\MyrmesParameters;
 use App\Entity\Game\Myrmes\PlayerMYR;
 use App\Entity\Game\Myrmes\PlayerResourceMYR;
@@ -12,15 +14,43 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 
-/**
- * @codeCoverageIgnore
- */
 class WinterMYRService
 {
     public function __construct(private readonly EntityManagerInterface $entityManager,
                                 private readonly ResourceMYRRepository $resourceMYRRepository,
-                                private readonly PlayerResourceMYRRepository $playerResourceMYRRepository) {}
+                                private readonly PlayerResourceMYRRepository $playerResourceMYRRepository,
+                                private readonly MYRService $MYRService) {}
 
+
+    /**
+     * mustDropResourcesForWinter : indicate if the player must drop resources during winter
+     * @param PlayerMYR $playerMYR
+     * @return bool
+     */
+    public function mustDropResourcesForWinter(PlayerMYR $playerMYR): bool
+    {
+        $personalBoard = $playerMYR->getPersonalBoardMYR();
+        $anthillLevel = $personalBoard->getAnthillLevel();
+        return $playerMYR->getPhase() == MyrmesParameters::PHASE_WINTER and
+            $anthillLevel < 2 ?
+            $personalBoard->getPlayerResourceMYRs()->count() > MyrmesParameters::WAREHOUSE_LOCATIONS_AVAILABLE_ANTHILL_LEVEL_LESS_THAN_2
+            : $personalBoard->getPlayerResourceMYRs()->count() > MyrmesParameters::WAREHOUSE_LOCATIONS_AVAILABLE_ANTHILL_LEVEL_AT_LEAST_2;
+    }
+
+    /**
+     * canManageEndOfWinter : indicates if all players have thrown their resources for winter
+     * @param GameMYR $gameMYR
+     * @return bool
+     */
+    public function canManageEndOfWinter(GameMYR $gameMYR) : bool
+    {
+        foreach ($gameMYR->getPlayers() as $player) {
+            if(!$this->mustDropResourcesForWinter($player)) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     /**
      * Remove one cube's resource belongs to the player
@@ -45,26 +75,60 @@ class WinterMYRService
         $this->entityManager->flush();
     }
 
+
+    /**
+     * retrievePoints : during winter season, retrieves food and points from the player
+     * @param PlayerMYR $player
+     * @return void
+     * @throws Exception
+     */
     public function retrievePoints(PlayerMYR $player) : void
     {
         $game = $player->getGameMyr();
         $currentYear = $game->getMainBoardMYR()->getYearNum();
         $amountToSpend = $this->getAmountToSpend($player, $currentYear);
-        $food = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::$RESOURCE_TYPE_GRASS]);
+        $food = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::RESOURCE_TYPE_GRASS]);
         $playerFood = $this->playerResourceMYRRepository->findOneBy(["resource" => $food]);
-        $foodStock = $playerFood->getQuantity();
-        $remaining = $amountToSpend - $foodStock;
-        if ($remaining > 0) {
-            $playerFood->setQuantity(0);
+        if ($playerFood == null) {
+            $foodStock = 0;
         } else {
-            $playerFood->setQuantity($foodStock - $remaining);
+            $foodStock = $playerFood->getQuantity();
         }
-        $this->entityManager->persist($playerFood);
+        $remaining = $amountToSpend - $foodStock;
+        if ($playerFood != null) {
+            if ($remaining > 0) {
+                $playerFood->setQuantity(0);
+            } else {
+                $playerFood->setQuantity($foodStock - $amountToSpend);
+            }
+            $this->entityManager->persist($playerFood);
+        }
         for ($i = 0; $i < $remaining; ++$i) {
             $player->setScore($player->getScore() - 3);
         }
+        if ($player->getScore() < 0) {
+            $player->setScore(0);
+        }
         $this->entityManager->persist($player);
         $this->entityManager->flush();
+    }
+
+    /**
+     * manageEndOfWinter : retrieve points after every player disposed of their
+     *              resources and manage the end of round
+     * @param GameMYR $gameMYR
+     * @return void
+     * @throws Exception
+     */
+    public function manageEndOfWinter(GameMYR $gameMYR): void
+    {
+        if(!$this->canManageEndOfWinter($gameMYR)) {
+            throw new Exception("All members have not disposed of their resources yet");
+        }
+        foreach($gameMYR->getPlayers() as $player) {
+            $this->retrievePoints($player);
+        }
+        $this->MYRService->manageEndOfRound($gameMYR);
     }
 
     /**

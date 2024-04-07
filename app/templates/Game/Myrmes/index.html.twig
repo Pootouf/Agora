@@ -3,6 +3,7 @@
 {% block title %}Agora - Myrmes{% endblock %}
 
 {% block body %}
+
     <div class="h-screen w-screen overflow-hidden absolute" {{ stimulus_controller('myrmes') }}>
         <div id="index_myrmes" class="h-full w-full static overflow-hidden">
             {#{% block endGame %}
@@ -10,23 +11,26 @@
             {% endblock %}#}
             {% block ranking %}
                 <div id="ranking"
-                     class="absolute bg-gradient-to-b from-[#4C6E9Bff] to-[#20222Dff] w-[28%] h-[60%] top-0 right-0">
+                     class="absolute bg-gradient-to-b from-[#4C6E9Bff] to-[#20222Dff] w-[28%] h-[70%] top-0 right-0">
                     {{ include('/Game/Myrmes/Ranking/ranking.html.twig') }}
                 </div>
             {% endblock %}
-            {% block previewMainBoard %}
+            {% block previewPersonalBoard %}
                 <div id="preview"
                      class="absolute bottom-0 flex justify-around items-center
-                     bg-gradient-to-b from-[#4C6E9Bff] to-[#20222Dff] w-[28%] h-[40%] right-0">
+                     bg-gradient-to-b from-[#4C6E9Bff] to-[#20222Dff] w-[28%] h-[30%] right-0">
                     {{ include('/Game/Myrmes/MainBoard/preview.html.twig') }}
                 </div>
             {% endblock %}
-            {% block personalBoard %}
-                {% if not isSpectator %}
-                    <div id="personalBoard" class="absolute bottom-0 w-[72%] h-full">
-                        {{ include('/Game/Myrmes/PersonalBoard/personalBoard.html.twig') }}
-                    </div>
-                {% endif %}
+            {% if not isBirthPhase %}
+                {% block playerPersonalBoard %}
+                    <div id="playerPersonalBoard" class="flow float-start w-[75%] h-[5/6]"></div>
+                {% endblock %}
+            {% endif %}
+            {% block mainBoard %}
+                <div id="mainBoard" class="absolute bottom-0 w-[72%] h-full">
+                    {{ include('/Game/Myrmes/MainBoard/mainBoard.html.twig') }}
+                </div>
             {% endblock %}
             {% block nav %}
                 {{ include('/Game/Utils/navigation.html.twig') }}
@@ -43,8 +47,34 @@
     {# MAIN BOARD CLOSURE MANAGEMENT #}
     <script>
         function closeWindow() {
-            let window = document.getElementById('mainBoard');
+            let window = document.getElementById('personalBoard');
             window.remove();
+        }
+        function closeSelectedBoxWindow() {
+            let window = document.getElementById('selectedBoxActions');
+            if(window !== null) {
+                let tile = document.getElementsByClassName("displayedActionsTile").item(0);
+                tile.classList.value = "";
+                tile.classList.add("fill-[rgba(0,_0,_0,_0)]")
+                window.remove();
+            }
+        }
+        function closeThrowResourceActions() {
+            let window = document.getElementById('throwResourceActions');
+            window.remove();
+        }
+    </script>
+
+    {# NOTIFICATION MANAGEMENT #}
+    <div class="hidden drop-shadow-2xl"></div>
+    <script>
+        {% set path = path('app_game_show_myr', {'id': game.id}) ~ 'highlight' ~ player.id %}
+        const eventSourceHighlight = new EventSource("{{ mercure(path)|escape('js') }}");
+        eventSourceHighlight.onmessage = event => {
+                let tile = document.getElementById(event.data + "-clickable-zone").firstElementChild;
+                tile.classList.value = "";
+                tile.classList.add("fill-[rgba(255,_255,_255,_0.35)]")
+                tile.classList.add("displayedActionsTile")
         }
     </script>
 {% endblock %}

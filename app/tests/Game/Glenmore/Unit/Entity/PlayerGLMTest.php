@@ -191,6 +191,21 @@ class PlayerGLMTest extends TestCase
         $this->assertSame($previousPhase, $this->playerGLM->getPreviousPhase());
     }
 
+    public function testSetActivatedNewResourcesAcquisition() : void
+    {
+        // GIVEN
+
+        $activateNewResourceAcquisition = true;
+
+        // WHEN
+
+        $this->playerGLM->setActivatedNewResourcesAcqusition($activateNewResourceAcquisition);
+
+        // THEN
+
+        $this->assertSame($activateNewResourceAcquisition, $this->playerGLM->isActivatedNewResourcesAcqusition());
+    }
+
     protected function setUp(): void
     {
         $this->playerGLM = new PlayerGLM("user", new GameGLM());

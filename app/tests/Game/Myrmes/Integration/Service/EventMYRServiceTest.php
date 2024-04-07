@@ -66,7 +66,7 @@ class EventMYRServiceTest extends KernelTestCase
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
         $personalBoard = $player->getPersonalBoardMYR();
-        $personalBoard->setBonus(MyrmesParameters::$BONUS_WORKER);
+        $personalBoard->setBonus(MyrmesParameters::BONUS_WORKER);
         $this->entityManager->persist($personalBoard);
         $this->entityManager->flush();
         //THEN
@@ -96,7 +96,7 @@ class EventMYRServiceTest extends KernelTestCase
         //GIVEN
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
-        $player->setPhase(MyrmesParameters::$PHASE_BIRTH);
+        $player->setPhase(MyrmesParameters::PHASE_BIRTH);
         $personalBoard = $player->getPersonalBoardMYR();
         $personalBoard->setLarvaCount(2);
         $this->entityManager->persist($personalBoard);
@@ -153,8 +153,8 @@ class EventMYRServiceTest extends KernelTestCase
     private function createGame(int $numberOfPlayers) : GameMYR
     {
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);
-        if($numberOfPlayers < MyrmesParameters::$MIN_NUMBER_OF_PLAYER ||
-            $numberOfPlayers > MyrmesParameters::$MAX_NUMBER_OF_PLAYER) {
+        if($numberOfPlayers < MyrmesParameters::MIN_NUMBER_OF_PLAYER ||
+            $numberOfPlayers > MyrmesParameters::MAX_NUMBER_OF_PLAYER) {
             throw new \Exception("TOO MUCH PLAYERS ON CREATE GAME");
         }
         $game = new GameMYR();
@@ -163,7 +163,7 @@ class EventMYRServiceTest extends KernelTestCase
             $game->addPlayer($player);
             $player->setGameMyr($game);
             $player->setColor("");
-            $player->setPhase(MyrmesParameters::$PHASE_EVENT);
+            $player->setPhase(MyrmesParameters::PHASE_EVENT);
             $personalBoard = new PersonalBoardMYR();
             $personalBoard->setLarvaCount(0);
             $personalBoard->setAnthillLevel(0);
@@ -174,10 +174,9 @@ class EventMYRServiceTest extends KernelTestCase
             $player->setScore(0);
             $player->setGoalLevel(0);
             $player->setRemainingHarvestingBonus(0);
-            for($j = 0; $j < MyrmesParameters::$START_NURSES_COUNT_PER_PLAYER; $j += 1) {
+            for($j = 0; $j < MyrmesParameters::START_NURSES_COUNT_PER_PLAYER; $j += 1) {
                 $nurse = new NurseMYR();
-                $nurse->setPosition(-1);
-                $nurse->setArea(MyrmesParameters::$LARVAE_AREA);
+                $nurse->setArea(MyrmesParameters::LARVAE_AREA);
                 $nurse->setAvailable(true);
                 $nurse->setPlayer($player);
                 $personalBoard->addNurse($nurse);
@@ -191,10 +190,12 @@ class EventMYRServiceTest extends KernelTestCase
         $mainBoard->setGame($game);
         $season = new SeasonMYR();
         $season->setName("Spring");
-        $season->setMainBoardMYR($mainBoard);
         $season->setDiceResult(1);
+        $season->setMainBoard($mainBoard);
+        $season->setActualSeason(true);
+        $mainBoard->addSeason($season);
         $entityManager->persist($season);
-        $mainBoard->setActualSeason($season);
+        $entityManager->persist($season);
         $game->setMainBoardMYR($mainBoard);
         $game->setGameName("test");
         $game->setLaunched(true);

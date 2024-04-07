@@ -23,21 +23,6 @@ class NurseMYRTest extends TestCase
         $this->assertTrue($this->nurseMYR->getId() >= 0);
     }
 
-    public function testSetPosition() : void
-    {
-        // GIVEN
-
-        $position = 7;
-
-        // WHEN
-
-        $this->nurseMYR->setPosition($position);
-
-        // THEN
-
-        $this->assertSame($position, $this->nurseMYR->getPosition());
-    }
-
     public function testSetPlayer() : void
     {
         // GIVEN
@@ -87,7 +72,7 @@ class NurseMYRTest extends TestCase
     {
         // GIVEN
 
-        $area = MyrmesParameters::$WORKER_AREA;
+        $area = MyrmesParameters::WORKER_AREA;
 
         // WHEN
 

@@ -4,12 +4,11 @@ This section displays main board preview
 @return :
 #}
 
-{% set isPreview = true %}
-<button class="w-full h-full flex items-center justify-center"
-        {{ stimulus_action('myrmes','showMainBoard','click',
-            {url:path('app_game_myrmes_show_main_board',
+<a class="w-full h-full flex items-center justify-center cursor-pointer"
+        {{ stimulus_action('myrmes','showPersonalBoard','click',
+            {url:path('app_game_myrmes_show_personal_board',
                 {id: game.id})})
         }}
 >
-    {{ include('Game/Myrmes/MainBoard/displayBoardBoxes.html.twig') }}
-</button>
+    {{ include('Game/Myrmes/PersonalBoard/personalBoard.html.twig') }}
+</a>
