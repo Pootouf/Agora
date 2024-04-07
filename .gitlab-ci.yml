@@ -60,7 +60,6 @@ variables:
 
 
 .publishArtifactsForReports: &publishArtifactsForReports
-  coverage: /^\s*Lines:\s*\d+.\d+\%/
   artifacts:
     paths:
       - app/coverage/*
@@ -351,6 +350,7 @@ report:
   stage: report
   before_script:
     - cd app
+    - apt install cobertura
   script:
     - |+
       for file in coverage-cobertura/*.xml 
@@ -359,13 +359,14 @@ report:
         sed -i 's;filename=";filename="app/src/;g' ${file}
         sed -i "s;/builds/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}/app/src;;g" ${file}
       done
+      cobertura-merge --datafile coverage.xml coverage-cobertura/*
   allow_failure: false
   coverage: /^\s*Lines:\s*\d+.\d+\%/
   artifacts:
     reports:
       coverage_report:
         coverage_format: cobertura
-        path: app/coverage-cobertura/*.xml
+        path: app/coverage.xml
 
 
 
