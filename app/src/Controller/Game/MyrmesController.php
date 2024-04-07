@@ -91,7 +91,8 @@ class MyrmesController extends AbstractController
             )->count(),
             'mustThrowResources' => $player != null
                 && $this->service->isInPhase($player, MyrmesParameters::PHASE_WINTER)
-                && $this->winterMYRService->mustDropResourcesForWinter($player)
+                && $this->winterMYRService->mustDropResourcesForWinter($player),
+
         ]);
     }
 

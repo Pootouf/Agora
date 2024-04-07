@@ -16,6 +16,33 @@ class HarvestMYRService
                                 private readonly MYRService $MYRService)
     {}
 
+
+    /**
+     * areAllPheromonesHarvested : indicate if a player has ended its harvest obligatory phase
+     * @param PlayerMYR $playerMYR
+     * @return bool
+     */
+    public function areAllPheromonesHarvested(PlayerMYR $playerMYR): bool
+    {
+        $pheromones = $playerMYR->getPheromonMYRs();
+        foreach ($pheromones as $pheromone) {
+            if(!$pheromone->isHarvested()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * canStillHarvest : indicate if a player is still in harvest phase
+     * @param PlayerMYR $playerMYR
+     * @return bool
+     */
+    public function canStillHarvest(PlayerMYR $playerMYR): bool
+    {
+        return $this->areAllPheromonesHarvested($playerMYR) && $playerMYR->getRemainingHarvestingBonus() > 0;
+    }
+
     /**
      * harvestPheromone : remove the resources which is on tile and gives it to the player
      * @param PlayerMYR $playerMYR
