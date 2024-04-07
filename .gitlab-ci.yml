@@ -7,6 +7,7 @@ stages:
   - splendor
   - glenmore
   - myrmes
+  - report
   - sonarqube
   - deploy
 
@@ -410,6 +411,25 @@ integrationMyrmes:
   variables:
     JUNIT_REPORT: phpIntegrationMyrmes.xml
     COBERTURA_REPORT: coverageIntegrationMyrmes.xml
+
+report:
+  stage: report
+  before_script:
+    - cd app
+    - rm composer.lock
+    - composer require psr/log 1.1.4
+    - composer require nimut/phpunit-merger
+    - composer require sweetchuck/junit-merger-cli 1.0.0 -W
+  script:
+    - vendor/bin/phpunit-merger coverage coverage/ coverage/coverage.xml
+    - find reports/ -type f -name '*.xml' | vendor/bin/junit-merger merge:files --handler='dom_read' > reports/report.xml
+  allow_failure: false
+  artifacts:
+    paths:
+      - app/reports/report.xml
+      - app/coverage/coverage.xml
+
+
 
 sonarqube-check:
   stage: sonarqube
