@@ -13,6 +13,7 @@ interface MyrmesParameters
 
     // Player phases
 
+    const int PHASE_INVALID = -1;
     const int PHASE_EVENT = 0;
     const int PHASE_BIRTH = 1;
     const int PHASE_WORKER = 2;
