@@ -2,6 +2,7 @@
 
 namespace App\Service\Game\Myrmes;
 
+use App\Entity\Game\DTO\Myrmes\BoardTileMYR;
 use App\Entity\Game\Myrmes\AnthillHoleMYR;
 use App\Entity\Game\Myrmes\GameMYR;
 use App\Entity\Game\Myrmes\GardenWorkerMYR;
@@ -94,7 +95,7 @@ class WorkerMYRService
      * @param PlayerMYR   $player
      * @param TileMYR     $tile
      * @param TileTypeMYR $tileType
-     * @return ArrayCollection<Int, ArrayCollection<Int, TileMYR>>
+     * @return ArrayCollection<Int, ArrayCollection<Int, BoardTileMYR>>
      * @throws Exception
      */
     public function getAllAvailablePositions(PlayerMYR $player, TileMYR $tile, TileTypeMYR $tileType) : ArrayCollection
@@ -277,7 +278,7 @@ class WorkerMYRService
      * @param PlayerMYR   $player
      * @param TileMYR     $tile
      * @param TileTypeMYR $tileType
-     * @return ArrayCollection<Int, ArrayCollection<Int, TileMYR>>
+     * @return ArrayCollection<Int, ArrayCollection<Int, BoardTileMYR>>
      * @throws Exception
      */
     private function getAllAvailablePositionsFromTypeZero(PlayerMYR $player, TileMYR $tile, TileTypeMYR $tileType) : ArrayCollection
@@ -319,7 +320,7 @@ class WorkerMYRService
      * @param PlayerMYR   $player
      * @param TileMYR     $tile
      * @param TileTypeMYR $tileType
-     * @return ArrayCollection<Int, ArrayCollection<Int, TileMYR>>
+     * @return ArrayCollection<Int, ArrayCollection<Int, BoardTileMYR>>
      * @throws Exception
      */
     private function getAllAvailablePositionsFromTypeOne(PlayerMYR $player, TileMYR $tile, TileTypeMYR $tileType) : ArrayCollection
@@ -349,7 +350,7 @@ class WorkerMYRService
      * @param PlayerMYR   $player
      * @param TileMYR     $tile
      * @param TileTypeMYR $tileType
-     * @return ArrayCollection<Int, ArrayCollection<Int, TileMYR>>
+     * @return ArrayCollection<Int, ArrayCollection<Int, BoardTileMYR>>
      * @throws Exception
      */
     private function getAllAvailablePositionsFromTypeTwo(PlayerMYR $player, TileMYR $tile, TileTypeMYR $tileType) : ArrayCollection
@@ -391,7 +392,7 @@ class WorkerMYRService
      * @param PlayerMYR   $player
      * @param TileMYR     $tile
      * @param TileTypeMYR $tileType
-     * @return ArrayCollection<Int, ArrayCollection<Int, TileMYR>>
+     * @return ArrayCollection<Int, ArrayCollection<Int, BoardTileMYR>>
      * @throws Exception
      */
     private function getAllAvailablePositionsFromTypeThree(PlayerMYR $player, TileMYR $tile, TileTypeMYR $tileType) : ArrayCollection
@@ -433,7 +434,7 @@ class WorkerMYRService
      * @param PlayerMYR   $player
      * @param TileMYR     $tile
      * @param TileTypeMYR $tileType
-     * @return ArrayCollection<Int, ArrayCollection<Int, TileMYR>>
+     * @return ArrayCollection<Int, ArrayCollection<Int, BoardTileMYR>>
      * @throws Exception
      */
     private function getAllAvailablePositionsFromTypeFour(PlayerMYR $player, TileMYR $tile, TileTypeMYR $tileType) : ArrayCollection
@@ -499,7 +500,7 @@ class WorkerMYRService
      * @param PlayerMYR   $player
      * @param TileMYR     $tile
      * @param TileTypeMYR $tileType
-     * @return ArrayCollection<Int, ArrayCollection<Int, TileMYR>>
+     * @return ArrayCollection<Int, ArrayCollection<Int, BoardTileMYR>>
      * @throws Exception
      */
     private function getAllAvailablePositionsFromTypeFive(PlayerMYR $player, TileMYR $tile, TileTypeMYR $tileType) : ArrayCollection
@@ -541,7 +542,7 @@ class WorkerMYRService
      * @param PlayerMYR   $player
      * @param TileMYR     $tile
      * @param TileTypeMYR $tileType
-     * @return ArrayCollection<Int, ArrayCollection<Int, TileMYR>>
+     * @return ArrayCollection<Int, ArrayCollection<Int, BoardTileMYR>>
      * @throws Exception
      */
     private function getAllAvailablePositionsFromTypeSix(PlayerMYR $player, TileMYR $tile, TileTypeMYR $tileType) : ArrayCollection
@@ -580,20 +581,22 @@ class WorkerMYRService
     /**
      * getAllAvailablePositionsFromOrientation : returns a list of lists of tiles where player can place the pheromone
      *
-     * @param PlayerMYR              $player
-     * @param TileMYR                $tile
-     * @param TileTypeMYR            $tileType
-     * @param ArrayCollection<Int, ArrayCollection<Int, Int>>        $coords
-     * @param Array<Int, Array<Int>> $translations
-     * @return ArrayCollection<Int, ArrayCollection<Int, TileMYR>>
+     * @param PlayerMYR                                       $player
+     * @param TileMYR                                         $tile
+     * @param TileTypeMYR                                     $tileType
+     * @param ArrayCollection<Int, ArrayCollection<Int, Int>> $coords
+     * @param Array<Int, Array<Int>>                          $translations
+     * @return ArrayCollection<Int, ArrayCollection<Int, BoardTileMYR>>
+     * @throws Exception
      */
     private function getAllAvailablePositionsFromOrientation(PlayerMYR $player, TileMYR $tile,
         TileTypeMYR $tileType, ArrayCollection $coords, Array $translations) : ArrayCollection
     {
         $game = $player->getGameMyr();
         $result = new ArrayCollection();
+        $isPivot = true;
         foreach ($translations as $translation) {
-            /** @var ArrayCollection<Int, TileMYR> $tileList */
+            /** @var ArrayCollection<Int, BoardTileMYR> $tileList */
             $tileList = new ArrayCollection();
             $translationX = $translation[0];
             $translationY = $translation[1];
@@ -602,7 +605,11 @@ class WorkerMYRService
                 $coordX = $coord[0] + $translationX;
                 $coordY = $coord[1] + $translationY;
                 $newTile = $this->getTileAtCoordinate($coordX, $coordY);
-                $tileList->add($newTile);
+                $boardTile = new BoardTileMYR($newTile, $isPivot);
+                if ($isPivot) {
+                    $isPivot = false;
+                }
+                $tileList->add($boardTile);
                 if (!($this->isPositionAvailable($game, $newTile) && !$this->containsPrey($game, $newTile))) {
                     $correctPlacement = false;
                     break;
