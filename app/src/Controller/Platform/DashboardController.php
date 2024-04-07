@@ -228,4 +228,27 @@ class DashboardController extends AbstractController
             'notifications' => $this->notifications,
         ]);
     }
+
+    /**
+     * Displays a list of all users.
+     *
+     * This method retrieves all games from the database using the entity manager (when the user is connected)
+     *
+     * @param EntityManagerInterface $entityManager The entity manager to interact with the database
+     *
+     * @return Response  HTTP response: list of games page
+     */
+    #[Route('/dashboard/allusers', name: 'app_dashboard_allusers')]
+    public function dashboard_allusers(EntityManagerInterface $entityManager): Response
+    {
+        // Récupérer tous les utilisateurs à partir de votre source de données (par exemple, une entité User)
+        $userRepository = $entityManager->getRepository(User::class);
+        $users = $userRepository->findAll();
+
+        // Passer la liste des utilisateurs à votre modèle de vue
+        return $this->render('platform/dashboard/allusers.html.twig', [
+            'users' => $users,
+            'notifications' => $this->notifications, // Assurez-vous que vos notifications sont également disponibles dans ce contrôleur
+        ]);
+    }
 }
