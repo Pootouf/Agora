@@ -19,17 +19,25 @@ This section displays the main board that every player and spectator can see
              {{ include('Game/Myrmes/MainBoard/displayBoardBoxes.html.twig') }}
         </div>
         <div class="inline-flex align-middle justify-evenly items-center flex-col h-full">
-            {% if playerPhase == PHASE_HARVEST %}
+            {% if game.gamePhase == PHASE_HARVEST and needToPlay %}
                 <button {% if not hasFinishedObligatoryHarvesting %} disabled {% endif %}
                         class="rounded-lg bg-green-900 py-2 px-3 m-1 text-2xl items-center"
-                        {{ stimulus_action('myrmes','harvestResource','click',
-                            {url:path('app_game_myrmes_harvest_resource',
+                        {{ stimulus_action('myrmes','endHarvestPhase','click',
+                            {url:path('app_game_myrmes_end_harvest_phase',
                                 {
-                                    id: game.id,
-                                    tileId: boardBox.tile.id
+                                    gameId: game.id
                                 })
                             })
-                        }}
+                        }}>
+                    Confirmer la récolte
+                </button>
+            {% elseif game.gamePhase == PHASE_WORKSHOP and needToPlay and hasSelectedAnthillHolePlacement %}
+                <p class="text-lg text-center">Veuillez sélectionner l'emplacement du nouveau trou de fourmi</p>
+                <button
+                        class="rounded-lg bg-green-900 py-2 px-3 m-1 text-2xl items-center"
+                        {{ stimulus_action('myrmes','cancelAnthillHolePlacement','click') }}>
+                    Revenir au choix de la zone d'atelier
+                </button>
             {% endif %}
             {{ include('Game/Myrmes/MainBoard/seasonsDices.html.twig') }}
         </div>
