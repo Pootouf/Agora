@@ -40,12 +40,12 @@ class WorkerMYRServiceTest extends KernelTestCase
 
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
-        $player->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::$ANTHILL_LEVEL_TWO);
+        $player->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::ANTHILL_LEVEL_TWO);
         $this->entityManager->persist($player);
         $ant = new AnthillWorkerMYR();
         $ant->setPlayer($player);
         $ant->setPersonalBoardMYR($player->getPersonalBoardMYR());
-        $ant->setWorkFloor(MyrmesParameters::$NO_WORKFLOOR);
+        $ant->setWorkFloor(MyrmesParameters::NO_WORKFLOOR);
         $player->getPersonalBoardMYR()->addAnthillWorker($ant);
         $this->entityManager->persist($ant);
         $this->entityManager->persist($player->getPersonalBoardMYR());
@@ -63,12 +63,12 @@ class WorkerMYRServiceTest extends KernelTestCase
 
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
-        $player->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::$ANTHILL_LEVEL_TWO);
+        $player->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::ANTHILL_LEVEL_TWO);
         $this->entityManager->persist($player);
         $ant = new AnthillWorkerMYR();
         $ant->setPlayer($player);
         $ant->setPersonalBoardMYR($player->getPersonalBoardMYR());
-        $ant->setWorkFloor(MyrmesParameters::$NO_WORKFLOOR);
+        $ant->setWorkFloor(MyrmesParameters::NO_WORKFLOOR);
         $player->getPersonalBoardMYR()->addAnthillWorker($ant);
         $this->entityManager->persist($ant);
         $this->entityManager->persist($player->getPersonalBoardMYR());
@@ -86,12 +86,12 @@ class WorkerMYRServiceTest extends KernelTestCase
 
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
-        $player->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::$ANTHILL_LEVEL_TWO);
+        $player->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::ANTHILL_LEVEL_TWO);
         $this->entityManager->persist($player);
         $ant = new AnthillWorkerMYR();
         $ant->setPlayer($player);
         $ant->setPersonalBoardMYR($player->getPersonalBoardMYR());
-        $ant->setWorkFloor(MyrmesParameters::$ANTHILL_LEVEL_TWO);
+        $ant->setWorkFloor(MyrmesParameters::ANTHILL_LEVEL_TWO);
         $player->getPersonalBoardMYR()->addAnthillWorker($ant);
         $this->entityManager->persist($ant);
         $this->entityManager->persist($player->getPersonalBoardMYR());
