@@ -87,6 +87,17 @@ export default class extends Controller  {
         await fetch(url)
     }
 
+    // workshop actions
+
+    async choseAnthillHolePlacement(placement) {
+        let url = placement.params.url;
+        await fetch(url);
+    }
+
+    async cancelAnthillHolePlacement(placement) {
+        alert("Ouvrir menu de l'atelier");
+    }
+
     // dynamic display
 
     async showPersonalBoard(main)  {

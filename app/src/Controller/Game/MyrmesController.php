@@ -19,6 +19,7 @@ use App\Service\Game\Myrmes\HarvestMYRService;
 use App\Service\Game\Myrmes\MYRService;
 use App\Service\Game\Myrmes\WinterMYRService;
 use App\Service\Game\Myrmes\WorkerMYRService;
+use App\Service\Game\Myrmes\WorkshopMYRService;
 use App\Service\Game\PublishService;
 use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
@@ -41,6 +42,7 @@ class MyrmesController extends AbstractController
                                 private readonly BirthMYRService $birthMYRService,
                                 private readonly WorkerMYRService $workerMYRService,
                                 private readonly HarvestMYRService $harvestMYRService,
+                                private readonly WorkshopMYRService $workshopMYRService,
                                 private readonly WinterMYRService $winterMYRService) {}
 
 
@@ -95,8 +97,13 @@ class MyrmesController extends AbstractController
             'mustThrowResources' => $player != null
                 && $this->service->isInPhase($player, MyrmesParameters::PHASE_WINTER)
                 && $this->winterMYRService->mustDropResourcesForWinter($player),
-            'hasFinishedObligatoryHarvesting' => !($player != null) || $this->harvestMYRService->areAllPheromonesHarvested($player),
+            'hasFinishedObligatoryHarvesting' => !($player != null)
+                || $this->harvestMYRService->areAllPheromonesHarvested($player),
             'canStillHarvest' => $player != null && $this->harvestMYRService->canStillHarvest($player),
+            'hasSelectedAnthillHolePlacement' => false,
+            'possibleAnthillHolePlacement' => $game->getGamePhase() == MyrmesParameters::PHASE_WORKSHOP ?
+                $this->workshopMYRService->getAvailableAnthillHolesPositions($player)
+                : null,
         ]);
     }
 
@@ -412,7 +419,7 @@ class MyrmesController extends AbstractController
         return new Response("harvested resource on this tile", Response::HTTP_OK);
     }
 
-    #[Route('/game/myrmes/{gameId}/end/harvestPhase/{tileId}', name: 'app_game_myrmes_end_harvest_phase')]
+    #[Route('/game/myrmes/{gameId}/end/harvestPhase', name: 'app_game_myrmes_end_harvest_phase')]
     public function endHarvestPhase(
         #[MapEntity(id: 'gameId')] GameMYR $game
     ): Response
@@ -433,6 +440,79 @@ class MyrmesController extends AbstractController
             . " a mis fin à la phase de récolte ";
         $this->logService->sendPlayerLog($game, $player, $message);
         return new Response('ended harvest phase', Response::HTTP_OK);
+    }
+
+    #[Route('/game/myrmes/{gameId}/workshop/activate/anthillHolePlacement',
+        name: 'app_game_myrmes_activate_anthill_hole_placement')]
+    public function activateAnthillHolePlacementWorkshop(
+        #[MapEntity(id: 'gameId')] GameMYR $gameMYR
+    ): Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('invalid player', Response::HTTP_FORBIDDEN);
+        }
+        $boardBoxes = null;
+        try {
+            $boardBoxes = $this->dataManagementMYRService->organizeMainBoardRows($gameMYR);
+        } catch (\Exception $e) {
+            return new Response("Error while calculating main board tiles disposition",
+                Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+        return $this->render('/Game/Myrmes/index.html.twig', [
+            'player' => $player,
+            'game' => $gameMYR,
+            'boardBoxes' => $boardBoxes,
+            'isPreview' => true,
+            'preys' => $gameMYR->getMainBoardMYR()->getPreys(),
+            'isSpectator' => $player == null,
+            'needToPlay' => true,//$player == null ? false : $player->isTurnOfPlayer(),
+            'selectedBox' => null,
+            'playerPhase' => $player== null ? $gameMYR->getPlayers()->first()->getPhase() : $player->getPhase(),
+            'actualSeason' => $this->service->getActualSeason($gameMYR),
+            'hasSelectedAnthillHolePlacement' => true,
+            'possibleAnthillHolePlacement' => $this->workshopMYRService->getAvailableAnthillHolesPositions($player)
+        ]);
+    }
+
+    #[Route('/game/myrmes/{gameId}/workshop/activate/anthillHolePlacement/{tileId}',
+        name: 'app_game_myrmes_place_anthill_hole')]
+    public function placeAnthillHoleWorkshop(
+        #[MapEntity(id: 'gameId')] GameMYR $gameMYR,
+        #[MapEntity(id: 'tileId')] TileMYR $tileMYR
+    ): Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('invalid player', Response::HTTP_FORBIDDEN);
+        }
+        try {
+            $this->workshopMYRService->manageWorkshop($player, MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA, $tileMYR);
+        } catch (Exception $e) {
+            $message = $player->getUsername()
+                . " a essayé de poser un trou de fourmilière "
+                . " mais n'a pas pu.";
+            $this->logService->sendPlayerLog($gameMYR, $player, $message);
+            return new Response('failed to place anthill hole', Response::HTTP_FORBIDDEN);
+        }
+        $message = $player->getUsername()
+            . " a posé un trou de fourmilière "
+            . " sur la tuile " . $tileMYR->getId();
+        $this->logService->sendPlayerLog($gameMYR, $player, $message);
+        if($this->service->canManageEndOfPhase($gameMYR, MyrmesParameters::PHASE_WORKSHOP)) {
+            try {
+                $this->workshopMYRService->manageEndOfWorkshop($gameMYR);
+            } catch (Exception $e) {
+                $message = "Le système a essayé de mettre fin à la phase atelier "
+                    . " mais n'a pas pu.";
+                $this->logService->sendSystemLog($gameMYR, $message);
+                return new Response('failed to end workshop phase', Response::HTTP_FORBIDDEN);
+            }
+            $message = "Le système a mis fin à la phase atelier ";
+            $this->logService->sendSystemLog($gameMYR, $message);
+            return new Response('ended harvest phase', Response::HTTP_OK);
+        }
+        return new Response('placed an anthill hole', Response::HTTP_OK);
     }
 
     #[Route('/game/myrmes/{gameId}/throwResource/warehouse/{playerResourceId}',
