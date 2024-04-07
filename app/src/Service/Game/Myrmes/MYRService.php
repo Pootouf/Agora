@@ -20,6 +20,7 @@ use App\Entity\Game\Myrmes\TileMYR;
 use App\Entity\Game\Myrmes\TileTypeMYR;
 use App\Repository\Game\Myrmes\PlayerMYRRepository;
 use App\Repository\Game\Myrmes\ResourceMYRRepository;
+use App\Repository\Game\Myrmes\PlayerResourceMYRRepository;
 use App\Repository\Game\Myrmes\SeasonMYRRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use App\Repository\Game\Myrmes\TileMYRRepository;
@@ -31,15 +32,40 @@ class MYRService
 {
 
     public function __construct(private PlayerMYRRepository $playerMYRRepository,
-                private readonly ResourceMYRRepository $resourceMYRRepository,
                 private readonly EntityManagerInterface $entityManager,
                 private readonly NurseMYRRepository $nurseMYRRepository,
                 private readonly TileMYRRepository $tileMYRRepository,
                 private readonly TileTypeMYRRepository $tileTypeMYRRepository,
+                private readonly SeasonMYRRepository $seasonMYRRepository,
                 private readonly GoalMYRRepository $goalMYRRepository,
-                private readonly SeasonMYRRepository $seasonMYRRepository)
+                private readonly ResourceMYRRepository $resourceMYRRepository,
+                private readonly PlayerResourceMYRRepository $playerResourceMYRRepository)
     {
 
+    }
+
+    /**
+     * getPlayerResourceAmount : returns the quantity of player's resource type
+     * @param PlayerMYR $playerMYR
+     * @param string $resourceName
+     * @return int
+     */
+    public function getPlayerResourceAmount(PlayerMYR $playerMYR, string $resourceName): int
+    {
+        $resource = $this->resourceMYRRepository->findOneBy(["description"=>$resourceName]);
+        $playerResource = $this->playerResourceMYRRepository->findOneBy(["resource"=>$resource]);
+        return $playerResource== null ? 0 : $playerResource->getQuantity();
+    }
+
+    /**
+     * getAvailableLarvae : returns available player larvae
+     * @param PlayerMYR $playerMYR
+     * @return int
+     */
+    public function getAvailableLarvae(PlayerMYR $playerMYR): int
+    {
+        $personalBoard = $playerMYR->getPersonalBoardMYR();
+        return $personalBoard->getLarvaCount() - $personalBoard->getSelectedEventLarvaeAmount();
     }
 
     /**
@@ -48,7 +74,8 @@ class MYRService
      * @param int $phase
      * @return bool
      */
-    public function isInPhase(PlayerMYR $playerMYR, int $phase): bool {
+    public function isInPhase(PlayerMYR $playerMYR, int $phase): bool
+    {
         return $playerMYR->getPhase() == $phase;
     }
 
@@ -77,8 +104,8 @@ class MYRService
         //TODO: initialize game objective
 
         $i = 0;
-        $anthillPositions = MyrmesParameters::$ANTHILL_HOLE_POSITION_BY_NUMBER_OF_PLAYER[$game->getPlayers()->count()];
-        $playersColors = MyrmesParameters::$PLAYERS_COLORS;
+        $anthillPositions = MyrmesParameters::ANTHILL_HOLE_POSITION_BY_NUMBER_OF_PLAYER[$game->getPlayers()->count()];
+        $playersColors = MyrmesParameters::PLAYERS_COLORS;
         foreach ($game->getPlayers() as $player) {
             $color = $playersColors[$i];
             $this->initializePlayerData($player, $color);
@@ -95,11 +122,11 @@ class MYRService
     }
 
     /**
-     * getPhermononesFromType : returns all orientations of a pheremone or special tile from a type
+     * getPheromonesFromType : returns all orientations of a pheremone or special tile from a type
      * @param int $type
      * @return ArrayCollection<Int, TileTypeMYR>
      */
-    public function getPhermononesFromType(int $type) : ArrayCollection
+    public function getPheromonesFromType(int $type) : ArrayCollection
     {
         return new ArrayCollection($this->tileTypeMYRRepository->findBy(
             ["type" => $type]
@@ -135,11 +162,11 @@ class MYRService
     {
         $result = new ArrayCollection();
         $mainBoard = $game->getMainBoardMYR();
-        $fall = $this->seasonMYRRepository->findOneBy(["mainBoard" => $mainBoard, "name" => MyrmesParameters::$FALL_SEASON_NAME]);
+        $fall = $this->seasonMYRRepository->findOneBy(["mainBoard" => $mainBoard, "name" => MyrmesParameters::FALL_SEASON_NAME]);
         $result[$fall->getName()] = $fall->getDiceResult();
-        $spring = $this->seasonMYRRepository->findOneBy(["mainBoard" => $mainBoard, "name" => MyrmesParameters::$SPRING_SEASON_NAME]);
+        $spring = $this->seasonMYRRepository->findOneBy(["mainBoard" => $mainBoard, "name" => MyrmesParameters::SPRING_SEASON_NAME]);
         $result[$spring->getName()] = $spring->getDiceResult();
-        $summer = $this->seasonMYRRepository->findOneBy(["mainBoard" => $mainBoard, "name" => MyrmesParameters::$SUMMER_SEASON_NAME]);
+        $summer = $this->seasonMYRRepository->findOneBy(["mainBoard" => $mainBoard, "name" => MyrmesParameters::SUMMER_SEASON_NAME]);
         $result[$summer->getName()] = $summer->getDiceResult();
         return $result;
     }
@@ -150,13 +177,34 @@ class MYRService
      * @param GameMYR $game
      * @return SeasonMYR|null
      */
-    private function getActualSeason(GameMYR $game) : ?SeasonMYR
+    public function getActualSeason(GameMYR $game) : ?SeasonMYR
     {
         foreach ($game->getMainBoardMYR()->getSeasons() as $season) {
             if ($season->isActualSeason()) {
                 return $season;
             }
         }
+        return null;
+    }
+
+    /**
+     * getPlayerResourceOfType : return player resource associate with the type
+     * @param PlayerMYR $player
+     * @param string $type
+     * @return PlayerResourceMYR|null
+     */
+    public function getPlayerResourceOfType(PlayerMYR $player, string $type) : ?PlayerResourceMYR
+    {
+        $personalBoard = $player->getPersonalBoardMYR();
+
+        foreach ($personalBoard->getPlayerResourceMYRs() as $playerResource)
+        {
+            if ($playerResource->getResource()->getDescription() === $type)
+            {
+                return $playerResource;
+            }
+        }
+
         return null;
     }
 
@@ -200,7 +248,7 @@ class MYRService
     {
         $anthillWorkers = $player->getPersonalBoardMYR()->getAnthillWorkers();
         foreach ($anthillWorkers as $worker) {
-            $worker->setWorkFloor(MyrmesParameters::$WORKER_AREA);
+            $worker->setWorkFloor(MyrmesParameters::WORKER_AREA);
             $this->entityManager->persist($worker);
         }
         $this->entityManager->flush();
@@ -216,7 +264,7 @@ class MYRService
     {
         $nurses = $player->getPersonalBoardMYR()->getNurses();
         foreach ($nurses as $nurse) {
-            $nurse->setArea(MyrmesParameters::$BASE_AREA);
+            $nurse->setArea(MyrmesParameters::BASE_AREA);
         }
         $this->entityManager->flush();
     }
@@ -228,21 +276,21 @@ class MYRService
      */
     private function initializePreys(GameMYR $game) : void
     {
-        $positions = MyrmesParameters::$PREY_POSITIONS;
+        $positions = MyrmesParameters::PREY_POSITIONS;
         shuffle($positions);
         $count = 0;
-        for ($i = 0; $i < MyrmesParameters::$LADYBUG_NUMBER; $i++) {
-            $this->initializePrey($game, MyrmesParameters::$LADYBUG_TYPE, $positions[$i]);
+        for ($i = 0; $i < MyrmesParameters::LADYBUG_NUMBER; $i++) {
+            $this->initializePrey($game, MyrmesParameters::LADYBUG_TYPE, $positions[$i]);
         }
-        $count += MyrmesParameters::$LADYBUG_NUMBER;
+        $count += MyrmesParameters::LADYBUG_NUMBER;
 
-        for ($i = $count; $i < $count + MyrmesParameters::$TERMITE_NUMBER; $i++) {
-            $this->initializePrey($game, MyrmesParameters::$TERMITE_TYPE, $positions[$i]);
+        for ($i = $count; $i < $count + MyrmesParameters::TERMITE_NUMBER; $i++) {
+            $this->initializePrey($game, MyrmesParameters::TERMITE_TYPE, $positions[$i]);
         }
-        $count += MyrmesParameters::$TERMITE_NUMBER;
+        $count += MyrmesParameters::TERMITE_NUMBER;
 
-        for ($i = $count; $i < $count + MyrmesParameters::$SPIDER_NUMBER; $i++) {
-            $this->initializePrey($game, MyrmesParameters::$SPIDER_TYPE, $positions[$i]);
+        for ($i = $count; $i < $count + MyrmesParameters::SPIDER_NUMBER; $i++) {
+            $this->initializePrey($game, MyrmesParameters::SPIDER_TYPE, $positions[$i]);
         }
 
         $this->entityManager->flush();
@@ -276,15 +324,15 @@ class MYRService
     private function initializePlayerData(PlayerMYR $player, string $color) : void
     {
         $personalBoard = $player->getPersonalBoardMYR();
-        for ($i = 0; $i < MyrmesParameters::$START_NURSES_COUNT_PER_PLAYER; $i++) {
+        for ($i = 0; $i < MyrmesParameters::START_NURSES_COUNT_PER_PLAYER; $i++) {
             $this->initializeNurse($player);
         }
-        for ($i = 0; $i < MyrmesParameters::$NUMBER_OF_WORKER_AT_START; $i++) {
+        for ($i = 0; $i < MyrmesParameters::NUMBER_OF_WORKER_AT_START; $i++) {
             $this->initializeWorker($player);
         }
-        $personalBoard->setLarvaCount(MyrmesParameters::$NUMBER_OF_LARVAE_AT_START);
-        $personalBoard->setAnthillLevel(MyrmesParameters::$ANTHILL_START_LEVEL);
-        $player->setScore(MyrmesParameters::$PLAYER_START_SCORE);
+        $personalBoard->setLarvaCount(MyrmesParameters::NUMBER_OF_LARVAE_AT_START);
+        $personalBoard->setAnthillLevel(MyrmesParameters::ANTHILL_START_LEVEL);
+        $player->setScore(MyrmesParameters::PLAYER_START_SCORE);
         $player->setRemainingHarvestingBonus(0);
 
         $this->initializeColorForPlayer($player, $color);
@@ -320,9 +368,8 @@ class MYRService
     {
         $nurse = new NurseMYR();
         $nurse->setPlayer($player);
-        $nurse->setArea(MyrmesParameters::$BASE_AREA);
+        $nurse->setArea(MyrmesParameters::BASE_AREA);
         $nurse->setAvailable(true);
-        $nurse->setPosition(0);
         $nurse->setPersonalBoardMYR($player->getPersonalBoardMYR());
         $this->entityManager->persist($nurse);
     }
@@ -337,7 +384,7 @@ class MYRService
         $worker = new AnthillWorkerMYR();
         $worker->setPlayer($player);
         $worker->setPersonalBoardMYR($player->getPersonalBoardMYR());
-        $worker->setWorkFloor(0);
+        $worker->setWorkFloor(MyrmesParameters::NO_WORKFLOOR);
         $this->entityManager->persist($worker);
     }
 
@@ -400,7 +447,7 @@ class MYRService
             case 4:
                 break;
             case 3:
-                $excludedTiles = MyrmesParameters::$EXCLUDED_TILES_2_PLAYERS;
+                $excludedTiles = MyrmesParameters::EXCLUDED_TILES_2_PLAYERS;
                 $tiles = array_filter($tiles, function (TileMYR $tile) use ($excludedTiles) {
                     return $tile->getCoordX() >= 2
                         && !in_array([$tile->getCoordX(), $tile->getCoordY()], $excludedTiles);
@@ -427,13 +474,13 @@ class MYRService
      */
     public function getNursesAtPosition(PlayerMYR $player, int $position): ArrayCollection
     {
-        $nurses =  $this->nurseMYRRepository->findBy(["position" => $position,
+        $nurses =  $this->nurseMYRRepository->findBy(["area" => $position,
             "player" => $player]);
         return new ArrayCollection($nurses);
     }
 
     /**
-     * manageNursesAfterBonusGive : Replace use nurses
+     * manageNursesAfterBonusGive : Replace all nurses that have been used
      * @param PlayerMYR $player
      * @param int $nurseCount
      * @param int $positionOfNurse
@@ -449,16 +496,16 @@ class MYRService
                     return;
                 }
                 switch ($positionOfNurse) {
-                    case MyrmesParameters::$LARVAE_AREA:
-                    case MyrmesParameters::$SOLDIERS_AREA:
-                    case MyrmesParameters::$WORKER_AREA:
-                        $n->setPosition(MyrmesParameters::$BASE_AREA);
+                    case MyrmesParameters::LARVAE_AREA:
+                    case MyrmesParameters::SOLDIERS_AREA:
+                    case MyrmesParameters::WORKER_AREA:
+                        $n->setArea(MyrmesParameters::BASE_AREA);
                         $this->entityManager->persist($n);
                         break;
-                    case MyrmesParameters::$WORKSHOP_ANTHILL_HOLE_AREA:
-                    case MyrmesParameters::$WORKSHOP_LEVEL_AREA:
-                    case MyrmesParameters::$WORKSHOP_NURSE_AREA:
-                    case MyrmesParameters::$WORKSHOP_GOAL_AREA:
+                    case MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA:
+                    case MyrmesParameters::WORKSHOP_LEVEL_AREA:
+                    case MyrmesParameters::WORKSHOP_NURSE_AREA:
+                    case MyrmesParameters::WORKSHOP_GOAL_AREA:
                         break;
                     default:
                         throw new Exception("Don't manage bonus");
@@ -497,7 +544,7 @@ class MYRService
         if($playerGameGoals->contains($goalMYR)) {
             return false;
         }
-        if($goalMYR->getGoal()->getDifficulty() == MyrmesParameters::$GOAL_DIFFICULTY_LEVEL_ONE) {
+        if($goalMYR->getGoal()->getDifficulty() == MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE) {
             return true;
         }
         foreach ($playerGameGoals as $playerGameGoal) {
@@ -520,19 +567,19 @@ class MYRService
         $precedentPlayers = $goalMYR->getPrecedentsPlayers();
         foreach ($precedentPlayers as $player) {
             $player->setScore($player->getScore() +
-                MyrmesParameters::$GOAL_REWARD_WHEN_GOAL_ALREADY_DONE);
+                MyrmesParameters::GOAL_REWARD_WHEN_GOAL_ALREADY_DONE);
             $this->entityManager->persist($player);
         }
         $gameGoals = $playerMYR->getGameGoalMYRs();
         switch ($goalMYR->getGoal()->getDifficulty()) {
-            case MyrmesParameters::$GOAL_DIFFICULTY_LEVEL_ONE :
-                $playerMYR->setScore($playerMYR->getScore() + MyrmesParameters::$GOAL_REWARD_LEVEL_ONE);
+            case MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE :
+                $playerMYR->setScore($playerMYR->getScore() + MyrmesParameters::GOAL_REWARD_LEVEL_ONE);
                 break;
-            case MyrmesParameters::$GOAL_DIFFICULTY_LEVEL_TWO :
-                $playerMYR->setScore($playerMYR->getScore() + MyrmesParameters::$GOAL_REWARD_LEVEL_TWO);
+            case MyrmesParameters::GOAL_DIFFICULTY_LEVEL_TWO :
+                $playerMYR->setScore($playerMYR->getScore() + MyrmesParameters::GOAL_REWARD_LEVEL_TWO);
                 break;
-            case MyrmesParameters::$GOAL_DIFFICULTY_LEVEL_THREE :
-                $playerMYR->setScore($playerMYR->getScore() + MyrmesParameters::$GOAL_REWARD_LEVEL_THREE);
+            case MyrmesParameters::GOAL_DIFFICULTY_LEVEL_THREE :
+                $playerMYR->setScore($playerMYR->getScore() + MyrmesParameters::GOAL_REWARD_LEVEL_THREE);
                 break;
         }
         $goalMYR->addPrecedentsPlayer($playerMYR);
@@ -572,24 +619,39 @@ class MYRService
     {
         $actualSeason = $this->getActualSeason($game);
         $mainBoard = $game->getMainBoardMYR();
-        if ($actualSeason->getName() === MyrmesParameters::$WINTER_SEASON_NAME) {
+        if ($actualSeason->getName() === MyrmesParameters::WINTER_SEASON_NAME) {
             $this->initializeNewYear($game);
             return;
         }
-        $fall = $this->seasonMYRRepository->findOneBy(["mainBoard" => $mainBoard, "name" => MyrmesParameters::$FALL_SEASON_NAME]);
-        $summer = $this->seasonMYRRepository->findOneBy(["mainBoard" => $mainBoard, "name" => MyrmesParameters::$SUMMER_SEASON_NAME]);
-        $winter = $this->seasonMYRRepository->findOneBy(["mainBoard" => $mainBoard, "name" => MyrmesParameters::$WINTER_SEASON_NAME]);
-        if ($actualSeason->getName() === MyrmesParameters::$SPRING_SEASON_NAME) {
+        $fall = $this->seasonMYRRepository->findOneBy(
+            [
+                "mainBoard" => $mainBoard,
+                "name" => MyrmesParameters::FALL_SEASON_NAME
+            ]
+        );
+        $summer = $this->seasonMYRRepository->findOneBy(
+            [
+                "mainBoard" => $mainBoard,
+                "name" => MyrmesParameters::SUMMER_SEASON_NAME
+            ]
+        );
+        $winter = $this->seasonMYRRepository->findOneBy(
+            [
+                "mainBoard" => $mainBoard,
+                "name" => MyrmesParameters::WINTER_SEASON_NAME
+            ]
+        );
+        if ($actualSeason->getName() === MyrmesParameters::SPRING_SEASON_NAME) {
             $summer->setActualSeason(true);
             $this->entityManager->persist($summer);
             $this->initializeEventBonus($game);
             $this->entityManager->persist($game);
-        } else if ($actualSeason->getName() === MyrmesParameters::$SUMMER_SEASON_NAME) {
+        } else if ($actualSeason->getName() === MyrmesParameters::SUMMER_SEASON_NAME) {
             $fall->setActualSeason(true);
             $this->entityManager->persist($fall);
             $this->initializeEventBonus($game);
             $this->entityManager->persist($game);
-        } else if ($actualSeason->getName() === MyrmesParameters::$FALL_SEASON_NAME) {
+        } else if ($actualSeason->getName() === MyrmesParameters::FALL_SEASON_NAME) {
             $winter->setActualSeason(true);
             $this->entityManager->persist($winter);
             $this->entityManager->persist($game);
@@ -608,14 +670,19 @@ class MYRService
     {
         $this->clearSeasons($game);
         $yearNum = $game->getMainBoardMYR()->getYearNum();
-        if ($yearNum === MyrmesParameters::$THIRD_YEAR_NUM) {
+        if ($yearNum === MyrmesParameters::THIRD_YEAR_NUM) {
             return;
         }
         $game->getMainBoardMYR()->setYearNum($yearNum + 1);
-        $this->initializeNewSeason($game, MyrmesParameters::$SPRING_SEASON_NAME);
-        $this->initializeNewSeason($game, MyrmesParameters::$SUMMER_SEASON_NAME);
-        $this->initializeNewSeason($game, MyrmesParameters::$FALL_SEASON_NAME);
-        $spring = $this->seasonMYRRepository->findOneBy(["mainBoard" => $game->getMainBoardMYR(), "name" => MyrmesParameters::$SPRING_SEASON_NAME]);
+        $this->initializeNewSeason($game, MyrmesParameters::SPRING_SEASON_NAME);
+        $this->initializeNewSeason($game, MyrmesParameters::SUMMER_SEASON_NAME);
+        $this->initializeNewSeason($game, MyrmesParameters::FALL_SEASON_NAME);
+        $spring = $this->seasonMYRRepository->findOneBy(
+            [
+                "mainBoard" => $game->getMainBoardMYR(),
+                "name" => MyrmesParameters::SPRING_SEASON_NAME
+            ]
+        );
         $spring->setActualSeason(true);
         $this->entityManager->persist($game->getMainBoardMYR());
         $this->entityManager->persist($spring);
@@ -627,13 +694,13 @@ class MYRService
     private function initializeGoals(GameMYR $game) : void
     {
         $goalsLevelOne = $this->goalMYRRepository->findBy([
-            'difficulty' => MyrmesParameters::$GOAL_DIFFICULTY_LEVEL_ONE
+            'difficulty' => MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE
         ]);
         $goalsLevelTwo = $this->goalMYRRepository->findBy([
-            'difficulty' => MyrmesParameters::$GOAL_DIFFICULTY_LEVEL_TWO
+            'difficulty' => MyrmesParameters::GOAL_DIFFICULTY_LEVEL_TWO
         ]);
         $goalsLevelThree = $this->goalMYRRepository->findBy([
-            'difficulty' => MyrmesParameters::$GOAL_DIFFICULTY_LEVEL_THREE
+            'difficulty' => MyrmesParameters::GOAL_DIFFICULTY_LEVEL_THREE
         ]);
         shuffle($goalsLevelOne);
         shuffle($goalsLevelTwo);

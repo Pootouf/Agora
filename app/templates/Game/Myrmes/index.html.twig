@@ -3,6 +3,7 @@
 {% block title %}Agora - Myrmes{% endblock %}
 
 {% block body %}
+
     <div class="h-screen w-screen overflow-hidden absolute" {{ stimulus_controller('myrmes') }}>
         <div id="index_myrmes" class="h-full w-full static overflow-hidden">
             {#{% block endGame %}
@@ -27,9 +28,9 @@
                 {% endblock %}
             {% endif %}
             {% block mainBoard %}
-                    <div id="mainBoard" class="absolute bottom-0 w-[72%] h-full">
-                        {{ include('/Game/Myrmes/MainBoard/mainBoard.html.twig') }}
-                    </div>
+                <div id="mainBoard" class="absolute bottom-0 w-[72%] h-full">
+                    {{ include('/Game/Myrmes/MainBoard/mainBoard.html.twig') }}
+                </div>
             {% endblock %}
             {% block nav %}
                 {{ include('/Game/Utils/navigation.html.twig') }}
@@ -48,6 +49,32 @@
         function closeWindow() {
             let window = document.getElementById('personalBoard');
             window.remove();
+        }
+        function closeSelectedBoxWindow() {
+            let window = document.getElementById('selectedBoxActions');
+            if(window !== null) {
+                let tile = document.getElementsByClassName("displayedActionsTile").item(0);
+                tile.classList.value = "";
+                tile.classList.add("fill-[rgba(0,_0,_0,_0)]")
+                window.remove();
+            }
+        }
+        function closeThrowResourceActions() {
+            let window = document.getElementById('throwResourceActions');
+            window.remove();
+        }
+    </script>
+
+    {# NOTIFICATION MANAGEMENT #}
+    <div class="hidden drop-shadow-2xl"></div>
+    <script>
+        {% set path = path('app_game_show_myr', {'id': game.id}) ~ 'highlight' ~ player.id %}
+        const eventSourceHighlight = new EventSource("{{ mercure(path)|escape('js') }}");
+        eventSourceHighlight.onmessage = event => {
+                let tile = document.getElementById(event.data + "-clickable-zone").firstElementChild;
+                tile.classList.value = "";
+                tile.classList.add("fill-[rgba(255,_255,_255,_0.35)]")
+                tile.classList.add("displayedActionsTile")
         }
     </script>
 {% endblock %}

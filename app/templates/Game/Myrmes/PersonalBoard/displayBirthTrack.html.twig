@@ -14,30 +14,17 @@ This section displays the birthing rooms where the player can place nurses to cr
     {% set birthTrackSize = 'w-[80%]' %}
     {% set placeButtonSize = 'w-[50%]' %}
 {% endif %}
-{% set LARVAE_BIRTH_TRACK_POSITION = 1 %}
-{% set SOLDIERS_BIRTH_TRACK_POSITION = 2 %}
-{% set WORKERS_BIRTH_TRACK_POSITION = 3 %}
 
 <div class="w-full inlineFlexCol {% if isPreview %}gap-[0.3vw]{% else %}gap-[1vw]{% endif %}" id="birth_track">
     <div class="inlineFlex gap-5">
         <p class="{% if isPreview %}text_mini {% else %} text2-4 {% endif %}">Pistes de naissances</p>
-        {% if not isPreview %}
-        <button type="button" class="rounded-lg bg-[#8F901F] py-2 px-3 m-1 portrait:text-2xl items-center"
-        {{ stimulus_action('myrmes','confirmNursesPlacement','click',
-            {url: path('app_game_myrmes_confirm_nurses', {gameId: game.id})})
-        }}>
-            <img class="h-6 max-h-full"
-                 src="{{ asset('resourcesGames/utils/checkmark.svg') }}"
-                 alt="confirm nurses placement">
-        </button>
-        {% endif %}
     </div>
     <div class="inline-flex items-start w-full align-center justify-evenly">
         {#larvae birth track#}
-        {{ include('Game/Myrmes/PersonalBoard/birthTracks/displayLarvaeBirthTrack.html.twig') }}
+        {{ include('Game/Myrmes/PersonalBoard/BirthTracks/displayLarvaeBirthTrack.html.twig') }}
         {#soldiers birth track#}
-        {{ include('Game/Myrmes/PersonalBoard/birthTracks/displaySoldiersBirthTrack.html.twig') }}
+        {{ include('Game/Myrmes/PersonalBoard/BirthTracks/displaySoldiersBirthTrack.html.twig') }}
         {#workers birth track#}
-        {{ include('Game/Myrmes/PersonalBoard/birthTracks/displayWorkersBirthTrack.html.twig') }}
+        {{ include('Game/Myrmes/PersonalBoard/BirthTracks/displayWorkersBirthTrack.html.twig') }}
     </div>
 </div>

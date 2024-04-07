@@ -33,11 +33,11 @@ class BirthMYRServiceTest extends TestCase
         $firstPlayer = $game->getPlayers()->first();
         $personalBoard = $firstPlayer->getPersonalBoardMYR();
         $nurse = $personalBoard->getNurses()->first();
-        $position = MyrmesParameters::$LARVAE_AREA;
+        $position = MyrmesParameters::LARVAE_AREA;
         // WHEN
         $this->birthMYRService->placeNurse($nurse, $position);
         // THEN
-        $this->assertEquals($position, $nurse->getPosition());
+        $this->assertEquals($position, $nurse->getArea());
     }
 
     public function testPlaceNurseWhenNurseIsNotAvailable()
@@ -48,7 +48,7 @@ class BirthMYRServiceTest extends TestCase
         $personalBoard = $firstPlayer->getPersonalBoardMYR();
         $nurse = $personalBoard->getNurses()->first();
         $nurse->setAvailable(false);
-        $position = MyrmesParameters::$LARVAE_AREA;
+        $position = MyrmesParameters::LARVAE_AREA;
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
@@ -57,8 +57,8 @@ class BirthMYRServiceTest extends TestCase
 
     private function createGame(int $numberOfPlayers) : GameMYR
     {
-        if($numberOfPlayers < MyrmesParameters::$MIN_NUMBER_OF_PLAYER ||
-            $numberOfPlayers > MyrmesParameters::$MAX_NUMBER_OF_PLAYER) {
+        if($numberOfPlayers < MyrmesParameters::MIN_NUMBER_OF_PLAYER ||
+            $numberOfPlayers > MyrmesParameters::MAX_NUMBER_OF_PLAYER) {
             throw new \Exception("TOO MUCH PLAYERS ON CREATE GAME");
         }
         $game = new GameMYR();
@@ -68,7 +68,7 @@ class BirthMYRServiceTest extends TestCase
             $player->setGameMyr($game);
             $personalBoard = new PersonalBoardMYR();
             $player->setPersonalBoardMYR($personalBoard);
-            for($j = 0; $j < MyrmesParameters::$START_NURSES_COUNT_PER_PLAYER; $j += 1) {
+            for($j = 0; $j < MyrmesParameters::START_NURSES_COUNT_PER_PLAYER; $j += 1) {
                 $nurse = new NurseMYR();
                 $nurse->setAvailable(true);
                 $personalBoard->addNurse($nurse);

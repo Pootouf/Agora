@@ -112,7 +112,7 @@ class DataManagementMYRService
      * createBoardBox : create a board box tile with tile, ant and pheromone
      * @throws \Exception
      */
-    private function createBoardBox(GameMYR $game, ?TileMYR $tile, int $x, int $y) : BoardBoxMYR
+    public function createBoardBox(GameMYR $game, ?TileMYR $tile, int $x, int $y) : BoardBoxMYR
     {
         $ant = null;
         $pheromoneTile = null;

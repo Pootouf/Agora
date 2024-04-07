@@ -24,29 +24,29 @@ export default class extends Controller {
     async buyCard(card) {
         closeWindow()
         let url = card.params.url;
-        const response = await fetch(url);
+        await fetch(url);
     }
 
     async reserveCardOnRow(card) {
         closeWindow()
         let url = card.params.url;
-        const response = await fetch(url);
+        await fetch(url);
     }
 
     async reserveCardOnDraw(level) {
         closeWindow()
         let url = level.params.url;
-        const response = await fetch(url);
+        await fetch(url);
     }
 
     async takeToken(token) {
         let url = token.params.url;
-        const response = await fetch(url);
+        await fetch(url);
     }
 
     async clearSelectedTokens(button) {
         let url = button.params.url;
-        const response = await fetch(url);
+        await fetch(url);
     }
 
 }

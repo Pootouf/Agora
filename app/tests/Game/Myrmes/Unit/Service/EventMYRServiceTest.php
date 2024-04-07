@@ -29,7 +29,7 @@ class EventMYRServiceTest extends TestCase
         $mainBoard = new MainBoardMYR();
         $game->setMainBoardMYR($mainBoard);
         $season = new SeasonMYR();
-        $season->setDiceResult(MyrmesParameters::$BONUS_POINT);
+        $season->setDiceResult(MyrmesParameters::BONUS_POINT);
         $season->setActualSeason(true);
         $mainBoard->addSeason($season);
         $player = new PlayerMYR("test", $game);
@@ -52,7 +52,7 @@ class EventMYRServiceTest extends TestCase
         $mainBoard = new MainBoardMYR();
         $game->setMainBoardMYR($mainBoard);
         $season = new SeasonMYR();
-        $season->setDiceResult(MyrmesParameters::$BONUS_WARRIOR);
+        $season->setDiceResult(MyrmesParameters::BONUS_WARRIOR);
         $season->setActualSeason(true);
         $mainBoard->addSeason($season);
         $player = new PlayerMYR("test", $game);
@@ -75,13 +75,13 @@ class EventMYRServiceTest extends TestCase
         $mainBoard = new MainBoardMYR();
         $game->setMainBoardMYR($mainBoard);
         $season = new SeasonMYR();
-        $season->setDiceResult(MyrmesParameters::$BONUS_WORKER);
+        $season->setDiceResult(MyrmesParameters::BONUS_WORKER);
         $mainBoard->addSeason($season);
         $season->setActualSeason(true);
         $player = new PlayerMYR("test", $game);
         $personalBoard = new PersonalBoardMYR();
         $player->setPersonalBoardMYR($personalBoard);
-        $personalBoard->setBonus(MyrmesParameters::$BONUS_WORKER);
+        $personalBoard->setBonus(MyrmesParameters::BONUS_WORKER);
         $personalBoard->setLarvaCount(1);
         //THEN
         $this->expectException(\Exception::class);
@@ -96,13 +96,13 @@ class EventMYRServiceTest extends TestCase
         $mainBoard = new MainBoardMYR();
         $game->setMainBoardMYR($mainBoard);
         $season = new SeasonMYR();
-        $season->setDiceResult(MyrmesParameters::$BONUS_POINT);
+        $season->setDiceResult(MyrmesParameters::BONUS_POINT);
         $season->setActualSeason(true);
         $mainBoard->addSeason($season);
         $player = new PlayerMYR("test", $game);
         $personalBoard = new PersonalBoardMYR();
         $player->setPersonalBoardMYR($personalBoard);
-        $personalBoard->setBonus(MyrmesParameters::$BONUS_POINT);
+        $personalBoard->setBonus(MyrmesParameters::BONUS_POINT);
         $personalBoard->setLarvaCount(0);
         //THEN
         $this->expectException(\Exception::class);
@@ -117,12 +117,12 @@ class EventMYRServiceTest extends TestCase
         $mainBoard = new MainBoardMYR();
         $game->setMainBoardMYR($mainBoard);
         $season = new SeasonMYR();
-        $season->setDiceResult(MyrmesParameters::$PHASE_BIRTH);
+        $season->setDiceResult(MyrmesParameters::PHASE_BIRTH);
         $season->setActualSeason(true);
         $mainBoard->addSeason($season);
         $player = new PlayerMYR("test", $game);
         $personalBoard = new PersonalBoardMYR();
-        $player->setPhase(MyrmesParameters::$PHASE_BIRTH);
+        $player->setPhase(MyrmesParameters::PHASE_BIRTH);
         $player->setPersonalBoardMYR($personalBoard);
         $bonusWanted = 10;
         //THEN
@@ -138,7 +138,7 @@ class EventMYRServiceTest extends TestCase
         $mainBoard = new MainBoardMYR();
         $game->setMainBoardMYR($mainBoard);
         $season = new SeasonMYR();
-        $season->setDiceResult(MyrmesParameters::$BONUS_POINT);
+        $season->setDiceResult(MyrmesParameters::BONUS_POINT);
         $season->setActualSeason(true);
         $mainBoard->addSeason($season);
         $player = new PlayerMYR("test", $game);
@@ -162,7 +162,7 @@ class EventMYRServiceTest extends TestCase
         $mainBoard = new MainBoardMYR();
         $game->setMainBoardMYR($mainBoard);
         $season = new SeasonMYR();
-        $season->setDiceResult(MyrmesParameters::$BONUS_POINT);
+        $season->setDiceResult(MyrmesParameters::BONUS_POINT);
         $season->setActualSeason(true);
         $player = new PlayerMYR("test", $game);
         $personalBoard = new PersonalBoardMYR();

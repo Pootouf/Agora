@@ -35,7 +35,7 @@ class MYRServiceTest extends KernelTestCase
         $firstPlayer = $game->getPlayers()->first();
         $goal = new GoalMYR();
         $goal->setName("Test");
-        $goal->setDifficulty(MyrmesParameters::$GOAL_DIFFICULTY_LEVEL_ONE);
+        $goal->setDifficulty(MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE);
         $this->entityManager->persist($goal);
         $gameGoal = new GameGoalMYR();
         $gameGoal->setGoal($goal);
@@ -43,7 +43,7 @@ class MYRServiceTest extends KernelTestCase
         // WHEN
         $this->MYRService->doGameGoal($firstPlayer, $gameGoal);
         // THEN
-        $this->assertEquals(MyrmesParameters::$GOAL_REWARD_LEVEL_ONE, $firstPlayer->getScore());
+        $this->assertEquals(MyrmesParameters::GOAL_REWARD_LEVEL_ONE, $firstPlayer->getScore());
     }
 
     public function testActivateGoalAndGivePointsToOtherPlayers() : void
@@ -54,7 +54,7 @@ class MYRServiceTest extends KernelTestCase
         $secondPlayer = $game->getPlayers()->last();
         $goal = new GoalMYR();
         $goal->setName("Test");
-        $goal->setDifficulty(MyrmesParameters::$GOAL_DIFFICULTY_LEVEL_ONE);
+        $goal->setDifficulty(MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE);
         $this->entityManager->persist($goal);
         $gameGoal = new GameGoalMYR();
         $gameGoal->setGoal($goal);
@@ -63,7 +63,7 @@ class MYRServiceTest extends KernelTestCase
         // WHEN
         $this->MYRService->doGameGoal($firstPlayer, $gameGoal);
         // THEN
-        $this->assertEquals(MyrmesParameters::$GOAL_REWARD_LEVEL_ONE, $firstPlayer->getScore());
+        $this->assertEquals(MyrmesParameters::GOAL_REWARD_LEVEL_ONE, $firstPlayer->getScore());
     }
 
     public function testActivateGoalWhenGoalIsLevelTwo() : void
@@ -73,7 +73,7 @@ class MYRServiceTest extends KernelTestCase
         $firstPlayer = $game->getPlayers()->first();
         $goal = new GoalMYR();
         $goal->setName("Test");
-        $goal->setDifficulty(MyrmesParameters::$GOAL_DIFFICULTY_LEVEL_ONE);
+        $goal->setDifficulty(MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE);
         $this->entityManager->persist($goal);
         $gameGoal = new GameGoalMYR();
         $gameGoal->setGoal($goal);
@@ -83,7 +83,7 @@ class MYRServiceTest extends KernelTestCase
 
         $goal2 = new GoalMYR();
         $goal2->setName("Test2");
-        $goal2->setDifficulty(MyrmesParameters::$GOAL_DIFFICULTY_LEVEL_TWO);
+        $goal2->setDifficulty(MyrmesParameters::GOAL_DIFFICULTY_LEVEL_TWO);
         $this->entityManager->persist($goal2);
         $gameGoal2 = new GameGoalMYR();
         $gameGoal2->setGoal($goal2);
@@ -92,7 +92,7 @@ class MYRServiceTest extends KernelTestCase
         // WHEN
         $this->MYRService->doGameGoal($firstPlayer, $gameGoal2);
         // THEN
-        $this->assertEquals(MyrmesParameters::$GOAL_REWARD_LEVEL_TWO, $firstPlayer->getScore());
+        $this->assertEquals(MyrmesParameters::GOAL_REWARD_LEVEL_TWO, $firstPlayer->getScore());
     }
 
     public function testActivateGoalWhenGoalIsLevelThree() : void
@@ -102,7 +102,7 @@ class MYRServiceTest extends KernelTestCase
         $firstPlayer = $game->getPlayers()->first();
         $goal = new GoalMYR();
         $goal->setName("Test");
-        $goal->setDifficulty(MyrmesParameters::$GOAL_DIFFICULTY_LEVEL_TWO);
+        $goal->setDifficulty(MyrmesParameters::GOAL_DIFFICULTY_LEVEL_TWO);
         $this->entityManager->persist($goal);
         $gameGoal = new GameGoalMYR();
         $gameGoal->setGoal($goal);
@@ -112,7 +112,7 @@ class MYRServiceTest extends KernelTestCase
 
         $goal2 = new GoalMYR();
         $goal2->setName("Test2");
-        $goal2->setDifficulty(MyrmesParameters::$GOAL_DIFFICULTY_LEVEL_THREE);
+        $goal2->setDifficulty(MyrmesParameters::GOAL_DIFFICULTY_LEVEL_THREE);
         $this->entityManager->persist($goal2);
         $gameGoal2 = new GameGoalMYR();
         $gameGoal2->setGoal($goal2);
@@ -121,7 +121,7 @@ class MYRServiceTest extends KernelTestCase
         // WHEN
         $this->MYRService->doGameGoal($firstPlayer, $gameGoal2);
         // THEN
-        $this->assertEquals(MyrmesParameters::$GOAL_REWARD_LEVEL_THREE, $firstPlayer->getScore());
+        $this->assertEquals(MyrmesParameters::GOAL_REWARD_LEVEL_THREE, $firstPlayer->getScore());
     }
 
     public function testActivateBonusWhenGoalIsAtTooHighLevel() : void
@@ -131,7 +131,7 @@ class MYRServiceTest extends KernelTestCase
         $firstPlayer = $game->getPlayers()->first();
         $goal = new GoalMYR();
         $goal->setName("Test");
-        $goal->setDifficulty(MyrmesParameters::$GOAL_DIFFICULTY_LEVEL_THREE);
+        $goal->setDifficulty(MyrmesParameters::GOAL_DIFFICULTY_LEVEL_THREE);
         $this->entityManager->persist($goal);
         $gameGoal = new GameGoalMYR();
         $gameGoal->setGoal($goal);
@@ -150,7 +150,7 @@ class MYRServiceTest extends KernelTestCase
         $firstPlayer = $game->getPlayers()->first();
         $goal = new GoalMYR();
         $goal->setName("Test");
-        $goal->setDifficulty(MyrmesParameters::$GOAL_DIFFICULTY_LEVEL_THREE);
+        $goal->setDifficulty(MyrmesParameters::GOAL_DIFFICULTY_LEVEL_THREE);
         $this->entityManager->persist($goal);
         $gameGoal = new GameGoalMYR();
         $gameGoal->setGoal($goal);
@@ -167,8 +167,8 @@ class MYRServiceTest extends KernelTestCase
     private function createGame(int $numberOfPlayers) : GameMYR
     {
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);
-        if($numberOfPlayers < MyrmesParameters::$MIN_NUMBER_OF_PLAYER ||
-            $numberOfPlayers > MyrmesParameters::$MAX_NUMBER_OF_PLAYER) {
+        if($numberOfPlayers < MyrmesParameters::MIN_NUMBER_OF_PLAYER ||
+            $numberOfPlayers > MyrmesParameters::MAX_NUMBER_OF_PLAYER) {
             throw new \Exception("TOO MUCH PLAYERS ON CREATE GAME");
         }
         $game = new GameMYR();
@@ -177,7 +177,7 @@ class MYRServiceTest extends KernelTestCase
             $game->addPlayer($player);
             $player->setGameMyr($game);
             $player->setColor("");
-            $player->setPhase(MyrmesParameters::$PHASE_WORRKER);
+            $player->setPhase(MyrmesParameters::PHASE_WORKER);
             $personalBoard = new PersonalBoardMYR();
             $personalBoard->setLarvaCount(0);
             $personalBoard->setAnthillLevel(0);
@@ -188,10 +188,9 @@ class MYRServiceTest extends KernelTestCase
             $player->setScore(0);
             $player->setGoalLevel(0);
             $player->setRemainingHarvestingBonus(0);
-            for($j = 0; $j < MyrmesParameters::$START_NURSES_COUNT_PER_PLAYER; $j += 1) {
+            for($j = 0; $j < MyrmesParameters::START_NURSES_COUNT_PER_PLAYER; $j += 1) {
                 $nurse = new NurseMYR();
-                $nurse->setPosition(-1);
-                $nurse->setArea(MyrmesParameters::$LARVAE_AREA);
+                $nurse->setArea(MyrmesParameters::LARVAE_AREA);
                 $nurse->setAvailable(true);
                 $nurse->setPlayer($player);
                 $personalBoard->addNurse($nurse);
