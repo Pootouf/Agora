@@ -356,8 +356,8 @@ report:
   script:
     - vendor/bin/phpunit-merger coverage coverage/ coverage/coverage.xml
     - find reports/ -type f -name '*.xml' | vendor/bin/junit-merger merge:files --handler='dom_read' > reports/report.xml
-    - sed -i 's;filename=";filename="app/src/;g' app/coverage-cobertura/*.xml #FIX Cobertura report
-    - sed -i 's;${CI_PROJECT_NAME}/app/src;${CI_PROJECT_NAME};g' app/coverage-cobertura/*.xml #FIX Cobertura report
+    - sed -i 's;filename=";filename="app/src/;g' coverage-cobertura/*.xml #FIX Cobertura report
+    - sed -i 's;${CI_PROJECT_NAME}/app/src;${CI_PROJECT_NAME};g' coverage-cobertura/*.xml #FIX Cobertura report
   allow_failure: false
   artifacts:
     paths:
