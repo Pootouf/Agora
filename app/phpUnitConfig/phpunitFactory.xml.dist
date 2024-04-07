@@ -5,7 +5,7 @@
          xsi:noNamespaceSchemaLocation="../vendor/phpunit/phpunit/phpunit.xsd"
          backupGlobals="false"
          colors="true"
-         bootstrap="tests/bootstrap.php"
+         bootstrap="../tests/bootstrap.php"
          convertDeprecationsToExceptions="false"
 >
     <php>
@@ -19,37 +19,37 @@
 
     <testsuites>
         <testsuite name="Project Test Suite">
-            <directory>tests</directory>
+            <directory>../tests</directory>
         </testsuite>
     </testsuites>
 
     <coverage processUncoveredFiles="true">
         <include>
-            <directory suffix=".php">src</directory>
+            <directory suffix=".php">../src</directory>
         </include>
         <exclude>
-            <directory suffix=".php">src/Service/Game/SixQP</directory>
-            <directory suffix=".php">src/Service/Game/Splendor</directory>
-            <directory suffix=".php">src/Service/Game/Glenmore</directory>
-            <directory suffix=".php">src/Service/Game/Myrmes</directory>
-            <directory suffix=".php">src/Service/Platform</directory>
+            <directory suffix=".php">../src/Service/Game/SixQP</directory>
+            <directory suffix=".php">../src/Service/Game/Splendor</directory>
+            <directory suffix=".php">../src/Service/Game/Glenmore</directory>
+            <directory suffix=".php">../src/Service/Game/Myrmes</directory>
+            <directory suffix=".php">../src/Service/Platform</directory>
 
-            <directory suffix=".php">src/Repository/Game/SixQP</directory>
-            <directory suffix=".php">src/Repository/Game/Splendor</directory>
-            <directory suffix=".php">src/Repository/Game/Glenmore</directory>
-            <directory suffix=".php">src/Repository/Game/Myrmes</directory>
-            <directory suffix=".php">src/Repository/Platform</directory>
+            <directory suffix=".php">../src/Repository/Game/SixQP</directory>
+            <directory suffix=".php">../src/Repository/Game/Splendor</directory>
+            <directory suffix=".php">../src/Repository/Game/Glenmore</directory>
+            <directory suffix=".php">../src/Repository/Game/Myrmes</directory>
+            <directory suffix=".php">../src/Repository/Platform</directory>
 
-            <directory suffix=".php">src/Entity/Game/SixQP</directory>
-            <directory suffix=".php">src/Entity/Game/Splendor</directory>
-            <directory suffix=".php">src/Entity/Game/Glenmore</directory>
-            <directory suffix=".php">src/Entity/Game/Myrmes</directory>
-            <directory suffix=".php">src/Entity/Platform</directory>
+            <directory suffix=".php">../src/Entity/Game/SixQP</directory>
+            <directory suffix=".php">../src/Entity/Game/Splendor</directory>
+            <directory suffix=".php">../src/Entity/Game/Glenmore</directory>
+            <directory suffix=".php">../src/Entity/Game/Myrmes</directory>
+            <directory suffix=".php">../src/Entity/Platform</directory>
 
-            <file>src/Controller/Game/SixQPController.php</file>
-            <file>src/Controller/Game/SplendorController.php</file>
-            <file>src/Controller/Game/GlenmoreController.php</file>
-            <file>src/Controller/Game/MyrmesController.php</file>
+            <file>../src/Controller/Game/SixQPController.php</file>
+            <file>../src/Controller/Game/SplendorController.php</file>
+            <file>../src/Controller/Game/GlenmoreController.php</file>
+            <file>../src/Controller/Game/MyrmesController.php</file>
         </exclude>
     </coverage>
 

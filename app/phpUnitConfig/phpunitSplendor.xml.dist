@@ -5,7 +5,7 @@
          xsi:noNamespaceSchemaLocation="../vendor/phpunit/phpunit/phpunit.xsd"
          backupGlobals="false"
          colors="true"
-         bootstrap="tests/bootstrap.php"
+         bootstrap="../tests/bootstrap.php"
          convertDeprecationsToExceptions="false"
 >
     <php>
@@ -19,16 +19,16 @@
 
     <testsuites>
         <testsuite name="Project Test Suite">
-            <directory>tests</directory>
+            <directory>../tests</directory>
         </testsuite>
     </testsuites>
 
     <coverage processUncoveredFiles="true">
         <include>
-            <directory suffix=".php">src/Service/Game/Splendor</directory>
-            <directory suffix=".php">src/Repository/Game/Splendor</directory>
-            <directory suffix=".php">src/Entity/Game/Splendor</directory>
-            <file>src/Controller/Game/SplendorController.php</file>
+            <directory suffix=".php">../src/Service/Game/Splendor</directory>
+            <directory suffix=".php">../src/Repository/Game/Splendor</directory>
+            <directory suffix=".php">../src/Entity/Game/Splendor</directory>
+            <file>../src/Controller/Game/SplendorController.php</file>
         </include>
     </coverage>
 
