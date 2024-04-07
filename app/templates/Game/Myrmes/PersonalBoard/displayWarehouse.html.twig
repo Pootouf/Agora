@@ -20,8 +20,11 @@ This section displays the storage of the player
                                 {% else %}
                                     w-[3vw] h-[3vw]
                                 {% endif %}
-                                {% if count < 5 %} bg-[#ffffff99]
-                                {% else %} bg-[#00000099]
+                                {% if (player.personalBoard.anthillLevel < 2 and count <= 4 )
+                                    or (player.personalBoard.anthillLevel >= 2 and count <= 6 )%}
+                                    bg-[#ffffff99]
+                                {% else %}
+                                    bg-[#00000099]
                                 {% endif %}"
                             {{ stimulus_action('myrmes','throwResourceFromWarehouse','click') }}
                     >
