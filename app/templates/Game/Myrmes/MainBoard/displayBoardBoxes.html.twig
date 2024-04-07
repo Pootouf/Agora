@@ -5,11 +5,12 @@
 #}
 
 {# Declaration of contants #}
-{% set WATER_TILE_TYPE = "water" %}
-{% set DIRT_TILE_TYPE = "dirt" %}
-{% set MUSHROOM_TILE_TYPE = "mushroom" %}
-{% set STONE_TILE_TYPE = "stone" %}
-{% set GRASS_TILE_TYPE = "grass" %}
+{# Tile types #}
+{% set WATER_TILE_TYPE = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::WATER_TILE_TYPE') %}
+{% set DIRT_TILE_TYPE = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::DIRT_TILE_TYPE') %}
+{% set MUSHROOM_TILE_TYPE = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::MUSHROOM_TILE_TYPE') %}
+{% set STONE_TILE_TYPE = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::STONE_TILE_TYPE') %}
+{% set GRASS_TILE_TYPE = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::GRASS_TILE_TYPE') %}
 
 {# Loading of Tailwind data for grid #}
 <div class="hidden grid grid-cols-[repeat(14,_3.5vw)] grid-cols-[repeat(14,_1.25vw)] grid-rows-15 grid-rows-13 grid-rows-8"></div>
@@ -20,7 +21,9 @@
             bg-green-600 bg-orange-950 bg-red-700 bg-stone-700 bg-blue-600">
 </div>
 
+{# Loading of Tailwind background colors #}
 <div class="hidden bg-gray-500 bg-blue-500 bg-red-500 bg-yellow-500"></div>
+
 
 <div class="w-auto h-auto flex flex-row flex items-center">
     <div class="flex-grow"></div>
@@ -44,6 +47,7 @@
                 {% else %}
                     {% set color = "green-600" %}
                 {% endif %}
+                {% set isActionable = false %}
                 {{ include('Game/Myrmes/MainBoard/boardBox.html.twig') }}
 
             {% else %}

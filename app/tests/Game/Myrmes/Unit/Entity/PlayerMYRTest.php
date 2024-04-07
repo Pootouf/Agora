@@ -265,7 +265,7 @@ class PlayerMYRTest extends TestCase
     {
         // GIVEN
 
-        $color = MyrmesParameters::$PLAYERS_COLORS[3];
+        $color = MyrmesParameters::PLAYERS_COLORS[3];
 
         // WHEN
 

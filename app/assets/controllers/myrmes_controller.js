@@ -6,64 +6,95 @@ export default class extends Controller  {
 
     async placeNurseOnLarvaeTrack(position) {
         let url = position.params.url;
-        const response = await fetch(url);
+        await fetch(url);
     }
 
     async placeNurseOnSoldiersTrack(position) {
         let url = position.params.url;
-        const response = await fetch(url);
+        await fetch(url);
     }
 
     async placeNurseOnWorkersTrack(position) {
         let url = position.params.url;
-        const response = await fetch(url);
+        await fetch(url);
+    }
+
+    async placeNurseOnWorkshop(position) {
+        let url = position.params.url;
+        await fetch(url);
     }
 
     async confirmNursesPlacement(confirm) {
         let url = confirm.params.url;
-        const response = await fetch(url);
+        await fetch(url);
     }
 
-    placeNurseOnWorkshop() {
-        alert("workshop");
+    async cancelNursesPlacement(confirm) {
+        let url = confirm.params.url;
+        await fetch(url);
     }
 
     //move on event track
 
-    moveToLeftOnEventTrack() {
-        alert("event track left");
+    async moveToLeftOnEventTrack(event) {
+        let url = event.params.url;
+        await fetch(url);
     }
 
-    moveToRightOnEventTrack() {
-        alert("event track right");
+    async moveToRightOnEventTrack(event) {
+        let url = event.params.url;
+        await fetch(url);
+    }
+
+    async confirmBonus(event) {
+        let url = event.params.url;
+        await fetch(url);
     }
 
     //throw resources from storage
 
-    throwResourceFromWarehouse() {
-        alert("warehouse");
+    async selectPlayerResourceToThrow(playerResource) {
+        let url = playerResource.params.url;
+        const response = await fetch(url);
+        let tree = document.getElementById("index_myrmes");
+        let placeholder = document.createElement("div");
+        placeholder.innerHTML = await response.text();
+        const node = placeholder.firstElementChild;
+        tree.appendChild(node);
+    }
+
+    async throwResourceFromWarehouse(resource) {
+        let url = resource.params.url;
+        await fetch(url);
     }
 
     //place worker on colony level track
 
-    placeWorkerOnLevel0() {
-        alert("lvl 0");
+    async placeWorkerOnColonyLevelTrack(level) {
+        let url = level.params.url;
+        await fetch(url);
     }
 
-    placeWorkerOnLevel1() {
-        alert("lvl 1");
-    }
+    //harvest a resource
 
-    placeWorkerOnLevel2() {
-        alert("lvl 2");
-    }
-
-    placeWorkerOnLevel3() {
-        alert("lvl 3");
+    async harvestResource(resource){
+        let url = resource.params.url;
+        await fetch(url)
     }
 
     async showPersonalBoard(main)  {
         let url = main.params.url;
+        const response = await fetch(url);
+        let tree = document.getElementById("index_myrmes");
+        let placeholder = document.createElement("div");
+        placeholder.innerHTML = await response.text();
+        const node = placeholder.firstElementChild;
+        tree.appendChild(node);
+    }
+
+    async displayBoxActions(boardBox) {
+        closeSelectedBoxWindow();
+        let url = boardBox.params.url
         const response = await fetch(url);
         let tree = document.getElementById("index_myrmes");
         let placeholder = document.createElement("div");

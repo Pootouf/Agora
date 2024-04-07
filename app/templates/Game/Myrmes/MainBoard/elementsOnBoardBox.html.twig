@@ -1,0 +1,57 @@
+{#
+    Display the elements that can be showed on a board box
+    param : isActionable, boardBox
+    return : display ant, anthill hole, prey or pheromone
+#}
+
+{# Definition of variable for elements display #}
+{% set isAbsolute = "" %}
+{% if not isActionable %}
+    {% set isAbsolute = 'absolute' %}
+{% endif %}
+
+{% set elementsDisplay = "" %}
+{% if isActionable %}
+    {% set elementsDisplay = "size-[6vw] px-[1vw] py-[1.5vw]" %}
+{% else %}
+    {% set elementsDisplay = "size-[3.5vw] px-[0.5vw] py-[0.75vw]" %}
+{% endif %}
+
+
+{# Display the elements that can be put on the box #}
+
+{% if boardBox.anthillHole != null %}
+    <div class="visible {{ isAbsolute }} {{ elementsDisplay }}">
+        <img class="rounded rounded-full size-full -p-4 bg-{{ boardBox.anthillHole.player.color }}-500"
+             src="{{ asset('resourcesGames/Myrmes/anthillHole.svg') }}" alt="anthill hole">
+    </div>
+{% endif %}
+{% if boardBox.pheromonTile != null %}
+    <div class="visible {{ isAbsolute }} {{ elementsDisplay }}">
+        <img class="rounded rounded-full size-full -p-4 bg-{{ boardBox.pheromonTile.pheromonMYR.player.color }}-500"
+             src="{{ asset('resourcesGames/Myrmes/pheromone.svg') }}" alt="pheromone">
+    </div>
+{% endif %}
+{% if boardBox.prey != null %}
+    <div class="visible {{ isAbsolute }} flex justify-center items-center {{ elementsDisplay}} bg-transparent">
+        <img src="{{ asset('resourcesGames/Myrmes/preys/' ~ boardBox.prey.type ~ '.svg') }}"
+             alt="{{ boardBox.prey.type }}"
+             class="scale-[150%]"
+        >
+    </div>
+{% endif %}
+{% if boardBox.ant != null %}
+    <div class="visible flex items-center justify-center size-[3.5vw] pt-[0.2vw] {{ isAbsolute }}">
+        <div class="flex items-center rounded-full justify-center flex-row bg-black bg-opacity-25">
+            <img class="max-h-[3vw]"
+                 src="{{ asset('resourcesGames/Myrmes/ants/ant-' ~ boardBox.ant.player.color ~ '.svg') }}"
+                 alt="ant {{ boardBox.ant.player.color }}">
+            {% if boardBox.pheromonTile != null and boardBox.pheromonTile.resource != null %}
+                <img class="max-h-[1.5vw]"
+                     src="{{ asset('resourcesGames/Myrmes/resources/' ~
+                         boardBox.pheromonTile.resource.description ~ '.svg') }}"
+                     alt="{{boardBox.pheromonTile.resource.description}}">
+            {% endif %}
+        </div>
+    </div>
+{% endif %}

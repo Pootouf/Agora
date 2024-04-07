@@ -11,8 +11,11 @@ use App\Entity\Game\Myrmes\NurseMYR;
 use App\Entity\Game\Myrmes\PersonalBoardMYR;
 use App\Entity\Game\Myrmes\PlayerMYR;
 use App\Entity\Game\Myrmes\SeasonMYR;
+use App\Repository\Game\Myrmes\GoalMYRRepository;
 use App\Repository\Game\Myrmes\NurseMYRRepository;
 use App\Repository\Game\Myrmes\PlayerMYRRepository;
+use App\Repository\Game\Myrmes\PlayerResourceMYRRepository;
+use App\Repository\Game\Myrmes\ResourceMYRRepository;
 use App\Repository\Game\Myrmes\SeasonMYRRepository;
 use App\Repository\Game\Myrmes\TileMYRRepository;
 use App\Repository\Game\Myrmes\TileTypeMYRRepository;
@@ -31,8 +34,13 @@ class MYRServiceTest extends TestCase
         $tileMYRRepository = $this->createMock(TileMYRRepository::class);
         $tileTypeMYRRepository = $this->createMock(TileTypeMYRRepository::class);
         $seasonMYRRepository = $this->createMock(SeasonMYRRepository::class);
+        $resourceMYRRepository = $this->createMock(ResourceMYRRepository::class);
+        $playerResourceMYRRepository = $this->createMock(PlayerResourceMYRRepository::class);
+        $goalMYRRepository = $this->createMock(GoalMYRRepository::class);
         $this->MYRService = new MYRService($playerMYRRepository, $entityManager, $nurseMYRRepository,
-            $tileMYRRepository, $tileTypeMYRRepository, $seasonMYRRepository);
+            $tileMYRRepository, $tileTypeMYRRepository,
+            $seasonMYRRepository, $goalMYRRepository,
+            $resourceMYRRepository, $playerResourceMYRRepository);
     }
 
     public function testActivateGoalWhenGoalIsLevelOne() : void
@@ -41,13 +49,13 @@ class MYRServiceTest extends TestCase
         $game = $this->createGame(2);
         $firstPlayer = $game->getPlayers()->first();
         $goal = new GoalMYR();
-        $goal->setDifficulty(MyrmesParameters::$GOAL_DIFFICULTY_LEVEL_ONE);
+        $goal->setDifficulty(MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE);
         $gameGoal = new GameGoalMYR();
         $gameGoal->setGoal($goal);
         // WHEN
         $this->MYRService->doGameGoal($firstPlayer, $gameGoal);
         // THEN
-        $this->assertEquals(MyrmesParameters::$GOAL_REWARD_LEVEL_ONE, $firstPlayer->getScore());
+        $this->assertEquals(MyrmesParameters::GOAL_REWARD_LEVEL_ONE, $firstPlayer->getScore());
     }
 
     public function testActivateGoalWhenGoalIsLevelTwo() : void
@@ -56,19 +64,19 @@ class MYRServiceTest extends TestCase
         $game = $this->createGame(2);
         $firstPlayer = $game->getPlayers()->first();
         $goal = new GoalMYR();
-        $goal->setDifficulty(MyrmesParameters::$GOAL_DIFFICULTY_LEVEL_ONE);
+        $goal->setDifficulty(MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE);
         $gameGoal = new GameGoalMYR();
         $gameGoal->setGoal($goal);
         $firstPlayer->addGameGoalMYR($gameGoal);
 
         $goal2 = new GoalMYR();
-        $goal2->setDifficulty(MyrmesParameters::$GOAL_DIFFICULTY_LEVEL_TWO);
+        $goal2->setDifficulty(MyrmesParameters::GOAL_DIFFICULTY_LEVEL_TWO);
         $gameGoal2 = new GameGoalMYR();
         $gameGoal2->setGoal($goal2);
         // WHEN
         $this->MYRService->doGameGoal($firstPlayer, $gameGoal2);
         // THEN
-        $this->assertEquals(MyrmesParameters::$GOAL_REWARD_LEVEL_TWO, $firstPlayer->getScore());
+        $this->assertEquals(MyrmesParameters::GOAL_REWARD_LEVEL_TWO, $firstPlayer->getScore());
     }
 
     public function testActivateGoalWhenGoalIsLevelThree() : void
@@ -77,19 +85,19 @@ class MYRServiceTest extends TestCase
         $game = $this->createGame(2);
         $firstPlayer = $game->getPlayers()->first();
         $goal = new GoalMYR();
-        $goal->setDifficulty(MyrmesParameters::$GOAL_DIFFICULTY_LEVEL_TWO);
+        $goal->setDifficulty(MyrmesParameters::GOAL_DIFFICULTY_LEVEL_TWO);
         $gameGoal = new GameGoalMYR();
         $gameGoal->setGoal($goal);
         $firstPlayer->addGameGoalMYR($gameGoal);
 
         $goal2 = new GoalMYR();
-        $goal2->setDifficulty(MyrmesParameters::$GOAL_DIFFICULTY_LEVEL_THREE);
+        $goal2->setDifficulty(MyrmesParameters::GOAL_DIFFICULTY_LEVEL_THREE);
         $gameGoal2 = new GameGoalMYR();
         $gameGoal2->setGoal($goal2);
         // WHEN
         $this->MYRService->doGameGoal($firstPlayer, $gameGoal2);
         // THEN
-        $this->assertEquals(MyrmesParameters::$GOAL_REWARD_LEVEL_THREE, $firstPlayer->getScore());
+        $this->assertEquals(MyrmesParameters::GOAL_REWARD_LEVEL_THREE, $firstPlayer->getScore());
     }
 
     public function testActivateGoalAndGivePointsToOtherPlayers() : void
@@ -99,14 +107,14 @@ class MYRServiceTest extends TestCase
         $firstPlayer = $game->getPlayers()->first();
         $secondPlayer = $game->getPlayers()->last();
         $goal = new GoalMYR();
-        $goal->setDifficulty(MyrmesParameters::$GOAL_DIFFICULTY_LEVEL_ONE);
+        $goal->setDifficulty(MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE);
         $gameGoal = new GameGoalMYR();
         $gameGoal->setGoal($goal);
         $gameGoal->addPrecedentsPlayer($secondPlayer);
         // WHEN
         $this->MYRService->doGameGoal($firstPlayer, $gameGoal);
         // THEN
-        $this->assertEquals(MyrmesParameters::$GOAL_REWARD_WHEN_GOAL_ALREADY_DONE, $secondPlayer->getScore());
+        $this->assertEquals(MyrmesParameters::GOAL_REWARD_WHEN_GOAL_ALREADY_DONE, $secondPlayer->getScore());
     }
 
     public function testActivateBonusWhenGoalIsAtTooHighLevel() : void
@@ -115,7 +123,7 @@ class MYRServiceTest extends TestCase
         $game = $this->createGame(2);
         $firstPlayer = $game->getPlayers()->first();
         $goal = new GoalMYR();
-        $goal->setDifficulty(MyrmesParameters::$GOAL_DIFFICULTY_LEVEL_THREE);
+        $goal->setDifficulty(MyrmesParameters::GOAL_DIFFICULTY_LEVEL_THREE);
         $gameGoal = new GameGoalMYR();
         $gameGoal->setGoal($goal);
         // THEN
@@ -130,7 +138,7 @@ class MYRServiceTest extends TestCase
         $game = $this->createGame(2);
         $firstPlayer = $game->getPlayers()->first();
         $goal = new GoalMYR();
-        $goal->setDifficulty(MyrmesParameters::$GOAL_DIFFICULTY_LEVEL_THREE);
+        $goal->setDifficulty(MyrmesParameters::GOAL_DIFFICULTY_LEVEL_THREE);
         $gameGoal = new GameGoalMYR();
         $gameGoal->setGoal($goal);
         $firstPlayer->addGameGoalMYR($gameGoal);
@@ -142,8 +150,8 @@ class MYRServiceTest extends TestCase
 
     private function createGame(int $numberOfPlayers) : GameMYR
     {
-        if($numberOfPlayers < MyrmesParameters::$MIN_NUMBER_OF_PLAYER ||
-            $numberOfPlayers > MyrmesParameters::$MAX_NUMBER_OF_PLAYER) {
+        if($numberOfPlayers < MyrmesParameters::MIN_NUMBER_OF_PLAYER ||
+            $numberOfPlayers > MyrmesParameters::MAX_NUMBER_OF_PLAYER) {
             throw new \Exception("TOO MUCH PLAYERS ON CREATE GAME");
         }
         $game = new GameMYR();
@@ -153,7 +161,7 @@ class MYRServiceTest extends TestCase
             $player->setGameMyr($game);
             $personalBoard = new PersonalBoardMYR();
             $player->setPersonalBoardMYR($personalBoard);
-            for($j = 0; $j < MyrmesParameters::$START_NURSES_COUNT_PER_PLAYER; $j += 1) {
+            for($j = 0; $j < MyrmesParameters::START_NURSES_COUNT_PER_PLAYER; $j += 1) {
                 $nurse = new NurseMYR();
                 $personalBoard->addNurse($nurse);
             }
