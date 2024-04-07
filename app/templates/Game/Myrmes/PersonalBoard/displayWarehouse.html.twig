@@ -11,7 +11,7 @@ This section displays the storage of the player
 
 <div>
 <p class="relative pt-[1vw] w-fit {% if isPreview %}text_mini {% else %} text2-4 {% endif %}">Entrepôt</p>
-    {% if not mustThrowResourcesInWinter and not isPreview %}
+    {% if mustThrowResourcesInWinter and not isPreview %}
         <p class="relative mt-[0.5vw] flex align-middle text-center bg-black bg-opacity-25 rounded-xl w-fit text-lg">
             Cliquez pour jeter <br> une ressource
         </p>
