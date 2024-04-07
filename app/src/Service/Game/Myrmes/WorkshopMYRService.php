@@ -3,6 +3,7 @@
 namespace App\Service\Game\Myrmes;
 
 use App\Entity\Game\Myrmes\AnthillHoleMYR;
+use App\Entity\Game\Myrmes\GameGoalMYR;
 use App\Entity\Game\Myrmes\GoalMYR;
 use App\Entity\Game\Myrmes\MyrmesParameters;
 use App\Entity\Game\Myrmes\NurseMYR;
@@ -68,6 +69,29 @@ class WorkshopMYRService
             MyrmesParameters::GOAL_NURSES_NAME => $this->canPlayerDoNursesGoal($player, $goalDifficulty),
             MyrmesParameters::GOAL_ANTHILL_LEVEL_NAME => $this->canPlayerDoAnthillLevelGoal($player, $goalDifficulty),
             MyrmesParameters::GOAL_PHEROMONE_NAME => true, // Always true, player can cancel later
+            default => throw new Exception("Goal does not exist"),
+        };
+    }
+
+    public function doGoal(PlayerMYR $player, GameGoalMYR $gameGoalMYR): void
+    {
+        $goal = $gameGoalMYR->getGoal();
+        $goalName = $goal->getName();
+        $goalDifficulty = $goal->getDifficulty();
+
+        match ($goalName) {
+            MyrmesParameters::GOAL_RESOURCE_FOOD_NAME => $this->retrieveResourcesToDoFoodGoal($player, $goalDifficulty),
+            MyrmesParameters::GOAL_RESOURCE_STONE_NAME => $this->retrieveResourcesToDoStoneGoal($player, $goalDifficulty),
+            MyrmesParameters::GOAL_RESOURCE_STONE_OR_DIRT_NAME => $this->retrieveResourcesToDoStoneOrDirtGoal($player, $goalDifficulty),
+            MyrmesParameters::GOAL_LARVAE_NAME => $this->retrieveResourcesToDoLarvaeGoal($player, $goalDifficulty),
+            MyrmesParameters::GOAL_PREY_NAME => $this->retrieveResourcesToDoPreyGoal($player, $goalDifficulty),
+            MyrmesParameters::GOAL_SOLDIER_NAME => $this->retrieveResourcesToDoSoldierGoal($player, $goalDifficulty),
+            MyrmesParameters::GOAL_NURSES_NAME => $this->retrieveResourcesToDoNursesGoal($player, $goalDifficulty),
+            MyrmesParameters::GOAL_ANTHILL_LEVEL_NAME => $this->retrieveResourcesToDoAnthillLevelGoal($player, $goalDifficulty),
+            MyrmesParameters::GOAL_SPECIAL_TILE_NAME => throw new Exception("Call method 
+                                                                    retrieveResourcesToDoSpecialTileGoal to do this Goal"),
+            MyrmesParameters::GOAL_PHEROMONE_NAME => throw new Exception("Call method 
+                                                                    retrieveResourcesToDoPheromoneGoal to do this Goal"),
             default => throw new Exception("Goal does not exist"),
         };
     }
@@ -437,9 +461,11 @@ class WorkshopMYRService
     {
         return match ($goalDifficulty) {
             MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE =>
-                $this->getNumberOfResourcesFromSelectedType($player, MyrmesParameters::RESOURCE_TYPE_GRASS) >= 3,
+                $this->getPlayerResourcesFromSelectedType($player, MyrmesParameters::RESOURCE_TYPE_GRASS)
+                    ->getQuantity() >= 3,
             MyrmesParameters::GOAL_DIFFICULTY_LEVEL_TWO =>
-                $this->getNumberOfResourcesFromSelectedType($player, MyrmesParameters::RESOURCE_TYPE_GRASS) >= 6,
+                $this->getPlayerResourcesFromSelectedType($player, MyrmesParameters::RESOURCE_TYPE_GRASS)
+                    ->getQuantity() >= 6,
             default => throw new Exception("Goal difficulty invalid for food goal"),
         };
     }
@@ -455,9 +481,11 @@ class WorkshopMYRService
     {
         return match ($goalDifficulty) {
             MyrmesParameters::GOAL_DIFFICULTY_LEVEL_TWO =>
-                $this->getNumberOfResourcesFromSelectedType($player, MyrmesParameters::RESOURCE_TYPE_STONE) >= 3,
+                $this->getPlayerResourcesFromSelectedType($player, MyrmesParameters::RESOURCE_TYPE_STONE)
+                    ->getQuantity() >= 3,
             MyrmesParameters::GOAL_DIFFICULTY_LEVEL_THREE =>
-                $this->getNumberOfResourcesFromSelectedType($player, MyrmesParameters::RESOURCE_TYPE_STONE) >= 6,
+                $this->getPlayerResourcesFromSelectedType($player, MyrmesParameters::RESOURCE_TYPE_STONE)
+                    ->getQuantity() >= 6,
             default => throw new Exception("Goal difficulty invalid for stone goal"),
         };
     }
@@ -473,12 +501,16 @@ class WorkshopMYRService
     {
         return match ($goalDifficulty) {
             MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE =>
-                $this->getNumberOfResourcesFromSelectedType($player, MyrmesParameters::RESOURCE_TYPE_STONE)
-                + $this->getNumberOfResourcesFromSelectedType($player, MyrmesParameters::RESOURCE_TYPE_DIRT)
+                $this->getPlayerResourcesFromSelectedType($player, MyrmesParameters::RESOURCE_TYPE_STONE)
+                    ->getQuantity()
+                + $this->getPlayerResourcesFromSelectedType($player, MyrmesParameters::RESOURCE_TYPE_DIRT)
+                    ->getQuantity()
                 >= 3,
             MyrmesParameters::GOAL_DIFFICULTY_LEVEL_THREE =>
-                $this->getNumberOfResourcesFromSelectedType($player, MyrmesParameters::RESOURCE_TYPE_STONE)
-                + $this->getNumberOfResourcesFromSelectedType($player, MyrmesParameters::RESOURCE_TYPE_DIRT)
+                $this->getPlayerResourcesFromSelectedType($player, MyrmesParameters::RESOURCE_TYPE_STONE)
+                    ->getQuantity()
+                + $this->getPlayerResourcesFromSelectedType($player, MyrmesParameters::RESOURCE_TYPE_DIRT)
+                    ->getQuantity()
                 >= 6,
             default => throw new Exception("Goal difficulty invalid for stone or dirt goal"),
         };
@@ -606,16 +638,16 @@ class WorkshopMYRService
      * getNumberOfResourcesFromSelectedType: return the number of resources of the player from the selected type
      * @param PlayerMYR $player
      * @param string $selectedType
-     * @return int
+     * @return PlayerResourceMYR
      */
-    private function getNumberOfResourcesFromSelectedType(PlayerMYR $player, string $selectedType) : int
+    private function getPlayerResourcesFromSelectedType(PlayerMYR $player, string $selectedType) : PlayerResourceMYR
     {
         return $player->getPersonalBoardMYR()->getPlayerResourceMYRs()
             ->filter(
                 function (PlayerResourceMYR $resourceMYR) use ($selectedType) {
                     return $resourceMYR->getResource()->getDescription() == $selectedType;
                 }
-            )->first()->getQuantity();
+            )->first();
     }
 
     /**
@@ -646,5 +678,30 @@ class WorkshopMYRService
                 return $nurseMYR->getArea() == MyrmesParameters::GOAL_AREA;
             }
         );
+    }
+
+
+    /**
+     * retrieveResourcesToDoFoodGoal: retrieve the resources needed from the player to accomplish the food goal
+     * @param PlayerMYR $player
+     * @param int $goalDifficulty
+     * @return void
+     * @throws Exception
+     */
+    private function retrieveResourcesToDoFoodGoal(PlayerMYR $player, int $goalDifficulty): void
+    {
+        if (!$this->canPlayerDoFoodGoal($player, $goalDifficulty)) {
+            throw new Exception('Player cannot do food goal');
+        }
+        $resource = $this->getPlayerResourcesFromSelectedType($player, MyrmesParameters::RESOURCE_TYPE_GRASS);
+        match ($goalDifficulty) {
+            MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE =>
+                $resource->setQuantity($resource->getQuantity() - 3),
+            MyrmesParameters::GOAL_DIFFICULTY_LEVEL_TWO =>
+                $resource->setQuantity($resource->getQuantity() - 6),
+            default => throw new Exception("Goal difficulty invalid for food goal"),
+        };
+        $this->entityManager->persist($resource);
+        $this->entityManager->flush();
     }
 }
