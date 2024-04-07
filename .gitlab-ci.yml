@@ -352,10 +352,10 @@ report:
     - rm composer.lock
     - composer require psr/log 1.1.4
     - composer require nimut/phpunit-merger
-    - composer require sweetchuck/junit-merger-cli 1.0.0 -W
+    - curl -L https://github.com/tobni/merge-junit/releases/download/v0.1.4/merge-junit-v0.1.4-x86_64-unknown-linux-musl.tar.gz | tar -xz
   script:
     - vendor/bin/phpunit-merger coverage coverage/ coverage/coverage.xml
-    - find reports/ -type f -name '*.xml' | vendor/bin/junit-merger merge:files --handler='dom_read' > reports/report.xml
+    - ./merge-junit-v0.1.4-x86_64-unknown-linux-musl/merge-junit reports/* -o reports/report.xml
     - |+
       for file in coverage-cobertura/*.xml 
       do 
