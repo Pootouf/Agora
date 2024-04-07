@@ -802,6 +802,27 @@ class WorkshopMYRService
     }
 
     /**
+     * retrieveResourcesToDoNursesGoal: retrieve the resources needed from the player to accomplish the nurses goal
+     * @param PlayerMYR $player
+     * @param int $goalDifficulty
+     * @return void
+     * @throws Exception
+     */
+    private function retrieveResourcesToDoNursesGoal(PlayerMYR $player, int $goalDifficulty): void
+    {
+        if (!$this->canPlayerDoNursesGoal($player, $goalDifficulty)) {
+            throw new Exception('Player cannot do nurses goal');
+        }
+        match ($goalDifficulty) {
+            MyrmesParameters::GOAL_DIFFICULTY_LEVEL_TWO =>
+            $this->removeSelectedNumberOfNursesFromPlayer($player, 1),
+            MyrmesParameters::GOAL_DIFFICULTY_LEVEL_THREE =>
+            $this->removeSelectedNumberOfNursesFromPlayer($player, 2),
+            default => throw new Exception("Goal difficulty invalid for nurses goal"),
+        };
+    }
+
+    /**
      * removeSelectedNumberOfPreyFromPlayer: remove the selected number of prey from the player inventory
      * @param PlayerMYR $player
      * @param int $preyToRemove
@@ -814,5 +835,26 @@ class WorkshopMYRService
             $player->removePreyMYR($prey[$i]);
             $this->entityManager->remove($prey[$i]);
         }
+    }
+
+    /**
+     * removeSelectedNumberOfNursesFromPlayer: remove the selected number of nurses from the player inventory
+     * @param PlayerMYR $player
+     * @param int $nurseToRemove
+     * @return void
+     */
+    private function removeSelectedNumberOfNursesFromPlayer(PlayerMYR $player, int $nurseToRemove) : void
+    {
+        $nurses = $player->getPersonalBoardMYR()->getNurses();
+        for ($i = 0; $i < $nurseToRemove; $i++) {
+            if ($nurses[$i]->getArea == MyrmesParameters::GOAL_AREA ) {
+                $nurseToRemove++;
+                continue;
+            }
+            $player->getPersonalBoardMYR()->removeNurse($nurses[$i]);
+            $this->entityManager->remove($nurses[$i]);
+        }
+        $this->entityManager->persist($player->getPersonalBoardMYR());
+        $this->entityManager->flush();
     }
 }
