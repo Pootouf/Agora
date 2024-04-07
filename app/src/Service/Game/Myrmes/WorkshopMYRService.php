@@ -3,12 +3,14 @@
 namespace App\Service\Game\Myrmes;
 
 use App\Entity\Game\Myrmes\AnthillHoleMYR;
+use App\Entity\Game\Myrmes\GoalMYR;
 use App\Entity\Game\Myrmes\MyrmesParameters;
 use App\Entity\Game\Myrmes\NurseMYR;
 use App\Entity\Game\Myrmes\PheromonMYR;
 use App\Entity\Game\Myrmes\PheromonTileMYR;
 use App\Entity\Game\Myrmes\PlayerMYR;
 use App\Entity\Game\Myrmes\PlayerResourceMYR;
+use App\Entity\Game\Myrmes\ResourceMYR;
 use App\Entity\Game\Myrmes\TileMYR;
 use App\Repository\Game\Myrmes\AnthillHoleMYRRepository;
 use App\Repository\Game\Myrmes\NurseMYRRepository;
@@ -19,6 +21,7 @@ use App\Repository\Game\Myrmes\PreyMYRRepository;
 use App\Repository\Game\Myrmes\ResourceMYRRepository;
 use App\Repository\Game\Myrmes\TileMYRRepository;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 
@@ -39,6 +42,36 @@ class WorkshopMYRService
                                 private readonly NurseMYRRepository $nurseMYRRepository,
                                 private readonly AnthillHoleMYRRepository $anthillHoleMYRRepository)
     {}
+
+
+    /**
+     * canPlayerDoGoal: return true if the player can do the selected goal.
+     *                  If the pheromone goal is selected, always true
+     * @param PlayerMYR $player
+     * @param GoalMYR $goal
+     * @return bool
+     * @throws Exception
+     */
+    public function canPlayerDoGoal(PlayerMYR $player, GoalMYR $goal): bool
+    {
+        $goalName = $goal->getName();
+        $goalDifficulty = $goal->getDifficulty();
+
+        return match ($goalName) {
+            MyrmesParameters::GOAL_RESOURCE_FOOD_NAME => $this->canPlayerDoFoodGoal($player, $goalDifficulty),
+            MyrmesParameters::GOAL_RESOURCE_STONE_NAME => $this->canPlayerDoStoneGoal($player, $goalDifficulty),
+            MyrmesParameters::GOAL_RESOURCE_STONE_OR_DIRT_NAME => $this->canPlayerDoStoneOrDirtGoal($player, $goalDifficulty),
+            MyrmesParameters::GOAL_LARVAE_NAME => $this->canPlayerDoLarvaeGoal($player, $goalDifficulty),
+            MyrmesParameters::GOAL_PREY_NAME => $this->canPlayerDoPreyGoal($player, $goalDifficulty),
+            MyrmesParameters::GOAL_SOLDIER_NAME => $this->canPlayerDoSoldierGoal($player, $goalDifficulty),
+            MyrmesParameters::GOAL_SPECIAL_TILE_NAME => $this->canPlayerDoSpecialTileGoal($player, $goalDifficulty),
+            MyrmesParameters::GOAL_NURSES_NAME => $this->canPlayerDoNursesGoal($player, $goalDifficulty),
+            MyrmesParameters::GOAL_ANTHILL_LEVEL_NAME => $this->canPlayerDoAnthillLevelGoal($player, $goalDifficulty),
+            MyrmesParameters::GOAL_PHEROMONE_NAME => true, // Always true, player can cancel later
+            default => throw new Exception("Goal does not exist"),
+        };
+    }
+
 
     /**
      * Manage resources and purchase about position of nurse
@@ -391,5 +424,227 @@ class WorkshopMYRService
             $this->entityManager->persist($player->getPersonalBoardMYR());
         }
         $this->entityManager->flush();
+    }
+
+    /**
+     * canPlayerDoFoodGoal: return true if the player can do a food goal with the selected difficulty
+     * @param PlayerMYR $player
+     * @param int $goalDifficulty
+     * @return bool
+     * @throws Exception
+     */
+    private function canPlayerDoFoodGoal(PlayerMYR $player, int $goalDifficulty) : bool
+    {
+        return match ($goalDifficulty) {
+            MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE =>
+                $this->getNumberOfResourcesFromSelectedType($player, MyrmesParameters::RESOURCE_TYPE_GRASS) >= 3,
+            MyrmesParameters::GOAL_DIFFICULTY_LEVEL_TWO =>
+                $this->getNumberOfResourcesFromSelectedType($player, MyrmesParameters::RESOURCE_TYPE_GRASS) >= 6,
+            default => throw new Exception("Goal difficulty invalid for food goal"),
+        };
+    }
+
+    /**
+     * canPlayerDoStoneGoal: return true if the player can do a stone goal with the selected difficulty
+     * @param PlayerMYR $player
+     * @param int $goalDifficulty
+     * @return bool
+     * @throws Exception
+     */
+    private function canPlayerDoStoneGoal(PlayerMYR $player, int $goalDifficulty) : bool
+    {
+        return match ($goalDifficulty) {
+            MyrmesParameters::GOAL_DIFFICULTY_LEVEL_TWO =>
+                $this->getNumberOfResourcesFromSelectedType($player, MyrmesParameters::RESOURCE_TYPE_STONE) >= 3,
+            MyrmesParameters::GOAL_DIFFICULTY_LEVEL_THREE =>
+                $this->getNumberOfResourcesFromSelectedType($player, MyrmesParameters::RESOURCE_TYPE_STONE) >= 6,
+            default => throw new Exception("Goal difficulty invalid for stone goal"),
+        };
+    }
+
+    /**
+     * canPlayerDoStoneOrDirtGoal: return true if the player can do a stone or dirt goal with the selected difficulty
+     * @param PlayerMYR $player
+     * @param int $goalDifficulty
+     * @return bool
+     * @throws Exception
+     */
+    private function canPlayerDoStoneOrDirtGoal(PlayerMYR $player, int $goalDifficulty) : bool
+    {
+        return match ($goalDifficulty) {
+            MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE =>
+                $this->getNumberOfResourcesFromSelectedType($player, MyrmesParameters::RESOURCE_TYPE_STONE)
+                + $this->getNumberOfResourcesFromSelectedType($player, MyrmesParameters::RESOURCE_TYPE_DIRT)
+                >= 3,
+            MyrmesParameters::GOAL_DIFFICULTY_LEVEL_THREE =>
+                $this->getNumberOfResourcesFromSelectedType($player, MyrmesParameters::RESOURCE_TYPE_STONE)
+                + $this->getNumberOfResourcesFromSelectedType($player, MyrmesParameters::RESOURCE_TYPE_DIRT)
+                >= 6,
+            default => throw new Exception("Goal difficulty invalid for stone or dirt goal"),
+        };
+    }
+
+    /**
+     * canPlayerDoLarvaeGoal: return true if the player have enough larvae to do the larvae goal with the selected
+     *                        difficulty
+     * @param PlayerMYR $player
+     * @param int $goalDifficulty
+     * @return bool
+     * @throws Exception
+     */
+    private function canPlayerDoLarvaeGoal(PlayerMYR $player, int $goalDifficulty) : bool
+    {
+        return match ($goalDifficulty) {
+            MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE =>
+                $player->getPersonalBoardMYR()->getLarvaCount() >= 5,
+            MyrmesParameters::GOAL_DIFFICULTY_LEVEL_TWO =>
+                $player->getPersonalBoardMYR()->getLarvaCount() >= 9,
+            default => throw new Exception("Goal difficulty invalid for larvae goal"),
+        };
+    }
+
+    /**
+     * canPlayerDoPreyGoal: return true if the player have enough prey to do the prey goal with the selected difficulty
+     * @param PlayerMYR $player
+     * @param int $goalDifficulty
+     * @return bool
+     * @throws Exception
+     */
+    private function canPlayerDoPreyGoal(PlayerMYR $player, int $goalDifficulty) : bool
+    {
+        return match ($goalDifficulty) {
+            MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE =>
+                $player->getPreyMYRs()->count() >= 2,
+            MyrmesParameters::GOAL_DIFFICULTY_LEVEL_TWO =>
+                $player->getPreyMYRs()->count() >= 3,
+            MyrmesParameters::GOAL_DIFFICULTY_LEVEL_THREE =>
+                $player->getPreyMYRs()->count() >= 4,
+            default => throw new Exception("Goal difficulty invalid for prey goal"),
+        };
+    }
+
+    /**
+     * canPlayerDoSoldierGoal: return true if the player have enough soldiers to do the soldier goal with the selected
+     *                         difficulty
+     * @param PlayerMYR $player
+     * @param int $goalDifficulty
+     * @return bool
+     * @throws Exception
+     */
+    private function canPlayerDoSoldierGoal(PlayerMYR $player, int $goalDifficulty) : bool
+    {
+        return match ($goalDifficulty) {
+            MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE =>
+                $player->getPersonalBoardMYR()->getWarriorsCount() >= 2,
+            default => throw new Exception("Goal difficulty invalid for soldier goal"),
+        };
+    }
+
+
+    /**
+     * canPlayerDoSpecialTileGoal: return true if the player have enough specialTile to do the specialTile goal with the
+     *                              selected difficulty
+     * @param PlayerMYR $player
+     * @param int $goalDifficulty
+     * @return bool
+     * @throws Exception
+     */
+    private function canPlayerDoSpecialTileGoal(PlayerMYR $player, int $goalDifficulty) : bool
+    {
+        return match ($goalDifficulty) {
+            MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE =>
+                $this->getSpecialTilesOfPlayer($player)->count() >= 2,
+            MyrmesParameters::GOAL_DIFFICULTY_LEVEL_TWO =>
+                $this->getSpecialTilesOfPlayer($player)->count() >= 3,
+            default => throw new Exception("Goal difficulty invalid for specialTile goal"),
+        };
+    }
+
+    /**
+     * canPlayerDoNursesGoal: return true if the player have enough nurses to do the nurses goal with the selected
+     *                        difficulty
+     * @param PlayerMYR $player
+     * @param int $goalDifficulty
+     * @return bool
+     * @throws Exception
+     */
+    private function canPlayerDoNursesGoal(PlayerMYR $player, int $goalDifficulty) : bool
+    {
+        $nursesOfPlayer = $player->getPersonalBoardMYR()->getNurses()->count();
+        return match ($goalDifficulty) {
+            MyrmesParameters::GOAL_DIFFICULTY_LEVEL_TWO =>
+                $nursesOfPlayer >= 6
+                && $nursesOfPlayer - $this->getNursesUsedInGoalFromPlayer($player)->count() >= 1,
+            MyrmesParameters::GOAL_DIFFICULTY_LEVEL_THREE =>
+                $nursesOfPlayer >= 8
+                && $nursesOfPlayer - $this->getNursesUsedInGoalFromPlayer($player)->count() >= 2,
+            default => throw new Exception("Goal difficulty invalid for nurse goal"),
+        };
+    }
+
+
+    /**
+     * canPlayerDoAnthillLevelGoal: return true if the player can do the anthill level goal with the selected difficulty
+     * @param PlayerMYR $player
+     * @param int $goalDifficulty
+     * @return bool
+     * @throws Exception
+     */
+    private function canPlayerDoAnthillLevelGoal(PlayerMYR $player, int $goalDifficulty) : bool
+    {
+        return match ($goalDifficulty) {
+            MyrmesParameters::GOAL_DIFFICULTY_LEVEL_TWO =>
+                $player->getPersonalBoardMYR()->getAnthillLevel() >= MyrmesParameters::ANTHILL_LEVEL_TWO,
+            MyrmesParameters::GOAL_DIFFICULTY_LEVEL_THREE =>
+                $player->getPersonalBoardMYR()->getAnthillLevel() >= MyrmesParameters::ANTHILL_LEVEL_THREE,
+            default => throw new Exception("Goal difficulty invalid for anthill level goal"),
+        };
+    }
+
+
+    /**
+     * getNumberOfResourcesFromSelectedType: return the number of resources of the player from the selected type
+     * @param PlayerMYR $player
+     * @param string $selectedType
+     * @return int
+     */
+    private function getNumberOfResourcesFromSelectedType(PlayerMYR $player, string $selectedType) : int
+    {
+        return $player->getPersonalBoardMYR()->getPlayerResourceMYRs()
+            ->filter(
+                function (PlayerResourceMYR $resourceMYR) use ($selectedType) {
+                    return $resourceMYR->getResource()->getDescription() == $selectedType;
+                }
+            )->first()->getQuantity();
+    }
+
+    /**
+     * getSpecialTilesOfPlayer: return the special tiles of the player
+     * @param PlayerMYR $player
+     * @return Collection<PheromonMYR>
+     */
+    private function getSpecialTilesOfPlayer(PlayerMYR $player) : Collection
+    {
+        return $player->getPheromonMYRs()->filter(
+            function (PheromonMYR $pheromone) {
+                return $pheromone->getType()->getType() == MyrmesParameters::SPECIAL_TILE_TYPE_FARM
+                    || $pheromone->getType()->getType() == MyrmesParameters::SPECIAL_TILE_TYPE_QUARRY
+                    || $pheromone->getType()->getType() == MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL;
+            }
+        );
+    }
+
+    /**
+     * getNursesUsedInGoalFromPlayer: return the nurses used to complete goal by the player
+     * @param PlayerMYR $player
+     * @return Collection
+     */
+    private function getNursesUsedInGoalFromPlayer(PlayerMYR $player): Collection
+    {
+        return $player->getPersonalBoardMYR()->getNurses()->filter(
+            function (NurseMYR $nurseMYR) {
+                return $nurseMYR->getArea() == MyrmesParameters::GOAL_AREA;
+            }
+        );
     }
 }
