@@ -42,9 +42,27 @@ class WinterMYRServiceTest extends TestCase
         $playerFood = new PlayerResourceMYR();
         $playerFood->setResource($food);
         $playerFood->setQuantity(4);
+        $playerMYRRepository = $this->getMockBuilder(PlayerMYRRepository::class)
+            ->setConstructorArgs([$managerRegistry])
+            ->getMock();
+        $nurseMYRRepository = $this->getMockBuilder(NurseMYRRepository::class)
+            ->setConstructorArgs([$managerRegistry])
+            ->getMock();
+        $tileMYRRepository = $this->getMockBuilder(TileMYRRepository::class)
+            ->setConstructorArgs([$managerRegistry])
+            ->getMock();
+        $tileTypeMYRRepository = $this->getMockBuilder(TileTypeMYRRepository::class)
+            ->setConstructorArgs([$managerRegistry])
+            ->getMock();
+        $seasonMYRRepository = $this->getMockBuilder(SeasonMYRRepository::class)
+            ->setConstructorArgs([$managerRegistry])
+            ->getMock();
+        $myrService = new MYRService($playerMYRRepository, $entityManager, $nurseMYRRepository,
+            $tileMYRRepository, $tileTypeMYRRepository, $seasonMYRRepository,
+            $resourceMYRRepository, $playerResourceMYRRepository );
         $playerResourceMYRRepository->method("findOneBy")->willReturn($playerFood);
         $this->winterMYRService = new WinterMYRService($entityManager, $resourceMYRRepository,
-            $playerResourceMYRRepository);
+            $playerResourceMYRRepository, $myrService);
     }
 
     public function testRetrievePointsDuringYearOneAndNoWarriors() : void
