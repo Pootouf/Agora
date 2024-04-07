@@ -13,54 +13,51 @@ Liste des utilisateurs
         <h1 class="text-3xl">Utilisateurs</h1>
     </div>
     <div class="px-3 py-4 flex justify-center">
-        <div class="border rounded border-gray-300"> {# Ajout de la bordure autour de la table #}
-            <table class="w-full text-md bg-white shadow-md rounded mb-4 border-b-2 border-gray-300"> {# Ajout de la classe de marge inférieure à la table #}
-                <tbody>
-                    <tr>
-                        <th class="text-left p-3 px-5">Identifiant</th>
-                        <th class="text-left p-3 px-5">Email</th>
-                        <th class="text-left p-3 px-5">Mot de passe</th>
-                        <th class="text-left p-3 px-5">Rôle</th>
-                        <th class="text-center p-3 px-5">Action</th>
-                    </tr>
-                    {% for user in users %}
-                    <tr class="border-b hover:bg-orange-100 bg-gray-100">
-                        <td class="p-3 px-5">
-                            <input type="text" value="{{ user.username }}" class="bg-transparent border-b-2 border-gray-300 py-2">
-                        </td>
-                        <td class="p-3 px-5">
-                            <input type="text" value="{{ user.email }}" class="bg-transparent border-b-2 border-gray-300 py-2">
-                        </td>
-                        <td class="p-3 px-5">
-                            <input type="password" value="" class="bg-transparent border-b-2 border-gray-300 py-2"> {# Champ d'entrée pour le mot de passe #}
-                        </td>
-                        <td class="p-3 px-5">
-                            <select class="bg-transparent border-b-2 border-gray-300 py-2">
-                                {% set currentRole = user.roles[0]|replace({'ROLE_USER': 'Utilisateur', 'ROLE_MODER': 'Modérateur', 'ROLE_ADMIN': 'Administrateur'}) %}
-                                <option value="{{ user.roles[0] }}">{{ currentRole }}</option> {# Afficher le rôle actuel comme première option #}
-                                {% for role in ['Utilisateur', 'Modérateur', 'Administrateur'] %}
-                                    {% if role != currentRole %}
-                                        <option value="{{ 'ROLE_' ~ role }}">{{ role }}</option> {# Afficher les autres options de rôle non incluses dans le rôle actuel de l'utilisateur #}
-                                    {% endif %}
-                                {% endfor %}
-                            </select>
-                        </td>
-                        <td class="p-3 px-5 flex justify-end">
-                            {# Remplacer les boutons par des liens #}
-                            <a href="#" class="text-white bg-primary hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold rounded-lg text-sm px-4 py-2 text-center me-2 mb-2">
-                                Sauvegarder
-                            </a>
-                            <a href="#" class="text-white bg-red-500 hover:bg-red-400 focus:ring-4 focus:outline-none focus:ring-red-300 font-semibold rounded-lg text-sm px-4 py-2 text-center me-2 mb-2">
-                                Bannir
-                            </a>
-                            <a href="#" class="text-white bg-red-500 hover:bg-red-400 focus:ring-4 focus:outline-none focus:ring-red-300 font-semibold rounded-lg text-sm px-4 py-2 text-center me-2 mb-2">
-                                Supprimer
-                            </a>
-                        </td>
-                    </tr>
+        <div class="border-gray-300"> {# Ajout de la bordure autour de la table #}
+            <table class="w-full text-md bg-white shadow-md rounded mb-4 border-b-4 border-gray-300">
+    <tbody>
+        <tr>
+            <th class="text-left p-3 px-5">Identifiant</th>
+            <th class="text-left p-3 px-5">Email</th>
+            <th class="text-left p-3 px-5">Mot de passe</th>
+            <th class="text-left p-3 px-5">Rôle</th>
+            <th class="text-center p-3 px-5">Action</th>
+        </tr>
+        {% for user in users %}
+        <tr class="border-b hover:bg-orange-100 bg-gray-100">
+            <td class="p-3 px-5">
+                <input type="text" value="{{ user.username }}" class="bg-transparent border-b-2 border-gray-300 py-2">
+            </td>
+            <td class="p-3 px-5">
+                <input type="text" value="{{ user.email }}" class="bg-transparent border-b-2 border-gray-300 py-2">
+            </td>
+            <td class="p-3 px-5">
+                <input type="password" value="" class="bg-transparent border-b-2 border-gray-300 py-2">
+            </td>
+            <td class="p-3 px-5">
+                <select class="bg-transparent border-b-2 border-gray-300 py-2">
+                    {% set currentRole = user.roles[0]|replace({'ROLE_USER': 'Utilisateur', 'ROLE_MODER': 'Modérateur', 'ROLE_ADMIN': 'Administrateur'}) %}
+                    <option value="{{ user.roles[0] }}">{{ currentRole }}</option>
+                    {% for role in ['Utilisateur', 'Modérateur', 'Administrateur'] %}
+                        {% if role != currentRole %}
+                            <option value="{{ 'ROLE_' ~ role }}">{{ role }}</option>
+                        {% endif %}
                     {% endfor %}
-                </tbody>
-            </table>
+                </select>
+            </td>
+            <td class="p-3 px-5 flex justify-end">
+                <a href="#" class="text-white bg-primary hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold rounded-lg text-sm px-4 py-2 text-center me-2 mb-2">
+                    Sauvegarder
+                </a>
+                <a href="#" class="text-white bg-red-500 hover:bg-red-400 focus:ring-4 focus:outline-none focus:ring-red-300 font-semibold rounded-lg text-sm px-4 py-2 text-center me-2 mb-2">
+                    Supprimer
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
         </div>
     </div>
 </div>
