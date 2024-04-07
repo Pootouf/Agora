@@ -4,12 +4,13 @@ namespace App\Entity\Game\Myrmes;
 
 interface MyrmesParameters
 {
-    // GAME
 
+    // GAME
     // MIN AND MAX NUMBER OF PLAYER
 
     const int MAX_NUMBER_OF_PLAYER = 4;
     const int MIN_NUMBER_OF_PLAYER = 2;
+
 
     // Player phases
 
@@ -20,9 +21,11 @@ interface MyrmesParameters
     const int PHASE_WORKSHOP = 4;
     const int PHASE_WINTER = 5;
 
+
     // Player color
 
     const array PLAYERS_COLORS = ['blue', 'yellow', 'red', 'gray'];
+
 
     // Area's for nurses
 
@@ -40,10 +43,12 @@ interface MyrmesParameters
     const int WORKSHOP_LEVEL_AREA = 3;
     const int WORKSHOP_NURSE_AREA = 4;
 
+
     //Nurses parameters
 
     const int START_NURSES_COUNT_PER_PLAYER = 3;
     const int MAX_NURSES_COUNT_PER_PLAYER = 8;
+
 
     // Win by area's nurses
 
@@ -63,26 +68,30 @@ interface MyrmesParameters
         4 => 2
     );
 
+
     // Events bonus
 
     const int BONUS_LEVEL = 0;
     const int BONUS_POINT = 1;
-    const  int BONUS_LARVAE = 2;
+    const int BONUS_LARVAE = 2;
     const int BONUS_HARVEST = 3;
     const int BONUS_MOVEMENT = 4;
     const int BONUS_WARRIOR = 5;
     const int BONUS_PHEROMONE = 6;
     const int BONUS_WORKER = 7;
 
+
     // Bonus harvested pheromone
 
     const int HARVESTED_TILE_BONUS = 3;
+
 
     // Years
 
     const int FIRST_YEAR_NUM = 1;
     const int SECOND_YEAR_NUM = 2;
     const int THIRD_YEAR_NUM = 3;
+
 
     // Seasons
 
@@ -97,6 +106,7 @@ interface MyrmesParameters
     const int WAREHOUSE_LOCATIONS_AVAILABLE_ANTHILL_LEVEL_LESS_THAN_2 = 4;
     const int WAREHOUSE_LOCATIONS_AVAILABLE_ANTHILL_LEVEL_AT_LEAST_2 = 6;
 
+
     // TILE TYPES
 
     const string WATER_TILE_TYPE = "water";
@@ -104,6 +114,7 @@ interface MyrmesParameters
     const string MUSHROOM_TILE_TYPE = "mushroom";
     const string STONE_TILE_TYPE = "stone";
     const string GRASS_TILE_TYPE = "grass";
+
 
     // Buy for add anthill level
 
@@ -120,6 +131,7 @@ interface MyrmesParameters
         "stone" => 3
     );
 
+
     // Pheromone Level
 
     const int PHEROMONE_LEVEL_ZERO = 0;
@@ -127,6 +139,7 @@ interface MyrmesParameters
     const int PHEROMONE_LEVEL_FOUR = 4;
     const int PHEROMONE_LEVEL_SIX = 6;
     const int PHEROMONE_LEVEL_EIGHT = 8;
+
 
     // Pheromone Type
 
@@ -138,9 +151,11 @@ interface MyrmesParameters
     const int PHEROMONE_TYPE_FIVE = 5;
     const int PHEROMONE_TYPE_SIX = 6;
 
+
     // Pheromone Amount
 
     const array PHEROMONE_TYPE_AMOUNT = [6, 2, 2, 2, 2, 2, 1];
+
 
     // Pheromone Type Level
 
@@ -154,6 +169,7 @@ interface MyrmesParameters
         6 => 8
     ];
 
+
     // Special tiles
 
     // Special tiles Type
@@ -162,6 +178,7 @@ interface MyrmesParameters
     const int SPECIAL_TILE_TYPE_QUARRY = 8;
     const int SPECIAL_TILE_TYPE_SUBANTHILL = 9;
 
+
     // Special tiles amount
     const array SPECIAL_TILE_TYPE_AMOUNT = [
         7 => 4,
@@ -169,12 +186,14 @@ interface MyrmesParameters
         9 => 8
     ];
 
+
     // Special tiles level
     const array SPECIAL_TILES_TYPE_LEVEL = [
         7 => 2,
         8 => 2,
         9 => 4
     ];
+
 
     // Direction's tiles
 
@@ -184,6 +203,7 @@ interface MyrmesParameters
     const int DIRECTION_SOUTH_EAST = 4;
     const int DIRECTION_SOUTH_WEST = 5;
     const int DIRECTION_WEST = 6;
+
 
     // Prey Types
 
@@ -199,6 +219,7 @@ interface MyrmesParameters
     // Prey Position
     const array PREY_POSITIONS = [[1, 6], [1, 18], [4, 9], [4, 15], [5, 12], [6, 9], [6, 15], [7, 0], [7, 6],
         [7, 18], [7, 24], [8, 9], [8, 15], [9, 12], [10, 9], [10, 15], [13, 6], [13, 18]];
+
 
     //Player start data
     const int NUMBER_OF_WORKER_AT_START = 2;
@@ -230,6 +251,7 @@ interface MyrmesParameters
     );
 
 
+
     //Anthill hole start position
     const array ANTHILL_HOLE_POSITION_BY_NUMBER_OF_PLAYER = [
         2 => [[11, 6], [11, 18]],
@@ -239,14 +261,15 @@ interface MyrmesParameters
 
 
     // Max anthill holes number by player
-
     const int MAX_ANTHILL_HOLE_NB = 4;
+
 
     //Excluded tile with 2 players
     const array EXCLUDED_TILES_2_PLAYERS = [
         [7, 0], [8, 1], [9, 0], [9, 2], [10, 1], [10, 3], [11, 2], [11, 4], [12, 3], [12, 5], [13, 6],
         [7, 24], [8, 23], [9, 24], [9, 22], [10, 23], [10, 21], [11, 22], [11, 20], [12, 21], [12, 19], [13, 18]
     ];
+
 
     // Resources Type
 
@@ -255,11 +278,13 @@ interface MyrmesParameters
     const string RESOURCE_TYPE_GRASS = "grass";
     const string RESOURCE_TYPE_LARVAE = "larvae";
 
+
     // Goal Difficulty
 
     const int GOAL_DIFFICULTY_LEVEL_ONE = 1;
     const int GOAL_DIFFICULTY_LEVEL_TWO = 2;
     const int GOAL_DIFFICULTY_LEVEL_THREE = 3;
+
 
     // Goal Points
 
@@ -270,7 +295,14 @@ interface MyrmesParameters
 
     // Anthill Level
 
-    public const int ANTHILL_LEVEL_ONE = 1;
-    public const int ANTHILL_LEVEL_TWO = 2;
-    public const int ANTHILL_LEVEL_THREE = 3;
+    const int ANTHILL_LEVEL_ONE = 1;
+    const int ANTHILL_LEVEL_TWO = 2;
+    const int ANTHILL_LEVEL_THREE = 3;
+
+    // Garden worker parameters
+    const int DEFAULT_MOVEMENT_NUMBER = 3;
+
+
+    // Anthill worker parameters
+    const int NO_WORKFLOOR = -1;
 }

@@ -120,11 +120,11 @@ class MYRService
     }
 
     /**
-     * getPhermononesFromType : returns all orientations of a pheremone or special tile from a type
+     * getPheromonesFromType : returns all orientations of a pheremone or special tile from a type
      * @param int $type
      * @return ArrayCollection<Int, TileTypeMYR>
      */
-    public function getPhermononesFromType(int $type) : ArrayCollection
+    public function getPheromonesFromType(int $type) : ArrayCollection
     {
         return new ArrayCollection($this->tileTypeMYRRepository->findBy(
             ["type" => $type]
@@ -365,7 +365,7 @@ class MYRService
         $worker = new AnthillWorkerMYR();
         $worker->setPlayer($player);
         $worker->setPersonalBoardMYR($player->getPersonalBoardMYR());
-        $worker->setWorkFloor(0);
+        $worker->setWorkFloor(MyrmesParameters::NO_WORKFLOOR);
         $this->entityManager->persist($worker);
     }
 
