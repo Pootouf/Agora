@@ -53,6 +53,16 @@ export default class extends Controller  {
 
     //throw resources from storage
 
+    async selectPlayerResourceToThrow(playerResource) {
+        let url = playerResource.params.url;
+        const response = await fetch(url);
+        let tree = document.getElementById("index_myrmes");
+        let placeholder = document.createElement("div");
+        placeholder.innerHTML = await response.text();
+        const node = placeholder.firstElementChild;
+        tree.appendChild(node);
+    }
+
     async throwResourceFromWarehouse(resource) {
         let url = resource.params.url;
         await fetch(url);

@@ -39,7 +39,10 @@ This section displays the storage of the player
                                 {% else %}
                                     bg-[#00000099]
                                 {% endif %}"
-                            {{ stimulus_action('myrmes','throwResourceFromWarehouse','click') }}
+                            {{ stimulus_action('myrmes','selectPlayerResourceToThrow','click',
+                                {url: path('app_game_myrmes_display_throw_resource_actions',
+                                    {id: game.id, playerResourceId: resourcePlayer.id})})
+                            }}
                     >
                         <img class="size-full"
                              src="{{ asset('resourcesGames/Myrmes/resources/' ~
@@ -52,7 +55,6 @@ This section displays the storage of the player
         {% if count < 6 %}
             {% for i in count+1..6 %}
                 <div
-                        type="button"
                         class="relative
                                         {% if isPreview %}
                                             w-[1vw] h-[1vw]

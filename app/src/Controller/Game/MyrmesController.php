@@ -8,6 +8,7 @@ use App\Entity\Game\Myrmes\MyrmesParameters;
 use App\Entity\Game\Myrmes\PheromonTileMYR;
 use App\Entity\Game\Myrmes\PlayerMYR;
 use App\Entity\Game\Myrmes\PlayerResourceMYR;
+use App\Entity\Game\Myrmes\ResourceMYR;
 use App\Entity\Game\Myrmes\TileMYR;
 use App\Service\Game\LogService;
 use App\Service\Game\Myrmes\BirthMYRService;
@@ -178,6 +179,24 @@ class MyrmesController extends AbstractController
             'selectedBox' => $boardBox,
             'needToPlay' => true, //$player == null ? false : $player->isTurnOfPlayer(),
             'playerPhase' => $player->getPhase()
+        ]);
+
+    }
+
+    #[Route('/game/myrmes/{id}/display/personalBoard/throwResource/{playerResourceId}/actions',
+        name: 'app_game_myrmes_display_throw_resource_actions')]
+    public function displayThrowResourceActions(
+        #[MapEntity(id: 'id')] GameMYR $game,
+        #[MapEntity(id: 'playerResourceId')] PlayerResourceMYR $playerResourceMYR): Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+        }
+        return $this->render('Game/Myrmes/PersonalBoard/ActionsMenu/throwResourceMenu.html.twig', [
+            'game' => $game,
+            'player' => $player,
+            'selectedPlayerResource' => $playerResourceMYR
         ]);
 
     }
