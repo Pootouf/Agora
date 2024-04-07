@@ -82,6 +82,13 @@ export default class extends Controller  {
         await fetch(url)
     }
 
+    async endHarvestPhase(endingPhase) {
+        let url = endingPhase.params.url;
+        await fetch(url)
+    }
+
+    // dynamic display
+
     async showPersonalBoard(main)  {
         let url = main.params.url;
         const response = await fetch(url);
