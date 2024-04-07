@@ -7,6 +7,7 @@ stages:
   - splendor
   - glenmore
   - myrmes
+  - report
   - sonarqube
   - deploy
 
@@ -54,18 +55,20 @@ variables:
 
 
 .cleanReport: &cleanReport
-  #FIX Cobertura report
-  - sed -i 's;filename=";filename="app/src/;g' coverage-cobertura/$COBERTURA_REPORT
-  - sed -i "s;/builds/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}/app/src;;g" coverage-cobertura/$COBERTURA_REPORT
   #FIX Junit report
   - sed -i "s;/builds/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}/;;g" reports/$JUNIT_REPORT
 
-.publishReport: &publishReport
-  reports:
-    junit: app/reports/$JUNIT_REPORT
-    coverage_report:
-      coverage_format: cobertura
-      path: app/coverage-cobertura/$COBERTURA_REPORT
+
+.publishArtifactsForReports: &publishArtifactsForReports
+  coverage: /^\s*Lines:\s*\d+.\d+\%/
+  artifacts:
+    paths:
+      - app/coverage/*
+      - app/coverage-cobertura/*
+    reports:
+      junit: app/reports/$JUNIT_REPORT
+    expire_in: 30 min
+
 
 deploy:dev_game:
   <<: *deploy
@@ -106,15 +109,9 @@ unitFactory:
     - *cleanReport
   allow_failure: false
   environment: test
-  artifacts:
-    paths:
-      - app/coverage/*
-    <<: *publishReport
-    expire_in: 30 min
-  coverage: /^\s*Lines:\s*\d+.\d+\%/
+  <<: *publishArtifactsForReports
   variables:
     JUNIT_REPORT: phpUnitFactory.xml
-    COBERTURA_REPORT: coverageUnitFactory.xml
 
 integrationFactory:
   needs: [build]
@@ -133,15 +130,9 @@ integrationFactory:
   services:
     - name: mariadb:10.11.2
       alias: database
-  artifacts:
-    paths:
-      - app/coverage/*
-    <<: *publishReport
-    expire_in: 30 min
-  coverage: /^\s*Lines:\s*\d+.\d+\%/
+  <<: *publishArtifactsForReports
   variables:
     JUNIT_REPORT: phpIntegrationFactory.xml
-    COBERTURA_REPORT: coverageIntegrationFactory.xml
 
 unit6QP:
   needs: [build]
@@ -151,15 +142,9 @@ unit6QP:
     - *cleanReport
   allow_failure: false
   environment: test
-  artifacts:
-    paths:
-      - app/coverage/*
-    <<: *publishReport
-    expire_in: 30 min
-  coverage: /^\s*Lines:\s*\d+.\d+\%/
+  <<: *publishArtifactsForReports
   variables:
     JUNIT_REPORT: phpUnit6QP.xml
-    COBERTURA_REPORT: coverageUnit6QP.xml
 
 integration6QP:
   needs : [build]
@@ -178,12 +163,7 @@ integration6QP:
   services:
     - name: mariadb:10.11.2
       alias: database
-  artifacts:
-    paths:
-      - app/coverage/*
-    <<: *publishReport
-    expire_in: 30 min
-  coverage: /^\s*Lines:\s*\d+.\d+\%/
+  <<: *publishArtifactsForReports
   variables:
     JUNIT_REPORT: phpIntegration6QP.xml
     COBERTURA_REPORT: coverageIntegration6QP.xml
@@ -208,12 +188,7 @@ application6QP:
       alias: database
     - name: dunglas/mercure:latest
       alias: mercure
-  artifacts:
-    paths:
-      - app/coverage/*
-    <<: *publishReport
-    expire_in: 30 min
-  coverage: /^\s*Lines:\s*\d+.\d+\%/
+  <<: *publishArtifactsForReports
   variables:
     JUNIT_REPORT: phpApp6QP.xml
     COBERTURA_REPORT: coverageApp6QP.xml
@@ -226,12 +201,7 @@ unitSplendor:
     - *cleanReport
   allow_failure: false
   environment: test
-  artifacts:
-    paths:
-      - app/coverage/*
-    <<: *publishReport
-    expire_in: 30 min
-  coverage: /^\s*Lines:\s*\d+.\d+\%/
+  <<: *publishArtifactsForReports
   variables:
     JUNIT_REPORT: phpUnitSplendor.xml
     COBERTURA_REPORT: coverageUnitSplendor.xml
@@ -253,12 +223,7 @@ integrationSplendor:
   services:
     - name: mariadb:10.11.2
       alias: database
-  artifacts:
-    paths:
-      - app/coverage/*
-    <<: *publishReport
-    expire_in: 30 min
-  coverage: /^\s*Lines:\s*\d+.\d+\%/
+  <<: *publishArtifactsForReports
   variables:
     JUNIT_REPORT: phpIntegrationSplendor.xml
     COBERTURA_REPORT: coverageIntegrationSplendor.xml
@@ -282,12 +247,7 @@ applicationSplendor:
       alias: database
     - name: dunglas/mercure:latest
       alias: mercure
-  artifacts:
-    paths:
-      - app/coverage/*
-    <<: *publishReport
-    expire_in: 30 min
-  coverage: /^\s*Lines:\s*\d+.\d+\%/
+  <<: *publishArtifactsForReports
   variables:
     JUNIT_REPORT: phpAppSplendor.xml
     COBERTURA_REPORT: coverageAppSplendor.xml
@@ -300,12 +260,7 @@ unitGlenmore:
     - *cleanReport
   allow_failure: false
   environment: test
-  artifacts:
-    paths:
-      - app/coverage/*
-    <<: *publishReport
-    expire_in: 30 min
-  coverage: /^\s*Lines:\s*\d+.\d+\%/
+  <<: *publishArtifactsForReports
   variables:
     JUNIT_REPORT: phpUnitGlenmore.xml
     COBERTURA_REPORT: coverageUnitGlenmore.xml
@@ -327,12 +282,7 @@ integrationGlenmore:
   services:
     - name: mariadb:10.11.2
       alias: database
-  artifacts:
-    paths:
-      - app/coverage/*
-    <<: *publishReport
-    expire_in: 30 min
-  coverage: /^\s*Lines:\s*\d+.\d+\%/
+  <<: *publishArtifactsForReports
   variables:
     JUNIT_REPORT: phpIntegrationGlenmore.xml
     COBERTURA_REPORT: coverageIntegrationGlenmore.xml
@@ -356,12 +306,7 @@ applicationGlenmore:
       alias: database
     - name: dunglas/mercure:latest
       alias: mercure
-  artifacts:
-    paths:
-      - app/coverage/*
-    <<: *publishReport
-    expire_in: 30 min
-  coverage: /^\s*Lines:\s*\d+.\d+\%/
+  <<: *publishArtifactsForReports
   variables:
     JUNIT_REPORT: phpAppGlenmore.xml
     COBERTURA_REPORT: coverageAppGlenmore.xml
@@ -374,12 +319,7 @@ unitMyrmes:
     - *cleanReport
   allow_failure: false
   environment: test
-  artifacts:
-    paths:
-      - app/coverage/*
-    <<: *publishReport
-    expire_in: 30 min
-  coverage: /^\s*Lines:\s*\d+.\d+\%/
+  <<: *publishArtifactsForReports
   variables:
     JUNIT_REPORT: phpUnitMyrmes.xml
     COBERTURA_REPORT: coverageUnitMyrmes.xml
@@ -401,15 +341,33 @@ integrationMyrmes:
   services:
     - name: mariadb:10.11.2
       alias: database
-  artifacts:
-    paths:
-      - app/coverage/*
-    <<: *publishReport
-    expire_in: 30 min
-  coverage: /^\s*Lines:\s*\d+.\d+\%/
+  <<: *publishArtifactsForReports
   variables:
     JUNIT_REPORT: phpIntegrationMyrmes.xml
     COBERTURA_REPORT: coverageIntegrationMyrmes.xml
+
+
+report:
+  stage: report
+  before_script:
+    - cd app
+  script:
+    - |+
+      for file in coverage-cobertura/*.xml 
+      do 
+        #FIX Cobertura report
+        sed -i 's;filename=";filename="app/src/;g' coverage-cobertura/$COBERTURA_REPORT
+        sed -i "s;/builds/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}/app/src;;g" coverage-cobertura/$COBERTURA_REPORT
+      done
+  allow_failure: false
+  coverage: /^\s*Lines:\s*\d+.\d+\%/
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: app/coverage-cobertura/*.xml
+
+
 
 sonarqube-check:
   stage: sonarqube
