@@ -144,6 +144,15 @@ class MYRGameManagerService extends AbstractGameManagerService
         foreach ($game->getMainBoardMYR()->getPreys() as $prey) {
             $this->entityManager->remove($prey);
         }
+        foreach ($game->getMainBoardMYR()->getGameGoalsLevelOne() as $goal) {
+            $this->entityManager->remove($goal);
+        }
+        foreach ($game->getMainBoardMYR()->getGameGoalsLevelTwo() as $goal) {
+            $this->entityManager->remove($goal);
+        }
+        foreach ($game->getMainBoardMYR()->getGameGoalsLevelThree() as $goal) {
+            $this->entityManager->remove($goal);
+        }
         $this->entityManager->remove($game->getMainBoardMYR());
         $this->logService->sendSystemLog($game, "la partie " . $game->getId() . " a pris fin");
         $this->entityManager->remove($game);

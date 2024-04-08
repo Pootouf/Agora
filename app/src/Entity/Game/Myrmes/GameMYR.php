@@ -11,7 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: GameMYRRepository::class)]
 class GameMYR extends Game
 {
-    #[ORM\OneToOne(inversedBy: 'gameMYR', cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(targetEntity: PlayerMYR::class)]
     #[ORM\JoinColumn(nullable: true)]
     private ?PlayerMYR $firstPlayer = null;
 
