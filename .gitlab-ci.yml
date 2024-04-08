@@ -469,6 +469,10 @@ integrationMyrmes:
 
 report:
   stage: report
+  only:
+    - develop-game
+    - preprod
+    - main
   before_script:
     - cd app
     - rm composer.lock
