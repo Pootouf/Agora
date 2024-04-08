@@ -159,7 +159,7 @@ unit6QP:
   needs: [build]
   stage: sixqp
   script:
-    - php bin/phpunit --configuration phpUnitConfig/phpunit6QP.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageUnit6QP.xml --log-junit reports/phpUnit6QP.xml --coverage-php coverage/coverageUnit6QP.php --colors=never tests/Game/SixQP/Unit
+    - php bin/phpunit --configuration phpUnitConfig/phpunit6QP_no_controller.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageUnit6QP.xml --log-junit reports/phpUnit6QP.xml --coverage-php coverage/coverageUnit6QP.php --colors=never tests/Game/SixQP/Unit
     - *cleanReport
   allow_failure: false
   environment: test
@@ -187,7 +187,7 @@ integration6QP:
   script:
     - symfony console --env=test doctrine:migrations:migrate
     - symfony console doctrine:fixtures:load --env=test -n --append
-    - php bin/phpunit --configuration phpUnitConfig/phpunit6QP.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageIntegration6QP.xml --log-junit reports/phpIntegration6QP.xml --coverage-php coverage/coverageIntegration6QP.php --colors=never tests/Game/SixQP/Integration
+    - php bin/phpunit --configuration phpUnitConfig/phpunit6QP_no_controller.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageIntegration6QP.xml --log-junit reports/phpIntegration6QP.xml --coverage-php coverage/coverageIntegration6QP.php --colors=never tests/Game/SixQP/Integration
     - *cleanReport
   allow_failure: false
   environment: test
@@ -246,7 +246,7 @@ unitSplendor:
   needs: [build]
   stage: splendor
   script:
-    - php bin/phpunit --configuration phpUnitConfig/phpunitSplendor.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageUnitSplendor.xml --log-junit reports/phpUnitSplendor.xml --coverage-php coverage/coverageUnitSplendor.php --colors=never tests/Game/Splendor/Unit
+    - php bin/phpunit --configuration phpUnitConfig/phpunitSplendor_no_controller.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageUnitSplendor.xml --log-junit reports/phpUnitSplendor.xml --coverage-php coverage/coverageUnitSplendor.php --colors=never tests/Game/Splendor/Unit
     - *cleanReport
   allow_failure: false
   environment: test
@@ -274,7 +274,7 @@ integrationSplendor:
   script:
     - symfony console --env=test doctrine:migrations:migrate
     - symfony console doctrine:fixtures:load --env=test -n --append
-    - php bin/phpunit --configuration phpUnitConfig/phpunitSplendor.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageIntegrationSplendor.xml --log-junit reports/phpIntegrationSplendor.xml --coverage-php coverage/coverageIntegrationSplendor.php --colors=never tests/Game/Splendor/Integration
+    - php bin/phpunit --configuration phpUnitConfig/phpunitSplendor_no_controller.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageIntegrationSplendor.xml --log-junit reports/phpIntegrationSplendor.xml --coverage-php coverage/coverageIntegrationSplendor.php --colors=never tests/Game/Splendor/Integration
     - *cleanReport
   allow_failure: false
   environment: test
@@ -332,7 +332,7 @@ unitGlenmore:
   needs: [build]
   stage: glenmore
   script:
-    - php bin/phpunit --configuration phpUnitConfig/phpunitGlenmore.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageUnitGlenmore.xml --log-junit reports/phpUnitGlenmore.xml --coverage-php coverage/coverageUnitGlenmore.php --colors=never tests/Game/Glenmore/Unit
+    - php bin/phpunit --configuration phpUnitConfig/phpunitGlenmore_no_controller.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageUnitGlenmore.xml --log-junit reports/phpUnitGlenmore.xml --coverage-php coverage/coverageUnitGlenmore.php --colors=never tests/Game/Glenmore/Unit
     - *cleanReport
   allow_failure: false
   environment: test
@@ -360,7 +360,7 @@ integrationGlenmore:
   script:
     - symfony console --env=test doctrine:migrations:migrate
     - symfony console doctrine:fixtures:load --env=test -n --append
-    - php bin/phpunit --configuration phpUnitConfig/phpunitGlenmore.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageIntegrationGlenmore.xml --log-junit reports/phpIntegrationGlenmore.xml --coverage-php coverage/coverageIntegrationGlenmore.php --colors=never tests/Game/Glenmore/Integration
+    - php bin/phpunit --configuration phpUnitConfig/phpunitGlenmore_no_controller.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageIntegrationGlenmore.xml --log-junit reports/phpIntegrationGlenmore.xml --coverage-php coverage/coverageIntegrationGlenmore.php --colors=never tests/Game/Glenmore/Integration
     - *cleanReport
   allow_failure: false
   environment: test
@@ -418,7 +418,7 @@ unitMyrmes:
   needs: [build]
   stage: myrmes
   script:
-    - php bin/phpunit --configuration phpUnitConfig/phpunitMyrmes.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageUnitMyrmes.xml --log-junit reports/phpUnitMyrmes.xml --coverage-php coverage/coverageUnitMyrmes.php --colors=never tests/Game/Myrmes/Unit
+    - php bin/phpunit --configuration phpUnitConfig/phpunitMyrmes_no_controller.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageUnitMyrmes.xml --log-junit reports/phpUnitMyrmes.xml --coverage-php coverage/coverageUnitMyrmes.php --colors=never tests/Game/Myrmes/Unit
     - *cleanReport
   allow_failure: false
   environment: test
@@ -446,7 +446,7 @@ integrationMyrmes:
   script:
     - symfony console --env=test doctrine:migrations:migrate
     - symfony console doctrine:fixtures:load --env=test -n --append
-    - php bin/phpunit --configuration phpUnitConfig/phpunitMyrmes.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageIntegrationMyrmes.xml --log-junit reports/phpIntegrationMyrmes.xml --coverage-php coverage/coverageIntegrationMyrmes.php --colors=never tests/Game/Myrmes/Integration
+    - php bin/phpunit --configuration phpUnitConfig/phpunitMyrmes_no_controller.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageIntegrationMyrmes.xml --log-junit reports/phpIntegrationMyrmes.xml --coverage-php coverage/coverageIntegrationMyrmes.php --colors=never tests/Game/Myrmes/Integration
     - *cleanReport
   allow_failure: false
   environment: test
