@@ -865,32 +865,17 @@ class WorkerMYRService
     private function canChoosePheromone(PlayerMYR $player, TileTypeMYR $tileType, int $pheromoneCount) : bool
     {
         $anthillLevel = $player->getPersonalBoardMYR()->getAnthillLevel();
-        if($tileType->getType() == MyrmesParameters::PHEROMONE_TYPE_ZERO) {
-            $pheromoneSize = 2;
-        } else {
-            if($tileType->getType() == MyrmesParameters::PHEROMONE_TYPE_ONE ||
-                $tileType->getType() == MyrmesParameters::PHEROMONE_TYPE_TWO ||
-                $tileType->getType() == MyrmesParameters::SPECIAL_TILE_TYPE_FARM ||
-                $tileType->getType() == MyrmesParameters::SPECIAL_TILE_TYPE_QUARRY) {
-                $pheromoneSize = 3;
-            } else {
-                if($tileType->getType() == MyrmesParameters::PHEROMONE_TYPE_THREE ||
-                    $tileType->getType() == MyrmesParameters::PHEROMONE_TYPE_FOUR ||
-                    $tileType->getType() == MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL) {
-                    $pheromoneSize = 4;
-                } else {
-                    if($tileType->getType() == MyrmesParameters::PHEROMONE_TYPE_FIVE) {
-                        $pheromoneSize = 5;
-                    } else {
-                        if($tileType->getType() == MyrmesParameters::PHEROMONE_TYPE_SIX) {
-                            $pheromoneSize = 6;
-                        } else {
-                            throw new Exception("pheromone type unknown");
-                        }
-                    }
-                }
-            }
-        }
+        $pheromoneSize = match ($tileType->getType()) {
+            MyrmesParameters::PHEROMONE_TYPE_ZERO => 2,
+            MyrmesParameters::PHEROMONE_TYPE_ONE, MyrmesParameters::SPECIAL_TILE_DIRT_QUARRY,
+                MyrmesParameters::SPECIAL_TILE_STONE_FARM, MyrmesParameters::SPECIAL_TILE_TYPE_QUARRY,
+                MyrmesParameters::SPECIAL_TILE_TYPE_FARM, MyrmesParameters::PHEROMONE_TYPE_TWO => 3,
+            MyrmesParameters::PHEROMONE_TYPE_THREE, MyrmesParameters::PHEROMONE_TYPE_FOUR,
+                MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL => 4,
+            MyrmesParameters::PHEROMONE_TYPE_FIVE => 5,
+            MyrmesParameters::PHEROMONE_TYPE_SIX => 6,
+            default => throw new Exception("pheromone type unknown"),
+        };
         $allowedSize = $anthillLevel + 2;
         if ($player->getPersonalBoardMYR()->getBonus() === MyrmesParameters::BONUS_PHEROMONE) {
             ++$allowedSize;

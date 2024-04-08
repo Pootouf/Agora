@@ -155,6 +155,8 @@ class MyrmesParameters
     public const int SPECIAL_TILE_TYPE_FARM = 7;
     public const int SPECIAL_TILE_TYPE_QUARRY = 8;
     public const int SPECIAL_TILE_TYPE_SUBANTHILL = 9;
+    public const int SPECIAL_TILE_STONE_FARM = 10;
+    public const int SPECIAL_TILE_DIRT_QUARRY = 11;
 
     // Special tiles amount
     public const array SPECIAL_TILE_TYPE_AMOUNT = [
