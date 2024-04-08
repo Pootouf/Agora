@@ -53,6 +53,16 @@ class WinterMYRService
     }
 
     /**
+     * canSetPhaseToWinter : indicate if the game must begin the winter phase
+     * @param GameMYR $gameMYR
+     * @return bool
+     */
+    public function canSetPhaseToWinter(GameMYR $gameMYR): bool
+    {
+        return $this->MYRService->getActualSeason($gameMYR)->getName() == MyrmesParameters::FALL_SEASON_NAME;
+    }
+
+    /**
      * Remove one cube's resource belongs to the player
      * @param PlayerMYR $player
      * @param PlayerResourceMYR $playerResource

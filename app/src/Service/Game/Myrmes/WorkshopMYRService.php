@@ -67,6 +67,22 @@ class WorkshopMYRService
     }
 
     /**
+     * canSetPhaseToWorkshop : before entering workshop phase, check if the player has nurses in workshop area
+     * @param PlayerMYR $playerMYR
+     * @return bool
+     */
+    public function canSetPhaseToWorkshop(PlayerMYR $playerMYR): bool
+    {
+        $personalBoard = $playerMYR->getPersonalBoardMYR();
+        foreach($personalBoard->getNurses() as $nurse) {
+            if($nurse->getArea() == MyrmesParameters::WORKSHOP_AREA) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Manage resources and purchase about position of nurse
      *
      * @param PlayerMYR    $player
