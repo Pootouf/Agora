@@ -13,6 +13,7 @@
 
 {% set fill = "" %}
 {% set stroke = "" %}
+{% if boardBox.pheromonTile != null %}
 {% if boardBox.pheromonTile.pheromonMYR.player.color ==  PLAYER_COLOR_BLUE %}
     {% set fill = 'fill-[rgba(0,_0,_255,_1)]' %}
     {% set stroke = "stroke:#3d6ab2;stroke-width:18" %}
@@ -72,3 +73,4 @@
         document.getElementById(x + ' ' + (y) + ' ' + id).getElementsByClassName('south-east')[0].classList.add('hidden')
     }
 </script>
+{% endif %}
