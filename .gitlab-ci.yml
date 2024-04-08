@@ -83,7 +83,7 @@ before_script:
 
 build:
   stage: build
-  before_script:
+  script:
     - cd app
     - composer install
     - symfony console tailwind:build
