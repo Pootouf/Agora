@@ -117,16 +117,15 @@ class WorkshopMYRService
     }
 
     /**
-     * manageEndOfWinter : retrieve points after every player disposed of their
-     *              resources and manage the end of round
+     * manageEndOfWorkshop : end the workshop round
      * @param GameMYR $gameMYR
      * @return void
      * @throws Exception
      */
     public function manageEndOfWorkshop(GameMYR $gameMYR): void
     {
-        if($this->MYRService->canManageEndOfPhase($gameMYR, MyrmesParameters::PHASE_WORKSHOP)) {
-            throw new Exception("All members have not played yes");
+        if(!$this->MYRService->canManageEndOfPhase($gameMYR, MyrmesParameters::PHASE_WORKSHOP)) {
+            throw new Exception("All members have not played yet");
         }
         $this->MYRService->manageEndOfRound($gameMYR);
     }
