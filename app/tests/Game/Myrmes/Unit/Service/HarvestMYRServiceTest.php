@@ -13,6 +13,7 @@ use App\Entity\Game\Myrmes\PheromonTileMYR;
 use App\Entity\Game\Myrmes\PlayerMYR;
 use App\Entity\Game\Myrmes\PlayerResourceMYR;
 use App\Entity\Game\Myrmes\ResourceMYR;
+use App\Repository\Game\Myrmes\GoalMYRRepository;
 use App\Repository\Game\Myrmes\NurseMYRRepository;
 use App\Repository\Game\Myrmes\PlayerMYRRepository;
 use App\Repository\Game\Myrmes\PlayerResourceMYRRepository;
@@ -60,12 +61,15 @@ class HarvestMYRServiceTest extends TestCase
         $playerResourceMYRRepository = $this->getMockBuilder(PlayerResourceMYRRepository::class)
             ->setConstructorArgs([$managerRegistry])
             ->getMock();
+        $goalMYRRepository = $this->getMockBuilder(GoalMYRRepository::class)
+            ->setConstructorArgs([$managerRegistry])
+            ->getMock();
         $playerFood = new PlayerResourceMYR();
         $playerFood->setResource($food);
         $playerFood->setQuantity(4);
         $myrService = new MYRService($playerMYRRepository, $entityManager, $nurseMYRRepository,
             $tileMYRRepository, $tileTypeMYRRepository, $seasonMYRRepository,
-            $resourceMYRRepository, $playerResourceMYRRepository );
+            $goalMYRRepository, $resourceMYRRepository, $playerResourceMYRRepository );
         $playerResourceMYRRepository->method("findOneBy")->willReturn($playerFood);
         $this->harvestMYRService = new HarvestMYRService($entityManager, $myrService);
     }
