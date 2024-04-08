@@ -23,9 +23,6 @@
 
     <coverage processUncoveredFiles="true">
         <include>
-            <directory suffix=".php">../src/Service/Game/Glenmore</directory>
-            <directory suffix=".php">../src/Repository/Game/Glenmore</directory>
-            <directory suffix=".php">../src/Entity/Game/Glenmore</directory>
             <file>../src/Controller/Game/GlenmoreController.php</file>
         </include>
         <exclude>

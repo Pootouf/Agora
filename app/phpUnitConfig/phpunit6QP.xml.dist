@@ -23,9 +23,6 @@
 
     <coverage processUncoveredFiles="true">
         <include>
-            <directory suffix=".php">../src/Service/Game/SixQP</directory>
-            <directory suffix=".php">../src/Repository/Game/SixQP</directory>
-            <directory suffix=".php">../src/Entity/Game/SixQP</directory>
             <file>../src/Controller/Game/SixQPController.php</file>
         </include>
         <exclude>

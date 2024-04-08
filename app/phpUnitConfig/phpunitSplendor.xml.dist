@@ -23,9 +23,6 @@
 
     <coverage processUncoveredFiles="true">
         <include>
-            <directory suffix=".php">../src/Service/Game/Splendor</directory>
-            <directory suffix=".php">../src/Repository/Game/Splendor</directory>
-            <directory suffix=".php">../src/Entity/Game/Splendor</directory>
             <file>../src/Controller/Game/SplendorController.php</file>
         </include>
         <exclude>

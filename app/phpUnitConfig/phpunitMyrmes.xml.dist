@@ -23,9 +23,6 @@
 
     <coverage processUncoveredFiles="true">
         <include>
-            <directory suffix=".php">../src/Service/Game/Myrmes</directory>
-            <directory suffix=".php">../src/Repository/Game/Myrmes</directory>
-            <directory suffix=".php">../src/Entity/Game/Myrmes</directory>
             <file>../src/Controller/Game/MyrmesController.php</file>
         </include>
         <exclude>
