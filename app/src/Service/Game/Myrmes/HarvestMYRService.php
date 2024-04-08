@@ -37,7 +37,8 @@ class HarvestMYRService
      */
     public function canStillHarvest(PlayerMYR $playerMYR): bool
     {
-        return $this->areAllPheromonesHarvested($playerMYR) && $playerMYR->getRemainingHarvestingBonus() > 0;
+        return $this->areAllPheromonesHarvested($playerMYR) && $playerMYR->getRemainingHarvestingBonus() > 0
+            || !$this->areAllPheromonesHarvested($playerMYR);
     }
 
     /**
