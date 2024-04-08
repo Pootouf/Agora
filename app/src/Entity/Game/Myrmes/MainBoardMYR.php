@@ -33,6 +33,15 @@ class MainBoardMYR extends Component
     #[ORM\OneToMany(targetEntity: SeasonMYR::class, mappedBy: 'mainBoard', orphanRemoval: true)]
     private Collection $seasons;
 
+    #[ORM\OneToMany(targetEntity: GameGoalMYR::class, mappedBy: 'mainBoardLevelOne')]
+    private Collection $gameGoalsLevelOne;
+
+    #[ORM\OneToMany(targetEntity: GameGoalMYR::class, mappedBy: 'mainBoardLevelTwo')]
+    private Collection $gameGoalsLevelTwo;
+
+    #[ORM\OneToMany(targetEntity: GameGoalMYR::class, mappedBy: 'mainBoardLevelThree')]
+    private Collection $gameGoalsLevelThree;
+
     public function __construct()
     {
         $this->gardenWorkers = new ArrayCollection();
@@ -40,6 +49,9 @@ class MainBoardMYR extends Component
         $this->tiles = new ArrayCollection();
         $this->anthillHoles = new ArrayCollection();
         $this->seasons = new ArrayCollection();
+        $this->gameGoalsLevelOne = new ArrayCollection();
+        $this->gameGoalsLevelTwo = new ArrayCollection();
+        $this->gameGoalsLevelThree = new ArrayCollection();
     }
 
     public function getYearNum(): ?int
@@ -204,6 +216,96 @@ class MainBoardMYR extends Component
             // set the owning side to null (unless already changed)
             if ($season->getMainBoard() === $this) {
                 $season->setMainBoard(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, GameGoalMYR>
+     */
+    public function getGameGoalsLevelOne(): Collection
+    {
+        return $this->gameGoalsLevelOne;
+    }
+
+    public function addGameGoalsLevelOne(GameGoalMYR $gameGoalsLevelOne): static
+    {
+        if (!$this->gameGoalsLevelOne->contains($gameGoalsLevelOne)) {
+            $this->gameGoalsLevelOne->add($gameGoalsLevelOne);
+            $gameGoalsLevelOne->setMainBoardLevelOne($this);
+        }
+
+        return $this;
+    }
+
+    public function removeGameGoalsLevelOne(GameGoalMYR $gameGoalsLevelOne): static
+    {
+        if ($this->gameGoalsLevelOne->removeElement($gameGoalsLevelOne)) {
+            // set the owning side to null (unless already changed)
+            if ($gameGoalsLevelOne->getMainBoardLevelOne() === $this) {
+                $gameGoalsLevelOne->setMainBoardLevelOne(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, GameGoalMYR>
+     */
+    public function getGameGoalsLevelTwo(): Collection
+    {
+        return $this->gameGoalsLevelTwo;
+    }
+
+    public function addGameGoalsLevelTwo(GameGoalMYR $gameGoalsLevelTwo): static
+    {
+        if (!$this->gameGoalsLevelTwo->contains($gameGoalsLevelTwo)) {
+            $this->gameGoalsLevelTwo->add($gameGoalsLevelTwo);
+            $gameGoalsLevelTwo->setMainBoardLevelTwo($this);
+        }
+
+        return $this;
+    }
+
+    public function removeGameGoalsLevelTwo(GameGoalMYR $gameGoalsLevelTwo): static
+    {
+        if ($this->gameGoalsLevelTwo->removeElement($gameGoalsLevelTwo)) {
+            // set the owning side to null (unless already changed)
+            if ($gameGoalsLevelTwo->getMainBoardLevelTwo() === $this) {
+                $gameGoalsLevelTwo->setMainBoardLevelTwo(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, GameGoalMYR>
+     */
+    public function getGameGoalsLevelThree(): Collection
+    {
+        return $this->gameGoalsLevelThree;
+    }
+
+    public function addGameGoalsLevelThree(GameGoalMYR $gameGoalsLevelThree): static
+    {
+        if (!$this->gameGoalsLevelThree->contains($gameGoalsLevelThree)) {
+            $this->gameGoalsLevelThree->add($gameGoalsLevelThree);
+            $gameGoalsLevelThree->setMainBoardLevelThree($this);
+        }
+
+        return $this;
+    }
+
+    public function removeGameGoalsLevelThree(GameGoalMYR $gameGoalsLevelThree): static
+    {
+        if ($this->gameGoalsLevelThree->removeElement($gameGoalsLevelThree)) {
+            // set the owning side to null (unless already changed)
+            if ($gameGoalsLevelThree->getMainBoardLevelThree() === $this) {
+                $gameGoalsLevelThree->setMainBoardLevelThree(null);
             }
         }
 

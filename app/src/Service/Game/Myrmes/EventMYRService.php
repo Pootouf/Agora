@@ -11,10 +11,6 @@ use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use phpDocumentor\Reflection\Types\Collection;
 
-
-/**
- * @codeCoverageIgnore
- */
 class EventMYRService
 {
 

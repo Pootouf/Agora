@@ -16,7 +16,7 @@ This section displays the personal board of a player other than the current one
 {% endif %}
 
 
-<div id="openedPlayerPersonalBoard" class="bg-[#09090b] w-full h-full lg:w-[72vw] lg:h-[43.5vw] absolute bottom-0
+<div id="openedPlayerPersonalBoard" class="bg-[#09090b] w-full h-full lg:w-[72vw] lg:h-full absolute bottom-0
                             lg:rounded-tr-2xl z-10
                             overflow-y-hidden" hidden
         {{ stimulus_controller('myrmes') }}
@@ -27,5 +27,7 @@ This section displays the personal board of a player other than the current one
              alt="arrow up" class="h-10 landscape:h-6 lg:h-4 rotate-180 mt-1 mr-2">
         <p>Fermer le plateau personnel de <b>{{ player.username }}</b></p>
     </div>
-    {{ include('Game/Myrmes/PersonalBoard/personalBoard.html.twig') }}
+    <div class="h-[95%]">
+        {{ include('Game/Myrmes/PersonalBoard/personalBoard.html.twig') }}
+    </div>
 </div>

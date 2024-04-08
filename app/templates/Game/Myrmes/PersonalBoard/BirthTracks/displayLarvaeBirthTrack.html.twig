@@ -5,9 +5,10 @@ This section displays the birth track for larvae.
 #}
 <div class="w-1/6 h-full justify-start align-top inline-flex flex-col gap-[0.4vw]" id="larvae">
     {#larvae counter#}
-    <div class="inlineFlex items-center gap-[0.3vw] w-full {% if isPreview %} h-[1.0vw] {% else %} h-[5vw] {% endif %}" id="larvaeCount">
+    <div class="inlineFlex items-center gap-[0.3vw] w-full {% if isPreview %} h-[1.0vw] {% else %} h-[5vw] {% endif %}"
+         id="larvaeCount">
         <p class="w-10 h-fit {% if isPreview %}text_mini {% else %} text3-4 {% endif %}"
-           id="larvaeCountText">X
+           id="larvaeCountText"> {{ availableLarvae }}
         </p>
         <img class="h-full" src="{{ asset('resourcesGames/Myrmes/resources/larva.svg') }}"
              alt="larvae icon"/>
@@ -58,18 +59,19 @@ This section displays the birth track for larvae.
         {#button to place nurse on larvae birth track#}
         {% if not isPreview %}
         <div class="flex justify-center">
-            <{% if playerPhase == PHASE_BIRTH %}button {% else %}div{% endif%}
+            <{% if game.gamePhase == PHASE_BIRTH %}button {% else %}div{% endif%}
                     type="button" class="{{ placeButtonSize }}"
                     {% if playerPhase == PHASE_BIRTH %}
                     {{ stimulus_action('myrmes','placeNurseOnLarvaeTrack','click',
-                        {url: path('app_game_myrmes_place_nurse', {gameId: game.id, position: LARVAE_BIRTH_TRACK_POSITION})})
+                        {url: path('app_game_myrmes_place_nurse',
+                            {gameId: game.id, position: LARVAE_BIRTH_TRACK_POSITION})})
                     }}
                     {% endif %}
             >
                 <img id="larvaeButton"
                      src="{{ asset('resourcesGames/Myrmes/myrmesArrow.svg') }}"
                      alt="place larvae"/>
-            </{% if playerPhase == PHASE_BIRTH %}button {% else %}div{% endif%}>
+            </{% if game.gamePhase == PHASE_BIRTH %}button {% else %}div{% endif%}>
         </div>
         {% endif %}
     </div>

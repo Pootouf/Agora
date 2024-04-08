@@ -4,6 +4,14 @@ This section displays the main board that every player and spectator can see
 @return :
 #}
 
+{% set PHASE_EVENT = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::PHASE_EVENT') %}
+{% set PHASE_BIRTH = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::PHASE_BIRTH') %}
+{% set PHASE_WORKER = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::PHASE_WORKER') %}
+{% set PHASE_HARVEST = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::PHASE_HARVEST') %}
+{% set PHASE_WORKSHOP = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::PHASE_WORKSHOP') %}
+{% set PHASE_WINTER =  constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::PHASE_WINTER') %}
+
+
 <div
      class="absolute top-0 left-0 w-full h-full bg-black bg-opacity-70 flex text-white items-center justify-center">
     <div class="bg-gradient-to-b from-green-950 to-yellow-900 rounded-lg w-full h-full flex flex-row justify-center items-center">
@@ -11,6 +19,26 @@ This section displays the main board that every player and spectator can see
              {{ include('Game/Myrmes/MainBoard/displayBoardBoxes.html.twig') }}
         </div>
         <div class="inline-flex align-middle justify-evenly items-center flex-col h-full">
+            {% if game.gamePhase == PHASE_HARVEST and needToPlay %}
+                <button {% if not hasFinishedObligatoryHarvesting %} disabled {% endif %}
+                        class="rounded-lg bg-green-900 py-2 px-3 m-1 text-2xl items-center"
+                        {{ stimulus_action('myrmes','endHarvestPhase','click',
+                            {url:path('app_game_myrmes_end_harvest_phase',
+                                {
+                                    gameId: game.id
+                                })
+                            })
+                        }}>
+                    Confirmer la récolte
+                </button>
+            {% elseif game.gamePhase == PHASE_WORKSHOP and needToPlay and hasSelectedAnthillHolePlacement %}
+                <p class="text-lg text-center">Veuillez sélectionner l'emplacement du nouveau trou de fourmi</p>
+                <button
+                        class="rounded-lg bg-green-900 py-2 px-3 m-1 text-2xl items-center"
+                        {{ stimulus_action('myrmes','cancelAnthillHolePlacement','click') }}>
+                    Revenir au choix de la zone d'atelier
+                </button>
+            {% endif %}
             {{ include('Game/Myrmes/MainBoard/seasonsDices.html.twig') }}
         </div>
     </div>
