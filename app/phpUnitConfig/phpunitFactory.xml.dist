@@ -3,10 +3,8 @@
 <!-- https://phpunit.readthedocs.io/en/latest/configuration.html -->
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="../vendor/phpunit/phpunit/phpunit.xsd"
-         backupGlobals="false"
          colors="true"
          bootstrap="../tests/bootstrap.php"
-         convertDeprecationsToExceptions="false"
 >
     <php>
         <ini name="display_errors" value="1" />
@@ -26,6 +24,10 @@
     <coverage processUncoveredFiles="true">
         <include>
             <directory suffix=".php">../src</directory>
+            <file>../src/Service/Game/SixQP/SixQPGameManagerService.php</file>
+            <file>../src/Service/Game/Splendor/SPLGameManagerService.php</file>
+            <file>../src/Service/Game/Glenmore/GLMGameManagerService.php</file>
+            <file>../src/Service/Game/Myrmes/MYRGameManagerService.php</file>
         </include>
         <exclude>
             <directory suffix=".php">../src/Service/Game/SixQP</directory>
