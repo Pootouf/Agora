@@ -11,12 +11,6 @@ stages:
   - sonarqube
   - deploy
 
-cache:
-  key: ${CI_COMMIT_REF_SLUG}
-  paths:
-    - vendor/
-    - var/
-
 
 variables:
   MYSQL_ROOT_PASSWORD: password
@@ -68,6 +62,15 @@ variables:
       coverage_format: cobertura
       path: app/coverage-cobertura/$COBERTURA_REPORT
 
+.cache: &cache
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - app/vendor/
+    - app/var/
+    - app/assets/vendor
+  policy: pull-push
+  when: on_success
+
 deploy:dev_game:
   <<: *deploy
   environment:
@@ -89,14 +92,14 @@ before_script:
 
 build:
   stage: build
-  before_script:
-    - ''
   script:
-    - cd app
     - composer install
     - symfony console tailwind:build
-  artifacts:
-    untracked: true
+    - symfony console importmap:install
+  cache:
+    <<: *cache
+    policy: push
+    
 
 
 unitFactory:
@@ -114,6 +117,9 @@ unitFactory:
     <<: *publishReport
     expire_in: 30 min
   coverage: /^\s*Lines:\s*\d+.\d+\%/
+  cache:
+    <<: *cache
+    policy: pull
   variables:
     JUNIT_REPORT: phpUnitFactory.xml
     COBERTURA_REPORT: coverageUnitFactory.xml
@@ -142,6 +148,9 @@ integrationFactory:
     <<: *publishReport
     expire_in: 30 min
   coverage: /^\s*Lines:\s*\d+.\d+\%/
+  cache:
+    <<: *cache
+    policy: pull
   variables:
     JUNIT_REPORT: phpIntegrationFactory.xml
     COBERTURA_REPORT: coverageIntegrationFactory.xml
@@ -150,7 +159,7 @@ unit6QP:
   needs: [build]
   stage: sixqp
   script:
-    - php bin/phpunit --configuration phpUnitConfig/phpunit6QP.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageUnit6QP.xml --log-junit reports/phpUnit6QP.xml --coverage-php coverage/coverageUnit6QP.php --colors=never tests/Game/SixQP/Unit
+    - php bin/phpunit --configuration phpUnitConfig/phpunit6QP_no_controller.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageUnit6QP.xml --log-junit reports/phpUnit6QP.xml --coverage-php coverage/coverageUnit6QP.php --colors=never tests/Game/SixQP/Unit
     - *cleanReport
   allow_failure: false
   environment: test
@@ -161,6 +170,9 @@ unit6QP:
     <<: *publishReport
     expire_in: 30 min
   coverage: /^\s*Lines:\s*\d+.\d+\%/
+  cache:
+    <<: *cache
+    policy: pull
   variables:
     JUNIT_REPORT: phpUnit6QP.xml
     COBERTURA_REPORT: coverageUnit6QP.xml
@@ -175,7 +187,7 @@ integration6QP:
   script:
     - symfony console --env=test doctrine:migrations:migrate
     - symfony console doctrine:fixtures:load --env=test -n --append
-    - php bin/phpunit --configuration phpUnitConfig/phpunit6QP.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageIntegration6QP.xml --log-junit reports/phpIntegration6QP.xml --coverage-php coverage/coverageIntegration6QP.php --colors=never tests/Game/SixQP/Integration
+    - php bin/phpunit --configuration phpUnitConfig/phpunit6QP_no_controller.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageIntegration6QP.xml --log-junit reports/phpIntegration6QP.xml --coverage-php coverage/coverageIntegration6QP.php --colors=never tests/Game/SixQP/Integration
     - *cleanReport
   allow_failure: false
   environment: test
@@ -189,6 +201,9 @@ integration6QP:
     <<: *publishReport
     expire_in: 30 min
   coverage: /^\s*Lines:\s*\d+.\d+\%/
+  cache:
+    <<: *cache
+    policy: pull
   variables:
     JUNIT_REPORT: phpIntegration6QP.xml
     COBERTURA_REPORT: coverageIntegration6QP.xml
@@ -220,6 +235,9 @@ application6QP:
     <<: *publishReport
     expire_in: 30 min
   coverage: /^\s*Lines:\s*\d+.\d+\%/
+  cache:
+    <<: *cache
+    policy: pull
   variables:
     JUNIT_REPORT: phpApp6QP.xml
     COBERTURA_REPORT: coverageApp6QP.xml
@@ -228,7 +246,7 @@ unitSplendor:
   needs: [build]
   stage: splendor
   script:
-    - php bin/phpunit --configuration phpUnitConfig/phpunitSplendor.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageUnitSplendor.xml --log-junit reports/phpUnitSplendor.xml --coverage-php coverage/coverageUnitSplendor.php --colors=never tests/Game/Splendor/Unit
+    - php bin/phpunit --configuration phpUnitConfig/phpunitSplendor_no_controller.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageUnitSplendor.xml --log-junit reports/phpUnitSplendor.xml --coverage-php coverage/coverageUnitSplendor.php --colors=never tests/Game/Splendor/Unit
     - *cleanReport
   allow_failure: false
   environment: test
@@ -239,6 +257,9 @@ unitSplendor:
     <<: *publishReport
     expire_in: 30 min
   coverage: /^\s*Lines:\s*\d+.\d+\%/
+  cache:
+    <<: *cache
+    policy: pull
   variables:
     JUNIT_REPORT: phpUnitSplendor.xml
     COBERTURA_REPORT: coverageUnitSplendor.xml
@@ -253,7 +274,7 @@ integrationSplendor:
   script:
     - symfony console --env=test doctrine:migrations:migrate
     - symfony console doctrine:fixtures:load --env=test -n --append
-    - php bin/phpunit --configuration phpUnitConfig/phpunitSplendor.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageIntegrationSplendor.xml --log-junit reports/phpIntegrationSplendor.xml --coverage-php coverage/coverageIntegrationSplendor.php --colors=never tests/Game/Splendor/Integration
+    - php bin/phpunit --configuration phpUnitConfig/phpunitSplendor_no_controller.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageIntegrationSplendor.xml --log-junit reports/phpIntegrationSplendor.xml --coverage-php coverage/coverageIntegrationSplendor.php --colors=never tests/Game/Splendor/Integration
     - *cleanReport
   allow_failure: false
   environment: test
@@ -267,6 +288,9 @@ integrationSplendor:
     <<: *publishReport
     expire_in: 30 min
   coverage: /^\s*Lines:\s*\d+.\d+\%/
+  cache:
+    <<: *cache
+    policy: pull
   variables:
     JUNIT_REPORT: phpIntegrationSplendor.xml
     COBERTURA_REPORT: coverageIntegrationSplendor.xml
@@ -297,6 +321,9 @@ applicationSplendor:
     <<: *publishReport
     expire_in: 30 min
   coverage: /^\s*Lines:\s*\d+.\d+\%/
+  cache:
+    <<: *cache
+    policy: pull
   variables:
     JUNIT_REPORT: phpAppSplendor.xml
     COBERTURA_REPORT: coverageAppSplendor.xml
@@ -305,7 +332,7 @@ unitGlenmore:
   needs: [build]
   stage: glenmore
   script:
-    - php bin/phpunit --configuration phpUnitConfig/phpunitGlenmore.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageUnitGlenmore.xml --log-junit reports/phpUnitGlenmore.xml --coverage-php coverage/coverageUnitGlenmore.php --colors=never tests/Game/Glenmore/Unit
+    - php bin/phpunit --configuration phpUnitConfig/phpunitGlenmore_no_controller.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageUnitGlenmore.xml --log-junit reports/phpUnitGlenmore.xml --coverage-php coverage/coverageUnitGlenmore.php --colors=never tests/Game/Glenmore/Unit
     - *cleanReport
   allow_failure: false
   environment: test
@@ -316,6 +343,9 @@ unitGlenmore:
     <<: *publishReport
     expire_in: 30 min
   coverage: /^\s*Lines:\s*\d+.\d+\%/
+  cache:
+    <<: *cache
+    policy: pull
   variables:
     JUNIT_REPORT: phpUnitGlenmore.xml
     COBERTURA_REPORT: coverageUnitGlenmore.xml
@@ -330,7 +360,7 @@ integrationGlenmore:
   script:
     - symfony console --env=test doctrine:migrations:migrate
     - symfony console doctrine:fixtures:load --env=test -n --append
-    - php bin/phpunit --configuration phpUnitConfig/phpunitGlenmore.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageIntegrationGlenmore.xml --log-junit reports/phpIntegrationGlenmore.xml --coverage-php coverage/coverageIntegrationGlenmore.php --colors=never tests/Game/Glenmore/Integration
+    - php bin/phpunit --configuration phpUnitConfig/phpunitGlenmore_no_controller.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageIntegrationGlenmore.xml --log-junit reports/phpIntegrationGlenmore.xml --coverage-php coverage/coverageIntegrationGlenmore.php --colors=never tests/Game/Glenmore/Integration
     - *cleanReport
   allow_failure: false
   environment: test
@@ -344,6 +374,9 @@ integrationGlenmore:
     <<: *publishReport
     expire_in: 30 min
   coverage: /^\s*Lines:\s*\d+.\d+\%/
+  cache:
+    <<: *cache
+    policy: pull
   variables:
     JUNIT_REPORT: phpIntegrationGlenmore.xml
     COBERTURA_REPORT: coverageIntegrationGlenmore.xml
@@ -374,6 +407,9 @@ applicationGlenmore:
     <<: *publishReport
     expire_in: 30 min
   coverage: /^\s*Lines:\s*\d+.\d+\%/
+  cache:
+    <<: *cache
+    policy: pull
   variables:
     JUNIT_REPORT: phpAppGlenmore.xml
     COBERTURA_REPORT: coverageAppGlenmore.xml
@@ -382,7 +418,7 @@ unitMyrmes:
   needs: [build]
   stage: myrmes
   script:
-    - php bin/phpunit --configuration phpUnitConfig/phpunitMyrmes.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageUnitMyrmes.xml --log-junit reports/phpUnitMyrmes.xml --coverage-php coverage/coverageUnitMyrmes.php --colors=never tests/Game/Myrmes/Unit
+    - php bin/phpunit --configuration phpUnitConfig/phpunitMyrmes_no_controller.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageUnitMyrmes.xml --log-junit reports/phpUnitMyrmes.xml --coverage-php coverage/coverageUnitMyrmes.php --colors=never tests/Game/Myrmes/Unit
     - *cleanReport
   allow_failure: false
   environment: test
@@ -393,6 +429,9 @@ unitMyrmes:
     <<: *publishReport
     expire_in: 30 min
   coverage: /^\s*Lines:\s*\d+.\d+\%/
+  cache:
+    <<: *cache
+    policy: pull
   variables:
     JUNIT_REPORT: phpUnitMyrmes.xml
     COBERTURA_REPORT: coverageUnitMyrmes.xml
@@ -407,7 +446,7 @@ integrationMyrmes:
   script:
     - symfony console --env=test doctrine:migrations:migrate
     - symfony console doctrine:fixtures:load --env=test -n --append
-    - php bin/phpunit --configuration phpUnitConfig/phpunitMyrmes.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageIntegrationMyrmes.xml --log-junit reports/phpIntegrationMyrmes.xml --coverage-php coverage/coverageIntegrationMyrmes.php --colors=never tests/Game/Myrmes/Integration
+    - php bin/phpunit --configuration phpUnitConfig/phpunitMyrmes_no_controller.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageIntegrationMyrmes.xml --log-junit reports/phpIntegrationMyrmes.xml --coverage-php coverage/coverageIntegrationMyrmes.php --colors=never tests/Game/Myrmes/Integration
     - *cleanReport
   allow_failure: false
   environment: test
@@ -421,12 +460,19 @@ integrationMyrmes:
     <<: *publishReport
     expire_in: 30 min
   coverage: /^\s*Lines:\s*\d+.\d+\%/
+  cache:
+    <<: *cache
+    policy: pull
   variables:
     JUNIT_REPORT: phpIntegrationMyrmes.xml
     COBERTURA_REPORT: coverageIntegrationMyrmes.xml
 
 report:
   stage: report
+  only:
+    - develop-game
+    - preprod
+    - main
   before_script:
     - cd app
     - rm composer.lock

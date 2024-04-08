@@ -3,10 +3,8 @@
 <!-- https://phpunit.readthedocs.io/en/latest/configuration.html -->
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="../vendor/phpunit/phpunit/phpunit.xsd"
-         backupGlobals="false"
          colors="true"
          bootstrap="../tests/bootstrap.php"
-         convertDeprecationsToExceptions="false"
 >
     <php>
         <ini name="display_errors" value="1" />
@@ -25,11 +23,11 @@
 
     <coverage processUncoveredFiles="true">
         <include>
-            <directory suffix=".php">../src/Service/Game/Myrmes</directory>
-            <directory suffix=".php">../src/Repository/Game/Myrmes</directory>
-            <directory suffix=".php">../src/Entity/Game/Myrmes</directory>
             <file>../src/Controller/Game/MyrmesController.php</file>
         </include>
+        <exclude>
+            <file>../src/Service/Game/Myrmes/MYRGameManagerService.php</file>
+        </exclude>
     </coverage>
 
     <listeners>

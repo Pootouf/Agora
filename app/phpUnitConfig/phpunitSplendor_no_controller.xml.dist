@@ -23,7 +23,9 @@
 
     <coverage processUncoveredFiles="true">
         <include>
-            <file>../src/Controller/Game/SplendorController.php</file>
+            <directory suffix=".php">../src/Service/Game/Splendor</directory>
+            <directory suffix=".php">../src/Repository/Game/Splendor</directory>
+            <directory suffix=".php">../src/Entity/Game/Splendor</directory>
         </include>
         <exclude>
             <file>../src/Service/Game/Splendor/SPLGameManagerService.php</file>
