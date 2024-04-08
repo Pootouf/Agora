@@ -190,6 +190,7 @@ class WinterMYRServiceTest extends KernelTestCase
         $game->setMainBoardMYR($mainBoard);
         $game->setGameName("test");
         $game->setLaunched(true);
+        $game->setGamePhase(MyrmesParameters::PHASE_INVALID);
         $entityManager->persist($mainBoard);
         $entityManager->persist($game);
         $entityManager->flush();

@@ -2144,7 +2144,7 @@ class WorkerMYRServiceTest extends TestCase
         }
         $mainBoard = new MainBoardMYR();
         $game->setMainBoardMYR($mainBoard);
-
+        $game->setGamePhase(MyrmesParameters::PHASE_INVALID);
         return $game;
     }
 }
