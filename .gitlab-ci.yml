@@ -84,7 +84,6 @@ before_script:
 build:
   stage: build
   script:
-    - cd app
     - composer install
     - symfony console tailwind:build
   cache:
