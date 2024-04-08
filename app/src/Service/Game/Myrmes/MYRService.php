@@ -225,6 +225,16 @@ class MYRService
     }
 
     /**
+     * isGameEnded : returns true if the game reached its end
+     * @param GameMYR $game
+     * @return bool
+     */
+    public function isGameEnded(GameMYR $game) : bool
+    {
+        return $game->getMainBoardMYR()->getYearNum() > MyrmesParameters::THIRD_YEAR_NUM;
+    }
+
+    /**
      * manageEndOfRound : does all actions concerning the end of a round
      * @param GameMYR $game
      * @return void
@@ -710,10 +720,10 @@ class MYRService
     {
         $this->clearSeasons($game);
         $yearNum = $game->getMainBoardMYR()->getYearNum();
-        if ($yearNum === MyrmesParameters::THIRD_YEAR_NUM) {
+        $game->getMainBoardMYR()->setYearNum($yearNum + 1);
+        if ($yearNum > MyrmesParameters::THIRD_YEAR_NUM) {
             return;
         }
-        $game->getMainBoardMYR()->setYearNum($yearNum + 1);
         $this->initializeNewSeason($game, MyrmesParameters::SPRING_SEASON_NAME);
         $this->initializeNewSeason($game, MyrmesParameters::SUMMER_SEASON_NAME);
         $this->initializeNewSeason($game, MyrmesParameters::FALL_SEASON_NAME);

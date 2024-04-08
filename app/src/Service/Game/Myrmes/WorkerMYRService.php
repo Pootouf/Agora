@@ -674,8 +674,8 @@ class WorkerMYRService
             $translationY = $translation[1];
             $correctPlacement = true;
             foreach ($coords as $coord) {
-                $coordX = $coord[0] + $translationX;
-                $coordY = $coord[1] + $translationY;
+                $coordX = $coord->getCoordX() + $translationX;
+                $coordY = $coord->getCoordY() + $translationY;
                 $newTile = $this->getTileAtCoordinate($coordX, $coordY);
                 if (!($this->isPositionAvailable($game, $newTile) && !$this->containsPrey($game, $newTile))) {
                     $correctPlacement = false;
@@ -697,14 +697,14 @@ class WorkerMYRService
     /**
      * containsAnt : checks if any of the tile in the list contains an ant
      * @param PlayerMYR       $player
-     * @param ArrayCollection<Int, TileMYR> $tileList
+     * @param ArrayCollection<Int, BoardTileMYR> $tileList
      * @return bool
      */
     private function containsAnt(PlayerMYR $player, ArrayCollection $tileList) : bool
     {
         foreach ($tileList as $tile) {
             if ($this->gardenWorkerMYRRepository->findOneBy(
-                ["tile" => $tile->getId(), "player" => $player->getId()]
+                ["tile" => $tile->getTile()->getId(), "player" => $player->getId()]
             ) != null) {
                return true;
             }
@@ -1286,7 +1286,7 @@ class WorkerMYRService
         $pheromones = $player->getPheromonMYRs();
         $result = 0;
         foreach ($pheromones as $pheromone) {
-            if ($pheromone->getType()->getType() == $type) {
+            if ($pheromone->getType()->getType() == $type->getType()) {
                 ++$result;
             }
         }
@@ -1304,28 +1304,17 @@ class WorkerMYRService
     private function canChoosePheromone(PlayerMYR $player, TileTypeMYR $tileType, int $pheromoneCount) : bool
     {
         $anthillLevel = $player->getPersonalBoardMYR()->getAnthillLevel();
-
-        switch ($tileType->getType()) {
-            case MyrmesParameters::PHEROMONE_TYPE_ZERO:
-                $pheromoneSize = 2;
-                break;
-            case MyrmesParameters::PHEROMONE_TYPE_ONE || MyrmesParameters::PHEROMONE_TYPE_TWO ||
-                    MyrmesParameters::SPECIAL_TILE_TYPE_FARM || MyrmesParameters::SPECIAL_TILE_TYPE_QUARRY:
-                $pheromoneSize = 3;
-                break;
-            case MyrmesParameters::PHEROMONE_TYPE_THREE || MyrmesParameters::PHEROMONE_TYPE_FOUR ||
-                    MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL:
-                $pheromoneSize = 4;
-                break;
-            case MyrmesParameters::PHEROMONE_TYPE_FIVE:
-                $pheromoneSize = 5;
-                break;
-            case MyrmesParameters::PHEROMONE_TYPE_SIX:
-                $pheromoneSize = 6;
-                break;
-            default:
-                throw new Exception("pheromone type unknown");
-        }
+        $pheromoneSize = match ($tileType->getType()) {
+            MyrmesParameters::PHEROMONE_TYPE_ZERO => 2,
+            MyrmesParameters::PHEROMONE_TYPE_ONE, MyrmesParameters::SPECIAL_TILE_DIRT_QUARRY,
+                MyrmesParameters::SPECIAL_TILE_STONE_FARM, MyrmesParameters::SPECIAL_TILE_TYPE_QUARRY,
+                MyrmesParameters::SPECIAL_TILE_TYPE_FARM, MyrmesParameters::PHEROMONE_TYPE_TWO => 3,
+            MyrmesParameters::PHEROMONE_TYPE_THREE, MyrmesParameters::PHEROMONE_TYPE_FOUR,
+                MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL => 4,
+            MyrmesParameters::PHEROMONE_TYPE_FIVE => 5,
+            MyrmesParameters::PHEROMONE_TYPE_SIX => 6,
+            default => throw new Exception("pheromone type unknown"),
+        };
         $allowedSize = $anthillLevel + 2;
         if ($player->getPersonalBoardMYR()->getBonus() === MyrmesParameters::BONUS_PHEROMONE) {
             ++$allowedSize;
@@ -1334,7 +1323,7 @@ class WorkerMYRService
             return false;
         }
         if ($tileType->getType() === MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL) {
-            return $anthillLevel == 3;
+            return $anthillLevel >= 3;
         }
         return MyrmesParameters::PHEROMONE_TYPE_AMOUNT[$tileType->getType()] >= $pheromoneCount;
     }
