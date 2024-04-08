@@ -13,5 +13,17 @@ This section displays the main board that every player and spectator can see
         <div class="inline-flex align-middle justify-evenly items-center flex-col h-full">
             {{ include('Game/Myrmes/MainBoard/seasonsDices.html.twig') }}
         </div>
+        <div class="absolute top-0 right-0 m-3">
+            <button id="objectives_button"
+                    {{ stimulus_action('myrmes', 'displayObjectives', 'click',
+                        {url:path('app_game_myrmes_display_objectives',
+                            {idGame: game.id})
+                        })
+                    }}
+                    class="bg-[#8F901F] py-2 px-3 rounded-lg text-2xl"
+            >
+                Objectifs
+            </button>
+        </div>
     </div>
 </div>

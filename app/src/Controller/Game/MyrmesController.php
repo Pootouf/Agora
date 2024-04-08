@@ -2,6 +2,7 @@
 
 namespace App\Controller\Game;
 
+use App\Entity\Game\DTO\Game;
 use App\Entity\Game\DTO\Myrmes\BoardBoxMYR;
 use App\Entity\Game\Myrmes\GameMYR;
 use App\Entity\Game\Myrmes\MyrmesParameters;
@@ -181,6 +182,16 @@ class MyrmesController extends AbstractController
             'playerPhase' => $player->getPhase()
         ]);
 
+    }
+
+    #[Route('/game/myrmes/{idGame}/display/objectives',
+        name: 'app_game_myrmes_display_objectives')]
+    public function displayObjectives(
+        #[MapEntity(id: 'idGame')] GameMYR $gameMYR): Response
+    {
+        return $this->render('Game/Myrmes/MainBoard/displayObjectives.html.twig', [
+            'game' => $gameMYR,
+        ]);
     }
 
     #[Route('/game/myrmes/{id}/display/personalBoard/throwResource/{playerResourceId}/actions',
