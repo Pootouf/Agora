@@ -94,8 +94,7 @@ class MyrmesController extends AbstractController
                 $player,
                 MyrmesParameters::WORKER_AREA
             )->count(),
-            'isSelectingAnthillHoleToSendWorker' => false
-            )->count(),
+            'isSelectingAnthillHoleToSendWorker' => false,
             'mustThrowResources' => $player != null
                 && $this->service->isInPhase($player, MyrmesParameters::PHASE_WINTER)
                 && $this->winterMYRService->mustDropResourcesForWinter($player),
