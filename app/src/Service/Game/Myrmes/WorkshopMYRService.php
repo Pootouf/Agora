@@ -58,6 +58,10 @@ class WorkshopMYRService
         $goalName = $goal->getName();
         $goalDifficulty = $goal->getDifficulty();
 
+        if (!$this->doesPlayerHaveDoneGoalWithLowerDifficulty($player, $goal)) {
+            return false;
+        }
+
         return match ($goalName) {
             MyrmesParameters::GOAL_RESOURCE_FOOD_NAME => $this->canPlayerDoFoodGoal($player, $goalDifficulty),
             MyrmesParameters::GOAL_RESOURCE_STONE_NAME => $this->canPlayerDoStoneGoal($player, $goalDifficulty),
@@ -74,21 +78,29 @@ class WorkshopMYRService
     }
 
     /**
-     * doGoal: retrieve the needed resources from the player to accomplish the goal
+     * doGoal: retrieve the needed resources from the player to accomplish the goal with the selected nurse
      * @param PlayerMYR $player
      * @param GameGoalMYR $gameGoalMYR
+     * @param NurseMYR $nurse
      * @return void
-     * @throws Exception if the selected goal possessed a command like :
+     * @throws Exception if the player needs to do a goal with a lower difficulty before
+     *                   or if the selected goal is a goal of type :
      *                          STONE OR DIRT
      *                          SPECIAL TILE
      *                          PHEROMONE
      *                   these goals needs player interactivity and other parameters
+     *
      */
-    public function doGoal(PlayerMYR $player, GameGoalMYR $gameGoalMYR): void
+    public function doGoal(PlayerMYR $player, GameGoalMYR $gameGoalMYR, NurseMYR $nurse): void
     {
         $goal = $gameGoalMYR->getGoal();
         $goalName = $goal->getName();
         $goalDifficulty = $goal->getDifficulty();
+
+        if (!$this->doesPlayerHaveDoneGoalWithLowerDifficulty($player, $goal)) {
+            throw new Exception("The player can't do this goal, he must do " .
+                "a goal with a lower difficulty before");
+        }
 
         match ($goalName) {
             MyrmesParameters::GOAL_RESOURCE_FOOD_NAME => $this->retrieveResourcesToDoFoodGoal($player, $goalDifficulty),
@@ -106,6 +118,8 @@ class WorkshopMYRService
                                                                     retrieveResourcesToDoPheromoneGoal to do this Goal"),
             default => throw new Exception("Goal does not exist"),
         };
+        $this->setNurseUsedInGoal($nurse);
+        $this->calculateScoreAfterGoalAccomplish($gameGoalMYR, $player);
     }
 
 
@@ -894,5 +908,107 @@ class WorkshopMYRService
         }
         $this->entityManager->persist($player->getPersonalBoardMYR());
         $this->entityManager->flush();
+    }
+
+    /**
+     * setNurseUsedInGoal: make the nurse unusable and place it in the goal area
+     * @param NurseMYR $nurse
+     * @return void
+     */
+    private function setNurseUsedInGoal(NurseMYR $nurse): void
+    {
+        $nurse->setArea(MyrmesParameters::GOAL_AREA);
+        $nurse->setAvailable(false);
+        $this->entityManager->persist($nurse);
+        $this->entityManager->flush();
+    }
+
+    /**
+     * calculateScoreAfterGoalAccomplish: recalculate the score of the player of the game after the selected player
+     *                                    accomplish the goal
+     * @param GameGoalMYR $gameGoal
+     * @param PlayerMYR $player
+     * @return void
+     */
+    private function calculateScoreAfterGoalAccomplish(GameGoalMYR $gameGoal, PlayerMYR $player): void
+    {
+        $previousPlayers = $gameGoal->getPrecedentsPlayers();
+        foreach ($previousPlayers as $previousPlayer) {
+            $previousPlayer->setScore(
+                $previousPlayer->getScore() + MyrmesParameters::SCORE_INCREASE_GOAL_ALREADY_DONE
+            );
+            $this->entityManager->persist($previousPlayer);
+        }
+        match ($gameGoal->getGoal()->getDifficulty()) {
+            MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE =>
+                $player->setScore($player->getScore() + MyrmesParameters::SCORE_INCREASE_GOAL_DIFFICULTY_ONE),
+            MyrmesParameters::GOAL_DIFFICULTY_LEVEL_TWO =>
+                $player->setScore($player->getScore() + MyrmesParameters::SCORE_INCREASE_GOAL_DIFFICULTY_TWO),
+            MyrmesParameters::GOAL_DIFFICULTY_LEVEL_THREE =>
+                $player->setScore($player->getScore() + MyrmesParameters::SCORE_INCREASE_GOAL_DIFFICULTY_THREE),
+        };
+        $this->entityManager->persist($player);
+
+        $gameGoal->addPrecedentsPlayer($player);
+        $this->entityManager->persist($gameGoal);
+
+        $this->entityManager->flush();
+    }
+
+    /**
+     * doesPlayerHaveDoneGoalWithLowerDifficulty: return true if the player have done a goal with a lower difficulty
+     * @param PlayerMYR $player
+     * @param GoalMYR $goal
+     * @return bool
+     */
+    private function doesPlayerHaveDoneGoalWithLowerDifficulty(PlayerMYR $player, GoalMYR $goal): bool
+    {
+        return match ($goal->getDifficulty()) {
+            MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE => true,
+            MyrmesParameters::GOAL_DIFFICULTY_LEVEL_TWO => $this->doesPlayerHaveDoneDifficultyOneGoal($player),
+            MyrmesParameters::GOAL_DIFFICULTY_LEVEL_THREE => $this->doesPlayerHaveDoneDifficultyTwoGoal($player),
+        };
+    }
+
+    /**
+     * doesPlayerHaveDoneDifficultyOneGoal: return true if the player has done a difficulty one goal before
+     * @param PlayerMYR $player
+     * @return bool
+     */
+    private function doesPlayerHaveDoneDifficultyOneGoal(PlayerMYR $player) : bool
+    {
+        $game = $player->getGameMyr();
+        $goals = $game->getMainBoardMYR()->getGameGoalsLevelOne();
+        return  $this->doesPlayerHaveDoneOneOfTheSelectedGoal($goals, $player);
+    }
+
+    /**
+     * doesPlayerHaveDoneDifficultyTwoGoal: return true if the player has done a difficulty two goal before
+     * @param PlayerMYR $player
+     * @return bool
+     */
+    private function doesPlayerHaveDoneDifficultyTwoGoal(PlayerMYR $player) : bool
+    {
+        $game = $player->getGameMyr();
+        $goals = $game->getMainBoardMYR()->getGameGoalsLevelTwo();
+        return  $this->doesPlayerHaveDoneOneOfTheSelectedGoal($goals, $player);
+    }
+
+    /**
+     * doesPlayerHaveDoneOneOfTheSelectedGoal: return true if the player has done one of the selected goal
+     * @param Collection<GameGoalMYR> $goals
+     * @param PlayerMYR $player
+     * @return bool
+     */
+    private function doesPlayerHaveDoneOneOfTheSelectedGoal(Collection $goals, PlayerMYR $player): bool
+    {
+        foreach ($goals as $goal) {
+            foreach ($goal->getPrecedentsPlayers() as $previousPlayer) {
+                if ($previousPlayer === $player) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
