@@ -12,11 +12,15 @@ use App\Entity\Game\Myrmes\NurseMYR;
 use App\Entity\Game\Myrmes\PlayerMYR;
 use App\Entity\Game\Myrmes\PlayerResourceMYR;
 use App\Entity\Game\Myrmes\PreyMYR;
+use App\Entity\Game\Myrmes\ResourceMYR;
 use App\Entity\Game\Myrmes\SeasonMYR;
+use App\Repository\Game\Myrmes\GoalMYRRepository;
 use App\Repository\Game\Myrmes\NurseMYRRepository;
 use App\Entity\Game\Myrmes\TileMYR;
 use App\Entity\Game\Myrmes\TileTypeMYR;
 use App\Repository\Game\Myrmes\PlayerMYRRepository;
+use App\Repository\Game\Myrmes\ResourceMYRRepository;
+use App\Repository\Game\Myrmes\PlayerResourceMYRRepository;
 use App\Repository\Game\Myrmes\SeasonMYRRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use App\Repository\Game\Myrmes\TileMYRRepository;
@@ -32,9 +36,36 @@ class MYRService
                 private readonly NurseMYRRepository $nurseMYRRepository,
                 private readonly TileMYRRepository $tileMYRRepository,
                 private readonly TileTypeMYRRepository $tileTypeMYRRepository,
-                private readonly SeasonMYRRepository $seasonMYRRepository)
+                private readonly SeasonMYRRepository $seasonMYRRepository,
+                private readonly GoalMYRRepository $goalMYRRepository,
+                private readonly ResourceMYRRepository $resourceMYRRepository,
+                private readonly PlayerResourceMYRRepository $playerResourceMYRRepository)
     {
 
+    }
+
+    /**
+     * getPlayerResourceAmount : returns the quantity of player's resource type
+     * @param PlayerMYR $playerMYR
+     * @param string $resourceName
+     * @return int
+     */
+    public function getPlayerResourceAmount(PlayerMYR $playerMYR, string $resourceName): int
+    {
+        $resource = $this->resourceMYRRepository->findOneBy(["description"=>$resourceName]);
+        $playerResource = $this->playerResourceMYRRepository->findOneBy(["resource"=>$resource]);
+        return $playerResource== null ? 0 : $playerResource->getQuantity();
+    }
+
+    /**
+     * getAvailableLarvae : returns available player larvae
+     * @param PlayerMYR $playerMYR
+     * @return int
+     */
+    public function getAvailableLarvae(PlayerMYR $playerMYR): int
+    {
+        $personalBoard = $playerMYR->getPersonalBoardMYR();
+        return $personalBoard->getLarvaCount() - $personalBoard->getSelectedEventLarvaeAmount();
     }
 
     /**
@@ -43,7 +74,8 @@ class MYRService
      * @param int $phase
      * @return bool
      */
-    public function isInPhase(PlayerMYR $playerMYR, int $phase): bool {
+    public function isInPhase(PlayerMYR $playerMYR, int $phase): bool
+    {
         return $playerMYR->getPhase() == $phase;
     }
 
@@ -90,11 +122,11 @@ class MYRService
     }
 
     /**
-     * getPhermononesFromType : returns all orientations of a pheremone or special tile from a type
+     * getPheromonesFromType : returns all orientations of a pheremone or special tile from a type
      * @param int $type
      * @return ArrayCollection<Int, TileTypeMYR>
      */
-    public function getPhermononesFromType(int $type) : ArrayCollection
+    public function getPheromonesFromType(int $type) : ArrayCollection
     {
         return new ArrayCollection($this->tileTypeMYRRepository->findBy(
             ["type" => $type]
@@ -145,7 +177,7 @@ class MYRService
      * @param GameMYR $game
      * @return SeasonMYR|null
      */
-    private function getActualSeason(GameMYR $game) : ?SeasonMYR
+    public function getActualSeason(GameMYR $game) : ?SeasonMYR
     {
         foreach ($game->getMainBoardMYR()->getSeasons() as $season) {
             if ($season->isActualSeason()) {
@@ -174,6 +206,22 @@ class MYRService
         }
 
         return null;
+    }
+
+    /**
+     * canManageEndOfPhase : indicate if all players have played this phase and are waiting for the next one
+     * @param GameMYR $gameMYR
+     * @param int $phase
+     * @return bool
+     */
+    public function canManageEndOfPhase(GameMYR $gameMYR, int $phase): bool
+    {
+        foreach ($gameMYR->getPlayers() as $player) {
+            if($player->getPhase() == $phase) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -304,10 +352,28 @@ class MYRService
         $player->setRemainingHarvestingBonus(0);
 
         $this->initializeColorForPlayer($player, $color);
+        $this->initializePlayerResources($player);
 
         $this->entityManager->persist($player);
         $this->entityManager->persist($personalBoard);
         $this->entityManager->flush();
+        $this->setPhase($player, MyrmesParameters::PHASE_EVENT);
+    }
+
+    /**
+     * initializePlayerResources: initialize with 0 quantity the player resources
+     * @param PlayerMYR $player
+     * @return void
+     */
+    private function initializePlayerResources(PlayerMYR $player) : void
+    {
+        foreach ($this->resourceMYRRepository->findAll() as $resource) {
+            $playerResource = new PlayerResourceMYR();
+            $playerResource->setResource($resource);
+            $playerResource->setPersonalBoard($player->getPersonalBoardMYR());
+            $playerResource->setQuantity(0);
+            $this->entityManager->persist($playerResource);
+        }
     }
 
     /**
@@ -335,7 +401,7 @@ class MYRService
         $worker = new AnthillWorkerMYR();
         $worker->setPlayer($player);
         $worker->setPersonalBoardMYR($player->getPersonalBoardMYR());
-        $worker->setWorkFloor(0);
+        $worker->setWorkFloor(MyrmesParameters::NO_WORKFLOOR);
         $this->entityManager->persist($worker);
     }
 
@@ -480,6 +546,29 @@ class MYRService
         }
         // TODO : COMPUTE GOAL COSTS
         $this->computePlayerRewardPointsWithGoal($playerMYR, $goalMYR);
+    }
+
+    /**
+     * setPhase: Set a new phase of the game for a player, and change the game phase if all player have the same
+     * @param PlayerMYR $playerMYR
+     * @param int $phase
+     * @return void
+     */
+    public function setPhase(PlayerMYR $playerMYR, int $phase): void
+    {
+        $playerMYR->setPhase($phase);
+        $areAllPlayerAtTheSamePhase = true;
+        foreach($playerMYR->getGameMyr()->getPlayers() as $player) {
+            if($player->getPhase() != $phase) {
+                $areAllPlayerAtTheSamePhase = false;
+            }
+        }
+        if($areAllPlayerAtTheSamePhase) {
+            $playerMYR->getGameMyr()->setGamePhase($phase);
+            $this->entityManager->persist($playerMYR->getGameMyr());
+        }
+        $this->entityManager->persist($playerMYR);
+        $this->entityManager->flush();
     }
 
     /**
@@ -638,6 +727,32 @@ class MYRService
         $this->entityManager->persist($game->getMainBoardMYR());
         $this->entityManager->persist($spring);
         $this->entityManager->persist($game);
+        $this->entityManager->flush();
+    }
+
+
+    private function initializeGoals(GameMYR $game) : void
+    {
+        $goalsLevelOne = $this->goalMYRRepository->findBy([
+            'difficulty' => MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE
+        ]);
+        $goalsLevelTwo = $this->goalMYRRepository->findBy([
+            'difficulty' => MyrmesParameters::GOAL_DIFFICULTY_LEVEL_TWO
+        ]);
+        $goalsLevelThree = $this->goalMYRRepository->findBy([
+            'difficulty' => MyrmesParameters::GOAL_DIFFICULTY_LEVEL_THREE
+        ]);
+        shuffle($goalsLevelOne);
+        shuffle($goalsLevelTwo);
+        shuffle($goalsLevelThree);
+        $game->getMainBoardMYR()->addGameGoalsLevelOne($goalsLevelOne[0]);
+        $game->getMainBoardMYR()->addGameGoalsLevelOne($goalsLevelOne[1]);
+        $game->getMainBoardMYR()->addGameGoalsLevelTwo($goalsLevelTwo[0]);
+        $game->getMainBoardMYR()->addGameGoalsLevelTwo($goalsLevelTwo[1]);
+        $game->getMainBoardMYR()->addGameGoalsLevelThree($goalsLevelThree[0]);
+        $game->getMainBoardMYR()->addGameGoalsLevelThree($goalsLevelThree[1]);
+
+        $this->entityManager->persist($game->getMainBoardMYR());
         $this->entityManager->flush();
     }
 

@@ -3,6 +3,7 @@
 namespace App\Service\Game\Myrmes;
 
 use App\Entity\Game\Myrmes\AnthillHoleMYR;
+use App\Entity\Game\Myrmes\GameMYR;
 use App\Entity\Game\Myrmes\MyrmesParameters;
 use App\Entity\Game\Myrmes\NurseMYR;
 use App\Entity\Game\Myrmes\PheromonMYR;
@@ -10,6 +11,8 @@ use App\Entity\Game\Myrmes\PheromonTileMYR;
 use App\Entity\Game\Myrmes\PlayerMYR;
 use App\Entity\Game\Myrmes\PlayerResourceMYR;
 use App\Entity\Game\Myrmes\TileMYR;
+use App\Repository\Game\MessageRepository;
+use App\Repository\Game\Myrmes\AnthillHoleMYRRepository;
 use App\Repository\Game\Myrmes\NurseMYRRepository;
 use App\Repository\Game\Myrmes\PheromonMYRRepository;
 use App\Repository\Game\Myrmes\PheromonTileMYRRepository;
@@ -21,9 +24,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 
-/**
- * @codeCoverageIgnore
- */
+
 class WorkshopMYRService
 {
 
@@ -35,8 +36,49 @@ class WorkshopMYRService
                                 private readonly PheromonMYRRepository $pheromonMYRRepository,
                                 private readonly ResourceMYRRepository $resourceMYRRepository,
                                 private readonly PlayerResourceMYRRepository $playerResourceMYRRepository,
-                                private readonly NurseMYRRepository $nurseMYRRepository)
+                                private readonly NurseMYRRepository $nurseMYRRepository,
+                                private readonly AnthillHoleMYRRepository $anthillHoleMYRRepository)
     {}
+
+    /**
+     * getAvailableAnthillHolesPositions : returns a list of possible new anthill holes positions
+     * @param PlayerMYR $player
+     * @return ArrayCollection<Int, TileMYR>
+     */
+    public function getAvailableAnthillHolesPositions(PlayerMYR $player) : ArrayCollection
+    {
+        $pheromones = $player->getPheromonMYRs();
+        $result = new ArrayCollection();
+        foreach ($pheromones as $pheromone) {
+            $pheromoneTiles = $pheromone->getPheromonTiles();
+            foreach ($pheromoneTiles as $pheromoneTile) {
+                $tile = $pheromoneTile->getTile();
+                $adjacentTiles = $this->getAdjacentTiles($tile);
+                foreach ($adjacentTiles as $adjacentTile) {
+                    if ($this->isValidPosition($player, $adjacentTile)) {
+                        $result->add($adjacentTile);
+                    }
+                }
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * canSetPhaseToWorkshop : before entering workshop phase, check if the player has nurses in workshop area
+     * @param PlayerMYR $playerMYR
+     * @return bool
+     */
+    public function canSetPhaseToWorkshop(PlayerMYR $playerMYR): bool
+    {
+        $personalBoard = $playerMYR->getPersonalBoardMYR();
+        foreach($personalBoard->getNurses() as $nurse) {
+            if($nurse->getArea() == MyrmesParameters::WORKSHOP_AREA) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     /**
      * Manage resources and purchase about position of nurse
@@ -72,6 +114,20 @@ class WorkshopMYRService
                 throw new Exception("Don't give bonus");
         }
         $this->entityManager->flush();
+    }
+
+    /**
+     * manageEndOfWorkshop : end the workshop round
+     * @param GameMYR $gameMYR
+     * @return void
+     * @throws Exception
+     */
+    public function manageEndOfWorkshop(GameMYR $gameMYR): void
+    {
+        if(!$this->MYRService->canManageEndOfPhase($gameMYR, MyrmesParameters::PHASE_WORKSHOP)) {
+            throw new Exception("All members have not played yet");
+        }
+        $this->MYRService->manageEndOfRound($gameMYR);
     }
 
     /**
@@ -112,6 +168,10 @@ class WorkshopMYRService
         $mainBoard = $player->getGameMyr()->getMainBoardMYR();
         $pheromoneTile = $this->pheromoneTileMYRRepository->findBy(["mainBoard" => $mainBoard, "tile" => $tile]);
         if ($pheromoneTile != null) {
+            return false;
+        }
+        $anthillHole = $this->anthillHoleMYRRepository->findBy(["mainBoard" => $mainBoard, "tile" => $tile]);
+        if ($anthillHole != null) {
             return false;
         }
         $prey = $this->preyMYRRepository->findBy(["mainBoardMYR" => $mainBoard, "tile" => $tile]);
@@ -157,8 +217,10 @@ class WorkshopMYRService
 
     /**
      * Manage all change driven by add anthill hole
-     * @param int $nursesCount
+     *
+     * @param int       $nursesCount
      * @param PlayerMYR $player
+     * @param TileMYR   $tile
      * @return void
      * @throws Exception
      */
@@ -360,4 +422,5 @@ class WorkshopMYRService
         }
         $this->entityManager->flush();
     }
+
 }

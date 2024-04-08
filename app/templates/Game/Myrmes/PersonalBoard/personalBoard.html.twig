@@ -11,7 +11,7 @@ This section displays the personal board of a player
     {% set gapSize = 'gap-[0.3vw]' %}
     {% set gapBetweenAreasSize = '' %}
 {% else %}
-    {% set gapSize = 'gap-[1.5vw]' %}
+    {% set gapSize = 'gap-[1vw]' %}
     {% set gapBetweenAreasSize = 'gap-[2vw]' %}
 {% endif %}
 {% if not isAnotherPlayerBoard %}
@@ -22,6 +22,12 @@ This section displays the personal board of a player
 {% set PHASE_WORKER = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::PHASE_WORKER') %}
 {% set PHASE_HARVEST = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::PHASE_HARVEST') %}
 {% set PHASE_WORKSHOP = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::PHASE_WORKSHOP') %}
+{% set PHASE_WINTER = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::PHASE_WINTER') %}
+
+{% set SPRING_SEASON_NAME = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::SPRING_SEASON_NAME') %}
+{% set SUMMER_SEASON_NAME = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::SUMMER_SEASON_NAME') %}
+{% set FALL_SEASON_NAME = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::FALL_SEASON_NAME') %}
+{% set WINTER_SEASON_NAME = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::WINTER_SEASON_NAME') %}
 
 {% set LARVAE_BIRTH_TRACK_POSITION = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::LARVAE_AREA') %}
 {% set SOLDIERS_BIRTH_TRACK_POSITION = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::SOLDIERS_AREA') %}
@@ -39,16 +45,17 @@ This section displays the personal board of a player
         {% else %}
             absolute left-0 w-[75%] h-full
         {% endif%}
-        inlineFlex gap-[1vw] justify-center items-center"
+        inlineFlex gap-[1vw]"
     >
         {# loading tailwind data#}
         {{ include('Game/Myrmes/PersonalBoard/loadingPersonalBoardData.html.twig') }}
-        <div class="inlineFlexCol {% if isPreview %}gap-[0.3vw]{% else %}gap-[2vw]{% endif %} w-[45%]" id="left-column">
+        <div class="inlineFlexCol {% if isPreview %}gap-[0.3vw]{% else %}gap-[1vw]{% endif %} w-[45%]" id="left-column">
             {#birth tracks#}
             {{ include('Game/Myrmes/PersonalBoard/displayBirthTrack.html.twig') }}
             {#nurse counter#}
             <div class="w-full" id="nurses">
-                <p class="{% if isPreview %}text_mini {% else %} text1-4 {% endif %}">Nourrices : X</p>
+                <p class="{% if isPreview %}text_mini {% else %} text1-4 {% endif %}">
+                    Nourrices : {{ player.personalBoardMYR.nurses.count }}</p>
             </div>
             {#event track#}
             {{ include('Game/Myrmes/PersonalBoard/displayEventTrack.html.twig') }}

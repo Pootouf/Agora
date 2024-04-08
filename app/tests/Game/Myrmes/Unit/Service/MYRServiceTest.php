@@ -11,8 +11,11 @@ use App\Entity\Game\Myrmes\NurseMYR;
 use App\Entity\Game\Myrmes\PersonalBoardMYR;
 use App\Entity\Game\Myrmes\PlayerMYR;
 use App\Entity\Game\Myrmes\SeasonMYR;
+use App\Repository\Game\Myrmes\GoalMYRRepository;
 use App\Repository\Game\Myrmes\NurseMYRRepository;
 use App\Repository\Game\Myrmes\PlayerMYRRepository;
+use App\Repository\Game\Myrmes\PlayerResourceMYRRepository;
+use App\Repository\Game\Myrmes\ResourceMYRRepository;
 use App\Repository\Game\Myrmes\SeasonMYRRepository;
 use App\Repository\Game\Myrmes\TileMYRRepository;
 use App\Repository\Game\Myrmes\TileTypeMYRRepository;
@@ -31,8 +34,13 @@ class MYRServiceTest extends TestCase
         $tileMYRRepository = $this->createMock(TileMYRRepository::class);
         $tileTypeMYRRepository = $this->createMock(TileTypeMYRRepository::class);
         $seasonMYRRepository = $this->createMock(SeasonMYRRepository::class);
+        $resourceMYRRepository = $this->createMock(ResourceMYRRepository::class);
+        $playerResourceMYRRepository = $this->createMock(PlayerResourceMYRRepository::class);
+        $goalMYRRepository = $this->createMock(GoalMYRRepository::class);
         $this->MYRService = new MYRService($playerMYRRepository, $entityManager, $nurseMYRRepository,
-            $tileMYRRepository, $tileTypeMYRRepository, $seasonMYRRepository);
+            $tileMYRRepository, $tileTypeMYRRepository,
+            $seasonMYRRepository, $goalMYRRepository,
+            $resourceMYRRepository, $playerResourceMYRRepository);
     }
 
     public function testActivateGoalWhenGoalIsLevelOne() : void
@@ -140,6 +148,45 @@ class MYRServiceTest extends TestCase
         $this->MYRService->doGameGoal($firstPlayer, $gameGoal);
     }
 
+    public function testSetPhaseWhenOnlyOnePlayerChangePhase() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $lastPlayer = $game->getPlayers()->last();
+        $newPhase = MyrmesParameters::PHASE_EVENT;
+        $oldPhase = $lastPlayer->getPhase();
+
+        //WHEN
+        $this->MYRService->setPhase($firstPlayer, $newPhase);
+
+        //THEN
+        $this->assertSame($firstPlayer->getPhase(), $newPhase);
+        $this->assertNotEquals($oldPhase, $firstPlayer->getPhase());
+        $this->assertNotEquals($game->getGamePhase(), $newPhase);
+
+    }
+
+    public function testSetPhaseWhenTwoPlayerChangePhase() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $lastPlayer = $game->getPlayers()->last();
+        $newPhase = MyrmesParameters::PHASE_EVENT;
+        $oldPhase = $lastPlayer->getPhase();
+        $firstPlayer->setPhase($newPhase);
+        //WHEN
+        $this->MYRService->setPhase($lastPlayer, $newPhase);
+
+        //THEN
+        $this->assertSame($lastPlayer->getPhase(), $newPhase);
+        $this->assertSame($firstPlayer->getPhase(), $lastPlayer->getPhase());
+        $this->assertNotEquals($oldPhase, $firstPlayer->getPhase());
+        $this->assertSame($game->getGamePhase(), $newPhase);
+
+    }
+
     private function createGame(int $numberOfPlayers) : GameMYR
     {
         if($numberOfPlayers < MyrmesParameters::MIN_NUMBER_OF_PLAYER ||
@@ -151,6 +198,7 @@ class MYRServiceTest extends TestCase
             $player = new PlayerMYR('test', $game);
             $game->addPlayer($player);
             $player->setGameMyr($game);
+            $player->setPhase(MyrmesParameters::PHASE_INVALID);
             $personalBoard = new PersonalBoardMYR();
             $player->setPersonalBoardMYR($personalBoard);
             for($j = 0; $j < MyrmesParameters::START_NURSES_COUNT_PER_PLAYER; $j += 1) {
@@ -160,6 +208,7 @@ class MYRServiceTest extends TestCase
         }
         $mainBoard = new MainBoardMYR();
         $game->setMainBoardMYR($mainBoard);
+        $game->setGamePhase(MyrmesParameters::PHASE_INVALID);
 
         return $game;
     }
