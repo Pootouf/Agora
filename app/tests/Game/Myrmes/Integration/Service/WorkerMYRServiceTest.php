@@ -3080,6 +3080,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $game->setMainBoardMYR($mainBoard);
         $game->setGameName("test");
         $game->setLaunched(true);
+        $game->setGamePhase(MyrmesParameters::PHASE_INVALID);
         $this->entityManager->persist($mainBoard);
         $this->entityManager->persist($game);
         $this->entityManager->flush();

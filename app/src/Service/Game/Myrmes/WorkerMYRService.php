@@ -271,40 +271,43 @@ class WorkerMYRService
      * @param GardenWorkerMYR $gardenWorker
      * @param int $direction
      * @return void
+     * @throws Exception
      */
     public function workerMove(PlayerMYR $player,
        GardenWorkerMYR $gardenWorker, int $direction) : void
     {
-        if ($this->canWorkerMove($player, $gardenWorker, $direction))
+        if (!$this->canWorkerMove($player, $gardenWorker, $direction))
         {
-            $tile =
-                $this->getTileAtDirection($gardenWorker->getTile(), $direction);
-            $gardenWorker->setTile($tile);
+            throw new Exception("Cannot move ant in this direction, 
+                    maybe there is water or out of board, or maybe not enough resources");
+        }
+        $tile =
+            $this->getTileAtDirection($gardenWorker->getTile(), $direction);
+        $gardenWorker->setTile($tile);
 
-            $prey = $this->getPreyOnTile($tile);
-            $pheromone = $this->getPheromoneOnTile($tile);
-            if ($prey != null)
-            {
-                $this->attackPrey($player, $prey);
-            } else if ($pheromone != null
-                && $pheromone->getPheromonMYR()->getPlayer() !== $player)
-            {
-                $personalBoard = $player->getPersonalBoardMYR();
+        $prey = $this->getPreyOnTile($tile);
+        $pheromone = $this->getPheromoneOnTile($tile);
+        if ($prey != null)
+        {
+            $this->attackPrey($player, $prey);
+        } else if ($pheromone != null
+            && $pheromone->getPheromonMYR()->getPlayer() !== $player)
+        {
+            $personalBoard = $player->getPersonalBoardMYR();
 
-                $personalBoard->setWarriorsCount(
-                    $personalBoard->getWarriorsCount() - 1
-                );
-            }
+            $personalBoard->setWarriorsCount(
+                $personalBoard->getWarriorsCount() - 1
+            );
+        }
 
+        $this->entityManager->persist($gardenWorker);
+
+        if ($pheromone->getPheromonMYR()->getPlayer() !== $player)
+        {
+            $gardenWorker->setShiftsCount(
+                $gardenWorker->getShiftsCount() - 1
+            );
             $this->entityManager->persist($gardenWorker);
-
-            if ($pheromone->getPheromonMYR()->getPlayer() !== $player)
-            {
-                $gardenWorker->setShiftsCount(
-                    $gardenWorker->getShiftsCount() - 1
-                );
-                $this->entityManager->persist($gardenWorker);
-            }
         }
         $this->entityManager->flush();
     }
@@ -674,15 +677,15 @@ class WorkerMYRService
                 $coordX = $coord[0] + $translationX;
                 $coordY = $coord[1] + $translationY;
                 $newTile = $this->getTileAtCoordinate($coordX, $coordY);
+                if (!($this->isPositionAvailable($game, $newTile) && !$this->containsPrey($game, $newTile))) {
+                    $correctPlacement = false;
+                    break;
+                }
                 $boardTile = new BoardTileMYR($newTile, $isPivot);
                 if ($isPivot) {
                     $isPivot = false;
                 }
                 $tileList->add($boardTile);
-                if (!($this->isPositionAvailable($game, $newTile) && !$this->containsPrey($game, $newTile))) {
-                    $correctPlacement = false;
-                    break;
-                }
             }
             if ($correctPlacement && $this->containsAnt($player, $tileList)) {
                 $result->add($tileList);

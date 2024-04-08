@@ -10,6 +10,7 @@ use App\Entity\Game\Myrmes\PersonalBoardMYR;
 use App\Entity\Game\Myrmes\PlayerMYR;
 use App\Entity\Game\Myrmes\PlayerResourceMYR;
 use App\Entity\Game\Myrmes\ResourceMYR;
+use App\Entity\Game\Myrmes\SeasonMYR;
 use App\Repository\Game\Myrmes\GoalMYRRepository;
 use App\Repository\Game\Myrmes\NurseMYRRepository;
 use App\Repository\Game\Myrmes\PlayerMYRRepository;
@@ -22,6 +23,7 @@ use App\Service\Game\Myrmes\MYRService;
 use App\Service\Game\Myrmes\WinterMYRService;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
+use Exception;
 use PHPUnit\Framework\TestCase;
 
 class WinterMYRServiceTest extends TestCase
@@ -141,6 +143,204 @@ class WinterMYRServiceTest extends TestCase
         $this->winterMYRService->retrievePoints($player);
     }
 
+    public function testMustDropResourcesForWinterReturnTrueWhenHaving5ResourcesWithAnthillHole0(): void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $player->setPhase(MyrmesParameters::PHASE_WINTER);
+        $playerResource = new PlayerResourceMYR();
+        $resource = new ResourceMYR();
+        $resource->setDescription(MyrmesParameters::RESOURCE_TYPE_DIRT);
+        $playerResource->setResource($resource);
+        $playerResource->setQuantity(1);
+        $playerResource->setPersonalBoard($player->getPersonalBoardMYR());
+        $player->getPersonalBoardMYR()->addPlayerResourceMYR($playerResource);
+
+        //WHEN
+        $result = $this->winterMYRService->mustDropResourcesForWinter($player);
+
+        //THEN
+        $this->assertTrue($result);
+    }
+
+    public function testMustDropResourcesForWinterReturnTrueWhenHaving7ResourcesWithAnthillHole2(): void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $player->setPhase(MyrmesParameters::PHASE_WINTER);
+        $player->getPersonalBoardMYR()->setAnthillLevel(2);
+        $playerResource = new PlayerResourceMYR();
+        $resource = new ResourceMYR();
+        $resource->setDescription(MyrmesParameters::RESOURCE_TYPE_DIRT);
+        $playerResource->setResource($resource);
+        $playerResource->setQuantity(3);
+        $playerResource->setPersonalBoard($player->getPersonalBoardMYR());
+        $player->getPersonalBoardMYR()->addPlayerResourceMYR($playerResource);
+
+        //WHEN
+        $result = $this->winterMYRService->mustDropResourcesForWinter($player);
+
+        //THEN
+        $this->assertTrue($result);
+    }
+
+    public function testMustDropResourcesForWinterReturnFalseWhenHaving4ResourcesWhenAnthillHoleLevel0(): void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $player->setPhase(MyrmesParameters::PHASE_WINTER);
+
+        //WHEN
+        $result = $this->winterMYRService->mustDropResourcesForWinter($player);
+
+        //THEN
+        $this->assertFalse($result);
+    }
+
+    public function testMustDropResourcesForWinterReturnFalseWhenHaving6ResourcesWithAnthillHoleLevel2(): void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $player->setPhase(MyrmesParameters::PHASE_WINTER);
+        $player->getPersonalBoardMYR()->setAnthillLevel(2);
+        //WHEN
+        $result = $this->winterMYRService->mustDropResourcesForWinter($player);
+
+        //THEN
+        $this->assertFalse($result);
+    }
+
+    public function testCanManageEndOfWinterReturnFalseIfPlayerMustDropResources(): void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $lastPlayer = $game->getPlayers()->last();
+        $firstPlayer->setPhase(MyrmesParameters::PHASE_WINTER);
+        $lastPlayer->setPhase(MyrmesParameters::PHASE_WINTER);
+        $firstPlayer->getPersonalBoardMYR()->setAnthillLevel(2);
+        $lastPlayer->getPersonalBoardMYR()->setAnthillLevel(2);
+        $playerResource = new PlayerResourceMYR();
+        $resource = new ResourceMYR();
+        $resource->setDescription(MyrmesParameters::RESOURCE_TYPE_DIRT);
+        $playerResource->setResource($resource);
+        $playerResource->setQuantity(3);
+        $firstPlayer->getPersonalBoardMYR()->addPlayerResourceMYR($playerResource);
+        $lastPlayer->getPersonalBoardMYR()->addPlayerResourceMYR($playerResource);
+
+        //WHEN
+        $result = $this->winterMYRService->canManageEndOfWinter($game);
+
+        //THEN
+        $this->assertFalse($result);
+    }
+
+    public function testCanManageEndOfWinterReturnTrueIfNoPlayerMustDropResources(): void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $lastPlayer = $game->getPlayers()->last();
+        $firstPlayer->setPhase(MyrmesParameters::PHASE_WINTER);
+        $lastPlayer->setPhase(MyrmesParameters::PHASE_WINTER);
+        $firstPlayer->getPersonalBoardMYR()->setAnthillLevel(2);
+        $lastPlayer->getPersonalBoardMYR()->setAnthillLevel(2);
+
+        //WHEN
+        $result = $this->winterMYRService->canManageEndOfWinter($game);
+
+        //THEN
+        $this->assertTrue($result);
+    }
+
+    public function testCanSetPhaseToWinterReturnTrueIfActualSeasonIsFall(): void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $season = new SeasonMYR();
+        $season->setName(MyrmesParameters::FALL_SEASON_NAME);
+        $season->setActualSeason(true);
+        $season->setMainBoard($game->getMainBoardMYR());
+        $season->setDiceResult(1);
+        $game->getMainBoardMYR()->addSeason($season);
+
+        //WHEN
+        $result = $this->winterMYRService->canSetPhaseToWinter($game);
+
+        //THEN
+        $this->assertTrue($result);
+    }
+
+    public function testCanSetPhaseToWinterReturnFalseIfActualSeasonIsSpring(): void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $season = new SeasonMYR();
+        $season->setName(MyrmesParameters::SPRING_SEASON_NAME);
+        $season->setActualSeason(true);
+        $season->setMainBoard($game->getMainBoardMYR());
+        $season->setDiceResult(1);
+        $game->getMainBoardMYR()->addSeason($season);
+
+        //WHEN
+        $result = $this->winterMYRService->canSetPhaseToWinter($game);
+
+        //THEN
+        $this->assertFalse($result);
+    }
+
+    public function testRemoveCubeFromWarehouseSuccessfullyWhenPlayerHasTheResource(): void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $playerResource = $player->getPersonalBoardMYR()->getPlayerResourceMYRs()->first();
+        $expectedQuantity = $playerResource->getQuantity() - 1;
+        //WHEN
+        try {
+            $this->winterMYRService->removeCubeOfWarehouse($player, $playerResource);
+        } catch (\Exception $e) {
+            // must not arrive here
+        }
+        //THEN
+        $this->assertEquals($expectedQuantity, $playerResource->getQuantity());
+    }
+
+    public function testRemoveCubeFromWarehouseFailWhenPlayerWantToRemoveAResourceWhenNoResource(): void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $playerResource = $firstPlayer->getPersonalBoardMYR()->getPlayerResourceMYRs()->first();
+        $playerResource->setQuantity(0);
+        //THEN
+        $this->expectException(Exception::class);
+
+        //WHEN
+        $this->winterMYRService->removeCubeOfWarehouse($firstPlayer, $playerResource);
+
+    }
+
+    public function testRemoveCubeFromWarehouseFailWhenPlayerWantToRemoveAResourceFromAnotherPlayerResource(): void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $lastPlayer = $game->getPlayers()->last();
+        $playerResource = $lastPlayer->getPersonalBoardMYR()->getPlayerResourceMYRs()->first();
+
+        //THEN
+        $this->expectException(Exception::class);
+
+        //WHEN
+        $this->winterMYRService->removeCubeOfWarehouse($firstPlayer, $playerResource);
+
+    }
+
     private function createGame(int $numberOfPlayers) : GameMYR
     {
         if($numberOfPlayers < MyrmesParameters::MIN_NUMBER_OF_PLAYER ||
@@ -160,6 +360,7 @@ class WinterMYRServiceTest extends TestCase
             $playerFood->setResource($resource);
             $playerFood->setPersonalBoard($personalBoard);
             $personalBoard->addPlayerResourceMYR($playerFood);
+            $personalBoard->setAnthillLevel(0);
             $player->setPersonalBoardMYR($personalBoard);
             for($j = 0; $j < MyrmesParameters::START_NURSES_COUNT_PER_PLAYER; $j += 1) {
                 $nurse = new NurseMYR();
@@ -169,6 +370,7 @@ class WinterMYRServiceTest extends TestCase
         $mainBoard = new MainBoardMYR();
         $mainBoard->setYearNum(MyrmesParameters::FIRST_YEAR_NUM);
         $game->setMainBoardMYR($mainBoard);
+        $game->setGamePhase(MyrmesParameters::PHASE_INVALID);
         return $game;
     }
 

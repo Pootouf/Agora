@@ -3,6 +3,7 @@
 namespace App\Service\Game\Myrmes;
 
 use App\Entity\Game\Myrmes\AnthillHoleMYR;
+use App\Entity\Game\Myrmes\GameMYR;
 use App\Entity\Game\Myrmes\MyrmesParameters;
 use App\Entity\Game\Myrmes\NurseMYR;
 use App\Entity\Game\Myrmes\PheromonMYR;
@@ -10,6 +11,7 @@ use App\Entity\Game\Myrmes\PheromonTileMYR;
 use App\Entity\Game\Myrmes\PlayerMYR;
 use App\Entity\Game\Myrmes\PlayerResourceMYR;
 use App\Entity\Game\Myrmes\TileMYR;
+use App\Repository\Game\MessageRepository;
 use App\Repository\Game\Myrmes\AnthillHoleMYRRepository;
 use App\Repository\Game\Myrmes\NurseMYRRepository;
 use App\Repository\Game\Myrmes\PheromonMYRRepository;
@@ -22,9 +24,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 
-/**
- * @codeCoverageIgnore
- */
+
 class WorkshopMYRService
 {
 
@@ -39,6 +39,46 @@ class WorkshopMYRService
                                 private readonly NurseMYRRepository $nurseMYRRepository,
                                 private readonly AnthillHoleMYRRepository $anthillHoleMYRRepository)
     {}
+
+    /**
+     * getAvailableAnthillHolesPositions : returns a list of possible new anthill holes positions
+     * @param PlayerMYR $player
+     * @return ArrayCollection<Int, TileMYR>
+     */
+    public function getAvailableAnthillHolesPositions(PlayerMYR $player) : ArrayCollection
+    {
+        $pheromones = $player->getPheromonMYRs();
+        $result = new ArrayCollection();
+        foreach ($pheromones as $pheromone) {
+            $pheromoneTiles = $pheromone->getPheromonTiles();
+            foreach ($pheromoneTiles as $pheromoneTile) {
+                $tile = $pheromoneTile->getTile();
+                $adjacentTiles = $this->getAdjacentTiles($tile);
+                foreach ($adjacentTiles as $adjacentTile) {
+                    if ($this->isValidPosition($player, $adjacentTile)) {
+                        $result->add($adjacentTile);
+                    }
+                }
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * canSetPhaseToWorkshop : before entering workshop phase, check if the player has nurses in workshop area
+     * @param PlayerMYR $playerMYR
+     * @return bool
+     */
+    public function canSetPhaseToWorkshop(PlayerMYR $playerMYR): bool
+    {
+        $personalBoard = $playerMYR->getPersonalBoardMYR();
+        foreach($personalBoard->getNurses() as $nurse) {
+            if($nurse->getArea() == MyrmesParameters::WORKSHOP_AREA) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     /**
      * Manage resources and purchase about position of nurse
@@ -77,27 +117,17 @@ class WorkshopMYRService
     }
 
     /**
-     * getAvailableAnthillHolesPositions : returns a list of possible new anthill holes positions
-     * @param PlayerMYR $player
-     * @return ArrayCollection<Int, TileMYR>
+     * manageEndOfWorkshop : end the workshop round
+     * @param GameMYR $gameMYR
+     * @return void
+     * @throws Exception
      */
-    public function getAvailableAnthillHolesPositions(PlayerMYR $player) : ArrayCollection
+    public function manageEndOfWorkshop(GameMYR $gameMYR): void
     {
-        $pheromones = $player->getPheromonMYRs();
-        $result = new ArrayCollection();
-        foreach ($pheromones as $pheromone) {
-            $pheromoneTiles = $pheromone->getPheromonTiles();
-            foreach ($pheromoneTiles as $pheromoneTile) {
-                $tile = $pheromoneTile->getTile();
-                $adjacentTiles = $this->getAdjacentTiles($tile);
-                foreach ($adjacentTiles as $adjacentTile) {
-                    if ($this->isValidPosition($player, $adjacentTile)) {
-                        $result->add($adjacentTile);
-                    }
-                }
-            }
+        if(!$this->MYRService->canManageEndOfPhase($gameMYR, MyrmesParameters::PHASE_WORKSHOP)) {
+            throw new Exception("All members have not played yet");
         }
-        return $result;
+        $this->MYRService->manageEndOfRound($gameMYR);
     }
 
     /**
@@ -392,4 +422,5 @@ class WorkshopMYRService
         }
         $this->entityManager->flush();
     }
+
 }
