@@ -11,12 +11,6 @@ stages:
   - sonarqube
   - deploy
 
-cache:
-  key: ${CI_COMMIT_REF_SLUG}
-  paths:
-    - vendor/
-    - var/
-
 
 variables:
   MYSQL_ROOT_PASSWORD: password
@@ -90,13 +84,14 @@ before_script:
 build:
   stage: build
   before_script:
-    - ''
-  script:
     - cd app
     - composer install
     - symfony console tailwind:build
-  artifacts:
-    untracked: true
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - app/vendor/
+      - app/var/
 
 
 unitFactory:
