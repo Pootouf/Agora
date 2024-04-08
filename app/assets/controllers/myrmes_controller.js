@@ -1,4 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
+import workshop from "../scripts/Myrmes/workshop.js";
 
 export default class extends Controller  {
 
@@ -164,5 +165,10 @@ export default class extends Controller  {
             ).addEventListener("finish",
                 () => openedPlayerPersonalBoard.setAttributeNode(hidden));
         }
+    }
+
+    toggleWorkshopMenu(open) {
+        let opened = open.params.open;
+        workshop.toggleWorkshop(opened);
     }
 }
