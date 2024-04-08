@@ -106,20 +106,60 @@ class WorkshopMYRService
             MyrmesParameters::GOAL_RESOURCE_FOOD_NAME => $this->retrieveResourcesToDoFoodGoal($player, $goalDifficulty),
             MyrmesParameters::GOAL_RESOURCE_STONE_NAME => $this->retrieveResourcesToDoStoneGoal($player, $goalDifficulty),
             MyrmesParameters::GOAL_RESOURCE_STONE_OR_DIRT_NAME => throw new Exception("Call method 
-                                                                 retrieveResourcesToDoStoneOrDirtGoal to do this Goal"),
+                                                                 doStoneOrDirtGoal to do this Goal"),
             MyrmesParameters::GOAL_LARVAE_NAME => $this->retrieveResourcesToDoLarvaeGoal($player, $goalDifficulty),
             MyrmesParameters::GOAL_PREY_NAME => $this->retrieveResourcesToDoPreyGoal($player, $goalDifficulty),
             MyrmesParameters::GOAL_SOLDIER_NAME => $this->retrieveResourcesToDoSoldierGoal($player, $goalDifficulty),
             MyrmesParameters::GOAL_NURSES_NAME => $this->retrieveResourcesToDoNursesGoal($player, $goalDifficulty),
             MyrmesParameters::GOAL_ANTHILL_LEVEL_NAME => $this->retrieveResourcesToDoAnthillLevelGoal($player, $goalDifficulty),
             MyrmesParameters::GOAL_SPECIAL_TILE_NAME => throw new Exception("Call method 
-                                                                    retrieveResourcesToDoSpecialTileGoal to do this Goal"),
+                                                                    doSpecialTileGoal to do this Goal"),
             MyrmesParameters::GOAL_PHEROMONE_NAME => throw new Exception("Call method 
-                                                                    retrieveResourcesToDoPheromoneGoal to do this Goal"),
+                                                                    doPheromoneGoal to do this Goal"),
             default => throw new Exception("Goal does not exist"),
         };
         $this->setNurseUsedInGoal($nurse);
         $this->calculateScoreAfterGoalAccomplish($gameGoalMYR, $player);
+    }
+
+    /**
+     * doStoneOrDirtGoal: make the player accomplish the stone or dirt goal if possible
+     * @param PlayerMYR $player
+     * @param GoalMYR $goal
+     * @param int $stoneQuantity
+     * @param int $dirtQuantity
+     * @return void
+     * @throws Exception
+     */
+    public function doStoneOrDirtGoal(PlayerMYR $player, GoalMYR $goal,
+        int $stoneQuantity,
+        int $dirtQuantity
+    ) : void
+    {
+        if (!$this->canPlayerDoStoneOrDirtGoal($player, $goal->getDifficulty())
+            || ($goal->getDifficulty() == MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE
+                && $stoneQuantity + $dirtQuantity < 3)
+            || ($goal->getDifficulty() == MyrmesParameters::GOAL_DIFFICULTY_LEVEL_THREE
+                && $stoneQuantity + $dirtQuantity < 6)
+        ) {
+            throw new Exception('Player cannot do stone or dirt goal');
+        }
+        $resourceStone = $this->getPlayerResourcesFromSelectedType($player, MyrmesParameters::RESOURCE_TYPE_STONE);
+        $resourceDirt = $this->getPlayerResourcesFromSelectedType($player, MyrmesParameters::RESOURCE_TYPE_DIRT);
+
+        if ($resourceStone->getQuantity() < $stoneQuantity) {
+            throw new Exception('Not enough stone to pay the cost');
+        }
+        if ($resourceDirt->getQuantity() < $dirtQuantity) {
+            throw new Exception('Not enough dirt to pay the cost');
+        }
+
+        $resourceStone->setQuantity($resourceStone->getQuantity() - $stoneQuantity);
+        $resourceDirt->setQuantity($resourceDirt->getQuantity() - $dirtQuantity);
+
+        $this->entityManager->persist($resourceStone);
+        $this->entityManager->persist($resourceDirt);
+        $this->entityManager->flush();
     }
 
 
