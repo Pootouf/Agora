@@ -608,15 +608,15 @@ class WorkerMYRService
                 $coordX = $coord[0] + $translationX;
                 $coordY = $coord[1] + $translationY;
                 $newTile = $this->getTileAtCoordinate($coordX, $coordY);
+                if (!($this->isPositionAvailable($game, $newTile) && !$this->containsPrey($game, $newTile))) {
+                    $correctPlacement = false;
+                    break;
+                }
                 $boardTile = new BoardTileMYR($newTile, $isPivot);
                 if ($isPivot) {
                     $isPivot = false;
                 }
                 $tileList->add($boardTile);
-                if (!($this->isPositionAvailable($game, $newTile) && !$this->containsPrey($game, $newTile))) {
-                    $correctPlacement = false;
-                    break;
-                }
             }
             if ($correctPlacement && $this->containsAnt($player, $tileList)) {
                 $result->add($tileList);
