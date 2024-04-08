@@ -674,8 +674,8 @@ class WorkerMYRService
             $translationY = $translation[1];
             $correctPlacement = true;
             foreach ($coords as $coord) {
-                $coordX = $coord[0] + $translationX;
-                $coordY = $coord[1] + $translationY;
+                $coordX = $coord->getCoordX() + $translationX;
+                $coordY = $coord->getCoordY() + $translationY;
                 $newTile = $this->getTileAtCoordinate($coordX, $coordY);
                 if (!($this->isPositionAvailable($game, $newTile) && !$this->containsPrey($game, $newTile))) {
                     $correctPlacement = false;
@@ -697,14 +697,14 @@ class WorkerMYRService
     /**
      * containsAnt : checks if any of the tile in the list contains an ant
      * @param PlayerMYR       $player
-     * @param ArrayCollection<Int, TileMYR> $tileList
+     * @param ArrayCollection<Int, BoardTileMYR> $tileList
      * @return bool
      */
     private function containsAnt(PlayerMYR $player, ArrayCollection $tileList) : bool
     {
         foreach ($tileList as $tile) {
             if ($this->gardenWorkerMYRRepository->findOneBy(
-                ["tile" => $tile->getId(), "player" => $player->getId()]
+                ["tile" => $tile->getTile()->getId(), "player" => $player->getId()]
             ) != null) {
                return true;
             }
