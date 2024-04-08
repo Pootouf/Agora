@@ -18,7 +18,9 @@ use App\Entity\Game\Myrmes\SeasonMYR;
 use App\Entity\Game\Myrmes\TileMYR;
 use App\Entity\Game\Myrmes\TileTypeMYR;
 use App\Repository\Game\Myrmes\GardenWorkerMYRRepository;
+use App\Repository\Game\Myrmes\TileMYRRepository;
 use App\Service\Game\Myrmes\WorkerMYRService;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
@@ -27,11 +29,13 @@ class WorkerMYRServiceTest extends KernelTestCase
 
     private EntityManagerInterface $entityManager;
     private WorkerMYRService $workerMYRService;
+    private TileMYRRepository $tileMYRRepository;
 
     protected function setUp() : void
     {
         $this->entityManager = static::getContainer()->get(EntityManagerInterface::class);
         $this->workerMYRService = static::getContainer()->get(WorkerMYRService::class);
+        $this->tileMYRRepository = static::getContainer()->get(TileMYRRepository::class);
     }
 
     public function testTakeOutAntSuccessWithValidExitHole()
@@ -3039,6 +3043,53 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->expectException(\Exception::class);
         // WHEN
         $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+    }
+
+    public function testGetAllAvailablePositionsWithTileTypeZeroAndOrientationZero() : void
+    {
+        //GIVEN
+        $game = $this->createGame(4);
+        $player = $game->getPlayers()->first();
+        $chosenX = 7;
+        $chosenY = 12;
+        $chosenTile = $this->tileMYRRepository->findOneBy(["coord_X" => $chosenX, "coord_Y" => $chosenY]);
+        $adjacentTile = $this->tileMYRRepository->findOneBy(["coord_X" => $chosenX + 1, "coord_Y" => $chosenY + 1]);
+        $pivotMinusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $chosenX - 1, "coord_Y" => $chosenY - 1]);
+        $adjacentTileMinusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $chosenX, "coord_Y" => $chosenY]);
+        $gardenWorker = new GardenWorkerMYR();
+        $gardenWorker->setTile($chosenTile);
+        $gardenWorker->setPlayer($player);
+        $gardenWorker->setMainBoardMYR($game->getMainBoardMYR());
+        $gardenWorker->setShiftsCount(0);
+        $this->entityManager->persist($gardenWorker);
+        $tileType = new TileTypeMYR();
+        $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_ZERO);
+        $tileType->setOrientation(0);
+        $this->entityManager->persist($tileType);
+        $this->entityManager->flush();
+        $expectedList1 = new ArrayCollection([$chosenTile, $adjacentTile]);
+        $expectedList2 = new ArrayCollection([$pivotMinusOne, $adjacentTileMinusOne]);
+        $expectedSize = 2;
+        //WHEN
+        $result = $this->workerMYRService->getAllAvailablePositions($player, $chosenTile, $tileType);
+        //THEN
+        $boardTile1 = $result->first()->first()->getTile();
+        $boardTile2 = $result->first()->last()->getTile();
+        $boardTile3 = $result->last()->first()->getTile();
+        $boardTile4 = $result->last()->last()->getTile();
+        $resultList1 = new ArrayCollection([$boardTile1, $boardTile2]);
+        $resultList2 = new ArrayCollection([$boardTile3, $boardTile4]);
+        $this->assertSame($expectedSize, $result->count());
+        $i = 0;
+        foreach ($expectedList1 as $item) {
+            $this->assertSame($item, $resultList1->get($i));
+            ++$i;
+        }
+        $i = 0;
+        foreach ($expectedList2 as $item) {
+            $this->assertSame($item, $resultList2->get($i));
+            ++$i;
+        }
     }
 
     private function createGame(int $numberOfPlayers) : GameMYR
