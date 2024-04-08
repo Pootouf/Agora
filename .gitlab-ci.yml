@@ -67,6 +67,7 @@ variables:
   paths:
     - app/vendor/
     - app/var/
+    - app/assets/vendor
   policy: pull-push
   when: on_success
 
@@ -94,6 +95,7 @@ build:
   script:
     - composer install
     - symfony console tailwind:build
+    - symfony console importmap:install
   cache:
     <<: *cache
     policy: push
