@@ -31,10 +31,14 @@ class WinterMYRService
     {
         $personalBoard = $playerMYR->getPersonalBoardMYR();
         $anthillLevel = $personalBoard->getAnthillLevel();
+        $totalResourcesCount = 0;
+        foreach($personalBoard->getPlayerResourceMYRs() as $playerResourceMYR) {
+            $totalResourcesCount += $playerResourceMYR->getQuantity();
+        }
         return $playerMYR->getPhase() == MyrmesParameters::PHASE_WINTER and
             $anthillLevel < 2 ?
-            $personalBoard->getPlayerResourceMYRs()->count() > MyrmesParameters::WAREHOUSE_LOCATIONS_AVAILABLE_ANTHILL_LEVEL_LESS_THAN_2
-            : $personalBoard->getPlayerResourceMYRs()->count() > MyrmesParameters::WAREHOUSE_LOCATIONS_AVAILABLE_ANTHILL_LEVEL_AT_LEAST_2;
+            $totalResourcesCount > MyrmesParameters::WAREHOUSE_LOCATIONS_AVAILABLE_ANTHILL_LEVEL_LESS_THAN_2
+            : $totalResourcesCount > MyrmesParameters::WAREHOUSE_LOCATIONS_AVAILABLE_ANTHILL_LEVEL_AT_LEAST_2;
     }
 
     /**
@@ -45,7 +49,7 @@ class WinterMYRService
     public function canManageEndOfWinter(GameMYR $gameMYR) : bool
     {
         foreach ($gameMYR->getPlayers() as $player) {
-            if(!$this->mustDropResourcesForWinter($player)) {
+            if($this->mustDropResourcesForWinter($player)) {
                 return false;
             }
         }
@@ -72,15 +76,15 @@ class WinterMYRService
     public function removeCubeOfWarehouse(PlayerMYR $player, PlayerResourceMYR $playerResource) : void
     {
         $pBoard = $player->getPersonalBoardMYR();
-
-        if (!$pBoard->getPlayerResourceMYRs()->contains($playerResource))
-        {
+        if ($playerResource->getPersonalBoard() !== $pBoard) {
             throw new Exception("Resource don't belongs to the player");
         }
+        if ($playerResource->getQuantity() < 1) {
+            throw new Exception("This resource is not in enough quantity to remove it ");
+        }
 
-        $pBoard->removePlayerResourceMYR($playerResource);
+        $playerResource->setQuantity($playerResource->getQuantity() -1);
 
-        $this->entityManager->persist($pBoard);
         $this->entityManager->persist($playerResource);
         $this->entityManager->flush();
     }
