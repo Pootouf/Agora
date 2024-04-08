@@ -141,7 +141,7 @@ class WorkshopMYRService
         if ($player->getPhase() != MyrmesParameters::PHASE_WORKSHOP) {
             return false;
         }
-        return $this->MYRService->getNursesAtPosition($player, $workshopArea) >= 0;
+        return $this->MYRService->getNursesAtPosition($player, $workshopArea)->count() > 0;
     }
 
     /**
@@ -218,9 +218,9 @@ class WorkshopMYRService
     /**
      * Manage all change driven by add anthill hole
      *
-     * @param int       $nursesCount
-     * @param PlayerMYR $player
-     * @param TileMYR   $tile
+     * @param int          $nursesCount
+     * @param PlayerMYR    $player
+     * @param TileMYR $tile
      * @return void
      * @throws Exception
      */
