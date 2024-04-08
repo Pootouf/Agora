@@ -3,11 +3,11 @@
 namespace App\Tests\Game\Myrmes\Integration\Service;
 
 use App\Entity\Game\Myrmes\AnthillHoleMYR;
+use App\Entity\Game\Myrmes\AnthillWorkerMYR;
 use App\Entity\Game\Myrmes\GameMYR;
 use App\Entity\Game\Myrmes\GardenWorkerMYR;
 use App\Entity\Game\Myrmes\MainBoardMYR;
 use App\Entity\Game\Myrmes\MyrmesParameters;
-use App\Entity\Game\Myrmes\NurseMYR;
 use App\Entity\Game\Myrmes\PersonalBoardMYR;
 use App\Entity\Game\Myrmes\PheromonMYR;
 use App\Entity\Game\Myrmes\PheromonTileMYR;
@@ -17,6 +17,7 @@ use App\Entity\Game\Myrmes\ResourceMYR;
 use App\Entity\Game\Myrmes\SeasonMYR;
 use App\Entity\Game\Myrmes\TileMYR;
 use App\Entity\Game\Myrmes\TileTypeMYR;
+use App\Repository\Game\Myrmes\GardenWorkerMYRRepository;
 use App\Service\Game\Myrmes\WorkerMYRService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -33,10 +34,206 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->workerMYRService = static::getContainer()->get(WorkerMYRService::class);
     }
 
+    public function testTakeOutAntSuccessWithValidExitHole()
+    {
+        // GIVEN
+
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $player->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::ANTHILL_LEVEL_TWO);
+        $this->entityManager->persist($player);
+        $ant = new AnthillWorkerMYR();
+        $ant->setPlayer($player);
+        $ant->setPersonalBoardMYR($player->getPersonalBoardMYR());
+        $ant->setWorkFloor(MyrmesParameters::NO_WORKFLOOR);
+        $player->getPersonalBoardMYR()->addAnthillWorker($ant);
+        $tile = new TileMYR();
+        $tile->setCoordX(0);
+        $tile->setCoordY(0);
+        $tile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $hole = new AnthillHoleMYR();
+        $hole->setMainBoardMYR($game->getMainBoardMYR());
+        $hole->setPlayer($player);
+        $hole->setTile($tile);
+        $this->entityManager->persist($tile);
+        $this->entityManager->persist($hole);
+        $this->entityManager->persist($ant);
+        $this->entityManager->persist($player->getPersonalBoardMYR());
+        $this->entityManager->flush();
+        $gardenWorkerRepository = static::getContainer()->get(GardenWorkerMYRRepository::class);
+        // WHEN
+        $this->workerMYRService->takeOutAnt($player->getPersonalBoardMYR(), $hole);
+        // THEN
+        $gardenWorker = $gardenWorkerRepository->findOneBy(['player' => $player->getId()]);
+        $this->assertNotNull($gardenWorker);
+    }
+
+    public function testTakeOutAntFailWithExitHoleOfOtherPlayer()
+    {
+        // GIVEN
+
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $player->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::ANTHILL_LEVEL_TWO);
+        $this->entityManager->persist($player);
+        $ant = new AnthillWorkerMYR();
+        $ant->setPlayer($player);
+        $ant->setPersonalBoardMYR($player->getPersonalBoardMYR());
+        $ant->setWorkFloor(MyrmesParameters::NO_WORKFLOOR);
+        $player->getPersonalBoardMYR()->addAnthillWorker($ant);
+        $tile = new TileMYR();
+        $tile->setCoordX(0);
+        $tile->setCoordY(0);
+        $tile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $hole = new AnthillHoleMYR();
+        $hole->setMainBoardMYR($game->getMainBoardMYR());
+        $hole->setPlayer($game->getPlayers()->last());
+        $hole->setTile($tile);
+        $this->entityManager->persist($tile);
+        $this->entityManager->persist($hole);
+        $this->entityManager->persist($ant);
+        $this->entityManager->persist($player->getPersonalBoardMYR());
+        $this->entityManager->flush();
+        // THEN
+        $this->expectException(\Exception::class);
+        // WHEN
+        $this->workerMYRService->takeOutAnt($player->getPersonalBoardMYR(), $hole);
+    }
+
+    public function testTakeOutAntFailWithNoMoreFreeAnts()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $player->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::ANTHILL_LEVEL_TWO);
+        $this->entityManager->persist($player);
+        $tile = new TileMYR();
+        $tile->setCoordX(0);
+        $tile->setCoordY(0);
+        $tile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $hole = new AnthillHoleMYR();
+        $hole->setMainBoardMYR($game->getMainBoardMYR());
+        $hole->setPlayer($player);
+        $hole->setTile($tile);
+        $this->entityManager->persist($tile);
+        $this->entityManager->persist($hole);
+        $this->entityManager->persist($player->getPersonalBoardMYR());
+        $this->entityManager->flush();
+        // THEN
+        $this->expectException(\Exception::class);
+        // WHEN
+        $this->workerMYRService->takeOutAnt($player->getPersonalBoardMYR(), $hole);
+    }
+
+    public function testTakeOutAntFailWithAntAlreadyAtTheExitHole()
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $player->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::ANTHILL_LEVEL_TWO);
+        $this->entityManager->persist($player);
+        $ant = new AnthillWorkerMYR();
+        $ant->setPlayer($player);
+        $ant->setPersonalBoardMYR($player->getPersonalBoardMYR());
+        $ant->setWorkFloor(MyrmesParameters::NO_WORKFLOOR);
+        $player->getPersonalBoardMYR()->addAnthillWorker($ant);
+        $tile = new TileMYR();
+        $tile->setCoordX(0);
+        $tile->setCoordY(0);
+        $tile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $hole = new AnthillHoleMYR();
+        $hole->setMainBoardMYR($game->getMainBoardMYR());
+        $hole->setPlayer($player);
+        $hole->setTile($tile);
+        $gardenWorker = new GardenWorkerMYR();
+        $gardenWorker->setTile($tile);
+        $gardenWorker->setPlayer($player);
+        $gardenWorker->setMainBoardMYR($game->getMainBoardMYR());
+        $gardenWorker->setShiftsCount(0);
+        $this->entityManager->persist($gardenWorker);
+        $this->entityManager->persist($tile);
+        $this->entityManager->persist($hole);
+        $this->entityManager->persist($ant);
+        $this->entityManager->persist($player->getPersonalBoardMYR());
+        $this->entityManager->flush();
+        // THEN
+        $this->expectException(\Exception::class);
+        // WHEN
+        $this->workerMYRService->takeOutAnt($player->getPersonalBoardMYR(), $hole);
+    }
+
+    public function testPlaceAntInAnthillSuccessWithValidFloorAndValidAnt()
+    {
+        // GIVEN
+
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $player->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::ANTHILL_LEVEL_TWO);
+        $this->entityManager->persist($player);
+        $ant = new AnthillWorkerMYR();
+        $ant->setPlayer($player);
+        $ant->setPersonalBoardMYR($player->getPersonalBoardMYR());
+        $ant->setWorkFloor(MyrmesParameters::NO_WORKFLOOR);
+        $player->getPersonalBoardMYR()->addAnthillWorker($ant);
+        $this->entityManager->persist($ant);
+        $this->entityManager->persist($player->getPersonalBoardMYR());
+        $this->entityManager->flush();
+        $selectedFloor = 2;
+        // WHEN
+        $this->workerMYRService->placeAntInAnthill($player->getPersonalBoardMYR(), $selectedFloor);
+        // THEN
+        $this->assertEquals($selectedFloor, $ant->getWorkFloor());
+    }
+
+    public function testPlaceAntInAnthillFailWithInvalidFloor()
+    {
+        // GIVEN
+
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $player->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::ANTHILL_LEVEL_TWO);
+        $this->entityManager->persist($player);
+        $ant = new AnthillWorkerMYR();
+        $ant->setPlayer($player);
+        $ant->setPersonalBoardMYR($player->getPersonalBoardMYR());
+        $ant->setWorkFloor(MyrmesParameters::NO_WORKFLOOR);
+        $player->getPersonalBoardMYR()->addAnthillWorker($ant);
+        $this->entityManager->persist($ant);
+        $this->entityManager->persist($player->getPersonalBoardMYR());
+        $this->entityManager->flush();
+        $selectedFloor = 3;
+        // THEN
+        $this->expectException(\Exception::class);
+        // WHEN
+        $this->workerMYRService->placeAntInAnthill($player->getPersonalBoardMYR(), $selectedFloor);
+    }
+
+    public function testPlaceAntInAnthillFailWithNoMoreFreeAnts()
+    {
+        // GIVEN
+
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $player->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::ANTHILL_LEVEL_TWO);
+        $this->entityManager->persist($player);
+        $ant = new AnthillWorkerMYR();
+        $ant->setPlayer($player);
+        $ant->setPersonalBoardMYR($player->getPersonalBoardMYR());
+        $ant->setWorkFloor(MyrmesParameters::ANTHILL_LEVEL_TWO);
+        $player->getPersonalBoardMYR()->addAnthillWorker($ant);
+        $this->entityManager->persist($ant);
+        $this->entityManager->persist($player->getPersonalBoardMYR());
+        $this->entityManager->flush();
+        $selectedFloor = 2;
+        // THEN
+        $this->expectException(\Exception::class);
+        // WHEN
+        $this->workerMYRService->placeAntInAnthill($player->getPersonalBoardMYR(), $selectedFloor);
+    }
+
     public function testPlaceAnthillHoleWhenPlaceIsAvailable()
     {
         // GIVEN
-        $workerMYRService = static::getContainer()->get(WorkerMYRService::class);
         $game = $this->createGame(2);
         $tile = new TileMYR();
         $tile->setType(MyrmesParameters::DIRT_TILE_TYPE);
@@ -46,7 +243,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->flush();
         $player = $game->getPlayers()->first();
         // WHEN
-        $workerMYRService->placeAnthillHole($player, $tile);
+        $this->workerMYRService->placeAnthillHole($player, $tile);
         // THEN
         $this->assertNotEmpty($player->getAnthillHoleMYRs());
     }
@@ -54,7 +251,6 @@ class WorkerMYRServiceTest extends KernelTestCase
     public function testPlaceAnthillHoleWhenPlaceIsNotAvailableBecauseThereIsAnthillHole()
     {
         // GIVEN
-        $workerMYRService = static::getContainer()->get(WorkerMYRService::class);
         $game = $this->createGame(2);
         $tile = new TileMYR();
         $tile->setType(MyrmesParameters::DIRT_TILE_TYPE);
@@ -72,13 +268,12 @@ class WorkerMYRServiceTest extends KernelTestCase
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
-        $workerMYRService->placeAnthillHole($player, $tile);
+        $this->workerMYRService->placeAnthillHole($player, $tile);
     }
 
     public function testPlaceAnthillHoleWhenPlaceIsNotAvailableBecauseTileIsWater()
     {
         // GIVEN
-        $workerMYRService = static::getContainer()->get(WorkerMYRService::class);
         $game = $this->createGame(2);
         $tile = new TileMYR();
         $tile->setType(MyrmesParameters::WATER_TILE_TYPE);
@@ -90,13 +285,12 @@ class WorkerMYRServiceTest extends KernelTestCase
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
-        $workerMYRService->placeAnthillHole($player, $tile);
+        $this->workerMYRService->placeAnthillHole($player, $tile);
     }
 
     public function testPlaceAnthillHoleWhenPlaceIsNotAvailableBecauseThereIsAPheromone()
     {
         // GIVEN
-        $workerMYRService = static::getContainer()->get(WorkerMYRService::class);
         $game = $this->createGame(2);
         $tile = new TileMYR();
         $tile->setType(MyrmesParameters::DIRT_TILE_TYPE);
@@ -128,7 +322,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
-        $workerMYRService->placeAnthillHole($player, $tile);
+        $this->workerMYRService->placeAnthillHole($player, $tile);
     }
 
     public function testPlacePheromoneOfTypeZeroWithOrientation0()
@@ -2849,7 +3043,6 @@ class WorkerMYRServiceTest extends KernelTestCase
 
     private function createGame(int $numberOfPlayers) : GameMYR
     {
-        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
         if($numberOfPlayers < MyrmesParameters::MIN_NUMBER_OF_PLAYER ||
             $numberOfPlayers > MyrmesParameters::MAX_NUMBER_OF_PLAYER) {
             throw new \Exception("TOO MUCH PLAYERS ON CREATE GAME");
@@ -2871,8 +3064,8 @@ class WorkerMYRServiceTest extends KernelTestCase
             $player->setScore(0);
             $player->setGoalLevel(0);
             $player->setRemainingHarvestingBonus(0);
-            $entityManager->persist($player);
-            $entityManager->persist($personalBoard);
+            $this->entityManager->persist($player);
+            $this->entityManager->persist($personalBoard);
         }
         $mainBoard = new MainBoardMYR();
         $mainBoard->setYearNum(0);
@@ -2883,13 +3076,13 @@ class WorkerMYRServiceTest extends KernelTestCase
         $season->setActualSeason(true);
         $season->setMainBoard($mainBoard);
         $mainBoard->addSeason($season);
-        $entityManager->persist($season);
+        $this->entityManager->persist($season);
         $game->setMainBoardMYR($mainBoard);
         $game->setGameName("test");
         $game->setLaunched(true);
-        $entityManager->persist($mainBoard);
-        $entityManager->persist($game);
-        $entityManager->flush();
+        $this->entityManager->persist($mainBoard);
+        $this->entityManager->persist($game);
+        $this->entityManager->flush();
 
         return $game;
     }

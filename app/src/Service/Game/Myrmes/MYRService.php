@@ -14,12 +14,13 @@ use App\Entity\Game\Myrmes\PlayerResourceMYR;
 use App\Entity\Game\Myrmes\PreyMYR;
 use App\Entity\Game\Myrmes\ResourceMYR;
 use App\Entity\Game\Myrmes\SeasonMYR;
+use App\Repository\Game\Myrmes\GoalMYRRepository;
 use App\Repository\Game\Myrmes\NurseMYRRepository;
 use App\Entity\Game\Myrmes\TileMYR;
 use App\Entity\Game\Myrmes\TileTypeMYR;
 use App\Repository\Game\Myrmes\PlayerMYRRepository;
-use App\Repository\Game\Myrmes\PlayerResourceMYRRepository;
 use App\Repository\Game\Myrmes\ResourceMYRRepository;
+use App\Repository\Game\Myrmes\PlayerResourceMYRRepository;
 use App\Repository\Game\Myrmes\SeasonMYRRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use App\Repository\Game\Myrmes\TileMYRRepository;
@@ -36,6 +37,7 @@ class MYRService
                 private readonly TileMYRRepository $tileMYRRepository,
                 private readonly TileTypeMYRRepository $tileTypeMYRRepository,
                 private readonly SeasonMYRRepository $seasonMYRRepository,
+                private readonly GoalMYRRepository $goalMYRRepository,
                 private readonly ResourceMYRRepository $resourceMYRRepository,
                 private readonly PlayerResourceMYRRepository $playerResourceMYRRepository)
     {
@@ -120,11 +122,11 @@ class MYRService
     }
 
     /**
-     * getPhermononesFromType : returns all orientations of a pheremone or special tile from a type
+     * getPheromonesFromType : returns all orientations of a pheremone or special tile from a type
      * @param int $type
      * @return ArrayCollection<Int, TileTypeMYR>
      */
-    public function getPhermononesFromType(int $type) : ArrayCollection
+    public function getPheromonesFromType(int $type) : ArrayCollection
     {
         return new ArrayCollection($this->tileTypeMYRRepository->findBy(
             ["type" => $type]
@@ -334,10 +336,27 @@ class MYRService
         $player->setRemainingHarvestingBonus(0);
 
         $this->initializeColorForPlayer($player, $color);
+        $this->initializePlayerResources($player);
 
         $this->entityManager->persist($player);
         $this->entityManager->persist($personalBoard);
         $this->entityManager->flush();
+    }
+
+    /**
+     * initializePlayerResources: initialize with 0 quantity the player resources
+     * @param PlayerMYR $player
+     * @return void
+     */
+    private function initializePlayerResources(PlayerMYR $player) : void
+    {
+        foreach ($this->resourceMYRRepository->findAll() as $resource) {
+            $playerResource = new PlayerResourceMYR();
+            $playerResource->setResource($resource);
+            $playerResource->setPersonalBoard($player->getPersonalBoardMYR());
+            $playerResource->setQuantity(0);
+            $this->entityManager->persist($playerResource);
+        }
     }
 
     /**
@@ -365,7 +384,7 @@ class MYRService
         $worker = new AnthillWorkerMYR();
         $worker->setPlayer($player);
         $worker->setPersonalBoardMYR($player->getPersonalBoardMYR());
-        $worker->setWorkFloor(0);
+        $worker->setWorkFloor(MyrmesParameters::NO_WORKFLOOR);
         $this->entityManager->persist($worker);
     }
 
@@ -668,6 +687,32 @@ class MYRService
         $this->entityManager->persist($game->getMainBoardMYR());
         $this->entityManager->persist($spring);
         $this->entityManager->persist($game);
+        $this->entityManager->flush();
+    }
+
+
+    private function initializeGoals(GameMYR $game) : void
+    {
+        $goalsLevelOne = $this->goalMYRRepository->findBy([
+            'difficulty' => MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE
+        ]);
+        $goalsLevelTwo = $this->goalMYRRepository->findBy([
+            'difficulty' => MyrmesParameters::GOAL_DIFFICULTY_LEVEL_TWO
+        ]);
+        $goalsLevelThree = $this->goalMYRRepository->findBy([
+            'difficulty' => MyrmesParameters::GOAL_DIFFICULTY_LEVEL_THREE
+        ]);
+        shuffle($goalsLevelOne);
+        shuffle($goalsLevelTwo);
+        shuffle($goalsLevelThree);
+        $game->getMainBoardMYR()->addGameGoalsLevelOne($goalsLevelOne[0]);
+        $game->getMainBoardMYR()->addGameGoalsLevelOne($goalsLevelOne[1]);
+        $game->getMainBoardMYR()->addGameGoalsLevelTwo($goalsLevelTwo[0]);
+        $game->getMainBoardMYR()->addGameGoalsLevelTwo($goalsLevelTwo[1]);
+        $game->getMainBoardMYR()->addGameGoalsLevelThree($goalsLevelThree[0]);
+        $game->getMainBoardMYR()->addGameGoalsLevelThree($goalsLevelThree[1]);
+
+        $this->entityManager->persist($game->getMainBoardMYR());
         $this->entityManager->flush();
     }
 
