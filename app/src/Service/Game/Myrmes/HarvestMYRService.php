@@ -7,9 +7,6 @@ use App\Entity\Game\Myrmes\TileMYR;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 
-/**
- * @codeCoverageIgnore
- */
 class HarvestMYRService
 {
     public function __construct(private readonly EntityManagerInterface $entityManager,

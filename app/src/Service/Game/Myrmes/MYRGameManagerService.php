@@ -26,9 +26,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 
 
-/**
- * @codeCoverageIgnore
- */
+
 class MYRGameManagerService extends AbstractGameManagerService
 {
 
