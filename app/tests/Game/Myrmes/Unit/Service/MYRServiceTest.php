@@ -144,6 +144,45 @@ class MYRServiceTest extends TestCase
         $this->MYRService->doGameGoal($firstPlayer, $gameGoal);
     }
 
+    public function testSetPhaseWhenOnlyOnePlayerChangePhase() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $lastPlayer = $game->getPlayers()->last();
+        $newPhase = MyrmesParameters::PHASE_EVENT;
+        $oldPhase = $lastPlayer->getPhase();
+
+        //WHEN
+        $this->MYRService->setPhase($firstPlayer, $newPhase);
+
+        //THEN
+        $this->assertSame($firstPlayer->getPhase(), $newPhase);
+        $this->assertNotEquals($oldPhase, $firstPlayer->getPhase());
+        $this->assertNotEquals($game->getGamePhase(), $newPhase);
+
+    }
+
+    public function testSetPhaseWhenTwoPlayerChangePhase() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $lastPlayer = $game->getPlayers()->last();
+        $newPhase = MyrmesParameters::PHASE_EVENT;
+        $oldPhase = $lastPlayer->getPhase();
+        $firstPlayer->setPhase($newPhase);
+        //WHEN
+        $this->MYRService->setPhase($lastPlayer, $newPhase);
+
+        //THEN
+        $this->assertSame($lastPlayer->getPhase(), $newPhase);
+        $this->assertSame($firstPlayer->getPhase(), $lastPlayer->getPhase());
+        $this->assertNotEquals($oldPhase, $firstPlayer->getPhase());
+        $this->assertSame($game->getGamePhase(), $newPhase);
+
+    }
+
     private function createGame(int $numberOfPlayers) : GameMYR
     {
         if($numberOfPlayers < MyrmesParameters::MIN_NUMBER_OF_PLAYER ||
@@ -155,6 +194,7 @@ class MYRServiceTest extends TestCase
             $player = new PlayerMYR('test', $game);
             $game->addPlayer($player);
             $player->setGameMyr($game);
+            $player->setPhase(MyrmesParameters::PHASE_INVALID);
             $personalBoard = new PersonalBoardMYR();
             $player->setPersonalBoardMYR($personalBoard);
             for($j = 0; $j < MyrmesParameters::START_NURSES_COUNT_PER_PLAYER; $j += 1) {
@@ -164,6 +204,7 @@ class MYRServiceTest extends TestCase
         }
         $mainBoard = new MainBoardMYR();
         $game->setMainBoardMYR($mainBoard);
+        $game->setGamePhase(MyrmesParameters::PHASE_INVALID);
 
         return $game;
     }

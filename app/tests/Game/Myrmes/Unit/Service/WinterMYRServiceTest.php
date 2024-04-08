@@ -165,6 +165,7 @@ class WinterMYRServiceTest extends TestCase
         $mainBoard = new MainBoardMYR();
         $mainBoard->setYearNum(MyrmesParameters::FIRST_YEAR_NUM);
         $game->setMainBoardMYR($mainBoard);
+        $game->setGamePhase(MyrmesParameters::PHASE_INVALID);
         return $game;
     }
 

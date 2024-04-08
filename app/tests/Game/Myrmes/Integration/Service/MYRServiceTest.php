@@ -212,6 +212,7 @@ class MYRServiceTest extends KernelTestCase
         $game->setMainBoardMYR($mainBoard);
         $game->setGameName("test");
         $game->setLaunched(true);
+        $game->setGamePhase(MyrmesParameters::PHASE_INVALID);
         $entityManager->persist($game);
         $entityManager->flush();
         return $game;
