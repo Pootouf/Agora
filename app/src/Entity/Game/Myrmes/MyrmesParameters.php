@@ -25,7 +25,14 @@ interface MyrmesParameters
 
     // Player color
 
-    const array PLAYERS_COLORS = ['blue', 'yellow', 'red', 'gray'];
+    const string PLAYER_COLOR_BLUE = 'blue';
+    const string PLAYER_COLOR_RED = 'red';
+    const string PLAYER_COLOR_YELLOW = 'yellow';
+    const string PLAYER_COLOR_GRAY = 'gray';
+
+    const array PLAYERS_COLORS = [
+        self::PLAYER_COLOR_BLUE, self::PLAYER_COLOR_YELLOW, self::PLAYER_COLOR_RED, self::PLAYER_COLOR_GRAY
+    ];
 
 
     // Area's for nurses
