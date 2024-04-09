@@ -46,10 +46,10 @@ interface MyrmesParameters
 
     // Workshop areas
 
-    const int WORKSHOP_GOAL_AREA = 1;
-    const int WORKSHOP_ANTHILL_HOLE_AREA = 2;
-    const int WORKSHOP_LEVEL_AREA = 3;
-    const int WORKSHOP_NURSE_AREA = 4;
+    const int WORKSHOP_GOAL_AREA = 5;
+    const int WORKSHOP_ANTHILL_HOLE_AREA = 6;
+    const int WORKSHOP_LEVEL_AREA = 7;
+    const int WORKSHOP_NURSE_AREA = 8;
 
 
     //Nurses parameters

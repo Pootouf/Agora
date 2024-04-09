@@ -8,15 +8,25 @@ use App\Entity\Game\Myrmes\MainBoardMYR;
 use App\Entity\Game\Myrmes\MyrmesParameters;
 use App\Entity\Game\Myrmes\NurseMYR;
 use App\Entity\Game\Myrmes\PersonalBoardMYR;
+use App\Entity\Game\Myrmes\PheromonMYR;
+use App\Entity\Game\Myrmes\PheromonTileMYR;
 use App\Entity\Game\Myrmes\PlayerMYR;
+use App\Entity\Game\Myrmes\PlayerResourceMYR;
+use App\Entity\Game\Myrmes\PreyMYR;
+use App\Entity\Game\Myrmes\ResourceMYR;
 use App\Entity\Game\Myrmes\SeasonMYR;
 use App\Entity\Game\Myrmes\TileMYR;
+use App\Entity\Game\Myrmes\TileTypeMYR;
+use App\Repository\Game\Myrmes\PlayerResourceMYRRepository;
+use App\Repository\Game\Myrmes\ResourceMYRRepository;
 use App\Repository\Game\Myrmes\TileMYRRepository;
+use App\Repository\Game\Myrmes\TileTypeMYRRepository;
 use App\Service\Game\Myrmes\MYRService;
 use App\Service\Game\Myrmes\WinterMYRService;
 use App\Service\Game\Myrmes\WorkshopMYRService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use function Symfony\Component\String\s;
 
 class WorkshopMYRServiceTest extends KernelTestCase
 {
@@ -24,12 +34,20 @@ class WorkshopMYRServiceTest extends KernelTestCase
     private WorkshopMYRService $workshopMYRService;
     private TileMYRRepository $tileMYRRepository;
 
+    private TileTypeMYRRepository $tileTypeMYRRepository;
+
+    private PlayerResourceMYRRepository $playerResourceMYRRepository;
+
+    private ResourceMYRRepository $resourceMYRRepository;
 
     protected function setUp() : void
     {
         $this->entityManager = static::getContainer()->get(EntityManagerInterface::class);
         $this->workshopMYRService = static::getContainer()->get(WorkshopMYRService::class);
         $this->tileMYRRepository = static::getContainer()->get(TileMYRRepository::class);
+        $this->tileTypeMYRRepository = static::getContainer()->get(TileTypeMYRRepository::class);
+        $this->playerResourceMYRRepository = static::getContainer()->get(PlayerResourceMYRRepository::class);
+        $this->resourceMYRRepository = static::getContainer()->get(ResourceMYRRepository::class);
     }
 
     public function testManageWorkshopShouldFailBecauseNotGoodPhase() : void
@@ -85,6 +103,252 @@ class WorkshopMYRServiceTest extends KernelTestCase
         $this->expectException(\Exception::class);
         //WHEN
         $this->workshopMYRService->manageWorkshop($player, MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA, $tile);
+    }
+
+    public function testPlaceAnthillLevelShouldFailBecauseChosenTileIsOnWater() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $player->setPhase(MyrmesParameters::PHASE_WORKSHOP);
+        $nurse = $player->getPersonalBoardMYR()->getNurses()->first();
+        $nurse->setArea(MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA);
+        $tile = $this->tileMYRRepository->findOneBy(["coord_X" => 10, "coord_Y" => 11]);
+        $this->entityManager->persist($nurse);
+        $this->entityManager->persist($player);
+        $this->entityManager->flush();
+        //THEN
+        $this->expectException(\Exception::class);
+        //WHEN
+        $this->workshopMYRService->manageWorkshop($player, MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA, $tile);
+    }
+
+    public function testPlaceAnthillLevelShouldFailBecauseChosenTileIsOnPheromoneTile() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $player->setPhase(MyrmesParameters::PHASE_WORKSHOP);
+        $nurse = $player->getPersonalBoardMYR()->getNurses()->first();
+        $nurse->setArea(MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA);
+        $pheromone = new PheromonMYR();
+        $pheromone->setPlayer($player);
+        $pheromone->setHarvested(false);
+        $tileType = $this->tileTypeMYRRepository->findOneBy(
+            ["type" => MyrmesParameters::PHEROMONE_TYPE_ZERO, "orientation" => 0]
+        );
+        $pheromone->setType($tileType);
+        $pheromoneTile = new PheromonTileMYR();
+        $tile = $this->tileMYRRepository->findOneBy(["coord_X" => 7, "coord_Y" => 12]);
+        $pheromoneTile->setTile($tile);
+        $pheromoneTile->setResource(null);
+        $pheromoneTile->setPheromonMYR($pheromone);
+        $pheromoneTile->setMainBoard($game->getMainBoardMYR());
+        $this->entityManager->persist($pheromoneTile);
+        $pheromone->addPheromonTile($pheromoneTile);
+        $this->entityManager->persist($pheromone);
+        $this->entityManager->persist($nurse);
+        $this->entityManager->persist($player);
+        $this->entityManager->flush();
+        //THEN
+        $this->expectException(\Exception::class);
+        //WHEN
+        $this->workshopMYRService->manageWorkshop($player, MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA, $tile);
+    }
+
+    public function testPlaceAnthillLevelShouldFailBecauseChosenTileIsOnAnthillHole() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $player->setPhase(MyrmesParameters::PHASE_WORKSHOP);
+        $nurse = $player->getPersonalBoardMYR()->getNurses()->first();
+        $nurse->setArea(MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA);
+        $tile = $this->tileMYRRepository->findOneBy(["coord_X" => 7, "coord_Y" => 12]);
+        $anthillHole = new AnthillHoleMYR();
+        $anthillHole->setMainBoardMYR($player->getGameMyr()->getMainBoardMYR());
+        $anthillHole->setPlayer($player);
+        $anthillHole->setTile($tile);
+        $player->addAnthillHoleMYR($anthillHole);
+        $this->entityManager->persist($player);
+        $this->entityManager->persist($anthillHole);
+        $this->entityManager->persist($nurse);
+        $this->entityManager->persist($player);
+        $this->entityManager->flush();
+        //THEN
+        $this->expectException(\Exception::class);
+        //WHEN
+        $this->workshopMYRService->manageWorkshop($player, MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA, $tile);
+    }
+
+    public function testPlaceAnthillLevelShouldFailBecauseChosenTileIsOnPrey() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $player->setPhase(MyrmesParameters::PHASE_WORKSHOP);
+        $nurse = $player->getPersonalBoardMYR()->getNurses()->first();
+        $nurse->setArea(MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA);
+        $tile = $this->tileMYRRepository->findOneBy(["coord_X" => 7, "coord_Y" => 12]);
+        $prey = new PreyMYR();
+        $prey->setTile($tile);
+        $prey->setType(MyrmesParameters::LADYBUG_TYPE);
+        $prey->setPlayer($player);
+        $prey->setMainBoardMYR($game->getMainBoardMYR());
+        $this->entityManager->persist($player);
+        $this->entityManager->persist($prey);
+        $this->entityManager->persist($nurse);
+        $this->entityManager->persist($player);
+        $this->entityManager->flush();
+        //THEN
+        $this->expectException(\Exception::class);
+        //WHEN
+        $this->workshopMYRService->manageWorkshop($player, MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA, $tile);
+    }
+
+    public function testPlaceAnthillLevelShouldFailBecauseChosenTileNotAroundPheromones() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $player->setPhase(MyrmesParameters::PHASE_WORKSHOP);
+        $nurse = $player->getPersonalBoardMYR()->getNurses()->first();
+        $nurse->setArea(MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA);
+        $tile = $this->tileMYRRepository->findOneBy(["coord_X" => 7, "coord_Y" => 12]);
+        $this->entityManager->persist($player);
+        $this->entityManager->persist($nurse);
+        $this->entityManager->persist($player);
+        $this->entityManager->flush();
+        //THEN
+        $this->expectException(\Exception::class);
+        //WHEN
+        $this->workshopMYRService->manageWorkshop($player, MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA, $tile);
+    }
+
+    public function testPlaceAnthillLevelShouldNotFailBecauseChosenTileAroundPheromones() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $player->setPhase(MyrmesParameters::PHASE_WORKSHOP);
+        $nurse = $player->getPersonalBoardMYR()->getNurses()->first();
+        $nurse->setArea(MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA);
+        $nurse2 = $player->getPersonalBoardMYR()->getNurses()->last();
+        $nurse2->setArea(MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA);
+        $tile = $this->tileMYRRepository->findOneBy(["coord_X" => 7, "coord_Y" => 12]);
+        $pheromone = new PheromonMYR();
+        $pheromone->setPlayer($player);
+        $pheromone->setHarvested(false);
+        $tileType = $this->tileTypeMYRRepository->findOneBy(
+            ["type" => MyrmesParameters::PHEROMONE_TYPE_ZERO, "orientation" => 0]
+        );
+        $pheromone->setType($tileType);
+        $pheromoneTile = new PheromonTileMYR();
+        $tile2 = $this->tileMYRRepository->findOneBy(["coord_X" => 6, "coord_Y" => 11]);
+        $pheromoneTile->setTile($tile2);
+        $pheromoneTile->setResource(null);
+        $pheromoneTile->setPheromonMYR($pheromone);
+        $pheromoneTile->setMainBoard($game->getMainBoardMYR());
+        $this->entityManager->persist($pheromoneTile);
+        $pheromone->addPheromonTile($pheromoneTile);
+        $this->entityManager->persist($pheromone);
+        $this->entityManager->persist($player);
+        $this->entityManager->persist($nurse);
+        $this->entityManager->persist($nurse2);
+        $this->entityManager->flush();
+        //WHEN
+        $this->workshopMYRService->manageWorkshop($player, MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA, $tile);
+        //THEN
+        $this->expectNotToPerformAssertions();
+    }
+
+    public function testPlaceAnthillLevelShouldPlayerOwnOneDirt() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $player->setPhase(MyrmesParameters::PHASE_WORKSHOP);
+        $nurse = $player->getPersonalBoardMYR()->getNurses()->first();
+        $nurse->setArea(MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA);
+        $tile = $this->tileMYRRepository->findOneBy(["coord_X" => 7, "coord_Y" => 12]);
+        $pheromone = new PheromonMYR();
+        $pheromone->setPlayer($player);
+        $pheromone->setHarvested(false);
+        $tileType = $this->tileTypeMYRRepository->findOneBy(
+            ["type" => MyrmesParameters::PHEROMONE_TYPE_ZERO, "orientation" => 0]
+        );
+        $pheromone->setType($tileType);
+        $pheromoneTile = new PheromonTileMYR();
+        $tile2 = $this->tileMYRRepository->findOneBy(["coord_X" => 6, "coord_Y" => 11]);
+        $pheromoneTile->setTile($tile2);
+        $pheromoneTile->setResource(null);
+        $pheromoneTile->setPheromonMYR($pheromone);
+        $pheromoneTile->setMainBoard($game->getMainBoardMYR());
+        $this->entityManager->persist($pheromoneTile);
+        $pheromone->addPheromonTile($pheromoneTile);
+        $this->entityManager->persist($pheromone);
+        $this->entityManager->persist($player);
+        $this->entityManager->persist($nurse);
+        $this->entityManager->flush();
+        $expectedAnthillHoleNb = 1;
+        $dirtResource = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::RESOURCE_TYPE_DIRT]);
+        $expectedPlayerDirtResourceNb = 1;
+        //WHEN
+        $this->workshopMYRService->manageWorkshop($player, MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA, $tile);
+        //THEN
+        $this->assertSame($expectedAnthillHoleNb, $player->getAnthillHoleMYRs()->count());
+        /** @var PlayerResourceMYR $playerDirtResource */
+        $playerDirtResource = $this->playerResourceMYRRepository->findOneBy(
+            ["resource" => $dirtResource, "personalBoard" => $player->getPersonalBoardMYR()]
+        );
+        $this->assertSame($expectedPlayerDirtResourceNb, $playerDirtResource->getQuantity());
+    }
+
+    public function testPlaceAnthillLevelShouldPlayerOwnTwoDirt() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $player->setPhase(MyrmesParameters::PHASE_WORKSHOP);
+        $nurse = $player->getPersonalBoardMYR()->getNurses()->first();
+        $nurse->setArea(MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA);
+        $tile = $this->tileMYRRepository->findOneBy(["coord_X" => 7, "coord_Y" => 12]);
+        $pheromone = new PheromonMYR();
+        $pheromone->setPlayer($player);
+        $pheromone->setHarvested(false);
+        $tileType = $this->tileTypeMYRRepository->findOneBy(
+            ["type" => MyrmesParameters::PHEROMONE_TYPE_ZERO, "orientation" => 0]
+        );
+        $pheromone->setType($tileType);
+        $pheromoneTile = new PheromonTileMYR();
+        $tile2 = $this->tileMYRRepository->findOneBy(["coord_X" => 6, "coord_Y" => 11]);
+        $pheromoneTile->setTile($tile2);
+        $pheromoneTile->setResource(null);
+        $pheromoneTile->setPheromonMYR($pheromone);
+        $pheromoneTile->setMainBoard($game->getMainBoardMYR());
+        $this->entityManager->persist($pheromoneTile);
+        $pheromone->addPheromonTile($pheromoneTile);
+        $dirtResource = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::RESOURCE_TYPE_DIRT]);
+        $playerDirtResource = new PlayerResourceMYR();
+        $playerDirtResource->setResource($dirtResource);
+        $playerDirtResource->setQuantity(1);
+        $playerDirtResource->setPersonalBoard($player->getPersonalBoardMYR());
+        $this->entityManager->persist($playerDirtResource);
+        $this->entityManager->persist($pheromone);
+        $this->entityManager->persist($player);
+        $this->entityManager->persist($nurse);
+        $this->entityManager->flush();
+        $expectedAnthillHoleNb = 1;
+        $expectedPlayerDirtResourceNb = 2;
+        //WHEN
+        $this->workshopMYRService->manageWorkshop($player, MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA, $tile);
+        //THEN
+        $this->assertSame($expectedAnthillHoleNb, $player->getAnthillHoleMYRs()->count());
+        /** @var PlayerResourceMYR $playerDirtResource */
+        $playerDirtResource = $this->playerResourceMYRRepository->findOneBy(
+            ["resource" => $dirtResource, "personalBoard" => $player->getPersonalBoardMYR()]
+        );
+        $this->assertSame($expectedPlayerDirtResourceNb, $playerDirtResource->getQuantity());
     }
 
     private function createGame(int $numberOfPlayers) : GameMYR
