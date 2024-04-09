@@ -11,7 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: GameMYRRepository::class)]
 class GameMYR extends Game
 {
-    #[ORM\OneToOne(inversedBy: 'gameMYR', cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(targetEntity: PlayerMYR::class)]
     #[ORM\JoinColumn(nullable: true)]
     private ?PlayerMYR $firstPlayer = null;
 
@@ -20,6 +20,9 @@ class GameMYR extends Game
 
     #[ORM\OneToOne(mappedBy: 'game', cascade: ['persist', 'remove'])]
     private ?MainBoardMYR $mainBoardMYR = null;
+
+    #[ORM\Column]
+    private ?int $gamePhase = null;
 
 
     public function __construct()
@@ -82,6 +85,18 @@ class GameMYR extends Game
         }
 
         $this->mainBoardMYR = $mainBoardMYR;
+
+        return $this;
+    }
+
+    public function getGamePhase(): ?int
+    {
+        return $this->gamePhase;
+    }
+
+    public function setGamePhase(int $gamePhase): static
+    {
+        $this->gamePhase = $gamePhase;
 
         return $this;
     }

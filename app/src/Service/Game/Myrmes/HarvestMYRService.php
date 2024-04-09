@@ -7,14 +7,39 @@ use App\Entity\Game\Myrmes\TileMYR;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 
-/**
- * @codeCoverageIgnore
- */
 class HarvestMYRService
 {
     public function __construct(private readonly EntityManagerInterface $entityManager,
                                 private readonly MYRService $MYRService)
     {}
+
+
+    /**
+     * areAllPheromonesHarvested : indicate if a player has ended its harvest obligatory phase
+     * @param PlayerMYR $playerMYR
+     * @return bool
+     */
+    public function areAllPheromonesHarvested(PlayerMYR $playerMYR): bool
+    {
+        $pheromones = $playerMYR->getPheromonMYRs();
+        foreach ($pheromones as $pheromone) {
+            if(!$pheromone->isHarvested()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * canStillHarvest : indicate if a player is still in harvest phase
+     * @param PlayerMYR $playerMYR
+     * @return bool
+     */
+    public function canStillHarvest(PlayerMYR $playerMYR): bool
+    {
+        return $this->areAllPheromonesHarvested($playerMYR) && $playerMYR->getRemainingHarvestingBonus() > 0
+            || !$this->areAllPheromonesHarvested($playerMYR);
+    }
 
     /**
      * harvestPheromone : remove the resources which is on tile and gives it to the player

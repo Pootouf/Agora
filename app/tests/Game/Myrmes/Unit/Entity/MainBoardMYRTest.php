@@ -3,6 +3,7 @@
 namespace App\Tests\Game\Myrmes\Unit\Entity;
 
 use App\Entity\Game\Myrmes\AnthillHoleMYR;
+use App\Entity\Game\Myrmes\GameGoalMYR;
 use App\Entity\Game\Myrmes\GameMYR;
 use App\Entity\Game\Myrmes\GardenWorkerMYR;
 use App\Entity\Game\Myrmes\MainBoardMYR;
@@ -187,6 +188,138 @@ class MainBoardMYRTest extends TestCase
 
         $this->assertNotContains($anthillHole, $this->mainBoardMYR->getAnthillHoles());
         $this->assertNull($anthillHole->getMainBoardMYR());
+    }
+
+    public function testAddSeasonNotYetAdded() : void
+    {
+        // GIVEN
+
+        $season = new SeasonMYR();
+
+        // WHEN
+
+        $this->mainBoardMYR->addSeason($season);
+
+        // THEN
+
+        $this->assertContains($season, $this->mainBoardMYR->getSeasons());
+        $this->assertSame($this->mainBoardMYR, $season->getMainBoard());
+    }
+
+    public function testRemoveSeasonNotYetRemoved() : void
+    {
+        // GIVEN
+
+        $season = new SeasonMYR();
+        $this->mainBoardMYR->addSeason($season);
+
+        // WHEN
+
+        $this->mainBoardMYR->removeSeason($season);
+
+        // THEN
+
+        $this->assertNotContains($season, $this->mainBoardMYR->getSeasons());
+        $this->assertNull($season->getMainBoard());
+    }
+
+    public function testAddGameGoalsLevelOne() : void
+    {
+        // GIVEN
+
+        $gameGoal = new GameGoalMYR();
+
+        // WHEN
+
+        $this->mainBoardMYR->addGameGoalsLevelOne($gameGoal);
+
+        // THEN
+
+        $this->assertContains($gameGoal, $this->mainBoardMYR->getGameGoalsLevelOne());
+        $this->assertSame($this->mainBoardMYR, $gameGoal->getMainBoardLevelOne());
+    }
+
+    public function testRemoveGameGoalLevelOneYetRemoved() : void
+    {
+        // GIVEN
+
+        $gameGoal = new GameGoalMYR();
+        $this->mainBoardMYR->addGameGoalsLevelOne($gameGoal);
+
+        // WHEN
+
+        $this->mainBoardMYR->removeGameGoalsLevelOne($gameGoal);
+
+        // THEN
+
+        $this->assertNotContains($gameGoal, $this->mainBoardMYR->getGameGoalsLevelOne());
+        $this->assertNull($gameGoal->getMainBoardLevelOne());
+    }
+
+    public function testAddGameGoalsLevelTwo() : void
+    {
+        // GIVEN
+
+        $gameGoal = new GameGoalMYR();
+
+        // WHEN
+
+        $this->mainBoardMYR->addGameGoalsLevelTwo($gameGoal);
+
+        // THEN
+
+        $this->assertContains($gameGoal, $this->mainBoardMYR->getGameGoalsLevelTwo());
+        $this->assertSame($this->mainBoardMYR, $gameGoal->getMainBoardLevelTwo());
+    }
+
+    public function testRemoveGameGoalLevelTwoYetRemoved() : void
+    {
+        // GIVEN
+
+        $gameGoal = new GameGoalMYR();
+        $this->mainBoardMYR->addGameGoalsLevelTwo($gameGoal);
+
+        // WHEN
+
+        $this->mainBoardMYR->removeGameGoalsLevelTwo($gameGoal);
+
+        // THEN
+
+        $this->assertNotContains($gameGoal, $this->mainBoardMYR->getGameGoalsLevelTwo());
+        $this->assertNull($gameGoal->getMainBoardLevelTwo());
+    }
+
+    public function testAddGameGoalsLevelThree() : void
+    {
+        // GIVEN
+
+        $gameGoal = new GameGoalMYR();
+
+        // WHEN
+
+        $this->mainBoardMYR->addGameGoalsLevelThree($gameGoal);
+
+        // THEN
+
+        $this->assertContains($gameGoal, $this->mainBoardMYR->getGameGoalsLevelThree());
+        $this->assertSame($this->mainBoardMYR, $gameGoal->getMainBoardLevelThree());
+    }
+
+    public function testRemoveGameGoalLevelThreeYetRemoved() : void
+    {
+        // GIVEN
+
+        $gameGoal = new GameGoalMYR();
+        $this->mainBoardMYR->addGameGoalsLevelThree($gameGoal);
+
+        // WHEN
+
+        $this->mainBoardMYR->removeGameGoalsLevelThree($gameGoal);
+
+        // THEN
+
+        $this->assertNotContains($gameGoal, $this->mainBoardMYR->getGameGoalsLevelThree());
+        $this->assertNull($gameGoal->getMainBoardLevelThree());
     }
 
     protected function setUp(): void

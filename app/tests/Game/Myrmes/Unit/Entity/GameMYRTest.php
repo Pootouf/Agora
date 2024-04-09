@@ -4,6 +4,7 @@ namespace App\Tests\Game\Myrmes\Unit\Entity;
 
 use App\Entity\Game\Myrmes\GameMYR;
 use App\Entity\Game\Myrmes\MainBoardMYR;
+use App\Entity\Game\Myrmes\MyrmesParameters;
 use App\Entity\Game\Myrmes\PlayerMYR;
 use PHPUnit\Framework\TestCase;
 
@@ -68,6 +69,16 @@ class GameMYRTest extends TestCase
 
         $this->assertNotContains($player, $this->gameMYR->getPlayers());
         $this->assertNull($player->getGameMyr());
+    }
+
+    public function testSetGamePhase() : void
+    {
+        //GIVEN
+        $phase = MyrmesParameters::PHASE_WINTER;
+        //WHEN
+        $this->gameMYR->setGamePhase($phase);
+        //THEN
+        self::assertSame($this->gameMYR->getGamePhase(), $phase);
     }
 
     public function test() : void

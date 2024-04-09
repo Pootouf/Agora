@@ -164,6 +164,32 @@ class MYRServiceTest extends KernelTestCase
         $this->MYRService->doGameGoal($firstPlayer, $gameGoal);
     }
 
+    public function testIsGameEndedShouldBeTrue() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $game->getMainBoardMYR()->setYearNum(MyrmesParameters::THIRD_YEAR_NUM + 1);
+        $this->entityManager->persist($game->getMainBoardMYR());
+        $this->entityManager->flush();
+        //WHEN
+        $isEnded = $this->MYRService->isGameEnded($game);
+        //THEN
+        $this->assertTrue($isEnded);
+    }
+
+    public function testIsGameEndedShouldBeFalse() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $game->getMainBoardMYR()->setYearNum(MyrmesParameters::THIRD_YEAR_NUM);
+        $this->entityManager->persist($game->getMainBoardMYR());
+        $this->entityManager->flush();
+        //WHEN
+        $isEnded = $this->MYRService->isGameEnded($game);
+        //THEN
+        $this->assertFalse($isEnded);
+    }
+
     private function createGame(int $numberOfPlayers) : GameMYR
     {
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);
@@ -212,6 +238,7 @@ class MYRServiceTest extends KernelTestCase
         $game->setMainBoardMYR($mainBoard);
         $game->setGameName("test");
         $game->setLaunched(true);
+        $game->setGamePhase(MyrmesParameters::PHASE_INVALID);
         $entityManager->persist($game);
         $entityManager->flush();
         return $game;
