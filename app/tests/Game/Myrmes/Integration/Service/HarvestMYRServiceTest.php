@@ -28,6 +28,51 @@ class HarvestMYRServiceTest extends KernelTestCase
         $this->harvestMYRService = static::getContainer()->get(HarvestMYRService::class);
     }
 
+    public function testAreAllPheromonesHarvestedReturnTrueWhenPlayerHasHarvestedPheromones(): void
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $pheromoneFirstPlayer = $firstPlayer->getPheromonMYRs()->first();
+        $pheromoneFirstPlayer->setHarvested(true);
+        $this->entityManager->persist($pheromoneFirstPlayer);
+        $this->entityManager->flush();
+        // WHEN
+        $result = $this->harvestMYRService->areAllPheromonesHarvested($firstPlayer);
+        // THEN
+        $this->assertTrue($result);
+    }
+
+    public function testAreAllPheromonesHarvestedReturnFalseWhenPlayerHasNotHarvestedPheromone(): void
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $pheromoneFirstPlayer = $firstPlayer->getPheromonMYRs()->first();
+        $pheromoneFirstPlayer->setHarvested(false);
+        $this->entityManager->persist($pheromoneFirstPlayer);
+        $this->entityManager->flush();
+        // WHEN
+        $result = $this->harvestMYRService->areAllPheromonesHarvested($firstPlayer);
+        // THEN
+        $this->assertFalse($result);
+    }
+
+    public function testCanStillHarvestReturnTrueWhenPlayerHasNotHarvestedPheromone(): void
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $pheromoneFirstPlayer = $firstPlayer->getPheromonMYRs()->first();
+        $pheromoneFirstPlayer->setHarvested(false);
+        $this->entityManager->persist($pheromoneFirstPlayer);
+        $this->entityManager->flush();
+        // WHEN
+        $result = $this->harvestMYRService->canStillHarvest($firstPlayer);
+        // THEN
+        $this->assertTrue($result);
+    }
+
     public function testHarvestSpecialTilesFarm() : void
     {
         // GIVEN
@@ -245,6 +290,17 @@ class HarvestMYRServiceTest extends KernelTestCase
             $playerDirt->setPersonalBoard($personalBoard);
             $this->entityManager->persist($playerDirt);
             $personalBoard->addPlayerResourceMYR($playerDirt);
+
+            $pheromone = new PheromonMYR();
+            $tileType = new TileTypeMYR();
+            $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_ZERO);
+            $tileType->setOrientation(0);
+            $this->entityManager->persist($tileType);
+            $pheromone->setType($tileType);
+            $pheromone->setPlayer($player);
+            $pheromone->setHarvested(false);
+            $this->entityManager->persist($pheromone);
+            $player->addPheromonMYR($pheromone);
 
             $this->entityManager->persist($player);
             $this->entityManager->persist($personalBoard);
