@@ -96,6 +96,54 @@ class HarvestMYRServiceTest extends KernelTestCase
         $this->assertEquals(5, $resource->getQuantity());
     }
 
+    public function testHarvestPheromoneWhenPheromoneAlreadyHarvestedAndNoBonus() : void
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $pheromoneFirstPlayer = $firstPlayer->getPheromonMYRs()->first();
+        $pheromoneFirstPlayer->setHarvested(true);
+        $this->entityManager->persist($pheromoneFirstPlayer);
+        $tile = $pheromoneFirstPlayer->getPheromonTiles()->first()->getTile();
+        $playerResources = $firstPlayer->getPersonalBoardMYR()->getPlayerResourceMYRs();
+        $resource = null;
+        foreach ($playerResources as $playerResourceMYR) {
+            if($playerResourceMYR->getResource()->getDescription() == MyrmesParameters::RESOURCE_TYPE_DIRT){
+                $resource = $playerResourceMYR;
+            }
+        }
+        // THEN
+        $this->expectException(\Exception::class);
+        // WHEN
+        $this->harvestMYRService->harvestPheromone($firstPlayer, $tile);
+    }
+
+    public function testHarvestPheromoneWhenPlayerAlreadyHarvestedAndHaveBonus() : void
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $firstPlayer->getPersonalBoardMYR()->setBonus(MyrmesParameters::BONUS_HARVEST);
+        $this->entityManager->persist($firstPlayer->getPersonalBoardMYR());
+        $firstPlayer->setRemainingHarvestingBonus(2);
+        $this->entityManager->persist($firstPlayer);
+        $this->entityManager->flush();
+        $pheromoneFirstPlayer = $firstPlayer->getPheromonMYRs()->first();
+        $tile = $pheromoneFirstPlayer->getPheromonTiles()->first()->getTile();
+        $playerResources = $firstPlayer->getPersonalBoardMYR()->getPlayerResourceMYRs();
+        $resource = null;
+        foreach ($playerResources as $playerResourceMYR) {
+            if($playerResourceMYR->getResource()->getDescription() == MyrmesParameters::RESOURCE_TYPE_DIRT){
+                $resource = $playerResourceMYR;
+            }
+        }
+        // WHEN
+        $this->harvestMYRService->harvestPheromone($firstPlayer, $tile);
+        // THEN
+        $this->assertTrue($pheromoneFirstPlayer->isHarvested());
+        $this->assertEquals(5, $resource->getQuantity());
+    }
+
     public function testHarvestSpecialTilesFarm() : void
     {
         // GIVEN
