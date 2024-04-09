@@ -118,8 +118,8 @@ image_build:
   script:
     - docker pull $CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/agora:latest || true
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - docker build --cache-from $CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/agora:latest \
-        -t $CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/agora:$CI_COMMIT_SHA \
+    - docker build --cache-from $CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/agora:latest 
+        -t $CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/agora:$CI_COMMIT_SHA 
         -t $CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/agora:latest . -f DockerfileCICD
     - docker push $CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/agora:$CI_COMMIT_SHA
     - docker push $CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/agora:latest
