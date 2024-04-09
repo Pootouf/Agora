@@ -49,6 +49,7 @@ class BoardManagerService
     }
 
     // Add $user to the board, and to the game
+    // Precondition : $board->isFull() == false
     public function addUserToBoard(Board $board, User $user):int
     {
         $this->gameManagerService->joinGame($board->getPartyId() , $user);
@@ -74,6 +75,11 @@ class BoardManagerService
     {
         $board->removeListUser($user);
         $this->gameManagerService->quitGame($board->getPartyId(), $user);
+
+        $this->entityManagerInterface->persist($board);
+        $this->entityManagerInterface->flush();
+        $this->entityManagerInterface->persist($user);
+        $this->entityManagerInterface->flush();
 
         return BoardManagerService::$SUCCESS;
     }

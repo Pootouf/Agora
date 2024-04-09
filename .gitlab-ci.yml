@@ -5,6 +5,7 @@ stages:
   - sixqp
   - splendor
   - glenmore
+  - platform
   - deploy
 
 cache:
@@ -94,11 +95,19 @@ deploy:dev_platform:
     SERVER_USER: $SERVER_PLATFORM_USER
     SERVER_IP: $SERVER_PLATFORM_IP
     SERVER_LOCATION: /opt/agora
-    DOCKER_COMPOSE_FILE: compose.yaml
+    DOCKER_COMPOSE_FILE: compose-dev.yaml
     GIT_BRANCH_NAME: develop-platform
     ID_RSA: $ID_RSA_PLATFORM
   only:
     - develop-platform
+
+unitPlatform:
+  stage: platform
+  <<: *only_platform_branches
+  script:
+  - php bin/phpunit tests/Platform/Unit
+  allow_failure: false
+  environment: test
 
 unitFactory:
   stage: factory
