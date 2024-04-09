@@ -50,6 +50,58 @@ Description : {{ game.name }}
                   Prêt à relever le défi ? Jouez maintenant et voyez si vous pouvez éviter de ramasser trop de têtes de boeufs !
                </p>
                {% endif %}
+               {% if game.label == 'SPL' %}
+   </br>
+   <p class="mb-3 font-normal text-gray-700">
+      Splendor est un jeu de société stratégique qui se déroule à la Renaissance. Les joueurs incarnent des marchands cherchant à acquérir prestige et reconnaissance en devenant les marchands les plus prospères.
+      <br><br>
+      <strong>Règles du Jeu :</strong>
+      <br>
+      Les joueurs acquièrent des gemmes, qui servent ensuite à acheter des cartes de développement. Ces cartes de développement fournissent des points de victoire et des bonus qui permettent d'acquérir davantage de gemmes ou des points de prestige. 
+      <br>
+      Le jeu se termine lorsqu'un joueur atteint un certain nombre de points de prestige, déclenchant ainsi le dernier tour. Le joueur ayant le plus de points de prestige à la fin de ce tour remporte la partie. 
+      <br><br>
+      <strong>Comment Jouer :</strong>
+      <br>
+      Chaque tour, les joueurs ont le choix entre prendre des gemmes, acheter des cartes de développement ou réserver une carte de développement pour un tour ultérieur. 
+      <br><br>
+      <strong>Objectif du Jeu :</strong>
+      <br>
+      L'objectif est d'accumuler des points de prestige en achetant des cartes de développement et en utilisant efficacement les bonus pour construire le plus grand empire marchand possible.
+      <br><br>
+      <strong>Jouer Maintenant !</strong>
+      <br>
+      Êtes-vous prêt à devenir le marchand le plus prospère de la Renaissance ? Lancez-vous dans une partie de Splendor dès maintenant !
+   </p>
+{% endif %}
+{% if game.label == 'GLM' %}
+   </br>
+   <p class="mb-3 font-normal text-gray-700">
+      Glen More est un jeu de société de gestion et de développement économique se déroulant en Écosse. Les joueurs incarnent des chefs de clans cherchant à développer leur domaine et leur influence à travers la construction de bâtiments, l'élevage de bétail et le commerce.
+      <br><br>
+      <strong>Règles du Jeu :</strong>
+      <br>
+      Les joueurs acquièrent des tuiles représentant des terrains et des bâtiments, qu'ils placent sur leur plateau de jeu pour former un domaine. Chaque tuile placée offre des avantages et des possibilités d'interaction avec les autres joueurs. 
+      <br>
+      Le jeu se déroule en plusieurs tours, pendant lesquels les joueurs choisissent des tuiles à ajouter à leur domaine, gèrent leurs ressources et leurs ouvriers, et effectuent des actions pour développer leur territoire. 
+      <br>
+      À la fin du jeu, les joueurs marquent des points en fonction de la taille et de la qualité de leur domaine, ainsi que des objectifs qu'ils ont atteints au cours de la partie. Le joueur ayant le plus grand domaine et le plus grand nombre de points remporte la partie.
+      <br><br>
+      <strong>Comment Jouer :</strong>
+      <br>
+      Chaque tour, les joueurs choisissent une tuile disponible sur le plateau central et l'ajoutent à leur domaine, puis effectuent des actions en fonction des tuiles présentes sur leur plateau et de leurs ressources disponibles. 
+      <br><br>
+      <strong>Objectif du Jeu :</strong>
+      <br>
+      L'objectif est de construire le domaine le plus prospère et le plus étendu possible, en maximisant l'efficacité des actions et en atteignant les objectifs spécifiques du jeu pour marquer le plus de points.
+      <br><br>
+      <strong>Jouer Maintenant !</strong>
+      <br>
+      Prêt à devenir un chef de clan puissant en Écosse ? Plongez dans une partie de Glen More dès maintenant !
+   </p>
+{% endif %}
+
+
                </br>
                {% if app.user %}
                <a href="#" onclick="javascript:history.back();" class="text-white bg-red-500 hover:bg-red-400 focus:ring-4 focus:outline-none focus:ring-red-300 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
