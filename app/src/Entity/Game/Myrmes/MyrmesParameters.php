@@ -186,9 +186,6 @@ interface MyrmesParameters
     const int SPECIAL_TILE_TYPE_QUARRY = 8;
     const int SPECIAL_TILE_TYPE_SUBANTHILL = 9;
 
-    const int SPECIAL_TILE_STONE_FARM = 10;
-    const int SPECIAL_TILE_DIRT_QUARRY = 11;
-
     // Special tiles amount
     const array SPECIAL_TILE_TYPE_AMOUNT = [
         7 => 4,

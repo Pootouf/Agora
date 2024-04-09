@@ -93,7 +93,6 @@ class HarvestMYRService
             $tileType = $playerPheromone->getType();
             switch ($tileType->getType()) {
                 case MyrmesParameters::SPECIAL_TILE_TYPE_FARM:
-                case MyrmesParameters::SPECIAL_TILE_STONE_FARM:
                     foreach ($playerMYR->getPersonalBoardMYR()->getPlayerResourceMYRs() as $playerResource) {
                         if($playerResource->getResource()->getDescription() == MyrmesParameters::RESOURCE_TYPE_GRASS) {
                             $playerPheromone->setHarvested(true);
@@ -129,8 +128,7 @@ class HarvestMYRService
             throw new Exception("Invalid resource");
         }
         $tileType = $pheromoneMYR->getType();
-        if(!($tileType->getType() == MyrmesParameters::SPECIAL_TILE_DIRT_QUARRY ||
-            $tileType->getType() == MyrmesParameters::SPECIAL_TILE_TYPE_QUARRY)) {
+        if($tileType->getType() != MyrmesParameters::SPECIAL_TILE_TYPE_QUARRY) {
             throw new Exception("Invalid tile");
         }
         foreach ($playerMYR->getPersonalBoardMYR()->getPlayerResourceMYRs() as $playerResource) {
