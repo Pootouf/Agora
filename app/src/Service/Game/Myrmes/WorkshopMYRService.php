@@ -150,6 +150,32 @@ class WorkshopMYRService
         $this->entityManager->flush();
     }
 
+    /**
+     * doSpecialTileGoal: make the player accomplish the special tile goal if possible
+     * @param PlayerMYR $player
+     * @param GameGoalMYR $gameGoal
+     * @param NurseMYR $nurse
+     * @param Collection<PheromonMYR> $specialTiles
+     * @return void
+     * @throws Exception
+     */
+    public function doSpecialTileGoal(PlayerMYR $player, GameGoalMYR $gameGoal,
+        NurseMYR $nurse,
+        Collection $specialTiles
+    ) : void
+    {
+        $goal = $gameGoal->getGoal();
+        if (!$this->doesPlayerHaveDoneGoalWithLowerDifficulty($player, $goal)) {
+            throw new Exception("The player can't do this goal, he must do " .
+                "a goal with a lower difficulty before");
+        }
+        $this->retrieveResourceToDoSpecialTileGoal($player, $goal, $specialTiles);
+        $this->setNurseUsedInGoal($nurse);
+        $this->calculateScoreAfterGoalAccomplish($gameGoal, $player);
+
+        $this->entityManager->flush();
+    }
+
 
     /**
      * Manage resources and purchase about position of nurse
@@ -977,6 +1003,39 @@ class WorkshopMYRService
             default => throw new Exception("Goal difficulty invalid for anthill level goal"),
         };
         $this->entityManager->persist($player->getPersonalBoardMYR());
+        $this->entityManager->flush();
+    }
+
+    /**
+     * retrieveResourceToDoSpecialTileGoal: retrieve the resources needed from the player to accomplish
+     *                                         the special tile goal
+     * @param PlayerMYR $player
+     * @param GoalMYR $goal
+     * @param Collection<PheromonMYR> $specialTiles
+     * @return void
+     * @throws Exception
+     */
+    private function retrieveResourceToDoSpecialTileGoal(PlayerMYR $player, GoalMYR $goal, Collection $specialTiles): void
+    {
+        if (!$this->canPlayerDoSpecialTileGoal($player, $goal->getDifficulty())) {
+            throw new Exception('Player cannot do special tiles goal');
+        }
+        switch($goal->getDifficulty()) {
+            case MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE :
+                if ($specialTiles->count() != MyrmesParameters::GOAL_NEEDED_RESOURCES_REMOVED_SPECIAL_TILE_LEVEL_ONE)  {
+                    throw new Exception("Invalid number of special tiles to do goal");
+                }
+                break;
+            case MyrmesParameters::GOAL_DIFFICULTY_LEVEL_TWO :
+                if ($specialTiles->count() != MyrmesParameters::GOAL_NEEDED_RESOURCES_REMOVED_SPECIAL_TILE_LEVEL_TWO)  {
+                    throw new Exception("Invalid number of special tiles to do goal");
+                }
+                break;
+        }
+        foreach ($specialTiles as $tile) {
+            $tile->setPlayer(null);
+            $this->entityManager->persist($tile);
+        }
         $this->entityManager->flush();
     }
 
