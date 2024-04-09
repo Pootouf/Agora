@@ -65,6 +65,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(nullable: true)]
     private ?bool $isBanned = false;
 
+    #[ORM\Column]
+    private ?\DateTime $createdAt;
+
 
     public function __construct()
     {
@@ -74,6 +77,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->notifications = new ArrayCollection();
 
         $this->contacts = new ArrayCollection();
+
+        $this->createdAt = new \DateTime();
     }
 
     /**
@@ -392,6 +397,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setIsBanned(?bool $isBanned): static
     {
         $this->isBanned = $isBanned;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTime
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTime $createdAt): static
+    {
+        $this->createdAt = $createdAt;
 
         return $this;
     }
