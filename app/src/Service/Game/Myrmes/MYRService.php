@@ -526,12 +526,12 @@ class MYRService
                     case MyrmesParameters::LARVAE_AREA:
                     case MyrmesParameters::SOLDIERS_AREA:
                     case MyrmesParameters::WORKER_AREA:
-                        $n->setArea(MyrmesParameters::BASE_AREA);
-                        $this->entityManager->persist($n);
-                        break;
                     case MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA:
                     case MyrmesParameters::WORKSHOP_LEVEL_AREA:
                     case MyrmesParameters::WORKSHOP_NURSE_AREA:
+                        $n->setArea(MyrmesParameters::BASE_AREA);
+                        $this->entityManager->persist($n);
+                        break;
                     case MyrmesParameters::WORKSHOP_GOAL_AREA:
                         break;
                     default:
