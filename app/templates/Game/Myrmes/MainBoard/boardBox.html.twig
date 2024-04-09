@@ -21,16 +21,44 @@
 
 
     {% if not isActionable %}
+        {# {% if boardBox.pheromonTile != null %}#}
+        <div class="visible">
+            {{  include('Game/Myrmes/MainBoard/MainBoardElements/pheromoneDisplay.html.twig') }}
+            <img class="absolute rounded rounded-full size-full  "
+                 src="{{ asset('resourcesGames/Myrmes/pheromone.svg') }}" alt="pheromone">
+        </div>
+        {# {% endif %} #}
         {{ include('Game/Myrmes/MainBoard/elementsOnBoardBox.html.twig') }}
     {% endif %}
 
     {% if not isActionable %}
-        {# Definition of the clickable zone in an hexagon shape, enables to avoid dead zones #}
+        {% set isTileAvailableForAnthillHolePlacement = false %}
+        {% if hasSelectedAnthillHolePlacement %}
+            {% for possibleTilePlacement in possibleAnthillHolePlacement %}
+                {% if possibleTilePlacement.id == boardBox.tile.id %}
+                    {% set isTileAvailableForAnthillHolePlacement = true %}
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+        {# Definition of the clickable zone in an hexagon shape, enable to avoid dead zones #}
         <svg id="{{ boardBox.tile.id }}-clickable-zone"
-             class="visible z-99 bg-transparent absolute h-full w-full" transform="rotate(90)" fill="#000000"
-             xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-             viewBox="0 0 184.751 184.751" xml:space="preserve">
-            <path class="fill-[rgba(0,_0,_0,_0)]" d="M0,92.375l46.188-80h92.378l46.185,80l-46.185,80H46.188L0,92.375z"
+             class="visible z-99 bg-transparent absolute h-full w-full" fill="#000000"
+             viewbox="0 0 300 300" width="100%" height="100%" >
+            <polygon points="150,309 300,225 300,76 150,-11 0,75 0,225" class="{% if not isTileAvailableForAnthillHolePlacement %}
+                                                                                        fill-[rgba(0,_0,_0,_0)]
+                                                                                {% else %}
+                                                                                        fill-[rgba(255,_255,_255,_0.35)]
+                                                                                {% endif %}"
+                    {% if hasSelectedAnthillHolePlacement and isTileAvailableForAnthillHolePlacement %}
+                        {{ stimulus_action('myrmes','choseAnthillHolePlacement','click',
+                            {url:path('app_game_myrmes_display_main_board_box_actions',
+                                {
+                                    id: game.id,
+                                    tileId: boardBox.tile.id
+                                })
+                            })
+                        }}
+                    {% else %}
                     {{ stimulus_action('myrmes','displayBoxActions','click',
                         {url:path('app_game_myrmes_display_main_board_box_actions',
                             {
@@ -39,7 +67,9 @@
                             })
                         })
                     }}
-            ></path>
+                    {% endif %}
+            >
+            </polygon>
         </svg>
     {% endif %}
 
@@ -53,5 +83,12 @@
 </div>
 
 {% if isActionable %}
+     {% if boardBox.pheromonTile != null %}
+    <div class="visible">
+        {{  include('Game/Myrmes/MainBoard/MainBoardElements/pheromoneDisplay.html.twig') }}
+        <img class="absolute rounded rounded-full size-full -p-4 "
+             src="{{ asset('resourcesGames/Myrmes/pheromone.svg') }}" alt="pheromone">
+    </div>
+    {% endif %}
     {{ include('Game/Myrmes/MainBoard/elementsOnBoardBox.html.twig') }}
 {% endif %}
