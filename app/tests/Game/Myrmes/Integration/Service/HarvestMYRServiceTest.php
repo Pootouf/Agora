@@ -7,10 +7,12 @@ use App\Entity\Game\Myrmes\MainBoardMYR;
 use App\Entity\Game\Myrmes\MyrmesParameters;
 use App\Entity\Game\Myrmes\PersonalBoardMYR;
 use App\Entity\Game\Myrmes\PheromonMYR;
+use App\Entity\Game\Myrmes\PheromonTileMYR;
 use App\Entity\Game\Myrmes\PlayerMYR;
 use App\Entity\Game\Myrmes\PlayerResourceMYR;
 use App\Entity\Game\Myrmes\ResourceMYR;
 use App\Entity\Game\Myrmes\SeasonMYR;
+use App\Entity\Game\Myrmes\TileMYR;
 use App\Entity\Game\Myrmes\TileTypeMYR;
 use App\Service\Game\Myrmes\HarvestMYRService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -71,6 +73,27 @@ class HarvestMYRServiceTest extends KernelTestCase
         $result = $this->harvestMYRService->canStillHarvest($firstPlayer);
         // THEN
         $this->assertTrue($result);
+    }
+
+    public function testHarvestPheromone() : void
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $pheromoneFirstPlayer = $firstPlayer->getPheromonMYRs()->first();
+        $tile = $pheromoneFirstPlayer->getPheromonTiles()->first()->getTile();
+        $playerResources = $firstPlayer->getPersonalBoardMYR()->getPlayerResourceMYRs();
+        $resource = null;
+        foreach ($playerResources as $playerResourceMYR) {
+            if($playerResourceMYR->getResource()->getDescription() == MyrmesParameters::RESOURCE_TYPE_DIRT){
+                $resource = $playerResourceMYR;
+            }
+        }
+        // WHEN
+        $this->harvestMYRService->harvestPheromone($firstPlayer, $tile);
+        // THEN
+        $this->assertTrue($pheromoneFirstPlayer->isHarvested());
+        $this->assertEquals(5, $resource->getQuantity());
     }
 
     public function testHarvestSpecialTilesFarm() : void
@@ -241,6 +264,21 @@ class HarvestMYRServiceTest extends KernelTestCase
             throw new \Exception("TOO MUCH PLAYERS ON CREATE GAME");
         }
         $game = new GameMYR();
+        $mainBoard = new MainBoardMYR();
+        $mainBoard->setYearNum(0);
+        $mainBoard->setGame($game);
+        $season = new SeasonMYR();
+        $season->setName("Spring");
+        $season->setDiceResult(1);
+        $season->setActualSeason(true);
+        $season->setMainBoard($mainBoard);
+        $mainBoard->addSeason($season);
+        $this->entityManager->persist($season);
+        $game->setMainBoardMYR($mainBoard);
+        $game->setGameName("test");
+        $game->setLaunched(true);
+        $game->setGamePhase(MyrmesParameters::PHASE_INVALID);
+        $this->entityManager->persist($mainBoard);
         for ($i = 0; $i < $numberOfPlayers; $i += 1) {
             $player = new PlayerMYR('test', $game);
             $game->addPlayer($player);
@@ -299,27 +337,29 @@ class HarvestMYRServiceTest extends KernelTestCase
             $pheromone->setType($tileType);
             $pheromone->setPlayer($player);
             $pheromone->setHarvested(false);
+
+            $tile = new TileMYR();
+            $tile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+            $tile->setCoordX(0);
+            $tile->setCoordY(0);
+            $this->entityManager->persist($tile);
+
+            $resourceOnPheromone = new ResourceMYR();
+            $resourceOnPheromone->setDescription(MyrmesParameters::RESOURCE_TYPE_DIRT);
+            $this->entityManager->persist($resourceOnPheromone);
+
+            $pheromoneTile = new PheromonTileMYR();
+            $pheromoneTile->setMainBoard($game->getMainBoardMYR());
+            $pheromoneTile->setTile($tile);
+            $pheromoneTile->setResource($resourceOnPheromone);
+            $this->entityManager->persist($pheromoneTile);
+            $pheromone->addPheromonTile($pheromoneTile);
             $this->entityManager->persist($pheromone);
             $player->addPheromonMYR($pheromone);
 
             $this->entityManager->persist($player);
             $this->entityManager->persist($personalBoard);
         }
-        $mainBoard = new MainBoardMYR();
-        $mainBoard->setYearNum(0);
-        $mainBoard->setGame($game);
-        $season = new SeasonMYR();
-        $season->setName("Spring");
-        $season->setDiceResult(1);
-        $season->setActualSeason(true);
-        $season->setMainBoard($mainBoard);
-        $mainBoard->addSeason($season);
-        $this->entityManager->persist($season);
-        $game->setMainBoardMYR($mainBoard);
-        $game->setGameName("test");
-        $game->setLaunched(true);
-        $game->setGamePhase(MyrmesParameters::PHASE_INVALID);
-        $this->entityManager->persist($mainBoard);
         $this->entityManager->persist($game);
         $this->entityManager->flush();
 
