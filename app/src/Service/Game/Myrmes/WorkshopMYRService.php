@@ -4,6 +4,7 @@ namespace App\Service\Game\Myrmes;
 
 use App\Entity\Game\Myrmes\AnthillHoleMYR;
 use App\Entity\Game\Myrmes\GameGoalMYR;
+use App\Entity\Game\Myrmes\GameMYR;
 use App\Entity\Game\Myrmes\GoalMYR;
 use App\Entity\Game\Myrmes\MyrmesParameters;
 use App\Entity\Game\Myrmes\NurseMYR;
@@ -176,6 +177,31 @@ class WorkshopMYRService
         $this->entityManager->flush();
     }
 
+    /**
+     * doPheromoneGoal: make the player accomplish the pheromone goal if possible
+     * @param PlayerMYR $player
+     * @param GameGoalMYR $gameGoal
+     * @param NurseMYR $nurse
+     * @param Collection<PheromonMYR> $pheromones
+     * @return void
+     * @throws Exception
+     */
+    public function doPheromoneGoal(PlayerMYR $player, GameGoalMYR $gameGoal,
+        NurseMYR $nurse,
+        Collection $pheromones
+    ) : void
+    {
+        $goal = $gameGoal->getGoal();
+        if (!$this->doesPlayerHaveDoneGoalWithLowerDifficulty($player, $goal)) {
+            throw new Exception("The player can't do this goal, he must do " .
+                "a goal with a lower difficulty before");
+        }
+        $this->retrieveResourceToDoPheromoneGoal($player, $goal, $pheromones);
+        $this->setNurseUsedInGoal($nurse);
+        $this->calculateScoreAfterGoalAccomplish($gameGoal, $player);
+
+        $this->entityManager->flush();
+    }
 
     /**
      * Manage resources and purchase about position of nurse
@@ -1039,6 +1065,32 @@ class WorkshopMYRService
         $this->entityManager->flush();
     }
 
+    /**
+     * retrieveResourceToDoPheromoneGoal: retrieve the resources needed from the player to accomplish
+     *                                          the pheromone goal
+     * @param PlayerMYR $player
+     * @param GoalMYR $goal
+     * @param Collection<PheromonMYR> $pheromones
+     * @return void
+     * @throws Exception if the pheromone are not connected or if the player has not selected enough pheromones
+     */
+    private function retrieveResourceToDoPheromoneGoal(PlayerMYR $player, GoalMYR $goal, Collection $pheromones): void
+    {
+        if (!$this->doesPlayerHaveSelectedEnoughPheromones($player, $goal->getDifficulty(), $pheromones)) {
+            throw new Exception('Player cannot do pheromones goal, not enough selected pheromones');
+        }
+        if (!$this->arePheromoneConnected($pheromones)) {
+            throw new Exception('Pheromones are not connected');
+        }
+        foreach ($pheromones as $pheromone) {
+            foreach ($pheromone->getPheromonTiles() as $tile) {
+                $tile->setPlayer(null);
+                $this->entityManager->persist($tile);
+            }
+        }
+        $this->entityManager->flush();
+    }
+
 
     /**
      * removeSelectedNumberOfPreyFromPlayer: remove the selected number of prey from the player inventory
@@ -1176,5 +1228,126 @@ class WorkshopMYRService
             }
         }
         return false;
+    }
+
+    /**
+     * doesPlayerHaveSelectedEnoughPheromones: return true if the player have selected enough pheromones to do the goal
+     *                                         if one of the pheromone is not a pheromone of the player, return false
+     * @param PlayerMYR $player
+     * @param ?int $difficulty
+     * @param Collection<PheromonMYR> $pheromones
+     * @return bool
+     */
+    private function doesPlayerHaveSelectedEnoughPheromones(
+        PlayerMYR $player,
+        ?int $difficulty,
+        Collection $pheromones
+    ) : bool {
+        foreach ($pheromones as $pheromone) {
+            if ($pheromone->getPlayer() !== $player) {
+                return false;
+            }
+        }
+        return match ($difficulty) {
+            MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE => $pheromones->count() ==
+                MyrmesParameters::GOAL_NEEDED_RESOURCES_NEEDED_PHEROMONE_LEVEL_ONE,
+            MyrmesParameters::GOAL_DIFFICULTY_LEVEL_THREE => $pheromones->count() ==
+                MyrmesParameters::GOAL_NEEDED_RESOURCES_NEEDED_PHEROMONE_LEVEL_THREE,
+        };
+    }
+
+    /**
+     * arePheromoneConnected: return true if all the pheromones are connected
+     * @param Collection<PheromonMYR> $pheromones
+     * @return bool
+     */
+    private function arePheromoneConnected(Collection $pheromones) : bool
+    {
+        $tilesToVerify = new ArrayCollection();
+        $firstPheromone = $pheromones->first();
+        $pheromoneConnected = new ArrayCollection();
+        $pheromoneConnected->add($firstPheromone);
+        foreach ($firstPheromone->getPheromonTiles() as $tile) {
+            $tilesToVerify->add($tile);
+        }
+        while ($tilesToVerify->count() > 0) {
+            $tile = $tilesToVerify->first();
+            $distinctPheromones = $this->getDistinctPheromonesAroundPheromoneTile($tile);
+            $distinctPheromones->filter(function (PheromonMYR $pheromone) use ($pheromones) {
+                return $pheromones->contains($pheromone);
+            });
+            foreach ($distinctPheromones as $distinctPheromone) {
+                if ($pheromones->contains($distinctPheromone)) {
+                    continue;
+                }
+                foreach ($distinctPheromone->getPheromonTiles() as $tile) {
+                    $tilesToVerify->add($tile);
+                }
+            }
+        }
+        return $pheromones->forAll(function (PheromonMYR $pheromone) use ($pheromoneConnected) {
+            return $pheromoneConnected->contains($pheromone);
+        });
+    }
+
+    /**
+     * getDistinctPheromonesAroundPheromoneTile: return the distinct pheromone around the selected pheromone tile
+     * @param PheromonTileMYR $pheromoneTile
+     * @return Collection<PheromonMYR>
+     */
+    private function getDistinctPheromonesAroundPheromoneTile(PheromonTileMYR $pheromoneTile) : Collection
+    {
+        $tile = $pheromoneTile->getTile();
+        $game = $pheromoneTile->getMainBoard()->getGame();
+        $distinctPheromones = new ArrayCollection();
+        $x = $tile->getCoordX();
+        $y = $tile->getCoordY();
+
+        $tiles = new ArrayCollection();
+        $tiles->add($this->tileMYRRepository->findOneBy(['coordX' => $x, 'coordY' => $y - 2]));
+        $tiles->add($this->tileMYRRepository->findOneBy(['coordX' => $x, 'coordY' => $y + 2]));
+        $tiles->add($this->tileMYRRepository->findOneBy(['coordX' => $x - 1, 'coordY' => $y - 1]));
+        $tiles->add($this->tileMYRRepository->findOneBy(['coordX' => $x - 1, 'coordY' => $y + 1]));
+        $tiles->add($this->tileMYRRepository->findOneBy(['coordX' => $x + 1, 'coordY' => $y - 1]));
+        $tiles->add($this->tileMYRRepository->findOneBy(['coordX' => $x + 1, 'coordY' => $y + 1]));
+
+        foreach ($tiles as $tile) {
+            $pheromone = $this->getPheromoneFromTile($game, $tile);
+            $this->addInCollectionOnlyIfDistinct($distinctPheromones, $pheromone);
+        }
+        return $distinctPheromones;
+    }
+
+    /**
+     * addInCollectionOnlyIfDistinct: add in collection the object only if different from null and not already in
+     * @param Collection<mixed> $collection
+     * @param mixed $object
+     * @return void
+     */
+    private function addInCollectionOnlyIfDistinct(Collection $collection, mixed $object)
+    {
+        if ($object !== null && !$collection->contains($object)) {
+            $collection->add($object);
+        }
+    }
+
+    /**
+     * getPheromoneFromTile: return the pheromone associated with the tile if it exists
+     * @param GameMYR $game
+     * @param TileMYR|null $tile
+     * @return PheromonMYR|null
+     */
+    private function getPheromoneFromTile(GameMyr $game, ?TileMYR $tile) : ?PheromonMYR
+    {
+        if ($tile === null) {
+            return null;
+        }
+        $pheromoneTile = $this->pheromoneTileMYRRepository->findOneBy(
+            [
+            'tile' => $tile,
+                'myr' => $game->getMainBoardMYR(),
+            ]
+        );
+        return $pheromoneTile->getPheromonMyr();
     }
 }
