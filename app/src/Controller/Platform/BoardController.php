@@ -48,11 +48,13 @@ class BoardController extends AbstractController
         $game = $this->entityManagerInterface->getRepository(Game::class)->find($game_id);
         //create a board
         $board = new Board();
+        //generate the BaordRegistrationType form
         $form = $this->createForm(BoardRegistrationType::class, $board, [
                 'game' => $game]
         );
         $form->handleRequest($request);
 
+        //When the form is valid
         if ($form->isSubmitted() && $form->isValid()) {
 
             $this->boardManagerService->setUpBoard($board, $game);
@@ -65,7 +67,6 @@ class BoardController extends AbstractController
             //adding the new board to the game's board list
             // A COMPLETER APRES LE FIX DE MICHEL
 
-            //persist the information to the database
 
             $this->addFlash(
                 'success',
@@ -121,10 +122,6 @@ class BoardController extends AbstractController
         //remove the user from user list
         $this->boardManagerService->removePlayerFromBoard($board, $user);
 
-        $this->entityManagerInterface->persist($board);
-        $this->entityManagerInterface->flush();
-        $this->entityManagerInterface->persist($user);
-        $this->entityManagerInterface->flush();
 
         return $this->redirectToRoute('app_dashboard_tables');
     }
