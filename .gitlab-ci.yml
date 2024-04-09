@@ -26,6 +26,7 @@ variables:
   APP_ENV_SERVER: test
   DOCKER_HOST: tcp://docker:2376
   DOCKER_TLS_CERTDIR: "/certs"
+  DOCKER_BUILDKIT: '1'
 
 .deploy: &deploy
   stage: deploy
@@ -119,6 +120,7 @@ image_build:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - docker pull $CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/agora:latest || true
     - docker build --cache-from $CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/agora:latest 
+        --build-arg BUILDKIT_INLINE_CACHE=1
         -t $CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/agora:$CI_COMMIT_SHA 
         -t $CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/agora:latest . -f DockerfileCICD
     - docker push $CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/agora:$CI_COMMIT_SHA
@@ -143,14 +145,22 @@ phpstan:
   script:
     - php -d memory_limit=4G vendor/bin/phpstan analyse src
   allow_failure: true
+  cache:
+    <<: *cache
+    policy: pull
+
 
 phpcs:
   image: $CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/agora:latest
   stage: quality_check
   script:
     - curl -OL https://phars.phpcodesniffer.com/phpcs.phar
-    - php phpcs.phar -h --ignore=./src/Kernel.php ./src
+    - php phpcs.phar --ignore=./src/Kernel.php ./src
   allow_failure: true
+  cache:
+    <<: *cache
+    policy: pull
+
 
 twig-lint:
   image: $CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/agora:latest
@@ -158,6 +168,10 @@ twig-lint:
   script:
   - php bin/console lint:twig ./templates
   allow_failure: true
+  cache:
+    <<: *cache
+    policy: pull
+
 
 unitFactory:
   stage: factory
