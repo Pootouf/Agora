@@ -38,6 +38,21 @@ return : display a panel to choose an object to place on mainboard
 	<div class="hidden">
 		<div id="ObjectOrientationListTemplate" class="grid grid-cols-2 gap-4 overflow-y-auto h-[92%] p-2 overflow-hidden">
 		</div>
+		<div id="PrepareTilePositioningTemplate" class="flex flex-col justify-between items-center gap-4 h-[92%] p-2 ">
+			<div></div>
+			<div class="w-full flex flex-col items-center gap-2 ">
+				<p class="text-xl font-bold">
+					Tuile sélectionnée
+				</p>
+				<div id="imageDiv" class="aspect-square rounded-lg bg-[#000000] w-[50%]"></div>
+			</div>
+			<div class="flex flex-col w-full items-center">
+				<p class="font-bold italic">
+					Choisissez où poser votre tuile en cliquant sur une des cases du plateau
+				</p>
+				<button disabled id="objectPositioningValidation" class="bg-[#15803d] w-full opacity-50 rounded-lg p-2 text-2xl text-white font-bold">Valider</button>
+			</div>
+		</div>
 		<button id="ObjectOrientationTemplate"
 		        class="relative aspect-square rounded-lg bg-[#000000]" {# TODO img size #}
 		        onclick="PrepareTilePositioning(this.dataset.rotationid)">
@@ -48,6 +63,24 @@ return : display a panel to choose an object to place on mainboard
 <script>
 	let returnButton = document.getElementById('return_dop');
 	let selectedObjectId;
+	let selectedOrientation;
+
+	function PrepareTilePositioning(id) {
+		selectedOrientation = id;
+		document.getElementById('selectObjectTitle').innerText = "Placement de la tuile"
+
+		let divTemplate = document.getElementById('PrepareTilePositioningTemplate');
+		let divClone = divTemplate.cloneNode(true)
+		divClone.id = 'PrepareTilePositioning';
+
+		let selectedRotationimage = document.getElementById('ObjectOrientation_' + id).cloneNode(true);
+
+		divClone.querySelector("#imageDiv").appendChild(selectedRotationimage.firstElementChild);
+
+		document.getElementById('ObjectSelectionList').parentElement.appendChild(divClone)
+		returnButton.onclick = () => returnToSelectOrientation();
+		document.getElementById('ObjectOrientationList').classList.add('hidden')
+	}
 
 	function returnToSelectOrientation() {
 		document.getElementById('PrepareTilePositioning').remove();
