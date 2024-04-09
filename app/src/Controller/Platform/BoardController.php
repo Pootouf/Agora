@@ -111,7 +111,8 @@ class BoardController extends AbstractController
             $errorMessage = "Impossible de rejoindre la table";
             //send the error message to user, using session or flush
             $this->addFlash('warning', $errorMessage);
-            return $this->redirectToRoute('app_boards_game', ['id' => $id]);
+            $gameId = $board->getGame()->getId();
+            return $this->redirectToRoute('app_boards_game', ['id' => $gameId]);
         }
         //add user in the board users list
         $this->boardManagerService->addUserToBoard($board, $user);
