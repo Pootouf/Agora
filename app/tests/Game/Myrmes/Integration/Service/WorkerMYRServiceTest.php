@@ -195,6 +195,8 @@ class WorkerMYRServiceTest extends KernelTestCase
 
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
+        $player->getPersonalBoardMYR()->setBonus(-1);
+        $this->entityManager->persist($player);
         $player->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::ANTHILL_LEVEL_TWO);
         $this->entityManager->persist($player);
         $ant = new AnthillWorkerMYR();

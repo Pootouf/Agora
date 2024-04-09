@@ -81,7 +81,8 @@ class WorkerMYRService
     public function placeAntInAnthill(PersonalBoardMYR $personalBoard, int $anthillFloor) : void
     {
         $maxFloor = $personalBoard->getAnthillLevel();
-        if ($maxFloor < $anthillFloor) {
+        $isAnthillLevelIncreased = $personalBoard->getBonus() == MyrmesParameters::BONUS_LEVEL;
+        if ($maxFloor + ($isAnthillLevelIncreased ? 1 : 0) < $anthillFloor) {
             throw new Exception('Invalid floor level');
         }
         $ant = $this->anthillWorkerMYRRepository->findOneBy([
@@ -1345,9 +1346,9 @@ class WorkerMYRService
         switch ($tileType->getType()) {
             case MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL:
                 foreach ($playerResources as $playerResource) {
-                    if($playerResource->getResource() == MyrmesParameters::RESOURCE_TYPE_GRASS ||
-                        $playerResource->getResource() == MyrmesParameters::RESOURCE_TYPE_STONE ||
-                        $playerResource->getResource() == MyrmesParameters::RESOURCE_TYPE_DIRT){
+                    if($playerResource->getResource()->getDescription() == MyrmesParameters::RESOURCE_TYPE_GRASS ||
+                        $playerResource->getResource()->getDescription() == MyrmesParameters::RESOURCE_TYPE_STONE ||
+                        $playerResource->getResource()->getDescription() == MyrmesParameters::RESOURCE_TYPE_DIRT){
                         if($playerResource->getQuantity() < 1) {
                             return false;
                         }
@@ -1357,7 +1358,7 @@ class WorkerMYRService
             case MyrmesParameters::SPECIAL_TILE_TYPE_FARM:
             case MyrmesParameters::SPECIAL_TILE_STONE_FARM:
                 foreach ($playerResources as $playerResource) {
-                    if($playerResource->getResource() == MyrmesParameters::RESOURCE_TYPE_STONE){
+                    if($playerResource->getResource()->getDescription() == MyrmesParameters::RESOURCE_TYPE_STONE){
                         if($playerResource->getQuantity() < 1) {
                             return false;
                         }
@@ -1367,7 +1368,7 @@ class WorkerMYRService
             case MyrmesParameters::SPECIAL_TILE_TYPE_QUARRY:
             case MyrmesParameters::SPECIAL_TILE_DIRT_QUARRY:
             foreach ($playerResources as $playerResource) {
-                if($playerResource->getResource() == MyrmesParameters::RESOURCE_TYPE_GRASS){
+                if($playerResource->getResource()->getDescription() == MyrmesParameters::RESOURCE_TYPE_GRASS){
                     if($playerResource->getQuantity() < 1) {
                         return false;
                     }
