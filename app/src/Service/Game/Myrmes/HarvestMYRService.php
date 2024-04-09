@@ -88,11 +88,12 @@ class HarvestMYRService
     {
         $playerPheromones = $playerMYR->getPheromonMYRs();
         foreach ($playerPheromones as $playerPheromone) {
-            switch ($playerPheromone->getType()->getType()) {
+            $tileType = $playerPheromone->getType();
+            switch ($tileType->getType()) {
                 case MyrmesParameters::SPECIAL_TILE_TYPE_FARM:
                 case MyrmesParameters::SPECIAL_TILE_STONE_FARM:
                     foreach ($playerMYR->getPersonalBoardMYR()->getPlayerResourceMYRs() as $playerResource) {
-                        if($playerResource->getResource() == MyrmesParameters::RESOURCE_TYPE_GRASS) {
+                        if($playerResource->getResource()->getDescription() == MyrmesParameters::RESOURCE_TYPE_GRASS) {
                             $playerResource->setQuantity($playerResource->getQuantity() + 1);
                             $this->entityManager->persist($playerResource);
                         }
@@ -101,8 +102,8 @@ class HarvestMYRService
                 case MyrmesParameters::SPECIAL_TILE_DIRT_QUARRY:
                 case MyrmesParameters::SPECIAL_TILE_TYPE_QUARRY:
                 foreach ($playerMYR->getPersonalBoardMYR()->getPlayerResourceMYRs() as $playerResource) {
-                    if($playerResource->getResource() == MyrmesParameters::RESOURCE_TYPE_DIRT ||
-                        $playerResource->getResource() == MyrmesParameters::RESOURCE_TYPE_STONE) {
+                    if($playerResource->getResource()->getDescription() == MyrmesParameters::RESOURCE_TYPE_DIRT ||
+                        $playerResource->getResource()->getDescription() == MyrmesParameters::RESOURCE_TYPE_STONE) {
                         $playerResource->setQuantity($playerResource->getQuantity() + 1);
                         $this->entityManager->persist($playerResource);
                     }
