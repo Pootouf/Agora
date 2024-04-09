@@ -35,16 +35,57 @@ return : display a panel to choose an object to place on mainboard
 			</button>
 		{% endfor %}
 	</div>
+	<div class="hidden">
+		<div id="ObjectOrientationListTemplate" class="grid grid-cols-2 gap-4 overflow-y-auto h-[92%] p-2 overflow-hidden">
+		</div>
+		<button id="ObjectOrientationTemplate"
+		        class="relative aspect-square rounded-lg bg-[#000000]" {# TODO img size #}
+		        onclick="PrepareTilePositioning(this.dataset.rotationid)">
+		</button>
+	</div>
 </div>
 
 <script>
-	function selectObjet(objectId) {
-		document.getElementById('selectObjectTitle').innerText = "Choisissez l'orientation de l'objet"
-		document.getElementById('ObjectSelectionList').textContent = '';
-		for (let i = 0; i < 4; i++) {
-			console.log(objectId + ' ' + i)
-		}
 	let returnButton = document.getElementById('return_dop');
+	let selectedObjectId;
 
+	function returnToSelectOrientation() {
+		document.getElementById('PrepareTilePositioning').remove();
+		document.getElementById('ObjectOrientationList').classList.remove('hidden');
+
+		document.getElementById('selectObjectTitle').innerText = "Orientation de la tuile"
+		returnButton.onclick = () => returnToSelectTile();
+	}
+
+	function returnToSelectTile() {
+		document.getElementById('ObjectOrientationList').remove();
+		document.getElementById('ObjectSelectionList').classList.remove('hidden');
+		document.getElementById('selectObjectTitle').innerText = "Selection d'une tuile à placer";
+	}
+
+	function selectOrientationTile(objectId, nbRotation) {
+		selectedObjectId = objectId;
+		let divTemplate = document.getElementById('ObjectOrientationListTemplate');
+		let divClone = divTemplate.cloneNode(true)
+		divClone.id = 'ObjectOrientationList';
+
+		let buttonTemplate = document.getElementById('ObjectOrientationTemplate');
+
+		let objectImage = document.getElementById('objectImage_' + objectId);
+
+		for (let i = 0; i < nbRotation; i++) {
+			let button = buttonTemplate.cloneNode(true);
+			button.id = `ObjectOrientation_${i}`;
+			button.dataset.rotationid = `${i}`;
+			let image = objectImage.cloneNode(true);
+			image.style.transform = `rotate(${(360 / nbRotation) * i}deg)`;
+			button.appendChild(image);
+			divClone.appendChild(button);
+		}
+
+		document.getElementById('selectObjectTitle').innerText = "Orientation de la tuile"
+		document.getElementById('ObjectSelectionList').parentElement.appendChild(divClone)
+		returnButton.onclick = () => returnToSelectTile();
+		document.getElementById('ObjectSelectionList').classList.add('hidden')
 	}
 </script>
