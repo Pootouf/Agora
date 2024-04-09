@@ -138,12 +138,14 @@ build:
     policy: push
 
 phpstan:
+  image: $CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/agora:latest
   stage: quality_check
   script:
     - php -d memory_limit=4G vendor/bin/phpstan analyse src
   allow_failure: true
 
 phpcs:
+  image: $CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/agora:latest
   stage: quality_check
   script:
     - curl -OL https://phars.phpcodesniffer.com/phpcs.phar
@@ -151,6 +153,7 @@ phpcs:
   allow_failure: true
 
 twig-lint:
+  image: $CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/agora:latest
   stage: quality_check
   script:
   - php bin/console lint:twig ./templates
