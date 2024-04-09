@@ -79,6 +79,11 @@ class HarvestMYRService
         $this->entityManager->flush();
     }
 
+    /**
+     * harvestPlayerSpecialTiles : activates all the special tiles of the player and gives him his bonus
+     * @param PlayerMYR $playerMYR
+     * @return void
+     */
     public function harvestPlayerSpecialTiles(PlayerMYR $playerMYR) : void
     {
         $playerPheromones = $playerMYR->getPheromonMYRs();
@@ -103,6 +108,12 @@ class HarvestMYRService
                     }
                 }
                 break;
+                case MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL:
+                    $playerMYR->setScore($playerMYR->getScore() + 2);
+                    $this->entityManager->persist($playerMYR);
+                    break;
+                default:
+                    break;
             }
         }
         $this->entityManager->flush();
