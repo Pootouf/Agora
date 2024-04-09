@@ -178,8 +178,6 @@ class WorkerMYRService
                 return $this->getAllAvailablePositionsFromTypeOne($player, $tile, $tileType);
             case MyrmesParameters::SPECIAL_TILE_TYPE_FARM:
             case MyrmesParameters::SPECIAL_TILE_TYPE_QUARRY:
-            case MyrmesParameters::SPECIAL_TILE_DIRT_QUARRY:
-            case MyrmesParameters::SPECIAL_TILE_STONE_FARM:
             case MyrmesParameters::PHEROMONE_TYPE_TWO:
                 return $this->getAllAvailablePositionsFromTypeTwo($player, $tile, $tileType);
             case MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL:
@@ -1312,9 +1310,8 @@ class WorkerMYRService
         $anthillLevel = $player->getPersonalBoardMYR()->getAnthillLevel();
         $pheromoneSize = match ($tileType->getType()) {
             MyrmesParameters::PHEROMONE_TYPE_ZERO => 2,
-            MyrmesParameters::PHEROMONE_TYPE_ONE, MyrmesParameters::SPECIAL_TILE_DIRT_QUARRY,
-                MyrmesParameters::SPECIAL_TILE_STONE_FARM, MyrmesParameters::SPECIAL_TILE_TYPE_QUARRY,
-                MyrmesParameters::SPECIAL_TILE_TYPE_FARM, MyrmesParameters::PHEROMONE_TYPE_TWO => 3,
+            MyrmesParameters::PHEROMONE_TYPE_ONE, MyrmesParameters::SPECIAL_TILE_TYPE_QUARRY,
+            MyrmesParameters::SPECIAL_TILE_TYPE_FARM, MyrmesParameters::PHEROMONE_TYPE_TWO => 3,
             MyrmesParameters::PHEROMONE_TYPE_THREE, MyrmesParameters::PHEROMONE_TYPE_FOUR,
                 MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL => 4,
             MyrmesParameters::PHEROMONE_TYPE_FIVE => 5,
@@ -1356,7 +1353,6 @@ class WorkerMYRService
                 }
                 break;
             case MyrmesParameters::SPECIAL_TILE_TYPE_FARM:
-            case MyrmesParameters::SPECIAL_TILE_STONE_FARM:
                 foreach ($playerResources as $playerResource) {
                     if($playerResource->getResource()->getDescription() == MyrmesParameters::RESOURCE_TYPE_STONE){
                         if($playerResource->getQuantity() < 1) {
@@ -1366,7 +1362,6 @@ class WorkerMYRService
                 }
                 break;
             case MyrmesParameters::SPECIAL_TILE_TYPE_QUARRY:
-            case MyrmesParameters::SPECIAL_TILE_DIRT_QUARRY:
             foreach ($playerResources as $playerResource) {
                 if($playerResource->getResource()->getDescription() == MyrmesParameters::RESOURCE_TYPE_GRASS){
                     if($playerResource->getQuantity() < 1) {
@@ -1434,7 +1429,6 @@ class WorkerMYRService
                 }
                 break;
             case MyrmesParameters::SPECIAL_TILE_TYPE_FARM:
-            case MyrmesParameters::SPECIAL_TILE_STONE_FARM:
                 foreach ($playerResources as $playerResource) {
                     if($playerResource->getResource() == MyrmesParameters::RESOURCE_TYPE_STONE){
                         $playerResource->setQuantity($playerResource->getQuantity() - 1);
@@ -1442,7 +1436,6 @@ class WorkerMYRService
                     }
                 }
             case MyrmesParameters::SPECIAL_TILE_TYPE_QUARRY:
-            case MyrmesParameters::SPECIAL_TILE_DIRT_QUARRY:
                 foreach ($playerResources as $playerResource) {
                     if($playerResource->getResource() == MyrmesParameters::RESOURCE_TYPE_GRASS){
                         $playerResource->setQuantity($playerResource->getQuantity() - 1);
