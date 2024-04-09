@@ -109,8 +109,12 @@ class BirthMYRService
         $nurses = $playerMYR->getPersonalBoardMYR()->getNurses();
         foreach($nurses as $nurse)
         {
-            $nurse->setArea(MyrmesParameters::BASE_AREA);
-            $this->entityManager->persist($nurse);
+            if ($nurse->isAvailable())
+            {
+                $nurse->setArea(MyrmesParameters::BASE_AREA);
+                $this->entityManager->persist($nurse);
+            }
+
         }
         $this->entityManager->persist($playerMYR->getPersonalBoardMYR());
         $this->entityManager->flush();
