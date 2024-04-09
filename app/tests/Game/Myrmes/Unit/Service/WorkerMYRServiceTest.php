@@ -190,6 +190,7 @@ class WorkerMYRServiceTest extends TestCase
         // GIVEN
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
+        $player->getPersonalBoardMYR()->setBonus(-1);
         $player->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::ANTHILL_LEVEL_TWO);
         $selectedFloor = 3;
         $ant = new AnthillWorkerMYR();

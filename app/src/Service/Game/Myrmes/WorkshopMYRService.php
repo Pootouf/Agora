@@ -94,7 +94,7 @@ class WorkshopMYRService
         if (!$this->canChooseThisBonus($player, $workshop)) {
             throw new Exception("player can not choose this bonus");
         }
-        $nurses = $this->MYRService->getNursesAtPosition($player, MyrmesParameters::WORKSHOP_AREA);
+        $nurses = $this->MYRService->getNursesAtPosition($player, $workshop);
         $nursesCount = $nurses->count();
         switch ($workshop) {
             case MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA:
@@ -141,7 +141,7 @@ class WorkshopMYRService
         if ($player->getPhase() != MyrmesParameters::PHASE_WORKSHOP) {
             return false;
         }
-        return $this->MYRService->getNursesAtPosition($player, $workshopArea) >= 0;
+        return $this->MYRService->getNursesAtPosition($player, $workshopArea)->count() > 0;
     }
 
     /**
@@ -166,24 +166,28 @@ class WorkshopMYRService
             return false;
         }
         $mainBoard = $player->getGameMyr()->getMainBoardMYR();
-        $pheromoneTile = $this->pheromoneTileMYRRepository->findBy(["mainBoard" => $mainBoard, "tile" => $tile]);
+        $pheromoneTile = $this->pheromoneTileMYRRepository->findOneBy(["mainBoard" => $mainBoard, "tile" => $tile]);
         if ($pheromoneTile != null) {
             return false;
         }
-        $anthillHole = $this->anthillHoleMYRRepository->findBy(["mainBoard" => $mainBoard, "tile" => $tile]);
+        $anthillHole = $this->anthillHoleMYRRepository->findOneBy(["mainBoardMYR" => $mainBoard, "tile" => $tile]);
         if ($anthillHole != null) {
             return false;
         }
-        $prey = $this->preyMYRRepository->findBy(["mainBoardMYR" => $mainBoard, "tile" => $tile]);
+        $prey = $this->preyMYRRepository->findOneBy(["mainBoardMYR" => $mainBoard, "tile" => $tile]);
         if ($prey != null) {
             return false;
         }
+        /** @var ArrayCollection<Int, TileMYR> $adjacentTiles */
         $adjacentTiles = $this->getAdjacentTiles($tile);
+        /** @var Array<PheromonMYR> $playerPheromones */
         $playerPheromones = $this->pheromonMYRRepository->findBy(["player" => $player]);
         foreach ($adjacentTiles as $adjacentTile) {
             foreach ($playerPheromones as $playerPheromone) {
-                if ($playerPheromone->contains($adjacentTile)) {
-                    return true;
+                foreach ($playerPheromone->getPheromonTiles() as $pheromoneTile) {
+                    if ($pheromoneTile->getTile() === $adjacentTile) {
+                        return true;
+                    }
                 }
             }
         }
@@ -218,9 +222,9 @@ class WorkshopMYRService
     /**
      * Manage all change driven by add anthill hole
      *
-     * @param int       $nursesCount
-     * @param PlayerMYR $player
-     * @param TileMYR   $tile
+     * @param int          $nursesCount
+     * @param PlayerMYR    $player
+     * @param TileMYR $tile
      * @return void
      * @throws Exception
      */

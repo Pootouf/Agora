@@ -81,7 +81,8 @@ class WorkerMYRService
     public function placeAntInAnthill(PersonalBoardMYR $personalBoard, int $anthillFloor) : void
     {
         $maxFloor = $personalBoard->getAnthillLevel();
-        if ($maxFloor < $anthillFloor) {
+        $isAnthillLevelIncreased = $personalBoard->getBonus() == MyrmesParameters::BONUS_LEVEL;
+        if ($maxFloor + ($isAnthillLevelIncreased ? 1 : 0) < $anthillFloor) {
             throw new Exception('Invalid floor level');
         }
         $ant = $this->anthillWorkerMYRRepository->findOneBy([
@@ -175,12 +176,14 @@ class WorkerMYRService
                 return $this->getAllAvailablePositionsFromTypeZero($player, $tile, $tileType);
             case MyrmesParameters::PHEROMONE_TYPE_ONE:
                 return $this->getAllAvailablePositionsFromTypeOne($player, $tile, $tileType);
-            case MyrmesParameters::PHEROMONE_TYPE_TWO:
             case MyrmesParameters::SPECIAL_TILE_TYPE_FARM:
             case MyrmesParameters::SPECIAL_TILE_TYPE_QUARRY:
+            case MyrmesParameters::SPECIAL_TILE_DIRT_QUARRY:
+            case MyrmesParameters::SPECIAL_TILE_STONE_FARM:
+            case MyrmesParameters::PHEROMONE_TYPE_TWO:
                 return $this->getAllAvailablePositionsFromTypeTwo($player, $tile, $tileType);
-            case MyrmesParameters::PHEROMONE_TYPE_THREE:
             case MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL:
+            case MyrmesParameters::PHEROMONE_TYPE_THREE:
                 return $this->getAllAvailablePositionsFromTypeThree($player, $tile, $tileType);
             case MyrmesParameters::PHEROMONE_TYPE_FOUR:
                 return $this->getAllAvailablePositionsFromTypeFour($player, $tile, $tileType);
@@ -259,6 +262,9 @@ class WorkerMYRService
         $pheromoneCount = $this->getPheromoneCountOfType($player, $tileType);
         if (!$this->canChoosePheromone($player, $tileType, $pheromoneCount)) {
             throw new Exception("player can't place more pheromones of this type");
+        }
+        if(!$this->canPlaceSpecialTile($player, $tileType)){
+            throw new Exception("Can't place special tile");
         }
         $tiles = $this->getAllCoordinatesFromTileType($player, $tile, $tileType);
         $this->createAndPlacePheromone($tiles, $player, $tileType);
@@ -1329,6 +1335,53 @@ class WorkerMYRService
     }
 
     /**
+     * canPlaceSpecialTile : Indicates if the player can choose the special tile
+     * @param PlayerMYR $player
+     * @param TileTypeMYR $tileType
+     * @return bool
+     */
+    private function canPlaceSpecialTile(PlayerMYR $player, TileTypeMYR $tileType) : bool
+    {
+        $playerResources = $player->getPersonalBoardMYR()->getPlayerResourceMYRs();
+        switch ($tileType->getType()) {
+            case MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL:
+                foreach ($playerResources as $playerResource) {
+                    if($playerResource->getResource()->getDescription() == MyrmesParameters::RESOURCE_TYPE_GRASS ||
+                        $playerResource->getResource()->getDescription() == MyrmesParameters::RESOURCE_TYPE_STONE ||
+                        $playerResource->getResource()->getDescription() == MyrmesParameters::RESOURCE_TYPE_DIRT){
+                        if($playerResource->getQuantity() < 1) {
+                            return false;
+                        }
+                    }
+                }
+                break;
+            case MyrmesParameters::SPECIAL_TILE_TYPE_FARM:
+            case MyrmesParameters::SPECIAL_TILE_STONE_FARM:
+                foreach ($playerResources as $playerResource) {
+                    if($playerResource->getResource()->getDescription() == MyrmesParameters::RESOURCE_TYPE_STONE){
+                        if($playerResource->getQuantity() < 1) {
+                            return false;
+                        }
+                    }
+                }
+                break;
+            case MyrmesParameters::SPECIAL_TILE_TYPE_QUARRY:
+            case MyrmesParameters::SPECIAL_TILE_DIRT_QUARRY:
+            foreach ($playerResources as $playerResource) {
+                if($playerResource->getResource()->getDescription() == MyrmesParameters::RESOURCE_TYPE_GRASS){
+                    if($playerResource->getQuantity() < 1) {
+                        return false;
+                    }
+                }
+            }
+            break;
+            default:
+                return true;
+        }
+        return true;
+    }
+
+    /**
      * placeResourceOnTile : places the correct resource on the tile
      * @param PheromonTileMYR $tile
      * @return void
@@ -1366,6 +1419,38 @@ class WorkerMYRService
     {
         if ($tiles->isEmpty()) {
             throw new Exception("invalid placement");
+        }
+        $playerResources = $playerMYR->getPersonalBoardMYR()->getPlayerResourceMYRs();
+        switch ($tileTypeMYR->getType()) {
+            case MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL:
+                foreach ($playerResources as $playerResource) {
+                    if($playerResource->getResource() == MyrmesParameters::RESOURCE_TYPE_GRASS ||
+                        $playerResource->getResource() == MyrmesParameters::RESOURCE_TYPE_STONE ||
+                        $playerResource->getResource() == MyrmesParameters::RESOURCE_TYPE_DIRT
+                    ) {
+                        $playerResource->setQuantity($playerResource->getQuantity() - 1);
+                        $this->entityManager->persist($playerResource);
+                    }
+                }
+                break;
+            case MyrmesParameters::SPECIAL_TILE_TYPE_FARM:
+            case MyrmesParameters::SPECIAL_TILE_STONE_FARM:
+                foreach ($playerResources as $playerResource) {
+                    if($playerResource->getResource() == MyrmesParameters::RESOURCE_TYPE_STONE){
+                        $playerResource->setQuantity($playerResource->getQuantity() - 1);
+                        $this->entityManager->persist($playerResource);
+                    }
+                }
+            case MyrmesParameters::SPECIAL_TILE_TYPE_QUARRY:
+            case MyrmesParameters::SPECIAL_TILE_DIRT_QUARRY:
+                foreach ($playerResources as $playerResource) {
+                    if($playerResource->getResource() == MyrmesParameters::RESOURCE_TYPE_GRASS){
+                        $playerResource->setQuantity($playerResource->getQuantity() - 1);
+                        $this->entityManager->persist($playerResource);
+                    }
+                }
+            default:
+                break;
         }
         $pheromone = new PheromonMYR();
         $pheromone->setPlayer($playerMYR);
