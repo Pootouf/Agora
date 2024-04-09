@@ -63,6 +63,23 @@
 												Historique
 											</a>
 										</li>
+										<li>
+									<a href="/dashboard/allusers" class="text-gray-400 hover:text-white hover:bg-gray-800 group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold">
+										<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewbox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+											<path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/>
+										</svg>
+										Modifier un utilisateur (ADM)
+									</a>
+								</li>
+								<li>
+									<a href="/dashboard/banmanager" class="text-gray-400 hover:text-white hover:bg-gray-800 group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold">
+										<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewbox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+											<path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/>
+										</svg>
+										Bannir ou débannir (ADM)
+									</a>
+								</li>
+
 									</ul>
 								</li>
 								<li class="mt-auto">
@@ -134,6 +151,22 @@
 										Historique
 									</a>
 								</li>
+								<li>
+									<a href="/dashboard/allusers" class="text-gray-400 hover:text-white hover:bg-gray-800 group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold">
+										<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewbox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+											<path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/>
+										</svg>
+										Gestion des utilisateurs
+									</a>
+								</li>
+								<li>
+									<a href="/dashboard/banmanager" class="text-gray-400 hover:text-white hover:bg-gray-800 group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold">
+										<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewbox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+											<path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/>
+										</svg>
+										Gestion des bannissements
+									</a>
+								</li>
 							</ul>
 						</li>
 
@@ -162,12 +195,56 @@
 				<!-- Separator -->
 				<div class="h-6 w-px bg-gray-900/10 lg:hidden" aria-hidden="true"></div>
 				<div class="flex items-center gap-x-4 lg:gap-x-6 justify-end w-full">
-					<button type="button" class="-m-2.5 p-2.5 text-gray-400 hover:text-gray-500">
-						<span class="sr-only">Afficher les notifications</span>
-						<svg class="h-6 w-6" fill="none" viewbox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
-							<path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"/>
+					<div class="relative inline-block text-left" id="notification-container">
+    <button type="button" class="-m-2.5 p-2.5 text-gray-400 hover:text-gray-500 relative" id="notification-button">
+    <span class="sr-only">Afficher les notifications</span>
+
+    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"/>
+    </svg>
+</button>
+
+					<!-- Menu de notification -->
+<div class="hidden origin-top-right absolute right-0 mt-2 lg:w-72 rounded-md shadow-lg py-2 bg-white ring-1 ring-black ring-opacity-5" id="notification-menu">
+    <!-- Titre du menu -->
+    <div class="px-4">
+        <h2 class="text-lg font-semibold text-gray-800 mb-0">Mes notifications</h2>
+        <div class="mt-1 py-0 text-base text-gray-700 hover:bg-gray-100 hover:text-gray-900 border-b border-gray-900 last:border-b-0 transition duration-150"></div>
+		<div id="notif-content">
+        <!-- Contenu du menu de notifications avec des notifications plus grandes -->
+			{% for notification in notifications %}
+				<div class="notification-item py-3 text-base text-gray-700 hover:bg-gray-100 hover:text-gray-900">
+					<p>{{notification.content}}</p>
+					<div class="flex items-end">
+						<svg class="h-5 w-5 text-gray-400 ml-2" viewBox="0 0 20 20" fill="currentColor">
+							<path fill-rule="evenodd" d="M13 10a3 3 0 11-6 0 3 3 0 016 0zm-2 0a1 1 0 10-2 0 1 1 0 002 0z" clip-rule="evenodd"/>
 						</svg>
-					</button>
+						<div class="text-right text-xs text-gray-500">{{ notification.createdAt | date }}</div>
+					</div>
+					<div class="mt-4 flex justify-center">
+						<a href="#" class="text-sm text-primary hover:text-blue-400 font-semibold rounded-lg px-3 py-1.5 text-center mr-2 mb-2 mark-as-read">Voir</a>
+						<a href="#" class="text-sm text-primary hover:text-blue-400 font-semibold rounded-lg px-3 py-1.5 text-center mr-2 mb-2 mark-as-read">Marquer comme lu</a>
+					</div>
+					<div class="mt-1 py-0 text-base text-gray-700 hover:bg-gray-100 hover:text-gray-900 border-b border-gray-900 last:border-b-0 transition duration-150"></div>
+				</div>
+			{% endfor %}
+		</div>
+
+
+        <!-- Bouton Tout marquer comme lu -->
+        <div class="mt-3 flex justify-center">
+            <a href="#" id="mark-all-as-read" class="text-sm text-red-500 hover:text-red-700 mark-all-as-read">Tout marquer comme lu</a>
+        </div>
+    </div>
+
+</div>
+
+</div>
+
+
+
+
+
 					<!-- Separator -->
 					<div class="hidden lg:block lg:h-6 lg:w-px lg:bg-gray-900/10" aria-hidden="true"></div>
 					<!-- Profile dropdown -->
@@ -183,9 +260,10 @@
 							</span>
 						</button>
 						<div
-							id="user-menu" class="hidden absolute right-0 z-10 mt-2.5 w-32 origin-top-right rounded-md bg-white py-2 shadow-lg ring-1 ring-gray-900/5 focus:outline-none transition ease-out duration-100 transform opacity-0 scale-95" role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button" tabindex="-1">
+							id="user-menu" class="hidden absolute right-0 z-10 mt-2.5 w-32 origin-top-right rounded-md bg-white py-2 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none transition ease-out duration-100 transform opacity-0 scale-95" role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button" tabindex="-1">
 							<!-- Active: "bg-gray-50", Not Active: "" -->
-							<a href="/dashboard/profile" class="block px-3 py-1 text-sm leading-6 text-gray-900 hover:bg-gray-50" role="menuitem" tabindex="-1" id="user-menu-item-0">Votre profil</a>
+							<a href="/dashboard/profile" class="block px-3 py-1 text-sm leading-6 text-gray-900 hover:bg-gray-50" role="menuitem" tabindex="-1" id="user-menu-item-0">Mon profil</a>
+							<a href="/dashboard/settings" class="block px-3 py-1 text-sm leading-6 text-gray-900 hover:bg-gray-50" role="menuitem" tabindex="-1" id="user-menu-item-0">Paramètres</a>
 							<a href="/logout" class="block px-3 py-1 text-sm leading-6 text-gray-900 hover:bg-gray-50" role="menuitem" tabindex="-1" id="user-menu-item-1">Se déconnecter</a>
 						</div>
 					</div>
@@ -199,6 +277,56 @@
 		</div>
 	</div>
 
+{#	Notifications ---------------------------------------------------#}
+
+	<script src="{{ asset('js/Platform/notify.js') }}"></script>
+	<script>
+		let eventSource;
+		{% if app.user %}
+		eventSource = new EventSource("{{ mercure('agora/notifications/user/' ~ app.user.id)|escape('js') }}");
+		{% else %}
+		eventSource = new EventSource("{{ mercure('agora/notifications/user/null')|escape('js') }}");
+		{% endif %}
+		eventSource.onmessage = event => {
+			const data = JSON.parse(event.data);
+			notify(data.content, "Agora");
+			updateNotificationFrame(data);
+		}
+		function updateNotificationFrame(notification) {
+			const notificationsList = document.getElementById('notif-content');
+			const date = new Date(notification.date);
+
+			const formattedDate = date.toLocaleString('fr-FR', {
+				hour: 'numeric',
+				minute: 'numeric',
+				month: 'long',
+				day: '2-digit',
+				year: 'numeric'
+			}).replace(' à ', ' ');
+
+			const notif = document.createElement('div');
+			notif.innerHTML = `
+            <div class="notification-item py-3 text-base text-gray-700 hover:bg-gray-100 hover:text-gray-900">
+            <p>${notification.content}</p>
+			<div class="flex items-end">
+            	<svg class="h-5 w-5 text-gray-400 ml-2" viewBox="0 0 20 20" fill="currentColor">
+            		<path fill-rule="evenodd" d="M13 10a3 3 0 11-6 0 3 3 0 016 0zm-2 0a1 1 0 10-2 0 1 1 0 002 0z" clip-rule="evenodd"/>
+            	</svg>
+            	<div class="text-right text-xs text-gray-500">${formattedDate}</div>
+            </div>
+            <div class="mt-4 flex justify-center">
+                <a href="#" class="text-sm text-primary hover:text-blue-400 font-semibold rounded-lg px-3 py-1.5 text-center mr-2 mb-2 mark-as-read">Voir</a>
+                <a href="#" class="text-sm text-primary hover:text-blue-400 font-semibold rounded-lg px-3 py-1.5 text-center mr-2 mb-2 mark-as-read">Marquer comme lu</a>
+            </div>
+            <div class="mt-1 py-0 text-base text-gray-700 hover:bg-gray-100 hover:text-gray-900 border-b border-gray-900 last:border-b-0 transition duration-150"></div>
+        </div>
+        `;
+			notificationsList.prepend(notif);
+		}
+	</script>
+
+{#	End notifications ---------------------------------------------------------------------#}
+
 	<script>
 		const dropdownButton = document.getElementById("user-menu-button");
 const dropdownMenu = document.getElementById("user-menu");
@@ -211,16 +339,22 @@ const sidebar = document.getElementById("sidebar");
 const toggleClasses = (el, ...classes) => classes.map(c => el.classList.toggle(c))
 
 dropdownButton.addEventListener('click', function () {
-const isMenuExpanded = this.getAttribute('aria-expanded') === true
-if (! isMenuExpanded) {
-dropdownMenu.classList.remove('hidden', 'opacity-0', 'scale-95')
-dropdownMenu.classList.add('opacity-100', 'scale-100');
-} else {
-userMenu.classList.add();
-userMenu.classList.remove();
-dropdownMenu.classList.toggle()
-}
-this.setAttribute('aria-expanded', ! isMenuExpanded)
+    const isMenuExpanded = this.getAttribute('aria-expanded') === 'true';
+    if (!isMenuExpanded) {
+        dropdownMenu.classList.remove('hidden', 'opacity-0', 'scale-95');
+        dropdownMenu.classList.add('opacity-100', 'scale-100');
+    } else {
+        dropdownMenu.classList.remove('opacity-100', 'scale-100');
+        dropdownMenu.classList.add('opacity-0', 'scale-95');
+    }
+    this.setAttribute('aria-expanded', !isMenuExpanded);
+})
+
+document.addEventListener("click", function (event) {
+    if (!dropdownButton.contains(event.target) && !dropdownMenu.contains(event.target)) {
+        dropdownButton.setAttribute('aria-expanded', 'false');
+        dropdownMenu.classList.add('hidden', 'opacity-0', 'scale-95');
+    }
 })
 
 window.addEventListener('click', function (event) {
@@ -245,6 +379,9 @@ sidebar.classList.toggle('flex');
 document.addEventListener("DOMContentLoaded", function() {
     // Récupérer l'URL actuelle
     var currentURL = window.location.pathname;
+    
+    const markAsReadLinks = document.querySelectorAll('.mark-as-read');
+    const notificationItems = document.querySelectorAll('.notification-item'); // Sélectionner tous les éléments de notification
 
     // Parcourir tous les liens dans les deux zones de navigation
     var allNavLinks = document.querySelectorAll(".flex-1 a, #sidebar .flex-1 a");
@@ -273,7 +410,57 @@ document.addEventListener("DOMContentLoaded", function() {
             link.classList.remove("text-gray-400", "hover:text-white", "hover:bg-gray-800");
             link.classList.add("bg-gray-800", "text-white");
         });
+
+	// Ajouter un écouteur d'événements au lien "Tout marquer comme lu"
+    const markAllAsReadLink = document.getElementById('mark-all-as-read');
+    markAllAsReadLink.addEventListener('click', function(event) {
+        event.preventDefault(); // Empêcher le comportement par défaut du lien
+
+        // Supprimer toutes les notifications
+        notificationItems.forEach(function(notificationItem) {
+            notificationItem.remove();
+        });
+    });
+
+		// Ajouter un écouteur d'événements à chaque lien
+markAsReadLinks.forEach(function(link) {
+    link.addEventListener('click', function(event) {
+        event.preventDefault(); // Empêcher le comportement par défaut du lien
+        event.stopPropagation(); // Empêcher la propagation de l'événement
+
+        const notificationItem = this.closest('.notification-item'); // Trouver l'élément parent de la notification
+        if (notificationItem) {
+            notificationItem.remove(); // Supprimer l'élément de notification du DOM
+        }
     });
 });
+
+    });
+
+    // Notification menu functionality
+    const notificationButton = document.getElementById('notification-button');
+    const notificationMenu = document.getElementById('notification-menu');
+
+    notificationButton.addEventListener('click', () => {
+        const isMenuExpanded = notificationButton.getAttribute('aria-expanded') === 'true';
+        if (!isMenuExpanded) {
+            notificationMenu.classList.remove('hidden', 'opacity-0', 'scale-95');
+            notificationMenu.classList.add('opacity-100', 'scale-100');
+        } else {
+            notificationMenu.classList.remove('opacity-100', 'scale-100');
+            notificationMenu.classList.add('opacity-0', 'scale-95');
+        }
+        notificationButton.setAttribute('aria-expanded', !isMenuExpanded);
+    });
+
+    // Close the notification menu when the user clicks outside of it
+    document.addEventListener('click', function(event) {
+        if (!notificationButton.contains(event.target) && !notificationMenu.contains(event.target)) {
+            notificationButton.setAttribute('aria-expanded', 'false');
+            notificationMenu.classList.add('hidden', 'opacity-0', 'scale-95');
+        }
+    });
+});
+
 </script>
 {% endblock %}

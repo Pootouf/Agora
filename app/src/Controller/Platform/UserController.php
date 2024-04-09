@@ -32,15 +32,14 @@ class UserController extends AbstractController
     {
         $userId = $this->security->getUser()->getId();
         $resultCode = $this->userService->addContact($userId, $contact_id);
-        dump($resultCode);
         if($resultCode < 0){
             $this->addFlash(
                 'failure',
                 'Erreur lors de l\'ajout du contact'
             );
-            return  $this->redirectToRoute('app_home');
+            return  $this->redirectToRoute('app_other_user_profile', ['user_id' => $contact_id]);
         }
-        return $this->redirectToRoute('app_home');
+        return $this->redirectToRoute('app_other_user_profile', ['user_id' => $contact_id]);
     }
 
     #[Route('/user/removeContact/{contact_id}', name: 'app_user_remove_contact', requirements: ['user_id' => '\d+'])]
@@ -53,9 +52,24 @@ class UserController extends AbstractController
                 'failure',
                 'Erreur lors du retrait du contact'
             );
-            return  $this->redirectToRoute('app_home');
+            return  $this->redirectToRoute('app_other_user_profile', ['user_id' => $contact_id]);
         }
-        return $this->redirectToRoute('app_home');
+        return $this->redirectToRoute('app_other_user_profile', ['user_id' => $contact_id]);
+    }
+
+    #[Route('/dashboard/contacts', name: 'app_contacts')]
+    public function contacts(): Response
+    {
+        // Récupérer l'utilisateur actuellement connecté
+        $user = $this->getUser();
+    
+        // Récupérer la liste de contacts pour cet utilisateur
+        $contacts = $user->getContacts();
+    
+        // Afficher la liste de contacts dans le template
+        return $this->render('platform/dashboard/contacts.html.twig', [
+            'contacts' => $contacts,
+        ]);
     }
 
     #[Route('/user/{id}/editProfile', name: 'app_user_edit_profile')]
@@ -93,5 +107,7 @@ class UserController extends AbstractController
             'form' => $form->createView()
         ]);
     }
+
+    
 
 }

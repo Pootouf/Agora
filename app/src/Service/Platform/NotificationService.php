@@ -35,8 +35,7 @@ class NotificationService
         $update = new Update(
             'agora/notifications/user/'. $user,
             json_encode(['content' => $content,
-                'date' => $date]),
-            true
+                'date' => $date])
         );
 
         $this->hub->publish($update);

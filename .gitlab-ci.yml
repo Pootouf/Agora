@@ -5,6 +5,7 @@ stages:
   - sixqp
   - splendor
   - glenmore
+  - platform
   - deploy
 
 cache:
@@ -12,7 +13,6 @@ cache:
   paths:
     - vendor/
     - var/
-
 
 variables:
   MYSQL_ROOT_PASSWORD: password
@@ -33,7 +33,6 @@ services:
   - name: dunglas/mercure:latest
     alias: mercure
 
-
 before_script:
   - cd app
   - composer install
@@ -41,7 +40,17 @@ before_script:
   - symfony console --env=test doctrine:migrations:migrate
   - symfony console doctrine:fixtures:load --env=test -n --append
 
-  
+.only_game_branches: &only_game_branches
+  only:
+    - develop-game
+    - preprod
+    - main
+
+.only_platform_branches: &only_platform_branches
+  only:
+    - develop-platform
+    - preprod
+    - main
 
 .deploy: &deploy
   stage: deploy
@@ -62,9 +71,6 @@ before_script:
 
     # Launch project
     - ssh $SERVER_USER@$SERVER_IP "cd $SERVER_LOCATION && docker compose -f compose.yaml -f $DOCKER_COMPOSE_FILE up --build -d"
-  only:
-    - develop-game
-
 
 deploy:dev_game:
   <<: *deploy
@@ -78,9 +84,34 @@ deploy:dev_game:
     DOCKER_COMPOSE_FILE: compose.gametest.yaml
     GIT_BRANCH_NAME: develop-game
     ID_RSA: $ID_RSA_GAME
+  only:
+    - develop-game
+
+deploy:dev_platform:
+  <<: *deploy
+  environment:
+    name: development
+  variables:
+    SERVER_USER: $SERVER_PLATFORM_USER
+    SERVER_IP: $SERVER_PLATFORM_IP
+    SERVER_LOCATION: /opt/agora
+    DOCKER_COMPOSE_FILE: compose-dev.yaml
+    GIT_BRANCH_NAME: develop-platform
+    ID_RSA: $ID_RSA_PLATFORM
+  only:
+    - develop-platform
+
+unitPlatform:
+  stage: platform
+  <<: *only_platform_branches
+  script:
+  - php bin/phpunit tests/Platform/Unit
+  allow_failure: false
+  environment: test
 
 unitFactory:
   stage: factory
+  <<: *only_game_branches
   script:
     - php bin/phpunit tests/Game/Factory/Unit
   allow_failure: false
@@ -88,10 +119,7 @@ unitFactory:
 
 integrationFactory:
   stage: factory
-  only:
-    - develop-game
-    - preprod
-    - main
+  <<: *only_game_branches
   script:
     - php bin/phpunit tests/Game/Factory/Integration
   allow_failure: false
@@ -99,6 +127,7 @@ integrationFactory:
 
 unit6QP:
   stage: sixqp
+  <<: *only_game_branches
   script:
     - php bin/phpunit tests/Game/SixQP/Unit
   allow_failure: false
@@ -106,10 +135,7 @@ unit6QP:
 
 integration6QP:
   stage: sixqp
-  only:
-    - develop-game
-    - preprod
-    - main
+  <<: *only_game_branches
   script:
     - php bin/phpunit tests/Game/SixQP/Integration
   allow_failure: false
@@ -117,10 +143,7 @@ integration6QP:
 
 application6QP:
   stage: sixqp
-  only:
-    - develop-game
-    - preprod
-    - main
+  <<: *only_game_branches
   script:
     - symfony console tailwind:build
     - php bin/phpunit tests/Game/SixQP/Application
@@ -129,6 +152,7 @@ application6QP:
 
 unitSplendor:
   stage: splendor
+  <<: *only_game_branches
   script:
     - php bin/phpunit tests/Game/Splendor/Unit
   allow_failure: false
@@ -136,10 +160,7 @@ unitSplendor:
 
 integrationSplendor:
   stage: splendor
-  only:
-    - develop-game
-    - preprod
-    - main
+  <<: *only_game_branches
   script:
     - php bin/phpunit tests/Game/Splendor/Integration
   allow_failure: false
@@ -147,10 +168,7 @@ integrationSplendor:
 
 applicationSplendor:
   stage: splendor
-  only:
-    - develop-game
-    - preprod
-    - main
+  <<: *only_game_branches
   script:
     - symfony console tailwind:build
     - php bin/phpunit tests/Game/Splendor/Application
@@ -159,6 +177,7 @@ applicationSplendor:
 
 unitGlenmore:
   stage: glenmore
+  <<: *only_game_branches
   script:
     - php bin/phpunit tests/Game/Glenmore/Unit
   allow_failure: false
@@ -166,10 +185,7 @@ unitGlenmore:
 
 integrationGlenmore:
   stage: glenmore
-  only:
-    - develop-game
-    - preprod
-    - main
+  <<: *only_game_branches
   script:
     - php bin/phpunit tests/Game/Glenmore/Integration
   allow_failure: false

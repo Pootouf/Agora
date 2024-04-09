@@ -1,12 +1,39 @@
-services:
-  app:
-    entrypoint:
-    - sleep
-    - infinity
-    image: docker/dev-environments-default:stable-1
-    init: true
-    volumes:
-    - type: bind
-      source: /var/run/docker.sock
-      target: /var/run/docker.sock
+version: '3'
 
+services:
+  agora:
+    command: bash -c "cd /app
+      && symfony console -n doctrine:migrations:migrate
+      && symfony console -n --env=test doctrine:migrations:migrate
+      && symfony console importmap:install
+      && (php bin/console tailwind:build --watch &)
+      && frankenphp run --config /etc/caddy/Caddyfile --watch"
+    volumes:
+      - ./app:/app
+      - vendor_agora:/app/vendor:delegated
+      - var_agora:/app/var:delegated
+    environment:
+      APP_DEBUG: 1
+      APP_ENV_SERVER: ${APP_ENV_DEV}
+      MERCURE_PUBLIC_URL: ${MERCURE_PUBLIC_URL:-https://localhost/.well-known/mercure}
+      CADDY_GLOBAL_OPTIONS: |
+        debug
+    tty: true
+
+
+  ###> doctrine/doctrine-bundle ###
+###< doctrine/doctrine-bundle ###
+
+###> symfony/mailer ###
+  mailer:
+    container_name: mailer
+    image: schickling/mailcatcher
+    ports: ["1025:1025", "1080:1080"]
+###< symfony/mailer ###
+
+###> symfony/mercure-bundle ###
+###< symfony/mercure-bundle ###
+
+volumes:
+  vendor_agora:
+  var_agora:
