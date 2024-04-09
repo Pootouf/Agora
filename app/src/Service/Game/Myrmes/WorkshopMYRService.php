@@ -138,7 +138,7 @@ class WorkshopMYRService
     {
         if (!$this->canPlayerDoStoneOrDirtGoal($player, $goal->getDifficulty())
             || ($goal->getDifficulty() == MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE
-                && $stoneQuantity + $dirtQuantity < 3)
+                && $stoneQuantity + $dirtQuantity < 2)
             || ($goal->getDifficulty() == MyrmesParameters::GOAL_DIFFICULTY_LEVEL_THREE
                 && $stoneQuantity + $dirtQuantity < 6)
         ) {
@@ -531,7 +531,7 @@ class WorkshopMYRService
                     ->getQuantity() >= 3,
             MyrmesParameters::GOAL_DIFFICULTY_LEVEL_TWO =>
                 $this->getPlayerResourcesFromSelectedType($player, MyrmesParameters::RESOURCE_TYPE_GRASS)
-                    ->getQuantity() >= 6,
+                    ->getQuantity() >= 5,
             default => throw new Exception("Goal difficulty invalid for food goal"),
         };
     }
@@ -551,7 +551,7 @@ class WorkshopMYRService
                     ->getQuantity() >= 3,
             MyrmesParameters::GOAL_DIFFICULTY_LEVEL_THREE =>
                 $this->getPlayerResourcesFromSelectedType($player, MyrmesParameters::RESOURCE_TYPE_STONE)
-                    ->getQuantity() >= 6,
+                    ->getQuantity() >= 5,
             default => throw new Exception("Goal difficulty invalid for stone goal"),
         };
     }
@@ -571,7 +571,7 @@ class WorkshopMYRService
                     ->getQuantity()
                 + $this->getPlayerResourcesFromSelectedType($player, MyrmesParameters::RESOURCE_TYPE_DIRT)
                     ->getQuantity()
-                >= 3,
+                >= 2,
             MyrmesParameters::GOAL_DIFFICULTY_LEVEL_THREE =>
                 $this->getPlayerResourcesFromSelectedType($player, MyrmesParameters::RESOURCE_TYPE_STONE)
                     ->getQuantity()
@@ -764,7 +764,7 @@ class WorkshopMYRService
             MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE =>
                 $resource->setQuantity($resource->getQuantity() - 3),
             MyrmesParameters::GOAL_DIFFICULTY_LEVEL_TWO =>
-                $resource->setQuantity($resource->getQuantity() - 6),
+                $resource->setQuantity($resource->getQuantity() - 5),
             default => throw new Exception("Goal difficulty invalid for food goal"),
         };
         $this->entityManager->persist($resource);
@@ -788,7 +788,7 @@ class WorkshopMYRService
             MyrmesParameters::GOAL_DIFFICULTY_LEVEL_TWO =>
             $resource->setQuantity($resource->getQuantity() - 3),
             MyrmesParameters::GOAL_DIFFICULTY_LEVEL_THREE =>
-            $resource->setQuantity($resource->getQuantity() - 6),
+            $resource->setQuantity($resource->getQuantity() - 5),
             default => throw new Exception("Goal difficulty invalid for stone goal"),
         };
         $this->entityManager->persist($resource);
