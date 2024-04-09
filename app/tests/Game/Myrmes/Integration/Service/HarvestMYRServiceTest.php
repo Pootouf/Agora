@@ -62,6 +62,29 @@ class HarvestMYRServiceTest extends KernelTestCase
         $this->assertEquals($grassCount + 1, $playerResource->getQuantity());
     }
 
+    public function testHarvestSpecialTilesSubAnthill() : void
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $specialTileType = new TileTypeMYR();
+        $specialTileType->setType(MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL);
+        $specialTileType->setOrientation(0);
+        $this->entityManager->persist($specialTileType);
+        $specialTile = new PheromonMYR();
+        $specialTile->setType($specialTileType);
+        $specialTile->setPlayer($firstPlayer);
+        $specialTile->setHarvested(false);
+        $this->entityManager->persist($specialTile);
+        $firstPlayer->addPheromonMYR($specialTile);
+        $playerPoints = $firstPlayer->getScore();
+        $this->entityManager->flush();
+        // WHEN
+        $this->harvestMYRService->harvestPlayerSpecialTiles($firstPlayer);
+        // THEN
+        $this->assertEquals($playerPoints + 2, $firstPlayer->getScore());
+    }
+
     private function createGame(int $numberOfPlayers) : GameMYR
     {
         if($numberOfPlayers < MyrmesParameters::MIN_NUMBER_OF_PLAYER ||
