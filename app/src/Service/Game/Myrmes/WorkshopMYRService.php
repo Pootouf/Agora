@@ -95,7 +95,12 @@ class WorkshopMYRService
             throw new Exception("player can not choose this bonus");
         }
         $nurses = $this->MYRService->getNursesAtPosition($player, $workshop);
-        $nursesCount = $nurses->count();
+        $nursesCount = $nurses->count()
+        ;
+        if ($nursesCount != 1) {
+            return;
+        }
+
         switch ($workshop) {
             case MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA:
                 $this->manageAnthillHole($nursesCount, $player, $tile);
@@ -110,8 +115,6 @@ class WorkshopMYRService
                 break;
             case MyrmesParameters::WORKSHOP_GOAL_AREA:
                 break;
-            default:
-                throw new Exception("Don't give bonus");
         }
         $this->entityManager->flush();
     }
@@ -138,6 +141,12 @@ class WorkshopMYRService
      */
     private function canChooseThisBonus(PlayerMYR $player, int $workshopArea) : bool
     {
+        if ( $workshopArea < MyrmesParameters::WORKSHOP_GOAL_AREA
+            || $workshopArea > MyrmesParameters::WORKSHOP_NURSE_AREA)
+        {
+            return false;
+        }
+
         if ($player->getPhase() != MyrmesParameters::PHASE_WORKSHOP) {
             return false;
         }
@@ -361,9 +370,32 @@ class WorkshopMYRService
     private function canBuyNurse(PlayerMYR $player) : bool
     {
         $pBoard = $player->getPersonalBoardMYR();
+        $resource = $this->getFoodResource($player);
 
         return $pBoard->getLarvaCount() >= 2
-            && $pBoard->getPlayerResourceMYRs()->count() >= 2;
+            && $resource != null
+            && $resource->getQuantity() >= 2
+            && $this->nurseMYRRepository->findOneBy(
+                [
+                    'available' => false,
+                    'player' => $player
+                ]
+            ) != null;
+    }
+
+    private function getFoodResource(PlayerMYR $playerMYR) : ?PlayerResourceMYR
+    {
+        $pBoard = $playerMYR->getPersonalBoardMYR();
+
+        $grass = $this->resourceMYRRepository->findOneBy(
+            ["description" => MyrmesParameters::RESOURCE_TYPE_GRASS]
+        );
+        return $this->playerResourceMYRRepository->findOneBy(
+            [
+                "resource" => $grass,
+                "personalBoard" => $pBoard
+            ]
+        );
     }
 
     /**
@@ -376,31 +408,22 @@ class WorkshopMYRService
     private function manageNurse(int $nursesCount, PlayerMYR $player) : void
     {
         $pBoard = $player->getPersonalBoardMYR();
+        $pBoard->setLarvaCount($pBoard->getLarvaCount() - 2);
 
-        if ($nursesCount == 1)
-        {
-            $pBoard->setLarvaCount($pBoard->getLarvaCount() - 2);
+        $playerResource = $this->getFoodResource($player);
+        $playerResource->setQuantity($playerResource->getQuantity() - 2);
+        $this->entityManager->persist($playerResource);
 
-            for ($i = $pBoard->getPlayerResourceMYRs()->count() - 3;
-                 $i < $pBoard->getPlayerResourceMYRs()->count();
-                 $i++) {
-                $playerResource = $pBoard->getPlayerResourceMYRs()->get($i);
-                $pBoard->removePlayerResourceMYR($playerResource);
-            }
+        $nurse = $this->nurseMYRRepository->findOneBy(['available' => false]);
+        $nurse->setAvailable(true);
+        $nurse->setArea(MyrmesParameters::BASE_AREA);
 
-            $nurse = $this->nurseMYRRepository->findOneBy(['available' => false]);
-            if($nurse != null) {
-                $nurse->setAvailable(true);
-                $nurse->setArea(MyrmesParameters::BASE_AREA);
-                $this->entityManager->persist($nurse);
-                $this->entityManager->persist($pBoard);
-            } else {
-                throw new Exception("Can't have a new nurse, already reach the limit");
-            }
-            $this->MYRService->manageNursesAfterBonusGive(
-                $player, 1, MyrmesParameters::WORKSHOP_NURSE_AREA
-            );
-        }
+        $this->entityManager->persist($nurse);
+        $this->entityManager->persist($pBoard);
+
+        $this->MYRService->manageNursesAfterBonusGive(
+            $player, $nursesCount, MyrmesParameters::WORKSHOP_NURSE_AREA
+        );
     }
 
     /**

@@ -25,6 +25,8 @@ use App\Repository\Game\Myrmes\TileTypeMYRRepository;
 use App\Service\Game\Myrmes\MYRService;
 use App\Service\Game\Myrmes\WinterMYRService;
 use App\Service\Game\Myrmes\WorkshopMYRService;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\DBAL\Exception;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use PHPUnit\Framework\TestCase;
@@ -35,6 +37,8 @@ class WorkshopMYRServiceTest extends TestCase
     private WorkshopMYRService $workshopMYRService;
 
     private MYRService $MYRService;
+
+    private NurseMYRRepository $nurseMYRRepository;
 
     protected function setUp() : void
     {
@@ -52,7 +56,7 @@ class WorkshopMYRServiceTest extends TestCase
         $playerFood = new PlayerResourceMYR();
         $playerFood->setResource($food);
         $playerFood->setQuantity(4);
-        $nurseMYRRepository = $this->getMockBuilder(NurseMYRRepository::class)
+        $this->nurseMYRRepository = $this->getMockBuilder(NurseMYRRepository::class)
             ->setConstructorArgs([$managerRegistry])
             ->getMock();
         $tileMYRRepository = $this->getMockBuilder(TileMYRRepository::class)
@@ -75,7 +79,7 @@ class WorkshopMYRServiceTest extends TestCase
         $playerResourceMYRRepository->method("findOneBy")->willReturn($playerFood);
         $this->workshopMYRService = new WorkshopMYRService($entityManager, $this->MYRService, $pheromoneTileMyrRepository,
             $preyMyrRepository, $tileMYRRepository, $pheromoneMyrRepository, $resourceMYRRepository,
-            $playerResourceMYRRepository, $nurseMYRRepository, $anthillHoleMyrRepository);
+            $playerResourceMYRRepository, $this->nurseMYRRepository, $anthillHoleMyrRepository);
     }
 
     public function testCanSetPhaseToWorkshopReturnTrueIfPlayerHasNursesInWorkshop(): void
@@ -134,8 +138,7 @@ class WorkshopMYRServiceTest extends TestCase
         //WHEN
         $this->workshopMYRService->manageEndOfWorkshop($game);
     }
-
-    public function testGiveBonusWhenAskIncreaseLevel() : void
+    public function testGiveBonusWhenAskIncreaseLevelWhenCanIncrease() : void
     {
         // GIVEN
 
@@ -148,6 +151,12 @@ class WorkshopMYRServiceTest extends TestCase
 
         $player = $game->getPlayers()->first();
         $personalBoard = $player->getPersonalBoardMYR();
+
+        $array = new ArrayCollection();
+        $nurse = $personalBoard->getNurses()->first();
+        $nurse->setArea(MyrmesParameters::WORKSHOP_LEVEL_AREA);
+        $array->add($nurse);
+        $this->MYRService->method("getNursesAtPosition")->willReturn($array);
 
         foreach (array_keys(MyrmesParameters::BUY_RESOURCE_FOR_LEVEL_ONE) as $resourceName)
         {
@@ -168,6 +177,144 @@ class WorkshopMYRServiceTest extends TestCase
 
         // THEN
 
+        $this->assertSame(1, $personalBoard->getAnthillLevel());
+    }
+
+    public function testGiveBonusWhenAskIncreaseLevelWhenCanNotIncrease() : void
+    {
+        // GIVEN
+
+        $game = $this->createGame(2);
+
+        foreach ($game->getPlayers() as $p)
+        {
+            $p->setPhase(MyrmesParameters::PHASE_WORKSHOP);
+        }
+
+        $player = $game->getPlayers()->first();
+        $personalBoard = $player->getPersonalBoardMYR();
+        $personalBoard->setAnthillLevel(1);
+
+        $array = new ArrayCollection();
+        $nurse = $personalBoard->getNurses()->first();
+        $nurse->setArea(MyrmesParameters::WORKSHOP_LEVEL_AREA);
+        $array->add($nurse);
+        $this->MYRService->method("getNursesAtPosition")->willReturn($array);
+
+        // THEN
+
+        $this->expectException(\Exception::class);
+
+        // WHEN
+
+
+        $this->workshopMYRService->manageWorkshop($player,
+            MyrmesParameters::WORKSHOP_LEVEL_AREA);
+    }
+
+    public function testGiveBonusWhenAskNewNurseWhenCanAdd() : void
+    {
+        // GIVEN
+
+        $game = $this->createGame(2);
+
+        foreach ($game->getPlayers() as $p)
+        {
+            $p->setPhase(MyrmesParameters::PHASE_WORKSHOP);
+        }
+
+        $player = $game->getPlayers()->first();
+        $personalBoard = $player->getPersonalBoardMYR();
+        $personalBoard->setLarvaCount(2);
+
+        $array = new ArrayCollection();
+        $nurse = $personalBoard->getNurses()->first();
+        $nurse->setArea(MyrmesParameters::WORKSHOP_NURSE_AREA);
+        $array->add($nurse);
+
+        $this->MYRService->method("getNursesAtPosition")
+            ->willReturn($array);
+        $this->nurseMYRRepository->method("findOneBy")
+            ->willReturn($personalBoard->getNurses()->last());
+
+        // WHEN
+
+        $this->workshopMYRService->manageWorkshop($player,
+            MyrmesParameters::WORKSHOP_NURSE_AREA);
+
+        // THEN
+
+        $this->assertSame(0, $personalBoard->getLarvaCount());
+    }
+
+    public function testGiveBonusWhenAskNewNurseWhenCanNotAdd() : void
+    {
+        // GIVEN
+
+        $game = $this->createGame(2);
+
+        foreach ($game->getPlayers() as $p)
+        {
+            $p->setPhase(MyrmesParameters::PHASE_WORKSHOP);
+        }
+
+        $player = $game->getPlayers()->first();
+        $personalBoard = $player->getPersonalBoardMYR();
+        $personalBoard->setLarvaCount(1);
+
+        $array = new ArrayCollection();
+        $nurse = $personalBoard->getNurses()->first();
+        $nurse->setArea(MyrmesParameters::WORKSHOP_NURSE_AREA);
+        $array->add($nurse);
+
+        $this->MYRService->method("getNursesAtPosition")
+            ->willReturn($array);
+        $this->nurseMYRRepository->method("findOneBy")
+            ->willReturn($personalBoard->getNurses()->last());
+
+        // WHEN
+
+        $this->workshopMYRService->manageWorkshop($player,
+            MyrmesParameters::WORKSHOP_NURSE_AREA);
+
+        // THEN
+
+        $this->assertSame(1, $personalBoard->getLarvaCount());
+    }
+
+    public function testGiveBonusWhenAreaIsInvalid() : void
+    {
+        // GIVEN
+
+        $game = $this->createGame(2);
+
+        foreach ($game->getPlayers() as $p)
+        {
+            $p->setPhase(MyrmesParameters::PHASE_WORKSHOP);
+        }
+
+        $player = $game->getPlayers()->first();
+        $personalBoard = $player->getPersonalBoardMYR();
+        $personalBoard->setLarvaCount(1);
+
+        $array = new ArrayCollection();
+        $nurse = $personalBoard->getNurses()->first();
+        $nurse->setArea(MyrmesParameters::WORKSHOP_NURSE_AREA + 1);
+        $array->add($nurse);
+
+        $this->MYRService->method("getNursesAtPosition")
+            ->willReturn($array);
+        $this->nurseMYRRepository->method("findOneBy")
+            ->willReturn($personalBoard->getNurses()->last());
+
+        // THEN
+
+        $this->expectException(\Exception::class);
+
+        // WHEN
+
+        $this->workshopMYRService->manageWorkshop($player,
+            MyrmesParameters::WORKSHOP_NURSE_AREA + 1);
 
     }
 

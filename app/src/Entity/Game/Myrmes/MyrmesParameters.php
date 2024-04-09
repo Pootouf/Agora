@@ -42,7 +42,6 @@ interface MyrmesParameters
     const int SOLDIERS_AREA = 2;
     const int WORKER_AREA = 3;
     const int WORKSHOP_AREA = 4;
-    const int AREA_COUNT = 5;
 
     // Workshop areas
 
