@@ -38,6 +38,7 @@ class BirthMYRService
      * giveBonusesFromEvent : get bonus from event phase
      * @param PlayerMYR $player
      * @return void
+     * @throws Exception
      */
     public function giveBonusesFromEvent(PlayerMYR $player) : void
     {
@@ -63,7 +64,7 @@ class BirthMYRService
                 $this->entityManager->persist($personalBoard);
                 break;
             default:
-                break;
+                throw new Exception("Don't give bonus");
         }
         $this->entityManager->flush();
     }
@@ -106,9 +107,13 @@ class BirthMYRService
     public function cancelNursesPlacement(PlayerMYR $playerMYR): void
     {
         $nurses = $playerMYR->getPersonalBoardMYR()->getNurses();
-        foreach($nurses as $nurse) {
-            $nurse->setArea(MyrmesParameters::BASE_AREA);
-            $this->entityManager->persist($nurse);
+        foreach($nurses as $nurse)
+        {
+            if ($nurse->isAvailable())
+            {
+                $nurse->setArea(MyrmesParameters::BASE_AREA);
+                $this->entityManager->persist($nurse);
+            }
         }
         $this->entityManager->persist($playerMYR->getPersonalBoardMYR());
         $this->entityManager->flush();

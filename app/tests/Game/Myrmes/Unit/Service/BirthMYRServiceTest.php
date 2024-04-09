@@ -56,6 +56,115 @@ class BirthMYRServiceTest extends TestCase
         $this->birthMYRService->placeNurse($nurse, $position);
     }
 
+    public function testCancelPlacementNurses() : void
+    {
+        // GIVEN
+
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $personalBoard = $player->getPersonalBoardMYR();
+        foreach ($personalBoard->getNurses() as $nurse)
+        {
+            if ($nurse->isAvailable())
+            {
+                $nurse->setArea(MyrmesParameters::WORKER_AREA);
+            }
+        }
+
+        // WHEN
+
+        $this->birthMYRService->cancelNursesPlacement($player);
+
+        // THEN
+
+        foreach ($personalBoard->getNurses() as $nurse)
+        {
+            if ($nurse->isAvailable())
+            {
+                $this->assertSame(MyrmesParameters::BASE_AREA, $nurse->getArea());
+            }
+        }
+    }
+
+    public function testDontGiveBonusFromEventPhase() : void
+    {
+        // GIVEN
+
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+
+        $personalBoard = $firstPlayer->getPersonalBoardMYR();
+        $personalBoard->setBonus(MyrmesParameters::BONUS_MOVEMENT);
+
+        // THEN
+
+        $this->expectException(\Exception::class);
+
+        // WHEN
+
+        $this->birthMYRService->giveBonusesFromEvent($firstPlayer);
+    }
+
+    public function testGiveLarvaeBonusFromEventPhase() : void
+    {
+        // GIVEN
+
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+
+        $personalBoard = $firstPlayer->getPersonalBoardMYR();
+        $personalBoard->setBonus(MyrmesParameters::BONUS_LARVAE);
+        $oldLarvaCount = $personalBoard->getLarvaCount();
+
+        // WHEN
+
+        $this->birthMYRService->giveBonusesFromEvent($firstPlayer);
+
+        // THEN
+
+        $this->assertEquals($oldLarvaCount + 2, $personalBoard->getLarvaCount());
+    }
+
+    public function testGiveSoldiersBonusFromEventPhase() : void
+    {
+        // GIVEN
+
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+
+        $personalBoard = $firstPlayer->getPersonalBoardMYR();
+        $personalBoard->setBonus(MyrmesParameters::BONUS_WARRIOR);
+        $oldSoldiersCount = $personalBoard->getWarriorsCount();
+
+        // WHEN
+
+        $this->birthMYRService->giveBonusesFromEvent($firstPlayer);
+
+        // THEN
+
+        $this->assertEquals($oldSoldiersCount + 1, $personalBoard->getWarriorsCount());
+    }
+
+    public function testGiveWorkerBonusFromEventPhase() : void
+    {
+        // GIVEN
+
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+
+        $personalBoard = $firstPlayer->getPersonalBoardMYR();
+        $personalBoard->setBonus(MyrmesParameters::BONUS_WORKER);
+        $oldWorkerCount = $personalBoard->getAnthillWorkers()->count();
+
+        // WHEN
+
+        $this->birthMYRService->giveBonusesFromEvent($firstPlayer);
+
+        // THEN
+
+        $this->assertEquals($oldWorkerCount + 1, $personalBoard->getAnthillWorkers()->count());
+    }
+
     public function testGiveLarvaeBonusFromBirthPhase() : void
     {
         // GIVEN
