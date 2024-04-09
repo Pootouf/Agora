@@ -1362,14 +1362,14 @@ class WorkerMYRService
                 }
                 break;
             case MyrmesParameters::SPECIAL_TILE_TYPE_QUARRY:
-            foreach ($playerResources as $playerResource) {
-                if($playerResource->getResource()->getDescription() == MyrmesParameters::RESOURCE_TYPE_GRASS){
-                    if($playerResource->getQuantity() < 1) {
-                        return false;
+                foreach ($playerResources as $playerResource) {
+                    if($playerResource->getResource()->getDescription() == MyrmesParameters::RESOURCE_TYPE_GRASS){
+                        if($playerResource->getQuantity() < 1) {
+                            return false;
+                        }
                     }
                 }
-            }
-            break;
+                break;
             default:
                 return true;
         }
