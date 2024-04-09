@@ -68,7 +68,7 @@ class HarvestMYRService
                     $tile->setResource(null);
                     $playerResources = $playerMYR->getPersonalBoardMYR()->getPlayerResourceMYRs();
                     foreach ($playerResources as $playerResource) {
-                        if($playerResource === $resource) {
+                        if($playerResource->getResource()->getDescription() == $resource->getDescription()) {
                             $playerResource->setQuantity($playerResource->getQuantity() + 1);
                             $playerPheromone->setHarvested(true);
                             $this->entityManager->persist($playerResource);
