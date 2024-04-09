@@ -125,7 +125,6 @@ class HarvestMYRServiceTest extends TestCase
         $specialTile->setPlayer($firstPlayer);
         $specialTile->setType($specialTileType);
         $firstPlayer->addPheromonMYR($specialTile);
-        $playerResources = $firstPlayer->getPersonalBoardMYR()->getPlayerResourceMYRs();
         $resourceMYR = new ResourceMYR();
         $resourceMYR->setDescription(MyrmesParameters::RESOURCE_TYPE_GRASS);
         $playerResources = new PlayerResourceMYR();
