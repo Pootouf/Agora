@@ -135,6 +135,42 @@ class WorkshopMYRServiceTest extends TestCase
         $this->workshopMYRService->manageEndOfWorkshop($game);
     }
 
+    public function testGiveBonusWhenAskIncreaseLevel() : void
+    {
+        // GIVEN
+
+        $game = $this->createGame(2);
+
+        foreach ($game->getPlayers() as $p)
+        {
+            $p->setPhase(MyrmesParameters::PHASE_WORKSHOP);
+        }
+
+        $player = $game->getPlayers()->first();
+        $personalBoard = $player->getPersonalBoardMYR();
+
+        foreach (array_keys(MyrmesParameters::BUY_RESOURCE_FOR_LEVEL_ONE) as $resourceName)
+        {
+            $countForResource = MyrmesParameters::BUY_RESOURCE_FOR_LEVEL_ONE[$resourceName];
+            foreach ($personalBoard->getPlayerResourceMYRs() as $r)
+            {
+                if ($r->getResource()->getDescription() === $resourceName)
+                {
+                    $r->setQuantity($r->getQuantity() + $countForResource);
+                    break;
+                }
+            }
+        }
+
+        // WHEN
+
+        $this->workshopMYRService->manageWorkshop($player, MyrmesParameters::WORKSHOP_LEVEL_AREA);
+
+        // THEN
+
+
+    }
+
     private function createGame(int $numberOfPlayers) : GameMYR
     {
         if($numberOfPlayers < MyrmesParameters::MIN_NUMBER_OF_PLAYER ||
