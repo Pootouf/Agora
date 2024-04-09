@@ -62,6 +62,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\ManyToMany(targetEntity: self::class)]
     private Collection $contacts;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $isBanned = false;
+
 
     public function __construct()
     {
@@ -377,6 +380,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function removeContact(self $contact): static
     {
         $this->contacts->removeElement($contact);
+
+        return $this;
+    }
+
+    public function isIsBanned(): ?bool
+    {
+        return $this->isBanned;
+    }
+
+    public function setIsBanned(?bool $isBanned): static
+    {
+        $this->isBanned = $isBanned;
 
         return $this;
     }

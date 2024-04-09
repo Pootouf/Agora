@@ -20,10 +20,16 @@ class Notification
     private ?string $content = null;
 
     #[ORM\Column]
-    private ?\DateTime $createdAt = null;
+    private ?\DateTime $createdAt;
 
     #[ORM\Column]
     private ?bool $isRead = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $type = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $title = null;
 
     /**
      * Gets the ID of the notification.
@@ -135,5 +141,29 @@ class Notification
     ()
     {
         $this->createdAt = new \DateTime();
+    }
+
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+    public function setType(?string $type): static
+    {
+        $this->type = $type;
+
+        return $this;
+    }
+
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
+
+    public function setTitle(?string $title): static
+    {
+        $this->title = $title;
+
+        return $this;
     }
 }

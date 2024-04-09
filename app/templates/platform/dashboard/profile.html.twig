@@ -44,7 +44,7 @@ Profil : {{ userProfile.username }}
                   <li class="flex items-center py-3">
                      <span>Statut</span>
                      <span class="ml-auto">
-                     <span class="bg-green-500 py-1 px-2 rounded text-white text-sm">Active</span>
+                     <span class="bg-green-500 py-1 px-2 rounded text-white text-sm">{% if userban == false %} Active {% else %} Bannis {% endif %}</span>
                      </span>
                   </li>
                </ul>
