@@ -81,7 +81,8 @@ class WorkerMYRService
     public function placeAntInAnthill(PersonalBoardMYR $personalBoard, int $anthillFloor) : void
     {
         $maxFloor = $personalBoard->getAnthillLevel();
-        if ($maxFloor < $anthillFloor) {
+        $isAnthillLevelIncreased = $personalBoard->getBonus() == MyrmesParameters::BONUS_LEVEL;
+        if ($maxFloor + ($isAnthillLevelIncreased ? 1 : 0) < $anthillFloor) {
             throw new Exception('Invalid floor level');
         }
         $ant = $this->anthillWorkerMYRRepository->findOneBy([
