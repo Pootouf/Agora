@@ -62,6 +62,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\ManyToMany(targetEntity: self::class)]
     private Collection $contacts;
 
+    #[ORM\OneToMany(targetEntity: PrivateMessage::class, mappedBy: 'sender', orphanRemoval: true)]
+    private Collection $sents;
+
+    #[ORM\OneToMany(targetEntity: PrivateMessage::class, mappedBy: 'recepient', orphanRemoval: true)]
+    private Collection $recieveds;
+
 
     public function __construct()
     {
@@ -71,6 +77,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->notifications = new ArrayCollection();
 
         $this->contacts = new ArrayCollection();
+        $this->sents = new ArrayCollection();
+        $this->recieveds = new ArrayCollection();
     }
 
     /**
@@ -377,6 +385,66 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function removeContact(self $contact): static
     {
         $this->contacts->removeElement($contact);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PrivateMessage>
+     */
+    public function getSents(): Collection
+    {
+        return $this->sents;
+    }
+
+    public function addSent(PrivateMessage $sent): static
+    {
+        if (!$this->sents->contains($sent)) {
+            $this->sents->add($sent);
+            $sent->setSender($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSent(PrivateMessage $sent): static
+    {
+        if ($this->sents->removeElement($sent)) {
+            // set the owning side to null (unless already changed)
+            if ($sent->getSender() === $this) {
+                $sent->setSender(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PrivateMessage>
+     */
+    public function getRecieveds(): Collection
+    {
+        return $this->recieveds;
+    }
+
+    public function addRecieved(PrivateMessage $recieved): static
+    {
+        if (!$this->recieveds->contains($recieved)) {
+            $this->recieveds->add($recieved);
+            $recieved->setRecepient($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRecieved(PrivateMessage $recieved): static
+    {
+        if ($this->recieveds->removeElement($recieved)) {
+            // set the owning side to null (unless already changed)
+            if ($recieved->getRecepient() === $this) {
+                $recieved->setRecepient(null);
+            }
+        }
 
         return $this;
     }

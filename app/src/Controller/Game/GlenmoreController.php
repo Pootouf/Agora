@@ -26,7 +26,7 @@ class GlenmoreController extends AbstractController
         } else {
             //$needToPlay = $player->isTurnOfPlayer();
         }
-        return $this->render('/Game/Glenmore/index.html.twig', [
+        return $this->render('/Game/Glenmore/send.html.twig', [
             'game' => $game,
             'player' => $player,
             'isSpectator' => $isSpectator,

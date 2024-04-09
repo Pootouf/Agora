@@ -58,7 +58,7 @@ class SplendorController extends AbstractController
         $messages = $this->messageService->receiveMessage($game->getId());
 
         $mainBoardTokens = $game->getMainBoard()->getTokens();
-        return $this->render('/Game/Splendor/index.html.twig', [
+        return $this->render('/Game/Splendor/send.html.twig', [
             'game' => $game,
             'playerBoughtCards' => $this->SPLService->getPurchasedCards($player),
             'playerReservedCards' => $this->SPLService->getReservedCards($player),

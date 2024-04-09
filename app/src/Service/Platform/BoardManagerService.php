@@ -6,7 +6,6 @@ use App\Entity\Platform\Board;
 use App\Entity\Platform\Game;
 use App\Entity\Platform\User;
 use App\Service\Game\GameManagerService;
-use App\Service\Platform\NotificationService;
 use Doctrine\ORM\EntityManagerInterface;
 
 class BoardManagerService
@@ -22,7 +21,7 @@ class BoardManagerService
     public function __construct(
         GameManagerService $gameManagerService,
         EntityManagerInterface $entityManagerInterface,
-        notificationService $notificationService
+        NotificationService $notificationService
     )
     {
         $this->gameManagerService = $gameManagerService;

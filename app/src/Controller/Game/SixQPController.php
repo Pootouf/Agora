@@ -71,7 +71,7 @@ class SixQPController extends AbstractController
 
         $messages = $this->messageService->receiveMessage($game->getId());
 
-        return $this->render('/Game/Six_qp/index.html.twig', [
+        return $this->render('/Game/Six_qp/send.html.twig', [
             'game' => $game,
             'chosenCards' => $chosenCards,
             'playerCards' => $player->getCards(),

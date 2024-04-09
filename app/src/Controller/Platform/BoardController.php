@@ -5,8 +5,8 @@ namespace App\Controller\Platform;
 
 
 use App\Data\SearchData;
-use App\Entity\Platform\Game;
 use App\Entity\Platform\Board;
+use App\Entity\Platform\Game;
 use App\Entity\Platform\User;
 use App\Form\Platform\BoardRegistrationType;
 use App\Form\Platform\SearchBoardType;

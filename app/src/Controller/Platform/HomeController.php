@@ -22,7 +22,7 @@ class HomeController extends AbstractController
 
         $games = $gameRepository->findAll();
 
-        return $this->render('platform/home/index.html.twig', [
+        return $this->render('platform/home/send.html.twig', [
             'controller_name' => 'HomeController',
             'games' => $games,
         ]);

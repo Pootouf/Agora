@@ -6,11 +6,10 @@ use App\Entity\Platform\User;
 use App\Form\Platform\EditProfileType;
 use App\Service\Platform\UserService;
 use Doctrine\ORM\EntityManagerInterface;
-use PhpParser\Builder\Class_;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 

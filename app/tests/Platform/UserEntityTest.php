@@ -2,8 +2,8 @@
 
 namespace App\Tests;
 
-use App\Entity\Platform\Game;
 use App\Entity\Platform\Board;
+use App\Entity\Platform\Game;
 use App\Entity\Platform\User;
 use PHPUnit\Framework\TestCase;
 

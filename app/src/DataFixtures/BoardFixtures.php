@@ -5,7 +5,6 @@ namespace App\DataFixtures;
 use App\Entity\Platform\Board;
 use App\Entity\Platform\Game;
 use App\Entity\Platform\User;
-use App\Service\Game\GameManagerService;
 use App\Service\Platform\BoardManagerService;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;

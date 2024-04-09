@@ -5,13 +5,13 @@ namespace App\Controller\Platform;
 use App\Entity\Platform\Board;
 use App\Entity\Platform\Notification;
 use App\Entity\Platform\User;
+use App\Form\Platform\EditProfileType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use App\Form\Platform\EditProfileType;
-use Symfony\Component\HttpFoundation\Request;
 
 
 class DashboardController extends AbstractController
@@ -19,7 +19,7 @@ class DashboardController extends AbstractController
     #[Route('/dashboard', name: 'app_dashboard', methods: ['GET'])]
     public function index(): Response
     {
-        return $this->render('platform/dashboard/index.html.twig', [
+        return $this->render('platform/dashboard/send.html.twig', [
             'controller_name' => 'DashboardController',
         ]);
     }

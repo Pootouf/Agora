@@ -4,7 +4,6 @@ namespace App\Service\Platform;
 
 use App\Entity\Platform\User;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\SecurityBundle\Security;
 
 class UserService
 {

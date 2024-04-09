@@ -46,7 +46,7 @@ class PublisherController extends AbstractController
             $notifications = null;
         }
 
-        return $this->render('platform/publisher/index.html.twig', [
+        return $this->render('platform/publisher/send.html.twig', [
             'notifications' => $notifications,
         ]);
     }
