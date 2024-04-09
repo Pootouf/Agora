@@ -3,24 +3,35 @@ Represents a list of object possesed by a player to place it on mainboard
 param :
 return : display a panel to choose an object to place on mainboard
 #}
-<div class="bg-[#FFFFFF] size-full rounded-l-lg overflow-hidden">
+<div id="openedDisplayObjectPlacement" class="bg-[#FFFFFF] size-full rounded-l-lg overflow-hidden">
 	<div class="w-full h-[8%] bg-[#c67b24] rounded-tl-lg inline-flex shadow-lg">
 		<button id="return_dop" onclick=""
-		        class="shadow-inner aspect-square relative h-full rounded-tl-lg bg-[#8F901F] py-2 px-3 portrait:text-2xl items-center"
+		        class="shadow-inner aspect-square relative h-full rounded-tl-lg
+		            bg-[#8F901F] py-2 px-3 portrait:text-2xl items-center"
 		>
 			<img src="{{ asset('resourcesGames/utils/return-arrow.svg') }}" id="returnArrow"
 			     alt="return on board"
 			     class="h-6 max-h-full">
 		</button>
 		<p id="selectObjectTitle" class="flex-grow content-center text-2xl text-center font-bold text-white">
-			Selectionnez un objet à placer
+			Selection d'une tuile à placer
 		</p>
 	</div>
-	<div id="ObjectSelectionList" class="grid grid-cols-2 gap-4 overflow-y-auto h-[92%] p-2">
-		{% set k = 10 %}
+	<div id="ObjectSelectionList" class="grid grid-cols-2 gap-4 overflow-y-auto h-[92%] p-2"> {# TODO scroll x a enlever #}
+		{% set k = 11 %}
 		{% for i in 0..k %}
-			<button id="{{ k }}" class="aspect-square rounded-lg bg-[#000000]" onclick="selectObjet(this.id)">
-
+			{% set imageSuffix = i > 6 ? "" : "_" ~ player.color %}
+			<button id="objectSelection_{{ i }}" data-tileid="{{ i }}" data-nbrotation="{{ k }}"
+			        class="relative aspect-square rounded-lg bg-[#000000]"
+			        onclick="selectOrientationTile(this.dataset.tileid, this.dataset.nbrotation)">
+				<p class="absolute aspect-square h-[15%] rounded-tr-lg rounded-bl-lg bg-[#8F901F] top-0 right-0
+				content-center font-bold text-white">
+					{{ i }}
+				</p>
+				<img id="objectImage_{{ i }}"
+				     src="{{ asset('resourcesGames/Myrmes/tiles/presentation/' ~ i ~ imageSuffix ~ '.svg') }}"
+				alt="tile"
+				     class="size-full max-h-full p-10">
 			</button>
 		{% endfor %}
 	</div>
@@ -33,5 +44,7 @@ return : display a panel to choose an object to place on mainboard
 		for (let i = 0; i < 4; i++) {
 			console.log(objectId + ' ' + i)
 		}
+	let returnButton = document.getElementById('return_dop');
+
 	}
 </script>
