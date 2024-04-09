@@ -49,6 +49,7 @@ class BoardManagerService
     }
 
     // Add $user to the board, and to the game
+    // Precondition : $board->isFull() == false
     public function addUserToBoard(Board $board, User $user):int
     {
         $this->gameManagerService->joinGame($board->getPartyId() , $user);

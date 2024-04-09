@@ -144,8 +144,10 @@ class BoardController extends AbstractController
     public function showGame(int $id):Response
     {
         $board = $this->entityManagerInterface->getRepository(Board::class)->find($id);
+        //get the label of the Game, which the GameViewerService need for the redirection
         $label = $board->getGame()->getLabel();
         $route = $this->gameViewerService->getGameViewRouteFromLabel($label);
+        //redirect the player to the view of the party, using the party id
         return $this->redirectToRoute($route, ['id' => $board->getPartyId()]);
     }
 
