@@ -2,6 +2,7 @@ image: etiennebinginot/agora:1.4
 
 stages:
   - build
+  - quality_check
   - factory
   - sixqp
   - splendor
@@ -73,7 +74,7 @@ variables:
 
 
 .base_test: &base_test
-  needs: [build]
+  needs: [quality_check]
   allow_failure: false
   environment: test
   artifacts:
@@ -119,6 +120,25 @@ build:
     <<: *cache
     policy: push
 
+
+phpstan:
+  stage: quality_check
+  script:
+    - php -d memory_limit=4G vendor/bin/phpstan analyse src
+  allow_failure: true
+
+phpcs:
+  stage: quality_check
+  script:
+    - curl -OL https://phars.phpcodesniffer.com/phpcs.phar
+    - php phpcs.phar -h --ignore=./src/Kernel.php ./src
+  allow_failure: true
+
+twig-lint:
+  stage: quality_check
+  script:
+  - php bin/console lint:twig ./templates
+  allow_failure: true
 
 unitFactory:
   stage: factory
