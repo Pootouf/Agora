@@ -13,6 +13,7 @@ use App\Entity\Game\Myrmes\PheromonTileMYR;
 use App\Entity\Game\Myrmes\PlayerMYR;
 use App\Entity\Game\Myrmes\PlayerResourceMYR;
 use App\Entity\Game\Myrmes\ResourceMYR;
+use App\Entity\Game\Myrmes\TileMYR;
 use App\Entity\Game\Myrmes\TileTypeMYR;
 use App\Repository\Game\Myrmes\GoalMYRRepository;
 use App\Repository\Game\Myrmes\NurseMYRRepository;
@@ -114,6 +115,72 @@ class HarvestMYRServiceTest extends TestCase
         $this->assertTrue($result);
     }
 
+    public function testHarvestPheromone() : void
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $playerPheromone = $firstPlayer->getPheromonMYRs()->first();
+        $tile = $playerPheromone->getPheromonTiles()->first()->getTile();
+        $playerResources = $firstPlayer->getPersonalBoardMYR()->getPlayerResourceMYRs();
+        $resource = null;
+        foreach ($playerResources as $playerResourceMYR) {
+            if($playerResourceMYR->getResource()->getDescription() == MyrmesParameters::RESOURCE_TYPE_DIRT){
+                $resource = $playerResourceMYR;
+            }
+        }
+        // WHEN
+        $this->harvestMYRService->harvestPheromone($firstPlayer, $tile);
+        // THEN
+        $this->assertTrue($playerPheromone->isHarvested());
+        $this->assertEquals(5, $resource->getQuantity());
+    }
+
+    public function testHarvestPheromoneWhenPheromoneAlreadyHarvestedAndNoBonus() : void
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $playerPheromone = $firstPlayer->getPheromonMYRs()->first();
+        $playerPheromone->setHarvested(true);
+        $tile = $playerPheromone->getPheromonTiles()->first()->getTile();
+        $playerResources = $firstPlayer->getPersonalBoardMYR()->getPlayerResourceMYRs();
+        $resource = null;
+        foreach ($playerResources as $playerResourceMYR) {
+            if($playerResourceMYR->getResource()->getDescription() == MyrmesParameters::RESOURCE_TYPE_DIRT){
+                $resource = $playerResourceMYR;
+            }
+        }
+        // THEN
+        $this->expectException(\Exception::class);
+        // WHEN
+        $this->harvestMYRService->harvestPheromone($firstPlayer, $tile);
+    }
+
+    public function testHarvestPheromoneWhenPlayerAlreadyHarvestedAndHaveBonus() : void
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $playerPheromone = $firstPlayer->getPheromonMYRs()->first();
+        $firstPlayer->getPersonalBoardMYR()->setBonus(MyrmesParameters::BONUS_HARVEST);
+        $firstPlayer->setRemainingHarvestingBonus(2);
+        $playerPheromone->setHarvested(true);
+        $tile = $playerPheromone->getPheromonTiles()->first()->getTile();
+        $playerResources = $firstPlayer->getPersonalBoardMYR()->getPlayerResourceMYRs();
+        $resource = null;
+        foreach ($playerResources as $playerResourceMYR) {
+            if($playerResourceMYR->getResource()->getDescription() == MyrmesParameters::RESOURCE_TYPE_DIRT){
+                $resource = $playerResourceMYR;
+            }
+        }
+        // WHEN
+        $this->harvestMYRService->harvestPheromone($firstPlayer, $tile);
+        // THEN
+        $this->assertTrue($playerPheromone->isHarvested());
+        $this->assertEquals(5, $resource->getQuantity());
+    }
+
     public function testHarvestSpecialTilesFarm() : void
     {
         $game = $this->createGame(2);
@@ -133,9 +200,90 @@ class HarvestMYRServiceTest extends TestCase
         $playerResources->setQuantity($grassCount);
         $firstPlayer->getPersonalBoardMYR()->addPlayerResourceMYR($playerResources);
         // WHEN
-        $this->harvestMYRService->harvestPlayerSpecialTiles($firstPlayer);
+        $this->harvestMYRService->harvestPlayerFarms($firstPlayer);
         // THEN
         $this->assertEquals($grassCount + 1, $playerResources->getQuantity());
+    }
+
+    public function testHarvestSpecialTileQuarry() : void
+    {
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $specialTileType = new TileTypeMYR();
+        $specialTileType->setType(MyrmesParameters::SPECIAL_TILE_TYPE_QUARRY);
+        $specialTile = new PheromonMYR();
+        $specialTile->addPheromonTile(new PheromonTileMYR());
+        $specialTile->setPlayer($firstPlayer);
+        $specialTile->setType($specialTileType);
+        $firstPlayer->addPheromonMYR($specialTile);
+        $resourceMYR = new ResourceMYR();
+        $resourceMYR->setDescription(MyrmesParameters::RESOURCE_TYPE_STONE);
+        $playerResources = new PlayerResourceMYR();
+        $playerResources->setResource($resourceMYR);
+        $stoneCount = 0;
+        $playerResources->setQuantity($stoneCount);
+        $firstPlayer->getPersonalBoardMYR()->addPlayerResourceMYR($playerResources);
+        // WHEN
+        $this->harvestMYRService->harvestPlayerQuarry($firstPlayer, $specialTile,
+            MyrmesParameters::RESOURCE_TYPE_STONE);
+        // THEN
+        $this->assertEquals($stoneCount + 1, $playerResources->getQuantity());
+    }
+
+    public function testHarvestSpecialTileQuarryWhenInvalidAskedResources() : void
+    {
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $specialTileType = new TileTypeMYR();
+        $specialTileType->setType(MyrmesParameters::SPECIAL_TILE_TYPE_QUARRY);
+        $specialTile = new PheromonMYR();
+        $specialTile->addPheromonTile(new PheromonTileMYR());
+        $specialTile->setPlayer($firstPlayer);
+        $specialTile->setType($specialTileType);
+        $firstPlayer->addPheromonMYR($specialTile);
+        // THEN
+        $this->expectException(\Exception::class);
+        // WHEN
+        $this->harvestMYRService->harvestPlayerQuarry($firstPlayer, $specialTile,
+            MyrmesParameters::RESOURCE_TYPE_GRASS);
+    }
+
+    public function testHarvestSpecialTileQuarryWhenPheromoneAlreadyHarvested() : void
+    {
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $specialTileType = new TileTypeMYR();
+        $specialTileType->setType(MyrmesParameters::SPECIAL_TILE_TYPE_QUARRY);
+        $specialTile = new PheromonMYR();
+        $specialTile->addPheromonTile(new PheromonTileMYR());
+        $specialTile->setPlayer($firstPlayer);
+        $specialTile->setType($specialTileType);
+        $specialTile->setHarvested(true);
+        $firstPlayer->addPheromonMYR($specialTile);
+        // THEN
+        $this->expectException(\Exception::class);
+        // WHEN
+        $this->harvestMYRService->harvestPlayerQuarry($firstPlayer, $specialTile,
+            MyrmesParameters::RESOURCE_TYPE_STONE);
+    }
+
+    public function testHarvestSpecialTileQuarryWhenPheromoneOfInvalidType() : void
+    {
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $specialTileType = new TileTypeMYR();
+        $specialTileType->setType(MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL);
+        $specialTile = new PheromonMYR();
+        $specialTile->addPheromonTile(new PheromonTileMYR());
+        $specialTile->setPlayer($firstPlayer);
+        $specialTile->setType($specialTileType);
+        $specialTile->setHarvested(false);
+        $firstPlayer->addPheromonMYR($specialTile);
+        // THEN
+        $this->expectException(\Exception::class);
+        // WHEN
+        $this->harvestMYRService->harvestPlayerQuarry($firstPlayer, $specialTile,
+            MyrmesParameters::RESOURCE_TYPE_STONE);
     }
 
     public function testHarvestSpecialTilesSubAnthill() : void
@@ -151,7 +299,7 @@ class HarvestMYRServiceTest extends TestCase
         $firstPlayer->addPheromonMYR($specialTile);
         $score = $firstPlayer->getScore();
         // WHEN
-        $this->harvestMYRService->harvestPlayerSpecialTiles($firstPlayer);
+        $this->harvestMYRService->harvestPlayerSubAnthill($firstPlayer);
         // THEN
         $this->assertEquals($score + 2, $firstPlayer->getScore());
     }
@@ -199,8 +347,16 @@ class HarvestMYRServiceTest extends TestCase
             $tileType = new TileTypeMYR();
             $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_ZERO);
             $pheromone->setType($tileType);
-            $pheromone->addPheromonTile(new PheromonTileMYR());
+            $pheromoneTile = new PheromonTileMYR();
+            $pheromoneTile->setTile(new TileMYR());
+            $pheromoneTile->setPheromonMYR($pheromone);
+            $pheromoneTile->setMainBoard($game->getMainBoardMYR());
+            $resourceOnPheromone = new ResourceMYR();
+            $resourceOnPheromone->setDescription(MyrmesParameters::RESOURCE_TYPE_DIRT);
+            $pheromoneTile->setResource($resourceOnPheromone);
+            $pheromone->addPheromonTile($pheromoneTile);
             $pheromone->setPlayer($player);
+            $pheromone->setHarvested(false);
             $player->addPheromonMYR($pheromone);
 
             $player->setPersonalBoardMYR($personalBoard);
