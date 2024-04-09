@@ -57,9 +57,113 @@ class HarvestMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($firstPlayer);
         $this->entityManager->flush();
         // WHEN
-        $this->harvestMYRService->harvestPlayerSpecialTiles($firstPlayer);
+        $this->harvestMYRService->harvestPlayerFarms($firstPlayer);
         // THEN
         $this->assertEquals($grassCount + 1, $playerResource->getQuantity());
+    }
+
+    public function testHarvestSpecialTileQuarry() : void
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $specialTileType = new TileTypeMYR();
+        $specialTileType->setType(MyrmesParameters::SPECIAL_TILE_TYPE_QUARRY);
+        $specialTileType->setOrientation(0);
+        $this->entityManager->persist($specialTileType);
+        $specialTile = new PheromonMYR();
+        $specialTile->setType($specialTileType);
+        $specialTile->setPlayer($firstPlayer);
+        $specialTile->setHarvested(false);
+        $this->entityManager->persist($specialTile);
+        $firstPlayer->addPheromonMYR($specialTile);
+
+        $resources = new ResourceMYR();
+        $resources->setDescription(MyrmesParameters::RESOURCE_TYPE_DIRT);
+        $this->entityManager->persist($resources);
+        $playerResource = new PlayerResourceMYR();
+        $playerResource->setResource($resources);
+        $dirtCount = 0;
+        $playerResource->setQuantity($dirtCount);
+        $playerResource->setPersonalBoard($firstPlayer->getPersonalBoardMYR());
+        $this->entityManager->persist($playerResource);
+        $firstPlayer->getPersonalBoardMYR()->addPlayerResourceMYR($playerResource);
+        $this->entityManager->persist($firstPlayer);
+        $this->entityManager->flush();
+        // WHEN
+        $this->harvestMYRService->harvestPlayerQuarry($firstPlayer, $specialTile,
+            MyrmesParameters::RESOURCE_TYPE_DIRT);
+        // THEN
+        $this->assertEquals($dirtCount + 1, $playerResource->getQuantity());
+    }
+
+    public function testHarvestSpecialTileQuarryWhenInvalidAskedResources() : void
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $specialTileType = new TileTypeMYR();
+        $specialTileType->setType(MyrmesParameters::SPECIAL_TILE_TYPE_QUARRY);
+        $specialTileType->setOrientation(0);
+        $this->entityManager->persist($specialTileType);
+        $specialTile = new PheromonMYR();
+        $specialTile->setType($specialTileType);
+        $specialTile->setPlayer($firstPlayer);
+        $specialTile->setHarvested(false);
+        $this->entityManager->persist($specialTile);
+        $firstPlayer->addPheromonMYR($specialTile);
+        $this->entityManager->flush();
+        // THEN
+        $this->expectException(\Exception::class);
+        // THEN
+        $this->harvestMYRService->harvestPlayerQuarry($firstPlayer, $specialTile,
+            MyrmesParameters::RESOURCE_TYPE_GRASS);
+    }
+
+    public function testHarvestSpecialTileQuarryWhenAlreadyHarvested() : void
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $specialTileType = new TileTypeMYR();
+        $specialTileType->setType(MyrmesParameters::SPECIAL_TILE_TYPE_QUARRY);
+        $specialTileType->setOrientation(0);
+        $this->entityManager->persist($specialTileType);
+        $specialTile = new PheromonMYR();
+        $specialTile->setType($specialTileType);
+        $specialTile->setPlayer($firstPlayer);
+        $specialTile->setHarvested(true);
+        $this->entityManager->persist($specialTile);
+        $firstPlayer->addPheromonMYR($specialTile);
+        $this->entityManager->flush();
+        // THEN
+        $this->expectException(\Exception::class);
+        // THEN
+        $this->harvestMYRService->harvestPlayerQuarry($firstPlayer, $specialTile,
+            MyrmesParameters::RESOURCE_TYPE_STONE);
+    }
+
+    public function testHarvestSpecialTileQuarryWhenPheromoneOfInvalidType() : void
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $specialTileType = new TileTypeMYR();
+        $specialTileType->setType(MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL);
+        $specialTileType->setOrientation(0);
+        $this->entityManager->persist($specialTileType);
+        $specialTile = new PheromonMYR();
+        $specialTile->setType($specialTileType);
+        $specialTile->setPlayer($firstPlayer);
+        $specialTile->setHarvested(false);
+        $this->entityManager->persist($specialTile);
+        $firstPlayer->addPheromonMYR($specialTile);
+        $this->entityManager->flush();
+        // THEN
+        $this->expectException(\Exception::class);
+        // THEN
+        $this->harvestMYRService->harvestPlayerQuarry($firstPlayer, $specialTile,
+            MyrmesParameters::RESOURCE_TYPE_STONE);
     }
 
     public function testHarvestSpecialTilesSubAnthill() : void
@@ -80,7 +184,7 @@ class HarvestMYRServiceTest extends KernelTestCase
         $playerPoints = $firstPlayer->getScore();
         $this->entityManager->flush();
         // WHEN
-        $this->harvestMYRService->harvestPlayerSpecialTiles($firstPlayer);
+        $this->harvestMYRService->harvestPlayerSubAnthill($firstPlayer);
         // THEN
         $this->assertEquals($playerPoints + 2, $firstPlayer->getScore());
     }
