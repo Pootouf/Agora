@@ -127,7 +127,7 @@ image_build:
 
 build:
   stage: build
-  need: [image_build]
+  needs: [image_build]
   image: $CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/agora:latest
   script:
     - composer install
