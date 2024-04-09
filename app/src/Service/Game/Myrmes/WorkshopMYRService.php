@@ -98,7 +98,7 @@ class WorkshopMYRService
         $nursesCount = $nurses->count()
         ;
         if ($nursesCount != 1) {
-            return;
+            throw new Exception("player can not choose this bonus");
         }
 
         switch ($workshop) {

@@ -318,6 +318,106 @@ class WorkshopMYRServiceTest extends TestCase
 
     }
 
+    public function testGiveBonusWithALotNurses() : void
+    {
+        // GIVEN
+
+        $game = $this->createGame(2);
+
+        foreach ($game->getPlayers() as $p)
+        {
+            $p->setPhase(MyrmesParameters::PHASE_WORKSHOP);
+        }
+
+        $player = $game->getPlayers()->first();
+        $personalBoard = $player->getPersonalBoardMYR();
+
+        $array = new ArrayCollection();
+        $array->add($personalBoard->getNurses()->first());
+        $array->add($personalBoard->getNurses()->last());
+        $this->MYRService->method("getNursesAtPosition")
+            ->willReturn($array);
+
+        $this->nurseMYRRepository->method("findOneBy")
+            ->willReturn($personalBoard->getNurses()->last());
+
+        // THEN
+
+        $this->expectException(\Exception::class);
+
+        // WHEN
+
+        $this->workshopMYRService->manageWorkshop($player,
+            MyrmesParameters::WORKSHOP_NURSE_AREA);
+
+    }
+
+    public function testGiveBonusWithBadPhase() : void
+    {
+        // GIVEN
+
+        $game = $this->createGame(2);
+
+        foreach ($game->getPlayers() as $p)
+        {
+            $p->setPhase(MyrmesParameters::PHASE_INVALID);
+        }
+
+        $player = $game->getPlayers()->first();
+        $personalBoard = $player->getPersonalBoardMYR();
+
+        $array = new ArrayCollection();
+        $array->add($personalBoard->getNurses()->first());
+        $this->MYRService->method("getNursesAtPosition")
+            ->willReturn($array);
+
+        $this->nurseMYRRepository->method("findOneBy")
+            ->willReturn($personalBoard->getNurses()->last());
+
+        // THEN
+
+        $this->expectException(\Exception::class);
+
+        // WHEN
+
+        $this->workshopMYRService->manageWorkshop($player,
+            MyrmesParameters::WORKSHOP_NURSE_AREA);
+
+    }
+
+    public function testGiveBonusWhenAskGoal() : void
+    {
+        // GIVEN
+
+        $game = $this->createGame(2);
+
+        foreach ($game->getPlayers() as $p)
+        {
+            $p->setPhase(MyrmesParameters::PHASE_WORKSHOP);
+        }
+
+        $player = $game->getPlayers()->first();
+        $personalBoard = $player->getPersonalBoardMYR();
+        $personalBoard->setLarvaCount(4);
+
+        $array = new ArrayCollection();
+        $nurse = $personalBoard->getNurses()->first();
+        $nurse->setArea(MyrmesParameters::WORKSHOP_GOAL_AREA);
+        $array->add($nurse);
+
+        $this->MYRService->method("getNursesAtPosition")
+            ->willReturn($array);
+
+        // WHEN
+
+        $this->workshopMYRService->manageWorkshop($player,
+            MyrmesParameters::WORKSHOP_GOAL_AREA);
+
+        // THEN
+
+        $this->assertSame(4, $personalBoard->getLarvaCount());
+    }
+
     private function createGame(int $numberOfPlayers) : GameMYR
     {
         if($numberOfPlayers < MyrmesParameters::MIN_NUMBER_OF_PLAYER ||
