@@ -163,7 +163,6 @@ class GlenmoreController extends AbstractController
             $this->publishNotification($game, GlenmoreParameters::$NOTIFICATION_DURATION, "Attention !",
                 "Tu ne peux pas acheter cette ressource !", "alert",
                 "red", $player->getUsername());
-            echo($e->getMessage());
             $message = $player->getUsername() . " a essayé d'acheter une ressource " . $line->getResource()->getColor()
                 . " mais n'a pas pu";
             $this->logService->sendPlayerLog($game, $player, $message);

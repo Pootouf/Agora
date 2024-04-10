@@ -2,9 +2,18 @@
 
 namespace App\Tests\Game\Glenmore\Application;
 
+use App\Entity\Game\DTO\Myrmes\BoardTileMYR;
+use App\Entity\Game\Glenmore\BoardTileGLM;
+use App\Entity\Game\Glenmore\BuyingTileGLM;
+use App\Entity\Game\Glenmore\GameGLM;
+use App\Entity\Game\Glenmore\GlenmoreParameters;
+use App\Entity\Game\Glenmore\TileGLM;
+use App\Entity\Game\Glenmore\WarehouseLineGLM;
 use App\Repository\Game\GameUserRepository;
 use App\Repository\Game\Glenmore\GameGLMRepository;
 use App\Repository\Game\Glenmore\PlayerGLMRepository;
+use App\Repository\Game\Glenmore\TileGLMRepository;
+use App\Repository\Game\Glenmore\WarehouseLineGLMRepository;
 use App\Service\Game\Glenmore\CardGLMService;
 use App\Service\Game\Glenmore\DataManagementGLMService;
 use App\Service\Game\Glenmore\GLMGameManagerService;
@@ -24,7 +33,7 @@ class GLMControllerTest extends WebTestCase
     private GameUserRepository$gameUserRepository;
 
     private PlayerGLMRepository $playerGLMRepository;
-    private GLMGameManagerService$GLMGameManagerService;
+    private GLMGameManagerService $GLMGameManagerService;
 
     private EntityManagerInterface $entityManager;
     private GameGLMRepository $gameGLMRepository;
@@ -33,6 +42,10 @@ class GLMControllerTest extends WebTestCase
     private DataManagementGLMService $dataManagementGLMService;
     private TileGLMService $tileGLMService;
     private WarehouseGLMService $warehouseGLMService;
+
+    private WarehouseLineGLMRepository $warehouseLineGLMRepository;
+
+    private TileGLMRepository $tileGLMRepository;
 
     public function testPlayersHaveAccessToGame(): void
     {
@@ -79,25 +92,135 @@ class GLMControllerTest extends WebTestCase
         $this->expectNotToPerformAssertions();
     }
 
-    // TODO uncomment
-    /*public function testBuyResourceWhenPlayerIsNotActive() : void
+    public function testSelectMoneyWarehouseProductionOnMainBoard(): void
+    {
+        //GIVEN
+        $gameId = $this->initializeGameWithFivePlayers();
+        /** @var GameGLM $game */
+        $game = $this->gameGLMRepository->findOneById($gameId);
+        /** @var WarehouseLineGLM $line */
+        $line = $this->warehouseLineGLMRepository->findOneBy(["warehouseGLM" => $game->getMainBoard()->getWarehouse()->getId()]);
+        $lineId = $line->getId();
+        $url = "/game/glenmore/" . $gameId . "/select/money/warehouse/production/mainBoard/" . $lineId;
+        //WHEN
+        $this->client->request("GET", $url);
+        $user = $this->gameUserRepository->findOneByUsername("test0");
+        $this->client->loginUser($user);
+        //THEN
+        $this->expectNotToPerformAssertions();
+    }
+
+    public function testSelectResourceWarehouseProductionOnMainBoard(): void
+    {
+        //GIVEN
+        $gameId = $this->initializeGameWithFivePlayers();
+        /** @var GameGLM $game */
+        $game = $this->gameGLMRepository->findOneById($gameId);
+        /** @var WarehouseLineGLM $line */
+        $line = $this->warehouseLineGLMRepository->findOneBy(["warehouseGLM" => $game->getMainBoard()->getWarehouse()->getId()]);
+        $lineId = $line->getId();
+        $url = "/game/glenmore/" . $gameId . "/select/resource/warehouse/production/mainBoard/" . $lineId;
+        //WHEN
+        $this->client->request("GET", $url);
+        $user = $this->gameUserRepository->findOneByUsername("test0");
+        $this->client->loginUser($user);
+        //THEN
+        $this->expectNotToPerformAssertions();
+    }
+
+    public function testBuyResourceWhenPlayerIsNotActive() : void
     {
         // GIVEN
         $gameId = $this->initializeGameWithFivePlayers();
         $game = $this->gameGLMRepository->findOneById($gameId);
-        $lastPlayer = $game->getPlayers()->last();
-        $warehouse = $game->getMainBoard()->getWarehouse();
-        $warehouseLine = $warehouse->getWarehouseLine()->first();
-        $warehouseLineId = $warehouseLine->getId();
-        $newUrl = "/game/glenmore/" . $gameId . "/buy/resource/warehouse/production/mainBoard/" . $warehouseLineId;
-        $user4 = $this->gameGLMRepository->findOneByUsername("test4");
+        /** @var WarehouseLineGLM $line */
+        $line = $this->warehouseLineGLMRepository->findOneBy(["warehouseGLM" => $game->getMainBoard()->getWarehouse()->getId()]);
+        $lineId = $line->getId();
+        $newUrl = "/game/glenmore/" . $gameId . "/buy/resource/warehouse/production/mainBoard/" . $lineId;
+        $user4 = $this->gameUserRepository->findOneByUsername("test4");
         $this->client->loginUser($user4);
         // WHEN
         $this->client->request("GET", $newUrl);
         // THEN
         $this->assertEquals(Response::HTTP_FORBIDDEN,
             $this->client->getResponse()->getStatusCode());
-    }*/
+    }
+
+    public function testBuyResourceWhenPlayerIsSpectator() : void
+    {
+        // GIVEN
+        $gameId = $this->initializeGameWithFivePlayers();
+        $game = $this->gameGLMRepository->findOneById($gameId);
+        /** @var WarehouseLineGLM $line */
+        $line = $this->warehouseLineGLMRepository->findOneBy(["warehouseGLM" => $game->getMainBoard()->getWarehouse()->getId()]);
+        $lineId = $line->getId();
+        $newUrl = "/game/glenmore/" . $gameId . "/buy/resource/warehouse/production/mainBoard/" . $lineId;
+        $user6 = $this->gameUserRepository->findOneByUsername("test6");
+        $this->client->loginUser($user6);
+        // WHEN
+        $this->client->request("GET", $newUrl);
+        // THEN
+        $this->assertEquals(Response::HTTP_FORBIDDEN,
+            $this->client->getResponse()->getStatusCode());
+    }
+    public function testBuyResourceWhenPlayerCannot() : void
+    {
+        //GIVEN
+        $gameId = $this->initializeGameWithFivePlayers();
+        $game = $this->gameGLMRepository->findOneById($gameId);
+        /** @var WarehouseLineGLM $line */
+        $line = $this->warehouseLineGLMRepository->findOneBy(["warehouseGLM" => $game->getMainBoard()->getWarehouse()->getId()]);
+        $lineId = $line->getId();
+        $newUrl = "/game/glenmore/" . $gameId . "/buy/resource/warehouse/production/mainBoard/" . $lineId;
+        $user = $this->gameUserRepository->findOneByUsername("test0");
+        $this->client->loginUser($user);
+        //WHEN
+        $this->client->request("GET", $newUrl);
+        //THEN
+        $this->assertEquals(Response::HTTP_FORBIDDEN,
+            $this->client->getResponse()->getStatusCode());
+    }
+
+    public function testBuyResourceWhenPlayerCan() : void
+    {
+        //GIVEN
+        $gameId = $this->initializeGameWithFivePlayers();
+        /** @var GameGLM $game */
+        $game = $this->gameGLMRepository->findOneById($gameId);
+        $tileId = 17;
+        /** @var TileGLM $tile */
+        $tile = $this->tileGLMRepository->findOneBy(["id" => $tileId]);
+        $player = $this->GLMService->getPlayerFromNameAndGame($game, "test0");
+        $boardTile = new BoardTileGLM();
+        $boardTile->setTile($tile);
+        $boardTile->setMainBoardGLM($game->getMainBoard());
+        $boardTile->setPosition(0);
+        $this->entityManager->persist($boardTile);
+        $buyingTile = new BuyingTileGLM();
+        $buyingTile->setCoordY(0);
+        $buyingTile->setCoordX(0);
+        $buyingTile->setPersonalBoardGLM($player->getPersonalBoard());
+        $buyingTile->setBoardTile($boardTile);
+        $this->entityManager->persist($buyingTile);
+        $player->getPersonalBoard()->setBuyingTile($buyingTile);
+        $this->entityManager->persist($player->getPersonalBoard());
+        $warehouse = $game->getMainBoard()->getWarehouse();
+        /** @var WarehouseLineGLM $line */
+        $line = $this->warehouseLineGLMRepository->findOneBy(["warehouseGLM" => $warehouse->getId()]);
+        $warehouse->addWarehouseLine($line);
+        $this->entityManager->persist($warehouse);
+        $this->entityManager->flush();
+        $lineId = $line->getId();
+        $newUrl = "/game/glenmore/" . $gameId . "/buy/resource/warehouse/production/mainBoard/" . $lineId;
+        $user = $this->gameUserRepository->findOneByUsername("test0");
+        $this->client->loginUser($user);
+        //WHEN
+        $this->client->request("GET", $newUrl);
+        //THEN
+        $this->assertEquals(Response::HTTP_OK,
+            $this->client->getResponse()->getStatusCode());
+    }
+
 
     public function testValidateResourceSelectionWhenPlayerIsNull() : void
     {
@@ -133,11 +256,13 @@ class GLMControllerTest extends WebTestCase
         $this->gameUserRepository = static::getContainer()->get(GameUserRepository::class);
         $this->playerGLMRepository = static::getContainer()->get(PlayerGLMRepository::class);
         $this->gameGLMRepository = static::getContainer()->get(GameGLMRepository::class);
+        $this->tileGLMRepository = static::getContainer()->get(TileGLMRepository::class);
         $this->entityManager = static::getContainer()->get(EntityManagerInterface::class);
         $this->GLMService = static::getContainer()->get(GLMService::class);
         $this->cardGLMService = static::getContainer()->get(CardGLMService::class);
         $this->dataManagementGLMService = static::getContainer()->get(DataManagementGLMService::class);
         $this->tileGLMService = static::getContainer()->get(TileGLMService::class);
+        $this->warehouseLineGLMRepository = static::getContainer()->get(WarehouseLineGLMRepository::class);
         $this->warehouseGLMService = static::getContainer()->get(WarehouseGLMService::class);
         $user1 = $this->gameUserRepository->findOneByUsername("test0");
         $this->client->loginUser($user1);
@@ -152,7 +277,7 @@ class GLMControllerTest extends WebTestCase
         try {
             $this->GLMGameManagerService->launchGame($game);
         } catch (\Exception $e) {
-            $this->hasFailed();
+            echo $e->getMessage();
         }
         return $gameId;
     }
