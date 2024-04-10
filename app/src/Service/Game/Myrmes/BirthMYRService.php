@@ -114,6 +114,7 @@ class BirthMYRService
                 $nurse->setArea(MyrmesParameters::BASE_AREA);
                 $this->entityManager->persist($nurse);
             }
+
         }
         $this->entityManager->persist($playerMYR->getPersonalBoardMYR());
         $this->entityManager->flush();
