@@ -304,6 +304,7 @@ class WorkerMYRServiceTest extends TestCase
         $newTile->setCoordX(1);
         $newTile->setCoordY(1);
         $this->tileMYRRepository->method("findOneBy")->willReturn($newTile);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_ZERO);
         $tileType->setOrientation(0);
@@ -335,6 +336,7 @@ class WorkerMYRServiceTest extends TestCase
         $newTile->setCoordX(2);
         $newTile->setCoordY(0);
         $this->tileMYRRepository->method("findOneBy")->willReturn($newTile);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_ZERO);
         $tileType->setOrientation(1);
@@ -366,6 +368,7 @@ class WorkerMYRServiceTest extends TestCase
         $newTile->setCoordX(0);
         $newTile->setCoordY(0);
         $this->tileMYRRepository->method("findOneBy")->willReturn($newTile);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_ZERO);
         $tileType->setOrientation(2);
@@ -397,6 +400,7 @@ class WorkerMYRServiceTest extends TestCase
         $newTile->setCoordX(0);
         $newTile->setCoordY(0);
         $this->tileMYRRepository->method("findOneBy")->willReturn($newTile);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_ZERO);
         $tileType->setOrientation(3);
@@ -428,6 +432,7 @@ class WorkerMYRServiceTest extends TestCase
         $newTile->setCoordX(0);
         $newTile->setCoordY(2);
         $this->tileMYRRepository->method("findOneBy")->willReturn($newTile);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_ZERO);
         $tileType->setOrientation(4);
@@ -459,6 +464,7 @@ class WorkerMYRServiceTest extends TestCase
         $newTile->setCoordX(0);
         $newTile->setCoordY(2);
         $this->tileMYRRepository->method("findOneBy")->willReturn($newTile);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_ZERO);
         $tileType->setOrientation(5);
@@ -490,6 +496,7 @@ class WorkerMYRServiceTest extends TestCase
         $newTile->setCoordX(0);
         $newTile->setCoordY(2);
         $this->tileMYRRepository->method("findOneBy")->willReturn($newTile);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_ZERO);
         $tileType->setOrientation(6);
@@ -530,6 +537,7 @@ class WorkerMYRServiceTest extends TestCase
         $prey = new PreyMYR();
         $prey->setTile($tile);
         $this->preyMYRRepository->method("findOneBy")->willReturn($prey);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
@@ -554,6 +562,7 @@ class WorkerMYRServiceTest extends TestCase
         $newTile->setCoordX(1);
         $newTile->setCoordY(1);
         $this->tileMYRRepository->method("findOneBy")->willReturn($newTile);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_ONE);
         $tileType->setOrientation(0);
@@ -585,6 +594,7 @@ class WorkerMYRServiceTest extends TestCase
         $newTile->setCoordX(1);
         $newTile->setCoordY(1);
         $this->tileMYRRepository->method("findOneBy")->willReturn($newTile);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_ONE);
         $tileType->setOrientation(1);
@@ -616,6 +626,7 @@ class WorkerMYRServiceTest extends TestCase
         $newTile->setCoordX(1);
         $newTile->setCoordY(1);
         $this->tileMYRRepository->method("findOneBy")->willReturn($newTile);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_ONE);
         $tileType->setOrientation(2);
@@ -647,6 +658,7 @@ class WorkerMYRServiceTest extends TestCase
         $newTile->setCoordX(1);
         $newTile->setCoordY(1);
         $this->tileMYRRepository->method("findOneBy")->willReturn($newTile);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_ONE);
         $tileType->setOrientation(3);
@@ -687,6 +699,7 @@ class WorkerMYRServiceTest extends TestCase
         $prey = new PreyMYR();
         $prey->setTile($tile);
         $this->preyMYRRepository->method("findOneBy")->willReturn($prey);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
@@ -711,6 +724,7 @@ class WorkerMYRServiceTest extends TestCase
         $newTile->setCoordX(1);
         $newTile->setCoordY(1);
         $this->tileMYRRepository->method("findOneBy")->willReturn($newTile);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_TWO);
         $tileType->setOrientation(0);
@@ -742,6 +756,7 @@ class WorkerMYRServiceTest extends TestCase
         $newTile->setCoordX(1);
         $newTile->setCoordY(1);
         $this->tileMYRRepository->method("findOneBy")->willReturn($newTile);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_TWO);
         $tileType->setOrientation(1);
@@ -773,6 +788,7 @@ class WorkerMYRServiceTest extends TestCase
         $newTile->setCoordX(1);
         $newTile->setCoordY(1);
         $this->tileMYRRepository->method("findOneBy")->willReturn($newTile);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_TWO);
         $tileType->setOrientation(2);
@@ -804,6 +820,7 @@ class WorkerMYRServiceTest extends TestCase
         $newTile->setCoordX(1);
         $newTile->setCoordY(1);
         $this->tileMYRRepository->method("findOneBy")->willReturn($newTile);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_TWO);
         $tileType->setOrientation(3);
@@ -835,6 +852,7 @@ class WorkerMYRServiceTest extends TestCase
         $newTile->setCoordX(1);
         $newTile->setCoordY(1);
         $this->tileMYRRepository->method("findOneBy")->willReturn($newTile);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_TWO);
         $tileType->setOrientation(4);
@@ -866,6 +884,7 @@ class WorkerMYRServiceTest extends TestCase
         $newTile->setCoordX(1);
         $newTile->setCoordY(1);
         $this->tileMYRRepository->method("findOneBy")->willReturn($newTile);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_TWO);
         $tileType->setOrientation(5);
@@ -897,6 +916,7 @@ class WorkerMYRServiceTest extends TestCase
         $newTile->setCoordX(1);
         $newTile->setCoordY(1);
         $this->tileMYRRepository->method("findOneBy")->willReturn($newTile);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_TWO);
         $tileType->setOrientation(6);
@@ -937,6 +957,7 @@ class WorkerMYRServiceTest extends TestCase
         $prey = new PreyMYR();
         $prey->setTile($tile);
         $this->preyMYRRepository->method("findOneBy")->willReturn($prey);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
@@ -961,6 +982,7 @@ class WorkerMYRServiceTest extends TestCase
         $newTile->setCoordX(1);
         $newTile->setCoordY(1);
         $this->tileMYRRepository->method("findOneBy")->willReturn($newTile);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_THREE);
         $tileType->setOrientation(0);
@@ -992,6 +1014,7 @@ class WorkerMYRServiceTest extends TestCase
         $newTile->setCoordX(1);
         $newTile->setCoordY(1);
         $this->tileMYRRepository->method("findOneBy")->willReturn($newTile);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_THREE);
         $tileType->setOrientation(1);
@@ -1023,6 +1046,7 @@ class WorkerMYRServiceTest extends TestCase
         $newTile->setCoordX(1);
         $newTile->setCoordY(1);
         $this->tileMYRRepository->method("findOneBy")->willReturn($newTile);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_THREE);
         $tileType->setOrientation(2);
@@ -1054,6 +1078,7 @@ class WorkerMYRServiceTest extends TestCase
         $newTile->setCoordX(1);
         $newTile->setCoordY(1);
         $this->tileMYRRepository->method("findOneBy")->willReturn($newTile);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_THREE);
         $tileType->setOrientation(3);
@@ -1085,6 +1110,7 @@ class WorkerMYRServiceTest extends TestCase
         $newTile->setCoordX(1);
         $newTile->setCoordY(1);
         $this->tileMYRRepository->method("findOneBy")->willReturn($newTile);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_THREE);
         $tileType->setOrientation(4);
@@ -1116,6 +1142,7 @@ class WorkerMYRServiceTest extends TestCase
         $newTile->setCoordX(1);
         $newTile->setCoordY(1);
         $this->tileMYRRepository->method("findOneBy")->willReturn($newTile);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_THREE);
         $tileType->setOrientation(5);
@@ -1147,6 +1174,7 @@ class WorkerMYRServiceTest extends TestCase
         $newTile->setCoordX(1);
         $newTile->setCoordY(1);
         $this->tileMYRRepository->method("findOneBy")->willReturn($newTile);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_THREE);
         $tileType->setOrientation(6);
@@ -1187,6 +1215,7 @@ class WorkerMYRServiceTest extends TestCase
         $prey = new PreyMYR();
         $prey->setTile($tile);
         $this->preyMYRRepository->method("findOneBy")->willReturn($prey);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
@@ -1211,6 +1240,7 @@ class WorkerMYRServiceTest extends TestCase
         $newTile->setCoordX(1);
         $newTile->setCoordY(1);
         $this->tileMYRRepository->method("findOneBy")->willReturn($newTile);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_FOUR);
         $tileType->setOrientation(0);
@@ -1242,6 +1272,7 @@ class WorkerMYRServiceTest extends TestCase
         $newTile->setCoordX(1);
         $newTile->setCoordY(1);
         $this->tileMYRRepository->method("findOneBy")->willReturn($newTile);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_FOUR);
         $tileType->setOrientation(1);
@@ -1273,6 +1304,7 @@ class WorkerMYRServiceTest extends TestCase
         $newTile->setCoordX(1);
         $newTile->setCoordY(1);
         $this->tileMYRRepository->method("findOneBy")->willReturn($newTile);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_FOUR);
         $tileType->setOrientation(2);
@@ -1304,6 +1336,7 @@ class WorkerMYRServiceTest extends TestCase
         $newTile->setCoordX(1);
         $newTile->setCoordY(1);
         $this->tileMYRRepository->method("findOneBy")->willReturn($newTile);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_FOUR);
         $tileType->setOrientation(3);
@@ -1335,6 +1368,7 @@ class WorkerMYRServiceTest extends TestCase
         $newTile->setCoordX(1);
         $newTile->setCoordY(1);
         $this->tileMYRRepository->method("findOneBy")->willReturn($newTile);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_FOUR);
         $tileType->setOrientation(4);
@@ -1366,6 +1400,7 @@ class WorkerMYRServiceTest extends TestCase
         $newTile->setCoordX(1);
         $newTile->setCoordY(1);
         $this->tileMYRRepository->method("findOneBy")->willReturn($newTile);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_FOUR);
         $tileType->setOrientation(5);
@@ -1397,6 +1432,7 @@ class WorkerMYRServiceTest extends TestCase
         $newTile->setCoordX(1);
         $newTile->setCoordY(1);
         $this->tileMYRRepository->method("findOneBy")->willReturn($newTile);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_FOUR);
         $tileType->setOrientation(6);
@@ -1428,6 +1464,7 @@ class WorkerMYRServiceTest extends TestCase
         $newTile->setCoordX(1);
         $newTile->setCoordY(1);
         $this->tileMYRRepository->method("findOneBy")->willReturn($newTile);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_FOUR);
         $tileType->setOrientation(7);
@@ -1459,6 +1496,7 @@ class WorkerMYRServiceTest extends TestCase
         $newTile->setCoordX(1);
         $newTile->setCoordY(1);
         $this->tileMYRRepository->method("findOneBy")->willReturn($newTile);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_FOUR);
         $tileType->setOrientation(8);
@@ -1490,6 +1528,7 @@ class WorkerMYRServiceTest extends TestCase
         $newTile->setCoordX(1);
         $newTile->setCoordY(1);
         $this->tileMYRRepository->method("findOneBy")->willReturn($newTile);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_FOUR);
         $tileType->setOrientation(9);
@@ -1521,6 +1560,7 @@ class WorkerMYRServiceTest extends TestCase
         $newTile->setCoordX(1);
         $newTile->setCoordY(1);
         $this->tileMYRRepository->method("findOneBy")->willReturn($newTile);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_FOUR);
         $tileType->setOrientation(10);
@@ -1552,6 +1592,7 @@ class WorkerMYRServiceTest extends TestCase
         $newTile->setCoordX(1);
         $newTile->setCoordY(1);
         $this->tileMYRRepository->method("findOneBy")->willReturn($newTile);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_FOUR);
         $tileType->setOrientation(11);
@@ -1583,6 +1624,7 @@ class WorkerMYRServiceTest extends TestCase
         $newTile->setCoordX(1);
         $newTile->setCoordY(1);
         $this->tileMYRRepository->method("findOneBy")->willReturn($newTile);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_THREE);
         $tileType->setOrientation(12);
@@ -1623,6 +1665,7 @@ class WorkerMYRServiceTest extends TestCase
         $prey = new PreyMYR();
         $prey->setTile($tile);
         $this->preyMYRRepository->method("findOneBy")->willReturn($prey);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
@@ -1647,6 +1690,7 @@ class WorkerMYRServiceTest extends TestCase
         $newTile->setCoordX(1);
         $newTile->setCoordY(1);
         $this->tileMYRRepository->method("findOneBy")->willReturn($newTile);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_FIVE);
         $tileType->setOrientation(0);
@@ -1678,6 +1722,7 @@ class WorkerMYRServiceTest extends TestCase
         $newTile->setCoordX(1);
         $newTile->setCoordY(1);
         $this->tileMYRRepository->method("findOneBy")->willReturn($newTile);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_FIVE);
         $tileType->setOrientation(1);
@@ -1709,6 +1754,7 @@ class WorkerMYRServiceTest extends TestCase
         $newTile->setCoordX(1);
         $newTile->setCoordY(1);
         $this->tileMYRRepository->method("findOneBy")->willReturn($newTile);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_FIVE);
         $tileType->setOrientation(2);
@@ -1740,6 +1786,7 @@ class WorkerMYRServiceTest extends TestCase
         $newTile->setCoordX(1);
         $newTile->setCoordY(1);
         $this->tileMYRRepository->method("findOneBy")->willReturn($newTile);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_FIVE);
         $tileType->setOrientation(3);
@@ -1771,6 +1818,7 @@ class WorkerMYRServiceTest extends TestCase
         $newTile->setCoordX(1);
         $newTile->setCoordY(1);
         $this->tileMYRRepository->method("findOneBy")->willReturn($newTile);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_FIVE);
         $tileType->setOrientation(4);
@@ -1802,6 +1850,7 @@ class WorkerMYRServiceTest extends TestCase
         $newTile->setCoordX(1);
         $newTile->setCoordY(1);
         $this->tileMYRRepository->method("findOneBy")->willReturn($newTile);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_FIVE);
         $tileType->setOrientation(5);
@@ -1833,6 +1882,7 @@ class WorkerMYRServiceTest extends TestCase
         $newTile->setCoordX(1);
         $newTile->setCoordY(1);
         $this->tileMYRRepository->method("findOneBy")->willReturn($newTile);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_FIVE);
         $tileType->setOrientation(6);
@@ -1873,6 +1923,7 @@ class WorkerMYRServiceTest extends TestCase
         $prey = new PreyMYR();
         $prey->setTile($tile);
         $this->preyMYRRepository->method("findOneBy")->willReturn($prey);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
@@ -1898,6 +1949,7 @@ class WorkerMYRServiceTest extends TestCase
         $newTile->setCoordX(1);
         $newTile->setCoordY(1);
         $this->tileMYRRepository->method("findOneBy")->willReturn($newTile);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_SIX);
         $tileType->setOrientation(0);
@@ -1930,6 +1982,7 @@ class WorkerMYRServiceTest extends TestCase
         $newTile->setCoordX(1);
         $newTile->setCoordY(1);
         $this->tileMYRRepository->method("findOneBy")->willReturn($newTile);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_SIX);
         $tileType->setOrientation(1);
@@ -1962,6 +2015,7 @@ class WorkerMYRServiceTest extends TestCase
         $newTile->setCoordX(1);
         $newTile->setCoordY(1);
         $this->tileMYRRepository->method("findOneBy")->willReturn($newTile);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_SIX);
         $tileType->setOrientation(2);
@@ -1994,6 +2048,7 @@ class WorkerMYRServiceTest extends TestCase
         $newTile->setCoordX(1);
         $newTile->setCoordY(1);
         $this->tileMYRRepository->method("findOneBy")->willReturn($newTile);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_SIX);
         $tileType->setOrientation(3);
@@ -2026,6 +2081,7 @@ class WorkerMYRServiceTest extends TestCase
         $newTile->setCoordX(1);
         $newTile->setCoordY(1);
         $this->tileMYRRepository->method("findOneBy")->willReturn($newTile);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_SIX);
         $tileType->setOrientation(4);
@@ -2058,6 +2114,7 @@ class WorkerMYRServiceTest extends TestCase
         $newTile->setCoordX(1);
         $newTile->setCoordY(1);
         $this->tileMYRRepository->method("findOneBy")->willReturn($newTile);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_SIX);
         $tileType->setOrientation(5);
@@ -2090,6 +2147,7 @@ class WorkerMYRServiceTest extends TestCase
         $newTile->setCoordX(1);
         $newTile->setCoordY(1);
         $this->tileMYRRepository->method("findOneBy")->willReturn($newTile);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_SIX);
         $tileType->setOrientation(6);
@@ -2131,6 +2189,7 @@ class WorkerMYRServiceTest extends TestCase
         $prey = new PreyMYR();
         $prey->setTile($tile);
         $this->preyMYRRepository->method("findOneBy")->willReturn($prey);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
@@ -2165,6 +2224,7 @@ class WorkerMYRServiceTest extends TestCase
         $prey = new PreyMYR();
         $prey->setTile($tile);
         $this->preyMYRRepository->method("findOneBy")->willReturn($prey);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
@@ -2190,6 +2250,7 @@ class WorkerMYRServiceTest extends TestCase
         $newTile->setCoordX(1);
         $newTile->setCoordY(1);
         $this->tileMYRRepository->method("findOneBy")->willReturn($newTile);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_SIX);
         $tileType->setOrientation(5);
