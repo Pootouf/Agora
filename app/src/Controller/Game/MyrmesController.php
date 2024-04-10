@@ -139,6 +139,10 @@ class MyrmesController extends AbstractController
                 $player,
                 MyrmesParameters::WORKER_AREA
             )->count(),
+            'nursesOnWorkshop' => $this->service->getNursesAtPosition(
+                $player,
+                MyrmesParameters::WORKSHOP_AREA
+            )->count(),
             'mustThrowResources' => $player != null
                 && $this->service->isInPhase($player, MyrmesParameters::PHASE_WINTER)
                 && $this->winterMYRService->mustDropResourcesForWinter($player)
@@ -172,6 +176,10 @@ class MyrmesController extends AbstractController
                 )->count(),
                 'nursesOnWorkersBirthTrack' => $this->service->getNursesAtPosition(
                     $playerMYR, MyrmesParameters::WORKER_AREA
+                )->count(),
+                'nursesOnWorkshop' => $this->service->getNursesAtPosition(
+                    $playerMYR,
+                    MyrmesParameters::WORKSHOP_AREA
                 )->count(),
                 'mustThrowResources' => false
             ]);
