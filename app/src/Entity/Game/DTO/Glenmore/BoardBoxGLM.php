@@ -27,7 +27,7 @@ class BoardBoxGLM
         if($pawn != null) {
             $this->pawn = $pawn;
             $this->tile = null;
-        } else if($tile != null) {
+        } elseif($tile != null) {
             $this->tile = $tile;
             $this->pawn = null;
         }

@@ -2,8 +2,6 @@
 
 namespace App\Entity\Game\DTO\Myrmes;
 
-use App\Entity\Game\Glenmore\BoardTileGLM;
-use App\Entity\Game\Glenmore\PawnGLM;
 use App\Entity\Game\Myrmes\AnthillHoleMYR;
 use App\Entity\Game\Myrmes\GardenWorkerMYR;
 use App\Entity\Game\Myrmes\PheromonTileMYR;

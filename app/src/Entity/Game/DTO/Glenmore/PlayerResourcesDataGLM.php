@@ -28,7 +28,7 @@ class PlayerResourcesDataGLM
     }
 
     /**
-     * getProductionsCount : return the array containing the count of each resources possessed by the player
+     * getProductionsCount : return the array containing the count of each resource possessed by the player
      * @return array
      */
     public function getProductionsCount(): array
@@ -53,6 +53,5 @@ class PlayerResourcesDataGLM
     {
         return $this->whiskyCount;
     }
-
 
 }
