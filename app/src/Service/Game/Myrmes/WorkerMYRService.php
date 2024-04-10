@@ -1441,6 +1441,7 @@ class WorkerMYRService
                         $this->entityManager->persist($playerResource);
                     }
                 }
+                break;
             case MyrmesParameters::SPECIAL_TILE_TYPE_QUARRY:
             case MyrmesParameters::SPECIAL_TILE_DIRT_QUARRY:
                 foreach ($playerResources as $playerResource) {
@@ -1449,6 +1450,7 @@ class WorkerMYRService
                         $this->entityManager->persist($playerResource);
                     }
                 }
+                break;
             default:
                 break;
         }
@@ -1478,6 +1480,8 @@ class WorkerMYRService
         }
         $playerMYR->setScore($playerMYR->getScore() + $points);
         $this->entityManager->persist($playerMYR);
+        $gardenWorker = $this->gardenWorkerMYRRepository->findOneBy(["player" => $playerMYR->getId()]);
+        $this->entityManager->remove($gardenWorker);
         $this->entityManager->flush();
     }
 
