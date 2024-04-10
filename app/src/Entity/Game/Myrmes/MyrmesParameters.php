@@ -25,7 +25,14 @@ interface MyrmesParameters
 
     // Player color
 
-    const array PLAYERS_COLORS = ['blue', 'yellow', 'red', 'gray'];
+    const string PLAYER_COLOR_BLUE = 'blue';
+    const string PLAYER_COLOR_RED = 'red';
+    const string PLAYER_COLOR_YELLOW = 'yellow';
+    const string PLAYER_COLOR_GRAY = 'gray';
+
+    const array PLAYERS_COLORS = [
+        self::PLAYER_COLOR_BLUE, self::PLAYER_COLOR_YELLOW, self::PLAYER_COLOR_RED, self::PLAYER_COLOR_GRAY
+    ];
 
 
     // Area's for nurses
@@ -35,14 +42,13 @@ interface MyrmesParameters
     const int SOLDIERS_AREA = 2;
     const int WORKER_AREA = 3;
     const int WORKSHOP_AREA = 4;
-    const int AREA_COUNT = 5;
 
     // Workshop areas
 
-    const int WORKSHOP_GOAL_AREA = 1;
-    const int WORKSHOP_ANTHILL_HOLE_AREA = 2;
-    const int WORKSHOP_LEVEL_AREA = 3;
-    const int WORKSHOP_NURSE_AREA = 4;
+    const int WORKSHOP_GOAL_AREA = 5;
+    const int WORKSHOP_ANTHILL_HOLE_AREA = 6;
+    const int WORKSHOP_LEVEL_AREA = 7;
+    const int WORKSHOP_NURSE_AREA = 8;
 
 
     //Nurses parameters
@@ -178,7 +184,6 @@ interface MyrmesParameters
     const int SPECIAL_TILE_TYPE_FARM = 7;
     const int SPECIAL_TILE_TYPE_QUARRY = 8;
     const int SPECIAL_TILE_TYPE_SUBANTHILL = 9;
-
 
     // Special tiles amount
     const array SPECIAL_TILE_TYPE_AMOUNT = [
