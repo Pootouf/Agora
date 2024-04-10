@@ -55,7 +55,7 @@ class WorkshopMYRService
                 $tile = $pheromoneTile->getTile();
                 $adjacentTiles = $this->getAdjacentTiles($tile);
                 foreach ($adjacentTiles as $adjacentTile) {
-                    if ($this->isValidPosition($player, $adjacentTile)) {
+                    if ($adjacentTile != null && $this->isValidPosition($player, $adjacentTile)) {
                         $result->add($adjacentTile);
                     }
                 }
