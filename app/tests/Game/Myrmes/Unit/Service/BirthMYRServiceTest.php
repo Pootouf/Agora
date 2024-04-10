@@ -65,10 +65,7 @@ class BirthMYRServiceTest extends TestCase
         $personalBoard = $player->getPersonalBoardMYR();
         foreach ($personalBoard->getNurses() as $nurse)
         {
-            if ($nurse->isAvailable())
-            {
-                $nurse->setArea(MyrmesParameters::WORKER_AREA);
-            }
+            $nurse->setArea(MyrmesParameters::WORKER_AREA);
         }
 
         // WHEN
@@ -79,10 +76,7 @@ class BirthMYRServiceTest extends TestCase
 
         foreach ($personalBoard->getNurses() as $nurse)
         {
-            if ($nurse->isAvailable())
-            {
-                $this->assertSame(MyrmesParameters::BASE_AREA, $nurse->getArea());
-            }
+            $this->assertSame(MyrmesParameters::BASE_AREA, $nurse->getArea());
         }
     }
 
