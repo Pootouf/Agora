@@ -42,7 +42,6 @@ interface MyrmesParameters
     const int SOLDIERS_AREA = 2;
     const int WORKER_AREA = 3;
     const int WORKSHOP_AREA = 4;
-    const int AREA_COUNT = 5;
 
     // Workshop areas
 
@@ -162,7 +161,7 @@ interface MyrmesParameters
 
     // Pheromone Amount
 
-    const array PHEROMONE_TYPE_AMOUNT = [6, 2, 2, 2, 2, 2, 1];
+    const array PHEROMONE_TYPE_AMOUNT = [6, 2, 2, 2, 2, 2, 1, 8, 8, 8];
 
 
     // Pheromone Type Level
@@ -185,9 +184,6 @@ interface MyrmesParameters
     const int SPECIAL_TILE_TYPE_FARM = 7;
     const int SPECIAL_TILE_TYPE_QUARRY = 8;
     const int SPECIAL_TILE_TYPE_SUBANTHILL = 9;
-
-    const int SPECIAL_TILE_STONE_FARM = 10;
-    const int SPECIAL_TILE_DIRT_QUARRY = 11;
 
     // Special tiles amount
     const array SPECIAL_TILE_TYPE_AMOUNT = [
