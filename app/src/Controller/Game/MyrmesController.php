@@ -63,6 +63,9 @@ class MyrmesController extends AbstractController
         return $this->render('/Game/Myrmes/index.html.twig', [
             'player' => $player,
             'game' => $game,
+            'goalsLevelOne' => $game->getMainBoardMYR()->getGameGoalsLevelOne(),
+            'goalsLevelTwo' => $game->getMainBoardMYR()->getGameGoalsLevelTwo(),
+            'goalsLevelThree' => $game->getMainBoardMYR()->getGameGoalsLevelThree(),
             'boardBoxes' => $boardBoxes,
             'isPreview' => true,
             'preys' => $game->getMainBoardMYR()->getPreys(),
@@ -205,6 +208,9 @@ class MyrmesController extends AbstractController
     {
         return $this->render('Game/Myrmes/MainBoard/displayObjectives.html.twig', [
             'game' => $gameMYR,
+            'goalsLevelOne' => $gameMYR->getMainBoardMYR()->getGameGoalsLevelOne()->count(),
+            'goalsLevelTwo' => $gameMYR->getMainBoardMYR()->getGameGoalsLevelTwo()->count(),
+            'goalsLevelThree' => $gameMYR->getMainBoardMYR()->getGameGoalsLevelThree()->count(),
         ]);
     }
 
