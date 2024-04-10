@@ -44,12 +44,14 @@ class EventMYRService
         }
         $newBonus = $playerBonus + 1;
         if ($playerBonus < $gameBonus) {
-            $personalBoard->setSelectedEventLarvaeAmount($selectedLarvae - 1);
+            $personalBoard->setSelectedEventLarvaeAmount(
+                $selectedLarvae - 1);
         } else {
             if ($larvaeCount + $gameBonus < $newBonus) {
                 throw new Exception("Player can't choose this bonus, not enough larvae owned");
             }
-            $personalBoard->setSelectedEventLarvaeAmount($selectedLarvae + 1);
+            $personalBoard->setSelectedEventLarvaeAmount(
+                $selectedLarvae + 1);
         }
         $personalBoard->setBonus($newBonus);
         $this->entityManager->persist($personalBoard);
@@ -85,12 +87,14 @@ class EventMYRService
 
         $newBonus = $playerBonus - 1;
         if ($playerBonus > $gameBonus) {
-            $personalBoard->setSelectedEventLarvaeAmount($selectedLarvae - 1);
+            $personalBoard->setSelectedEventLarvaeAmount(
+                $selectedLarvae - 1);
         } else {
             if ($gameBonus - $larvaeCount > $newBonus) {
                 throw new Exception("Player can't choose this bonus, not enough larvae owned");
             }
-            $personalBoard->setSelectedEventLarvaeAmount($selectedLarvae + 1);
+            $personalBoard->setSelectedEventLarvaeAmount(
+                $selectedLarvae + 1);
         }
         $personalBoard->setBonus($newBonus);
         $this->entityManager->persist($personalBoard);
@@ -106,8 +110,10 @@ class EventMYRService
     {
         $player->setPhase(MyrmesParameters::PHASE_BIRTH);
         $bonus = $player->getPersonalBoardMYR()->getBonus();
-        if($bonus == MyrmesParameters::BONUS_HARVEST) {
-            $player->setRemainingHarvestingBonus(MyrmesParameters::HARVESTED_TILE_BONUS);
+        if ($bonus == MyrmesParameters::BONUS_HARVEST)
+        {
+            $player->setRemainingHarvestingBonus(
+                MyrmesParameters::HARVESTED_TILE_BONUS);
         }
         $this->entityManager->persist($player);
         $this->entityManager->flush();
