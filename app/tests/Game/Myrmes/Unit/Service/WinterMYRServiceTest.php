@@ -29,6 +29,9 @@ use PHPUnit\Framework\TestCase;
 class WinterMYRServiceTest extends TestCase
 {
     private WinterMYRService $winterMYRService;
+
+    private SeasonMYRRepository $seasonMYRRepository;
+
     protected function setUp() : void
     {
         $entityManager = $this->createMock(EntityManagerInterface::class);
@@ -57,14 +60,14 @@ class WinterMYRServiceTest extends TestCase
         $tileTypeMYRRepository = $this->getMockBuilder(TileTypeMYRRepository::class)
             ->setConstructorArgs([$managerRegistry])
             ->getMock();
-        $seasonMYRRepository = $this->getMockBuilder(SeasonMYRRepository::class)
+        $this->seasonMYRRepository = $this->getMockBuilder(SeasonMYRRepository::class)
             ->setConstructorArgs([$managerRegistry])
             ->getMock();
         $goalMYRRepository = $this->getMockBuilder(GoalMYRRepository::class)
             ->setConstructorArgs([$managerRegistry])
             ->getMock();
         $myrService = new MYRService($playerMYRRepository, $entityManager, $nurseMYRRepository,
-            $tileMYRRepository, $tileTypeMYRRepository, $seasonMYRRepository, $goalMYRRepository,
+            $tileMYRRepository, $tileTypeMYRRepository, $this->seasonMYRRepository, $goalMYRRepository,
             $resourceMYRRepository, $playerResourceMYRRepository );
         $playerResourceMYRRepository->method("findOneBy")->willReturn($playerFood);
         $this->winterMYRService = new WinterMYRService($entityManager, $resourceMYRRepository,
@@ -239,6 +242,34 @@ class WinterMYRServiceTest extends TestCase
         $this->assertFalse($result);
     }
 
+    public function testManageEndOfWinterWhenCanNotManageThis(): void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $lastPlayer = $game->getPlayers()->last();
+        $firstPlayer->setPhase(MyrmesParameters::PHASE_WINTER);
+        $lastPlayer->setPhase(MyrmesParameters::PHASE_WINTER);
+        $firstPlayer->getPersonalBoardMYR()->setAnthillLevel(2);
+        $lastPlayer->getPersonalBoardMYR()->setAnthillLevel(2);
+        $playerResource = new PlayerResourceMYR();
+        $resource = new ResourceMYR();
+        $resource->setDescription(MyrmesParameters::RESOURCE_TYPE_DIRT);
+        $playerResource->setResource($resource);
+        $playerResource->setQuantity(3);
+        $firstPlayer->getPersonalBoardMYR()->addPlayerResourceMYR($playerResource);
+        $lastPlayer->getPersonalBoardMYR()->addPlayerResourceMYR($playerResource);
+
+        // THEN
+
+        $this->expectException(\Exception::class);
+
+        // WHEN
+
+        $this->winterMYRService->manageEndOfWinter($game);
+
+    }
+
     public function testCanManageEndOfWinterReturnTrueIfNoPlayerMustDropResources(): void
     {
         //GIVEN
@@ -255,6 +286,51 @@ class WinterMYRServiceTest extends TestCase
 
         //THEN
         $this->assertTrue($result);
+    }
+
+    public function testManageEndOfWinterCanManageThis(): void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+
+        $oldYearNum = $game->getMainBoardMYR()->getYearNum();
+
+        $firstPlayer = $game->getPlayers()->first();
+        $firstPlayer->setScore(6);
+        $lastPlayer = $game->getPlayers()->last();
+        $firstPlayer->setScore(9);
+
+        $spring = new SeasonMYR();
+        $spring->setDiceResult(3);
+        $spring->setName(MyrmesParameters::SPRING_SEASON_NAME);
+        $spring->setMainBoard($game->getMainBoardMYR());
+        $spring->setActualSeason(false);
+
+        $winter = new SeasonMYR();
+        $winter->setDiceResult(5);
+        $winter->setName(MyrmesParameters::WINTER_SEASON_NAME);
+        $winter->setMainBoard($game->getMainBoardMYR());
+        $winter->setActualSeason(true);
+
+        $game->getMainBoardMYR()->addSeason($spring);
+        $game->getMainBoardMYR()->addSeason($winter);
+
+        $this->seasonMYRRepository->method("findOneBy")->willReturn($spring);
+
+        $firstPlayer->setPhase(MyrmesParameters::PHASE_WINTER);
+        $lastPlayer->setPhase(MyrmesParameters::PHASE_WINTER);
+
+        $firstPlayer->getPersonalBoardMYR()->setAnthillLevel(2);
+        $lastPlayer->getPersonalBoardMYR()->setAnthillLevel(2);
+
+        // WHEN
+
+        $this->winterMYRService->manageEndOfWinter($game);
+
+        // THEN
+
+        $this->assertGreaterThan($oldYearNum,
+            $game->getMainBoardMYR()->getYearNum());
     }
 
     public function testCanSetPhaseToWinterReturnTrueIfActualSeasonIsFall(): void
@@ -350,6 +426,7 @@ class WinterMYRServiceTest extends TestCase
         $game = new GameMYR();
         for ($i = 0; $i < $numberOfPlayers; $i += 1) {
             $player = new PlayerMYR('test', $game);
+            $player->setScore(0);
             $game->addPlayer($player);
             $player->setGameMyr($game);
             $personalBoard = new PersonalBoardMYR();
@@ -369,6 +446,7 @@ class WinterMYRServiceTest extends TestCase
         }
         $mainBoard = new MainBoardMYR();
         $mainBoard->setYearNum(MyrmesParameters::FIRST_YEAR_NUM);
+
         $game->setMainBoardMYR($mainBoard);
         $game->setGamePhase(MyrmesParameters::PHASE_INVALID);
         return $game;
