@@ -176,7 +176,7 @@ twig-lint:
 unitFactory:
   stage: factory
   script:
-    - php bin/phpunit --configuration phpUnitConfig/phpunitFactory.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageUnitFactory.xml --log-junit reports/phpUnitFactory.xml --coverage-php coverage/coverageUnitFactory.php --colors=never tests/Game/Factory/Unit
+    - php bin/phpunit --configuration phpUnitConfig/phpunitFactory.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageUnitFactory.xml --log-junit reports/phpUnitFactory.xml --coverage-php coverage/coverageUnitFactory.php --colors=never tests/Game/Factory/Unit -d memory_limit=-1
     - *cleanReport
   <<: *base_test
   variables:
@@ -188,7 +188,7 @@ integrationFactory:
   script:
     - symfony console --env=test doctrine:migrations:migrate
     - symfony console doctrine:fixtures:load --env=test -n --append
-    - php bin/phpunit --configuration phpUnitConfig/phpunitFactory.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageIntegrationFactory.xml --log-junit reports/phpIntegrationFactory.xml --coverage-php coverage/coverageIntegrationFactory.php --colors=never tests/Game/Factory/Integration
+    - php bin/phpunit --configuration phpUnitConfig/phpunitFactory.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageIntegrationFactory.xml --log-junit reports/phpIntegrationFactory.xml --coverage-php coverage/coverageIntegrationFactory.php --colors=never tests/Game/Factory/Integration -d memory_limit=-1
     - *cleanReport
   <<: *base_integration_test
   variables:
@@ -198,7 +198,7 @@ integrationFactory:
 unit6QP:
   stage: sixqp
   script:
-    - php bin/phpunit --configuration phpUnitConfig/phpunit6QP_no_controller.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageUnit6QP.xml --log-junit reports/phpUnit6QP.xml --coverage-php coverage/coverageUnit6QP.php --colors=never tests/Game/SixQP/Unit
+    - php bin/phpunit --configuration phpUnitConfig/phpunit6QP_no_controller.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageUnit6QP.xml --log-junit reports/phpUnit6QP.xml --coverage-php coverage/coverageUnit6QP.php --colors=never tests/Game/SixQP/Unit -d memory_limit=-1
     - *cleanReport
   <<: *base_test
   variables:
@@ -210,7 +210,7 @@ integration6QP:
   script:
     - symfony console --env=test doctrine:migrations:migrate
     - symfony console doctrine:fixtures:load --env=test -n --append
-    - php bin/phpunit --configuration phpUnitConfig/phpunit6QP_no_controller.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageIntegration6QP.xml --log-junit reports/phpIntegration6QP.xml --coverage-php coverage/coverageIntegration6QP.php --colors=never tests/Game/SixQP/Integration
+    - php bin/phpunit --configuration phpUnitConfig/phpunit6QP_no_controller.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageIntegration6QP.xml --log-junit reports/phpIntegration6QP.xml --coverage-php coverage/coverageIntegration6QP.php --colors=never tests/Game/SixQP/Integration -d memory_limit=-1
     - *cleanReport
   <<: *base_integration_test
   variables:
@@ -223,7 +223,7 @@ application6QP:
   script:
     - symfony console --env=test doctrine:migrations:migrate
     - symfony console doctrine:fixtures:load --env=test -n --append
-    - php bin/phpunit --configuration phpUnitConfig/phpunit6QP.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageApp6QP.xml --log-junit reports/phpApp6QP.xml --coverage-php coverage/coverageApp6QP.php --colors=never tests/Game/SixQP/Application
+    - php bin/phpunit --configuration phpUnitConfig/phpunit6QP.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageApp6QP.xml --log-junit reports/phpApp6QP.xml --coverage-php coverage/coverageApp6QP.php --colors=never tests/Game/SixQP/Application -d memory_limit=-1
     - *cleanReport
   <<: *base_application_test
   variables:
@@ -233,7 +233,7 @@ application6QP:
 unitSplendor:
   stage: splendor
   script:
-    - php bin/phpunit --configuration phpUnitConfig/phpunitSplendor_no_controller.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageUnitSplendor.xml --log-junit reports/phpUnitSplendor.xml --coverage-php coverage/coverageUnitSplendor.php --colors=never tests/Game/Splendor/Unit
+    - php bin/phpunit --configuration phpUnitConfig/phpunitSplendor_no_controller.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageUnitSplendor.xml --log-junit reports/phpUnitSplendor.xml --coverage-php coverage/coverageUnitSplendor.php --colors=never tests/Game/Splendor/Unit -d memory_limit=-1
     - *cleanReport
   <<: *base_test
   variables:
@@ -245,7 +245,7 @@ integrationSplendor:
   script:
     - symfony console --env=test doctrine:migrations:migrate
     - symfony console doctrine:fixtures:load --env=test -n --append
-    - php bin/phpunit --configuration phpUnitConfig/phpunitSplendor_no_controller.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageIntegrationSplendor.xml --log-junit reports/phpIntegrationSplendor.xml --coverage-php coverage/coverageIntegrationSplendor.php --colors=never tests/Game/Splendor/Integration
+    - php bin/phpunit --configuration phpUnitConfig/phpunitSplendor_no_controller.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageIntegrationSplendor.xml --log-junit reports/phpIntegrationSplendor.xml --coverage-php coverage/coverageIntegrationSplendor.php --colors=never tests/Game/Splendor/Integration -d memory_limit=-1
     - *cleanReport
   <<: *base_integration_test
   variables:
@@ -257,7 +257,7 @@ applicationSplendor:
   script:
     - symfony console --env=test doctrine:migrations:migrate
     - symfony console doctrine:fixtures:load --env=test -n --append
-    - php bin/phpunit --configuration phpUnitConfig/phpunitSplendor.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageAppSplendor.xml --log-junit reports/phpAppSplendor.xml --coverage-php coverage/coverageAppSplendor.php --colors=never tests/Game/Splendor/Application
+    - php bin/phpunit --configuration phpUnitConfig/phpunitSplendor.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageAppSplendor.xml --log-junit reports/phpAppSplendor.xml --coverage-php coverage/coverageAppSplendor.php --colors=never tests/Game/Splendor/Application -d memory_limit=-1
     - *cleanReport
   <<: *base_application_test
   variables:
@@ -267,7 +267,7 @@ applicationSplendor:
 unitGlenmore:
   stage: glenmore
   script:
-    - php bin/phpunit --configuration phpUnitConfig/phpunitGlenmore_no_controller.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageUnitGlenmore.xml --log-junit reports/phpUnitGlenmore.xml --coverage-php coverage/coverageUnitGlenmore.php --colors=never tests/Game/Glenmore/Unit
+    - php bin/phpunit --configuration phpUnitConfig/phpunitGlenmore_no_controller.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageUnitGlenmore.xml --log-junit reports/phpUnitGlenmore.xml --coverage-php coverage/coverageUnitGlenmore.php --colors=never tests/Game/Glenmore/Unit -d memory_limit=-1
     - *cleanReport
   <<: *base_test
   variables:
@@ -279,7 +279,7 @@ integrationGlenmore:
   script:
     - symfony console --env=test doctrine:migrations:migrate
     - symfony console doctrine:fixtures:load --env=test -n --append
-    - php bin/phpunit --configuration phpUnitConfig/phpunitGlenmore_no_controller.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageIntegrationGlenmore.xml --log-junit reports/phpIntegrationGlenmore.xml --coverage-php coverage/coverageIntegrationGlenmore.php --colors=never tests/Game/Glenmore/Integration
+    - php bin/phpunit --configuration phpUnitConfig/phpunitGlenmore_no_controller.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageIntegrationGlenmore.xml --log-junit reports/phpIntegrationGlenmore.xml --coverage-php coverage/coverageIntegrationGlenmore.php --colors=never tests/Game/Glenmore/Integration -d memory_limit=-1
     - *cleanReport
   <<: *base_integration_test
   variables:
@@ -291,7 +291,7 @@ applicationGlenmore:
   script:
     - symfony console --env=test doctrine:migrations:migrate
     - symfony console doctrine:fixtures:load --env=test -n --append
-    - php bin/phpunit --configuration phpUnitConfig/phpunitGlenmore.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageAppGlenmore.xml --log-junit reports/phpAppGlenmore.xml --coverage-php coverage/coverageAppGlenmore.php --colors=never tests/Game/Glenmore/Application
+    - php bin/phpunit --configuration phpUnitConfig/phpunitGlenmore.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageAppGlenmore.xml --log-junit reports/phpAppGlenmore.xml --coverage-php coverage/coverageAppGlenmore.php --colors=never tests/Game/Glenmore/Application -d memory_limit=-1
     - *cleanReport
   <<: *base_application_test
   variables:
@@ -301,7 +301,7 @@ applicationGlenmore:
 unitMyrmes:
   stage: myrmes
   script:
-    - php bin/phpunit --configuration phpUnitConfig/phpunitMyrmes_no_controller.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageUnitMyrmes.xml --log-junit reports/phpUnitMyrmes.xml --coverage-php coverage/coverageUnitMyrmes.php --colors=never tests/Game/Myrmes/Unit
+    - php bin/phpunit --configuration phpUnitConfig/phpunitMyrmes_no_controller.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageUnitMyrmes.xml --log-junit reports/phpUnitMyrmes.xml --coverage-php coverage/coverageUnitMyrmes.php --colors=never tests/Game/Myrmes/Unit -d memory_limit=-1
     - *cleanReport
   <<: *base_test
   variables:
@@ -313,7 +313,7 @@ integrationMyrmes:
   script:
     - symfony console --env=test doctrine:migrations:migrate
     - symfony console doctrine:fixtures:load --env=test -n --append
-    - php bin/phpunit --configuration phpUnitConfig/phpunitMyrmes_no_controller.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageIntegrationMyrmes.xml --log-junit reports/phpIntegrationMyrmes.xml --coverage-php coverage/coverageIntegrationMyrmes.php --colors=never tests/Game/Myrmes/Integration
+    - php bin/phpunit --configuration phpUnitConfig/phpunitMyrmes_no_controller.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageIntegrationMyrmes.xml --log-junit reports/phpIntegrationMyrmes.xml --coverage-php coverage/coverageIntegrationMyrmes.php --colors=never tests/Game/Myrmes/Integration -d memory_limit=-1
     - *cleanReport
   <<: *base_integration_test
   variables:
