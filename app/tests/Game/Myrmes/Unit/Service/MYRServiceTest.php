@@ -187,6 +187,28 @@ class MYRServiceTest extends TestCase
 
     }
 
+    public function testIsGameEndedShouldBeTrue() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $game->getMainBoardMYR()->setYearNum(MyrmesParameters::THIRD_YEAR_NUM + 1);
+        //WHEN
+        $isEnded = $this->MYRService->isGameEnded($game);
+        //THEN
+        $this->assertTrue($isEnded);
+    }
+
+    public function testIsGameEndedShouldBeFalse() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $game->getMainBoardMYR()->setYearNum(MyrmesParameters::THIRD_YEAR_NUM);
+        //WHEN
+        $isEnded = $this->MYRService->isGameEnded($game);
+        //THEN
+        $this->assertFalse($isEnded);
+    }
+
     private function createGame(int $numberOfPlayers) : GameMYR
     {
         if($numberOfPlayers < MyrmesParameters::MIN_NUMBER_OF_PLAYER ||

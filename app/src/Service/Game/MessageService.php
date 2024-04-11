@@ -22,13 +22,13 @@ class MessageService
      * sendMessage : create a message and save it in the database
      * @param int $playerId the id of the player
      * @param int $gameId the id of the game
-     * @param string $authorUsername the pseudo of the player
      * @param string $content the message to send
+     * @param string $authorUsername the pseudo of the player
      * @return int 1 success, -1 message empty
      */
     public function sendMessage(int $playerId, int $gameId, string $content, string $authorUsername): int
     {
-        if ($content == null || $content == "" || $authorUsername == null || $authorUsername == "") {
+        if ($content == "" || $authorUsername == "") {
             return -1;
         }
 
