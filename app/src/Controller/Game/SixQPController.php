@@ -49,6 +49,8 @@ class SixQPController extends AbstractController
     #[Route('/game/sixqp/{id}', name: 'app_game_show_sixqp')]
     public function showGame(GameSixQP $game): Response
     {
+        if ($game->isPaused() || !$game->isLaunched())
+            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         $chosenCards = $this->chosenCardSixQPRepository->findBy(['game' => $game->getId()]);
         $isSpectator = false;
@@ -95,6 +97,8 @@ class SixQPController extends AbstractController
         #[MapEntity(id: 'idGame')] GameSixQP $game,
         #[MapEntity(id: 'idCard')] CardSixQP $card): Response
     {
+        if ($game->isPaused() || !$game->isLaunched())
+            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
         /** @var PlayerSixQP $player */
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
@@ -135,6 +139,8 @@ class SixQPController extends AbstractController
     #[Route('/game/{idGame}/sixqp/place/row/{idRow}', name: 'app_game_sixqp_placecardonrow')]
     public function placeCardOnRow(#[MapEntity(id: 'idGame')] GameSixQP $game,
         #[MapEntity(id: 'idRow')] RowSixQP $row) : Response{
+        if ($game->isPaused() || !$game->isLaunched())
+            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
         /** @var PlayerSixQP $player */
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
