@@ -22,7 +22,6 @@ use App\Repository\Game\Myrmes\GardenWorkerMYRRepository;
 use App\Repository\Game\Myrmes\TileMYRRepository;
 use App\Service\Game\Myrmes\WorkerMYRService;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\DBAL\Exception;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
@@ -3667,6 +3666,42 @@ class WorkerMYRServiceTest extends KernelTestCase
         // THEN
         $this->assertEquals(MyrmesParameters::PHEROMONE_TYPE_LEVEL[MyrmesParameters::PHEROMONE_TYPE_ZERO] + 1,
             $firstPlayer->getScore());
+    }
+
+    public function testPlacePheromoneOnWater()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $firstPlayer->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::ANTHILL_START_LEVEL);
+        $this->entityManager->persist($firstPlayer->getPersonalBoardMYR());
+        $tile = new TileMYR();
+        $tile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $tile->setCoordX(0);
+        $tile->setCoordY(0);
+        $this->entityManager->persist($tile);
+        $newTile = new TileMYR();
+        $newTile->setType(MyrmesParameters::WATER_TILE_TYPE);
+        $newTile->setCoordX(1);
+        $newTile->setCoordY(1);
+        $this->entityManager->persist($newTile);
+        $tileType = new TileTypeMYR();
+        $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_ZERO);
+        $tileType->setOrientation(0);
+        $this->entityManager->persist($tileType);
+        $gardenWorker = new GardenWorkerMYR();
+        $gardenWorker->setPlayer($firstPlayer);
+        $gardenWorker->setTile($tile);
+        $gardenWorker->setMainBoardMYR($game->getMainBoardMYR());
+        $gardenWorker->setShiftsCount(0);
+        $this->entityManager->persist($gardenWorker);
+        $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
+        $this->entityManager->persist($game);
+        $this->entityManager->flush();
+        // THEN
+        $this->expectException(\Exception::class);
+        // WHEN
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
     }
 
     private function createGame(int $numberOfPlayers) : GameMYR
