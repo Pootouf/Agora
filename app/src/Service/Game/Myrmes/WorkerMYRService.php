@@ -1261,24 +1261,6 @@ class WorkerMYRService
     }
 
     /**
-     * isWorkerOnTile : checks if the player owns a garden worker on the selected tile
-     * @param PlayerMYR $player
-     * @param TileMYR   $tile
-     * @return bool
-     */
-    private function isWorkerOnTile(PlayerMYR $player, TileMYR $tile) : bool
-    {
-        $mainBoard = $player->getGameMyr()->getMainBoardMYR();
-        $gardenWorkers = $mainBoard->getGardenWorkers();
-        foreach ($gardenWorkers as $gardenWorker) {
-            if ($gardenWorker->getTile() === $tile && $gardenWorker->getPlayer() === $player) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
      * getPheromoneCountOfType : returns the amount of pheromones from a type a player already has placed
      *
      * @param PlayerMYR   $player
