@@ -9,7 +9,9 @@ This section displays workshop menu.
 {% set svgSize = "h-[7vw]" %}
 {% set vbValues = "0 0 300 250" %}
 
+{#closed workshop menu#}
 <div id="closedWorkshopMenu" class="bg-[#fb8500] h-[2.2vw] w-1/2 absolute top-0 right-0 rounded-bl-2xl">
+    {#workshop opening button#}
     <div class="inlineFlex w-full h-full gap-x-2 items-center cursor-pointer float-start"
         {{ stimulus_action('myrmes', 'toggleWorkshopMenu', 'click',
             {open: true}) }}>
@@ -20,9 +22,12 @@ This section displays workshop menu.
     </div>
 </div>
 
+{#openend workshop menu#}
 <div id="openedWorkshopMenu" class="bg-[#fb8500] h-[26vw] w-1/2 absolute top-0 right-0 rounded-bl-2xl" hidden>
     <div class="h-full w-full inline-flex flex-col">
         <div class="inlineFlexCol h-[92%]">
+            {#workshop icones#}
+            {#increasing anthill level#}
             <svg id="anthill level" viewBox="{{ vbValues }}" class="{{ svgSize }} translate-y-[3.2vw]">
                 <image class="cursor-pointer"
                        href="{{ asset('resourcesGames/Myrmes/workshop/anthill_level.svg') }}"
@@ -31,6 +36,7 @@ This section displays workshop menu.
                            {placement: 2, url: path('app_game_myrmes_increase_anthill_level', {gameId: game.id})}) }}/>
             </svg>
             <div class="inlineFlex gap-[4vw]">
+                {#placing new anthill hole on garden#}
                 <svg id="anthill hole" viewBox="{{ vbValues }}" class="{{ svgSize }}">
                     <image class="cursor-pointer"
                            href="{{ asset('resourcesGames/Myrmes/workshop/anthill_hole.svg') }}"
@@ -38,6 +44,7 @@ This section displays workshop menu.
                            {{ stimulus_action('myrmes','activateWorkshop','click',
                                {placement: 1}) }}/>
                 </svg>
+                {#realize objective#}
                 <svg id="objective" viewBox="{{ vbValues }}" class="{{ svgSize }}">
                     <image class="cursor-pointer"
                            href="{{ asset('resourcesGames/Myrmes/workshop/objectives.svg') }}"
@@ -46,6 +53,7 @@ This section displays workshop menu.
                                 {placement: 3}) }}/>
                 </svg>
             </div>
+            {#creating new nurse#}
             <svg id="nurse" viewBox="{{ vbValues }}" class="{{ svgSize }} -translate-y-[3.2vw]">
                 <image class="cursor-pointer"
                        href="{{ asset('resourcesGames/Myrmes/workshop/create_nurse.svg') }}"
@@ -54,12 +62,15 @@ This section displays workshop menu.
                             {placement: 4, url: path('app_game_myrmes_create_nurse', {gameId: game.id})}) }}/>
             </svg>
             <div class="inlineFlex gap-[4vw]">
+                {#Confirmation button#}
                 <p class="bg-[#8f901f] w-fit p-[0.5vw] text-[1.5vw] font-extrabold rounded-xl cursor-pointer"
                         {{ stimulus_action('myrmes','confirmWorkshopActions', 'click',
                             {url: path('app_game_myrmes_confirm_workshop_actions', {gameId: game.id})}) }}>Confirmer</p>
+                {#available nurses for workshop#}
                 <p class="text-[1.5vw] font-extrabold p-[0.5vw]">Nourrices restantes: {{ nursesOnWorkshop }}</p>
             </div>
         </div>
+        {#workshop closing button#}
         <div class="inlineFlex w-full h-full gap-2 items-center cursor-pointer"
                 {{ stimulus_action('myrmes', 'toggleWorkshopMenu', 'click',
                     {open: false}) }}>
