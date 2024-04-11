@@ -3727,6 +3727,38 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->assertEmpty($result);
     }
 
+    public function testGetAllAvailablePositionsForTileTypeSixAndOrientationsOneToFiveShouldNotFail() : void
+    {
+        //GIVEN
+        $game = $this->createGame(4);
+        $player = $game->getPlayers()->first();
+        $chosenX = 7;
+        $chosenY = 12;
+        $result = $this->giveExpectedResultForGiveAllAvailablePositionsForTypeSixAndOrientationZero
+        ($game, $player, $chosenX, $chosenY, true);
+        $expectedList1 = $result->first();
+        for ($i = 0; $i <= 5; ++$i) {
+            $tileType = new TileTypeMYR();
+            $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_SIX);
+            $tileType->setOrientation($i);
+            $this->entityManager->persist($tileType);
+            $this->entityManager->flush();
+            //WHEN
+            $result = $this->workerMYRService->getAllAvailablePositions($player, $expectedList1->first(), $tileType);
+            //THEN
+            $this->assertNotEmpty($result);
+        }
+        $tileType = new TileTypeMYR();
+        $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_SIX);
+        $tileType->setOrientation(6);
+        $this->entityManager->persist($tileType);
+        $this->entityManager->flush();
+        //WHEN
+        $result = $this->workerMYRService->getAllAvailablePositions($player, $expectedList1->first(), $tileType);
+        //THEN
+        $this->assertEmpty($result);
+    }
+
     public function testPlaceTwoPheromoneOfTypeZero()
     {
         // GIVEN
@@ -4125,6 +4157,77 @@ class WorkerMYRServiceTest extends KernelTestCase
         $expectedList4 = new ArrayCollection([$pivotPlusTwo, $adjacentTilePlusTwo1, $adjacentTilePlusTwo2, $adjacentTilePlusTwo3, $adjacentTilePlusTwo4]);
         $expectedList5 = new ArrayCollection([$pivotMinusTwo, $adjacentTileMinusTwo1, $adjacentTileMinusTwo2, $adjacentTileMinusTwo3, $adjacentTileMinusTwo4]);
         return new ArrayCollection([$expectedList1, $expectedList2, $expectedList3, $expectedList4, $expectedList5]);
+    }
+
+    private function giveExpectedResultForGiveAllAvailablePositionsForTypeSixAndOrientationZero
+    (GameMYR $game, PlayerMYR $player, int $coordX, int $coordY, bool $hasAnt) : ArrayCollection
+    {
+        $chosenTile = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY]);
+        $adjacentTile = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 1, "coord_Y" => $coordY + 1]);
+        $adjacentTile2 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 1, "coord_Y" => $coordY - 1]);
+        $adjacentTile3 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 2, "coord_Y" => $coordY + 2]);
+        $adjacentTile4 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 2, "coord_Y" => $coordY]);
+        $adjacentTile5 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 2, "coord_Y" => $coordY + 2]);
+
+
+        $pivotMinusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 1, "coord_Y" => $coordY + 1]);
+        $adjacentTileMinusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY]);
+        $adjacentTileMinusOne2 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY + 2]);
+        $adjacentTileMinusOne3 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 1, "coord_Y" => $coordY + 1]);
+        $adjacentTileMinusOne4 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 1, "coord_Y" => $coordY - 1]);
+        $adjacentTileMinusOne5 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 1, "coord_Y" => $coordY + 3]);
+
+
+        $pivotPlusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 2, "coord_Y" => $coordY + 2]);
+        $adjacentTilePlusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 1, "coord_Y" => $coordY - 1]);
+        $adjacentTilePlusOne2 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY]);
+        $adjacentTilePlusOne3 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY + 2]);
+        $adjacentTilePlusOne4 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY + 4]);
+        $adjacentTilePlusOne5 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 1, "coord_Y" => $coordY + 3]);
+
+        $pivotPlusTwo = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 1, "coord_Y" => $coordY - 1]);
+        $adjacentTilePlusTwo1 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 1, "coord_Y" => $coordY + 1]);
+        $adjacentTilePlusTwo2 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY + 2]);
+        $adjacentTilePlusTwo3 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY]);
+        $adjacentTilePlusTwo4 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY - 2]);
+        $adjacentTilePlusTwo5 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 2, "coord_Y" => $coordY]);
+
+        $pivotMinusTwo = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 2, "coord_Y" => $coordY]);
+        $adjacentTileMinusTwo1 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 1, "coord_Y" => $coordY - 1]);
+        $adjacentTileMinusTwo2 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY - 2]);
+        $adjacentTileMinusTwo3 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY]);
+        $adjacentTileMinusTwo4 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY + 2]);
+        $adjacentTileMinusTwo5 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 1, "coord_Y" => $coordY + 1]);
+
+        $pivotMinusThree = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 2, "coord_Y" => $coordY - 2]);
+        $adjacentTileMinusThree1 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 1, "coord_Y" => $coordY - 3]);
+        $adjacentTileMinusThree2 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY - 4]);
+        $adjacentTileMinusThree3 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY - 2]);
+        $adjacentTileMinusThree4 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY]);
+        $adjacentTileMinusThree5 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 1, "coord_Y" => $coordY - 1]);
+
+        if ($hasAnt) {
+            $gardenWorker = new GardenWorkerMYR();
+            $gardenWorker->setTile($chosenTile);
+            $gardenWorker->setPlayer($player);
+            $gardenWorker->setMainBoardMYR($game->getMainBoardMYR());
+            $gardenWorker->setShiftsCount(0);
+            $this->entityManager->persist($gardenWorker);
+        }
+        $expectedList1 = new ArrayCollection([$chosenTile, $adjacentTile, $adjacentTile2, $adjacentTile3,
+            $adjacentTile4, $adjacentTile5]);
+        $expectedList2 = new ArrayCollection([$pivotMinusOne, $adjacentTileMinusOne, $adjacentTileMinusOne2,
+            $adjacentTileMinusOne3, $adjacentTileMinusOne4, $adjacentTileMinusOne5]);
+        $expectedList3 = new ArrayCollection([$pivotPlusOne, $adjacentTilePlusOne, $adjacentTilePlusOne2,
+            $adjacentTilePlusOne3, $adjacentTilePlusOne4, $adjacentTilePlusOne5]);
+        $expectedList4 = new ArrayCollection([$pivotPlusTwo, $adjacentTilePlusTwo1, $adjacentTilePlusTwo2,
+            $adjacentTilePlusTwo3, $adjacentTilePlusTwo4, $adjacentTilePlusTwo5]);
+        $expectedList5 = new ArrayCollection([$pivotMinusTwo, $adjacentTileMinusTwo1, $adjacentTileMinusTwo2,
+            $adjacentTileMinusTwo3, $adjacentTileMinusTwo4, $adjacentTileMinusTwo5]);
+        $expectedList6 = new ArrayCollection([$pivotMinusThree, $adjacentTileMinusThree1, $adjacentTileMinusThree2,
+            $adjacentTileMinusThree3, $adjacentTileMinusThree4, $adjacentTileMinusThree5]);
+        return new ArrayCollection([$expectedList1, $expectedList2, $expectedList3, $expectedList4,
+            $expectedList5, $expectedList6]);
     }
 
 }
