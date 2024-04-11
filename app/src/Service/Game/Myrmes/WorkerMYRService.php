@@ -291,6 +291,8 @@ class WorkerMYRService
 
         $prey = $this->getPreyOnTile($tile);
         $pheromone = $this->getPheromoneOnTile($tile);
+        $startPheromone = $this->getPheromoneOnTile($gardenWorker->getTile());
+
         if ($prey != null)
         {
             $this->attackPrey($player, $prey);
@@ -306,7 +308,10 @@ class WorkerMYRService
 
         $this->entityManager->persist($gardenWorker);
 
-        if ($pheromone->getPheromonMYR()->getPlayer() !== $player)
+        if (!($startPheromone != null
+            && $pheromone != null
+            && $startPheromone->getPheromonMYR()->getPlayer() === $player
+            && $pheromone === $startPheromone))
         {
             $gardenWorker->setShiftsCount(
                 $gardenWorker->getShiftsCount() - 1

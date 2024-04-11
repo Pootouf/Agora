@@ -190,6 +190,54 @@ class MYRServiceTest extends KernelTestCase
         $this->assertFalse($isEnded);
     }
 
+    public function testGetPlayerFromGameAndHisNameWhenReturnGoodPlayer() : void
+    {
+        // GIVEN
+
+        $myrService = static::getContainer()->get(MYRService::class);
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $entityManager->persist($player);
+        $entityManager->persist($game);
+        $entityManager->flush();
+        $expectedResult = $player;
+
+        // WHEN
+
+        $result = $myrService->getPlayerFromNameAndGame(
+            $game,
+            $player->getUsername()
+        );
+
+        // THEN
+
+        $this->assertEquals($expectedResult, $result);
+    }
+
+    public function testGetPlayerFromGameAndHisNameWhenIsNull() : void
+    {
+        // GIVEN
+
+        $myrService = static::getContainer()->get(MYRService::class);
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+
+        $entityManager->persist($player);
+        $entityManager->persist($game);
+        $entityManager->flush();
+        $wrongName = "gtaeuaioea";
+
+        // WHEN
+
+        $result = $myrService->getPlayerFromNameAndGame($game, $wrongName);
+
+        // THEN
+
+        $this->assertNull($result);
+    }
+
     private function createGame(int $numberOfPlayers) : GameMYR
     {
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);
@@ -199,7 +247,7 @@ class MYRServiceTest extends KernelTestCase
         }
         $game = new GameMYR();
         for ($i = 0; $i < $numberOfPlayers; $i += 1) {
-            $player = new PlayerMYR('test', $game);
+            $player = new PlayerMYR('test' . $i, $game);
             $game->addPlayer($player);
             $player->setGameMyr($game);
             $player->setColor("");
@@ -234,11 +282,13 @@ class MYRServiceTest extends KernelTestCase
         $season->setDiceResult(1);
         $season->setActualSeason(true);
         $season->setMainBoard($mainBoard);
+        $mainBoard->addSeason($season);
         $entityManager->persist($season);
         $game->setMainBoardMYR($mainBoard);
         $game->setGameName("test");
         $game->setLaunched(true);
         $game->setGamePhase(MyrmesParameters::PHASE_INVALID);
+        $entityManager->persist($mainBoard);
         $entityManager->persist($game);
         $entityManager->flush();
         return $game;
