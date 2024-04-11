@@ -3759,6 +3759,27 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->assertEmpty($result);
     }
 
+    public function testGetAllAvailablePositionsForTileNonExistingTile() : void
+    {
+        //GIVEN
+        $game = $this->createGame(4);
+        $player = $game->getPlayers()->first();
+        $chosenX = 7;
+        $chosenY = 12;
+        $result = $this->giveExpectedResultForGiveAllAvailablePositionsForTypeSixAndOrientationZero
+        ($game, $player, $chosenX, $chosenY, true);
+        $expectedList1 = $result->first();
+        $tileType = new TileTypeMYR();
+        $tileType->setType(-1);
+        $tileType->setOrientation(6);
+        $this->entityManager->persist($tileType);
+        $this->entityManager->flush();
+        //WHEN
+        $result = $this->workerMYRService->getAllAvailablePositions($player, $expectedList1->first(), $tileType);
+        //THEN
+        $this->assertEmpty($result);
+    }
+
     public function testPlaceTwoPheromoneOfTypeZero()
     {
         // GIVEN
@@ -3998,6 +4019,57 @@ class WorkerMYRServiceTest extends KernelTestCase
         $prey->setMainBoardMYR($game->getMainBoardMYR());
         $prey->setTile($dirtTile);
         $this->entityManager->persist($prey);
+
+        $this->entityManager->flush();
+        // THEN
+        $this->expectException(\Exception::class);
+        //WHEN
+        $this->workerMYRService->workerMove($firstPlayer, $gardenWorker, MyrmesParameters::DIRECTION_SOUTH_EAST);
+    }
+
+    public function testMoveWorkerOnEnemyPheromoneShouldThrowExcpetionBecauseNotEnoughWarriorsToBeat()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+
+        $workerTile = new TileMYR();
+        $workerTile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $workerTile->setCoordY(0);
+        $workerTile->setCoordX(0);
+        $this->entityManager->persist($workerTile);
+
+        $gardenWorker = new GardenWorkerMYR();
+        $gardenWorker->setPlayer($firstPlayer);
+        $gardenWorker->setMainBoardMYR($game->getMainBoardMYR());
+        $gardenWorker->setShiftsCount(1);
+        $gardenWorker->setTile($workerTile);
+        $this->entityManager->persist($gardenWorker);
+
+        $dirtTile = new TileMYR();
+        $dirtTile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $dirtTile->setCoordX(1);
+        $dirtTile->setCoordY(1);
+        $this->entityManager->persist($dirtTile);
+
+        $tileType = new TileTypeMYR();
+        $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_ZERO);
+        $tileType->setOrientation(0);
+        $this->entityManager->persist($tileType);
+        $pheromone = new PheromonMYR();
+        $pheromone->setType($tileType);
+        $pheromone->setPlayer($game->getPlayers()->last());
+        $pheromone->setHarvested(false);
+
+        $pheromoneTile = new PheromonTileMYR();
+        $pheromoneTile->setTile($dirtTile);
+        $pheromoneTile->setPheromonMYR($pheromone);
+        $pheromoneTile->setMainBoard($game->getMainBoardMYR());
+        $this->entityManager->persist($pheromoneTile);
+
+        $pheromone->addPheromonTile($pheromoneTile);
+        $this->entityManager->persist($pheromone);
+
 
         $this->entityManager->flush();
         // THEN
