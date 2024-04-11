@@ -74,7 +74,7 @@ variables:
 
 
 .base_test: &base_test
-  needs: [build]
+  needs: [phpstan, phpcs, twig-lint]
   image: $CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/agora:latest
   allow_failure: false
   environment: test
