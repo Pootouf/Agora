@@ -15,8 +15,22 @@ This section displays the workshop on the personal board to access at the worksh
             }}
           {% endif %}
     >
-        <img class="{% if isPreview %}w-[3vw]{% else %}w-full{% endif %}" id="workshopIcon"
-             src="{{ asset('resourcesGames/Myrmes/personalBoard/workshop.svg') }}"
-             alt="workshop icon"/>
+        <div class="inlineFlexCol {% if isPreview %}w-[3vw]{% else %}w-full{% endif %}">
+            {% for i in 1..4 %}
+                {% if i == 2 %}
+                    <div class="inlineFlex {% if isPreview %}gap-[0.6vw]{% else %}gap-[3vw]{% endif %}">
+                {% endif %}
+                <svg viewBox="0 0 300 250"
+                     class="{% if isPreview %} h-[1vw]
+                                {% if i == 1 or i == 4 %}{% if i == 4 %}-{% endif %}translate-y-[0.45vw]{% endif %}
+                            {% else %} h-[5vw]
+                                {% if i == 1 or i == 4 %}{% if i == 4 %}-{% endif %}translate-y-[2.3vw]{% endif %}
+                            {% endif %} ">
+                    <polygon points="90,0 210,0 300,125 210,250 90,250 0,125"
+                             fill="{% if nursesOnWorkshop >= i %}{{ player.color }}{% else %}black{% endif %}"/>
+                </svg>
+                {% if i == 3 %}</div>{% endif %}
+            {% endfor %}
+        </div>
     </{% if not isPreview and playerPhase == PHASE_BIRTH%}button{% else %}div{% endif %}>
 </div>
