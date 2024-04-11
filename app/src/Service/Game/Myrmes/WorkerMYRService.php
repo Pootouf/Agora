@@ -46,7 +46,7 @@ class WorkerMYRService
     {}
 
     /**
-     * getAvailablePheromones : returns a collection of couples (type, amount) of all tile types for a player
+     * getAvailablePheromones : returns a collection (type, amount, orientations) of all tile types for a player
      * @param PlayerMYR $playerMYR
      * @return ArrayCollection
      */
@@ -57,14 +57,14 @@ class WorkerMYRService
             $tileType = $this->tileTypeMYRRepository->findOneBy(["type" => $i]);
             $remaining = MyrmesParameters::PHEROMONE_TYPE_AMOUNT[$i] - $this->getPheromoneCountOfType($playerMYR, $tileType);
             if ($remaining > 0) {
-                $result->add([$i, $remaining]);
+                $result->add([$i, $remaining, MyrmesParameters::PHEROMONE_TYPE_ORIENTATIONS[$i]]);
             }
         }
         for ($i = MyrmesParameters::SPECIAL_TILE_TYPE_FARM; $i <= MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL; ++$i) {
             $tileType = $this->tileTypeMYRRepository->findOneBy(["type" => $i]);
             $remaining = MyrmesParameters::SPECIAL_TILE_TYPE_AMOUNT[$i] - $this->getPheromoneCountOfType($playerMYR, $tileType);
             if ($remaining > 0) {
-                $result->add([$i, $remaining]);
+                $result->add([$i, $remaining, MyrmesParameters::SPECIAL_TILES_TYPE_ORIENTATIONS[$i]]);
             }
         }
         return $result;
