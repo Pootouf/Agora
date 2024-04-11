@@ -286,6 +286,8 @@ class WorkerMYRService
 
         $prey = $this->getPreyOnTile($tile);
         $pheromone = $this->getPheromoneOnTile($tile);
+        $startPheromone = $this->getPheromoneOnTile($gardenWorker->getTile());
+
         if ($prey != null)
         {
             $this->attackPrey($player, $prey);
@@ -301,7 +303,10 @@ class WorkerMYRService
 
         $this->entityManager->persist($gardenWorker);
 
-        if ($pheromone->getPheromonMYR()->getPlayer() !== $player)
+        if (!($startPheromone != null
+            && $pheromone != null
+            && $startPheromone->getPheromonMYR()->getPlayer() === $player
+            && $pheromone === $startPheromone))
         {
             $gardenWorker->setShiftsCount(
                 $gardenWorker->getShiftsCount() - 1
@@ -1261,24 +1266,6 @@ class WorkerMYRService
     }
 
     /**
-     * isWorkerOnTile : checks if the player owns a garden worker on the selected tile
-     * @param PlayerMYR $player
-     * @param TileMYR   $tile
-     * @return bool
-     */
-    private function isWorkerOnTile(PlayerMYR $player, TileMYR $tile) : bool
-    {
-        $mainBoard = $player->getGameMyr()->getMainBoardMYR();
-        $gardenWorkers = $mainBoard->getGardenWorkers();
-        foreach ($gardenWorkers as $gardenWorker) {
-            if ($gardenWorker->getTile() === $tile && $gardenWorker->getPlayer() === $player) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
      * getPheromoneCountOfType : returns the amount of pheromones from a type a player already has placed
      *
      * @param PlayerMYR   $player
@@ -1468,7 +1455,7 @@ class WorkerMYRService
         } else {
             $points = MyrmesParameters::SPECIAL_TILES_TYPE_LEVEL[$tileTypeMYR->getType()];
         }
-        if ($playerMYR->getPersonalBoardMYR()->getBonus() === MyrmesParameters::BONUS_POINT) {
+        if ($playerMYR->getPersonalBoardMYR()->getBonus() == MyrmesParameters::BONUS_POINT) {
             ++$points;
         }
         $playerMYR->setScore($playerMYR->getScore() + $points);
