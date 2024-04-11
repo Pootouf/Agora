@@ -22,6 +22,7 @@ use App\Repository\Game\Myrmes\AnthillHoleMYRRepository;
 use App\Repository\Game\Myrmes\GardenWorkerMYRRepository;
 use App\Repository\Game\Myrmes\AnthillWorkerMYRRepository;
 use App\Repository\Game\Myrmes\PheromonMYRRepository;
+use App\Repository\Game\Myrmes\PheromonTileMYRRepository;
 use App\Repository\Game\Myrmes\PlayerMYRRepository;
 use App\Repository\Game\Myrmes\PlayerResourceMYRRepository;
 use App\Repository\Game\Myrmes\PreyMYRRepository;
@@ -46,6 +47,8 @@ class WorkerMYRServiceTest extends TestCase
     private PlayerResourceMYRRepository $playerResourceMYRRepository;
     private ResourceMYRRepository $resourceMYRRepository;
     private TileTypeMYRRepository $tileTypeMYRRepository;
+
+    private PheromonTileMYRRepository $pheromonTileMYRRepository;
     private AnthillWorkerMYRRepository $anthillWorkerMYRRepository;
 
     private WorkerMYRService $workerMYRService;
@@ -58,6 +61,7 @@ class WorkerMYRServiceTest extends TestCase
         $this->MYRService = $this->createMock(MYRService::class);
         $this->anthillHoleMYRRepository = $this->createMock(AnthillHoleMYRRepository::class);
         $this->pheromonMYRRepository = $this->createMock(PheromonMYRRepository::class);
+        $this->pheromonTileMYRRepository = $this->createMock(PheromonTileMYRRepository::class);
         $this->preyMYRRepository = $this->createMock(PreyMYRRepository::class);
         $this->tileMYRRepository = $this->createMock(TileMYRRepository::class);
         $this->playerResourceMYRRepository = $this->createMock(PlayerResourceMYRRepository::class);
@@ -76,7 +80,8 @@ class WorkerMYRServiceTest extends TestCase
             $this->playerResourceMYRRepository,
             $this->resourceMYRRepository,
             $this->tileTypeMYRRepository,
-            $this->gardenWorkerMYRRepository
+            $this->gardenWorkerMYRRepository,
+            $this->pheromonTileMYRRepository
         );
     }
 
