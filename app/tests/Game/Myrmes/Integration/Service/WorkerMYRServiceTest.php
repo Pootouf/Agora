@@ -3936,6 +3936,76 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->assertEquals($expected, $result);
     }
 
+    public function testMoveWorkerOnWaterTileShouldThrowExcpetion()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+
+        $workerTile = new TileMYR();
+        $workerTile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $workerTile->setCoordY(0);
+        $workerTile->setCoordX(0);
+        $this->entityManager->persist($workerTile);
+
+        $gardenWorker = new GardenWorkerMYR();
+        $gardenWorker->setPlayer($firstPlayer);
+        $gardenWorker->setMainBoardMYR($game->getMainBoardMYR());
+        $gardenWorker->setShiftsCount(1);
+        $gardenWorker->setTile($workerTile);
+        $this->entityManager->persist($gardenWorker);
+
+        $waterTile = new TileMYR();
+        $waterTile->setType(MyrmesParameters::WATER_TILE_TYPE);
+        $waterTile->setCoordX(1);
+        $waterTile->setCoordY(1);
+        $this->entityManager->persist($waterTile);
+
+        $this->entityManager->flush();
+        // THEN
+        $this->expectException(\Exception::class);
+        //WHEN
+        $this->workerMYRService->workerMove($firstPlayer, $gardenWorker, MyrmesParameters::DIRECTION_SOUTH_EAST);
+    }
+
+    public function testMoveWorkerOnPreyShouldThrowExcpetionBecauseNotEnoughWarriorsToBeat()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+
+        $workerTile = new TileMYR();
+        $workerTile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $workerTile->setCoordY(0);
+        $workerTile->setCoordX(0);
+        $this->entityManager->persist($workerTile);
+
+        $gardenWorker = new GardenWorkerMYR();
+        $gardenWorker->setPlayer($firstPlayer);
+        $gardenWorker->setMainBoardMYR($game->getMainBoardMYR());
+        $gardenWorker->setShiftsCount(1);
+        $gardenWorker->setTile($workerTile);
+        $this->entityManager->persist($gardenWorker);
+
+        $dirtTile = new TileMYR();
+        $dirtTile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $dirtTile->setCoordX(1);
+        $dirtTile->setCoordY(1);
+        $this->entityManager->persist($dirtTile);
+
+        $prey = new PreyMYR();
+        $prey->setType(MyrmesParameters::LADYBUG_TYPE);
+        $prey->setMainBoardMYR($game->getMainBoardMYR());
+        $prey->setTile($dirtTile);
+        $this->entityManager->persist($prey);
+
+        $this->entityManager->flush();
+        // THEN
+        $this->expectException(\Exception::class);
+        //WHEN
+        $this->workerMYRService->workerMove($firstPlayer, $gardenWorker, MyrmesParameters::DIRECTION_SOUTH_EAST);
+    }
+
     private function createGame(int $numberOfPlayers) : GameMYR
     {
         if($numberOfPlayers < MyrmesParameters::MIN_NUMBER_OF_PLAYER ||
