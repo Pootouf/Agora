@@ -1,7 +1,7 @@
 <?php
 
 
-namespace App\Form\Platform;
+namespace App\Entity\Platform;
 
 use App\Repository\Platform\PrivateMessageRepository;
 use Doctrine\DBAL\Types\Types;
