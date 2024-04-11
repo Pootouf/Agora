@@ -208,9 +208,9 @@ class MyrmesController extends AbstractController
     {
         return $this->render('Game/Myrmes/MainBoard/displayObjectives.html.twig', [
             'game' => $gameMYR,
-            'goalsLevelOne' => $gameMYR->getMainBoardMYR()->getGameGoalsLevelOne()->count(),
-            'goalsLevelTwo' => $gameMYR->getMainBoardMYR()->getGameGoalsLevelTwo()->count(),
-            'goalsLevelThree' => $gameMYR->getMainBoardMYR()->getGameGoalsLevelThree()->count(),
+            'goalsLevelOne' => $gameMYR->getMainBoardMYR()->getGameGoalsLevelOne(),
+            'goalsLevelTwo' => $gameMYR->getMainBoardMYR()->getGameGoalsLevelTwo(),
+            'goalsLevelThree' => $gameMYR->getMainBoardMYR()->getGameGoalsLevelThree(),
         ]);
     }
 
