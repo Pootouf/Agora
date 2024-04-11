@@ -402,7 +402,28 @@ class MyrmesController extends AbstractController
         try {
             return new Response($this->workerMYRService->getNeededMovementPoints($coordX1, $coordY2, $coordX2, $coordY2, $gameMYR, $player));
         } catch (Exception $e) {
-            return new Response("can't get needed soldiers, invalid tile",
+            return new Response("can't get needed movement points, invalid tile",
+                Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    #[Route('/game/myrmes/{gameId}/moveAnt/isValid/tile/{coordX}/{coordY}',
+        name:'app_game_myrmes_is_valid_tile_to_move')]
+    public function isValidTileToMoveAnt(
+        #[MapEntity(id: 'gameId')] GameMYR $gameMYR,
+        int $coordX,
+        int $coordY
+    ): Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('invalid player', Response::HTTP_FORBIDDEN);
+        }
+        $tile = $this->workerMYRService->getTileFromCoordinates($coordX, $coordY);
+        try {
+            return new Response($this->workerMYRService->isValidPositionForAnt($tile));
+        } catch (Exception $e) {
+            return new Response("invalid tile",
                 Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }

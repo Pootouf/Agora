@@ -431,6 +431,20 @@ class WorkerMYRService
         return true;
     }
 
+    /**
+     * getTileFromCoordinates : return the tile based on the given coordinates
+     * @param int $coordX
+     * @param int $coordY
+     * @return TileMYR|null
+     */
+    public function getTileFromCoordinates(int $coordX, int $coordY): ?TileMYR
+    {
+        return $this->tileMYRRepository->findOneBy([
+            "coord_X" => $coordX,
+            "coord_Y" => $coordY
+        ]);
+    }
+
 
     /**
      * getAllAvailablePositionsFromTypeZero : returns all available positions for a pheromone of type Zero
