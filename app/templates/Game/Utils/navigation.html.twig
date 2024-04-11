@@ -4,7 +4,7 @@
     @return : display exit button to homepage
 #}
 
-<nav class="absolute p-2 z-100 rounded-r-lg" style="background: #030500">
+<nav class="absolute p-2 z-100 rounded-r-lg" style="background: #030500" {{ stimulus_controller('gameNavigationMenu') }}>
     <div class="container mx-auto rem-0.375 py-2 px-2 flex justify-between items-center">
         <div class="block">
             <button class="flex items-center rem-0.125 py-2 border rounded text-gray-500 border-gray-600 hover:text-gray-800
@@ -31,11 +31,16 @@
                        role="menuitem" tabindex="-1" id="menu-item-0">
                         Page d'accueil
                     </a>
-                    <a href=""
+                    <button
+                            {{ stimulus_action('gameNavigationMenu', 'excludePlayer', 'click',
+                                {url: path('app_game_exclude_player',
+                                    {playerId: player.id, gameId: game.id}
+                                )}
+                            )}}
                        class="bg-red-600 text-white z-10 text-gray-700 block px-4 py-2 text-sm"
                        role="menuitem" tabindex="-1" id="menu-item-1">
                         Exclure un joueur
-                    </a>
+                    </button>
                 </div>
             </div>
         </div>
