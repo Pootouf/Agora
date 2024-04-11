@@ -1356,13 +1356,11 @@ class TileGLMService
             function (SelectedResourceGLM $selectedResourceGLM) use ($resource) {
                 return $selectedResourceGLM->getResource()->getId() == $resource->getId();
             });
-
         $numberOfSelectedResources = 0;
         foreach ($selectedResourcesLikeResource as $selectedResourceLikeResource) {
             $numberOfSelectedResources += $selectedResourceLikeResource->getQuantity();
         }
         $player = $personalBoard->getPlayerGLM();
-
         if ($player->getRoundPhase() == GlenmoreParameters::$BUYING_PHASE) {
             $priceCost = $cost->filter(
                 function(TileBuyCostGLM $buyCost) use ($resource) {

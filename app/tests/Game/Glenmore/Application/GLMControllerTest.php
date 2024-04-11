@@ -7,13 +7,22 @@ use App\Entity\Game\Glenmore\BoardTileGLM;
 use App\Entity\Game\Glenmore\BuyingTileGLM;
 use App\Entity\Game\Glenmore\GameGLM;
 use App\Entity\Game\Glenmore\GlenmoreParameters;
+use App\Entity\Game\Glenmore\PlayerGLM;
+use App\Entity\Game\Glenmore\PlayerTileGLM;
+use App\Entity\Game\Glenmore\PlayerTileResourceGLM;
+use App\Entity\Game\Glenmore\ResourceGLM;
 use App\Entity\Game\Glenmore\TileGLM;
 use App\Entity\Game\Glenmore\WarehouseLineGLM;
 use App\Repository\Game\GameUserRepository;
+use App\Repository\Game\Glenmore\BoardTileGLMRepository;
 use App\Repository\Game\Glenmore\GameGLMRepository;
 use App\Repository\Game\Glenmore\PlayerGLMRepository;
+use App\Repository\Game\Glenmore\PlayerTileGLMRepository;
+use App\Repository\Game\Glenmore\PlayerTileResourceGLMRepository;
+use App\Repository\Game\Glenmore\ResourceGLMRepository;
 use App\Repository\Game\Glenmore\TileGLMRepository;
 use App\Repository\Game\Glenmore\WarehouseLineGLMRepository;
+use App\Repository\Game\Myrmes\PlayerResourceMYRRepository;
 use App\Service\Game\Glenmore\CardGLMService;
 use App\Service\Game\Glenmore\DataManagementGLMService;
 use App\Service\Game\Glenmore\GLMGameManagerService;
@@ -47,6 +56,13 @@ class GLMControllerTest extends WebTestCase
 
     private TileGLMRepository $tileGLMRepository;
 
+    private BoardTileGLMRepository $boardTileGLMRepository;
+
+    private ResourceGLMRepository $resourceGLMRepository;
+
+    private PlayerTileGLMRepository $playerTileGLMRepository;
+    private PlayerTileResourceGLMRepository $playerTileResourceGLMRepository;
+
     public function testPlayersHaveAccessToGame(): void
     {
         //GIVEN
@@ -63,18 +79,31 @@ class GLMControllerTest extends WebTestCase
     {
         //GIVEN
         $gameId = $this->initializeGameWithFivePlayers();
-        $game = $this->gameGLMRepository->findOneById($gameId);
-        $mainBoard = $game->getMainBoard();
-        $tile = $mainBoard->getBoardTiles()->first();
-        $tileId = $tile->getId();
-        $newUrl = "/game/glenmore/" . $gameId . "/select/tile/mainBoard/" . $tileId;
-        $user6 = $this->gameUserRepository->findOneByUsername("test5");
+        $newUrl = "/game/glenmore/" . $gameId;
+        $user6 = $this->gameUserRepository->findOneByUsername("test6");
         $this->client->loginUser($user6);
         //WHEN
         $this->client->request("GET", $newUrl);
         //THEN
-        $this->assertEquals(Response::HTTP_FORBIDDEN,
-            $this->client->getResponse()->getStatusCode());
+        $this->expectNotToPerformAssertions();
+    }
+
+    public function testHaveAccessToGameWhenIsInActivationPhase() : void
+    {
+        //GIVEN
+        $gameId = $this->initializeGameWithFivePlayers();
+        $game = $this->gameGLMRepository->findOneById($gameId);
+        $player = $this->GLMService->getPlayerFromNameAndGame($game, "test0");
+        $player->setRoundPhase(GlenmoreParameters::$ACTIVATION_PHASE);
+        $this->entityManager->persist($player);
+        $this->entityManager->flush();
+        $newUrl = "/game/glenmore/" . $gameId;
+        $user = $this->gameUserRepository->findOneByUsername("test0");
+        $this->client->loginUser($user);
+        //WHEN
+        $this->client->request("GET", $newUrl);
+        //THEN
+        $this->expectNotToPerformAssertions();
     }
 
     public function testPlayerSelectCardFromBoard(): void
@@ -221,6 +250,330 @@ class GLMControllerTest extends WebTestCase
             $this->client->getResponse()->getStatusCode());
     }
 
+    public function testActivateSellingResourceWarehouseProductionOnMainBoardWhenIsSpectator() : void
+    {
+        // GIVEN
+        $gameId = $this->initializeGameWithFivePlayers();
+        $game = $this->gameGLMRepository->findOneById($gameId);
+        /** @var WarehouseLineGLM $line */
+        $line = $this->warehouseLineGLMRepository->findOneBy(["warehouseGLM" => $game->getMainBoard()->getWarehouse()->getId()]);
+        $lineId = $line->getId();
+        $newUrl = "/game/glenmore/" . $gameId . "/activate/selling/resource/warehouse/production/mainBoard/" . $lineId;
+        $user6 = $this->gameUserRepository->findOneByUsername("test6");
+        $this->client->loginUser($user6);
+        // WHEN
+        $this->client->request("GET", $newUrl);
+        // THEN
+        $this->assertEquals(Response::HTTP_FORBIDDEN,
+            $this->client->getResponse()->getStatusCode());
+    }
+
+    public function testActivateSellingResourceWarehouseProductionOnMainBoardWhenNotActive() : void
+    {
+        // GIVEN
+        $gameId = $this->initializeGameWithFivePlayers();
+        $game = $this->gameGLMRepository->findOneById($gameId);
+        /** @var WarehouseLineGLM $line */
+        $line = $this->warehouseLineGLMRepository->findOneBy(["warehouseGLM" => $game->getMainBoard()->getWarehouse()->getId()]);
+        $lineId = $line->getId();
+        $newUrl = "/game/glenmore/" . $gameId . "/activate/selling/resource/warehouse/production/mainBoard/" . $lineId;
+        $user4 = $this->gameUserRepository->findOneByUsername("test4");
+        $this->client->loginUser($user4);
+        // WHEN
+        $this->client->request("GET", $newUrl);
+        // THEN
+        $this->assertEquals(Response::HTTP_FORBIDDEN,
+            $this->client->getResponse()->getStatusCode());
+    }
+
+    public function testActivateSellingResourceWarehouseProductionOnMainBoardWhenPlayerActivatedResourceSelection() : void
+    {
+        // GIVEN
+        $gameId = $this->initializeGameWithFivePlayers();
+        $game = $this->gameGLMRepository->findOneById($gameId);
+        $player = $this->GLMService->getPlayerFromNameAndGame($game, "test0");
+        $player->setActivatedResourceSelection(true);
+        $this->entityManager->persist($player);
+        $this->entityManager->flush();
+        /** @var WarehouseLineGLM $line */
+        $line = $this->warehouseLineGLMRepository->findOneBy(["warehouseGLM" => $game->getMainBoard()->getWarehouse()->getId()]);
+        $lineId = $line->getId();
+        $newUrl = "/game/glenmore/" . $gameId . "/activate/selling/resource/warehouse/production/mainBoard/" . $lineId;
+        $user = $this->gameUserRepository->findOneByUsername("test0");
+        $this->client->loginUser($user);
+        // WHEN
+        $this->client->request("GET", $newUrl);
+        // THEN
+        $this->assertEquals(Response::HTTP_FORBIDDEN,
+            $this->client->getResponse()->getStatusCode());
+    }
+
+    public function testActivateSellingResourceWarehouseProductionOnMainBoard() : void
+    {
+        // GIVEN
+        $gameId = $this->initializeGameWithFivePlayers();
+        $game = $this->gameGLMRepository->findOneById($gameId);
+        /** @var WarehouseLineGLM $line */
+        $line = $this->warehouseLineGLMRepository->findOneBy(["warehouseGLM" => $game->getMainBoard()->getWarehouse()->getId()]);
+        $lineId = $line->getId();
+        $newUrl = "/game/glenmore/" . $gameId . "/activate/selling/resource/warehouse/production/mainBoard/" . $lineId;
+        $user = $this->gameUserRepository->findOneByUsername("test0");
+        $this->client->loginUser($user);
+        // WHEN
+        $this->client->request("GET", $newUrl);
+        // THEN
+        $this->assertEquals(Response::HTTP_OK,
+            $this->client->getResponse()->getStatusCode());
+    }
+
+    public function testSelectTileMainBoardWhenSpectator() : void
+    {
+        // GIVEN
+        $gameId = $this->initializeGameWithFivePlayers();
+        $game = $this->gameGLMRepository->findOneById($gameId);
+        $tileId = 17;
+        /** @var TileGLM $tile */
+        $tile = $this->tileGLMRepository->findOneBy(["id" => $tileId]);
+        $boardTile = new BoardTileGLM();
+        $boardTile->setTile($tile);
+        $boardTile->setMainBoardGLM($game->getMainBoard());
+        $boardTile->setPosition(0);
+        $this->entityManager->persist($boardTile);
+        $this->entityManager->flush();
+        $newUrl = "/game/glenmore/" . $gameId . "/select/tile/mainBoard/" . $boardTile->getId();
+        $user6 = $this->gameUserRepository->findOneByUsername("test6");
+        $this->client->loginUser($user6);
+        // WHEN
+        $this->client->request("GET", $newUrl);
+        // THEN
+        $this->assertEquals(Response::HTTP_FORBIDDEN,
+            $this->client->getResponse()->getStatusCode());
+    }
+    public function testSelectTileMainBoardWhenNotActive() : void
+    {
+        // GIVEN
+        $gameId = $this->initializeGameWithFivePlayers();
+        $game = $this->gameGLMRepository->findOneById($gameId);
+        $tileId = 17;
+        /** @var TileGLM $tile */
+        $tile = $this->tileGLMRepository->findOneBy(["id" => $tileId]);
+        $boardTile = new BoardTileGLM();
+        $boardTile->setTile($tile);
+        $boardTile->setMainBoardGLM($game->getMainBoard());
+        $boardTile->setPosition(0);
+        $this->entityManager->persist($boardTile);
+        $this->entityManager->flush();
+        $newUrl = "/game/glenmore/" . $gameId . "/select/tile/mainBoard/" . $boardTile->getId();
+        $user4 = $this->gameUserRepository->findOneByUsername("test4");
+        $this->client->loginUser($user4);
+        // WHEN
+        $this->client->request("GET", $newUrl);
+        // THEN
+        $this->assertEquals(Response::HTTP_FORBIDDEN,
+            $this->client->getResponse()->getStatusCode());
+    }
+
+    public function testSelectTileMainBoardWhenCantAssignTileToPlayer() : void
+    {
+        // GIVEN
+        $gameId = $this->initializeGameWithFivePlayers();
+        /** @var GameGLM $game */
+        $game = $this->gameGLMRepository->findOneById($gameId);
+        $player = $this->GLMService->getPlayerFromNameAndGame($game, "test0");
+        $player->getPersonalBoard()->setPlayerGLM($player);
+        $this->entityManager->persist($player);
+        /** @var TileGLM $tile */
+        $tile = $this->tileGLMRepository->findOneBy(["id" => 1]);
+        $boardTile = new BoardTileGLM();
+        $boardTile->setTile($tile);
+        $boardTile->setMainBoardGLM($game->getMainBoard());
+        $boardTile->setPosition(0);
+        $this->entityManager->persist($boardTile);
+        $buyingTile = new BuyingTileGLM();
+        $buyingTile->setBoardTile($boardTile);
+        $buyingTile->setPersonalBoardGLM($player->getPersonalBoard());
+        $player->getPersonalBoard()->setBuyingTile($buyingTile);
+        $this->entityManager->persist($player->getPersonalBoard());
+        $this->entityManager->flush();
+        $newUrl = "/game/glenmore/" . $gameId . "/select/tile/mainBoard/" . $boardTile->getId();
+        $user = $this->gameUserRepository->findOneByUsername("test0");
+        $this->client->loginUser($user);
+        // WHEN
+        $this->client->request("GET", $newUrl);
+        // THEN
+        $this->assertEquals(Response::HTTP_FORBIDDEN,
+            $this->client->getResponse()->getStatusCode());
+    }
+
+    public function testSelectTileMainBoardWhenTileHasNoBuyCost() : void
+    {
+        // GIVEN
+        $gameId = $this->initializeGameWithFivePlayers();
+        /** @var GameGLM $game */
+        $game = $this->gameGLMRepository->findOneById($gameId);
+        $player = $this->GLMService->getPlayerFromNameAndGame($game, "test0");
+        $player->getPersonalBoard()->setPlayerGLM($player);
+        $this->entityManager->persist($player);
+        /** @var TileGLM $tile */
+        $tile = $this->tileGLMRepository->findOneBy(["id" => 1]);
+        $boardTile = new BoardTileGLM();
+        $boardTile->setTile($tile);
+        $boardTile->setMainBoardGLM($game->getMainBoard());
+        $boardTile->setPosition(0);
+        $this->entityManager->persist($boardTile);
+        $player->getPersonalBoard()->setPlayerGLM($player);
+        $this->entityManager->persist($player->getPersonalBoard());
+        $this->entityManager->flush();
+        $newUrl = "/game/glenmore/" . $gameId . "/select/tile/mainBoard/" . $boardTile->getId();
+        $user = $this->gameUserRepository->findOneByUsername("test0");
+        $this->client->loginUser($user);
+        // WHEN
+        $this->client->request("GET", $newUrl);
+        // THEN
+        $this->assertEquals(Response::HTTP_OK,
+            $this->client->getResponse()->getStatusCode());
+    }
+
+    public function testSelectTileMainBoardWhenTileHasBuyCost() : void
+    {
+        // GIVEN
+        $gameId = $this->initializeGameWithFivePlayers();
+        /** @var GameGLM $game */
+        $game = $this->gameGLMRepository->findOneById($gameId);
+        $player = $this->GLMService->getPlayerFromNameAndGame($game, "test0");
+        $player->getPersonalBoard()->setPlayerGLM($player);
+        $resource = $this->resourceGLMRepository->findOneBy(["color" => GlenmoreParameters::$COLOR_GREEN]);
+        /** @var PlayerTileGLM $village */
+        $village = $this->playerTileGLMRepository->findOneBy(["personalBoard" => $player->getPersonalBoard()]);
+        $playerTileResource = new PlayerTileResourceGLM();
+        $playerTileResource->setResource($resource);
+        $playerTileResource->setPlayer($player);
+        $playerTileResource->setQuantity(1);
+        $this->entityManager->persist($playerTileResource);
+        $village->addPlayerTileResource($playerTileResource);
+        $player->addPlayerTileResourceGLM($playerTileResource);
+        $this->entityManager->persist($player);
+        $this->entityManager->persist($village);
+        /** @var TileGLM $tile */
+        $tile = $this->tileGLMRepository->findOneBy(["id" => 17]);
+        $boardTile = new BoardTileGLM();
+        $boardTile->setTile($tile);
+        $boardTile->setMainBoardGLM($game->getMainBoard());
+        $game->getMainBoard()->addBoardTile($boardTile);
+        $this->entityManager->persist($game->getMainBoard());
+        $boardTile->setPosition(0);
+        $this->entityManager->persist($boardTile);
+        $player->getPersonalBoard()->setPlayerGLM($player);
+        $this->entityManager->persist($player->getPersonalBoard());
+        $this->entityManager->flush();
+        $newUrl = "/game/glenmore/" . $gameId . "/select/tile/mainBoard/" . $boardTile->getId();
+        $user = $this->gameUserRepository->findOneByUsername("test0");
+        $this->client->loginUser($user);
+        // WHEN
+        $this->client->request("GET", $newUrl);
+        // THEN
+        $this->assertEquals(Response::HTTP_OK,
+            $this->client->getResponse()->getStatusCode());
+    }
+
+    public function testSelectTileMainBoardWhenNoExistentPlayer() : void
+    {
+        // GIVEN
+        $gameId = $this->initializeGameWithFivePlayers();
+        $game = $this->gameGLMRepository->findOneById($gameId);
+        $player = $this->GLMService->getPlayerFromNameAndGame($game, "test0");
+        /** @var PlayerTileGLM $village */
+        $village = $this->playerTileGLMRepository->findOneBy(["personalBoard" => $player->getPersonalBoard()]);
+        $newUrl = "/game/glenmore/" . $gameId . "/select/tile/personalBoard/" . $village->getId();
+        $user6 = $this->gameUserRepository->findOneByUsername("test6");
+        $this->client->loginUser($user6);
+        // WHEN
+        $this->client->request("GET", $newUrl);
+        // THEN
+        $this->assertEquals(Response::HTTP_FORBIDDEN,
+            $this->client->getResponse()->getStatusCode());
+    }
+
+    public function testSelectTileMainBoardWhenExistentPlayer() : void
+    {
+        // GIVEN
+        $gameId = $this->initializeGameWithFivePlayers();
+        $game = $this->gameGLMRepository->findOneById($gameId);
+        $player = $this->GLMService->getPlayerFromNameAndGame($game, "test0");
+        /** @var PlayerTileGLM $village */
+        $village = $this->playerTileGLMRepository->findOneBy(["personalBoard" => $player->getPersonalBoard()]);
+        $newUrl = "/game/glenmore/" . $gameId . "/select/tile/personalBoard/" . $village->getId();
+        $user6 = $this->gameUserRepository->findOneByUsername("test0");
+        $this->client->loginUser($user6);
+        // WHEN
+        $this->client->request("GET", $newUrl);
+        // THEN
+        $this->expectNotToPerformAssertions();
+    }
+
+    public function testSelectLeaderWhenNoExistentPlayer() : void
+    {
+        // GIVEN
+        $gameId = $this->initializeGameWithFivePlayers();
+        $newUrl = "/game/glenmore/" . $gameId . "/select/leader";
+        $user = $this->gameUserRepository->findOneByUsername("test6");
+        $this->client->loginUser($user);
+        // WHEN
+        $this->client->request("GET", $newUrl);
+        // THEN
+        $this->assertEquals(Response::HTTP_FORBIDDEN,
+            $this->client->getResponse()->getStatusCode());
+    }
+
+    public function testSelectLeaderWhenExistentPlayer() : void
+    {
+        // GIVEN
+        $gameId = $this->initializeGameWithFivePlayers();
+        $newUrl = "/game/glenmore/" . $gameId . "/select/leader";
+        $user = $this->gameUserRepository->findOneByUsername("test0");
+        $this->client->loginUser($user);
+        // WHEN
+        $this->client->request("GET", $newUrl);
+        // THEN
+        $this->expectNotToPerformAssertions();
+    }
+
+    public function testSelectLeaderWhenExistentPlayerAndBuyingPhase() : void
+    {
+        // GIVEN
+        $gameId = $this->initializeGameWithFivePlayers();
+        $game = $this->gameGLMRepository->findOneById($gameId);
+        $newUrl = "/game/glenmore/" . $gameId . "/select/leader";
+        /** @var PlayerGLM $player */
+        $player = $this->GLMService->getPlayerFromNameAndGame($game, "test0");
+        $player->setRoundPhase(GlenmoreParameters::$BUYING_PHASE);
+        $player->getPersonalBoard()->setPlayerGLM($player);
+        $this->entityManager->persist($player->getPersonalBoard());
+        $this->entityManager->persist($player);
+        /** @var TileGLM $village */
+        $tile = $this->tileGLMRepository->findOneBy(["id" => 37]);
+        $boardTile = new BoardTileGLM();
+        $boardTile->setTile($tile);
+        $boardTile->setMainBoardGLM($game->getMainBoard());
+        $boardTile->setPosition(0);
+        $this->entityManager->persist($boardTile);
+        $buyingTile = new BuyingTileGLM();
+        $buyingTile->setBoardTile($boardTile);
+        $buyingTile->setPersonalBoardGLM($player->getPersonalBoard());
+        $buyingTile->setCoordY(0);
+        $buyingTile->setCoordX(0);
+        $this->entityManager->persist($buyingTile);
+        $player->getPersonalBoard()->setBuyingTile($buyingTile);
+        $this->entityManager->persist($player->getPersonalBoard());
+        $this->entityManager->flush();
+        $user = $this->gameUserRepository->findOneByUsername("test0");
+        $this->client->loginUser($user);
+        // WHEN
+        $this->client->request("GET", $newUrl);
+        // THEN
+        $this->assertEquals(Response::HTTP_OK,
+            $this->client->getResponse()->getStatusCode());
+    }
 
     public function testValidateResourceSelectionWhenPlayerIsNull() : void
     {
@@ -254,9 +607,13 @@ class GLMControllerTest extends WebTestCase
         $this->client = static::createClient();
         $this->GLMGameManagerService = static::getContainer()->get(GLMGameManagerService::class);
         $this->gameUserRepository = static::getContainer()->get(GameUserRepository::class);
+        $this->playerTileGLMRepository = static::getContainer()->get(PlayerTileGLMRepository::class);
         $this->playerGLMRepository = static::getContainer()->get(PlayerGLMRepository::class);
         $this->gameGLMRepository = static::getContainer()->get(GameGLMRepository::class);
+        $this->resourceGLMRepository = static::getContainer()->get(ResourceGLMRepository::class);
+        $this->playerTileResourceGLMRepository = static::getContainer()->get(PlayerTileResourceGLMRepository::class);
         $this->tileGLMRepository = static::getContainer()->get(TileGLMRepository::class);
+        $this->boardTileGLMRepository = static::getContainer()->get(BoardTileGLMRepository::class);
         $this->entityManager = static::getContainer()->get(EntityManagerInterface::class);
         $this->GLMService = static::getContainer()->get(GLMService::class);
         $this->cardGLMService = static::getContainer()->get(CardGLMService::class);
