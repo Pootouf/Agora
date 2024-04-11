@@ -3876,6 +3876,66 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
     }
 
+    public function testGetAvailablePheromonesShouldReturnUnmodifiedTable()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $expected = new ArrayCollection();
+        for ($i = MyrmesParameters::PHEROMONE_TYPE_ZERO; $i <= MyrmesParameters::PHEROMONE_TYPE_SIX; ++$i) {
+            $remaining = MyrmesParameters::PHEROMONE_TYPE_AMOUNT[$i] ;
+            if ($remaining > 0) {
+                $expected->add([$i, $remaining]);
+            }
+        }
+        for ($i = MyrmesParameters::SPECIAL_TILE_TYPE_FARM; $i <= MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL; ++$i) {
+            $remaining = MyrmesParameters::SPECIAL_TILE_TYPE_AMOUNT[$i];
+            if ($remaining > 0) {
+                $expected->add([$i, $remaining]);
+            }
+        }
+        // WHEN
+        $result = $this->workerMYRService->getAvailablePheromones($firstPlayer);
+        // THEN
+        $this->assertEquals($expected, $result);
+    }
+
+    public function testGetAvailablePheromonesShouldReturnModifiedTable()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $tileType = new TileTypeMYR();
+        $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_ZERO);
+        $tileType->setOrientation(0);
+        $this->entityManager->persist($tileType);
+        $playerPheromone = new PheromonMYR();
+        $playerPheromone->setPlayer($firstPlayer);
+        $playerPheromone->setHarvested(false);
+        $playerPheromone->setType($tileType);
+        $this->entityManager->persist($playerPheromone);
+        $firstPlayer->addPheromonMYR($playerPheromone);
+        $expected = new ArrayCollection();
+        $remaining = MyrmesParameters::PHEROMONE_TYPE_AMOUNT[MyrmesParameters::PHEROMONE_TYPE_ZERO] - 1;
+        $expected->add([MyrmesParameters::PHEROMONE_TYPE_ZERO, $remaining]);
+        for ($i = MyrmesParameters::PHEROMONE_TYPE_ONE; $i <= MyrmesParameters::PHEROMONE_TYPE_SIX; ++$i) {
+            $remaining = MyrmesParameters::PHEROMONE_TYPE_AMOUNT[$i] ;
+            if ($remaining > 0) {
+                $expected->add([$i, $remaining]);
+            }
+        }
+        for ($i = MyrmesParameters::SPECIAL_TILE_TYPE_FARM; $i <= MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL; ++$i) {
+            $remaining = MyrmesParameters::SPECIAL_TILE_TYPE_AMOUNT[$i];
+            if ($remaining > 0) {
+                $expected->add([$i, $remaining]);
+            }
+        }
+        // WHEN
+        $result = $this->workerMYRService->getAvailablePheromones($firstPlayer);
+        // THEN
+        $this->assertEquals($expected, $result);
+    }
+
     private function createGame(int $numberOfPlayers) : GameMYR
     {
         if($numberOfPlayers < MyrmesParameters::MIN_NUMBER_OF_PLAYER ||

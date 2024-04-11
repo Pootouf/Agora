@@ -1315,7 +1315,10 @@ class WorkerMYRService
         if ($tileType->getType() === MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL) {
             return $anthillLevel >= 3;
         }
-        return MyrmesParameters::PHEROMONE_TYPE_AMOUNT[$tileType->getType()] >= $pheromoneCount;
+        if($tileType->getType() < MyrmesParameters::SPECIAL_TILE_TYPE_FARM) {
+            return MyrmesParameters::PHEROMONE_TYPE_AMOUNT[$tileType->getType()] >= $pheromoneCount;
+        }
+        return MyrmesParameters::SPECIAL_TILE_TYPE_AMOUNT[$tileType->getType()] >= $pheromoneCount;
     }
 
     /**
