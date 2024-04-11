@@ -3631,6 +3631,44 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
 
+    public function testPlacePheromoneWhenPlayerHaveBonus()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $firstPlayer->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::ANTHILL_START_LEVEL);
+        $firstPlayer->getPersonalBoardMYR()->setBonus(MyrmesParameters::BONUS_POINT);
+        $this->entityManager->persist($firstPlayer->getPersonalBoardMYR());
+        $tile = new TileMYR();
+        $tile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $tile->setCoordX(0);
+        $tile->setCoordY(0);
+        $this->entityManager->persist($tile);
+        $newTile = new TileMYR();
+        $newTile->setType(MyrmesParameters::GRASS_TILE_TYPE);
+        $newTile->setCoordX(1);
+        $newTile->setCoordY(1);
+        $this->entityManager->persist($newTile);
+        $tileType = new TileTypeMYR();
+        $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_ZERO);
+        $tileType->setOrientation(0);
+        $this->entityManager->persist($tileType);
+        $gardenWorker = new GardenWorkerMYR();
+        $gardenWorker->setPlayer($firstPlayer);
+        $gardenWorker->setTile($tile);
+        $gardenWorker->setMainBoardMYR($game->getMainBoardMYR());
+        $gardenWorker->setShiftsCount(0);
+        $this->entityManager->persist($gardenWorker);
+        $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
+        $this->entityManager->persist($game);
+        $this->entityManager->flush();
+        // WHEN
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        // THEN
+        $this->assertEquals(MyrmesParameters::PHEROMONE_TYPE_LEVEL[MyrmesParameters::PHEROMONE_TYPE_ZERO] + 1,
+            $firstPlayer->getScore());
+    }
+
     private function createGame(int $numberOfPlayers) : GameMYR
     {
         if($numberOfPlayers < MyrmesParameters::MIN_NUMBER_OF_PLAYER ||
