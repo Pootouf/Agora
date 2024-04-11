@@ -20,6 +20,7 @@ use App\Repository\Game\Myrmes\AnthillHoleMYRRepository;
 use App\Repository\Game\Myrmes\GardenWorkerMYRRepository;
 use App\Repository\Game\Myrmes\AnthillWorkerMYRRepository;
 use App\Repository\Game\Myrmes\PheromonMYRRepository;
+use App\Repository\Game\Myrmes\PheromonTileMYRRepository;
 use App\Repository\Game\Myrmes\PlayerResourceMYRRepository;
 use App\Repository\Game\Myrmes\PreyMYRRepository;
 use App\Repository\Game\Myrmes\ResourceMYRRepository;
@@ -41,7 +42,8 @@ class WorkerMYRService
                                 private readonly PlayerResourceMYRRepository $playerResourceMYRRepository,
                                 private readonly ResourceMYRRepository $resourceMYRRepository,
                                 private readonly TileTypeMYRRepository $tileTypeMYRRepository,
-                                private readonly GardenWorkerMYRRepository $gardenWorkerMYRRepository
+                                private readonly GardenWorkerMYRRepository $gardenWorkerMYRRepository,
+                                private readonly PheromonTileMYRRepository $pheromonTileMYRRepository
     )
     {}
 
@@ -329,9 +331,7 @@ class WorkerMYRService
         $tile =
             $this->getTileAtDirection($gardenWorker->getTile(), $direction);
 
-        if ($tile == null
-            || $tile->getType() != MyrmesParameters::WATER_TILE_TYPE)
-        {
+        if(!$this->isValidPositionForAnt($tile)) {
             return false;
         }
 
@@ -347,6 +347,90 @@ class WorkerMYRService
         return $gardenWorker->getShiftsCount() > 0
             && $canMove;
     }
+
+    /**
+     * @param int $coordX
+     * @param int $coordY
+     * @param GameMYR $gameMYR
+     * @return int
+     * @throws Exception
+     */
+    public function getNeededSoldiers(int $coordX, int $coordY, GameMYR $gameMYR, PlayerMYR $player): int
+    {
+        $tile = $this->tileMYRRepository->findOneBy([
+                "coord_Y" => $coordY,
+                "coord_X" => $coordX
+            ]);
+        if($tile == null) {
+            throw new Exception("Not a valid tile, can't identify if there is a prey on it");
+        }
+        $prey = $this->getPrey($gameMYR, $tile);
+        $pheromoneTile = $this->pheromonTileMYRRepository->findOneBy([
+            "tile" => $tile,
+            "mainBoard" => $gameMYR->getMainBoardMYR()
+        ]);
+        return ($prey == null ? 0 : MyrmesParameters::NUMBER_SOLDIERS_FOR_ATTACK_PREY[$prey->getType()])
+            + ($pheromoneTile == null ? 0 : ($pheromoneTile->getPlayer() == $player ? 0 : 1));
+    }
+
+    /**
+     * getNeededMovementPoints : return the needed movement points for the player to move from the tile on
+     *                                  coordX1, coordY1 position to coordX2, coordY2 position
+     * @param int $coordX1
+     * @param int $coordY1
+     * @param int $coordX2
+     * @param int $coordY2
+     * @param GameMYR $gameMYR
+     * @param PlayerMYR $player
+     * @return int
+     * @throws Exception
+     */
+    public function getNeededMovementPoints(int $coordX1, int $coordY1, int $coordX2, int $coordY2,
+                                            GameMYR $gameMYR, PlayerMYR $player) : int
+    {
+        $tile1 = $this->tileMYRRepository->findOneBy([
+            "coord_Y" => $coordY1,
+            "coord_X" => $coordX1
+        ]);
+        $tile2 = $this->tileMYRRepository->findOneBy([
+            "coord_Y" => $coordY2,
+            "coord_X" => $coordX2
+        ]);
+        if ($tile1 == null || $tile2 == null) {
+            throw new Exception("Not a valid tile, can't identify if there is a prey on it");
+        }
+        $pheromoneTile1 = $this->pheromonTileMYRRepository->findOneBy([
+            "tile" => $tile1,
+            "mainBoard" => $gameMYR->getMainBoardMYR()
+        ]);
+        $pheromoneTile2 = $this->pheromonTileMYRRepository->findOneBy([
+            "tile" => $tile2,
+            "mainBoard" => $gameMYR->getMainBoardMYR()
+        ]);
+        if ($pheromoneTile1 != null && $pheromoneTile2 != null
+            && $pheromoneTile1->getPheromonMYR() == $pheromoneTile2->getPheromonMyr()
+            && $pheromoneTile1->getPheromonMyr()->getPlayer() == $player
+        ) {
+            return 0;
+        }
+        return 1;
+    }
+
+    /**
+     * isValidPositionForAnt : is the tile valid to place a ant on it
+     * @param TileMYR|null $tile
+     * @return bool
+     */
+    public function isValidPositionForAnt(?TileMYR $tile): bool
+    {
+        if ($tile == null
+            || $tile->getType() != MyrmesParameters::WATER_TILE_TYPE)
+        {
+            return false;
+        }
+        return true;
+    }
+
 
     /**
      * getAllAvailablePositionsFromTypeZero : returns all available positions for a pheromone of type Zero
@@ -1189,16 +1273,26 @@ class WorkerMYRService
 
     /**
      * containsPrey : checks if the tile contains a prey
-     * @param GameMYR|null $game
+     * @param GameMYR $game
      * @param TileMYR      $tile
      * @return bool
      */
-    private function containsPrey(?GameMYR $game, TileMYR $tile) : bool
+    private function containsPrey(GameMYR $game, TileMYR $tile) : bool
     {
-        $mainBoard = $game->getMainBoardMYR();
+        return $this->getPrey($game, $tile) != null;
+    }
+
+    /**
+     * getPrey : return the prey on the given tile
+     * @param GameMYR $game
+     * @param TileMYR $tile
+     * @return PreyMYR|null
+     */
+    private function getPrey(GameMYR $game, TileMYR $tile) : ?PreyMYR
+    {
         return $this->preyMYRRepository->findOneBy(
-            ["mainBoardMYR" => $mainBoard->getId(), "tile" => $tile]
-        ) != null;
+                ["mainBoardMYR" => $game->getMainBoardMYR()->getId(), "tile" => $tile]
+            );
     }
 
     /**
