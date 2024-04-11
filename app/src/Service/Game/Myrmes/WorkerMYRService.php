@@ -12,7 +12,6 @@ use App\Entity\Game\Myrmes\PheromonMYR;
 use App\Entity\Game\Myrmes\PheromonTileMYR;
 use App\Entity\Game\Myrmes\PlayerMYR;
 use App\Entity\Game\Myrmes\PreyMYR;
-use App\Entity\Game\Myrmes\ResourceMYR;
 use App\Entity\Game\Myrmes\TileMYR;
 use App\Entity\Game\Myrmes\TileTypeMYR;
 use App\Repository\Game\Myrmes\AnthillHoleMYRRepository;
@@ -1239,18 +1238,26 @@ class WorkerMYRService
         $grass = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::RESOURCE_TYPE_GRASS]);
         $stone = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::RESOURCE_TYPE_STONE]);
         $dirt = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::RESOURCE_TYPE_DIRT]);
-        return
-            $this->playerResourceMYRRepository->findOneBy(
-                ["personalBoard" => $personalBoard, "resource" => $grass]
-            ) != null
-            &&
-            $this->playerResourceMYRRepository->findOneBy(
-                ["personalBoard" => $personalBoard, "resource" => $stone]
-            )!= null
-            &&
-            $this->playerResourceMYRRepository->findOneBy(
-                ["personalBoard" => $personalBoard, "resource" => $dirt]
-            )!= null;
+        $playerDirt = null;
+        $playerStone = null;
+        $playerGrass = null;
+        $personalBoard = $player->getPersonalBoardMYR();
+        foreach ($personalBoard->getPlayerResourceMYRs() as $playerResourceMYR){
+            if($playerResourceMYR->getResource()->getDescription() == MyrmesParameters::RESOURCE_TYPE_DIRT) {
+                $playerDirt = $playerResourceMYR;
+            }
+        }
+        foreach ($personalBoard->getPlayerResourceMYRs() as $playerResourceMYR){
+            if($playerResourceMYR->getResource()->getDescription() == MyrmesParameters::RESOURCE_TYPE_STONE) {
+                $playerStone = $playerResourceMYR;
+            }
+        }
+        foreach ($personalBoard->getPlayerResourceMYRs() as $playerResourceMYR){
+            if($playerResourceMYR->getResource()->getDescription() == MyrmesParameters::RESOURCE_TYPE_GRASS) {
+                $playerGrass = $playerResourceMYR;
+            }
+        }
+        return $playerDirt != null && $playerStone != null && $playerGrass != null;
     }
 
     /**

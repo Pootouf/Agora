@@ -3245,6 +3245,118 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
     }
 
+    public function testPlaceSpecialTileSubAnthillWhenPlayerHaveEnoughResources()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $firstPlayer->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::ANTHILL_LEVEL_THREE);
+        $this->entityManager->persist($firstPlayer->getPersonalBoardMYR());
+        $tile = new TileMYR();
+        $tile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $tile->setCoordX(0);
+        $tile->setCoordY(0);
+        $this->entityManager->persist($tile);
+        $newTile = new TileMYR();
+        $newTile->setType(MyrmesParameters::GRASS_TILE_TYPE);
+        $newTile->setCoordX(0);
+        $newTile->setCoordY(2);
+        $this->entityManager->persist($newTile);
+        $newTile2 = new TileMYR();
+        $newTile2->setType(MyrmesParameters::GRASS_TILE_TYPE);
+        $newTile2->setCoordX(1);
+        $newTile2->setCoordY(1);
+        $this->entityManager->persist($newTile2);
+        $newTile3 = new TileMYR();
+        $newTile3->setType(MyrmesParameters::STONE_TILE_TYPE);
+        $newTile3->setCoordX(1);
+        $newTile3->setCoordY(3);
+        $this->entityManager->persist($newTile3);
+        $tileType = new TileTypeMYR();
+        $tileType->setType(MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL);
+        $tileType->setOrientation(0);
+        $this->entityManager->persist($tileType);
+        $gardenWorker = new GardenWorkerMYR();
+        $gardenWorker->setPlayer($firstPlayer);
+        $gardenWorker->setTile($tile);
+        $gardenWorker->setMainBoardMYR($game->getMainBoardMYR());
+        $gardenWorker->setShiftsCount(0);
+        $this->entityManager->persist($gardenWorker);
+        $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
+        $playerResources = $firstPlayer->getPersonalBoardMYR()->getPlayerResourceMYRs();
+        foreach ($playerResources as $playerResourceMYR) {
+            if($playerResourceMYR->getResource()->getDescription() == MyrmesParameters::RESOURCE_TYPE_GRASS) {
+                $playerResourceMYR->setQuantity(12);
+                $this->entityManager->persist($playerResourceMYR);
+            }
+        }
+        foreach ($playerResources as $playerResourceMYR) {
+            if($playerResourceMYR->getResource()->getDescription() == MyrmesParameters::RESOURCE_TYPE_STONE) {
+                $playerResourceMYR->setQuantity(12);
+                $this->entityManager->persist($playerResourceMYR);
+            }
+        }
+        foreach ($playerResources as $playerResourceMYR) {
+            if($playerResourceMYR->getResource()->getDescription() == MyrmesParameters::RESOURCE_TYPE_DIRT) {
+                $playerResourceMYR->setQuantity(12);
+                $this->entityManager->persist($playerResourceMYR);
+            }
+        }
+        $this->entityManager->persist($game);
+        $this->entityManager->flush();
+        // WHEN
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        // THEN
+        $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
+    }
+
+    public function testPlaceSpecialTileSubAnthillWhenPlayerDoNotHaveEnoughResources()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $firstPlayer->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::ANTHILL_LEVEL_THREE);
+        $this->entityManager->persist($firstPlayer->getPersonalBoardMYR());
+        $tile = new TileMYR();
+        $tile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $tile->setCoordX(0);
+        $tile->setCoordY(0);
+        $this->entityManager->persist($tile);
+        $newTile = new TileMYR();
+        $newTile->setType(MyrmesParameters::GRASS_TILE_TYPE);
+        $newTile->setCoordX(0);
+        $newTile->setCoordY(2);
+        $this->entityManager->persist($newTile);
+        $newTile2 = new TileMYR();
+        $newTile2->setType(MyrmesParameters::GRASS_TILE_TYPE);
+        $newTile2->setCoordX(1);
+        $newTile2->setCoordY(1);
+        $this->entityManager->persist($newTile2);
+        $newTile3 = new TileMYR();
+        $newTile3->setType(MyrmesParameters::STONE_TILE_TYPE);
+        $newTile3->setCoordX(1);
+        $newTile3->setCoordY(3);
+        $this->entityManager->persist($newTile3);
+        $tileType = new TileTypeMYR();
+        $tileType->setType(MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL);
+        $tileType->setOrientation(0);
+        $this->entityManager->persist($tileType);
+        $gardenWorker = new GardenWorkerMYR();
+        $gardenWorker->setPlayer($firstPlayer);
+        $gardenWorker->setTile($tile);
+        $gardenWorker->setMainBoardMYR($game->getMainBoardMYR());
+        $gardenWorker->setShiftsCount(0);
+        $this->entityManager->persist($gardenWorker);
+        $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
+        $playerResources = $firstPlayer->getPersonalBoardMYR()->getPlayerResourceMYRs();
+        $this->entityManager->persist($game);
+        $this->entityManager->flush();
+        // THEN
+        $this->expectException(\Exception::class);
+        // WHEN
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+    }
+
     public function testPlacePheromoneOfUnknownType()
     {
         // GIVEN
