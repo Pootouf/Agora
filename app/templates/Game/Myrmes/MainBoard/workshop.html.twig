@@ -4,6 +4,11 @@ This section displays workshop menu.
 @return :
 #}
 
+{#Definition of variables#}
+{% set imageSize = 250 %}
+{% set svgSize = "h-[7vw]" %}
+{% set vbValues = "0 0 300 250" %}
+
 <div id="closedWorkshopMenu" class="bg-[#fb8500] h-[2.2vw] w-1/2 absolute top-0 right-0 rounded-bl-2xl">
     <div class="inlineFlex w-full h-full gap-x-2 items-center cursor-pointer float-start"
         {{ stimulus_action('myrmes', 'toggleWorkshopMenu', 'click',
@@ -18,33 +23,33 @@ This section displays workshop menu.
 <div id="openedWorkshopMenu" class="bg-[#fb8500] h-[26vw] w-1/2 absolute top-0 right-0 rounded-bl-2xl" hidden>
     <div class="h-full w-full inline-flex flex-col">
         <div class="inlineFlexCol h-[92%]">
-            <svg id="anthill level" viewBox="0 0 300 250" class="h-[7vw] translate-y-[3.2vw]">
+            <svg id="anthill level" viewBox="{{ vbValues }}" class="{{ svgSize }} translate-y-[3.2vw]">
                 <image class="cursor-pointer"
                        href="{{ asset('resourcesGames/Myrmes/workshop/anthill_level.svg') }}"
-                       x="25" y="15" height="250" width="250"
+                       x="25" y="15" height="{{ imageSize }}" width="{{ imageSize }}"
                        {{ stimulus_action('myrmes','activateWorkshop','click',
                            {placement: 2, url: path('app_game_myrmes_increase_anthill_level', {gameId: game.id})}) }}/>
             </svg>
             <div class="inlineFlex gap-[4vw]">
-                <svg id="anthill hole" viewBox="0 0 300 250" class="h-[7vw]">
+                <svg id="anthill hole" viewBox="{{ vbValues }}" class="{{ svgSize }}">
                     <image class="cursor-pointer"
                            href="{{ asset('resourcesGames/Myrmes/workshop/anthill_hole.svg') }}"
-                           x="50" y="0" height="250" width="250"
+                           x="50" y="0" height="{{ imageSize }}" width="{{ imageSize }}"
                            {{ stimulus_action('myrmes','activateWorkshop','click',
                                {placement: 1}) }}/>
                 </svg>
-                <svg id="objective" viewBox="0 0 300 250" class="h-[7vw]">
+                <svg id="objective" viewBox="{{ vbValues }}" class="{{ svgSize }}">
                     <image class="cursor-pointer"
                            href="{{ asset('resourcesGames/Myrmes/workshop/objectives.svg') }}"
-                           x="0" y="0" height="250" width="250"
+                           x="0" y="0" height="{{ imageSize }}" width="{{ imageSize }}"
                             {{ stimulus_action('myrmes','activateWorkshop','click',
                                 {placement: 3}) }}/>
                 </svg>
             </div>
-            <svg id="nurse" viewBox="0 0 300 250" class="h-[7vw] -translate-y-[3.2vw]">
+            <svg id="nurse" viewBox="{{ vbValues }}" class="{{ svgSize }} -translate-y-[3.2vw]">
                 <image class="cursor-pointer"
                        href="{{ asset('resourcesGames/Myrmes/workshop/create_nurse.svg') }}"
-                       x="25" y="-15" height="250" width="250"
+                       x="25" y="-15" height="{{ imageSize }}" width="{{ imageSize }}"
                         {{ stimulus_action('myrmes','activateWorkshop','click',
                             {placement: 4, url: path('app_game_myrmes_create_nurse', {gameId: game.id})}) }}/>
             </svg>
