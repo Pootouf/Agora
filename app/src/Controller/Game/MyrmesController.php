@@ -314,9 +314,7 @@ class MyrmesController extends AbstractController
             return new Response('invalid player', Response::HTTP_FORBIDDEN);
         }
         try {
-                $this->birthMYRService->placeNurse(
-                    $this->service->getNursesAtPosition($player, MyrmesParameters::BASE_AREA)->first(),
-                    $position);
+                $this->birthMYRService->placeNurse($player, $position);
         } catch (Exception) {
             $message = $player->getUsername()
                 . " a essayé de placer une nourrice sur la piste de naissance "
