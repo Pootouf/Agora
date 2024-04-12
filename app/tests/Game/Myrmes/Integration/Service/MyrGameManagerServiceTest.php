@@ -124,4 +124,44 @@ class MyrGameManagerServiceTest extends KernelTestCase
         // THEN
         $this->assertEquals(MYRGameManagerService::$SUCCESS, $result);
     }
+
+    public function testDeletePlayerWhenGameIsLaunched() {
+        // GIVEN
+        $game= $this->myrGameManagerService->createGame();
+        $game = $this->gameMYRRepository->findOneBy(["id" => $game]);
+        $game->setLaunched(true);
+        $this->entityManager->persist($game);
+        $this->entityManager->flush();
+        // WHEN
+        $result = $this->myrGameManagerService->deletePlayer("test", $game);
+        // THEN
+        $this->assertEquals(MYRGameManagerService::$ERROR_GAME_ALREADY_LAUNCHED, $result);
+    }
+
+    public function testDeletePlayerWhenPlayerNotInGame() {
+        // GIVEN
+        $game= $this->myrGameManagerService->createGame();
+        $game = $this->gameMYRRepository->findOneBy(["id" => $game]);
+        $game->setLaunched(false);
+        $this->entityManager->persist($game);
+        $this->entityManager->flush();
+        // WHEN
+        $result = $this->myrGameManagerService->deletePlayer("test", $game);
+        // THEN
+        $this->assertEquals(MYRGameManagerService::$ERROR_PLAYER_NOT_FOUND, $result);
+    }
+
+    public function testDelete() {
+        // GIVEN
+        $game= $this->myrGameManagerService->createGame();
+        $game = $this->gameMYRRepository->findOneBy(["id" => $game]);
+        $game->setLaunched(false);
+        $this->entityManager->persist($game);
+        $this->entityManager->flush();
+        $this->myrGameManagerService->createPlayer("test", $game);
+        // WHEN
+        $result = $this->myrGameManagerService->deletePlayer("test", $game);
+        // THEN
+        $this->assertEquals(MYRGameManagerService::$SUCCESS, $result);
+    }
 }
