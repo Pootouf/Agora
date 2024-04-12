@@ -64,7 +64,7 @@ class SixQPGameManagerService extends AbstractGameManagerService
         if($game->isLaunched()) {
             return SixQPGameManagerService::$ERROR_GAME_ALREADY_LAUNCHED;
         }
-        if (count($game->getPlayerSixQPs()) >= SixQPParameters::$MAX_NUMBER_OF_PLAYER) {
+        if (count($game->getPlayers()) >= SixQPParameters::$MAX_NUMBER_OF_PLAYER) {
             return SixQPGameManagerService::$ERROR_INVALID_NUMBER_OF_PLAYER;
         }
         if ($this->playerSixQPRepository->findOneBy(
@@ -74,7 +74,7 @@ class SixQPGameManagerService extends AbstractGameManagerService
         $player = new PlayerSixQP($playerName, $game);
         $discard = new DiscardSixQP($player, $game);
         $player->setDiscardSixQP($discard);
-        $game->addPlayerSixQP($player);
+        $game->addPlayer($player);
         $this->entityManager->persist($player);
         $this->entityManager->persist($discard);
         $this->entityManager->flush();
@@ -115,7 +115,7 @@ class SixQPGameManagerService extends AbstractGameManagerService
         if ($game == null) {
             return SixQPGameManagerService::$ERROR_INVALID_GAME;
         }
-        foreach ($game->getPlayerSixQPs() as $playerSixQP) {
+        foreach ($game->getPlayers() as $playerSixQP) {
             $this->entityManager->remove($playerSixQP);
         }
         foreach ($game->getRowSixQPs() as $rowSixQP) {
@@ -137,7 +137,7 @@ class SixQPGameManagerService extends AbstractGameManagerService
         if ($game == null) {
             return SixQPGameManagerService::$ERROR_INVALID_GAME;
         }
-        $numberOfPlayers = count($game->getPlayerSixQPs());
+        $numberOfPlayers = count($game->getPlayers());
         if ($numberOfPlayers > SixQPParameters::$MAX_NUMBER_OF_PLAYER
             || $numberOfPlayers < SixQPParameters::$MIN_NUMBER_OF_PLAYER) {
             return SixQPGameManagerService::$ERROR_INVALID_NUMBER_OF_PLAYER;

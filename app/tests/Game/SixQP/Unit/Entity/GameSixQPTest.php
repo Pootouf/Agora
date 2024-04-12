@@ -19,7 +19,7 @@ class GameSixQPTest extends TestCase
     {
         $this->gameSixQP = new GameSixQP();
         $this->gameSixQP->addRowSixQP(new RowSixQP());
-        $this->gameSixQP->addPlayerSixQP(new PlayerSixQP("test", $this->gameSixQP));
+        $this->gameSixQP->addPlayer(new PlayerSixQP("test", $this->gameSixQP));
     }
 
     public function testInitGame(): void
@@ -53,18 +53,18 @@ class GameSixQPTest extends TestCase
         //GIVEN
         $player = new PlayerSixQP("test", $this->gameSixQP);
         //WHEN
-        $this->gameSixQP->addPlayerSixQP($player);
+        $this->gameSixQP->addPlayer($player);
         //THEN
-        $this->assertContains($player, $this->gameSixQP->getPlayerSixQPs());
+        $this->assertContains($player, $this->gameSixQP->getPlayers());
     }
 
     public function testRemovePlayer(): void
     {
         //GIVEN
-        $player = $this->gameSixQP->getPlayerSixQPs()->first();
+        $player = $this->gameSixQP->getPlayers()->first();
         //WHEN
-        $this->gameSixQP->removePlayerSixQP($player);
+        $this->gameSixQP->removePlayer($player);
         //THEN
-        $this->assertNotContains($player, $this->gameSixQP->getPlayerSixQPs());
+        $this->assertNotContains($player, $this->gameSixQP->getPlayers());
     }
 }

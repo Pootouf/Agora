@@ -214,14 +214,6 @@ class SplendorGameManagerServiceIntegrationTest extends KernelTestCase
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);
         $game = new GameSPL();
         $game->setGameName(AbstractGameManagerService::$SPL_LABEL);
-        for ($i = 0; $i < $numberOfPlayer; $i++) {
-            $player = new PlayerSPL('test', $game);
-            $personalBoard = new PersonalBoardSPL();
-            $personalBoard->setPlayerSPL($player);
-            $game->addPlayer($player);
-            $entityManager->persist($player);
-            $entityManager->persist($personalBoard);
-        }
         $mainBoard = new MainBoardSPL();
         $game->setMainBoard($mainBoard);
         for ($i = 1; $i <= SplendorParameters::$NUMBER_OF_ROWS_BY_GAME; $i++) {
@@ -236,6 +228,15 @@ class SplendorGameManagerServiceIntegrationTest extends KernelTestCase
         }
         $entityManager->persist($mainBoard);
         $entityManager->persist($game);
+        for ($i = 0; $i < $numberOfPlayer; $i++) {
+            $player = new PlayerSPL('test', $game);
+            $personalBoard = new PersonalBoardSPL();
+            $personalBoard->setPlayerSPL($player);
+            $game->addPlayer($player);
+            $entityManager->persist($player);
+            $entityManager->persist($personalBoard);
+            $entityManager->flush();
+        }
         $entityManager->flush();
         return $game;
     }

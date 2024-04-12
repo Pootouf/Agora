@@ -56,7 +56,7 @@ class SixQPController extends AbstractController
         $isSpectator = false;
         $needToChoose = false;
         if ($player == null) {
-            $player = $game->getPlayerSixQPs()->get(0);
+            $player = $game->getPlayers()->get(0);
             $isSpectator = true;
         } else {
             if ($this->service->doesAllPlayersHaveChosen($game)) {
@@ -77,7 +77,7 @@ class SixQPController extends AbstractController
             'game' => $game,
             'chosenCards' => $chosenCards,
             'playerCards' => $player->getCards(),
-            'playersNumber' => count($game->getPlayerSixQPs()),
+            'playersNumber' => count($game->getPlayers()),
             'ranking' => $this->service->getRanking($game),
             'player' => $player,
             'rows' => $game->getRowSixQPs(),
@@ -199,7 +199,7 @@ class SixQPController extends AbstractController
 
         if ($this->service->isGameEnded($game)) {
             $this->publishEndOfGame($game);
-        } else if (!$this->service->hasCardLeft($game->getPlayerSixQPs())){
+        } else if (!$this->service->hasCardLeft($game->getPlayers())){
             try {
                 $this->service->initializeNewRound($game);
                 $this->logService->sendSystemLog($game,
@@ -209,7 +209,7 @@ class SixQPController extends AbstractController
                 "échec de création d'une nouvelle manche dans la partie " . $game->getId());
             }
             $this->publishAnimAllRowClear($game);
-            foreach ($game->getPlayerSixQPs() as $player) {
+            foreach ($game->getPlayers() as $player) {
                 $this->publishPersonalBoard($game, $player);
             }
             $this->publishMainBoard($game, null, true);
@@ -294,7 +294,7 @@ class SixQPController extends AbstractController
         $response = $this->render('Game/Six_qp/MainBoard/chosenCards.html.twig',
             [
                 'chosenCards' => $chosenCards,
-                'playerNumbers' => $game->getPlayerSixQPs()->count(),
+                'playerNumbers' => $game->getPlayers()->count(),
                 'game'=>$game,
             ]
         );

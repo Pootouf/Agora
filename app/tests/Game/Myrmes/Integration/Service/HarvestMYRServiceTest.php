@@ -327,6 +327,7 @@ class HarvestMYRServiceTest extends KernelTestCase
         $game->setLaunched(true);
         $game->setGamePhase(MyrmesParameters::PHASE_INVALID);
         $this->entityManager->persist($mainBoard);
+        $this->entityManager->persist($game);
         for ($i = 0; $i < $numberOfPlayers; $i += 1) {
             $player = new PlayerMYR('test', $game);
             $game->addPlayer($player);
@@ -407,8 +408,8 @@ class HarvestMYRServiceTest extends KernelTestCase
 
             $this->entityManager->persist($player);
             $this->entityManager->persist($personalBoard);
+            $this->entityManager->flush();
         }
-        $this->entityManager->persist($game);
         $this->entityManager->flush();
 
         return $game;
