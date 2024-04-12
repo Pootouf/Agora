@@ -3780,6 +3780,98 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->assertEmpty($result);
     }
 
+    public function testGetAllAvailableCoordinatesForSpecialTileFarmShouldReturnEmptyArray() : void
+    {
+        //GIVEN
+        $game = $this->createGame(4);
+        $player = $game->getPlayers()->first();
+        $chosenX = 7;
+        $chosenY = 12;
+        $tile = new TileMYR();
+        $tile->setType(MyrmesParameters::GRASS_TILE_TYPE);
+        $tile->setCoordY($chosenY);
+        $tile->setCoordX($chosenX);
+        $this->entityManager->persist($tile);
+        $tileType = new TileTypeMYR();
+        $tileType->setType(MyrmesParameters::SPECIAL_TILE_TYPE_FARM);
+        $tileType->setOrientation(6);
+        $this->entityManager->persist($tileType);
+        $this->entityManager->flush();
+        //WHEN
+        $result = $this->workerMYRService->getAllCoordinatesFromTileType($player, $tile, $tileType);
+        //THEN
+        $this->assertEmpty($result);
+    }
+
+    public function testGetAllAvailableCoordinatesForSpecialTileQuarryShouldReturnEmptyArray() : void
+    {
+        //GIVEN
+        $game = $this->createGame(4);
+        $player = $game->getPlayers()->first();
+        $chosenX = 7;
+        $chosenY = 12;
+        $tile = new TileMYR();
+        $tile->setType(MyrmesParameters::GRASS_TILE_TYPE);
+        $tile->setCoordY($chosenY);
+        $tile->setCoordX($chosenX);
+        $this->entityManager->persist($tile);
+        $tileType = new TileTypeMYR();
+        $tileType->setType(MyrmesParameters::SPECIAL_TILE_TYPE_QUARRY);
+        $tileType->setOrientation(6);
+        $this->entityManager->persist($tileType);
+        $this->entityManager->flush();
+        //WHEN
+        $result = $this->workerMYRService->getAllCoordinatesFromTileType($player, $tile, $tileType);
+        //THEN
+        $this->assertEmpty($result);
+    }
+
+    public function testGetAllAvailableCoordinatesForSpecialTileSubAnthillShouldReturnEmptyArray() : void
+    {
+        //GIVEN
+        $game = $this->createGame(4);
+        $player = $game->getPlayers()->first();
+        $chosenX = 7;
+        $chosenY = 12;
+        $tile = new TileMYR();
+        $tile->setType(MyrmesParameters::GRASS_TILE_TYPE);
+        $tile->setCoordY($chosenY);
+        $tile->setCoordX($chosenX);
+        $this->entityManager->persist($tile);
+        $tileType = new TileTypeMYR();
+        $tileType->setType(MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL);
+        $tileType->setOrientation(6);
+        $this->entityManager->persist($tileType);
+        $this->entityManager->flush();
+        //WHEN
+        $result = $this->workerMYRService->getAllCoordinatesFromTileType($player, $tile, $tileType);
+        //THEN
+        $this->assertEmpty($result);
+    }
+
+    public function testGetAllAvailableCoordinatesForUnknownTileShouldReturnEmptyArray() : void
+    {
+        //GIVEN
+        $game = $this->createGame(4);
+        $player = $game->getPlayers()->first();
+        $chosenX = 7;
+        $chosenY = 12;
+        $tile = new TileMYR();
+        $tile->setType(MyrmesParameters::GRASS_TILE_TYPE);
+        $tile->setCoordY($chosenY);
+        $tile->setCoordX($chosenX);
+        $this->entityManager->persist($tile);
+        $tileType = new TileTypeMYR();
+        $tileType->setType(-1);
+        $tileType->setOrientation(6);
+        $this->entityManager->persist($tileType);
+        $this->entityManager->flush();
+        //WHEN
+        $result = $this->workerMYRService->getAllCoordinatesFromTileType($player, $tile, $tileType);
+        //THEN
+        $this->assertEmpty($result);
+    }
+
     public function testPlaceTwoPheromoneOfTypeZero()
     {
         // GIVEN

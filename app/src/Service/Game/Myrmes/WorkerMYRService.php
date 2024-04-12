@@ -1237,7 +1237,7 @@ class WorkerMYRService
                 $playerResource = $playerResourceMYR;
             }
         }
-        return $playerResource != null;
+        return $playerResource != null && $playerResource->getQuantity() > 0;
     }
 
     /**
@@ -1254,7 +1254,7 @@ class WorkerMYRService
                 $playerResource = $playerResourceMYR;
             }
         }
-        return $playerResource != null;
+        return $playerResource != null && $playerResource->getQuantity() > 0;
     }
 
     /**
@@ -1287,7 +1287,8 @@ class WorkerMYRService
                 $playerGrass = $playerResourceMYR;
             }
         }
-        return $playerDirt != null && $playerStone != null && $playerGrass != null;
+        return $playerDirt != null && $playerStone != null && $playerGrass != null
+            && $playerDirt->getQuantity() > 0 && $playerStone->getQuantity() > 0 && $playerGrass->getQuantity() > 0;
     }
 
     /**
