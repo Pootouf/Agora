@@ -18,6 +18,7 @@ use App\Repository\Game\Myrmes\AnthillHoleMYRRepository;
 use App\Repository\Game\Myrmes\GardenWorkerMYRRepository;
 use App\Repository\Game\Myrmes\AnthillWorkerMYRRepository;
 use App\Repository\Game\Myrmes\PheromonMYRRepository;
+use App\Repository\Game\Myrmes\PheromonTileMYRRepository;
 use App\Repository\Game\Myrmes\PlayerResourceMYRRepository;
 use App\Repository\Game\Myrmes\PreyMYRRepository;
 use App\Repository\Game\Myrmes\ResourceMYRRepository;
@@ -39,7 +40,8 @@ class WorkerMYRService
                                 private readonly PlayerResourceMYRRepository $playerResourceMYRRepository,
                                 private readonly ResourceMYRRepository $resourceMYRRepository,
                                 private readonly TileTypeMYRRepository $tileTypeMYRRepository,
-                                private readonly GardenWorkerMYRRepository $gardenWorkerMYRRepository
+                                private readonly GardenWorkerMYRRepository $gardenWorkerMYRRepository,
+                                private readonly PheromonTileMYRRepository $pheromonTileMYRRepository
     )
     {}
 
@@ -308,8 +310,8 @@ class WorkerMYRService
         $gardenWorker->setTile($tile);
 
         $prey = $this->getPreyOnTile($tile);
-        $pheromone = $this->getPheromoneOnTile($tile);
-        $startPheromone = $this->getPheromoneOnTile($gardenWorker->getTile());
+        $pheromone = $this->getPheromoneOnTile($player->getGameMyr(), $tile);
+        $startPheromone = $this->getPheromoneOnTile($player->getGameMyr() ,$gardenWorker->getTile());
 
         if ($prey != null)
         {
@@ -353,13 +355,13 @@ class WorkerMYRService
             $this->getTileAtDirection($gardenWorker->getTile(), $direction);
 
         if ($tile == null
-            || $tile->getType() != MyrmesParameters::WATER_TILE_TYPE)
+            || $tile->getType() == MyrmesParameters::WATER_TILE_TYPE)
         {
             return false;
         }
 
+        $pheromone = $this->getPheromoneOnTile($player->getGameMyr(), $tile);
         $prey = $this->getPreyOnTile($tile);
-        $pheromone = $this->getPheromoneOnTile($tile);
 
         $canMove = ($prey == null && $pheromone == null)
             || ($prey != null && $this->canWorkerAttackPrey($player, $prey))
@@ -751,14 +753,14 @@ class WorkerMYRService
 
     /**
      * getPheromoneOnTile : return pheromone on the tile or null
+     * @param GameMYR $game
      * @param TileMYR $tile
      * @return PheromonTileMYR|null
      */
-    private function getPheromoneOnTile(TileMYR $tile) : ?PheromonTileMYR
+    private function getPheromoneOnTile(GameMYR $game, TileMYR $tile) : ?PheromonTileMYR
     {
-        return $this->pheromonMYRRepository->findOneBy(
-            ["tile" => $tile->getId()]
-        );
+        $mainBoard = $game->getMainBoardMYR();
+        return $this->pheromonTileMYRRepository->findOneBy(["mainBoard" => $mainBoard, "tile" => $tile]);
     }
 
     /**
@@ -1235,7 +1237,7 @@ class WorkerMYRService
                 $playerResource = $playerResourceMYR;
             }
         }
-        return $playerResource != null;
+        return $playerResource != null && $playerResource->getQuantity() > 0;
     }
 
     /**
@@ -1252,7 +1254,7 @@ class WorkerMYRService
                 $playerResource = $playerResourceMYR;
             }
         }
-        return $playerResource != null;
+        return $playerResource != null && $playerResource->getQuantity() > 0;
     }
 
     /**
@@ -1285,7 +1287,8 @@ class WorkerMYRService
                 $playerGrass = $playerResourceMYR;
             }
         }
-        return $playerDirt != null && $playerStone != null && $playerGrass != null;
+        return $playerDirt != null && $playerStone != null && $playerGrass != null
+            && $playerDirt->getQuantity() > 0 && $playerStone->getQuantity() > 0 && $playerGrass->getQuantity() > 0;
     }
 
     /**
