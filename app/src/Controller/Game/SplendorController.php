@@ -49,6 +49,8 @@ class SplendorController extends AbstractController
     #[Route('/game/splendor/{id}', name: 'app_game_show_spl')]
     public function showGame(GameSPL $game): Response
     {
+        if ($game->isPaused() || !$game->isLaunched())
+            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
         $player = $this->SPLService->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         $isSpectator = false;
         $needToPlay = false;
@@ -113,6 +115,8 @@ class SplendorController extends AbstractController
          #[MapEntity(id: 'idGame')] GameSPL $game,
          #[MapEntity(id: 'idCard')] DevelopmentCardsSPL $card): Response
      {
+         if ($game->isPaused() || !$game->isLaunched())
+             return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
          $player = $this->SPLService->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
          return $this->render('Game/Splendor/MainBoard/cardActions.html.twig',
          [
@@ -131,6 +135,8 @@ class SplendorController extends AbstractController
      public function selectCardFromDraw(
          #[MapEntity(id: 'idGame')] GameSPL $game, int $level): Response
      {
+         if ($game->isPaused() || !$game->isLaunched())
+             return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
          $player = $this->SPLService->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
          return $this->render('Game/Splendor/MainBoard/cardActions.html.twig',
              [
@@ -147,6 +153,8 @@ class SplendorController extends AbstractController
          #[MapEntity(id: 'idGame')] GameSPL $game,
          #[MapEntity(id: 'idCard')] DevelopmentCardsSPL $card): Response
      {
+         if ($game->isPaused() || !$game->isLaunched())
+             return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
          $player = $this->SPLService->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
          return $this->render('Game/Splendor/MainBoard/cardActions.html.twig',
              [
@@ -166,6 +174,8 @@ class SplendorController extends AbstractController
          #[MapEntity(id: 'idGame')] GameSPL $game,
          #[MapEntity(id: 'idCard')] DevelopmentCardsSPL $card): Response
      {
+         if ($game->isPaused() || !$game->isLaunched())
+             return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
          $player = $this->SPLService->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
          if ($player == null) {
              return new Response('Invalid player', Response::HTTP_FORBIDDEN);
@@ -247,6 +257,8 @@ class SplendorController extends AbstractController
          #[MapEntity(id: 'idGame')] GameSPL $game,
          #[MapEntity(id: 'idCard')] DevelopmentCardsSPL $card): Response
      {
+         if ($game->isPaused() || !$game->isLaunched())
+             return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
          $player = $this->SPLService->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
          if ($player == null) {
              return new Response('Invalid player', Response::HTTP_FORBIDDEN);
@@ -292,6 +304,8 @@ class SplendorController extends AbstractController
          #[MapEntity(id: 'idGame')] GameSPL $game,
          int $level): Response
      {
+         if ($game->isPaused() || !$game->isLaunched())
+             return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
          $player = $this->SPLService->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
          if ($player == null) {
              return new Response('Invalid player', Response::HTTP_FORBIDDEN);
@@ -336,6 +350,8 @@ class SplendorController extends AbstractController
      public function cancelTokensSelection(
          #[MapEntity(id: 'idGame')] GameSPL $gameSPL): Response
      {
+         if ($gameSPL->isPaused() || !$gameSPL->isLaunched())
+             return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
          $player = $this->SPLService->getPlayerFromNameAndGame($gameSPL, $this->getUser()->getUsername());
          if ($player == null) {
              return new Response('Invalid player', Response::HTTP_FORBIDDEN);
@@ -352,6 +368,8 @@ class SplendorController extends AbstractController
          #[MapEntity(id: 'idGame')] GameSPL $gameSPL,
          string $color): Response
      {
+         if ($gameSPL->isPaused() || !$gameSPL->isLaunched())
+             return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
          $player = $this->SPLService->getPlayerFromNameAndGame($gameSPL, $this->getUser()->getUsername());
          if ($player == null) {
              return new Response('Invalid player', Response::HTTP_FORBIDDEN);
