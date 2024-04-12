@@ -19,18 +19,49 @@ class BirthMYRService
 
     /**
      * placeNurse : place the nurse in $newPosition
-     * @param NurseMYR $nurseMYR
-     * @param int $newPosition
-     * @throws Exception
+     * @param PlayerMYR $player
+     * @param int $area
      * @return void
+     * @throws Exception
      */
-    public function placeNurse(NurseMYR $nurseMYR, int $newPosition) : void
+    public function placeNurse(PlayerMYR $player, int $area) : void
     {
-        if(!$nurseMYR->isAvailable()) {
-            throw new Exception("NURSE NOT AVAILABLE");
+        $howMuchAvailableNurse = $this->haveAvailableNurse($player);
+        if ($howMuchAvailableNurse == 0)
+        {
+            throw new Exception("Don't have nurses");
         }
-        $nurseMYR->setArea($newPosition);
-        $this->entityManager->persist($nurseMYR);
+
+        $nursesAlreadyOnArea = $this->MYRService
+            ->getNursesAtPosition($player, $area)->count();
+
+        $howMuchNurseCanIPut = $this->howMuchNurseCanPlaceInArea(
+            $area, $nursesAlreadyOnArea
+        );
+
+        if ($howMuchNurseCanIPut == 0
+            || $howMuchAvailableNurse < $howMuchNurseCanIPut)
+        {
+            throw new Exception("Don't place nurses in area");
+        }
+
+        $personalBoard = $player->getPersonalBoardMYR();
+
+        foreach ($personalBoard->getNurses() as $nurse)
+        {
+            if ($nurse->getArea() == MyrmesParameters::BASE_AREA)
+            {
+                $howMuchNurseCanIPut--;
+                $nurse->setArea($area);
+                $this->entityManager->persist($nurse);
+            }
+
+            if ($howMuchNurseCanIPut == 0) {
+                break;
+            }
+        }
+
+        $this->entityManager->persist($personalBoard);
         $this->entityManager->flush();
     }
 
@@ -120,10 +151,68 @@ class BirthMYRService
         $this->entityManager->flush();
     }
 
+    private function haveAvailableNurse(PlayerMYR $playerMYR) : int
+    {
+        $personalBoard = $playerMYR->getPersonalBoardMYR();
+
+        $count = 0;
+        foreach ($personalBoard->getNurses() as $nurse)
+        {
+            if ($nurse->isAvailable() &&
+                $nurse->getArea() == MyrmesParameters::BASE_AREA)
+            {
+                $count += 1;
+            }
+        }
+
+        return $count;
+    }
+
+    private function howMuchNurseCanPlaceInArea(int $area,
+        int $nursesCountAtArea) : int
+    {
+        $count = 0;
+        $array = $this->getNeededNumberInArea($area);
+
+        if ($array != null) {
+            foreach ($array as $nb) {
+                if ($count == $nursesCountAtArea) {
+                    return $nb;
+                } else {
+                    $count += $nb;
+                }
+            }
+        }
+
+        return 0;
+    }
+
     private function getGainByCountNurse(array $gainsByCountNurse, int $countNurse) : int
     {
         $isWin = array_key_exists($countNurse, $gainsByCountNurse);
         return $isWin ? $gainsByCountNurse[$countNurse] : 0;
+    }
+
+    private function getNeededNumberInArea(int $area) : array
+    {
+        $array = null;
+        switch ($area) {
+            case MyrmesParameters::LARVAE_AREA:
+                $array = MyrmesParameters::NUMBER_NURSE_IN_LARVAE_AREA;
+                break;
+            case MyrmesParameters::WORKSHOP_AREA:
+                $array = MyrmesParameters::NUMBER_NURSE_IN_WORKSHOP_AREA;
+                break;
+            case MyrmesParameters::SOLDIERS_AREA:
+                $array = MyrmesParameters::NUMBER_NURSE_IN_SOLDIERS_AREA;
+                break;
+            case MyrmesParameters::WORKER_AREA:
+                $array = MyrmesParameters::NUMBER_NURSE_IN_WORKER_AREA;
+                break;
+            default:
+                break;
+        }
+        return $array;
     }
 
     /**

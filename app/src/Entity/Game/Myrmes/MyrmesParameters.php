@@ -31,7 +31,10 @@ interface MyrmesParameters
     const string PLAYER_COLOR_GRAY = 'gray';
 
     const array PLAYERS_COLORS = [
-        self::PLAYER_COLOR_BLUE, self::PLAYER_COLOR_YELLOW, self::PLAYER_COLOR_RED, self::PLAYER_COLOR_GRAY
+        self::PLAYER_COLOR_BLUE,
+        self::PLAYER_COLOR_YELLOW,
+        self::PLAYER_COLOR_RED,
+        self::PLAYER_COLOR_GRAY
     ];
 
 
@@ -75,6 +78,12 @@ interface MyrmesParameters
         4 => 2
     );
 
+    // Number of nurses by area
+
+    const array NUMBER_NURSE_IN_LARVAE_AREA = array(1, 1, 1);
+    const array NUMBER_NURSE_IN_WORKSHOP_AREA = array(1, 1, 1, 1);
+    const array NUMBER_NURSE_IN_SOLDIERS_AREA = array(2, 1);
+    const array NUMBER_NURSE_IN_WORKER_AREA = array(2, 2);
 
     // Events bonus
 
