@@ -161,7 +161,7 @@ interface MyrmesParameters
 
     // Pheromone Amount
 
-    const array PHEROMONE_TYPE_AMOUNT = [6, 2, 2, 2, 2, 2, 1, 8, 8, 8];
+    const array PHEROMONE_TYPE_AMOUNT = [6, 2, 2, 2, 2, 2, 1];
 
 
     // Pheromone Type Level

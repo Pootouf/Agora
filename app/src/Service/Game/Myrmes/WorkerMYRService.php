@@ -18,6 +18,7 @@ use App\Repository\Game\Myrmes\AnthillHoleMYRRepository;
 use App\Repository\Game\Myrmes\GardenWorkerMYRRepository;
 use App\Repository\Game\Myrmes\AnthillWorkerMYRRepository;
 use App\Repository\Game\Myrmes\PheromonMYRRepository;
+use App\Repository\Game\Myrmes\PheromonTileMYRRepository;
 use App\Repository\Game\Myrmes\PlayerResourceMYRRepository;
 use App\Repository\Game\Myrmes\PreyMYRRepository;
 use App\Repository\Game\Myrmes\ResourceMYRRepository;
@@ -39,7 +40,8 @@ class WorkerMYRService
                                 private readonly PlayerResourceMYRRepository $playerResourceMYRRepository,
                                 private readonly ResourceMYRRepository $resourceMYRRepository,
                                 private readonly TileTypeMYRRepository $tileTypeMYRRepository,
-                                private readonly GardenWorkerMYRRepository $gardenWorkerMYRRepository
+                                private readonly GardenWorkerMYRRepository $gardenWorkerMYRRepository,
+                                private readonly PheromonTileMYRRepository $pheromonTileMYRRepository
     )
     {}
 
@@ -242,6 +244,34 @@ class WorkerMYRService
     }
 
     /**
+     * canPlacePheromone : checks if a player can place a pheromone of a type on a tile
+     * @param PlayerMYR   $player
+     * @param TileMYR     $tile
+     * @param TileTypeMYR $tileType
+     * @return bool
+     */
+    public function canPlacePheromone(PlayerMYR $player, TileMYR $tile, TileTypeMYR $tileType) : bool
+    {
+        $pheromoneCount = $this->getPheromoneCountOfType($player, $tileType);
+        try {
+            if (!$this->canChoosePheromone($player, $tileType, $pheromoneCount)) {
+                return false;
+            }
+        } catch (Exception $e) {
+            return false;
+        }
+        if(!$this->canPlaceSpecialTile($player, $tileType)){
+            return false;
+        }
+        try {
+            $tiles = $this->getAllCoordinatesFromTileType($player, $tile, $tileType);
+        } catch (Exception $e) {
+            return false;
+        }
+        return !$tiles->isEmpty();
+    }
+
+    /**
      * placePheromone : player tries to place a pheromone or a special tile on the selected tile
      *
      * @param PlayerMYR   $player
@@ -252,16 +282,11 @@ class WorkerMYRService
      */
     public function placePheromone(PlayerMYR $player, TileMYR $tile, TileTypeMYR $tileType) : void
     {
-        $pheromoneCount = $this->getPheromoneCountOfType($player, $tileType);
-        if (!$this->canChoosePheromone($player, $tileType, $pheromoneCount)) {
-            throw new Exception("player can't place more pheromones of this type");
-        }
-        if(!$this->canPlaceSpecialTile($player, $tileType)){
-            throw new Exception("Can't place special tile");
+        if (!$this->canPlacePheromone($player, $tile, $tileType)) {
+            throw new Exception("this pheromone can't be placed there");
         }
         $tiles = $this->getAllCoordinatesFromTileType($player, $tile, $tileType);
         $this->createAndPlacePheromone($tiles, $player, $tileType);
-
     }
 
     /**
@@ -285,8 +310,8 @@ class WorkerMYRService
         $gardenWorker->setTile($tile);
 
         $prey = $this->getPreyOnTile($tile);
-        $pheromone = $this->getPheromoneOnTile($tile);
-        $startPheromone = $this->getPheromoneOnTile($gardenWorker->getTile());
+        $pheromone = $this->getPheromoneOnTile($player->getGameMyr(), $tile);
+        $startPheromone = $this->getPheromoneOnTile($player->getGameMyr() ,$gardenWorker->getTile());
 
         if ($prey != null)
         {
@@ -330,13 +355,13 @@ class WorkerMYRService
             $this->getTileAtDirection($gardenWorker->getTile(), $direction);
 
         if ($tile == null
-            || $tile->getType() != MyrmesParameters::WATER_TILE_TYPE)
+            || $tile->getType() == MyrmesParameters::WATER_TILE_TYPE)
         {
             return false;
         }
 
+        $pheromone = $this->getPheromoneOnTile($player->getGameMyr(), $tile);
         $prey = $this->getPreyOnTile($tile);
-        $pheromone = $this->getPheromoneOnTile($tile);
 
         $canMove = ($prey == null && $pheromone == null)
             || ($prey != null && $this->canWorkerAttackPrey($player, $prey))
@@ -728,14 +753,14 @@ class WorkerMYRService
 
     /**
      * getPheromoneOnTile : return pheromone on the tile or null
+     * @param GameMYR $game
      * @param TileMYR $tile
      * @return PheromonTileMYR|null
      */
-    private function getPheromoneOnTile(TileMYR $tile) : ?PheromonTileMYR
+    private function getPheromoneOnTile(GameMYR $game, TileMYR $tile) : ?PheromonTileMYR
     {
-        return $this->pheromonMYRRepository->findOneBy(
-            ["tile" => $tile->getId()]
-        );
+        $mainBoard = $game->getMainBoardMYR();
+        return $this->pheromonTileMYRRepository->findOneBy(["mainBoard" => $mainBoard, "tile" => $tile]);
     }
 
     /**
@@ -1212,7 +1237,7 @@ class WorkerMYRService
                 $playerResource = $playerResourceMYR;
             }
         }
-        return $playerResource != null;
+        return $playerResource != null && $playerResource->getQuantity() > 0;
     }
 
     /**
@@ -1229,7 +1254,7 @@ class WorkerMYRService
                 $playerResource = $playerResourceMYR;
             }
         }
-        return $playerResource != null;
+        return $playerResource != null && $playerResource->getQuantity() > 0;
     }
 
     /**
@@ -1262,7 +1287,8 @@ class WorkerMYRService
                 $playerGrass = $playerResourceMYR;
             }
         }
-        return $playerDirt != null && $playerStone != null && $playerGrass != null;
+        return $playerDirt != null && $playerStone != null && $playerGrass != null
+            && $playerDirt->getQuantity() > 0 && $playerStone->getQuantity() > 0 && $playerGrass->getQuantity() > 0;
     }
 
     /**
@@ -1315,7 +1341,10 @@ class WorkerMYRService
         if ($tileType->getType() === MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL) {
             return $anthillLevel >= 3;
         }
-        return MyrmesParameters::PHEROMONE_TYPE_AMOUNT[$tileType->getType()] >= $pheromoneCount;
+        if($tileType->getType() < MyrmesParameters::SPECIAL_TILE_TYPE_FARM) {
+            return MyrmesParameters::PHEROMONE_TYPE_AMOUNT[$tileType->getType()] >= $pheromoneCount;
+        }
+        return MyrmesParameters::SPECIAL_TILE_TYPE_AMOUNT[$tileType->getType()] >= $pheromoneCount;
     }
 
     /**
