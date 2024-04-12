@@ -266,4 +266,39 @@ class DashboardController extends AbstractController
             'notifications' => $this->notifications, // Assurez-vous que vos notifications sont également disponibles dans ce contrôleur
         ]);
     }
+
+    /**
+     * @return Response  HTTP response: list of received mail
+     */
+    #[Route('/dashboard/receivedMessage', name: 'app_dashboard_receivedMessage')]
+    public function dashboard_receivedMessage(): Response
+    {
+        return $this->render('platform/dashboard/messaging/receivedMessages.html.twig', [
+            'notifications' => $this->notifications, // Assurez-vous que vos notifications sont également disponibles dans ce contrôleur
+        ]);
+    }
+
+    #[Route('/dashboard/sentMessages', name: 'app_dashboard_sentMessages')]
+    public function dashboard_sentMessages(): Response
+    {
+        return $this->render('platform/dashboard/messaging/sentMessages.html.twig', [
+            'notifications' => $this->notifications, // Assurez-vous que vos notifications sont également disponibles dans ce contrôleur
+        ]);
+    }
+
+    #[Route('/dashboard/sendMessage', name: 'app_dashboard_sendMessage')]
+    public function dashboard_sendMessage(): Response
+    {
+        return $this->render('platform/dashboard/messaging/sendMessage.html.twig', [
+            'notifications' => $this->notifications, // Assurez-vous que vos notifications sont également disponibles dans ce contrôleur
+        ]);
+    }
+
+    #[Route('/dashboard/displayMessage', name: 'app_dashboard_displayMessage')]
+    public function dashboard_displaydMessage(): Response
+    {
+        return $this->render('platform/dashboard/messaging/displayMessage.html.twig', [
+            'notifications' => $this->notifications, // Assurez-vous que vos notifications sont également disponibles dans ce contrôleur
+        ]);
+    }
 }
