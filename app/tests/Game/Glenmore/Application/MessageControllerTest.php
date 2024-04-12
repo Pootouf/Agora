@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\Game\Factory\Application;
+namespace App\Tests\Game\Glenmore\Application;
 
 use App\Entity\Game\Glenmore\GameGLM;
 use App\Repository\Game\GameUserRepository;
