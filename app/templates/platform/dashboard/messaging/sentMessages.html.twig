@@ -12,18 +12,18 @@ Messages Envoyé
        <h2 class="text-base font-semibold leading-7 text-gray-900">Message Envoyé</h2>
        <div class="mt-5 grid grid-cols-1 gap-x-6 sm:grid-cols-6">
            <div class="col-span-2">
-               <label for="subject" class="block text-sm font-medium leading-6 text-gray-900">Recherche par sujet : </label>
+               <label for="subjectSearch" class="block text-sm font-medium leading-6 text-gray-900">Recherche par sujet : </label>
                <div class="mt-2 mb-4">
                    <div class="flex bg-white rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-primary sm:max-w-md">
-                       <input type="text" name="subject" id="subject" class="block flex-1 border-0 bg-transparent py-1.5 pl-1 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6" placeholder="Sujet du mail">
+                       <input type="text" name="subjectSearch" id="subjectSearch" class="block flex-1 border-0 bg-transparent py-1.5 pl-1 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6" placeholder="Sujet du mail">
                    </div>
                </div>
            </div>
            <div class="col-span-2">
-               <label for="subject" class="block text-sm font-medium leading-6 text-gray-900">Recherche par utilisateur : </label>
+               <label for="userSearch" class="block text-sm font-medium leading-6 text-gray-900">Recherche par utilisateur : </label>
                <div class="mt-2 mb-4">
                    <div class="flex bg-white rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-primary sm:max-w-md">
-                       <input type="text" name="subject" id="subject" class="block flex-1 border-0 bg-transparent py-1.5 pl-1 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6" placeholder="Destinataire du mail">
+                       <input type="text" name="userSearch" id="userSearch" class="block flex-1 border-0 bg-transparent py-1.5 pl-1 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6" placeholder="Destinataire du mail">
                    </div>
                </div>
            </div>
@@ -56,45 +56,78 @@ Messages Envoyé
                </tr>
             </thead>
 
-            <tbody id="table-body">
-            {% for k in range(0, 100)  %}
-               <tr class="border-b text-center">
-                  <td class="p-2 text-center">
-                     <p>Sujet du mail {{ k }}</p>
-                  </td>
-                  <td class="px-3 py-4 text-left">
-                     <p>Exemple de contenue ?</p>
-                  </td>
-                  <td class="px-20 py-4">
-                      <p>12/04/2024</p>
-                  </td>
-                  <td class="px-3 py-4">
-                      <a href="#" class="underline text-primary px-5 py-2.5 text-center me-2 mb-2">
-                          utilisateur{{ k }}
-                      </a>
-                  </td>
-                   <td class="px-3 py-4">
-                       <a href="/dashboard/displayMessage">
-                           {% if k < 5 %}
-                               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                   <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
-                               </svg>
-                           {% else %}
-                               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                   <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 9v.906a2.25 2.25 0 0 1-1.183 1.981l-6.478 3.488M2.25 9v.906a2.25 2.25 0 0 0 1.183 1.981l6.478 3.488m8.839 2.51-4.66-2.51m0 0-1.023-.55a2.25 2.25 0 0 0-2.134 0l-1.022.55m0 0-4.661 2.51m16.5 1.615a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V8.844a2.25 2.25 0 0 1 1.183-1.981l7.5-4.039a2.25 2.25 0 0 1 2.134 0l7.5 4.039a2.25 2.25 0 0 1 1.183 1.98V19.5Z" />
-                               </svg>
-                           {% endif %}
-                       </a>
-                   </td>
-               </tr>
-            {% endfor  %}
-            </tbody>
+             <tbody id="receivedMessage">
+             {% for k in range(0, 100)  %}
+                 <tr class="border-b text-center">
+                     <td class="p-2 text-center">
+                         <p class="subject"> Sujet du mail {{ k }}</p>
+                     </td>
+                     <td class="px-3 py-4 text-left">
+                         <p>Exemple de contenue ?</p>
+                     </td>
+                     <td class="px-20 py-4">
+                         <p>12/04/2024</p>
+                     </td>
+                     <td class="px-3 py-4">
+                         <a href="#" class="user underline text-primary px-5 py-2.5 text-center me-2 mb-2">
+                             utilisateur{{ k }}
+                         </a>
+                     </td>
+                     <td class="px-3 py-4">
+                         <a href="/dashboard/displayMessage">
+                             {% if k < 5 %}
+                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                     <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+                                 </svg>
+                             {% else %}
+                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                     <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 9v.906a2.25 2.25 0 0 1-1.183 1.981l-6.478 3.488M2.25 9v.906a2.25 2.25 0 0 0 1.183 1.981l6.478 3.488m8.839 2.51-4.66-2.51m0 0-1.023-.55a2.25 2.25 0 0 0-2.134 0l-1.022.55m0 0-4.661 2.51m16.5 1.615a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V8.844a2.25 2.25 0 0 1 1.183-1.981l7.5-4.039a2.25 2.25 0 0 1 2.134 0l7.5 4.039a2.25 2.25 0 0 1 1.183 1.98V19.5Z" />
+                                 </svg>
+                             {% endif %}
+                         </a>
+                     </td>
+                 </tr>
+             {% endfor  %}
+             </tbody>
          </table>
+       <h4 id="noMessage" class="hidden text-center text-base text-gray-900">Aucun message Trouvé</h4>
       </div>
-   </div>
 
    <div class="absolute inset-x-0 top-[calc(100%-13rem)] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[calc(100%-30rem)]" aria-hidden="true">
       <div class="relative left-[calc(50%+3rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 bg-gradient-to-tr from-primary to-danger opacity-30 sm:left-[calc(50%+36rem)] sm:w-[72.1875rem]" style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)"></div>
    </div>
 </div>
+
+    <script>
+
+        const subjectSearchInput = document.getElementById('subjectSearch');
+        const userSearchInput = document.getElementById('userSearch');
+        const noMessage = document.getElementById('noMessage');
+        const receivedMessage = document.getElementById('receivedMessage').getElementsByTagName('tr');
+
+        function searchMessage() {
+            const subject = subjectSearchInput.value.toLowerCase();
+            const user = userSearchInput.value.toLowerCase();
+            noMessage.classList.add('hidden');
+            let empty = true;
+
+            for (let message of receivedMessage) {
+                const messageSubject = message.querySelector(".subject").textContent.toLowerCase();
+                const messageUser = message.querySelector(".user").textContent.toLowerCase();
+                if (messageSubject.includes(subject) && messageUser.includes(user)) {
+                    empty = false;
+                    message.classList.remove('hidden'); // Afficher l'élément si le texte correspond à la recherche
+                } else {
+                    message.classList.add('hidden'); // Masquer l'élément sinon
+                }
+            }
+            if (empty) {
+                noMessage.classList.remove('hidden');
+            }
+        }
+
+        subjectSearchInput.addEventListener('input', searchMessage);
+        userSearchInput.addEventListener('input', searchMessage)
+
+    </script>
 {% endblock %}
