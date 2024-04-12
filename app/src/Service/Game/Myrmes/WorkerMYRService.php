@@ -242,6 +242,34 @@ class WorkerMYRService
     }
 
     /**
+     * canPlacePheromone : checks if a player can place a pheromone of a type on a tile
+     * @param PlayerMYR   $player
+     * @param TileMYR     $tile
+     * @param TileTypeMYR $tileType
+     * @return bool
+     */
+    public function canPlacePheromone(PlayerMYR $player, TileMYR $tile, TileTypeMYR $tileType) : bool
+    {
+        $pheromoneCount = $this->getPheromoneCountOfType($player, $tileType);
+        try {
+            if (!$this->canChoosePheromone($player, $tileType, $pheromoneCount)) {
+                return false;
+            }
+        } catch (Exception $e) {
+            return false;
+        }
+        if(!$this->canPlaceSpecialTile($player, $tileType)){
+            return false;
+        }
+        try {
+            $tiles = $this->getAllCoordinatesFromTileType($player, $tile, $tileType);
+        } catch (Exception $e) {
+            return false;
+        }
+        return !$tiles->isEmpty();
+    }
+
+    /**
      * placePheromone : player tries to place a pheromone or a special tile on the selected tile
      *
      * @param PlayerMYR   $player
@@ -252,16 +280,11 @@ class WorkerMYRService
      */
     public function placePheromone(PlayerMYR $player, TileMYR $tile, TileTypeMYR $tileType) : void
     {
-        $pheromoneCount = $this->getPheromoneCountOfType($player, $tileType);
-        if (!$this->canChoosePheromone($player, $tileType, $pheromoneCount)) {
-            throw new Exception("player can't place more pheromones of this type");
-        }
-        if(!$this->canPlaceSpecialTile($player, $tileType)){
-            throw new Exception("Can't place special tile");
+        if (!$this->canPlacePheromone($player, $tile, $tileType)) {
+            throw new Exception("this pheromone can't be placed there");
         }
         $tiles = $this->getAllCoordinatesFromTileType($player, $tile, $tileType);
         $this->createAndPlacePheromone($tiles, $player, $tileType);
-
     }
 
     /**
