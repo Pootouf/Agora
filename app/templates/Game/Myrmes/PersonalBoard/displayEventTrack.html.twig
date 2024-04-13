@@ -52,7 +52,7 @@ This section displays the event track which the player can see and change the se
                      alt="event track right button" />
             </{% if not isPreview %}button{% else %}div{% endif %}>
         </div>
-            {% if not isPreview %}
+            {% if not isPreview and playerPhase == PHASE_EVENT %}
                     <button type="button" class="rounded-lg bg-[#8F901F] py-2 px-3 m-1 portrait:text-2xl items-center"
                             {{ stimulus_action('myrmes', 'confirmBonus', 'click',
                                 {url:path('app_game_myrmes_confirm_bonus',
