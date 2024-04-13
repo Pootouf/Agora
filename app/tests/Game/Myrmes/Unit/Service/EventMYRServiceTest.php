@@ -140,6 +140,92 @@ class EventMYRServiceTest extends TestCase
 
     }
 
+    public function testConfirmBonus() : void
+    {
+        // GIVEN
+
+        $game = $this->initializeGameData(MyrmesParameters::BONUS_POINT);
+        $player = new PlayerMYR("test", $game);
+        $personalBoard = new PersonalBoardMYR();
+        $player->setPersonalBoardMYR($personalBoard);
+        $player->getPersonalBoardMYR()->setBonus(
+            MyrmesParameters::BONUS_HARVEST);
+
+        // WHEN
+
+        $this->eventMYRService->confirmBonus($player);
+
+        // THEN
+
+        $this->assertSame(3, $player->getRemainingHarvestingBonus());
+    }
+
+    public function testLowerBonusWhenPhaseIsNotEqualToEventPhase() : void
+    {
+        // GIVEN
+
+        $game = $this->initializeGameData(MyrmesParameters::BONUS_POINT);
+        $player = new PlayerMYR("test", $game);
+        $personalBoard = new PersonalBoardMYR();
+        $player->setPersonalBoardMYR($personalBoard);
+        $player->getPersonalBoardMYR()->setBonus(
+            MyrmesParameters::BONUS_HARVEST);
+        $player->setPhase(MyrmesParameters::PHASE_INVALID);
+
+        // THEN
+
+        $this->expectException(\Exception::class);
+
+        // WHEN
+
+        $this->eventMYRService->lowerBonus($player);
+    }
+
+    public function testLowerBonusWhenCanNotLower() : void
+    {
+        // GIVEN
+
+        $game = $this->initializeGameData(MyrmesParameters::BONUS_POINT);
+        $player = new PlayerMYR("test", $game);
+        $personalBoard = new PersonalBoardMYR();
+        $player->setPersonalBoardMYR($personalBoard);
+        $player->getPersonalBoardMYR()->setBonus(0);
+        $player->setPhase(MyrmesParameters::PHASE_EVENT);
+
+        // THEN
+
+        $this->expectException(\Exception::class);
+
+        // WHEN
+
+        $this->eventMYRService->lowerBonus($player);
+    }
+
+    public function testUpperBonusWhen() : void
+    {
+        // GIVEN
+
+        $game = $this->initializeGameData(MyrmesParameters::BONUS_WORKER);
+
+        $personalBoard = new PersonalBoardMYR();
+        $personalBoard->setBonus(MyrmesParameters::BONUS_WARRIOR);
+        $personalBoard->setLarvaCount(2);
+        $personalBoard->setSelectedEventLarvaeAmount(1);
+        $bonusExpected = MyrmesParameters::BONUS_PHEROMONE;
+
+        $player = new PlayerMYR("test", $game);
+        $player->setPersonalBoardMYR($personalBoard);
+
+        // WHEN
+
+        $this->eventMYRService->upBonus($player);
+
+        // THEN
+
+        $this->assertSame($bonusExpected, $personalBoard->getBonus());
+        $this->assertSame(0, $personalBoard->getSelectedEventLarvaeAmount());
+    }
+
     private function initializeGameData(int $bonus): GameMYR
     {
         $game = new GameMYR();

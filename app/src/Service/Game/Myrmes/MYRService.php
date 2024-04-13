@@ -123,7 +123,7 @@ class MYRService
     }
 
     /**
-     * getPheromonesFromType : returns all orientations of a pheremone or special tile from a type
+     * getPheromonesFromType : returns all orientations of a pheromone or special tile from a type
      * @param int $type
      * @return ArrayCollection<Int, TileTypeMYR>
      */

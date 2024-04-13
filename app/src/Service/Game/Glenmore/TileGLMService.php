@@ -882,7 +882,6 @@ class TileGLMService
         if ($movementPoint == 0) {
             throw new Exception("no more movement points");
         }
-
         // removes villager from the tile
         $this->retrieveVillagerFromTile($playerTileGLM);
         $personalBoard = $player->getPersonalBoard();
@@ -1232,7 +1231,11 @@ class TileGLMService
         $villager = $this->resourceGLMRepository->findOneBy(['type' => GlenmoreParameters::$VILLAGER_RESOURCE]);
         $villagers =  $this->playerTileResourceGLMRepository->findBy(['resource' => $villager->getId(),
                 'player' => $player->getId()]);
-        return count($villagers);
+        $result = 0;
+        foreach ($villagers as $villager) {
+            $result += $villager->getQuantity();
+        }
+        return $result;
     }
 
     /**
@@ -1356,13 +1359,11 @@ class TileGLMService
             function (SelectedResourceGLM $selectedResourceGLM) use ($resource) {
                 return $selectedResourceGLM->getResource()->getId() == $resource->getId();
             });
-
         $numberOfSelectedResources = 0;
         foreach ($selectedResourcesLikeResource as $selectedResourceLikeResource) {
             $numberOfSelectedResources += $selectedResourceLikeResource->getQuantity();
         }
         $player = $personalBoard->getPlayerGLM();
-
         if ($player->getRoundPhase() == GlenmoreParameters::$BUYING_PHASE) {
             $priceCost = $cost->filter(
                 function(TileBuyCostGLM $buyCost) use ($resource) {

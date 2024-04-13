@@ -24,6 +24,7 @@ use App\Repository\Game\Myrmes\TileTypeMYRRepository;
 use App\Service\Game\Myrmes\MYRService;
 use App\Service\Game\Myrmes\WinterMYRService;
 use App\Service\Game\Myrmes\WorkshopMYRService;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use function Symfony\Component\String\s;
@@ -351,9 +352,86 @@ class WorkshopMYRServiceTest extends KernelTestCase
         $this->assertSame($expectedPlayerDirtResourceNb, $playerDirtResource->getQuantity());
     }
 
+    public function testGetAvailableAnthillPositions() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $tilePheromone1 = $this->tileMYRRepository->findOneBy(["coord_X" => 6, "coord_Y" => 15]);
+        $tilePheromone2 = $this->tileMYRRepository->findOneBy(["coord_X" => 7, "coord_Y" => 16]);
+        $tileType = $this->tileTypeMYRRepository->findOneBy(
+            ["type" => MyrmesParameters::PHEROMONE_TYPE_ZERO, "orientation" => 0]
+        );
+        $pheromone = new PheromonMYR();
+        $pheromone->setType($tileType);
+        $pheromone->setPlayer($player);
+        $pheromone->setHarvested(false);
+        $pheromoneTile = new PheromonTileMYR();
+        $pheromoneTile->setTile($tilePheromone1);
+        $pheromoneTile->setPheromonMYR($pheromone);
+        $pheromoneTile->setResource(null);
+        $pheromoneTile->setMainBoard($game->getMainBoardMYR());
+        $this->entityManager->persist($pheromoneTile);
+        $pheromone->addPheromonTile($pheromoneTile);
+        $pheromoneTile = new PheromonTileMYR();
+        $pheromoneTile->setTile($tilePheromone2);
+        $pheromoneTile->setPheromonMYR($pheromone);
+        $pheromoneTile->setResource(null);
+        $pheromoneTile->setMainBoard($game->getMainBoardMYR());
+        $this->entityManager->persist($pheromoneTile);
+        $pheromone->addPheromonTile($pheromoneTile);
+        $this->entityManager->persist($pheromone);
+        $player->addPheromonMYR($pheromone);
+        $this->entityManager->persist($player);
+        $tile = $this->tileMYRRepository->findOneBy(["coord_X" => 8, "coord_Y" => 15]);
+        $prey = new PreyMYR();
+        $prey->setTile($tile);
+        $prey->setType(MyrmesParameters::LADYBUG_TYPE);
+        $prey->setPlayer($player);
+        $prey->setMainBoardMYR($game->getMainBoardMYR());
+        $this->entityManager->persist($player);
+        $this->entityManager->persist($prey);
+        $tile = $this->tileMYRRepository->findOneBy(["coord_X" => 7, "coord_Y" => 18]);
+        $prey = new PreyMYR();
+        $prey->setTile($tile);
+        $prey->setType(MyrmesParameters::LADYBUG_TYPE);
+        $prey->setPlayer($player);
+        $prey->setMainBoardMYR($game->getMainBoardMYR());
+        $this->entityManager->persist($player);
+        $this->entityManager->persist($prey);
+        $this->entityManager->flush();
+        $expectedTiles = new ArrayCollection();
+        $tile = $this->tileMYRRepository->findOneBy(["coord_X" => 5, "coord_Y" => 14]);
+        $expectedTiles->add($tile);
+        $tile = $this->tileMYRRepository->findOneBy(["coord_X" => 6, "coord_Y" => 13]);
+        $expectedTiles->add($tile);
+        $tile = $this->tileMYRRepository->findOneBy(["coord_X" => 7, "coord_Y" => 14]);
+        $expectedTiles->add($tile);
+        //WHEN
+        $result = $this->workshopMYRService->getAvailableAnthillHolesPositions($player);
+        //THEN
+        $this->assertSame($expectedTiles->count(), $result->count());
+    }
+
     private function createGame(int $numberOfPlayers) : GameMYR
     {
         $game = new GameMYR();
+        $mainBoard = new MainBoardMYR();
+        $mainBoard->setYearNum(0);
+        $mainBoard->setGame($game);
+        $season = new SeasonMYR();
+        $season->setName("Spring");
+        $season->setDiceResult(1);
+        $season->setActualSeason(true);
+        $season->setMainBoard($mainBoard);
+        $mainBoard->addSeason($season);
+        $this->entityManager->persist($season);
+        $game->setMainBoardMYR($mainBoard);
+        $game->setGameName("test");
+        $game->setLaunched(true);
+        $game->setGamePhase(MyrmesParameters::PHASE_INVALID);
+        $this->entityManager->persist($mainBoard);
+        $this->entityManager->persist($game);
         for ($i = 0; $i < $numberOfPlayers; $i += 1) {
             $player = new PlayerMYR('test', $game);
             $game->addPlayer($player);
@@ -379,23 +457,8 @@ class WorkshopMYRServiceTest extends KernelTestCase
             $player->setRemainingHarvestingBonus(0);
             $this->entityManager->persist($player);
             $this->entityManager->persist($personalBoard);
+            $this->entityManager->flush();
         }
-        $mainBoard = new MainBoardMYR();
-        $mainBoard->setYearNum(0);
-        $mainBoard->setGame($game);
-        $season = new SeasonMYR();
-        $season->setName("Spring");
-        $season->setDiceResult(1);
-        $season->setActualSeason(true);
-        $season->setMainBoard($mainBoard);
-        $mainBoard->addSeason($season);
-        $this->entityManager->persist($season);
-        $game->setMainBoardMYR($mainBoard);
-        $game->setGameName("test");
-        $game->setLaunched(true);
-        $game->setGamePhase(MyrmesParameters::PHASE_INVALID);
-        $this->entityManager->persist($mainBoard);
-        $this->entityManager->persist($game);
         $this->entityManager->flush();
         return $game;
     }
