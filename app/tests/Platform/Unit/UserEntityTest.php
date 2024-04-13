@@ -32,7 +32,7 @@ class UserEntityTest extends TestCase
         $user->setRoles(['ROLE_ADMIN']);
 
         // THEN
-        $this->assertEquals(['ROLE_ADMIN', 'ROLE_USER'], $user->getRoles());
+        $this->assertEquals(['ROLE_ADMIN'], $user->getRoles());
     }
 
     public function testPassword()
