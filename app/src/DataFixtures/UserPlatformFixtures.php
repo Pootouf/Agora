@@ -38,7 +38,7 @@ class UserPlatformFixtures extends Fixture
         $moderator->setIsVerified(true);
         $password = $this->hasher->hashPassword($moderator, 'moderagora');
         $moderator->setPassword($password);
-        $moderator->setRoles(['ROLE_ADMIN']);
+        $moderator->setRoles(['ROLE_MODERATOR']);
         $manager->persist($moderator);
         $users[] = $moderator;
 
