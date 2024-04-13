@@ -246,6 +246,23 @@ class MYRServiceTest extends KernelTestCase
             throw new \Exception("TOO MUCH PLAYERS ON CREATE GAME");
         }
         $game = new GameMYR();
+        $mainBoard = new MainBoardMYR();
+        $mainBoard->setYearNum(0);
+        $mainBoard->setGame($game);
+        $entityManager->persist($mainBoard);
+        $season = new SeasonMYR();
+        $season->setName("Spring");
+        $season->setDiceResult(1);
+        $season->setActualSeason(true);
+        $season->setMainBoard($mainBoard);
+        $mainBoard->addSeason($season);
+        $entityManager->persist($season);
+        $game->setMainBoardMYR($mainBoard);
+        $game->setGameName("test");
+        $game->setLaunched(true);
+        $game->setGamePhase(MyrmesParameters::PHASE_INVALID);
+        $entityManager->persist($mainBoard);
+        $entityManager->persist($game);
         for ($i = 0; $i < $numberOfPlayers; $i += 1) {
             $player = new PlayerMYR('test' . $i, $game);
             $game->addPlayer($player);
@@ -272,24 +289,8 @@ class MYRServiceTest extends KernelTestCase
             }
             $entityManager->persist($player);
             $entityManager->persist($personalBoard);
+            $entityManager->flush();
         }
-        $mainBoard = new MainBoardMYR();
-        $mainBoard->setYearNum(0);
-        $mainBoard->setGame($game);
-        $entityManager->persist($mainBoard);
-        $season = new SeasonMYR();
-        $season->setName("Spring");
-        $season->setDiceResult(1);
-        $season->setActualSeason(true);
-        $season->setMainBoard($mainBoard);
-        $mainBoard->addSeason($season);
-        $entityManager->persist($season);
-        $game->setMainBoardMYR($mainBoard);
-        $game->setGameName("test");
-        $game->setLaunched(true);
-        $game->setGamePhase(MyrmesParameters::PHASE_INVALID);
-        $entityManager->persist($mainBoard);
-        $entityManager->persist($game);
         $entityManager->flush();
         return $game;
     }

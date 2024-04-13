@@ -11,15 +11,30 @@ use function PHPUnit\Framework\isNull;
 class Player
 {
     #[ORM\Id]
-    #[ORM\GeneratedValue]
+    #[ORM\GeneratedValue(strategy: "CUSTOM")]
+    #[ORM\CustomIdGenerator(class: "App\Generator\Game\PlayerIdGenerator")]
     #[ORM\Column]
     protected ?int $id = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, nullable: true)]
     protected ?string $username = null;
 
     #[ORM\Column(nullable: true)]
     protected ?bool $turnOfPlayer = null;
+
+    #[ORM\Column(nullable: false)]
+    protected bool $excluded = false;
+
+    public function isExcluded(): bool
+    {
+        return $this->excluded;
+    }
+
+    public function setExcluded(bool $excluded): void
+    {
+        $this->excluded = $excluded;
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -30,7 +45,7 @@ class Player
         return $this->username;
     }
 
-    public function setUsername(string $username): static
+    public function setUsername(?string $username): static
     {
         $this->username = $username;
 

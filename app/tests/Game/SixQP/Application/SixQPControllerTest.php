@@ -45,7 +45,7 @@ class SixQPControllerTest extends WebTestCase
     {
         $gameId = $this->initializeGameWithTwoPlayers();
         $game = $this->gameSixQPRepository->findOneById($gameId);
-        $player = $game->getPlayerSixQPs()[0];
+        $player = $game->getPlayers()[0];
         $card = $player->getCards()[0];
         $newUrl = "/game/" . $gameId . "/sixqp/select/" . $card->getId();
         $user3 = $this->gameUserRepository->findOneByUsername("test2");

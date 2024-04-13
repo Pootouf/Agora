@@ -44,6 +44,8 @@ class GlenmoreController extends AbstractController
     #[Route('/game/glenmore/{id}', name: 'app_game_show_glm')]
     public function showGame(GameGLM $game): Response
     {
+        if ($game->isPaused() || !$game->isLaunched())
+            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         $isSpectator = false;
         $needToPlay = false;
@@ -103,6 +105,8 @@ class GlenmoreController extends AbstractController
         #[MapEntity(id: 'idGame')] GameGLM $gameGLM,
         #[MapEntity(id: 'idPlayer')] PlayerGLM $playerGLM): Response
     {
+        if ($gameGLM->isPaused() || !$gameGLM->isLaunched())
+            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
         $player = $this->service->getPlayerFromNameAndGame($gameGLM, $playerGLM->getUsername());
         return $this->render('Game/Glenmore/PersonalBoard/displayPropertyCards.html.twig', [
             'player' => $player,
@@ -116,6 +120,8 @@ class GlenmoreController extends AbstractController
         #[MapEntity(id: 'idResourceLine')] WarehouseLineGLM $line
     )  : Response
     {
+        if ($game->isPaused() || !$game->isLaunched())
+            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         return $this->render('Game/Glenmore/MainBoard/Warehouse/warehouseActions.html.twig', [
             'player' => $player,
@@ -132,6 +138,8 @@ class GlenmoreController extends AbstractController
         #[MapEntity(id: 'idResourceLine')] WarehouseLineGLM $line
     )  : Response
     {
+        if ($game->isPaused() || !$game->isLaunched())
+            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         return $this->render('Game/Glenmore/MainBoard/Warehouse/warehouseActions.html.twig', [
             'player' => $player,
@@ -148,6 +156,8 @@ class GlenmoreController extends AbstractController
         #[MapEntity(id: 'idResourceLine')] WarehouseLineGLM $line
     )  : Response
     {
+        if ($game->isPaused() || !$game->isLaunched())
+            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
@@ -187,6 +197,8 @@ class GlenmoreController extends AbstractController
         #[MapEntity(id: 'idResourceLine')] WarehouseLineGLM $line
     )  : Response
     {
+        if ($game->isPaused() || !$game->isLaunched())
+            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
@@ -223,6 +235,8 @@ class GlenmoreController extends AbstractController
         #[MapEntity(id: 'idTile')] BoardTileGLM $tile
     )  : Response
     {
+        if ($game->isPaused() || !$game->isLaunched())
+            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
@@ -271,6 +285,8 @@ class GlenmoreController extends AbstractController
         int $coordY
     )  : Response
     {
+        if ($game->isPaused() || !$game->isLaunched())
+            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
@@ -325,6 +341,8 @@ class GlenmoreController extends AbstractController
         #[MapEntity(id: 'idTile')] PlayerTileGLM $tile
     )  : Response
     {
+        if ($game->isPaused() || !$game->isLaunched())
+            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
@@ -355,6 +373,8 @@ class GlenmoreController extends AbstractController
         #[MapEntity(id: 'idTile')] PlayerTileGLM $tile
     )  : Response
     {
+        if ($game->isPaused() || !$game->isLaunched())
+            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
@@ -409,6 +429,8 @@ class GlenmoreController extends AbstractController
         #[MapEntity(id: 'idGame')] GameGLM $game
     )  : Response
     {
+        if ($game->isPaused() || !$game->isLaunched())
+            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
@@ -436,6 +458,8 @@ class GlenmoreController extends AbstractController
         string $resource
     )  : Response
     {
+        if ($game->isPaused() || !$game->isLaunched())
+            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
@@ -479,6 +503,8 @@ class GlenmoreController extends AbstractController
         #[MapEntity(id: 'idTile')] PlayerTileGLM $tile
     )  : Response
     {
+        if ($game->isPaused() || !$game->isLaunched())
+            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
@@ -516,6 +542,8 @@ class GlenmoreController extends AbstractController
         #[MapEntity(id: 'idTile')] PlayerTileGLM $tile
     )  : Response
     {
+        if ($game->isPaused() || !$game->isLaunched())
+            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
@@ -564,6 +592,8 @@ class GlenmoreController extends AbstractController
         #[MapEntity(id: 'idGame')] GameGLM $game,
     )  : Response
     {
+        if ($game->isPaused() || !$game->isLaunched())
+            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
@@ -599,6 +629,8 @@ class GlenmoreController extends AbstractController
         #[MapEntity(id: 'idGame')] GameGLM $game
     )  : Response
     {
+        if ($game->isPaused() || !$game->isLaunched())
+            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
@@ -621,6 +653,8 @@ class GlenmoreController extends AbstractController
         int $dir
     )  : Response
     {
+        if ($game->isPaused() || !$game->isLaunched())
+            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
@@ -658,6 +692,8 @@ class GlenmoreController extends AbstractController
         #[MapEntity(id: 'idTile')] PlayerTileGLM $tile
     )  : Response
     {
+        if ($game->isPaused() || !$game->isLaunched())
+            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
@@ -690,6 +726,8 @@ class GlenmoreController extends AbstractController
         #[MapEntity(id: 'idTile')] PlayerTileGLM $tile
     )  : Response
     {
+        if ($game->isPaused() || !$game->isLaunched())
+            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
@@ -708,6 +746,8 @@ class GlenmoreController extends AbstractController
         #[MapEntity(id: 'idGame')] GameGLM $game
     )  : Response
     {
+        if ($game->isPaused() || !$game->isLaunched())
+            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
@@ -791,6 +831,8 @@ class GlenmoreController extends AbstractController
         #[MapEntity(id: 'idGame')] GameGLM $game
     )  : Response
     {
+        if ($game->isPaused() || !$game->isLaunched())
+            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
@@ -809,6 +851,8 @@ class GlenmoreController extends AbstractController
         #[MapEntity(id: 'idGame')] GameGLM $game
     )  : Response
     {
+        if ($game->isPaused() || !$game->isLaunched())
+            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
@@ -830,6 +874,8 @@ class GlenmoreController extends AbstractController
         #[MapEntity(id: 'idGame')] GameGLM $gameGLM,
         #[MapEntity(id: 'idPlayer')] PlayerGLM $playerGLM): Response
     {
+        if ($gameGLM->isPaused() || !$gameGLM->isLaunched())
+            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
         $personalBoard = $playerGLM->getPersonalBoard();
         return $this->render('Game/Glenmore/MainBoard/playerPersonalBoard.html.twig', [
             'isSpectator' => true,
@@ -847,6 +893,8 @@ class GlenmoreController extends AbstractController
     public function showMainBoard(
         #[MapEntity(id: 'idGame')] GameGLM $game): Response
     {
+        if ($game->isPaused() || !$game->isLaunched())
+            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         return $this->render('Game/Glenmore/MainBoard/mainBoard.html.twig',
             [
@@ -863,6 +911,8 @@ class GlenmoreController extends AbstractController
     public function cancelBuyingTile(
         #[MapEntity(id: 'idGame')] GameGLM $game): Response
     {
+        if ($game->isPaused() || !$game->isLaunched())
+            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
@@ -886,6 +936,8 @@ class GlenmoreController extends AbstractController
     public function cancelActivatingTile(
         #[MapEntity(id: 'idGame')] GameGLM $game): Response
     {
+        if ($game->isPaused() || !$game->isLaunched())
+            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
