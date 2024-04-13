@@ -16,7 +16,6 @@ security:
         form_login:
           login_path: app_login
           check_path: app_login
-          always_use_default_target_path: true
           target_path_parameter: _target_path
           enable_csrf: true
         logout:
@@ -36,8 +35,8 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-         - { path: ^/dashboard/admin, roles: ROLE_ADMIN }
-         - { path: ^/dashboard/user, roles: ROLE_USER }
+         - { path: ^/admin, roles: ROLE_ADMIN }
+         - { path: ^/dashboard, roles: ROLE_USER }
 
 when@test:
     security:
