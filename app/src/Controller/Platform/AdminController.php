@@ -57,16 +57,10 @@ class AdminController extends AbstractController
 
     private function generateRandomName(): string
     {
-        // Liste des prénoms
         $names = ['alice', 'bob', 'toto', 'elisa', 'eve'];
-
         $randomNumber = mt_rand(0000000001, 9999999999);
-
         $name = $names[array_rand($names)];
-
-        // Combinaison du nombre et du prénom
         $pseudo = $name. '_' . $randomNumber ;
-
         return $pseudo;
     }
 
