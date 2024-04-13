@@ -4,6 +4,7 @@ namespace App\Service\Platform;
 
 use App\Entity\Platform\Notification;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Mercure\HubInterface;
 use Symfony\Component\Mercure\Update;
 
@@ -11,6 +12,7 @@ class NotificationService
 {
     private HubInterface $hub;
     private EntityManagerInterface $entityManager;
+
 
 
     public function __construct(HubInterface $hub, EntityManagerInterface $entityManager){
@@ -59,5 +61,19 @@ class NotificationService
         $this->entityManager->flush();
     }
 
+    public function getNotifications(Security $security)
+    {
+        $user = $security->getUser();
+        if ($user){
+            $notifications = $this->entityManager->getRepository(Notification::class)
+                ->findBy(
+                    ['receiver' => $user, 'isRead' => false],
+                    ['createdAt' => 'DESC'],
+                );
+        }else{
+            $notifications = null;
+        }
+        return $notifications;
+    }
 
 }

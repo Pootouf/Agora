@@ -9,9 +9,11 @@ use App\Entity\Platform\Notification;
 use App\Entity\Platform\User;
 use App\Form\Platform\SearchBoardType;
 use App\Repository\Platform\BoardRepository;
+use App\Service\Platform\NotificationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use App\Form\Platform\EditProfileType;
@@ -22,19 +24,13 @@ class DashboardController extends AbstractController
 {
     private $notifications;
     private $security;
-    public function __construct(Security $security, EntityManagerInterface $entityManager)
+
+    private $entityManager;
+    public function __construct(Security $security, EntityManagerInterface $entityManager, NotificationService $notificationService)
     {
-        $user = $security->getUser();
-        if ($user){
-            $this->notifications = $entityManager->getRepository(Notification::class)
-                ->findBy(
-                    ['receiver' => $user],
-                    ['createdAt' => 'DESC']
-                );
-        }else{
-            $this->notifications = null;
-        }
+        $this->notifications = $notificationService->getNotifications($security);
         $this->security = $security;
+        $this->entityManager = $entityManager;
     }
     #[Route('/dashboard', name: 'app_dashboard', methods: ['GET'])]
     public function index(): Response
@@ -44,11 +40,11 @@ class DashboardController extends AbstractController
         ]);
     }
     #[Route('/dashboard/profile', name: 'app_dashboard_profile')]
-    public function profile(EntityManagerInterface $entityManager): Response
+    public function profile(): Response
     {
         if($this->security->getUser()) {
             $userId = $this->security->getUser()->getId();
-            $userRepository = $entityManager->getRepository(Board::class);
+            $userRepository = $this->entityManager->getRepository(Board::class);
             $favGames = $this->security->getUser()->getFavoriteGames();
             $currentBoards = $userRepository->findBoardsByUserAndStatus($userId, "IN_GAME");
             $pastBoards = $userRepository->findBoardsByUserAndStatus($userId, "WAITING");
@@ -70,16 +66,17 @@ class DashboardController extends AbstractController
     }
 
     #[Route('/dashboard/profile/{user_id}', name: 'app_other_user_profile', requirements: ['user_id' => '\d+'])]
-    public function getUserProfile(EntityManagerInterface $entityManager, int $user_id) : Response
+    public function getUserProfile(int $user_id) : Response
     {
-        $userRepository = $entityManager->getRepository(User::class);
-        $boardRepository = $entityManager->getRepository(Board::class);
+        $userRepository = $this->entityManager->getRepository(User::class);
+        $boardRepository = $this->entityManager->getRepository(Board::class);
 
         $user = $userRepository->find($user_id);
 
         $favGames = $user->getFavoriteGames();
         $currentBoards = $boardRepository->findBoardsByUserAndStatus($user_id, "IN_GAME");
         $pastBoards = $boardRepository->findBoardsByUserAndStatus($user_id, "WAITING");
+        $userBan = $user->isIsBanned();
 
         return $this->render('platform/dashboard/profile.html.twig', [
             'fav_games' => $favGames,
@@ -87,6 +84,7 @@ class DashboardController extends AbstractController
             'past_boards' => $pastBoards,
             'userProfile' => $user,
             'notifications' => $this->notifications,
+            'userban' => $userBan
         ]);
     }
 
@@ -154,10 +152,10 @@ class DashboardController extends AbstractController
 
     //    Get all boards of a unique game
     #[Route('/dashboard/game/{id}/tables', name: 'app_boards_game', requirements: ['id' => '\d+'], methods: ['GET'])]
-    public function tablesByGame(int $id, BoardRepository $boardRepository,  EntityManagerInterface $entityManager, Request $request): Response
+    public function tablesByGame(int $id, BoardRepository $boardRepository, Request $request): Response
     {
 //        retrieve game by id
-        $game = $entityManager->getRepository(Game::class)->find($id);
+        $game = $this->entityManager->getRepository(Game::class)->find($id);
         if($game){
             $boards = $boardRepository->findBy(['game' => $game], ['creationDate' => 'DESC']);
         }else{
@@ -195,9 +193,9 @@ class DashboardController extends AbstractController
      * @return Response  HTTP response: list of games page
      */
     #[Route('/dashboard/games', name: 'app_dashboard_games')]
-    public function dashboard_game_index(EntityManagerInterface $entityManager): Response
+    public function dashboard_game_index(): Response
     {
-        $gameRepository = $entityManager->getRepository(Game::class);
+        $gameRepository = $this->entityManager->getRepository(Game::class);
 
         $games = $gameRepository->findAll();
 
@@ -216,9 +214,9 @@ class DashboardController extends AbstractController
      * @return Response HTTP response: game description by ID page
      */
     #[Route('/dashboard/games/{game_id}', name: 'app_dashboard_game_description', requirements: ['game_id' => '\d+'], methods: ['GET', 'HEAD'])]
-    public function dashboard_game_description(EntityManagerInterface $entityManager, int $game_id): Response
+    public function dashboard_game_description(int $game_id): Response
     {
-        $gameRepository = $entityManager->getRepository(Game::class);
+        $gameRepository = $this->entityManager->getRepository(Game::class);
         $game = $gameRepository->find($game_id);
 
         if(!$game) {
@@ -238,10 +236,10 @@ class DashboardController extends AbstractController
      * @return Response  HTTP response: list of games page
      */
     #[Route('/dashboard/allusers', name: 'app_dashboard_allusers')]
-    public function dashboard_allusers(EntityManagerInterface $entityManager): Response
+    public function dashboard_allusers(): Response
     {
         // Récupérer tous les utilisateurs à partir de votre source de données (par exemple, une entité User)
-        $userRepository = $entityManager->getRepository(User::class);
+        $userRepository = $this->entityManager->getRepository(User::class);
         $users = $userRepository->findAll();
 
         // Passer la liste des utilisateurs à votre modèle de vue
@@ -257,10 +255,10 @@ class DashboardController extends AbstractController
      * @return Response  HTTP response: list of games page
      */
     #[Route('/dashboard/banmanager', name: 'app_dashboard_banmanager')]
-    public function dashboard_banmanager(EntityManagerInterface $entityManager): Response
+    public function dashboard_banmanager(): Response
     {
         // Récupérer tous les utilisateurs à partir de votre source de données (par exemple, une entité User)
-        $userRepository = $entityManager->getRepository(User::class);
+        $userRepository = $this->entityManager->getRepository(User::class);
         $users = $userRepository->findAll();
 
         // Passer la liste des utilisateurs à votre modèle de vue
@@ -268,5 +266,12 @@ class DashboardController extends AbstractController
             'users' => $users,
             'notifications' => $this->notifications, // Assurez-vous que vos notifications sont également disponibles dans ce contrôleur
         ]);
+    }
+    #[Route('/readNotification/{notification}', name: 'app_read_notif')]
+    public function readNotification(Notification $notification): JsonResponse
+    {
+        $notification->setIsRead(true);
+        $this->entityManager->flush();
+        return new JsonResponse(['message' => 'Notification lue avec succès']);
     }
 }
