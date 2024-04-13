@@ -16,7 +16,7 @@ security:
         form_login:
           login_path: app_login
           check_path: app_login
-          target_path_parameter: _target_path
+          default_target_path: app_redirect
           enable_csrf: true
         logout:
           path: app_logout
