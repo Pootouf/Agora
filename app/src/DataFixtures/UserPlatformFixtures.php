@@ -26,9 +26,33 @@ class UserPlatformFixtures extends Fixture
             $user->setIsVerified(true);
             $password = $this->hasher->hashPassword($user, 'agora');
             $user->setPassword($password);
+            $user->setRoles(['ROLE_PLAYER']);
             $manager->persist($user);
             $users[] = $user;
         }
+
+        // Moderator
+        $moderator = new User();
+        $moderator->setUsername('moderator');
+        $moderator->setEmail("moderator@univ-rouen.fr");
+        $moderator->setIsVerified(true);
+        $password = $this->hasher->hashPassword($moderator, 'moderagora');
+        $moderator->setPassword($password);
+        $moderator->setRoles(['ROLE_MODERATOR']);
+        $manager->persist($moderator);
+        $users[] = $moderator;
+
+        // Administrator
+        $admin = new User();
+        $admin->setUsername('admin');
+        $admin->setEmail("admin@univ-rouen.fr");
+        $admin->setIsVerified(true);
+        $password = $this->hasher->hashPassword($admin, 'adminagora');
+        $admin->setPassword($password);
+        $admin->setRoles(['ROLE_ADMIN']);
+        $manager->persist($admin);
+        $users[] = $admin;
+
 
         $manager->flush();
 

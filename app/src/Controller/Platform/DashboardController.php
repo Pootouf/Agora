@@ -52,17 +52,20 @@ class DashboardController extends AbstractController
             $favGames = $this->security->getUser()->getFavoriteGames();
             $currentBoards = $userRepository->findBoardsByUserAndStatus($userId, "IN_GAME");
             $pastBoards = $userRepository->findBoardsByUserAndStatus($userId, "WAITING");
+            $userBan = $this->security->getUser()->isIsBanned();
         }
         else {
             $favGames = null;
             $currentBoards = null;
             $pastBoards = null;
+            $userBan = null;
         }
         return $this->render('platform/dashboard/profile.html.twig', [
             'fav_games' => $favGames,
             'current_boards'=> $currentBoards,
             'past_boards' => $pastBoards,
             'notifications' => $this->notifications,
+            'userban' => $userBan
         ]);
     }
 

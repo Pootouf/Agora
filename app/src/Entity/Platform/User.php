@@ -62,6 +62,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\ManyToMany(targetEntity: self::class)]
     private Collection $contacts;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $isBanned = false;
+
+    #[ORM\Column]
+    private ?\DateTime $createdAt;
+
 
     public function __construct()
     {
@@ -71,6 +77,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->notifications = new ArrayCollection();
 
         $this->contacts = new ArrayCollection();
+
+        $this->createdAt = new \DateTime();
     }
 
     /**
@@ -125,8 +133,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getRoles(): array
     {
         $roles = $this->roles;
-        // guarantee every user at least has ROLE_USER
-        $roles[] = 'ROLE_USER';
 
         return array_unique($roles);
     }
@@ -377,6 +383,30 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function removeContact(self $contact): static
     {
         $this->contacts->removeElement($contact);
+
+        return $this;
+    }
+
+    public function isIsBanned(): ?bool
+    {
+        return $this->isBanned;
+    }
+
+    public function setIsBanned(?bool $isBanned): static
+    {
+        $this->isBanned = $isBanned;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTime
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTime $createdAt): static
+    {
+        $this->createdAt = $createdAt;
 
         return $this;
     }
