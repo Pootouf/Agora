@@ -62,7 +62,7 @@ Gestion des utilisateurs
                         <a href="#" class="text-white bg-primary hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold rounded-lg text-sm px-4 py-2 text-center me-2 mb-2">
                         Sauvegarder
                         </a>
-                        <a href="#" class="text-white bg-red-500 hover:bg-red-400 focus:ring-4 focus:outline-none focus:ring-red-300 font-semibold rounded-lg text-sm px-4 py-2 text-center me-2 mb-2">
+                        <a href="{{ path('app_user_delete', {'id': user.id}) }}" class="text-white bg-red-500 hover:bg-red-400 focus:ring-4 focus:outline-none focus:ring-red-300 font-semibold rounded-lg text-sm px-4 py-2 text-center me-2 mb-2">
                         Supprimer
                         </a>
                      </td>

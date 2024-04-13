@@ -13,6 +13,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class UserController extends AbstractController
 {
@@ -108,6 +111,46 @@ class UserController extends AbstractController
         ]);
     }
 
+
+
+    #[Route('/user/delete/{id}', name: 'app_user_delete')]
+public function deleteUser(int $id, EntityManagerInterface $entityManager, TokenStorageInterface $tokenStorage, SessionInterface $session): RedirectResponse
+{
+    // Récupérer l'utilisateur à supprimer
+    $user = $entityManager->getRepository(User::class)->find($id);
+
+    // RETIRER LES COMMENTAIRES DES QUE LE COMPTE ADMIN SERA CRÉÉ
+    // Vérifier si l'utilisateur existe et s'il est autorisé à supprimer d'autres utilisateurs
+   // if (!$user || !$this->isGranted('ROLE_ADMIN')) {
+     // Rediriger vers une page appropriée en cas d'erreur ou d'autorisation insuffisante
+   //     return $this->redirectToRoute('app_home');
+   // }
     
+    // Supprimer l'utilisateur
+    $entityManager->remove($user);
+    $entityManager->flush();
+
+    // Déconnecter l'utilisateur en invalidant le token de sécurité
+    $tokenStorage->setToken(null);
+    $session->getFlashBag()->add('success', 'L\'utilisateur a bien été supprimé.');
+    return $this->redirectToRoute('app_home');
+}
+
+    #[Route('/user/autodelete', name: 'app_user_autodelete')]
+    public function autoDeleteUser(EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher, TokenStorageInterface $tokenStorage,  SessionInterface $session): RedirectResponse
+    {    $user = $this->getUser();
+            if (!$user) {
+            return $this->redirectToRoute('app_home');
+        }
+        
+        // Supprimer l'utilisateur
+        $entityManager->remove($user);
+        $entityManager->flush();
+    
+         // Déconnecter l'utilisateur en invalidant le token de sécurité
+         $tokenStorage->setToken(null);
+         $session->getFlashBag()->add('success', 'Votre compte a bien été supprimé.');
+         return $this->redirectToRoute('app_home');
+    }
 
 }
