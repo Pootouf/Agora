@@ -23,7 +23,7 @@ class Notification
     private ?\DateTime $createdAt;
 
     #[ORM\Column]
-    private ?bool $isRead = null;
+    private ?bool $isRead;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $type = null;
@@ -141,6 +141,7 @@ class Notification
     ()
     {
         $this->createdAt = new \DateTime();
+        $this->isRead = false;
     }
 
     public function getType(): ?string

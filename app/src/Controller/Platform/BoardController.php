@@ -14,6 +14,7 @@ use App\Form\Platform\SearchBoardType;
 use App\Repository\Platform\BoardRepository;
 use App\Service\Platform\BoardManagerService;
 use App\Service\Platform\GameViewerService;
+use App\Service\Platform\NotificationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -43,7 +44,7 @@ class BoardController extends AbstractController
         $this->security= $security;
     }
     #[Route('/dashboard/boardCreation/{game_id}', name: 'app_board_create', requirements: ['game_id' => '\d+'], methods: ['GET', 'POST', 'HEAD'])]
-    public function create(Request $request, $game_id): Response
+    public function create(Request $request, $game_id, NotificationService $notificationService): Response
     {
         //Find the game with the id passed in parameters
         $game = $this->entityManagerInterface->getRepository(Game::class)->find($game_id);
@@ -57,11 +58,7 @@ class BoardController extends AbstractController
         $user = $this->security->getUser();
         $notifications = null;
         if ($user){
-            $notifications = $this->entityManagerInterface->getRepository(Notification::class)
-                ->findBy(
-                    ['receiver' => $user],
-                    ['createdAt' => 'DESC']
-                );
+            $notifications = $notificationService->getNotifications($this->security);
         }
 
         //When the form is valid
