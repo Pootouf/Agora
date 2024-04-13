@@ -6,7 +6,7 @@
 
 <div id="objectives"
      class="absolute top-0 right-0 w-[28%] h-full flex z-50 bg-black bg-opacity-75 items-center justify-center text-white">
-    <div class="absolute bg-orange-500 p-5 w-full h-[50%] rounded-lg flex items-center justify-center flex-col">
+    <div class="absolute bg-orange-500 p-5 w-full h-[60%] rounded-lg flex items-center justify-center flex-col">
         <div class="flex flex-row">
             {% set goalsLevel =
                 [goalsLevelOne, goalsLevelTwo, goalsLevelThree]
@@ -16,7 +16,16 @@
                     {% for goal in goalLevel %}
                         <img class="items-center justify-center rounded-lg shadow-black shadow-lg max-h-full"
                              src="{{ asset('resourcesGames/Myrmes/Goals/Myrmes_objectif_soldat.png') }}"
-                             alt="soldat_goal">
+                             alt="goal_{{ goal.id }}">
+                        <div class="flex flex-row w-full">
+                            {% for i in 1..4 %}
+                                <svg viewBox="0 0 125 125"
+                                     class="mb-5">
+                                    <polygon points="40 13,80 13,110 40,110 80,80 110,40 110,13 80, 13 40"
+                                             fill="black"/>
+                                </svg>
+                            {% endfor %}
+                        </div>
                     {% endfor %}
                 </div>
             {% endfor %}
