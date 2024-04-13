@@ -26,7 +26,7 @@ class UserPlatformFixtures extends Fixture
             $user->setIsVerified(true);
             $password = $this->hasher->hashPassword($user, 'agora');
             $user->setPassword($password);
-            $user->setRoles(['ROLE_PLAYER']);
+            $user->setRoles(['ROLE_USER']);
             $manager->persist($user);
             $users[] = $user;
         }
