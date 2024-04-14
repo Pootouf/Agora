@@ -94,6 +94,5 @@ async function move(direction, url) {
         + "/destinationTile/" + coord.x + "/" + coord.y
     )
     movementPoints -= parseInt(await responseMovementPoints.text())
-
-
+    cleanedTiles.push(coord)
 }
