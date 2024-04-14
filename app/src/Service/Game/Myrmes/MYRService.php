@@ -249,6 +249,32 @@ class MYRService
         }
         $this->endRoundOfFirstPlayer($game);
         $this->endSeason($game);
+        $this->resetGameGoalsDoneDuringTheRound($game);
+    }
+
+    /**
+     * resetGameGoalsDoneDuringTheRound : at the end of the round, for each game goal,
+     *  clears the list of players who've accomplished an objective during the round
+     *
+     * @param GameMYR $game
+     * @return void
+     */
+    private function resetGameGoalsDoneDuringTheRound(GameMYR $game) : void
+    {
+        $mainBoard = $game->getMainBoardMYR();
+        foreach ($mainBoard->getGameGoalsLevelOne() as $gameGoal) {
+           $gameGoal->getGoalAlreadyDone()->clear();
+           $this->entityManager->persist($gameGoal);
+        }
+        foreach ($mainBoard->getGameGoalsLevelTwo() as $gameGoal) {
+            $gameGoal->getGoalAlreadyDone()->clear();
+            $this->entityManager->persist($gameGoal);
+        }
+        foreach ($mainBoard->getGameGoalsLevelThree() as $gameGoal) {
+            $gameGoal->getGoalAlreadyDone()->clear();
+            $this->entityManager->persist($gameGoal);
+        }
+        $this->entityManager->flush();
     }
 
     /**
