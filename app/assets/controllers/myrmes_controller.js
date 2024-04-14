@@ -71,11 +71,18 @@ export default class extends Controller  {
     async selectAntHillHoleToSendWorker(select) {
         let url = select.params.url;
         const response = await fetch(url);
+        if (response.status === 200) {
+            closeWindow();
+            document.getElementById('mainBoard').innerHTML = await response.text();
+        }
     }
 
     async placeWorkerOnAntHillHole(hole) {
         let url = hole.params.url;
-        await fetch(url);
+        const response = await fetch(url);
+        if (response.status === 200) {
+            document.getElementById('mainBoard').innerHTML = await response.text();
+        }
     }
 
     //place worker on colony level track
