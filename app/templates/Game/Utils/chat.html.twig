@@ -13,47 +13,50 @@
     </div>
 </div>
 
-<div id="openedChat" class="bg-[#d5bdaf] w-full h-full lg:w-1/4 lg:h-2/3 absolute bottom-0 z-5 lg:rounded-tr-2xl z-10
-                            overflow-y-hidden" hidden
-        {{ stimulus_controller('message') }}
->
-    <div class="h-1/30 w-full flex justify-center cursor-pointer text-5xl landscape:text-2xl lg:text-base"
-            {{ stimulus_action('message', 'toggleChat', 'click', { 'open': false}) }}>
-        <img src="{{ asset('resourcesGames/utils/arrow_up.svg') }}" id="openArrow"
-             alt="arrow up" class="h-10 landscape:h-6 lg:h-4 rotate-180 mt-1 mr-2">
-        <p>Fermer le chat</p>
-    </div>
-    <div class="flex justify-center pt-7 pb-6 w-full h-4/5">
-        <div id="chat" class="w-5/6 h-full bg-[#f5ebe0] rounded-2xl p-3 overflow-y-scroll ">
-            {% for message in messages %}
-            <div class="messageDisplay bg-[#e3d5ca] rounded-2xl block p-2 mt-3">
-                <p class="bg-[#edede9] h-fit rounded-lg p-0.5 pl-2 text-5xl landscape:text-base lg:text-base">
-                    {{ message.authorUsername }}
-                </p>
-                <p class="text-5xl landscape:text-base lg:text-base">
-                    {{ message.content }}
-                </p>
+{% if player is defined %}
+
+    <div id="openedChat" class="bg-[#d5bdaf] w-full h-full lg:w-1/4 lg:h-2/3 absolute bottom-0 z-5 lg:rounded-tr-2xl z-10
+                                overflow-y-hidden" hidden
+            {{ stimulus_controller('message') }}
+    >
+        <div class="h-1/30 w-full flex justify-center cursor-pointer text-5xl landscape:text-2xl lg:text-base"
+                {{ stimulus_action('message', 'toggleChat', 'click', { 'open': false}) }}>
+            <img src="{{ asset('resourcesGames/utils/arrow_up.svg') }}" id="openArrow"
+                 alt="arrow up" class="h-10 landscape:h-6 lg:h-4 rotate-180 mt-1 mr-2">
+            <p>Fermer le chat</p>
+        </div>
+        <div class="flex justify-center pt-7 pb-6 w-full h-4/5">
+            <div id="chat" class="w-5/6 h-full bg-[#f5ebe0] rounded-2xl p-3 overflow-y-scroll ">
+                {% for message in messages %}
+                <div class="messageDisplay bg-[#e3d5ca] rounded-2xl block p-2 mt-3">
+                    <p class="bg-[#edede9] h-fit rounded-lg p-0.5 pl-2 text-5xl landscape:text-base lg:text-base">
+                        {{ message.authorUsername }}
+                    </p>
+                    <p class="text-5xl landscape:text-base lg:text-base">
+                        {{ message.content }}
+                    </p>
+                </div>
+                {% endfor %}
             </div>
-            {% endfor %}
+        </div>
+        <div class="flex justify-center h-1/6 lg:h-1/7 w-full py-2 ">
+            <div class="bg-[#f5ebe0] h-full w-5/6 flex justify-evenly py-5 rounded-2xl text-5xl landscape:text-base">
+                <label for="inputMessage">
+                    <input id="inputMessage" type="text"
+                           placeholder="Votre message"
+                           name="message"
+                           class="bg-[#edede9] border-none rounded-2xl h-full text-5xl landscape:text-base"
+                    >
+                </label>
+                <button {{ stimulus_action('message', 'sendMessage', 'click',
+                    {url: path('app_game_send_new_message', {playerId: player.id, gameId: game.id,
+                        message: " ", authorUsername: player.username})}
+                ) }}
+                >Envoyer</button>
+            </div>
         </div>
     </div>
-    <div class="flex justify-center h-1/6 lg:h-1/7 w-full py-2 ">
-        <div class="bg-[#f5ebe0] h-full w-5/6 flex justify-evenly py-5 rounded-2xl text-5xl landscape:text-base">
-            <label for="inputMessage">
-                <input id="inputMessage" type="text"
-                       placeholder="Votre message"
-                       name="message"
-                       class="bg-[#edede9] border-none rounded-2xl h-full text-5xl landscape:text-base"
-                >
-            </label>
-            <button {{ stimulus_action('message', 'sendMessage', 'click',
-                {url: path('app_game_send_new_message', {playerId: player.id, gameId: game.id,
-                    message: " ", authorUsername: player.username})}
-            ) }}
-            >Envoyer</button>
-        </div>
-    </div>
-</div>
+{% endif %}
 <div hidden id="templateMessage" class="bg-[#e3d5ca] rounded-2xl block p-2 mt-3">
     <p class="bg-[#edede9] h-fit rounded-lg p-0.5 pl-2 text-5xl landscape:text-base lg:text-base">
 
@@ -62,18 +65,20 @@
 
     </p>
 </div>
-<script>
-    {% set path = path('app_game_display_new_messages', {'gameId': game.id}) ~ "newMessage" %}
-    const eventSourceChat = new EventSource("{{ mercure(path)|escape('js') }}");
-    eventSourceChat.onmessage = event => {
-        const chat = document.getElementById("chat");
-        let result = event.data.split('§');
-        let template = document.getElementById("templateMessage");
-        let newMessage = template.cloneNode(true);
-        newMessage.firstElementChild.textContent = result[1];
-        newMessage.lastElementChild.textContent = result[0];
-        newMessage.id = "";
-        newMessage.classList.add("messageDisplay");
-        chat.appendChild(newMessage);
-    }
-</script>
+{% if game is defined %}
+    <script>
+        {% set path = path('app_game_display_new_messages', {'gameId': game.id}) ~ "newMessage" %}
+        const eventSourceChat = new EventSource("{{ mercure(path)|escape('js') }}");
+        eventSourceChat.onmessage = event => {
+            const chat = document.getElementById("chat");
+            let result = event.data.split('§');
+            let template = document.getElementById("templateMessage");
+            let newMessage = template.cloneNode(true);
+            newMessage.firstElementChild.textContent = result[1];
+            newMessage.lastElementChild.textContent = result[0];
+            newMessage.id = "";
+            newMessage.classList.add("messageDisplay");
+            chat.appendChild(newMessage);
+        }
+    </script>
+{% endif %}
