@@ -94,7 +94,7 @@ class MyrmesController extends AbstractController
                 $player,
                 MyrmesParameters::WORKER_AREA
             )->count(),
-            'isSelectingAnthillHoleToSendWorker' => false,
+            'sendingWorkerOnGarden' => false,
             'mustThrowResources' => $player != null
                 && $this->service->isInPhase($player, MyrmesParameters::PHASE_WINTER)
                 && $this->winterMYRService->mustDropResourcesForWinter($player),
@@ -370,16 +370,36 @@ class MyrmesController extends AbstractController
         #[MapEntity(id: 'gameId')] GameMYR $game
     ) : Response
     {
-        return $this->render('/Game/Myrmes/index.html.twig', [
-            'isSelectingAnthillHoleToSendWorker' => true
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('invalid player', Response::HTTP_FORBIDDEN);
+        }
+        try {
+            $boardBoxes = $this->dataManagementMYRService->organizeMainBoardRows($game);
+        } catch (Exception) {
+            return new Response("Error while calculating main board tiles disposition",
+                Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+        return $this->render('/Game/Myrmes/MainBoard/mainBoard.html.twig', [
+            'player' => $player,
+            'game' => $game,
+            'boardBoxes' => $boardBoxes,
+            'isPreview' => true,
+            'preys' => $game->getMainBoardMYR()->getPreys(),
+            'isSpectator' => $player == null,
+            'needToPlay' => true,
+            'selectedBox' => null,
+            'playerPhase' => $player->getPhase(),
+            'actualSeason' => $this->service->getActualSeason($game),
+            'sendingWorkerOnGarden' => true,
+            'hasSelectedAnthillHolePlacement' => false
         ]);
     }
 
-    #[Route('/games/myrmes/{gameId}/placeWorkerOnAntHillHole/{tileX}/{tileY}', name: 'app_game_myrmes_place_worker_anthillhole')]
+    #[Route('/games/myrmes/{gameId}/placeWorkerOnAntHillHole/{tileId}', name: 'app_game_myrmes_place_worker_anthillhole')]
     public function placeWorkerOnAntHillHole(
         #[MapEntity(id: 'gameId')] GameMYR $game,
-        int $tileX,
-        int $tileY
+        #[MapEntity(id: 'tileId')] TileMYR $tile
     ) : Response
     {
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
@@ -390,13 +410,34 @@ class MyrmesController extends AbstractController
             //TODO: call function to place worker on garden
         } catch (Exception) {
             $message = $player->getUsername()
-                . " a essayé de sortir une ouvrière sur sa sortie de fourmilière  mais n'a pas pu.";
+                . " a essayé de sortir une ouvrière sur la tuile "
+                . $tile->getId()
+                . "  mais n'a pas pu.";
             $this->logService->sendPlayerLog($game, $player, $message);
             return new Response("failed to place worker on garden", Response::HTTP_FORBIDDEN);
         }
         $message = $player->getUsername() . " a placé une ouvrière sur sa sortie de fourmilière";
         $this->logService->sendPlayerLog($game, $player, $message);
-        return new Response("placed worker on garden", Response::HTTP_OK);
+        try {
+            $boardBoxes = $this->dataManagementMYRService->organizeMainBoardRows($game);
+        } catch (Exception) {
+            return new Response("Error while calculating main board tiles disposition",
+                Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+        return $this->render('/Game/Myrmes/MainBoard/mainBoard.html.twig', [
+            'player' => $player,
+            'game' => $game,
+            'boardBoxes' => $boardBoxes,
+            'isPreview' => true,
+            'preys' => $game->getMainBoardMYR()->getPreys(),
+            'isSpectator' => $player == null,
+            'needToPlay' => true,
+            'selectedBox' => null,
+            'playerPhase' => $player->getPhase(),
+            'actualSeason' => $this->service->getActualSeason($game),
+            'sendingWorkerOnGarden' => false,
+            'hasSelectedAnthillHolePlacement' => false
+        ]);
     }
 
     #[Route('/game/muyrmes/{gameId}/moveAnt/{antId}/direction/{dir}', name:'app_game_myrmes_move_ant')]
