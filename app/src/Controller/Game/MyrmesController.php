@@ -428,6 +428,50 @@ class MyrmesController extends AbstractController
         }
     }
 
+    #[Route('/game/myrmes/{gameId}/moveAnt/canClean/pheromone/{coordX}/{coordY}/{playerDirtQuantity}',
+        name:'app_game_myrmes_can_clean_pheromone')]
+    public function canCleanPheromone(
+        #[MapEntity(id: 'gameId')] GameMYR $gameMYR,
+        int $coordX,
+        int $coordY,
+        int $playerDirtQuantity
+    ): Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('invalid player', Response::HTTP_FORBIDDEN);
+        }
+        $tile = $this->workerMYRService->getTileFromCoordinates($coordX, $coordY);
+        if($tile != null) {
+            return new Response($this->workerMYRService->canCleanPheromone($tile, $gameMYR, $playerDirtQuantity));
+        } else {
+            return new Response("invalid tile",
+                Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    #[Route('/game/myrmes/{gameId}/moveAnt/getPheromoneTiles/coords/givenTile/{coordX}/{coordY}',
+        name:'app_game_myrmes_get_pheromone_tiles_coords')]
+    public function getPheromoneTilesCoords(
+        #[MapEntity(id: 'gameId')] GameMYR $gameMYR,
+        int $coordX,
+        int $coordY
+    ): Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('invalid player', Response::HTTP_FORBIDDEN);
+        }
+        $tile = $this->workerMYRService->getTileFromCoordinates($coordX, $coordY);
+        $pheromone = $this->workerMYRService->getPheromoneFromTile($gameMYR, $tile);
+        if($tile != null) {
+            return new Response($this->workerMYRService->getStringCoordsOfPheromoneTiles($pheromone));
+        } else {
+            return new Response("invalid tile",
+                Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
     #[Route('/game/muyrmes/{gameId}/moveAnt/{antId}/direction/{dir}', name:'app_game_myrmes_move_ant')]
     public function moveAnt(
         #[MapEntity(id: 'gameId')] GameMYR $gameMYR,

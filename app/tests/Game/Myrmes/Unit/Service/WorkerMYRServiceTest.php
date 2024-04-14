@@ -2364,6 +2364,31 @@ class WorkerMYRServiceTest extends TestCase
         $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
     }
 
+    public function testCanWorkerMoveReturnTrueIfFuturePositionIsValidAndNoPreyToAttackAndEnoughtShiftCount() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $gardenWorker = new GardenWorkerMYR();
+        $originTile = new TileMYR();
+        $originTile->setCoordX(0);
+        $originTile->setCoordY(0);
+        $originTile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $gardenWorker->setTile($originTile);
+        $gardenWorker->setPlayer($player);
+        $gardenWorker->setShiftsCount(1);
+        $gardenWorker->setMainBoardMYR($game->getMainBoardMYR());
+        $destinationTile = new TileMYR();
+        $destinationTile->setCoordY(2);
+        $destinationTile->setCoordX(0);
+        $destinationTile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $this->tileMYRRepository->method("findOneBy")->with(["coord_X" => 0, "coord_Y" => 2])->willReturn($destinationTile);
+        //WHEN
+        $result = $this->workerMYRService->canWorkerMove($player, $gardenWorker, MyrmesParameters::DIRECTION_EAST);
+        //THEN
+        $this->assertTrue($result);
+    }
+
     private function createGame(int $numberOfPlayers) : GameMYR
     {
         if($numberOfPlayers < MyrmesParameters::MIN_NUMBER_OF_PLAYER ||
