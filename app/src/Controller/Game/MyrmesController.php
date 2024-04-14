@@ -351,7 +351,7 @@ class MyrmesController extends AbstractController
         }
         $personalBoard = $player->getPersonalBoardMYR();
         try {
-            //TODO: call service function to place worker on colony level track
+            $this->workerMYRService->placeAntInAnthill($player->getPersonalBoardMYR(), $level);
         } catch (Exception) {
             $message = $player->getUsername()
                 . " a essayé de placer une ouvrière sur le niveau de fourmilière "
