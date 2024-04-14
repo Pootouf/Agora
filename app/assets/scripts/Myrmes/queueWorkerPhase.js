@@ -77,7 +77,10 @@ async function move(direction, url) {
             break;
         }
     }
-    //TODO: verify valid position with fetch
+    let validPositionResponse = await fetch(url + "/moveAnt/isValid/tile/" + coord.x + "/" + coord.y)
+    if (await validPositionResponse.text() !== "1") {
+        return;
+    }
 
     let response = await fetch(url + "/moveAnt/neededResources/soldierNb/" + coord.x + "/" + coord.y)
     let soldier = parseInt(await response.text())
