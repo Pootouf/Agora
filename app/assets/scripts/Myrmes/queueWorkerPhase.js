@@ -24,16 +24,18 @@ const directions = {
 
 let spentDirt = 0;
 let spentSoldier = 0;
+let soldierNumber = 0;
 
 let cleanedTiles = []
 let antPosition = {x: 0, y: 0}
 let movementPoints = 0
 
 
-function initQueue(playerMovementPoints, antCoordX, antCoordY, idHole) {
+function initQueue(playerMovementPoints, antCoordX, antCoordY, idHole, playerSoldierNumber) {
     movementPoints = playerMovementPoints
     antPosition.x = antCoordX
     antPosition.y = antCoordY
+    soldierNumber = playerSoldierNumber
     queue.push(actions.PLACE_ANT(idHole))
 }
 
@@ -78,8 +80,11 @@ async function move(direction, url) {
     //TODO: verify valid position with fetch
 
     let response = await fetch(url + "/moveAnt/neededResources/soldierNb/" + coord.x + "/" + coord.y)
-    //TODO: verify number of soldier of player
-    spentSoldier += parseInt(await response.text())
+    let soldier = parseInt(await response.text())
+    if (soldierNumber < spentSoldier + soldier) {
+        return;
+    }
+    spentSoldier += soldier
 
     let responseMovementPoints = await fetch(url + "/moveAnt/neededResources/movementPoints"
         + "/originTile/" + previousCoord.x + "/" + previousCoord.y
