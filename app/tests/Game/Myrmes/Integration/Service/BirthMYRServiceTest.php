@@ -25,14 +25,19 @@ class BirthMYRServiceTest extends KernelTestCase
     public function testPlaceNurseWhenNurseIsAvailable()
     {
         // GIVEN
+
         $birthMYRService = static::getContainer()->get(BirthMYRService::class);
         $game = $this->createGame(2);
         $personalBoard = $game->getPlayers()->first()->getPersonalBoardMYR();
         $nurse = $personalBoard->getNurses()->first();
         $position = MyrmesParameters::LARVAE_AREA;
+
         // WHEN
+
         $birthMYRService->placeNurse($nurse, $position);
+
         // THEN
+
         $this->assertEquals($position, $nurse->getArea());
     }
 
