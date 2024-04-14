@@ -50,14 +50,19 @@ class WorkshopMYRService
      * canPlayerDoGoal: return true if the player can do the selected goal.
      *                  If the pheromone goal is selected, always true
      * @param PlayerMYR $player
-     * @param GoalMYR $goal
+     * @param GameGoalMYR $goal
      * @return bool
      * @throws Exception
      */
-    public function canPlayerDoGoal(PlayerMYR $player, GoalMYR $goal): bool
+    public function canPlayerDoGoal(PlayerMYR $player, GameGoalMYR $gameGoal): bool
     {
+        $goal = $gameGoal->getGoal();
         $goalName = $goal->getName();
         $goalDifficulty = $goal->getDifficulty();
+
+        if ($this->hasPlayerAlreadyDoneSelectedGoal($player, $gameGoal)) {
+            return false;
+        }
 
         if (!$this->doesPlayerHaveDoneGoalWithLowerDifficulty($player, $goal)) {
             return false;
@@ -97,6 +102,10 @@ class WorkshopMYRService
         $goal = $gameGoalMYR->getGoal();
         $goalName = $goal->getName();
         $goalDifficulty = $goal->getDifficulty();
+
+        if ($this->hasPlayerAlreadyDoneSelectedGoal($player, $gameGoalMYR)) {
+            throw new Exception("Goal already done");
+        }
 
         if (!$this->doesPlayerHaveDoneGoalWithLowerDifficulty($player, $goal)) {
             throw new Exception("The player can't do this goal, he must do " .
@@ -1351,5 +1360,18 @@ class WorkshopMYRService
             ]
         );
         return $pheromoneTile->getPheromonMyr();
+    }
+
+    /**
+     * hasPlayerAlreadyDoneSelectedGoal: return true if the player has already done the goal
+     * @param PlayerMYR $player
+     * @param GameGoalMYR $gameGoal
+     * @return bool
+     */
+    private function hasPlayerAlreadyDoneSelectedGoal(PlayerMYR $player, GameGoalMYR $gameGoal) : bool
+    {
+        return $gameGoal->getPrecedentsPlayers()->forAll(function (PlayerMYR $previousPlayer) use ($player) {
+           return $previousPlayer !== $player;
+        });
     }
 }
