@@ -31,46 +31,66 @@ class NotificationServiceUnitTest extends TestCase
 
     public function testNotifyGroup()
     {
-        // Créer une instance de NotificationService en passant les mocks
+        // GIVEN
         $notificationService = new NotificationService($this->hubMock, $this->entityManagerMock);
 
-        // Vérifier si la méthode notifyGroup appelle bien la méthode publish du hub
+        // // THEN
         $this->hubMock->expects($this->once())
                       ->method('publish');
 
-        // Appeler la méthode notifyGroup avec des données de test
+        // WHEN
         $notificationService->notifyGroup('test/topic', 'Test content', new \DateTime());
     }
 
     public function testNotifyUser()
     {
-        // Créer une instance de NotificationService en passant les mocks
+        // GIVEN
         $notificationService = new NotificationService($this->hubMock, $this->entityManagerMock);
 
-        // Vérifier si la méthode notifyUser appelle bien la méthode publish du hub
+        // // THEN
         $this->hubMock->expects($this->once())
                       ->method('publish');
 
-        // Appeler la méthode notifyUser avec des données de test
+        // WHEN
         $notificationService->notifyUser('testUser', 'Test content', new \DateTime());
     }
 
     public function testStoreNotification()
     {
-        // Créer une instance de NotificationService en passant les mocks
+        // GIVEN
         $notificationService = new NotificationService($this->hubMock, $this->entityManagerMock);
-
-          // Créer un mock pour l'entité User
         $userMock = $this->getMockBuilder(User::class)
                     ->disableOriginalConstructor()
                     ->getMock();
 
-        // Vérifier si la méthode persist est appelée sur l'entityManagerMock
+        // THEN
         $this->entityManagerMock->expects($this->once())
                                  ->method('persist')
                                  ->with($this->isInstanceOf(Notification::class));
 
-        // Appeler la méthode storeNotification avec des données de test
+        // WHEN
         $notificationService->storeNotification($userMock, 'Test content');
     }
+
+
+    public function testNotifyManyUser()
+{
+    // GIVEN
+    $notificationService = new NotificationService($this->hubMock, $this->entityManagerMock);
+    $user1 = $this->getMockBuilder(User::class)->getMock();
+    $user2 = $this->getMockBuilder(User::class)->getMock();
+    $user3 = $this->getMockBuilder(User::class)->getMock();
+    $users = [$user1, $user2, $user3];
+
+    // THEN
+    $this->entityManagerMock->expects($this->exactly(3))
+                             ->method('persist')
+                             ->with($this->isInstanceOf(Notification::class));
+    $this->hubMock->expects($this->exactly(3))
+                  ->method('publish');
+
+    // WHEN
+    $notificationService->notifyManyUser($users, 'Test content', new \DateTime());
+
+}
 }

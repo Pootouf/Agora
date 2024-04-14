@@ -30,7 +30,7 @@ class UserServiceIntegrationTest extends KernelTestCase
 
     public function testAddContactWhenSuccess(): void
     {
-        // GET
+        // GIVEN
         $user1 = new User();
         $user1->setEmail('test1@example.com');
         $user1->setPassword('password123');
@@ -54,7 +54,7 @@ class UserServiceIntegrationTest extends KernelTestCase
 
     public function testAddContactWhenHimself(): void
     {
-        // GET
+        // GIVEN
         $user1 = new User();
         $user1->setEmail('test1@example.com');
         $user1->setPassword('password123');
@@ -73,7 +73,7 @@ class UserServiceIntegrationTest extends KernelTestCase
 
     public function testAddContactWhenAlready(): void
     {
-        // GET
+        // GIVEN
         $user1 = new User();
         $user1->setEmail('test1@example.com');
         $user1->setPassword('password123');
@@ -97,7 +97,7 @@ class UserServiceIntegrationTest extends KernelTestCase
 
     public function testRemoveContactWhenSuccess(): void
     {
-        // GET
+        // GIVEN
         $user1 = new User();
         $user1->setEmail('test1@example.com');
         $user1->setPassword('password123');
@@ -123,7 +123,7 @@ class UserServiceIntegrationTest extends KernelTestCase
 
     public function testRemoveContactWhenNotAContact(): void
     {
-        // GET
+        // GIVEN
         $user1 = new User();
         $user1->setEmail('test1@example.com');
         $user1->setPassword('password123');
