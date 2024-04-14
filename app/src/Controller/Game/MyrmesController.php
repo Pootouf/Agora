@@ -442,8 +442,37 @@ class MyrmesController extends AbstractController
             return new Response('invalid player', Response::HTTP_FORBIDDEN);
         }
         $tile = $this->workerMYRService->getTileFromCoordinates($coordX, $coordY);
+        $pheromone = $this->workerMYRService->getPheromoneFromTile($gameMYR, $tile);
         if($tile != null) {
-            return new Response($this->workerMYRService->canCleanPheromone($tile, $gameMYR, $playerDirtQuantity));
+            return new Response($this->workerMYRService->canCleanPheromone($pheromone, $playerDirtQuantity));
+        } else {
+            return new Response("invalid tile",
+                Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    #[Route('/game/myrmes/{gameId}/moveAnt/clean/pheromone/{coordX}/{coordY}',
+        name:'app_game_myrmes_clean_pheromone')]
+    public function cleanPheromone(
+        #[MapEntity(id: 'gameId')] GameMYR $gameMYR,
+        int $coordX,
+        int $coordY
+    ): Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('invalid player', Response::HTTP_FORBIDDEN);
+        }
+        $tile = $this->workerMYRService->getTileFromCoordinates($coordX, $coordY);
+        $pheromone = $this->workerMYRService->getPheromoneFromTile($gameMYR, $tile);
+        if($tile != null) {
+            try {
+                $this->workerMYRService->cleanPheromone($pheromone, $player);
+            } catch (Exception $e) {
+                return new Response("cannot clean the pheromone",
+                    Response::HTTP_FORBIDDEN);
+            }
+            return new Response;
         } else {
             return new Response("invalid tile",
                 Response::HTTP_INTERNAL_SERVER_ERROR);

@@ -181,6 +181,10 @@ interface MyrmesParameters
 
     // Special tiles Type
 
+    const array SPECIAL_TILE_TYPES = [MyrmesParameters::SPECIAL_TILE_TYPE_FARM,
+        MyrmesParameters::SPECIAL_TILE_TYPE_QUARRY,
+        MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL];
+
     const int SPECIAL_TILE_TYPE_FARM = 7;
     const int SPECIAL_TILE_TYPE_QUARRY = 8;
     const int SPECIAL_TILE_TYPE_SUBANTHILL = 9;

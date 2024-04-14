@@ -223,24 +223,25 @@ class WorkerMYRService
 
     /**
      * canCleanPheromone : indicate if the given player can clean the pheromone on the given tile
-     * @param TileMYR|null $tile
-     * @param GameMYR $game
+     * @param PheromonMYR $pheromone
      * @param int $playerDirtQuantity
      * @return bool
      */
-    public function canCleanPheromone(?TileMYR $tile, GameMYR $game, int $playerDirtQuantity): bool
+    public function canCleanPheromone(PheromonMYR $pheromone, int $playerDirtQuantity): bool
     {
-        $pheromoneTile = $this->getPheromoneTileOnTile($tile, $game);
-        if($pheromoneTile != null) {
-            $pheromoneTiles = $pheromoneTile->getPheromonMYR()->getPheromonTiles();
-            foreach($pheromoneTiles as $tile) {
-                if($tile->getResource() != null) {
-                    return false;
-                }
-            }
-            if($playerDirtQuantity < 1) {
+        $type = $pheromone->getType();
+        if (in_array($type, MyrmesParameters::SPECIAL_TILE_TYPES)) {
+            return false;
+        }
+
+        $pheromoneTiles = $pheromone->getPheromonTiles();
+        foreach($pheromoneTiles as $tile) {
+            if($tile->getResource() != null) {
                 return false;
             }
+        }
+        if($playerDirtQuantity < 1) {
+            return false;
         }
         return true;
     }
@@ -319,6 +320,41 @@ class WorkerMYRService
             default:
                 return new ArrayCollection();
         }
+    }
+
+    /**
+     * cleanPheromone : retrieve the pheromone from the main board; the action cost a dirt resource
+     * @param PheromonMYR $pheromone
+     * @param PlayerMYR $player
+     * @return void
+     * @throws Exception
+     */
+    public function cleanPheromone(PheromonMYR $pheromone, PlayerMYR $player) : void
+    {
+        $dirtResource = $player->getPersonalBoardMYR()->getPlayerResourceMYRs()->filter(
+            function (PlayerResourceMYR $playerResourceMYR)
+            {
+                return $playerResourceMYR->getResource()->getDescription() == MyrmesParameters::DIRT_TILE_TYPE;
+            }
+        )->first();
+        if(!$this->canCleanPheromone($pheromone, $dirtResource->getQuantity())) {
+            throw new Exception("Can't clean the pheromone");
+        }
+
+        $dirtResource->setQuantity($dirtResource->getQuantity() - 1);
+        $this->entityManager->persist($dirtResource);
+
+        if ($pheromone->getPlayer() !== $player) {
+            $player->setScore($player->getScore()
+                + MyrmesParameters::PHEROMONE_TYPE_LEVEL[$pheromone->getType()]);
+            $this->entityManager->persist($player);
+        }
+
+        foreach($pheromone->getPheromonTiles() as $pheromonTile) {
+            $this->entityManager->remove($pheromonTile);
+        }
+        $this->entityManager->remove($pheromone);
+        $this->entityManager->flush();
     }
 
 
