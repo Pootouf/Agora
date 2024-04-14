@@ -25,7 +25,14 @@ interface MyrmesParameters
 
     // Player color
 
-    const array PLAYERS_COLORS = ['blue', 'yellow', 'red', 'gray'];
+    const string PLAYER_COLOR_BLUE = 'blue';
+    const string PLAYER_COLOR_RED = 'red';
+    const string PLAYER_COLOR_YELLOW = 'yellow';
+    const string PLAYER_COLOR_GRAY = 'gray';
+
+    const array PLAYERS_COLORS = [
+        self::PLAYER_COLOR_BLUE, self::PLAYER_COLOR_YELLOW, self::PLAYER_COLOR_RED, self::PLAYER_COLOR_GRAY
+    ];
 
 
     // Area's for nurses
@@ -35,14 +42,15 @@ interface MyrmesParameters
     const int SOLDIERS_AREA = 2;
     const int WORKER_AREA = 3;
     const int WORKSHOP_AREA = 4;
-    const int AREA_COUNT = 5;
+    const int GOAL_AREA = 5;
+    const int AREA_COUNT = 6;
 
     // Workshop areas
 
-    const int WORKSHOP_GOAL_AREA = 1;
-    const int WORKSHOP_ANTHILL_HOLE_AREA = 2;
-    const int WORKSHOP_LEVEL_AREA = 3;
-    const int WORKSHOP_NURSE_AREA = 4;
+    const int WORKSHOP_GOAL_AREA = 5;
+    const int WORKSHOP_ANTHILL_HOLE_AREA = 6;
+    const int WORKSHOP_LEVEL_AREA = 7;
+    const int WORKSHOP_NURSE_AREA = 8;
 
 
     //Nurses parameters
@@ -179,7 +187,6 @@ interface MyrmesParameters
     const int SPECIAL_TILE_TYPE_QUARRY = 8;
     const int SPECIAL_TILE_TYPE_SUBANTHILL = 9;
 
-
     // Special tiles amount
     const array SPECIAL_TILE_TYPE_AMOUNT = [
         7 => 4,
@@ -310,10 +317,69 @@ interface MyrmesParameters
     const string GOAL_PHEROMONE_NAME = "pheromone";
 
 
+    // Goal needed resources
+    // Goal Food
+    const int GOAL_NEEDED_RESOURCES_FOOD_LEVEL_ONE = 3;
+    const int GOAL_NEEDED_RESOURCES_FOOD_LEVEL_TWO = 5;
+
+    // Goal Stone
+    const int GOAL_NEEDED_RESOURCES_STONE_LEVEL_TWO = 3;
+    const int GOAL_NEEDED_RESOURCES_STONE_LEVEL_THREE = 5;
+
+    // Goal Stone or dirt
+    const int GOAL_NEEDED_RESOURCES_STONE_OR_DIRT_LEVEL_ONE = 2;
+    const int GOAL_NEEDED_RESOURCES_STONE_OR_DIRT_LEVEL_THREE = 6;
+
+    // Goal Soldier
+    const int GOAL_NEEDED_RESOURCES_SOLDIER_LEVEL_ONE = 2;
+
+    // Goal Nurse
+    const int GOAL_NEEDED_RESOURCES_NEEDED_NURSE_LEVEL_TWO = 6;
+    const int GOAL_NEEDED_RESOURCES_REMOVED_NURSE_LEVEL_TWO = 1;
+    const int GOAL_NEEDED_RESOURCES_NEEDED_NURSE_LEVEL_THREE = 8;
+    const int GOAL_NEEDED_RESOURCES_REMOVED_NURSE_LEVEL_THREE = 2;
+
+    // Goal Larvae
+    const int GOAL_NEEDED_RESOURCES_LARVAE_LEVEL_ONE = 5;
+    const int GOAL_NEEDED_RESOURCES_LARVAE_LEVEL_TWO = 9;
+
+    // Goal Prey
+    const int GOAL_NEEDED_RESOURCES_PREY_LEVEL_ONE = 2;
+    const int GOAL_NEEDED_RESOURCES_PREY_LEVEL_TWO = 3;
+    const int GOAL_NEEDED_RESOURCES_PREY_LEVEL_THREE = 4;
+
+    // Goal Anthill Level
+    const int GOAL_NEEDED_RESOURCES_NEEDED_ANTHILL_LEVEL_LEVEL_TWO = 2;
+    const int GOAL_NEEDED_RESOURCES_REMOVED_ANTHILL_LEVEL_LEVEL_TWO = 1;
+    const int GOAL_NEEDED_RESOURCES_NEEDED_ANTHILL_LEVEL_LEVEL_THREE = 3;
+    const int GOAL_NEEDED_RESOURCES_REMOVED_ANTHILL_LEVEL_LEVEL_THREE = 2;
+
+    // Goal Special Tile
+    const int GOAL_NEEDED_RESOURCES_NEEDED_SPECIAL_TILE_LEVEL_ONE = 3;
+    const int GOAL_NEEDED_RESOURCES_REMOVED_SPECIAL_TILE_LEVEL_ONE = 1;
+    const int GOAL_NEEDED_RESOURCES_NEEDED_SPECIAL_TILE_LEVEL_TWO = 3;
+    const int GOAL_NEEDED_RESOURCES_REMOVED_SPECIAL_TILE_LEVEL_TWO = 2;
+
+    // Goal Pheromone
+    const int GOAL_NEEDED_RESOURCES_NEEDED_PHEROMONE_LEVEL_ONE = 4;
+    const int GOAL_NEEDED_RESOURCES_NEEDED_PHEROMONE_LEVEL_THREE = 7;
+
+
     // Garden worker parameters
     const int DEFAULT_MOVEMENT_NUMBER = 3;
 
 
     // Anthill worker parameters
     const int NO_WORKFLOOR = -1;
+
+
+    // Score parameters
+    const array SCORE_INCREASE_GOAL_ALREADY_DONE = [
+        2 => 5,
+        3 => 4,
+        4 => 3,
+    ];
+    const int SCORE_INCREASE_GOAL_DIFFICULTY_ONE = 6;
+    const int SCORE_INCREASE_GOAL_DIFFICULTY_TWO = 9;
+    const int SCORE_INCREASE_GOAL_DIFFICULTY_THREE = 12;
 }

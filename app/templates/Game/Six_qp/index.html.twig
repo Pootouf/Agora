@@ -6,9 +6,6 @@
     <div class="h-screen w-screen overflow-hidden absolute" {{ stimulus_controller('sixqp') }}>
         <div class="h-full w-full overflow-hidden">
             <div id="animationContainer" class="hidden absolute top-0 left-0 w-full h-full bg-black bg-opacity-0 z-50"></div>
-            {% block nav %}
-                {{ include('/Game/Utils/navigation.html.twig') }}
-            {% endblock %}
             {% block endGame %}
                 {{ include('/Game/Six_qp/endGameScreenResult.html.twig') }}
             {% endblock %}
@@ -30,6 +27,9 @@
             {% endblock %}
             {% block chat %}
                 {{ include('/Game/Utils/chat.html.twig') }}
+            {% endblock %}
+            {% block nav %}
+                {{ include('/Game/Utils/navigation.html.twig') }}
             {% endblock %}
         </div>
     </div>
@@ -169,7 +169,7 @@
             {% set winner = null %}
             {# Arbitrary value impossible to reach  #}
             {% set winnerScore = 9999 %}
-            {% for player in game.playerSixQPs %}
+            {% for player in game.players %}
                 {% if player.discardSixQP.totalPoints < winnerScore %}
                     {% set winnerScore = player.discardSixQP.totalPoints %}
                     {% set winner = player.username %}

@@ -1,4 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
+import workshop from "../scripts/Myrmes/workshop.js";
 
 export default class extends Controller  {
 
@@ -181,5 +182,39 @@ export default class extends Controller  {
             ).addEventListener("finish",
                 () => openedPlayerPersonalBoard.setAttributeNode(hidden));
         }
+    }
+
+    toggleWorkshopMenu(open) {
+        let opened = open.params.open;
+        workshop.toggleWorkshop(opened);
+    }
+
+    async activateWorkshop(placement) {
+        let url = placement.params.url;
+        let place = placement.params.placement;
+        switch (place) {
+            case 1:
+                alert("anthill hole");
+                break;
+            case 2:
+                if (window.confirm("Confirmez vous l'augmentation du niveau de la fourmilière ?")) {
+                    await fetch(url);
+                }
+                break;
+            case 3:
+                alert("objectives");
+                break;
+            case 4:
+                if (window.confirm("Confirmez vous la création d'une nouvelle nourrice ?")) {
+                    await fetch(url);
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    async confirmWorkshopActions(confirm) {
+        await fetch(confirm.params.url);
     }
 }
