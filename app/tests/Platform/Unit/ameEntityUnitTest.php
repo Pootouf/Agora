@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Tests;
+namespace App\Tests\Service\Platform\Unit;
 
 use App\Entity\Platform\Game;
 use App\Entity\Platform\Board;
 use PHPUnit\Framework\TestCase;
 
-class GameEntityTest extends TestCase
+class GameEntityUnitTest extends TestCase
 {
 
 

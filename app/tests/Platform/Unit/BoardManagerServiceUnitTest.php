@@ -1,31 +1,35 @@
 <?php
 
-namespace App\Tests\Service\Platform;
+namespace App\Tests\Service\Platform\Unit;
 
 use App\Entity\Platform\Board;
 use App\Entity\Platform\Game;
 use App\Entity\Platform\User;
 use App\Service\Game\GameManagerService;
 use App\Service\Platform\BoardManagerService;
+use App\Service\Platform\NotificationService;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 
-class BoardManagerServiceTest extends TestCase
+class BoardManagerServiceUnitTest extends TestCase
 {
     private $gameManagerServiceMock;
     private $entityManagerInterfaceMock;
+    private $notificationServiceMock;
 
     protected function setUp(): void
     {
         $this->gameManagerServiceMock = $this->createMock(GameManagerService::class);
         $this->entityManagerInterfaceMock = $this->createMock(EntityManagerInterface::class);
+        $this->notificationServiceMock = $this->createMock(NotificationService::class);
+
     }
 
     public function testSetUpBoard(): void
     {
 
         // GIVEN
-        $boardManagerService = new BoardManagerService($this->gameManagerServiceMock, $this->entityManagerInterfaceMock);
+        $boardManagerService = new BoardManagerService($this->gameManagerServiceMock, $this->entityManagerInterfaceMock,  $this->notificationServiceMock );
         $board = new Board();
         $game = new Game();
         $game->setLabel("6QP");
@@ -44,7 +48,7 @@ class BoardManagerServiceTest extends TestCase
     public function testAddUserToBoard(): void
     {
         // GIVEN
-        $boardManagerService = new BoardManagerService($this->gameManagerServiceMock, $this->entityManagerInterfaceMock);
+        $boardManagerService = new BoardManagerService($this->gameManagerServiceMock, $this->entityManagerInterfaceMock, $this->notificationServiceMock );
         $board = new Board();
         $game = new Game();
         $game->setLabel("6QP");
@@ -63,7 +67,7 @@ class BoardManagerServiceTest extends TestCase
     public function testRemovePlayerFromBoard(): void
     {
         // GIVEN
-        $boardManagerService = new BoardManagerService($this->gameManagerServiceMock, $this->entityManagerInterfaceMock);
+        $boardManagerService = new BoardManagerService($this->gameManagerServiceMock, $this->entityManagerInterfaceMock, $this->notificationServiceMock );
         $board = new Board();
         $game = new Game();
         $game->setLabel("6QP");

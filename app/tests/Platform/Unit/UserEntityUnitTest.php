@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Tests;
+namespace App\Tests\Service\Platform\Unit;
 
 use App\Entity\Platform\Game;
 use App\Entity\Platform\Board;
 use App\Entity\Platform\User;
 use PHPUnit\Framework\TestCase;
 
-class UserEntityTest extends TestCase
+class UserEntityUnitTest extends TestCase
 {
 
 
