@@ -83,6 +83,20 @@ class WorkshopMYRService
         return false;
     }
 
+    /**
+     * getAnthillHoleFromTile : return the anthill hole if it exists on the given tile from the given game
+     * @param TileMYR $tile
+     * @param GameMYR $game
+     * @return AnthillHoleMYR|null
+     */
+    public function getAnthillHoleFromTile(TileMYR $tile, GameMYR $game): ?AnthillHoleMYR
+    {
+        return $this->anthillHoleMYRRepository->findOneBy([
+            'tile' => $tile,
+            'mainBoardMYR' => $game->getMainBoardMYR()
+        ]);
+    }
+
 
     /**
      * canPlayerDoGoal: return true if the player can do the selected goal.
