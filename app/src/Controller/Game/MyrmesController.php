@@ -441,8 +441,9 @@ class MyrmesController extends AbstractController
         if ($player == null) {
             return new Response('invalid player', Response::HTTP_FORBIDDEN);
         }
+        $anthillHole = $this->workshopMYRService->getAnthillHoleFromTile($tile, $game);
         try {
-            //TODO: call function to place worker on garden
+            $this->workerMYRService->takeOutAnt($player->getPersonalBoardMYR(), $anthillHole);
         } catch (Exception) {
             $message = $player->getUsername()
                 . " a essayé de sortir une ouvrière sur la tuile "
