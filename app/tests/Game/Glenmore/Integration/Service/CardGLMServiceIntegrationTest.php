@@ -166,6 +166,311 @@ class CardGLMServiceIntegrationTest extends KernelTestCase
         $this->assertSame($expectedResult,$result);
     }
 
+    public function testSelectResourceForLochLochyWhenCreatedResourcesQuantityIsTwoButSameType() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $resource = $this->resourceGLMRepository->findOneBy(["id" => 1]);
+        for ($i = 0; $i < 1; ++$i) {
+            $createdResource = new CreatedResourceGLM();
+            $createdResource->setResource($resource);
+            $createdResource->setQuantity(2);
+            $createdResource->setPersonalBoardGLM($player->getPersonalBoard());
+            $this->entityManager->persist($createdResource);
+            $player->getPersonalBoard()->addCreatedResource($createdResource);
+            $this->entityManager->persist($createdResource);
+        }
+        $this->entityManager->flush();
+        //THEN
+        $this->expectException(\Exception::class);
+        //WHEN
+        $this->cardGLMService->selectResourceForLochLochy($player, $resource);
+    }
+
+    public function testSelectResourceForLochLochyWhenCreatedResourcesQuantityIsTwoAndDifferentType() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        for ($i = 1; $i <= 2; ++$i) {
+            $resource = $this->resourceGLMRepository->findOneBy(["id" => $i]);
+            $createdResource = new CreatedResourceGLM();
+            $createdResource->setResource($resource);
+            $createdResource->setQuantity(1);
+            $createdResource->setPersonalBoardGLM($player->getPersonalBoard());
+            $this->entityManager->persist($createdResource);
+            $player->getPersonalBoard()->addCreatedResource($createdResource);
+            $this->entityManager->persist($createdResource);
+        }
+        $this->entityManager->flush();
+        //THEN
+        $this->expectException(\Exception::class);
+        //WHEN
+        $this->cardGLMService->selectResourceForLochLochy($player, $resource);
+    }
+
+    public function testSelectResourceForLochLochyWhenCreatedResourcesIsSameColor() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $resource = $this->resourceGLMRepository->findOneBy(["id" => 1]);
+        $createdResource = new CreatedResourceGLM();
+        $createdResource->setResource($resource);
+        $createdResource->setQuantity(1);
+        $createdResource->setPersonalBoardGLM($player->getPersonalBoard());
+        $this->entityManager->persist($createdResource);
+        $player->getPersonalBoard()->addCreatedResource($createdResource);
+        $this->entityManager->persist($createdResource);
+        $this->entityManager->flush();
+        $expectedResult = 2;
+        $expectedSize = 1;
+        //WHEN
+        $this->cardGLMService->selectResourceForLochLochy($player, $resource);
+        //THEN
+        $this->assertSame($expectedSize, $player->getPersonalBoard()->getCreatedResources()->count());
+        $this->assertSame($expectedResult, $player->getPersonalBoard()->getCreatedResources()->first()->getQuantity());
+    }
+
+    public function testSelectResourceForLochLochyWhenCreatedResourcesIsAnotherColor() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $resource = $this->resourceGLMRepository->findOneBy(["id" => 1]);
+        $createdResource = new CreatedResourceGLM();
+        $createdResource->setResource($resource);
+        $createdResource->setQuantity(1);
+        $createdResource->setPersonalBoardGLM($player->getPersonalBoard());
+        $this->entityManager->persist($createdResource);
+        $player->getPersonalBoard()->addCreatedResource($createdResource);
+        $this->entityManager->persist($createdResource);
+        $this->entityManager->flush();
+        $newResource = $this->resourceGLMRepository->findOneBy(["id" => 2]);
+        $expectedResult = 1;
+        $expectedSize = 2;
+        //WHEN
+        $this->cardGLMService->selectResourceForLochLochy($player, $newResource);
+        //THEN
+        $this->assertSame($expectedSize, $player->getPersonalBoard()->getCreatedResources()->count());
+        $this->assertSame($expectedResult, $player->getPersonalBoard()->getCreatedResources()->first()->getQuantity());
+    }
+
+    public function testSelectResourceForLochLochyWhenNoCreatedResource() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $newResource = $this->resourceGLMRepository->findOneBy(["id" => 2]);
+        $expectedResult = 1;
+        $expectedSize = 1;
+        //WHEN
+        $this->cardGLMService->selectResourceForLochLochy($player, $newResource);
+        //THEN
+        $this->assertSame($expectedSize, $player->getPersonalBoard()->getCreatedResources()->count());
+        $this->assertSame($expectedResult, $player->getPersonalBoard()->getCreatedResources()->first()->getQuantity());
+    }
+
+    public function testValidateTakingOfResourcesForLochLochy() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $this->addCardAndTile($game, false, GlenmoreParameters::$CARD_LOCH_LOCHY);
+        for ($i = 1; $i <= 2; ++$i) {
+            $resource = $this->resourceGLMRepository->findOneBy(["id" => $i]);
+            $createdResource = new CreatedResourceGLM();
+            $createdResource->setResource($resource);
+            $createdResource->setQuantity(1);
+            $createdResource->setPersonalBoardGLM($player->getPersonalBoard());
+            $this->entityManager->persist($createdResource);
+            $player->getPersonalBoard()->addCreatedResource($createdResource);
+            $this->entityManager->persist($createdResource);
+        }
+        $this->entityManager->flush();
+        $expectedSizeOfLochyResources = 2;
+        $expectedSizeOfCreated = 0;
+        //WHEN
+        $this->cardGLMService->validateTakingOfResourcesForLochLochy($player);
+        //THEN
+        $lochyTile = $player->getPersonalBoard()->getPlayerTiles()->last();
+        $this->assertSame($expectedSizeOfCreated, $player->getPersonalBoard()->getCreatedResources()->count());
+        $this->assertSame($expectedSizeOfLochyResources, $lochyTile->getPlayerTileResource()->count());
+    }
+
+    public function testApplyLochShielWhenNoProductionTile() : void
+    {
+        //GIVEN
+        $game = $this->createGame(4);
+        $player = $game->getPlayers()->first();
+        $this->addCardAndTile($game, false, GlenmoreParameters::$CARD_LOCH_SHIEL);
+        $expectedNb = 0;
+        //WHEN
+        $this->cardGLMService->buyCardManagement($player->getPersonalBoard()->getPlayerTiles()->last());
+        //THEN
+        $result = $this->getProductionResourceNumber($player);
+        $this->assertSame($expectedNb, $result);
+    }
+
+    public function testApplyLochShielWhenOneProductionTileButNotEmpty() : void
+    {
+        //GIVEN
+        $game = $this->createGame(4);
+        $player = $game->getPlayers()->first();
+        $this->addCardAndTile($game, false, GlenmoreParameters::$CARD_LOCH_SHIEL);
+        $tile = $player->getPersonalBoard()->getPlayerTiles()->last();
+        $resource = $this->resourceGLMRepository->findOneBy(["id" => 1]);
+        $playerTileResource = new PlayerTileResourceGLM();
+        $playerTileResource->setResource($resource);
+        $playerTileResource->setQuantity(1);
+        $playerTileResource->setPlayerTileGLM($tile);
+        $playerTileResource->setPlayer($player);
+        $this->entityManager->persist($playerTileResource);
+        $tile->addPlayerTileResource($playerTileResource);
+        $this->entityManager->persist($tile);
+        $player->addPlayerTileResourceGLM($playerTileResource);
+        $this->entityManager->persist($player);
+        $this->entityManager->flush();
+        $expectedNb = 1;
+        //WHEN
+        $this->cardGLMService->buyCardManagement($player->getPersonalBoard()->getPlayerTiles()->last());
+        //THEN
+        $result = $this->getProductionResourceNumber($player);
+        $this->assertSame($expectedNb, $result);
+    }
+
+    public function testApplyLochShielWhenOneProductionTileAndEmpty() : void
+    {
+        //GIVEN
+        $game = $this->createGame(4);
+        $player = $game->getPlayers()->first();
+        $this->addCardAndTile($game, false, GlenmoreParameters::$CARD_LOCH_SHIEL);
+        $tile = $player->getPersonalBoard()->getPlayerTiles()->last();
+        $resource = $this->resourceGLMRepository->findOneBy(["id" => 1]);
+        $playerTileResource = new PlayerTileResourceGLM();
+        $playerTileResource->setResource($resource);
+        $playerTileResource->setQuantity(0);
+        $playerTileResource->setPlayerTileGLM($tile);
+        $playerTileResource->setPlayer($player);
+        $this->entityManager->persist($playerTileResource);
+        $tile->addPlayerTileResource($playerTileResource);
+        $this->entityManager->persist($tile);
+        $player->addPlayerTileResourceGLM($playerTileResource);
+        $this->entityManager->persist($player);
+        $this->entityManager->flush();
+        $expectedNb = 1;
+        //WHEN
+        $this->cardGLMService->buyCardManagement($player->getPersonalBoard()->getPlayerTiles()->last());
+        //THEN
+        $result = $this->getProductionResourceNumber($player);
+        $this->assertSame($expectedNb, $result);
+    }
+
+    public function testApplyLochShielWhenLochLochyEmpty() : void
+    {
+        //GIVEN
+        $game = $this->createGame(4);
+        $player = $game->getPlayers()->first();
+        $this->addCardAndTile($game, false, GlenmoreParameters::$CARD_LOCH_SHIEL);
+        $lochShiel = $player->getPersonalBoard()->getPlayerTiles()->last();
+        $this->addCardAndTile($game, false, GlenmoreParameters::$CARD_LOCH_LOCHY);
+        $lochLochy = $player->getPersonalBoard()->getPlayerTiles()->last();
+        $resource = $this->resourceGLMRepository->findOneBy(["id" => 1]);
+        $playerTileResource = new PlayerTileResourceGLM();
+        $playerTileResource->setResource($resource);
+        $playerTileResource->setQuantity(0);
+        $playerTileResource->setPlayerTileGLM($lochLochy);
+        $playerTileResource->setPlayer($player);
+        $this->entityManager->persist($playerTileResource);
+        $lochLochy->addPlayerTileResource($playerTileResource);
+        $this->entityManager->persist($lochLochy);
+        $player->addPlayerTileResourceGLM($playerTileResource);
+        $this->entityManager->persist($player);
+        $this->entityManager->flush();
+        $expectedNb = 0;
+        //WHEN
+        $this->cardGLMService->buyCardManagement($lochShiel);
+        //THEN
+        $result = $this->getProductionResourceNumber($player);
+        $this->assertSame($expectedNb, $result);
+    }
+
+    public function testApplyIonaAbbey() : void
+    {
+        //GIVEN
+        $game = $this->createGame(4);
+        $player = $game->getPlayers()->first();
+        $this->addCardAndTile($game, false, GlenmoreParameters::$CARD_IONA_ABBEY);
+        $expectedPoints = $this->giveExpectedPoints($player, 2, GlenmoreParameters::$TILE_TYPE_YELLOW);
+        $this->entityManager->flush();
+        //WHEN
+        $this->cardGLMService->applyIonaAbbey($game);
+        //THEN
+        $this->assertSame($expectedPoints, $player->getPoints());
+    }
+
+    public function testApplyLochMorar() : void
+    {
+        //GIVEN
+        $game = $this->createGame(4);
+        $player = $game->getPlayers()->first();
+        $this->addCardAndTile($game, false, GlenmoreParameters::$CARD_LOCH_MORAR);
+        $expectedPoints = $this->giveExpectedPoints($player, 2, GlenmoreParameters::$TILE_TYPE_GREEN) - 2;
+        $this->entityManager->flush();
+        //WHEN
+        $this->cardGLMService->applyLochMorar($game);
+        //THEN
+        $this->assertSame($expectedPoints, $player->getPoints());
+    }
+
+    public function testApplyDuartCastle() : void
+    {
+        //GIVEN
+        $game = $this->createGame(4);
+        $player = $game->getPlayers()->first();
+        $this->addCardAndTile($game, false, GlenmoreParameters::$CARD_DUART_CASTLE);
+        $expectedPoints = $this->giveExpectedPoints($player, 3, GlenmoreParameters::$TILE_TYPE_VILLAGE);
+        $this->entityManager->flush();
+        //WHEN
+        $this->cardGLMService->applyDuartCastle($game);
+        //THEN
+        $this->assertSame($expectedPoints, $player->getPoints());
+    }
+
+    private function giveExpectedPoints(PlayerGLM $player, int $points, String $type) : int
+    {
+        $expectedPoints = $points;
+        for ($i = 1; $i <= 30; ++$i) {
+            /** @var TileGLM $tile */
+            $tile = $this->tileGLMRepository->findOneBy(["id" => $i]);
+            $playerTile = new PlayerTileGLM();
+            $playerTile->setTile($tile);
+            $playerTile->setCoordY($i + 15);
+            $playerTile->setCoordX($i - 153);
+            if ($tile->getType() === $type) {
+                $playerTile->setActivated(false);
+                $expectedPoints += $points;
+            }
+            $playerTile->setPersonalBoard($player->getPersonalBoard());
+            $this->entityManager->persist($playerTile);
+            $player->getPersonalBoard()->addPlayerTile($playerTile);
+            $this->entityManager->persist($player->getPersonalBoard());
+        }
+        return $expectedPoints;
+    }
+
+    private function getProductionResourceNumber(PlayerGLM $player) : int
+    {
+        $result = 0;
+        foreach ($player->getPlayerTileResourceGLMs() as $playerTileResourceGLM) {
+            if ($playerTileResourceGLM->getResource()->getType() === GlenmoreParameters::$PRODUCTION_RESOURCE) {
+                $result += $playerTileResourceGLM->getQuantity();
+            }
+        }
+        return $result;
+    }
+
     private function whiskyCardTests(String $cardName, int $expectedResult) : void
     {
         //GIVEN
