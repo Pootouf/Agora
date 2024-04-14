@@ -26,9 +26,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 
 
-/**
- * @codeCoverageIgnore
- */
+
 class MYRGameManagerService extends AbstractGameManagerService
 {
 
@@ -55,6 +53,7 @@ class MYRGameManagerService extends AbstractGameManagerService
         $season->setActualSeason(true);
         $this->entityManager->persist($season);
         $game->setMainBoardMYR($mainBoard);
+        $game->setGamePhase(MyrmesParameters::PHASE_INVALID);
         $this->entityManager->persist($game);
         $this->entityManager->persist($mainBoard);
         $this->entityManager->flush();

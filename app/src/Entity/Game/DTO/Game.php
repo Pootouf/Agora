@@ -19,6 +19,9 @@ class Game
     protected bool $launched = false;
 
     #[ORM\Column]
+    protected bool $paused = false;
+
+    #[ORM\Column]
     protected ?string $gameName = null;
 
 
@@ -45,5 +48,15 @@ class Game
     public function setGameName(?string $gameName): void
     {
         $this->gameName = $gameName;
+    }
+
+    public function isPaused(): bool
+    {
+        return $this->paused;
+    }
+
+    public function setPaused(bool $paused): void
+    {
+        $this->paused = $paused;
     }
 }

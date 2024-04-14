@@ -14,6 +14,7 @@ use App\Entity\Game\Myrmes\PlayerMYR;
 use App\Entity\Game\Myrmes\PlayerResourceMYR;
 use App\Entity\Game\Myrmes\ResourceMYR;
 use App\Entity\Game\Myrmes\TileMYR;
+use App\Repository\Game\MessageRepository;
 use App\Repository\Game\Myrmes\AnthillHoleMYRRepository;
 use App\Repository\Game\Myrmes\NurseMYRRepository;
 use App\Repository\Game\Myrmes\PheromonMYRRepository;
@@ -27,9 +28,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 
-/**
- * @codeCoverageIgnore
- */
+
 class WorkshopMYRService
 {
 
@@ -44,6 +43,47 @@ class WorkshopMYRService
                                 private readonly NurseMYRRepository $nurseMYRRepository,
                                 private readonly AnthillHoleMYRRepository $anthillHoleMYRRepository)
     {}
+
+
+    /**
+     * getAvailableAnthillHolesPositions : returns a list of possible new anthill holes positions
+     * @param PlayerMYR $player
+     * @return ArrayCollection<Int, TileMYR>
+     */
+    public function getAvailableAnthillHolesPositions(PlayerMYR $player) : ArrayCollection
+    {
+        $pheromones = $player->getPheromonMYRs();
+        $result = new ArrayCollection();
+        foreach ($pheromones as $pheromone) {
+            $pheromoneTiles = $pheromone->getPheromonTiles();
+            foreach ($pheromoneTiles as $pheromoneTile) {
+                $tile = $pheromoneTile->getTile();
+                $adjacentTiles = $this->getAdjacentTiles($tile);
+                foreach ($adjacentTiles as $adjacentTile) {
+                    if ($adjacentTile != null && $this->isValidPosition($player, $adjacentTile)) {
+                        $result->add($adjacentTile);
+                    }
+                }
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * canSetPhaseToWorkshop : before entering workshop phase, check if the player has nurses in workshop area
+     * @param PlayerMYR $playerMYR
+     * @return bool
+     */
+    public function canSetPhaseToWorkshop(PlayerMYR $playerMYR): bool
+    {
+        $personalBoard = $playerMYR->getPersonalBoardMYR();
+        foreach($personalBoard->getNurses() as $nurse) {
+            if($nurse->getArea() == MyrmesParameters::WORKSHOP_AREA) {
+                return true;
+            }
+        }
+        return false;
+    }
 
 
     /**
@@ -226,8 +266,13 @@ class WorkshopMYRService
         if (!$this->canChooseThisBonus($player, $workshop)) {
             throw new Exception("player can not choose this bonus");
         }
-        $nurses = $this->MYRService->getNursesAtPosition($player, MyrmesParameters::WORKSHOP_AREA);
-        $nursesCount = $nurses->count();
+        $nurses = $this->MYRService->getNursesAtPosition($player, $workshop);
+        $nursesCount = $nurses->count()
+        ;
+        if ($nursesCount != 1) {
+            throw new Exception("player can not choose this bonus");
+        }
+
         switch ($workshop) {
             case MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA:
                 $this->manageAnthillHole($nursesCount, $player, $tile);
@@ -242,34 +287,22 @@ class WorkshopMYRService
                 break;
             case MyrmesParameters::WORKSHOP_GOAL_AREA:
                 break;
-            default:
-                throw new Exception("Don't give bonus");
         }
         $this->entityManager->flush();
     }
 
     /**
-     * getAvailableAnthillHolesPositions : returns a list of possible new anthill holes positions
-     * @param PlayerMYR $player
-     * @return ArrayCollection<Int, TileMYR>
+     * manageEndOfWorkshop : end the workshop round
+     * @param GameMYR $gameMYR
+     * @return void
+     * @throws Exception
      */
-    public function getAvailableAnthillHolesPositions(PlayerMYR $player) : ArrayCollection
+    public function manageEndOfWorkshop(GameMYR $gameMYR): void
     {
-        $pheromones = $player->getPheromonMYRs();
-        $result = new ArrayCollection();
-        foreach ($pheromones as $pheromone) {
-            $pheromoneTiles = $pheromone->getPheromonTiles();
-            foreach ($pheromoneTiles as $pheromoneTile) {
-                $tile = $pheromoneTile->getTile();
-                $adjacentTiles = $this->getAdjacentTiles($tile);
-                foreach ($adjacentTiles as $adjacentTile) {
-                    if ($this->isValidPosition($player, $adjacentTile)) {
-                        $result->add($adjacentTile);
-                    }
-                }
-            }
+        if(!$this->MYRService->canManageEndOfPhase($gameMYR, MyrmesParameters::PHASE_WORKSHOP)) {
+            throw new Exception("All members have not played yet");
         }
-        return $result;
+        $this->MYRService->manageEndOfRound($gameMYR);
     }
 
     /**
@@ -280,10 +313,16 @@ class WorkshopMYRService
      */
     private function canChooseThisBonus(PlayerMYR $player, int $workshopArea) : bool
     {
+        if ( $workshopArea < MyrmesParameters::WORKSHOP_GOAL_AREA
+            || $workshopArea > MyrmesParameters::WORKSHOP_NURSE_AREA)
+        {
+            return false;
+        }
+
         if ($player->getPhase() != MyrmesParameters::PHASE_WORKSHOP) {
             return false;
         }
-        return $this->MYRService->getNursesAtPosition($player, $workshopArea) >= 0;
+        return $this->MYRService->getNursesAtPosition($player, $workshopArea)->count() > 0;
     }
 
     /**
@@ -308,24 +347,28 @@ class WorkshopMYRService
             return false;
         }
         $mainBoard = $player->getGameMyr()->getMainBoardMYR();
-        $pheromoneTile = $this->pheromoneTileMYRRepository->findBy(["mainBoard" => $mainBoard, "tile" => $tile]);
+        $pheromoneTile = $this->pheromoneTileMYRRepository->findOneBy(["mainBoard" => $mainBoard, "tile" => $tile]);
         if ($pheromoneTile != null) {
             return false;
         }
-        $anthillHole = $this->anthillHoleMYRRepository->findBy(["mainBoard" => $mainBoard, "tile" => $tile]);
+        $anthillHole = $this->anthillHoleMYRRepository->findOneBy(["mainBoardMYR" => $mainBoard, "tile" => $tile]);
         if ($anthillHole != null) {
             return false;
         }
-        $prey = $this->preyMYRRepository->findBy(["mainBoardMYR" => $mainBoard, "tile" => $tile]);
+        $prey = $this->preyMYRRepository->findOneBy(["mainBoardMYR" => $mainBoard, "tile" => $tile]);
         if ($prey != null) {
             return false;
         }
+        /** @var ArrayCollection<Int, TileMYR> $adjacentTiles */
         $adjacentTiles = $this->getAdjacentTiles($tile);
+        /** @var Array<PheromonMYR> $playerPheromones */
         $playerPheromones = $this->pheromonMYRRepository->findBy(["player" => $player]);
         foreach ($adjacentTiles as $adjacentTile) {
             foreach ($playerPheromones as $playerPheromone) {
-                if ($playerPheromone->contains($adjacentTile)) {
-                    return true;
+                foreach ($playerPheromone->getPheromonTiles() as $pheromoneTile) {
+                    if ($pheromoneTile->getTile() === $adjacentTile) {
+                        return true;
+                    }
                 }
             }
         }
@@ -360,9 +403,9 @@ class WorkshopMYRService
     /**
      * Manage all change driven by add anthill hole
      *
-     * @param int       $nursesCount
-     * @param PlayerMYR $player
-     * @param TileMYR   $tile
+     * @param int          $nursesCount
+     * @param PlayerMYR    $player
+     * @param TileMYR $tile
      * @return void
      * @throws Exception
      */
@@ -499,9 +542,32 @@ class WorkshopMYRService
     private function canBuyNurse(PlayerMYR $player) : bool
     {
         $pBoard = $player->getPersonalBoardMYR();
+        $resource = $this->getFoodResource($player);
 
         return $pBoard->getLarvaCount() >= 2
-            && $pBoard->getPlayerResourceMYRs()->count() >= 2;
+            && $resource != null
+            && $resource->getQuantity() >= 2
+            && $this->nurseMYRRepository->findOneBy(
+                [
+                    'available' => false,
+                    'player' => $player
+                ]
+            ) != null;
+    }
+
+    private function getFoodResource(PlayerMYR $playerMYR) : ?PlayerResourceMYR
+    {
+        $pBoard = $playerMYR->getPersonalBoardMYR();
+
+        $grass = $this->resourceMYRRepository->findOneBy(
+            ["description" => MyrmesParameters::RESOURCE_TYPE_GRASS]
+        );
+        return $this->playerResourceMYRRepository->findOneBy(
+            [
+                "resource" => $grass,
+                "personalBoard" => $pBoard
+            ]
+        );
     }
 
     /**
@@ -514,31 +580,22 @@ class WorkshopMYRService
     private function manageNurse(int $nursesCount, PlayerMYR $player) : void
     {
         $pBoard = $player->getPersonalBoardMYR();
+        $pBoard->setLarvaCount($pBoard->getLarvaCount() - 2);
 
-        if ($nursesCount == 1)
-        {
-            $pBoard->setLarvaCount($pBoard->getLarvaCount() - 2);
+        $playerResource = $this->getFoodResource($player);
+        $playerResource->setQuantity($playerResource->getQuantity() - 2);
+        $this->entityManager->persist($playerResource);
 
-            for ($i = $pBoard->getPlayerResourceMYRs()->count() - 3;
-                 $i < $pBoard->getPlayerResourceMYRs()->count();
-                 $i++) {
-                $playerResource = $pBoard->getPlayerResourceMYRs()->get($i);
-                $pBoard->removePlayerResourceMYR($playerResource);
-            }
+        $nurse = $this->nurseMYRRepository->findOneBy(['available' => false]);
+        $nurse->setAvailable(true);
+        $nurse->setArea(MyrmesParameters::BASE_AREA);
 
-            $nurse = $this->nurseMYRRepository->findOneBy(['available' => false]);
-            if($nurse != null) {
-                $nurse->setAvailable(true);
-                $nurse->setArea(MyrmesParameters::BASE_AREA);
-                $this->entityManager->persist($nurse);
-                $this->entityManager->persist($pBoard);
-            } else {
-                throw new Exception("Can't have a new nurse, already reach the limit");
-            }
-            $this->MYRService->manageNursesAfterBonusGive(
-                $player, 1, MyrmesParameters::WORKSHOP_NURSE_AREA
-            );
-        }
+        $this->entityManager->persist($nurse);
+        $this->entityManager->persist($pBoard);
+
+        $this->MYRService->manageNursesAfterBonusGive(
+            $player, $nursesCount, MyrmesParameters::WORKSHOP_NURSE_AREA
+        );
     }
 
     /**
@@ -564,6 +621,7 @@ class WorkshopMYRService
         }
         $this->entityManager->flush();
     }
+
 
     /**
      * canPlayerDoFoodGoal: return true if the player can do a food goal with the selected difficulty

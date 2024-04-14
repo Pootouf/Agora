@@ -25,13 +25,7 @@ class EventMYRServiceTest extends TestCase
     public function testChooseBonusShouldWorkWithPositive() : void
     {
         //GIVEN
-        $game = new GameMYR();
-        $mainBoard = new MainBoardMYR();
-        $game->setMainBoardMYR($mainBoard);
-        $season = new SeasonMYR();
-        $season->setDiceResult(MyrmesParameters::BONUS_POINT);
-        $season->setActualSeason(true);
-        $mainBoard->addSeason($season);
+        $game = $this->initializeGameData(MyrmesParameters::BONUS_POINT);
         $player = new PlayerMYR("test", $game);
         $personalBoard = new PersonalBoardMYR();
         $player->setPersonalBoardMYR($personalBoard);
@@ -48,13 +42,7 @@ class EventMYRServiceTest extends TestCase
     public function testChooseBonusShouldWorkWithNegative() : void
     {
         //GIVEN
-        $game = new GameMYR();
-        $mainBoard = new MainBoardMYR();
-        $game->setMainBoardMYR($mainBoard);
-        $season = new SeasonMYR();
-        $season->setDiceResult(MyrmesParameters::BONUS_WARRIOR);
-        $season->setActualSeason(true);
-        $mainBoard->addSeason($season);
+        $game = $this->initializeGameData(MyrmesParameters::BONUS_WARRIOR);
         $player = new PlayerMYR("test", $game);
         $personalBoard = new PersonalBoardMYR();
         $player->setPersonalBoardMYR($personalBoard);
@@ -71,13 +59,7 @@ class EventMYRServiceTest extends TestCase
     public function testChooseBonusShouldFailBecauseBonusDoesntExist() : void
     {
         //GIVEN
-        $game = new GameMYR();
-        $mainBoard = new MainBoardMYR();
-        $game->setMainBoardMYR($mainBoard);
-        $season = new SeasonMYR();
-        $season->setDiceResult(MyrmesParameters::BONUS_WORKER);
-        $mainBoard->addSeason($season);
-        $season->setActualSeason(true);
+        $game = $this->initializeGameData(MyrmesParameters::BONUS_WORKER);
         $player = new PlayerMYR("test", $game);
         $personalBoard = new PersonalBoardMYR();
         $player->setPersonalBoardMYR($personalBoard);
@@ -92,13 +74,7 @@ class EventMYRServiceTest extends TestCase
     public function testChooseBonusShouldFailBecauseNotEnoughLarvae() : void
     {
         //GIVEN
-        $game = new GameMYR();
-        $mainBoard = new MainBoardMYR();
-        $game->setMainBoardMYR($mainBoard);
-        $season = new SeasonMYR();
-        $season->setDiceResult(MyrmesParameters::BONUS_POINT);
-        $season->setActualSeason(true);
-        $mainBoard->addSeason($season);
+        $game = $this->initializeGameData(MyrmesParameters::BONUS_POINT);
         $player = new PlayerMYR("test", $game);
         $personalBoard = new PersonalBoardMYR();
         $player->setPersonalBoardMYR($personalBoard);
@@ -113,13 +89,7 @@ class EventMYRServiceTest extends TestCase
     public function testChooseBonusShouldFailBecauseNotEventPhase() : void
     {
         //GIVEN
-        $game = new GameMYR();
-        $mainBoard = new MainBoardMYR();
-        $game->setMainBoardMYR($mainBoard);
-        $season = new SeasonMYR();
-        $season->setDiceResult(MyrmesParameters::PHASE_BIRTH);
-        $season->setActualSeason(true);
-        $mainBoard->addSeason($season);
+        $game = $this->initializeGameData(MyrmesParameters::BONUS_POINT);
         $player = new PlayerMYR("test", $game);
         $personalBoard = new PersonalBoardMYR();
         $player->setPhase(MyrmesParameters::PHASE_BIRTH);
@@ -134,13 +104,7 @@ class EventMYRServiceTest extends TestCase
     public function testUpBonusTwice() : void
     {
         //GIVEN
-        $game = new GameMYR();
-        $mainBoard = new MainBoardMYR();
-        $game->setMainBoardMYR($mainBoard);
-        $season = new SeasonMYR();
-        $season->setDiceResult(MyrmesParameters::BONUS_POINT);
-        $season->setActualSeason(true);
-        $mainBoard->addSeason($season);
+        $game = $this->initializeGameData(MyrmesParameters::BONUS_POINT);
         $player = new PlayerMYR("test", $game);
         $personalBoard = new PersonalBoardMYR();
         $player->setPersonalBoardMYR($personalBoard);
@@ -158,12 +122,7 @@ class EventMYRServiceTest extends TestCase
     public function testUpBonusThenLowerBonus() : void
     {
         //GIVEN
-        $game = new GameMYR();
-        $mainBoard = new MainBoardMYR();
-        $game->setMainBoardMYR($mainBoard);
-        $season = new SeasonMYR();
-        $season->setDiceResult(MyrmesParameters::BONUS_POINT);
-        $season->setActualSeason(true);
+        $game = $this->initializeGameData(MyrmesParameters::BONUS_POINT);
         $player = new PlayerMYR("test", $game);
         $personalBoard = new PersonalBoardMYR();
         $player->setPersonalBoardMYR($personalBoard);
@@ -179,6 +138,105 @@ class EventMYRServiceTest extends TestCase
         $this->assertSame($bonusWanted, $personalBoard->getBonus());
         $this->assertSame($selectedLarvaeExpected, $personalBoard->getSelectedEventLarvaeAmount());
 
+    }
+
+    public function testConfirmBonus() : void
+    {
+        // GIVEN
+
+        $game = $this->initializeGameData(MyrmesParameters::BONUS_POINT);
+        $player = new PlayerMYR("test", $game);
+        $personalBoard = new PersonalBoardMYR();
+        $player->setPersonalBoardMYR($personalBoard);
+        $player->getPersonalBoardMYR()->setBonus(
+            MyrmesParameters::BONUS_HARVEST);
+
+        // WHEN
+
+        $this->eventMYRService->confirmBonus($player);
+
+        // THEN
+
+        $this->assertSame(3, $player->getRemainingHarvestingBonus());
+    }
+
+    public function testLowerBonusWhenPhaseIsNotEqualToEventPhase() : void
+    {
+        // GIVEN
+
+        $game = $this->initializeGameData(MyrmesParameters::BONUS_POINT);
+        $player = new PlayerMYR("test", $game);
+        $personalBoard = new PersonalBoardMYR();
+        $player->setPersonalBoardMYR($personalBoard);
+        $player->getPersonalBoardMYR()->setBonus(
+            MyrmesParameters::BONUS_HARVEST);
+        $player->setPhase(MyrmesParameters::PHASE_INVALID);
+
+        // THEN
+
+        $this->expectException(\Exception::class);
+
+        // WHEN
+
+        $this->eventMYRService->lowerBonus($player);
+    }
+
+    public function testLowerBonusWhenCanNotLower() : void
+    {
+        // GIVEN
+
+        $game = $this->initializeGameData(MyrmesParameters::BONUS_POINT);
+        $player = new PlayerMYR("test", $game);
+        $personalBoard = new PersonalBoardMYR();
+        $player->setPersonalBoardMYR($personalBoard);
+        $player->getPersonalBoardMYR()->setBonus(0);
+        $player->setPhase(MyrmesParameters::PHASE_EVENT);
+
+        // THEN
+
+        $this->expectException(\Exception::class);
+
+        // WHEN
+
+        $this->eventMYRService->lowerBonus($player);
+    }
+
+    public function testUpperBonusWhen() : void
+    {
+        // GIVEN
+
+        $game = $this->initializeGameData(MyrmesParameters::BONUS_WORKER);
+
+        $personalBoard = new PersonalBoardMYR();
+        $personalBoard->setBonus(MyrmesParameters::BONUS_WARRIOR);
+        $personalBoard->setLarvaCount(2);
+        $personalBoard->setSelectedEventLarvaeAmount(1);
+        $bonusExpected = MyrmesParameters::BONUS_PHEROMONE;
+
+        $player = new PlayerMYR("test", $game);
+        $player->setPersonalBoardMYR($personalBoard);
+
+        // WHEN
+
+        $this->eventMYRService->upBonus($player);
+
+        // THEN
+
+        $this->assertSame($bonusExpected, $personalBoard->getBonus());
+        $this->assertSame(0, $personalBoard->getSelectedEventLarvaeAmount());
+    }
+
+    private function initializeGameData(int $bonus): GameMYR
+    {
+        $game = new GameMYR();
+        $mainBoard = new MainBoardMYR();
+        $game->setMainBoardMYR($mainBoard);
+        $game->setGamePhase(MyrmesParameters::PHASE_INVALID);
+        $season = new SeasonMYR();
+        $season->setDiceResult($bonus);
+        $season->setActualSeason(true);
+        $mainBoard->addSeason($season);
+        return $game;
     }
 
 }

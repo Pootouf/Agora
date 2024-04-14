@@ -122,7 +122,7 @@ class MYRService
     }
 
     /**
-     * getPheromonesFromType : returns all orientations of a pheremone or special tile from a type
+     * getPheromonesFromType : returns all orientations of a pheromone or special tile from a type
      * @param int $type
      * @return ArrayCollection<Int, TileTypeMYR>
      */
@@ -206,6 +206,32 @@ class MYRService
         }
 
         return null;
+    }
+
+    /**
+     * canManageEndOfPhase : indicate if all players have played this phase and are waiting for the next one
+     * @param GameMYR $gameMYR
+     * @param int $phase
+     * @return bool
+     */
+    public function canManageEndOfPhase(GameMYR $gameMYR, int $phase): bool
+    {
+        foreach ($gameMYR->getPlayers() as $player) {
+            if($player->getPhase() == $phase) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * isGameEnded : returns true if the game reached its end
+     * @param GameMYR $game
+     * @return bool
+     */
+    public function isGameEnded(GameMYR $game) : bool
+    {
+        return $game->getMainBoardMYR()->getYearNum() > MyrmesParameters::THIRD_YEAR_NUM;
     }
 
     /**
@@ -341,6 +367,7 @@ class MYRService
         $this->entityManager->persist($player);
         $this->entityManager->persist($personalBoard);
         $this->entityManager->flush();
+        $this->setPhase($player, MyrmesParameters::PHASE_EVENT);
     }
 
     /**
@@ -499,12 +526,12 @@ class MYRService
                     case MyrmesParameters::LARVAE_AREA:
                     case MyrmesParameters::SOLDIERS_AREA:
                     case MyrmesParameters::WORKER_AREA:
-                        $n->setArea(MyrmesParameters::BASE_AREA);
-                        $this->entityManager->persist($n);
-                        break;
                     case MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA:
                     case MyrmesParameters::WORKSHOP_LEVEL_AREA:
                     case MyrmesParameters::WORKSHOP_NURSE_AREA:
+                        $n->setArea(MyrmesParameters::BASE_AREA);
+                        $this->entityManager->persist($n);
+                        break;
                     case MyrmesParameters::WORKSHOP_GOAL_AREA:
                         break;
                     default:
@@ -529,6 +556,29 @@ class MYRService
         }
         // TODO : COMPUTE GOAL COSTS
         $this->computePlayerRewardPointsWithGoal($playerMYR, $goalMYR);
+    }
+
+    /**
+     * setPhase: Set a new phase of the game for a player, and change the game phase if all player have the same
+     * @param PlayerMYR $playerMYR
+     * @param int $phase
+     * @return void
+     */
+    public function setPhase(PlayerMYR $playerMYR, int $phase): void
+    {
+        $playerMYR->setPhase($phase);
+        $areAllPlayerAtTheSamePhase = true;
+        foreach($playerMYR->getGameMyr()->getPlayers() as $player) {
+            if($player->getPhase() != $phase) {
+                $areAllPlayerAtTheSamePhase = false;
+            }
+        }
+        if($areAllPlayerAtTheSamePhase) {
+            $playerMYR->getGameMyr()->setGamePhase($phase);
+            $this->entityManager->persist($playerMYR->getGameMyr());
+        }
+        $this->entityManager->persist($playerMYR);
+        $this->entityManager->flush();
     }
 
     /**
@@ -670,10 +720,10 @@ class MYRService
     {
         $this->clearSeasons($game);
         $yearNum = $game->getMainBoardMYR()->getYearNum();
-        if ($yearNum === MyrmesParameters::THIRD_YEAR_NUM) {
+        $game->getMainBoardMYR()->setYearNum($yearNum + 1);
+        if ($yearNum > MyrmesParameters::THIRD_YEAR_NUM) {
             return;
         }
-        $game->getMainBoardMYR()->setYearNum($yearNum + 1);
         $this->initializeNewSeason($game, MyrmesParameters::SPRING_SEASON_NAME);
         $this->initializeNewSeason($game, MyrmesParameters::SUMMER_SEASON_NAME);
         $this->initializeNewSeason($game, MyrmesParameters::FALL_SEASON_NAME);
