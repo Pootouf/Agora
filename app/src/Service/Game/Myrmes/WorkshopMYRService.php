@@ -1151,9 +1151,11 @@ class WorkshopMYRService
     private function calculateScoreAfterGoalAccomplish(GameGoalMYR $gameGoal, PlayerMYR $player): void
     {
         $previousPlayers = $gameGoal->getPrecedentsPlayers();
+        $game = $player->getGameMyr();
         foreach ($previousPlayers as $previousPlayer) {
             $previousPlayer->setScore(
-                $previousPlayer->getScore() + MyrmesParameters::SCORE_INCREASE_GOAL_ALREADY_DONE
+                $previousPlayer->getScore()
+                + MyrmesParameters::SCORE_INCREASE_GOAL_ALREADY_DONE[$game->getPlayers()->count()]
             );
             $this->entityManager->persist($previousPlayer);
         }

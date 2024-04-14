@@ -367,7 +367,11 @@ interface MyrmesParameters
 
 
     // Score parameters
-    const int SCORE_INCREASE_GOAL_ALREADY_DONE = 3;
+    const array SCORE_INCREASE_GOAL_ALREADY_DONE = [
+        2 => 5,
+        3 => 4,
+        4 => 3,
+    ];
     const int SCORE_INCREASE_GOAL_DIFFICULTY_ONE = 6;
     const int SCORE_INCREASE_GOAL_DIFFICULTY_TWO = 9;
     const int SCORE_INCREASE_GOAL_DIFFICULTY_THREE = 12;
