@@ -1162,11 +1162,13 @@ class WorkshopMYRService
         $previousPlayers = $gameGoal->getPrecedentsPlayers();
         $game = $player->getGameMyr();
         foreach ($previousPlayers as $previousPlayer) {
-            $previousPlayer->setScore(
-                $previousPlayer->getScore()
-                + MyrmesParameters::SCORE_INCREASE_GOAL_ALREADY_DONE[$game->getPlayers()->count()]
-            );
-            $this->entityManager->persist($previousPlayer);
+            if (!$gameGoal->getGoalAlreadyDone()->contains($previousPlayer)) {
+                $previousPlayer->setScore(
+                    $previousPlayer->getScore()
+                    + MyrmesParameters::SCORE_INCREASE_GOAL_ALREADY_DONE[$game->getPlayers()->count()]
+                );
+                $this->entityManager->persist($previousPlayer);
+            }
         }
         match ($gameGoal->getGoal()->getDifficulty()) {
             MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE =>
@@ -1179,6 +1181,7 @@ class WorkshopMYRService
         $this->entityManager->persist($player);
 
         $gameGoal->addPrecedentsPlayer($player);
+        $gameGoal->addGoalAlreadyDone($player);
         $this->entityManager->persist($gameGoal);
 
         $this->entityManager->flush();
