@@ -30,30 +30,81 @@ class BirthMYRServiceTest extends TestCase
     public function testPlaceNurseWhenNurseIsAvailable()
     {
         // GIVEN
+
         $game = $this->createGame(2);
         $firstPlayer = $game->getPlayers()->first();
         $personalBoard = $firstPlayer->getPersonalBoardMYR();
-        $nurse = $personalBoard->getNurses()->first();
-        $position = MyrmesParameters::LARVAE_AREA;
+
+        $this->MYRService->method("getNursesAtPosition")
+            ->willReturn(new ArrayCollection());
+
         // WHEN
-        $this->birthMYRService->placeNurse($nurse, $position);
+
+        $this->birthMYRService->placeNurse($firstPlayer,
+            MyrmesParameters::LARVAE_AREA);
+        $this->birthMYRService->placeNurse($firstPlayer,
+            MyrmesParameters::WORKER_AREA);
+
         // THEN
-        $this->assertEquals($position, $nurse->getArea());
+
+        foreach ($personalBoard->getNurses() as $nurse) {
+            $this->assertNotSame(MyrmesParameters::BASE_AREA, $nurse->getArea());
+        }
     }
 
     public function testPlaceNurseWhenNurseIsNotAvailable()
     {
         // GIVEN
+
         $game = $this->createGame(2);
         $firstPlayer = $game->getPlayers()->first();
         $personalBoard = $firstPlayer->getPersonalBoardMYR();
-        $nurse = $personalBoard->getNurses()->first();
-        $nurse->setAvailable(false);
-        $position = MyrmesParameters::LARVAE_AREA;
+
+        foreach ($personalBoard->getNurses() as $nurse) {
+            $nurse->setAvailable(false);
+        }
+
+        $area = MyrmesParameters::LARVAE_AREA;
+
         // THEN
+
         $this->expectException(\Exception::class);
+
         // WHEN
-        $this->birthMYRService->placeNurse($nurse, $position);
+
+        $this->birthMYRService->placeNurse($firstPlayer, $area);
+    }
+
+    public function testPlaceNurseWhenAreaIsAlreadyFull()
+    {
+        // GIVEN
+
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $personalBoard = $firstPlayer->getPersonalBoardMYR();
+
+        $area = MyrmesParameters::LARVAE_AREA;
+
+        foreach ($personalBoard->getNurses() as $nurse) {
+            $nurse->setArea($area);
+        }
+
+        $this->MYRService->method("getNursesAtPosition")->willReturn(
+            $personalBoard->getNurses()
+        );
+
+        $nurse = new NurseMYR();
+        $nurse->setAvailable(true);
+        $nurse->setArea(MyrmesParameters::BASE_AREA);
+        $personalBoard->addNurse($nurse);
+
+        // THEN
+
+        $this->expectException(\Exception::class);
+
+        // WHEN
+
+        $this->birthMYRService->placeNurse($firstPlayer, $area);
     }
 
     public function testCancelPlacementNurses() : void
@@ -285,6 +336,7 @@ class BirthMYRServiceTest extends TestCase
             for($j = 0; $j < MyrmesParameters::START_NURSES_COUNT_PER_PLAYER; $j += 1) {
                 $nurse = new NurseMYR();
                 $nurse->setAvailable(true);
+                $nurse->setArea(MyrmesParameters::BASE_AREA);
                 $personalBoard->addNurse($nurse);
             }
         }
