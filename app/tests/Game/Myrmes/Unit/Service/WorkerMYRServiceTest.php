@@ -2364,7 +2364,7 @@ class WorkerMYRServiceTest extends TestCase
         $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
     }
 
-    public function testCanWorkerMoveReturnTrueIfFuturePositionIsValidAndNoPreyToAttackAndEnoughtShiftCount() : void
+    public function testCanWorkerMoveReturnTrueIfFuturePositionIsValidAndNoPreyToAttackAndEnoughShiftCount() : void
     {
         //GIVEN
         $game = $this->createGame(2);
@@ -2383,6 +2383,40 @@ class WorkerMYRServiceTest extends TestCase
         $destinationTile->setCoordX(0);
         $destinationTile->setType(MyrmesParameters::DIRT_TILE_TYPE);
         $this->tileMYRRepository->method("findOneBy")->with(["coord_X" => 0, "coord_Y" => 2])->willReturn($destinationTile);
+        //WHEN
+        $result = $this->workerMYRService->canWorkerMove($player, $gardenWorker, MyrmesParameters::DIRECTION_EAST);
+        //THEN
+        $this->assertTrue($result);
+    }
+
+    public function testCanWorkerMoveReturnTrueIfFuturePositionIsValidAndThereIsAPreyToAttackAndEnoughShiftCount() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $gardenWorker = new GardenWorkerMYR();
+        $originTile = new TileMYR();
+        $originTile->setCoordX(0);
+        $originTile->setCoordY(0);
+        $originTile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $gardenWorker->setTile($originTile);
+        $gardenWorker->setPlayer($player);
+        $gardenWorker->setShiftsCount(1);
+        $gardenWorker->setMainBoardMYR($game->getMainBoardMYR());
+        $destinationTile = new TileMYR();
+        $destinationTile->setCoordY(2);
+        $destinationTile->setCoordX(0);
+        $prey = new PreyMYR();
+        $prey->setTile($destinationTile);
+        $prey->setMainBoardMYR($game->getMainBoardMYR());
+        $prey->setType(MyrmesParameters::LADYBUG_TYPE);
+        $destinationTile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $player->getPersonalBoardMYR()->setWarriorsCount(1);
+        $this->tileMYRRepository->method("findOneBy")->with(["coord_X" => 0, "coord_Y" => 2])->willReturn($destinationTile);
+        $this->preyMYRRepository->method("findOneBy")->with([
+            "tile" => $destinationTile,
+            "mainBoardMYR" => $game->getMainBoardMYR()
+        ])->willReturn($prey);
         //WHEN
         $result = $this->workerMYRService->canWorkerMove($player, $gardenWorker, MyrmesParameters::DIRECTION_EAST);
         //THEN

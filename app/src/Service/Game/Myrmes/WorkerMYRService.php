@@ -125,17 +125,15 @@ class WorkerMYRService
             return false;
         }
 
-        $prey = $this->getPreyOnTile($tile);
-        $pheromone = $this->getPheromoneTileOnTile($tile, $player->getGameMyr());
+        $prey = $this->getPreyOnTile($tile, $player->getGameMyr());
+        $destinationPheromoneTile = $this->getPheromoneTileOnTile($tile, $player->getGameMyr());
+        $originPheromoneTile = $this->getPheromoneTileOnTile($gardenWorker->getTile(), $player->getGameMyr());
+        $hasEnoughShiftsCount = $gardenWorker->getShiftsCount() > 0;
 
-        $canMove = ($prey == null && $pheromone == null)
-            || ($prey != null && $this->canWorkerAttackPrey($player, $prey))
-            || ($pheromone != null
-                && $this->canWorkerWalkAroundPheromone($player, $pheromone))
-        ;
-
-        return $gardenWorker->getShiftsCount() > 0
-            && $canMove;
+        return ($prey == null && $originPheromoneTile == null && $destinationPheromoneTile == null && $hasEnoughShiftsCount)
+            || ($prey != null && $this->canWorkerAttackPrey($player, $prey) && $hasEnoughShiftsCount)
+            || (($originPheromoneTile != null || $destinationPheromoneTile != null)
+                && $this->canWorkerWalkAroundPheromone($player, $originPheromoneTile, $destinationPheromoneTile, $gardenWorker));
     }
 
     /**
@@ -214,7 +212,7 @@ class WorkerMYRService
     public function isValidPositionForAnt(?TileMYR $tile): bool
     {
         if ($tile == null
-            || $tile->getType() != MyrmesParameters::WATER_TILE_TYPE)
+            || $tile->getType() == MyrmesParameters::WATER_TILE_TYPE)
         {
             return false;
         }
@@ -494,7 +492,7 @@ class WorkerMYRService
             $this->getTileAtDirection($gardenWorker->getTile(), $direction);
         $gardenWorker->setTile($tile);
 
-        $prey = $this->getPreyOnTile($tile);
+        $prey = $this->getPreyOnTile($tile, $player->getGameMyr());
         $pheromone = $this->getPheromoneTileOnTile($tile, $player->getGameMyr());
         if ($prey != null)
         {
@@ -896,7 +894,7 @@ class WorkerMYRService
     {
         foreach ($tileList as $tile) {
             if ($this->gardenWorkerMYRRepository->findOneBy(
-                ["tile" => $tile->getTile()->getId(), "player" => $player->getId()]
+                ["tile" => $tile->getTile(), "player" => $player]
             ) != null) {
                return true;
             }
@@ -909,9 +907,12 @@ class WorkerMYRService
      * @param TileMYR $tile
      * @return PreyMYR|null
      */
-    private function getPreyOnTile(TileMYR $tile) : ?PreyMYR
+    private function getPreyOnTile(TileMYR $tile, GameMYR $game) : ?PreyMYR
     {
-        return $this->preyMYRRepository->findOneBy(["tile" => $tile->getId()]);
+        return $this->preyMYRRepository->findOneBy([
+            "tile" => $tile,
+            "mainBoardMYR" => $game->getMainBoardMYR()
+        ]);
     }
 
     /**
@@ -923,7 +924,7 @@ class WorkerMYRService
     {
         return $this->pheromonTileMYRRepository->findOneBy(
             [
-                "tile" => $tile->getId(),
+                "tile" => $tile,
                 "mainBoard" => $game->getMainBoardMYR()
             ]
         );
@@ -950,19 +951,24 @@ class WorkerMYRService
     /**
      * canWorkerWalkAroundPheromone : check if player can move his garden worker on tile
      * @param PlayerMYR $player
-     * @param PheromonTileMYR $pheromonTile
+     * @param PheromonTileMYR|null $originPheromoneTile
+     * @param PheromonTileMYR|null $destinationPheromoneTile
+     * @param GardenWorkerMYR $gardenWorker
      * @return bool
      */
-    private function canWorkerWalkAroundPheromone(PlayerMYR $player, PheromonTileMYR $pheromonTile) : bool
+    private function canWorkerWalkAroundPheromone(PlayerMYR $player, ?PheromonTileMYR $originPheromoneTile,
+                                                  ?PheromonTileMYR $destinationPheromoneTile,
+                                                  GardenWorkerMYR $gardenWorker) : bool
     {
-        if ($pheromonTile->getPheromonMYR()->getPlayer() === $player)
-        {
+        if($originPheromoneTile != null && $destinationPheromoneTile != null
+           && $originPheromoneTile->getPheromonMYR() === $destinationPheromoneTile->getPheromonMYR()) {
             return true;
         }
-
-        $personalBoard = $player->getPersonalBoardMYR();
-
-        return $personalBoard->getWarriorsCount() >= 1;
+        if(($destinationPheromoneTile != null && $destinationPheromoneTile->getPheromonMYR()->getPlayer() === $player)
+                || $destinationPheromoneTile == null) {
+            return $gardenWorker->getShiftsCount() > 1;
+        }
+        return $gardenWorker->getShiftsCount() > 1 && $player->getPersonalBoardMYR()->getWarriorsCount() > 1;
     }
 
     /**
@@ -1398,7 +1404,7 @@ class WorkerMYRService
     private function getPrey(GameMYR $game, TileMYR $tile) : ?PreyMYR
     {
         return $this->preyMYRRepository->findOneBy(
-                ["mainBoardMYR" => $game->getMainBoardMYR()->getId(), "tile" => $tile]
+                ["mainBoardMYR" => $game->getMainBoardMYR(), "tile" => $tile]
             );
     }
 
