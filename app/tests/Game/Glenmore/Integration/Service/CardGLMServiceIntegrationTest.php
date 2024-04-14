@@ -275,6 +275,7 @@ class CardGLMServiceIntegrationTest extends KernelTestCase
             $this->entityManager->persist($playerTileResource);
             $this->entityManager->persist($personalBoard);
             $this->entityManager->persist($player);
+            $this->entityManager->flush();
         }
 
         for ($i = $nbOfPlayers; $i < GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD; ++$i) {
