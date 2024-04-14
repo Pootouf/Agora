@@ -83,7 +83,7 @@ class WorkshopMYRServiceTest extends TestCase
         $playerResourceMYRRepository->method("findOneBy")->willReturn($playerFood);
         $this->workshopMYRService = new WorkshopMYRService($entityManager, $this->MYRService, $pheromoneTileMyrRepository,
             $preyMyrRepository, $tileMYRRepository, $pheromoneMyrRepository, $resourceMYRRepository,
-            $playerResourceMYRRepository, $this->nurseMYRRepository, $this->anthillHoleMyrRepository);
+            $playerResourceMYRRepository, $this->nurseMYRRepository, $this->anthillHoleMYRRepository);
     }
 
     public function testCanSetPhaseToWorkshopReturnTrueIfPlayerHasNursesInWorkshop(): void
