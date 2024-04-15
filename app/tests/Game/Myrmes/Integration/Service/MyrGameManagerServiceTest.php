@@ -151,7 +151,7 @@ class MyrGameManagerServiceTest extends KernelTestCase
         $this->assertEquals(MYRGameManagerService::$ERROR_PLAYER_NOT_FOUND, $result);
     }
 
-    public function testDelete() {
+    public function testDeletePlayer() {
         // GIVEN
         $game= $this->myrGameManagerService->createGame();
         $game = $this->gameMYRRepository->findOneBy(["id" => $game]);
@@ -161,6 +161,161 @@ class MyrGameManagerServiceTest extends KernelTestCase
         $this->myrGameManagerService->createPlayer("test", $game);
         // WHEN
         $result = $this->myrGameManagerService->deletePlayer("test", $game);
+        // THEN
+        $this->assertEquals(MYRGameManagerService::$SUCCESS, $result);
+    }
+
+    /*public function testDeleteGame() {
+        // GIVEN
+        $game= $this->myrGameManagerService->createGame();
+        $game = $this->gameMYRRepository->findOneBy(["id" => $game]);
+        $game->setLaunched(false);
+        $this->entityManager->persist($game);
+        $this->entityManager->flush();
+        $this->myrGameManagerService->createPlayer("test", $game);
+        // WHEN
+        $result = $this->myrGameManagerService->deleteGame($game);
+        // THEN
+        $this->assertEquals(MYRGameManagerService::$SUCCESS, $result);
+    }*/
+
+    public function testLaunchGameWhenNotEnoughPlayers()
+    {
+        // GIVEN
+        $game= $this->myrGameManagerService->createGame();
+        $game = $this->gameMYRRepository->findOneBy(["id" => $game]);
+        for ($i = 0; $i < MyrmesParameters::MIN_NUMBER_OF_PLAYER - 1; ++ $i) {
+            $player = new PlayerMYR("jean", $game);
+            $player->setColor("blue");
+            $player->setTurnOfPlayer(false);
+            $player->setScore(0);
+            $player->setPhase(0);
+            $player->setRemainingHarvestingBonus(0);
+            $player->setGoalLevel(0);
+
+            $personalBoard = new PersonalBoardMYR();
+            $personalBoard->setPlayer($player);
+            $personalBoard->setBonus(0);
+            $personalBoard->setWarriorsCount(0);
+            $personalBoard->setAnthillLevel(0);
+            $personalBoard->setLarvaCount(0);
+            $personalBoard->setSelectedEventLarvaeAmount(0);
+            $this->entityManager->persist($personalBoard);
+
+            $player->setPersonalBoardMYR($personalBoard);
+            $this->entityManager->persist($player);
+            $game->addPlayer($player);
+        }
+        $this->entityManager->persist($game);
+        $this->entityManager->flush();
+        // WHEN
+        $result = $this->myrGameManagerService->launchGame($game);
+        // THEN
+        $this->assertEquals(MYRGameManagerService::$ERROR_INVALID_NUMBER_OF_PLAYER, $result);
+    }
+
+    public function testLaunchGameWhenTooMuchPlayers()
+    {
+        // GIVEN
+        $game= $this->myrGameManagerService->createGame();
+        $game = $this->gameMYRRepository->findOneBy(["id" => $game]);
+        for ($i = 0; $i < MyrmesParameters::MAX_NUMBER_OF_PLAYER + 1; ++ $i) {
+            $player = new PlayerMYR("jean", $game);
+            $player->setColor("blue");
+            $player->setTurnOfPlayer(false);
+            $player->setScore(0);
+            $player->setPhase(0);
+            $player->setRemainingHarvestingBonus(0);
+            $player->setGoalLevel(0);
+
+            $personalBoard = new PersonalBoardMYR();
+            $personalBoard->setPlayer($player);
+            $personalBoard->setBonus(0);
+            $personalBoard->setWarriorsCount(0);
+            $personalBoard->setAnthillLevel(0);
+            $personalBoard->setLarvaCount(0);
+            $personalBoard->setSelectedEventLarvaeAmount(0);
+            $this->entityManager->persist($personalBoard);
+
+            $player->setPersonalBoardMYR($personalBoard);
+            $this->entityManager->persist($player);
+            $game->addPlayer($player);
+        }
+        $this->entityManager->persist($game);
+        $this->entityManager->flush();
+        // WHEN
+        $result = $this->myrGameManagerService->launchGame($game);
+        // THEN
+        $this->assertEquals(MYRGameManagerService::$ERROR_INVALID_NUMBER_OF_PLAYER, $result);
+    }
+
+    public function testLaunchGameWhenGameIsLaunched()
+    {
+        // GIVEN
+        $game= $this->myrGameManagerService->createGame();
+        $game = $this->gameMYRRepository->findOneBy(["id" => $game]);
+        $game->setLaunched(true);
+        for ($i = 0; $i < MyrmesParameters::MAX_NUMBER_OF_PLAYER; ++ $i) {
+            $player = new PlayerMYR("jean", $game);
+            $player->setColor("blue");
+            $player->setTurnOfPlayer(false);
+            $player->setScore(0);
+            $player->setPhase(0);
+            $player->setRemainingHarvestingBonus(0);
+            $player->setGoalLevel(0);
+
+            $personalBoard = new PersonalBoardMYR();
+            $personalBoard->setPlayer($player);
+            $personalBoard->setBonus(0);
+            $personalBoard->setWarriorsCount(0);
+            $personalBoard->setAnthillLevel(0);
+            $personalBoard->setLarvaCount(0);
+            $personalBoard->setSelectedEventLarvaeAmount(0);
+            $this->entityManager->persist($personalBoard);
+
+            $player->setPersonalBoardMYR($personalBoard);
+            $this->entityManager->persist($player);
+            $game->addPlayer($player);
+        }
+        $this->entityManager->persist($game);
+        $this->entityManager->flush();
+        // WHEN
+        $result = $this->myrGameManagerService->launchGame($game);
+        // THEN
+        $this->assertEquals(MYRGameManagerService::$ERROR_GAME_ALREADY_LAUNCHED, $result);
+    }
+
+    public function testLaunchGameWhenNoProblem()
+    {
+        // GIVEN
+        $game= $this->myrGameManagerService->createGame();
+        $game = $this->gameMYRRepository->findOneBy(["id" => $game]);
+        for ($i = 0; $i < MyrmesParameters::MAX_NUMBER_OF_PLAYER; ++ $i) {
+            $player = new PlayerMYR("jean", $game);
+            $player->setColor("blue");
+            $player->setTurnOfPlayer(false);
+            $player->setScore(0);
+            $player->setPhase(0);
+            $player->setRemainingHarvestingBonus(0);
+            $player->setGoalLevel(0);
+
+            $personalBoard = new PersonalBoardMYR();
+            $personalBoard->setPlayer($player);
+            $personalBoard->setBonus(0);
+            $personalBoard->setWarriorsCount(0);
+            $personalBoard->setAnthillLevel(0);
+            $personalBoard->setLarvaCount(0);
+            $personalBoard->setSelectedEventLarvaeAmount(0);
+            $this->entityManager->persist($personalBoard);
+
+            $player->setPersonalBoardMYR($personalBoard);
+            $this->entityManager->persist($player);
+            $game->addPlayer($player);
+        }
+        $this->entityManager->persist($game);
+        $this->entityManager->flush();
+        // WHEN
+        $result = $this->myrGameManagerService->launchGame($game);
         // THEN
         $this->assertEquals(MYRGameManagerService::$SUCCESS, $result);
     }
