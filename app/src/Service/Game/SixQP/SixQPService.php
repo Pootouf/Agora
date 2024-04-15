@@ -57,7 +57,7 @@ class SixQPService
         if (count($gameSixQP->getRowSixQPs()) != SixQPParameters::$NUMBER_OF_ROWS_BY_GAME) {
             throw new Exception('Invalid number of rows');
         }
-        $numberOfPlayers = count($gameSixQP->getPlayerSixQPs());
+        $numberOfPlayers = count($gameSixQP->getPlayers());
         if ($numberOfPlayers > SixQPParameters::$MAX_NUMBER_OF_PLAYER ||
                 $numberOfPlayers < SixQPParameters::$MIN_NUMBER_OF_PLAYER) {
             throw new Exception('Invalid number of players');
@@ -65,7 +65,7 @@ class SixQPService
 
         $cards = $this->cardSixQPRepository->findAll();
         shuffle($cards);
-        $players = $gameSixQP->getPlayerSixQPs();
+        $players = $gameSixQP->getPlayers();
         $cardIndex = 0;
         foreach ($gameSixQP->getRowSixQPs() as $row) {
             $row->clearCards();
@@ -139,7 +139,7 @@ class SixQPService
      */
     public function getRanking(GameSixQP $gameSixQP): array
     {
-        $numberOfPlayers = count($gameSixQP->getPlayerSixQPs());
+        $numberOfPlayers = count($gameSixQP->getPlayers());
         if ($numberOfPlayers > SixQPParameters::$MAX_NUMBER_OF_PLAYER ||
                 $numberOfPlayers < SixQPParameters::$MIN_NUMBER_OF_PLAYER)
         {
@@ -147,7 +147,7 @@ class SixQPService
         }
 
 
-        $array = $gameSixQP->getPlayerSixQPs()->toArray();
+        $array = $gameSixQP->getPlayers()->toArray();
         usort($array,
             function (PlayerSixQP $player1, PlayerSixQP $player2) {
                 return $player1->getDiscardSixQP()->getTotalPoints() - $player2->getDiscardSixQP()->getTotalPoints();
@@ -179,7 +179,7 @@ class SixQPService
      */
     public function doesAllPlayersHaveChosen(GameSixQP $game): bool {
         $chosenCards = $this->chosenCardSixQPRepository->findBy(['game' => $game->getId()]);
-        return count($chosenCards) == count($game->getPlayerSixQPs());
+        return count($chosenCards) == count($game->getPlayers());
     }
 
     /**
@@ -220,7 +220,7 @@ class SixQPService
      */
     public function isGameEnded(GameSixQP $gameSixQP): bool
     {
-        $players = $gameSixQP->getPlayerSixQPs();
+        $players = $gameSixQP->getPlayers();
         if ($this->hasCardLeft($players)) {
             return false;
         }
@@ -326,7 +326,7 @@ class SixQPService
     {
         $winner = null;
         $winnerScore = INF;
-        foreach ($game->getPlayerSixQPs() as $player) {
+        foreach ($game->getPlayers() as $player) {
             if ($player->getDiscardSixQP()->getTotalPoints() < $winnerScore) {
                 $winner = $player;
                 $winnerScore = $player->getDiscardSixQP()->getTotalPoints();

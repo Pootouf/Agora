@@ -25,32 +25,91 @@ class BirthMYRServiceTest extends KernelTestCase
     public function testPlaceNurseWhenNurseIsAvailable()
     {
         // GIVEN
+
         $birthMYRService = static::getContainer()->get(BirthMYRService::class);
         $game = $this->createGame(2);
-        $personalBoard = $game->getPlayers()->first()->getPersonalBoardMYR();
-        $nurse = $personalBoard->getNurses()->first();
-        $position = MyrmesParameters::LARVAE_AREA;
+        $player = $game->getPlayers()->first();
+        $personalBoard = $player->getPersonalBoardMYR();
+
         // WHEN
-        $birthMYRService->placeNurse($nurse, $position);
+
+        $birthMYRService->placeNurse($player,
+            MyrmesParameters::WORKSHOP_AREA);
+
+        $birthMYRService->placeNurse($player,
+            MyrmesParameters::SOLDIERS_AREA);
+
         // THEN
-        $this->assertEquals($position, $nurse->getArea());
+
+        foreach ($personalBoard->getNurses() as $nurse)
+        {
+            $this->assertNotSame(MyrmesParameters::BASE_AREA
+                , $nurse->getArea());
+        }
+
     }
 
     public function testPlaceNurseWhenNurseIsNotAvailable()
     {
         // GIVEN
+
         $birthMYRService = static::getContainer()->get(BirthMYRService::class);
         $game = $this->createGame(2);
-        $personalBoard = $game->getPlayers()->first()->getPersonalBoardMYR();
-        $nurse = $personalBoard->getNurses()->first();
-        $nurse->setAvailable(false);
-        $this->entityManager->persist($nurse);
-        $this->entityManager->flush();
-        $position = MyrmesParameters::LARVAE_AREA;
+        $player = $game->getPlayers()->first();
+        $personalBoard = $player->getPersonalBoardMYR();
+
+        foreach ($personalBoard->getNurses() as $nurse)
+        {
+            $nurse->setAvailable(false);
+            $this->entityManager->persist($nurse);
+            $this->entityManager->flush();
+        }
+
+        $area = MyrmesParameters::LARVAE_AREA;
+
         // THEN
+
         $this->expectException(\Exception::class);
+
         // THEN
-        $birthMYRService->placeNurse($nurse, $position);
+
+        $birthMYRService->placeNurse($player, $area);
+    }
+
+    public function testPlaceNurseWhenAreaIsAlreadyFull()
+    {
+        // GIVEN
+
+        $birthMYRService = static::getContainer()->get(BirthMYRService::class);
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $personalBoard = $firstPlayer->getPersonalBoardMYR();
+
+        $area = MyrmesParameters::LARVAE_AREA;
+
+        foreach ($personalBoard->getNurses() as $nurse) {
+            $nurse->setArea($area);
+            $this->entityManager->persist($nurse);
+            $this->entityManager->flush();
+        }
+
+        $nurse = new NurseMYR();
+        $nurse->setAvailable(true);
+        $nurse->setArea(MyrmesParameters::BASE_AREA);
+        $personalBoard->addNurse($nurse);
+
+        $this->entityManager->persist($nurse);
+        $this->entityManager->persist($personalBoard);
+        $this->entityManager->persist($firstPlayer);
+        $this->entityManager->flush();
+
+        // THEN
+
+        $this->expectException(\Exception::class);
+
+        // WHEN
+
+        $birthMYRService->placeNurse($firstPlayer, $area);
     }
 
     private function createGame(int $numberOfPlayers) : GameMYR
@@ -61,6 +120,22 @@ class BirthMYRServiceTest extends KernelTestCase
             throw new \Exception("TOO MUCH PLAYERS ON CREATE GAME");
         }
         $game = new GameMYR();
+        $mainBoard = new MainBoardMYR();
+        $mainBoard->setYearNum(0);
+        $mainBoard->setGame($game);
+        $season = new SeasonMYR();
+        $season->setName("Spring");
+        $season->setMainBoard($mainBoard);
+        $season->setActualSeason(true);
+        $mainBoard->addSeason($season);
+        $season->setDiceResult(1);
+        $entityManager->persist($season);
+        $game->setMainBoardMYR($mainBoard);
+        $game->setGameName("test");
+        $game->setLaunched(true);
+        $game->setGamePhase(MyrmesParameters::PHASE_INVALID);
+        $entityManager->persist($mainBoard);
+        $entityManager->persist($game);
         for ($i = 0; $i < $numberOfPlayers; $i += 1) {
             $player = new PlayerMYR('test', $game);
             $game->addPlayer($player);
@@ -79,31 +154,15 @@ class BirthMYRServiceTest extends KernelTestCase
             $player->setRemainingHarvestingBonus(0);
             for($j = 0; $j < MyrmesParameters::START_NURSES_COUNT_PER_PLAYER; $j += 1) {
                 $nurse = new NurseMYR();
-                $nurse->setArea(MyrmesParameters::LARVAE_AREA);
+                $nurse->setArea(MyrmesParameters::BASE_AREA);
                 $nurse->setAvailable(true);
-                $nurse->setPlayer($player);
                 $personalBoard->addNurse($nurse);
                 $entityManager->persist($nurse);
             }
             $entityManager->persist($player);
             $entityManager->persist($personalBoard);
+            $entityManager->flush();
         }
-        $mainBoard = new MainBoardMYR();
-        $mainBoard->setYearNum(0);
-        $mainBoard->setGame($game);
-        $season = new SeasonMYR();
-        $season->setName("Spring");
-        $season->setMainBoard($mainBoard);
-        $season->setActualSeason(true);
-        $mainBoard->addSeason($season);
-        $season->setDiceResult(1);
-        $entityManager->persist($season);
-        $game->setMainBoardMYR($mainBoard);
-        $game->setGameName("test");
-        $game->setLaunched(true);
-        $game->setGamePhase(MyrmesParameters::PHASE_INVALID);
-        $entityManager->persist($mainBoard);
-        $entityManager->persist($game);
         $entityManager->flush();
 
         return $game;

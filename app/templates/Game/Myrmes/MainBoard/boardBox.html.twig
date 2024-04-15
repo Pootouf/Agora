@@ -58,6 +58,15 @@
                                 })
                             })
                         }}
+                    {% elseif sendingWorkerOnGarden and playerPhase == PHASE_WORKER %}
+                        {{ stimulus_action('myrmes', 'placeWorkerOnAntHillHole','click',
+                            {url: path('app_game_myrmes_place_worker_anthillhole',
+                                {
+                                    gameId: game.id,
+                                    tileId: boardBox.tile.id
+                                })
+                            })
+                        }}
                     {% else %}
                     {{ stimulus_action('myrmes','displayBoxActions','click',
                         {url:path('app_game_myrmes_display_main_board_box_actions',

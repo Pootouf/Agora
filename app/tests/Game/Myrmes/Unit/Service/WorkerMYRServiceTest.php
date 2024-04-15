@@ -2,6 +2,7 @@
 
 namespace App\Tests\Game\Myrmes\Unit\Service;
 
+use App\Entity\Game\Glenmore\TileGLM;
 use App\Entity\Game\Myrmes\AnthillHoleMYR;
 use App\Entity\Game\Myrmes\AnthillWorkerMYR;
 use App\Entity\Game\Myrmes\GameMYR;
@@ -22,6 +23,7 @@ use App\Repository\Game\Myrmes\AnthillHoleMYRRepository;
 use App\Repository\Game\Myrmes\GardenWorkerMYRRepository;
 use App\Repository\Game\Myrmes\AnthillWorkerMYRRepository;
 use App\Repository\Game\Myrmes\PheromonMYRRepository;
+use App\Repository\Game\Myrmes\PheromonTileMYRRepository;
 use App\Repository\Game\Myrmes\PlayerMYRRepository;
 use App\Repository\Game\Myrmes\PlayerResourceMYRRepository;
 use App\Repository\Game\Myrmes\PreyMYRRepository;
@@ -32,6 +34,7 @@ use App\Service\Game\Myrmes\MYRService;
 use App\Service\Game\Myrmes\WorkerMYRService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
+use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 
 class WorkerMYRServiceTest extends TestCase
@@ -47,10 +50,10 @@ class WorkerMYRServiceTest extends TestCase
     private ResourceMYRRepository $resourceMYRRepository;
     private TileTypeMYRRepository $tileTypeMYRRepository;
     private AnthillWorkerMYRRepository $anthillWorkerMYRRepository;
-
+    private GardenWorkerMYRRepository $gardenWorkerMYRRepository;
+    private PheromonTileMYRRepository $pheromonTileMYRRepository;
     private WorkerMYRService $workerMYRService;
 
-    private GardenWorkerMYRRepository $gardenWorkerMYRRepository;
 
     protected function setUp() : void
     {
@@ -65,6 +68,7 @@ class WorkerMYRServiceTest extends TestCase
         $this->tileTypeMYRRepository = $this->createMock(TileTypeMYRRepository::class);
         $this->gardenWorkerMYRRepository = $this->createMock(GardenWorkerMYRRepository::class);
         $this->anthillWorkerMYRRepository = $this->createMock(AnthillWorkerMYRRepository::class);
+        $this->pheromonTileMYRRepository = $this->createMock(PheromonTileMYRRepository::class);
         $this->workerMYRService = new WorkerMYRService(
             $this->entityManager,
             $this->MYRService,
@@ -76,7 +80,8 @@ class WorkerMYRServiceTest extends TestCase
             $this->playerResourceMYRRepository,
             $this->resourceMYRRepository,
             $this->tileTypeMYRRepository,
-            $this->gardenWorkerMYRRepository
+            $this->gardenWorkerMYRRepository,
+            $this->pheromonTileMYRRepository
         );
     }
 
@@ -86,13 +91,13 @@ class WorkerMYRServiceTest extends TestCase
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
         $ant = new AnthillWorkerMYR();
-        $ant->setPlayer($player);
         $ant->setPersonalBoardMYR($player->getPersonalBoardMYR());
         $player->getPersonalBoardMYR()->addAnthillWorker($ant);
         $hole = new AnthillHoleMYR();
         $hole->setMainBoardMYR($game->getMainBoardMYR());
         $hole->setPlayer($player);
-        $this->anthillWorkerMYRRepository->method("findOneBy")->willReturn($ant);
+        $this->anthillWorkerMYRRepository
+            ->method("findOneBy")->willReturn($ant);
 
         // WHEN
         $this->workerMYRService->takeOutAnt($player->getPersonalBoardMYR(), $hole);
@@ -107,14 +112,14 @@ class WorkerMYRServiceTest extends TestCase
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
         $ant = new AnthillWorkerMYR();
-        $ant->setPlayer($player);
         $ant->setWorkFloor(2);
         $ant->setPersonalBoardMYR($player->getPersonalBoardMYR());
         $player->getPersonalBoardMYR()->addAnthillWorker($ant);
         $hole = new AnthillHoleMYR();
         $hole->setMainBoardMYR($game->getMainBoardMYR());
         $hole->setPlayer($player);
-        $this->anthillWorkerMYRRepository->method("findOneBy")->willReturn(null);
+        $this->anthillWorkerMYRRepository
+            ->method("findOneBy")->willReturn(null);
 
         // THEN
         $this->expectException(\Exception::class);
@@ -129,13 +134,13 @@ class WorkerMYRServiceTest extends TestCase
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
         $ant = new AnthillWorkerMYR();
-        $ant->setPlayer($player);
         $ant->setPersonalBoardMYR($player->getPersonalBoardMYR());
         $player->getPersonalBoardMYR()->addAnthillWorker($ant);
         $hole = new AnthillHoleMYR();
         $hole->setMainBoardMYR($game->getMainBoardMYR());
         $hole->setPlayer($game->getPlayers()->last());
-        $this->anthillWorkerMYRRepository->method("findOneBy")->willReturn($ant);
+        $this->anthillWorkerMYRRepository
+            ->method("findOneBy")->willReturn($ant);
 
         // THEN
         $this->expectException(\Exception::class);
@@ -150,15 +155,16 @@ class WorkerMYRServiceTest extends TestCase
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
         $ant = new AnthillWorkerMYR();
-        $ant->setPlayer($player);
         $ant->setPersonalBoardMYR($player->getPersonalBoardMYR());
         $player->getPersonalBoardMYR()->addAnthillWorker($ant);
         $hole = new AnthillHoleMYR();
         $hole->setMainBoardMYR($game->getMainBoardMYR());
         $hole->setPlayer($player);
         $gardenWorker = new GardenWorkerMYR();
-        $this->anthillWorkerMYRRepository->method("findOneBy")->willReturn($ant);
-        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($gardenWorker);
+        $this->anthillWorkerMYRRepository
+            ->method("findOneBy")->willReturn($ant);
+        $this->gardenWorkerMYRRepository
+            ->method("findOneBy")->willReturn($gardenWorker);
 
         // THEN
         $this->expectException(\Exception::class);
@@ -172,16 +178,18 @@ class WorkerMYRServiceTest extends TestCase
         // GIVEN
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
-        $player->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::ANTHILL_LEVEL_TWO);
+        $player->getPersonalBoardMYR()->setAnthillLevel(
+            MyrmesParameters::ANTHILL_LEVEL_TWO);
         $selectedFloor = 2;
         $ant = new AnthillWorkerMYR();
-        $ant->setPlayer($player);
         $ant->setPersonalBoardMYR($player->getPersonalBoardMYR());
         $player->getPersonalBoardMYR()->addAnthillWorker($ant);
-        $this->anthillWorkerMYRRepository->method("findOneBy")->willReturn($ant);
+        $this->anthillWorkerMYRRepository
+            ->method("findOneBy")->willReturn($ant);
 
         // WHEN
-        $this->workerMYRService->placeAntInAnthill($player->getPersonalBoardMYR(), $selectedFloor);
+        $this->workerMYRService->placeAntInAnthill(
+            $player->getPersonalBoardMYR(), $selectedFloor);
 
         // THEN
         $this->assertEquals($selectedFloor, $ant->getWorkFloor());
@@ -193,13 +201,14 @@ class WorkerMYRServiceTest extends TestCase
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
         $player->getPersonalBoardMYR()->setBonus(-1);
-        $player->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::ANTHILL_LEVEL_TWO);
+        $player->getPersonalBoardMYR()->setAnthillLevel(
+            MyrmesParameters::ANTHILL_LEVEL_TWO);
         $selectedFloor = 3;
         $ant = new AnthillWorkerMYR();
-        $ant->setPlayer($player);
         $ant->setPersonalBoardMYR($player->getPersonalBoardMYR());
         $player->getPersonalBoardMYR()->addAnthillWorker($ant);
-        $this->anthillWorkerMYRRepository->method("findOneBy")->willReturn($ant);
+        $this->anthillWorkerMYRRepository
+            ->method("findOneBy")->willReturn($ant);
 
         // THEN
         $this->expectException(\Exception::class);
@@ -217,7 +226,6 @@ class WorkerMYRServiceTest extends TestCase
         $player->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::ANTHILL_LEVEL_TWO);
         $selectedFloor = 2;
         $ant = new AnthillWorkerMYR();
-        $ant->setPlayer($player);
         $ant->setWorkFloor(1);
         $ant->setPersonalBoardMYR($player->getPersonalBoardMYR());
         $player->getPersonalBoardMYR()->addAnthillWorker($ant);
@@ -2550,6 +2558,540 @@ class WorkerMYRServiceTest extends TestCase
         // WHEN
         $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
     }
+
+    public function testCanWorkerMoveReturnTrueIfFuturePositionIsValidAndNoPreyToAttackAndEnoughShiftCount() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $gardenWorker = new GardenWorkerMYR();
+        $originTile = new TileMYR();
+        $originTile->setCoordX(0);
+        $originTile->setCoordY(0);
+        $originTile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $gardenWorker->setTile($originTile);
+        $gardenWorker->setPlayer($player);
+        $gardenWorker->setShiftsCount(1);
+        $gardenWorker->setMainBoardMYR($game->getMainBoardMYR());
+        $destinationTile = new TileMYR();
+        $destinationTile->setCoordY(2);
+        $destinationTile->setCoordX(0);
+        $destinationTile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $this->tileMYRRepository->method("findOneBy")->with(["coord_X" => 0, "coord_Y" => 2])->willReturn($destinationTile);
+        //WHEN
+        $result = $this->workerMYRService->canWorkerMove($player, $gardenWorker, MyrmesParameters::DIRECTION_EAST);
+        //THEN
+        $this->assertTrue($result);
+    }
+
+    public function testCanWorkerMoveReturnTrueIfFuturePositionIsValidAndThereIsAPreyToAttackAndEnoughShiftCount() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $gardenWorker = new GardenWorkerMYR();
+        $originTile = new TileMYR();
+        $originTile->setCoordX(0);
+        $originTile->setCoordY(0);
+        $originTile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $gardenWorker->setTile($originTile);
+        $gardenWorker->setPlayer($player);
+        $gardenWorker->setShiftsCount(1);
+        $gardenWorker->setMainBoardMYR($game->getMainBoardMYR());
+        $destinationTile = new TileMYR();
+        $destinationTile->setCoordY(2);
+        $destinationTile->setCoordX(0);
+        $prey = new PreyMYR();
+        $prey->setTile($destinationTile);
+        $prey->setMainBoardMYR($game->getMainBoardMYR());
+        $prey->setType(MyrmesParameters::LADYBUG_TYPE);
+        $destinationTile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $player->getPersonalBoardMYR()->setWarriorsCount(1);
+        $this->tileMYRRepository->method("findOneBy")->with(["coord_X" => 0, "coord_Y" => 2])->willReturn($destinationTile);
+        $this->preyMYRRepository->method("findOneBy")->with([
+            "tile" => $destinationTile,
+            "mainBoardMYR" => $game->getMainBoardMYR()
+        ])->willReturn($prey);
+        //WHEN
+        $result = $this->workerMYRService->canWorkerMove($player, $gardenWorker, MyrmesParameters::DIRECTION_EAST);
+        //THEN
+        $this->assertTrue($result);
+    }
+
+    public function testCanWorkerMoveReturnTrueIfFuturePositionIsValidAndThereIsAPheromoneAndEnoughShiftCount() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $gardenWorker = new GardenWorkerMYR();
+        $originTile = new TileMYR();
+        $originTile->setCoordX(0);
+        $originTile->setCoordY(0);
+        $originTile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $gardenWorker->setTile($originTile);
+        $gardenWorker->setPlayer($player);
+        $gardenWorker->setShiftsCount(1);
+        $gardenWorker->setMainBoardMYR($game->getMainBoardMYR());
+        $destinationTile = new TileMYR();
+        $destinationTile->setCoordY(2);
+        $destinationTile->setCoordX(0);
+        $originPheromoneTile = new PheromonTileMYR();
+        $destinationPheromoneTile = new PheromonTileMYR();
+        $originPheromoneTile->setTile($originTile);
+        $originPheromoneTile->setMainBoard($game->getMainBoardMYR());
+        $pheromone = new PheromonMYR();
+        $pheromone->addPheromonTile($originPheromoneTile);
+        $pheromone->addPheromonTile($destinationPheromoneTile);
+        $originPheromoneTile->setPheromonMYR($pheromone);
+        $destinationPheromoneTile->setTile($destinationTile);
+        $destinationPheromoneTile->setPheromonMYR($pheromone);
+        $destinationPheromoneTile->setMainBoard($game->getMainBoardMYR());
+        $destinationTile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $this->tileMYRRepository->method("findOneBy")
+                                ->with(["coord_X" => 0, "coord_Y" => 2])
+                                ->willReturn($destinationTile);
+        $this->pheromonTileMYRRepository
+            ->expects($this->any())
+            ->method("findOneBy")
+            ->will($this->onConsecutiveCalls($originPheromoneTile, $destinationPheromoneTile));
+        //WHEN
+        $result = $this->workerMYRService->canWorkerMove($player, $gardenWorker, MyrmesParameters::DIRECTION_EAST);
+        //THEN
+        $this->assertTrue($result);
+    }
+
+    public function testCanWorkerMoveReturnTrueIfFuturePositionIsValidAndThereIsDifferentPheromoneFromThePlayerAndEnoughShiftCount() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $gardenWorker = new GardenWorkerMYR();
+        $originTile = new TileMYR();
+        $originTile->setCoordX(0);
+        $originTile->setCoordY(0);
+        $originTile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $gardenWorker->setTile($originTile);
+        $gardenWorker->setPlayer($player);
+        $gardenWorker->setShiftsCount(1);
+        $gardenWorker->setMainBoardMYR($game->getMainBoardMYR());
+        $destinationTile = new TileMYR();
+        $destinationTile->setCoordY(2);
+        $destinationTile->setCoordX(0);
+        $originPheromoneTile = new PheromonTileMYR();
+        $destinationPheromoneTile = new PheromonTileMYR();
+        $originPheromoneTile->setTile($originTile);
+        $originPheromone = new PheromonMYR();
+        $originPheromone->addPheromonTile($originPheromoneTile);
+        $destinationPheromone = new PheromonMYR();
+        $destinationPheromone->addPheromonTile($destinationPheromoneTile);
+        $originPheromoneTile->setPheromonMYR($originPheromone);
+        $destinationPheromoneTile->setTile($destinationTile);
+        $destinationPheromoneTile->setPheromonMYR($destinationPheromone);
+        $destinationTile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $this->tileMYRRepository->method("findOneBy")->with(["coord_X" => 0, "coord_Y" => 2])->willReturn($destinationTile);
+        $this->pheromonTileMYRRepository
+            ->method("findOneBy")
+            ->willReturnMap([
+                [["tile" => $originTile, "mainBoard" => $game->getMainBoardMYR()], $originPheromoneTile],
+                [["tile" => $destinationTile, "mainBoard" => $game->getMainBoardMYR()], $destinationPheromoneTile],
+            ]);
+        //WHEN
+        $result = $this->workerMYRService->canWorkerMove($player, $gardenWorker, MyrmesParameters::DIRECTION_EAST);
+        //THEN
+        $this->assertTrue($result);
+    }
+
+    public function testGetNeededSoldiersSucceedAndReturn1WhenThereIsAnOtherPlayerPheromone(): void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $coordX = 0;
+        $coordY = 0;
+        $tile = new TileMYR();
+        $tile->setCoordX($coordX);
+        $tile->setCoordY($coordY);
+        $tile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $this->tileMYRRepository->method("findOneBy")->with(["coord_X" => $coordX, "coord_Y" => $coordY])->willReturn($tile);
+        $pheromoneTile = new PheromonTileMYR();
+        $pheromone = new PheromonMYR();
+        $pheromone->setPlayer($game->getPlayers()->last());
+        $pheromone->addPheromonTile($pheromoneTile);
+        $pheromoneTile->setPheromonMYR($pheromone);
+        $pheromoneTile->setTile($tile);
+        $pheromoneTile->setMainBoard($game->getMainBoardMYR());
+        $this->pheromonTileMYRRepository->method("findOneBy")->with([
+            "tile" => $tile, "mainBoard" => $game->getMainBoardMYR()
+        ])->willReturn($pheromoneTile);
+        $expectedResult = 1;
+        //WHEN
+        $result = $this->workerMYRService->getNeededSoldiers($coordX, $coordY, $game, $player);
+        //THEN
+        $this->assertEquals($expectedResult, $result);
+    }
+
+    public function testGetNeededSoldiersSucceedAndReturn1WhenThereisALadybug(): void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $coordX = 0;
+        $coordY = 0;
+        $tile = new TileMYR();
+        $tile->setCoordX($coordX);
+        $tile->setCoordY($coordY);
+        $tile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $this->tileMYRRepository->method("findOneBy")->with(["coord_X" => $coordX, "coord_Y" => $coordY])->willReturn($tile);
+        $prey = new PreyMYR();
+        $prey->setTile($tile);
+        $prey->setMainBoardMYR($game->getMainBoardMYR());
+        $prey->setType(MyrmesParameters::LADYBUG_TYPE);
+        $this->preyMYRRepository->method("findOneBy")->with([
+            "mainBoardMYR" => $game->getMainBoardMYR(), "tile" => $tile
+        ])->willReturn($prey);
+        $expectedResult = 1;
+        //WHEN
+        $result = $this->workerMYRService->getNeededSoldiers($coordX, $coordY, $game, $player);
+        //THEN
+        $this->assertEquals($expectedResult, $result);
+    }
+
+    public function testGetNeededSoldiersFailWithAnInvalidTile(): void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $coordX = 0;
+        $coordY = 0;
+        //THEN
+        $this->expectException(InvalidArgumentException::class);
+        //WHEN
+        $result = $this->workerMYRService->getNeededSoldiers($coordX, $coordY, $game, $player);
+    }
+
+    public function testGetNeededMovementSucceedAndReturn0(): void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $coordX1 = 0;
+        $coordY1 = 0;
+        $coordX2 = 0;
+        $coordY2 = 2;
+        $tile1 = new TileMYR();
+        $tile1->setCoordX($coordX1);
+        $tile1->setCoordY($coordY1);
+        $tile1->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $tile2 = new TileMYR();
+        $tile2->setCoordX($coordX2);
+        $tile2->setCoordY($coordY2);
+        $tile2->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $this->tileMYRRepository
+            ->expects($this->any())
+            ->method("findOneBy")
+            ->will($this->onConsecutiveCalls($tile1, $tile2));
+        $pheromoneTile1 = new PheromonTileMYR();
+        $pheromoneTile2 = new PheromonTileMYR();
+        $pheromone = new PheromonMYR();
+        $pheromone->setPlayer($player);
+        $pheromone->addPheromonTile($pheromoneTile1);
+        $pheromone->addPheromonTile($pheromoneTile2);
+        $pheromoneTile1->setPheromonMYR($pheromone);
+        $pheromoneTile1->setTile($tile1);
+        $pheromoneTile1->setMainBoard($game->getMainBoardMYR());
+        $pheromoneTile2->setPheromonMYR($pheromone);
+        $pheromoneTile2->setTile($tile2);
+        $pheromoneTile2->setMainBoard($game->getMainBoardMYR());
+        $this->pheromonTileMYRRepository
+            ->expects($this->any())
+            ->method("findOneBy")
+            ->will($this->onConsecutiveCalls($pheromoneTile1, $pheromoneTile2));
+        $expectedResult = 0;
+        //WHEN
+        $result = $this->workerMYRService->getNeededMovementPoints($coordX1, $coordY1, $coordX2, $coordY2, $game, $player);
+        //THEN
+        $this->assertEquals($expectedResult, $result);
+
+    }
+
+    public function testGetNeededMovementSucceedAndReturn1(): void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $coordX1 = 0;
+        $coordY1 = 0;
+        $coordX2 = 0;
+        $coordY2 = 2;
+        $tile1 = new TileMYR();
+        $tile1->setCoordX($coordX1);
+        $tile1->setCoordY($coordY1);
+        $tile1->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $tile2 = new TileMYR();
+        $tile2->setCoordX($coordX2);
+        $tile2->setCoordY($coordY2);
+        $tile2->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $this->tileMYRRepository
+            ->expects($this->any())
+            ->method("findOneBy")
+            ->will($this->onConsecutiveCalls($tile1, $tile2));
+        $pheromoneTile1 = new PheromonTileMYR();
+        $pheromone = new PheromonMYR();
+        $pheromone->setPlayer($player);
+        $pheromone->addPheromonTile($pheromoneTile1);
+        $pheromoneTile1->setPheromonMYR($pheromone);
+        $pheromoneTile1->setTile($tile1);
+        $pheromoneTile1->setMainBoard($game->getMainBoardMYR());
+        $this->pheromonTileMYRRepository
+            ->expects($this->any())
+            ->method("findOneBy")
+            ->will($this->onConsecutiveCalls($pheromoneTile1, null));
+        $expectedResult = 1;
+        //WHEN
+        $result = $this->workerMYRService->getNeededMovementPoints($coordX1, $coordY1, $coordX2, $coordY2, $game, $player);
+        //THEN
+        $this->assertEquals($expectedResult, $result);
+
+    }
+
+
+    public function testGetNeededMovementFailWithInvalidTile(): void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $coordX1 = 0;
+        $coordY1 = 0;
+        $coordX2 = 0;
+        $coordY2 = 2;
+        $tile1 = new TileMYR();
+        $tile1->setCoordX($coordX1);
+        $tile1->setCoordY($coordY1);
+        $tile1->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $this->tileMYRRepository
+            ->expects($this->any())
+            ->method("findOneBy")
+            ->will($this->onConsecutiveCalls($tile1, null));
+        //THEN
+        $this->expectException(InvalidArgumentException::class);
+        //WHEN
+        $this->workerMYRService->getNeededMovementPoints($coordX1, $coordY1, $coordX2, $coordY2, $game, $player);
+
+    }
+
+    public function testCanCleanPheromoneReturnFalseIfSpecialTypeTile(): void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $pheromone = new PheromonMYR();
+        $type = new TileTypeMYR();
+        $type->setType(MyrmesParameters::SPECIAL_TILE_TYPE_FARM);
+        $pheromone->setType($type);
+        $playerDirtQuantity = 0;
+        //WHEN
+        $result = $this->workerMYRService->canCleanPheromone($pheromone, $playerDirtQuantity);
+        //THEN
+        $this->assertFalse($result);
+    }
+
+    public function testCanCleanPheromoneReturnFalseIfThereAreResourcesOnPheromoneTiles(): void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $pheromone = new PheromonMYR();
+        $type = new TileTypeMYR();
+        $type->setType(MyrmesParameters::PHEROMONE_TYPE_ZERO);
+        $pheromone->setType($type);
+        $pheromoneTile = new PheromonTileMYR();
+        $resource = new ResourceMYR();
+        $resource->setDescription(MyrmesParameters::DIRT_TILE_TYPE);
+        $pheromoneTile->setResource($resource);
+        $pheromoneTile->setPheromonMYR($pheromone);
+        $pheromone->addPheromonTile($pheromoneTile);
+        $playerDirtQuantity = 1;
+        //WHEN
+        $result = $this->workerMYRService->canCleanPheromone($pheromone, $playerDirtQuantity);
+        //THEN
+        $this->assertFalse($result);
+    }
+
+    public function testCanCleanPheromoneReturnFalseIfThereIsNotEnoughDirt(): void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $pheromone = new PheromonMYR();
+        $type = new TileTypeMYR();
+        $type->setType(MyrmesParameters::PHEROMONE_TYPE_ZERO);
+        $pheromone->setType($type);
+        $pheromoneTile = new PheromonTileMYR();
+        $pheromoneTile->setPheromonMYR($pheromone);
+        $pheromone->addPheromonTile($pheromoneTile);
+        $playerDirtQuantity = 0;
+        //WHEN
+        $result = $this->workerMYRService->canCleanPheromone($pheromone, $playerDirtQuantity);
+        //THEN
+        $this->assertFalse($result);
+    }
+
+    public function testCanCleanPheromoneReturnTrue(): void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $pheromone = new PheromonMYR();
+        $type = new TileTypeMYR();
+        $type->setType(MyrmesParameters::PHEROMONE_TYPE_ZERO);
+        $pheromone->setType($type);
+        $pheromoneTile = new PheromonTileMYR();
+        $pheromoneTile->setPheromonMYR($pheromone);
+        $pheromone->addPheromonTile($pheromoneTile);
+        $playerDirtQuantity = 1;
+        //WHEN
+        $result = $this->workerMYRService->canCleanPheromone($pheromone, $playerDirtQuantity);
+        //THEN
+        $this->assertTrue($result);
+    }
+
+    public function testGetPheromoneFromTileReturnNull(): void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $tile = new TileMYR();
+        //WHEN
+        $result = $this->workerMYRService->getPheromoneFromTile($game, $tile);
+        //THEN
+        $this->assertNull($result);
+    }
+
+    public function testGetPheromoneFromTileReturnTile(): void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $tile = new TileMYR();
+        $tile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $pheromoneTile = new PheromonTileMYR();
+        $pheromone = new PheromonMYR();
+        $pheromone->addPheromonTile($pheromoneTile);
+        $pheromoneTile->setTile($tile);
+        $pheromoneTile->setPheromonMYR($pheromone);
+        $pheromoneTile->setMainBoard($game->getMainBoardMYR());
+        $this->pheromonTileMYRRepository->method("findOneBy")->with([
+            "tile" => $tile, "mainBoard" => $game->getMainBoardMYR()
+        ])->willReturn($pheromoneTile);
+        //WHEN
+        $result = $this->workerMYRService->getPheromoneFromTile($game, $tile);
+        //THEN
+        $this->assertSame($result, $pheromone);
+    }
+
+    public function testGetStringCoordsOfPheromoneTilesReturnCorrectString(): void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $tile = new TileMYR();
+        $coordX = 0;
+        $coordY = 0;
+        $tile->setCoordX($coordX);
+        $tile->setCoordY($coordY);
+        $tile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $pheromoneTile = new PheromonTileMYR();
+        $pheromone = new PheromonMYR();
+        $pheromone->addPheromonTile($pheromoneTile);
+        $pheromoneTile->setTile($tile);
+        $pheromoneTile->setPheromonMYR($pheromone);
+        $pheromoneTile->setMainBoard($game->getMainBoardMYR());
+        $expectedResult = $coordX . "_" . $coordY . " ";
+        //WHEN
+        $result = $this->workerMYRService->getStringCoordsOfPheromoneTiles($pheromone);
+        //THEN
+        $this->assertEquals($expectedResult, $result);
+    }
+
+    public function testGetStringCoordsOfPheromoneTilesReturnEmptyString(): void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $pheromone = new PheromonMYR();
+        $expectedResult = "";
+        //WHEN
+        $result = $this->workerMYRService->getStringCoordsOfPheromoneTiles($pheromone);
+        //THEN
+        $this->assertEquals($expectedResult, $result);
+    }
+
+    public function testCleanPheromoneFailWhenHasNotEnoughDirt(): void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $pheromone = new PheromonMYR();
+        $type = new TileTypeMYR();
+        $type->setType(MyrmesParameters::PHEROMONE_TYPE_ZERO);
+        $pheromone->setType($type);
+        //THEN
+        $this->expectException(InvalidArgumentException::class);
+        //WHEN
+        $this->workerMYRService->cleanPheromone($pheromone, $player);
+    }
+
+    public function testCleanPheromoneSucceedWhenNotPlayerPheromone(): void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $pheromone = new PheromonMYR();
+        $pheromone->setPlayer($game->getPlayers()->last());
+        $tile = new TileMYR();
+        $coordX = 0;
+        $coordY = 0;
+        $tile->setCoordX($coordX);
+        $tile->setCoordY($coordY);
+        $tile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $pheromoneTile = new PheromonTileMYR();
+        $pheromoneTile->setTile($tile);
+        $pheromoneTile->setMainBoard($game->getMainBoardMYR());
+        $pheromone->addPheromonTile($pheromoneTile);
+        $type = new TileTypeMYR();
+        $type->setType(MyrmesParameters::PHEROMONE_TYPE_ONE);
+        $pheromone->setType($type);
+        $player->getPersonalBoardMYR()->getPlayerResourceMYRs()->last()->setQuantity(1);
+        $expectedScore = MyrmesParameters::PHEROMONE_TYPE_LEVEL[$pheromone->getType()->getType()] + $player->getScore();
+        //WHEN
+        $this->workerMYRService->cleanPheromone($pheromone, $player);
+        //THEN
+        $this->assertEquals($expectedScore, $player->getScore());
+    }
+
+    public function testGetTileFromCoordinatesReturnValidTile(): void
+    {
+        //GIVEN
+        $coordX = 0;
+        $coordY = 0;
+        $tile = new TileMYR();
+        $tile->setCoordY($coordY);
+        $tile->setCoordX($coordX);
+        $this->tileMYRRepository->method("findOneBy")->with([
+            "coord_X" => $coordX, "coord_Y" => $coordY
+        ])->willReturn($tile);
+        //WHEN
+        $result = $this->workerMYRService->getTileFromCoordinates($coordX, $coordY);
+        //THEN
+        $this->assertSame($tile, $result);
+
+    }
+
+    public function testGetTileFromCoordinatesReturnNull(): void
+    {
+        //GIVEN
+        $coordX = 0;
+        $coordY = 0;
+        //WHEN
+        $result = $this->workerMYRService->getTileFromCoordinates($coordX, $coordY);
+        //THEN
+        $this->assertNull($result);
+
+    }
+
+
 
     private function createGame(int $numberOfPlayers) : GameMYR
     {

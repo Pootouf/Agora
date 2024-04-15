@@ -23,21 +23,6 @@ class NurseMYRTest extends TestCase
         $this->assertTrue($this->nurseMYR->getId() >= 0);
     }
 
-    public function testSetPlayer() : void
-    {
-        // GIVEN
-
-        $player = new PlayerMYR("user", new GameMYR());
-
-        // WHEN
-
-        $this->nurseMYR->setPlayer($player);
-
-        // THEN
-
-        $this->assertSame($player, $this->nurseMYR->getPlayer());
-    }
-
     public function testSetAvailable() : void
     {
         // GIVEN

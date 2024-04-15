@@ -12,10 +12,6 @@ class AnthillWorkerMYR extends Component
     #[ORM\Column]
     private ?int $workFloor = null;
 
-    #[ORM\ManyToOne(inversedBy: 'anthillWorkerMYRs')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?PlayerMYR $player = null;
-
     #[ORM\ManyToOne(inversedBy: 'anthillWorkers')]
     #[ORM\JoinColumn(nullable: false)]
     private ?PersonalBoardMYR $personalBoardMYR = null;
@@ -28,18 +24,6 @@ class AnthillWorkerMYR extends Component
     public function setWorkFloor(int $workFloor): static
     {
         $this->workFloor = $workFloor;
-
-        return $this;
-    }
-
-    public function getPlayer(): ?PlayerMYR
-    {
-        return $this->player;
-    }
-
-    public function setPlayer(?PlayerMYR $player): static
-    {
-        $this->player = $player;
 
         return $this;
     }

@@ -22,7 +22,7 @@ class LogServiceIntegrationTest extends KernelTestCase
         $game = new GameSixQP();
         $game->setGameName(AbstractGameManagerService::$SIXQP_LABEL);
         $player = new PlayerSixQP('test', $game);
-        $game->addPlayerSixQP($player);
+        $game->addPlayer($player);
         $entityManager->persist($player);
         $player->setGame($game);
         $entityManager->persist($game);

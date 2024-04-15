@@ -37,21 +37,6 @@ class AnthillWorkerMYRTest extends TestCase
         $this->assertSame($workFloor, $this->anthillWorkerMYR->getWorkFloor());
     }
 
-    public function testSetPlayer() : void
-    {
-        // GIVEN
-
-        $player = new PlayerMYR("user", new GameMYR());
-
-        // WHEN
-
-        $this->anthillWorkerMYR->setPlayer($player);
-
-        // THEN
-
-        $this->assertSame($player, $this->anthillWorkerMYR->getPlayer());
-    }
-
     public function testSetPersonalBoard() : void
     {
         // GIVEN

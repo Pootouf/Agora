@@ -1294,6 +1294,12 @@ final class VersionMYRMES_DATA extends AbstractMigration
 
         $id++;
         $this->connection->insert('goal_myr',
+            ['id' => $id, 'name' => MyrmesParameters::GOAL_ANTHILL_LEVEL_NAME,
+                'difficulty' => MyrmesParameters::GOAL_DIFFICULTY_LEVEL_THREE]
+        );
+
+        $id++;
+        $this->connection->insert('goal_myr',
             ['id' => $id, 'name' => MyrmesParameters::GOAL_PHEROMONE_NAME,
                 'difficulty' => MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE]
         );

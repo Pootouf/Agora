@@ -45,10 +45,10 @@ class WorkerMYRServiceTest extends KernelTestCase
 
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
-        $player->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::ANTHILL_LEVEL_TWO);
+        $player->getPersonalBoardMYR()->setAnthillLevel(
+            MyrmesParameters::ANTHILL_LEVEL_TWO);
         $this->entityManager->persist($player);
         $ant = new AnthillWorkerMYR();
-        $ant->setPlayer($player);
         $ant->setPersonalBoardMYR($player->getPersonalBoardMYR());
         $ant->setWorkFloor(MyrmesParameters::NO_WORKFLOOR);
         $player->getPersonalBoardMYR()->addAnthillWorker($ant);
@@ -65,10 +65,16 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($ant);
         $this->entityManager->persist($player->getPersonalBoardMYR());
         $this->entityManager->flush();
-        $gardenWorkerRepository = static::getContainer()->get(GardenWorkerMYRRepository::class);
+        $gardenWorkerRepository = static::getContainer()
+            ->get(GardenWorkerMYRRepository::class);
+
         // WHEN
-        $this->workerMYRService->takeOutAnt($player->getPersonalBoardMYR(), $hole);
+
+        $this->workerMYRService->takeOutAnt(
+            $player->getPersonalBoardMYR(), $hole);
+
         // THEN
+
         $gardenWorker = $gardenWorkerRepository->findOneBy(['player' => $player->getId()]);
         $this->assertNotNull($gardenWorker);
     }
@@ -79,10 +85,10 @@ class WorkerMYRServiceTest extends KernelTestCase
 
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
-        $player->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::ANTHILL_LEVEL_TWO);
+        $player->getPersonalBoardMYR()->setAnthillLevel(
+            MyrmesParameters::ANTHILL_LEVEL_TWO);
         $this->entityManager->persist($player);
         $ant = new AnthillWorkerMYR();
-        $ant->setPlayer($player);
         $ant->setPersonalBoardMYR($player->getPersonalBoardMYR());
         $ant->setWorkFloor(MyrmesParameters::NO_WORKFLOOR);
         $player->getPersonalBoardMYR()->addAnthillWorker($ant);
@@ -138,7 +144,6 @@ class WorkerMYRServiceTest extends KernelTestCase
         $player->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::ANTHILL_LEVEL_TWO);
         $this->entityManager->persist($player);
         $ant = new AnthillWorkerMYR();
-        $ant->setPlayer($player);
         $ant->setPersonalBoardMYR($player->getPersonalBoardMYR());
         $ant->setWorkFloor(MyrmesParameters::NO_WORKFLOOR);
         $player->getPersonalBoardMYR()->addAnthillWorker($ant);
@@ -176,7 +181,6 @@ class WorkerMYRServiceTest extends KernelTestCase
         $player->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::ANTHILL_LEVEL_TWO);
         $this->entityManager->persist($player);
         $ant = new AnthillWorkerMYR();
-        $ant->setPlayer($player);
         $ant->setPersonalBoardMYR($player->getPersonalBoardMYR());
         $ant->setWorkFloor(MyrmesParameters::NO_WORKFLOOR);
         $player->getPersonalBoardMYR()->addAnthillWorker($ant);
@@ -201,7 +205,6 @@ class WorkerMYRServiceTest extends KernelTestCase
         $player->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::ANTHILL_LEVEL_TWO);
         $this->entityManager->persist($player);
         $ant = new AnthillWorkerMYR();
-        $ant->setPlayer($player);
         $ant->setPersonalBoardMYR($player->getPersonalBoardMYR());
         $ant->setWorkFloor(MyrmesParameters::NO_WORKFLOOR);
         $player->getPersonalBoardMYR()->addAnthillWorker($ant);
@@ -224,7 +227,6 @@ class WorkerMYRServiceTest extends KernelTestCase
         $player->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::ANTHILL_LEVEL_TWO);
         $this->entityManager->persist($player);
         $ant = new AnthillWorkerMYR();
-        $ant->setPlayer($player);
         $ant->setPersonalBoardMYR($player->getPersonalBoardMYR());
         $ant->setWorkFloor(MyrmesParameters::ANTHILL_LEVEL_TWO);
         $player->getPersonalBoardMYR()->addAnthillWorker($ant);
@@ -3567,24 +3569,309 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->assertEmpty($result);
     }
 
-    private function giveExpectedResultForGiveAllAvailablePositionsForTypeZeroAndOrientationZero
-        (GameMYR $game, PlayerMYR $player, int $coordX, int $coordY, bool $hasAnt) : ArrayCollection
+    public function testGetAllAvailablePositionsForTileTypeOneAndOrientationsOneToFiveShouldNotFail() : void
     {
-        $chosenTile = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY]);
-        $adjacentTile = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 1, "coord_Y" => $coordY + 1]);
-        $pivotMinusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 1, "coord_Y" => $coordY - 1]);
-        $adjacentTileMinusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY]);
-        if ($hasAnt) {
-            $gardenWorker = new GardenWorkerMYR();
-            $gardenWorker->setTile($chosenTile);
-            $gardenWorker->setPlayer($player);
-            $gardenWorker->setMainBoardMYR($game->getMainBoardMYR());
-            $gardenWorker->setShiftsCount(0);
-            $this->entityManager->persist($gardenWorker);
+        //GIVEN
+        $game = $this->createGame(4);
+        $player = $game->getPlayers()->first();
+        $chosenX = 7;
+        $chosenY = 12;
+        $result = $this->giveExpectedResultForGiveAllAvailablePositionsForTypeOneAndOrientationZero
+        ($game, $player, $chosenX, $chosenY, true);
+        $expectedList1 = $result->first();
+        for ($i = 0; $i <= 2; ++$i) {
+            $tileType = new TileTypeMYR();
+            $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_ONE);
+            $tileType->setOrientation($i);
+            $this->entityManager->persist($tileType);
+            $this->entityManager->flush();
+            //WHEN
+            $result = $this->workerMYRService->getAllAvailablePositions($player, $expectedList1->first(), $tileType);
+            //THEN
+            $this->assertNotEmpty($result);
         }
-        $expectedList1 = new ArrayCollection([$chosenTile, $adjacentTile]);
-        $expectedList2 = new ArrayCollection([$pivotMinusOne, $adjacentTileMinusOne]);
-        return new ArrayCollection([$expectedList1, $expectedList2]);
+        $tileType = new TileTypeMYR();
+        $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_ONE);
+        $tileType->setOrientation(3);
+        $this->entityManager->persist($tileType);
+        $this->entityManager->flush();
+        //WHEN
+        $result = $this->workerMYRService->getAllAvailablePositions($player, $expectedList1->first(), $tileType);
+        //THEN
+        $this->assertEmpty($result);
+    }
+
+    public function testGetAllAvailablePositionsForTileTypeTwoAndOrientationsOneToFiveShouldNotFail() : void
+    {
+        //GIVEN
+        $game = $this->createGame(4);
+        $player = $game->getPlayers()->first();
+        $chosenX = 7;
+        $chosenY = 12;
+        $result = $this->giveExpectedResultForGiveAllAvailablePositionsForTypeTwoAndOrientationZero
+        ($game, $player, $chosenX, $chosenY, true);
+        $expectedList1 = $result->first();
+        for ($i = 0; $i <= 5; ++$i) {
+            $tileType = new TileTypeMYR();
+            $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_TWO);
+            $tileType->setOrientation($i);
+            $this->entityManager->persist($tileType);
+            $this->entityManager->flush();
+            //WHEN
+            $result = $this->workerMYRService->getAllAvailablePositions($player, $expectedList1->first(), $tileType);
+            //THEN
+            $this->assertNotEmpty($result);
+        }
+        $tileType = new TileTypeMYR();
+        $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_TWO);
+        $tileType->setOrientation(6);
+        $this->entityManager->persist($tileType);
+        $this->entityManager->flush();
+        //WHEN
+        $result = $this->workerMYRService->getAllAvailablePositions($player, $expectedList1->first(), $tileType);
+        //THEN
+        $this->assertEmpty($result);
+    }
+
+    public function testGetAllAvailablePositionsForTileTypeThreeAndOrientationsOneToFiveShouldNotFail() : void
+    {
+        //GIVEN
+        $game = $this->createGame(4);
+        $player = $game->getPlayers()->first();
+        $chosenX = 7;
+        $chosenY = 12;
+        $result = $this->giveExpectedResultForGiveAllAvailablePositionsForTypeThreeAndOrientationZero
+        ($game, $player, $chosenX, $chosenY, true);
+        $expectedList1 = $result->first();
+        for ($i = 0; $i <= 5; ++$i) {
+            $tileType = new TileTypeMYR();
+            $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_THREE);
+            $tileType->setOrientation($i);
+            $this->entityManager->persist($tileType);
+            $this->entityManager->flush();
+            //WHEN
+            $result = $this->workerMYRService->getAllAvailablePositions($player, $expectedList1->first(), $tileType);
+            //THEN
+            $this->assertNotEmpty($result);
+        }
+        $tileType = new TileTypeMYR();
+        $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_THREE);
+        $tileType->setOrientation(6);
+        $this->entityManager->persist($tileType);
+        $this->entityManager->flush();
+        //WHEN
+        $result = $this->workerMYRService->getAllAvailablePositions($player, $expectedList1->first(), $tileType);
+        //THEN
+        $this->assertEmpty($result);
+    }
+
+    public function testGetAllAvailablePositionsForTileTypeFourAndOrientationsOneToFiveShouldNotFail() : void
+    {
+        //GIVEN
+        $game = $this->createGame(4);
+        $player = $game->getPlayers()->first();
+        $chosenX = 7;
+        $chosenY = 12;
+        $result = $this->giveExpectedResultForGiveAllAvailablePositionsForTypeFourAndOrientationZero
+        ($game, $player, $chosenX, $chosenY, true);
+        $expectedList1 = $result->first();
+        for ($i = 0; $i <= 11; ++$i) {
+            $tileType = new TileTypeMYR();
+            $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_FOUR);
+            $tileType->setOrientation($i);
+            $this->entityManager->persist($tileType);
+            $this->entityManager->flush();
+            //WHEN
+            $result = $this->workerMYRService->getAllAvailablePositions($player, $expectedList1->first(), $tileType);
+            //THEN
+            $this->assertNotEmpty($result);
+        }
+        $tileType = new TileTypeMYR();
+        $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_FOUR);
+        $tileType->setOrientation(12);
+        $this->entityManager->persist($tileType);
+        $this->entityManager->flush();
+        //WHEN
+        $result = $this->workerMYRService->getAllAvailablePositions($player, $expectedList1->first(), $tileType);
+        //THEN
+        $this->assertEmpty($result);
+    }
+
+    public function testGetAllAvailablePositionsForTileTypeFiveAndOrientationsOneToFiveShouldNotFail() : void
+    {
+        //GIVEN
+        $game = $this->createGame(4);
+        $player = $game->getPlayers()->first();
+        $chosenX = 7;
+        $chosenY = 12;
+        $result = $this->giveExpectedResultForGiveAllAvailablePositionsForTypeFiveAndOrientationZero
+        ($game, $player, $chosenX, $chosenY, true);
+        $expectedList1 = $result->first();
+        for ($i = 0; $i <= 5; ++$i) {
+            $tileType = new TileTypeMYR();
+            $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_FIVE);
+            $tileType->setOrientation($i);
+            $this->entityManager->persist($tileType);
+            $this->entityManager->flush();
+            //WHEN
+            $result = $this->workerMYRService->getAllAvailablePositions($player, $expectedList1->first(), $tileType);
+            //THEN
+            $this->assertNotEmpty($result);
+        }
+        $tileType = new TileTypeMYR();
+        $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_FIVE);
+        $tileType->setOrientation(6);
+        $this->entityManager->persist($tileType);
+        $this->entityManager->flush();
+        //WHEN
+        $result = $this->workerMYRService->getAllAvailablePositions($player, $expectedList1->first(), $tileType);
+        //THEN
+        $this->assertEmpty($result);
+    }
+
+    public function testGetAllAvailablePositionsForTileTypeSixAndOrientationsOneToFiveShouldNotFail() : void
+    {
+        //GIVEN
+        $game = $this->createGame(4);
+        $player = $game->getPlayers()->first();
+        $chosenX = 7;
+        $chosenY = 12;
+        $result = $this->giveExpectedResultForGiveAllAvailablePositionsForTypeSixAndOrientationZero
+        ($game, $player, $chosenX, $chosenY, true);
+        $expectedList1 = $result->first();
+        for ($i = 0; $i <= 5; ++$i) {
+            $tileType = new TileTypeMYR();
+            $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_SIX);
+            $tileType->setOrientation($i);
+            $this->entityManager->persist($tileType);
+            $this->entityManager->flush();
+            //WHEN
+            $result = $this->workerMYRService->getAllAvailablePositions($player, $expectedList1->first(), $tileType);
+            //THEN
+            $this->assertNotEmpty($result);
+        }
+        $tileType = new TileTypeMYR();
+        $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_SIX);
+        $tileType->setOrientation(6);
+        $this->entityManager->persist($tileType);
+        $this->entityManager->flush();
+        //WHEN
+        $result = $this->workerMYRService->getAllAvailablePositions($player, $expectedList1->first(), $tileType);
+        //THEN
+        $this->assertEmpty($result);
+    }
+
+    public function testGetAllAvailablePositionsForTileNonExistingTile() : void
+    {
+        //GIVEN
+        $game = $this->createGame(4);
+        $player = $game->getPlayers()->first();
+        $chosenX = 7;
+        $chosenY = 12;
+        $result = $this->giveExpectedResultForGiveAllAvailablePositionsForTypeSixAndOrientationZero
+        ($game, $player, $chosenX, $chosenY, true);
+        $expectedList1 = $result->first();
+        $tileType = new TileTypeMYR();
+        $tileType->setType(-1);
+        $tileType->setOrientation(6);
+        $this->entityManager->persist($tileType);
+        $this->entityManager->flush();
+        //WHEN
+        $result = $this->workerMYRService->getAllAvailablePositions($player, $expectedList1->first(), $tileType);
+        //THEN
+        $this->assertEmpty($result);
+    }
+
+    public function testGetAllAvailableCoordinatesForSpecialTileFarmShouldReturnEmptyArray() : void
+    {
+        //GIVEN
+        $game = $this->createGame(4);
+        $player = $game->getPlayers()->first();
+        $chosenX = 7;
+        $chosenY = 12;
+        $tile = new TileMYR();
+        $tile->setType(MyrmesParameters::GRASS_TILE_TYPE);
+        $tile->setCoordY($chosenY);
+        $tile->setCoordX($chosenX);
+        $this->entityManager->persist($tile);
+        $tileType = new TileTypeMYR();
+        $tileType->setType(MyrmesParameters::SPECIAL_TILE_TYPE_FARM);
+        $tileType->setOrientation(6);
+        $this->entityManager->persist($tileType);
+        $this->entityManager->flush();
+        //WHEN
+        $result = $this->workerMYRService->getAllCoordinatesFromTileType($player, $tile, $tileType);
+        //THEN
+        $this->assertEmpty($result);
+    }
+
+    public function testGetAllAvailableCoordinatesForSpecialTileQuarryShouldReturnEmptyArray() : void
+    {
+        //GIVEN
+        $game = $this->createGame(4);
+        $player = $game->getPlayers()->first();
+        $chosenX = 7;
+        $chosenY = 12;
+        $tile = new TileMYR();
+        $tile->setType(MyrmesParameters::GRASS_TILE_TYPE);
+        $tile->setCoordY($chosenY);
+        $tile->setCoordX($chosenX);
+        $this->entityManager->persist($tile);
+        $tileType = new TileTypeMYR();
+        $tileType->setType(MyrmesParameters::SPECIAL_TILE_TYPE_QUARRY);
+        $tileType->setOrientation(6);
+        $this->entityManager->persist($tileType);
+        $this->entityManager->flush();
+        //WHEN
+        $result = $this->workerMYRService->getAllCoordinatesFromTileType($player, $tile, $tileType);
+        //THEN
+        $this->assertEmpty($result);
+    }
+
+    public function testGetAllAvailableCoordinatesForSpecialTileSubAnthillShouldReturnEmptyArray() : void
+    {
+        //GIVEN
+        $game = $this->createGame(4);
+        $player = $game->getPlayers()->first();
+        $chosenX = 7;
+        $chosenY = 12;
+        $tile = new TileMYR();
+        $tile->setType(MyrmesParameters::GRASS_TILE_TYPE);
+        $tile->setCoordY($chosenY);
+        $tile->setCoordX($chosenX);
+        $this->entityManager->persist($tile);
+        $tileType = new TileTypeMYR();
+        $tileType->setType(MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL);
+        $tileType->setOrientation(6);
+        $this->entityManager->persist($tileType);
+        $this->entityManager->flush();
+        //WHEN
+        $result = $this->workerMYRService->getAllCoordinatesFromTileType($player, $tile, $tileType);
+        //THEN
+        $this->assertEmpty($result);
+    }
+
+    public function testGetAllAvailableCoordinatesForUnknownTileShouldReturnEmptyArray() : void
+    {
+        //GIVEN
+        $game = $this->createGame(4);
+        $player = $game->getPlayers()->first();
+        $chosenX = 7;
+        $chosenY = 12;
+        $tile = new TileMYR();
+        $tile->setType(MyrmesParameters::GRASS_TILE_TYPE);
+        $tile->setCoordY($chosenY);
+        $tile->setCoordX($chosenX);
+        $this->entityManager->persist($tile);
+        $tileType = new TileTypeMYR();
+        $tileType->setType(-1);
+        $tileType->setOrientation(6);
+        $this->entityManager->persist($tileType);
+        $this->entityManager->flush();
+        //WHEN
+        $result = $this->workerMYRService->getAllCoordinatesFromTileType($player, $tile, $tileType);
+        //THEN
+        $this->assertEmpty($result);
     }
 
     public function testPlaceTwoPheromoneOfTypeZero()
@@ -3704,6 +3991,361 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
     }
 
+    public function testGetAvailablePheromonesShouldReturnUnmodifiedTable()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $expected = new ArrayCollection();
+        for ($i = MyrmesParameters::PHEROMONE_TYPE_ZERO; $i <= MyrmesParameters::PHEROMONE_TYPE_SIX; ++$i) {
+            $remaining = MyrmesParameters::PHEROMONE_TYPE_AMOUNT[$i] ;
+            if ($remaining > 0) {
+                $expected->add([$i, $remaining]);
+            }
+        }
+        for ($i = MyrmesParameters::SPECIAL_TILE_TYPE_FARM; $i <= MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL; ++$i) {
+            $remaining = MyrmesParameters::SPECIAL_TILE_TYPE_AMOUNT[$i];
+            if ($remaining > 0) {
+                $expected->add([$i, $remaining]);
+            }
+        }
+        // WHEN
+        $result = $this->workerMYRService->getAvailablePheromones($firstPlayer);
+        // THEN
+        $this->assertEquals($expected, $result);
+    }
+
+    public function testGetAvailablePheromonesShouldReturnModifiedTable()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $tileType = new TileTypeMYR();
+        $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_ZERO);
+        $tileType->setOrientation(0);
+        $this->entityManager->persist($tileType);
+        $playerPheromone = new PheromonMYR();
+        $playerPheromone->setPlayer($firstPlayer);
+        $playerPheromone->setHarvested(false);
+        $playerPheromone->setType($tileType);
+        $this->entityManager->persist($playerPheromone);
+        $firstPlayer->addPheromonMYR($playerPheromone);
+        $expected = new ArrayCollection();
+        $remaining = MyrmesParameters::PHEROMONE_TYPE_AMOUNT[MyrmesParameters::PHEROMONE_TYPE_ZERO] - 1;
+        $expected->add([MyrmesParameters::PHEROMONE_TYPE_ZERO, $remaining]);
+        for ($i = MyrmesParameters::PHEROMONE_TYPE_ONE; $i <= MyrmesParameters::PHEROMONE_TYPE_SIX; ++$i) {
+            $remaining = MyrmesParameters::PHEROMONE_TYPE_AMOUNT[$i] ;
+            if ($remaining > 0) {
+                $expected->add([$i, $remaining]);
+            }
+        }
+        for ($i = MyrmesParameters::SPECIAL_TILE_TYPE_FARM; $i <= MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL; ++$i) {
+            $remaining = MyrmesParameters::SPECIAL_TILE_TYPE_AMOUNT[$i];
+            if ($remaining > 0) {
+                $expected->add([$i, $remaining]);
+            }
+        }
+        // WHEN
+        $result = $this->workerMYRService->getAvailablePheromones($firstPlayer);
+        // THEN
+        $this->assertEquals($expected, $result);
+    }
+
+    public function testMoveWorkerOnWaterTileShouldThrowExcpetion()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+
+        $workerTile = new TileMYR();
+        $workerTile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $workerTile->setCoordY(0);
+        $workerTile->setCoordX(0);
+        $this->entityManager->persist($workerTile);
+
+        $gardenWorker = new GardenWorkerMYR();
+        $gardenWorker->setPlayer($firstPlayer);
+        $gardenWorker->setMainBoardMYR($game->getMainBoardMYR());
+        $gardenWorker->setShiftsCount(1);
+        $gardenWorker->setTile($workerTile);
+        $this->entityManager->persist($gardenWorker);
+
+        $waterTile = new TileMYR();
+        $waterTile->setType(MyrmesParameters::WATER_TILE_TYPE);
+        $waterTile->setCoordX(1);
+        $waterTile->setCoordY(1);
+        $this->entityManager->persist($waterTile);
+
+        $this->entityManager->flush();
+        // THEN
+        $this->expectException(\Exception::class);
+        //WHEN
+        $this->workerMYRService->workerMove($firstPlayer, $gardenWorker, MyrmesParameters::DIRECTION_SOUTH_EAST);
+    }
+
+    public function testMoveWorkerOnPreyShouldThrowExcpetionBecauseNotEnoughWarriorsToBeat()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+
+        $workerTile = new TileMYR();
+        $workerTile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $workerTile->setCoordY(0);
+        $workerTile->setCoordX(0);
+        $this->entityManager->persist($workerTile);
+
+        $gardenWorker = new GardenWorkerMYR();
+        $gardenWorker->setPlayer($firstPlayer);
+        $gardenWorker->setMainBoardMYR($game->getMainBoardMYR());
+        $gardenWorker->setShiftsCount(1);
+        $gardenWorker->setTile($workerTile);
+        $this->entityManager->persist($gardenWorker);
+
+        $dirtTile = new TileMYR();
+        $dirtTile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $dirtTile->setCoordX(1);
+        $dirtTile->setCoordY(1);
+        $this->entityManager->persist($dirtTile);
+
+        $prey = new PreyMYR();
+        $prey->setType(MyrmesParameters::LADYBUG_TYPE);
+        $prey->setMainBoardMYR($game->getMainBoardMYR());
+        $prey->setTile($dirtTile);
+        $this->entityManager->persist($prey);
+
+        $this->entityManager->flush();
+        // THEN
+        $this->expectException(\Exception::class);
+        //WHEN
+        $this->workerMYRService->workerMove($firstPlayer, $gardenWorker, MyrmesParameters::DIRECTION_SOUTH_EAST);
+    }
+
+    public function testMoveWorkerOnEnemyPheromoneShouldThrowExcpetionBecauseNotEnoughWarriorsToBeat()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+
+        $workerTile = new TileMYR();
+        $workerTile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $workerTile->setCoordY(0);
+        $workerTile->setCoordX(0);
+        $this->entityManager->persist($workerTile);
+
+        $gardenWorker = new GardenWorkerMYR();
+        $gardenWorker->setPlayer($firstPlayer);
+        $gardenWorker->setMainBoardMYR($game->getMainBoardMYR());
+        $gardenWorker->setShiftsCount(1);
+        $gardenWorker->setTile($workerTile);
+        $this->entityManager->persist($gardenWorker);
+
+        $dirtTile = new TileMYR();
+        $dirtTile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $dirtTile->setCoordX(1);
+        $dirtTile->setCoordY(1);
+        $this->entityManager->persist($dirtTile);
+
+        $tileType = new TileTypeMYR();
+        $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_ZERO);
+        $tileType->setOrientation(0);
+        $this->entityManager->persist($tileType);
+        $pheromone = new PheromonMYR();
+        $pheromone->setType($tileType);
+        $pheromone->setPlayer($game->getPlayers()->last());
+        $pheromone->setHarvested(false);
+
+        $pheromoneTile = new PheromonTileMYR();
+        $pheromoneTile->setTile($dirtTile);
+        $pheromoneTile->setPheromonMYR($pheromone);
+        $pheromoneTile->setMainBoard($game->getMainBoardMYR());
+        $this->entityManager->persist($pheromoneTile);
+
+        $pheromone->addPheromonTile($pheromoneTile);
+        $this->entityManager->persist($pheromone);
+
+
+        $this->entityManager->flush();
+        // THEN
+        $this->expectException(\Exception::class);
+        //WHEN
+        $this->workerMYRService->workerMove($firstPlayer, $gardenWorker, MyrmesParameters::DIRECTION_SOUTH_EAST);
+    }
+
+    public function testMoveWorkerOnOtherTile()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+
+        $workerTile = new TileMYR();
+        $workerTile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $workerTile->setCoordY(0);
+        $workerTile->setCoordX(0);
+        $this->entityManager->persist($workerTile);
+
+        $gardenWorker = new GardenWorkerMYR();
+        $gardenWorker->setPlayer($firstPlayer);
+        $gardenWorker->setMainBoardMYR($game->getMainBoardMYR());
+        $gardenWorker->setShiftsCount(1);
+        $gardenWorker->setTile($workerTile);
+        $this->entityManager->persist($gardenWorker);
+
+        $dirtTile = new TileMYR();
+        $dirtTile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $dirtTile->setCoordX(1);
+        $dirtTile->setCoordY(1);
+        $this->entityManager->persist($dirtTile);
+
+        $tileType = new TileTypeMYR();
+        $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_ZERO);
+        $tileType->setOrientation(0);
+        $this->entityManager->persist($tileType);
+
+        $this->entityManager->flush();
+        //WHEN
+        $this->workerMYRService->workerMove($firstPlayer, $gardenWorker, MyrmesParameters::DIRECTION_SOUTH_EAST);
+        //THEN
+        $this->assertEquals($dirtTile, $gardenWorker->getTile());
+    }
+
+    public function testMoveWorkerOnOtherTileWithPreyOnIt()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $firstPlayer->getPersonalBoardMYR()->setWarriorsCount(1);
+        $this->entityManager->persist($firstPlayer->getPersonalBoardMYR());
+
+        $workerTile = new TileMYR();
+        $workerTile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $workerTile->setCoordY(0);
+        $workerTile->setCoordX(0);
+        $this->entityManager->persist($workerTile);
+
+        $gardenWorker = new GardenWorkerMYR();
+        $gardenWorker->setPlayer($firstPlayer);
+        $gardenWorker->setMainBoardMYR($game->getMainBoardMYR());
+        $gardenWorker->setShiftsCount(1);
+        $gardenWorker->setTile($workerTile);
+        $this->entityManager->persist($gardenWorker);
+
+        $dirtTile = new TileMYR();
+        $dirtTile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $dirtTile->setCoordX(1);
+        $dirtTile->setCoordY(1);
+        $this->entityManager->persist($dirtTile);
+
+        $prey = new PreyMYR();
+        $prey->setType(MyrmesParameters::LADYBUG_TYPE);
+        $prey->setMainBoardMYR($game->getMainBoardMYR());
+        $prey->setTile($dirtTile);
+        $this->entityManager->persist($prey);
+
+        $this->entityManager->flush();
+        //WHEN
+        $this->workerMYRService->workerMove($firstPlayer, $gardenWorker, MyrmesParameters::DIRECTION_SOUTH_EAST);
+        //THEN
+        $this->assertEquals($dirtTile, $gardenWorker->getTile());
+        $this->assertEquals(0, $firstPlayer->getPersonalBoardMYR()->getWarriorsCount());
+    }
+
+    public function testMoveWorkerOnPlayerPheromone()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+
+        $workerTile = $this->tileMYRRepository->findOneBy(["coord_X" => 1, "coord_Y" => 16]);
+
+        $gardenWorker = new GardenWorkerMYR();
+        $gardenWorker->setPlayer($firstPlayer);
+        $gardenWorker->setMainBoardMYR($game->getMainBoardMYR());
+        $gardenWorker->setShiftsCount(1);
+        $gardenWorker->setTile($workerTile);
+        $this->entityManager->persist($gardenWorker);
+
+        $dirtTile = $this->tileMYRRepository->findOneBy(["coord_X" => 2, "coord_Y" => 17]);
+
+        $tileType = new TileTypeMYR();
+        $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_ZERO);
+        $tileType->setOrientation(0);
+        $this->entityManager->persist($tileType);
+        $pheromone = new PheromonMYR();
+        $pheromone->setType($tileType);
+        $pheromone->setPlayer($firstPlayer);
+        $pheromone->setHarvested(false);
+
+        $pheromoneTile = new PheromonTileMYR();
+        $pheromoneTile->setTile($dirtTile);
+        $pheromoneTile->setPheromonMYR($pheromone);
+        $pheromoneTile->setMainBoard($game->getMainBoardMYR());
+        $this->entityManager->persist($pheromoneTile);
+
+        $pheromone->addPheromonTile($pheromoneTile);
+        $this->entityManager->persist($pheromone);
+
+
+        $this->entityManager->flush();
+        //WHEN
+        $this->workerMYRService->workerMove($firstPlayer, $gardenWorker, MyrmesParameters::DIRECTION_SOUTH_EAST);
+        // THEN
+        $this->assertEquals($dirtTile, $gardenWorker->getTile());
+    }
+
+    public function testMoveWorkerOnEnemyPheromone()
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $firstPlayer->getPersonalBoardMYR()->setWarriorsCount(1);
+        $this->entityManager->persist($firstPlayer->getPersonalBoardMYR());
+
+        $workerTile = new TileMYR();
+        $workerTile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $workerTile->setCoordY(0);
+        $workerTile->setCoordX(0);
+        $this->entityManager->persist($workerTile);
+
+        $gardenWorker = new GardenWorkerMYR();
+        $gardenWorker->setPlayer($firstPlayer);
+        $gardenWorker->setMainBoardMYR($game->getMainBoardMYR());
+        $gardenWorker->setShiftsCount(1);
+        $gardenWorker->setTile($workerTile);
+        $this->entityManager->persist($gardenWorker);
+
+        $dirtTile = new TileMYR();
+        $dirtTile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $dirtTile->setCoordX(1);
+        $dirtTile->setCoordY(1);
+        $this->entityManager->persist($dirtTile);
+
+        $tileType = new TileTypeMYR();
+        $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_ZERO);
+        $tileType->setOrientation(0);
+        $this->entityManager->persist($tileType);
+        $pheromone = new PheromonMYR();
+        $pheromone->setType($tileType);
+        $pheromone->setPlayer($game->getPlayers()->last());
+        $pheromone->setHarvested(false);
+
+        $pheromoneTile = new PheromonTileMYR();
+        $pheromoneTile->setTile($dirtTile);
+        $pheromoneTile->setPheromonMYR($pheromone);
+        $pheromoneTile->setMainBoard($game->getMainBoardMYR());
+        $this->entityManager->persist($pheromoneTile);
+
+        $pheromone->addPheromonTile($pheromoneTile);
+        $this->entityManager->persist($pheromone);
+
+        $this->entityManager->flush();
+        //WHEN
+        $this->workerMYRService->workerMove($firstPlayer, $gardenWorker, MyrmesParameters::DIRECTION_SOUTH_EAST);
+        // THEN
+        $this->assertEquals($dirtTile, $gardenWorker->getTile());
+        $this->assertEquals(0, $firstPlayer->getPersonalBoardMYR()->getWarriorsCount());
+    }
+
     private function createGame(int $numberOfPlayers) : GameMYR
     {
         if($numberOfPlayers < MyrmesParameters::MIN_NUMBER_OF_PLAYER ||
@@ -3711,6 +4353,22 @@ class WorkerMYRServiceTest extends KernelTestCase
             throw new \Exception("TOO MUCH PLAYERS ON CREATE GAME");
         }
         $game = new GameMYR();
+        $mainBoard = new MainBoardMYR();
+        $mainBoard->setYearNum(0);
+        $mainBoard->setGame($game);
+        $season = new SeasonMYR();
+        $season->setName("Spring");
+        $season->setDiceResult(1);
+        $season->setActualSeason(true);
+        $season->setMainBoard($mainBoard);
+        $mainBoard->addSeason($season);
+        $this->entityManager->persist($season);
+        $game->setMainBoardMYR($mainBoard);
+        $game->setGameName("test");
+        $game->setLaunched(true);
+        $game->setGamePhase(MyrmesParameters::PHASE_INVALID);
+        $this->entityManager->persist($mainBoard);
+        $this->entityManager->persist($game);
         for ($i = 0; $i < $numberOfPlayers; $i += 1) {
             $player = new PlayerMYR('test', $game);
             $game->addPlayer($player);
@@ -3761,26 +4419,286 @@ class WorkerMYRServiceTest extends KernelTestCase
 
             $this->entityManager->persist($player);
             $this->entityManager->persist($personalBoard);
+            $this->entityManager->flush();
         }
-        $mainBoard = new MainBoardMYR();
-        $mainBoard->setYearNum(0);
-        $mainBoard->setGame($game);
-        $season = new SeasonMYR();
-        $season->setName("Spring");
-        $season->setDiceResult(1);
-        $season->setActualSeason(true);
-        $season->setMainBoard($mainBoard);
-        $mainBoard->addSeason($season);
-        $this->entityManager->persist($season);
-        $game->setMainBoardMYR($mainBoard);
-        $game->setGameName("test");
-        $game->setLaunched(true);
-        $game->setGamePhase(MyrmesParameters::PHASE_INVALID);
-        $this->entityManager->persist($mainBoard);
-        $this->entityManager->persist($game);
         $this->entityManager->flush();
 
         return $game;
+    }
+
+    private function giveExpectedResultForGiveAllAvailablePositionsForTypeZeroAndOrientationZero
+    (GameMYR $game, PlayerMYR $player, int $coordX, int $coordY, bool $hasAnt) : ArrayCollection
+    {
+        $chosenTile = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY]);
+        $adjacentTile = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 1, "coord_Y" => $coordY + 1]);
+        $pivotMinusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 1, "coord_Y" => $coordY - 1]);
+        $adjacentTileMinusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY]);
+        if ($hasAnt) {
+            $gardenWorker = new GardenWorkerMYR();
+            $gardenWorker->setTile($chosenTile);
+            $gardenWorker->setPlayer($player);
+            $gardenWorker->setMainBoardMYR($game->getMainBoardMYR());
+            $gardenWorker->setShiftsCount(0);
+            $this->entityManager->persist($gardenWorker);
+        }
+        $expectedList1 = new ArrayCollection([$chosenTile, $adjacentTile]);
+        $expectedList2 = new ArrayCollection([$pivotMinusOne, $adjacentTileMinusOne]);
+        return new ArrayCollection([$expectedList1, $expectedList2]);
+    }
+
+    private function giveExpectedResultForGiveAllAvailablePositionsForTypeOneAndOrientationZero
+    (GameMYR $game, PlayerMYR $player, int $coordX, int $coordY, bool $hasAnt) : ArrayCollection
+    {
+        $chosenTile = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY]);
+        $adjacentTile = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 1, "coord_Y" => $coordY + 1]);
+        $adjacentTile2 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 1, "coord_Y" => $coordY - 1]);
+        $pivotMinusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 1, "coord_Y" => $coordY - 1]);
+        $adjacentTileMinusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY]);
+        $adjacentTileMinusOne2 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 2,
+            "coord_Y" => $coordY - 2]);
+        $pivotPlusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 1, "coord_Y" => $coordY + 1]);
+        $adjacentTilePlusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY]);
+        $adjacentTilePlusOne2 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 2,
+            "coord_Y" => $coordY + 2]);
+        if ($hasAnt) {
+            $gardenWorker = new GardenWorkerMYR();
+            $gardenWorker->setTile($chosenTile);
+            $gardenWorker->setPlayer($player);
+            $gardenWorker->setMainBoardMYR($game->getMainBoardMYR());
+            $gardenWorker->setShiftsCount(0);
+            $this->entityManager->persist($gardenWorker);
+        }
+        $expectedList1 = new ArrayCollection([$chosenTile, $adjacentTile, $adjacentTile2]);
+        $expectedList2 = new ArrayCollection([$pivotMinusOne, $adjacentTileMinusOne, $adjacentTileMinusOne2]);
+        $expectedList3 = new ArrayCollection([$pivotPlusOne, $adjacentTilePlusOne, $adjacentTilePlusOne2]);
+        return new ArrayCollection([$expectedList1, $expectedList2, $expectedList3]);
+    }
+
+    private function giveExpectedResultForGiveAllAvailablePositionsForTypeTwoAndOrientationZero
+    (GameMYR $game, PlayerMYR $player, int $coordX, int $coordY, bool $hasAnt) : ArrayCollection
+    {
+        $chosenTile = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY]);
+        $adjacentTile = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 1, "coord_Y" => $coordY + 1]);
+        $adjacentTile2 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 1, "coord_Y" => $coordY - 1]);
+        $pivotMinusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX -1, "coord_Y" => $coordY - 1]);
+        $adjacentTileMinusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY]);
+        $adjacentTileMinusOne2 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX,
+            "coord_Y" => $coordY - 2]);
+        $pivotPlusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 1, "coord_Y" => $coordY + 1]);
+        $adjacentTilePlusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY]);
+        $adjacentTilePlusOne2 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX,
+            "coord_Y" => $coordY + 2]);
+        if ($hasAnt) {
+            $gardenWorker = new GardenWorkerMYR();
+            $gardenWorker->setTile($chosenTile);
+            $gardenWorker->setPlayer($player);
+            $gardenWorker->setMainBoardMYR($game->getMainBoardMYR());
+            $gardenWorker->setShiftsCount(0);
+            $this->entityManager->persist($gardenWorker);
+        }
+        $expectedList1 = new ArrayCollection([$chosenTile, $adjacentTile, $adjacentTile2]);
+        $expectedList2 = new ArrayCollection([$pivotMinusOne, $adjacentTileMinusOne, $adjacentTileMinusOne2]);
+        $expectedList3 = new ArrayCollection([$pivotPlusOne, $adjacentTilePlusOne, $adjacentTilePlusOne2]);
+        return new ArrayCollection([$expectedList1, $expectedList2, $expectedList3]);
+    }
+    private function giveExpectedResultForGiveAllAvailablePositionsForTypeThreeAndOrientationZero
+    (GameMYR $game, PlayerMYR $player, int $coordX, int $coordY, bool $hasAnt) : ArrayCollection
+    {
+        $chosenTile = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY]);
+        $adjacentTile = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 1, "coord_Y" => $coordY + 1]);
+        $adjacentTile2 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 1, "coord_Y" => $coordY - 1]);
+        $adjacentTile3 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 2, "coord_Y" => $coordY]);
+        $pivotMinusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX -1, "coord_Y" => $coordY - 1]);
+        $adjacentTileMinusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY]);
+        $adjacentTileMinusOne2 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX,
+            "coord_Y" => $coordY - 2]);
+        $adjacentTileMinusOne3 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 1,
+            "coord_Y" => $coordY - 1]);
+        $pivotPlusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 1, "coord_Y" => $coordY + 1]);
+        $adjacentTilePlusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY]);
+        $adjacentTilePlusOne2 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX,
+            "coord_Y" => $coordY + 2]);
+        $adjacentTilePlusOne3 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 1,
+            "coord_Y" => $coordY + 1]);
+        $pivotPlusTwo = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 2, "coord_Y" => $coordY]);
+        $adjacentTilePlusTwo1 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 1, "coord_Y" => $coordY - 1]);
+        $adjacentTilePlusTwo2 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 1,
+            "coord_Y" => $coordY + 1]);
+        $adjacentTilePlusTwo3 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX,
+            "coord_Y" => $coordY]);
+        if ($hasAnt) {
+            $gardenWorker = new GardenWorkerMYR();
+            $gardenWorker->setTile($chosenTile);
+            $gardenWorker->setPlayer($player);
+            $gardenWorker->setMainBoardMYR($game->getMainBoardMYR());
+            $gardenWorker->setShiftsCount(0);
+            $this->entityManager->persist($gardenWorker);
+        }
+        $expectedList1 = new ArrayCollection([$chosenTile, $adjacentTile, $adjacentTile2, $adjacentTile3]);
+        $expectedList2 = new ArrayCollection([$pivotMinusOne, $adjacentTileMinusOne, $adjacentTileMinusOne2, $adjacentTileMinusOne3]);
+        $expectedList3 = new ArrayCollection([$pivotPlusOne, $adjacentTilePlusOne, $adjacentTilePlusOne2, $adjacentTilePlusOne3]);
+        $expectedList4 = new ArrayCollection([$pivotPlusTwo, $adjacentTilePlusTwo1, $adjacentTilePlusTwo2, $adjacentTilePlusTwo3]);
+        return new ArrayCollection([$expectedList1, $expectedList2, $expectedList3, $expectedList4]);
+    }
+
+    private function giveExpectedResultForGiveAllAvailablePositionsForTypeFourAndOrientationZero
+    (GameMYR $game, PlayerMYR $player, int $coordX, int $coordY, bool $hasAnt) : ArrayCollection
+    {
+        $chosenTile = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY]);
+        $adjacentTile = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 1, "coord_Y" => $coordY + 1]);
+        $adjacentTile2 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 2, "coord_Y" => $coordY + 2]);
+        $adjacentTile3 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY + 2]);
+
+        $pivotMinusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX -1, "coord_Y" => $coordY - 1]);
+        $adjacentTileMinusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 1, "coord_Y" => $coordY + 1]);
+        $adjacentTileMinusOne2 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY]);
+        $adjacentTileMinusOne3 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 1, "coord_Y" => $coordY + 1]);
+
+        $pivotPlusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 2, "coord_Y" => $coordY - 2]);
+        $adjacentTilePlusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 1, "coord_Y" => $coordY - 1]);
+        $adjacentTilePlusOne2 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY]);
+        $adjacentTilePlusOne3 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 2, "coord_Y" => $coordY]);
+
+        $pivotPlusTwo = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY - 2]);
+        $adjacentTilePlusTwo1 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 1, "coord_Y" => $coordY - 1]);
+        $adjacentTilePlusTwo2 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY + 2]);
+        $adjacentTilePlusTwo3 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX,
+            "coord_Y" => $coordY]);
+
+        if ($hasAnt) {
+            $gardenWorker = new GardenWorkerMYR();
+            $gardenWorker->setTile($chosenTile);
+            $gardenWorker->setPlayer($player);
+            $gardenWorker->setMainBoardMYR($game->getMainBoardMYR());
+            $gardenWorker->setShiftsCount(0);
+            $this->entityManager->persist($gardenWorker);
+        }
+        $expectedList1 = new ArrayCollection([$chosenTile, $adjacentTile, $adjacentTile2, $adjacentTile3]);
+        $expectedList2 = new ArrayCollection([$pivotMinusOne, $adjacentTileMinusOne, $adjacentTileMinusOne2, $adjacentTileMinusOne3]);
+        $expectedList3 = new ArrayCollection([$pivotPlusOne, $adjacentTilePlusOne, $adjacentTilePlusOne2, $adjacentTilePlusOne3]);
+        $expectedList4 = new ArrayCollection([$pivotPlusTwo, $adjacentTilePlusTwo1, $adjacentTilePlusTwo2, $adjacentTilePlusTwo3]);
+        return new ArrayCollection([$expectedList1, $expectedList2, $expectedList3, $expectedList4]);
+    }
+
+    private function giveExpectedResultForGiveAllAvailablePositionsForTypeFiveAndOrientationZero
+    (GameMYR $game, PlayerMYR $player, int $coordX, int $coordY, bool $hasAnt) : ArrayCollection
+    {
+        $chosenTile = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY]);
+        $adjacentTile = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY + 2]);
+        $adjacentTile2 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 1, "coord_Y" => $coordY - 1]);
+        $adjacentTile3 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 1, "coord_Y" => $coordY + 1]);
+        $adjacentTile4 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 1, "coord_Y" => $coordY + 3]);
+
+
+        $pivotMinusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY - 2]);
+        $adjacentTileMinusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY]);
+        $adjacentTileMinusOne2 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 1, "coord_Y" => $coordY + 1]);
+        $adjacentTileMinusOne3 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 1, "coord_Y" => $coordY - 1]);
+        $adjacentTileMinusOne4 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 1, "coord_Y" => $coordY - 3]);
+
+        $pivotPlusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 1, "coord_Y" => $coordY + 1]);
+        $adjacentTilePlusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 1, "coord_Y" => $coordY + 3]);
+        $adjacentTilePlusOne2 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY + 4]);
+        $adjacentTilePlusOne3 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY + 2]);
+        $adjacentTilePlusOne4 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY]);
+
+        $pivotPlusTwo = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 1, "coord_Y" => $coordY - 1]);
+        $adjacentTilePlusTwo1 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 1, "coord_Y" => $coordY + 1]);
+        $adjacentTilePlusTwo2 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY + 2]);
+        $adjacentTilePlusTwo3 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY]);
+        $adjacentTilePlusTwo4 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY - 2]);
+
+        $pivotMinusTwo = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 1, "coord_Y" => $coordY - 3]);
+        $adjacentTileMinusTwo1 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 1, "coord_Y" => $coordY - 1]);
+        $adjacentTileMinusTwo2 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY]);
+        $adjacentTileMinusTwo3 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY - 2]);
+        $adjacentTileMinusTwo4 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY - 4]);
+
+        if ($hasAnt) {
+            $gardenWorker = new GardenWorkerMYR();
+            $gardenWorker->setTile($chosenTile);
+            $gardenWorker->setPlayer($player);
+            $gardenWorker->setMainBoardMYR($game->getMainBoardMYR());
+            $gardenWorker->setShiftsCount(0);
+            $this->entityManager->persist($gardenWorker);
+        }
+        $expectedList1 = new ArrayCollection([$chosenTile, $adjacentTile, $adjacentTile2, $adjacentTile3, $adjacentTile4]);
+        $expectedList2 = new ArrayCollection([$pivotMinusOne, $adjacentTileMinusOne, $adjacentTileMinusOne2, $adjacentTileMinusOne3, $adjacentTileMinusOne4]);
+        $expectedList3 = new ArrayCollection([$pivotPlusOne, $adjacentTilePlusOne, $adjacentTilePlusOne2, $adjacentTilePlusOne3, $adjacentTilePlusOne4]);
+        $expectedList4 = new ArrayCollection([$pivotPlusTwo, $adjacentTilePlusTwo1, $adjacentTilePlusTwo2, $adjacentTilePlusTwo3, $adjacentTilePlusTwo4]);
+        $expectedList5 = new ArrayCollection([$pivotMinusTwo, $adjacentTileMinusTwo1, $adjacentTileMinusTwo2, $adjacentTileMinusTwo3, $adjacentTileMinusTwo4]);
+        return new ArrayCollection([$expectedList1, $expectedList2, $expectedList3, $expectedList4, $expectedList5]);
+    }
+
+    private function giveExpectedResultForGiveAllAvailablePositionsForTypeSixAndOrientationZero
+    (GameMYR $game, PlayerMYR $player, int $coordX, int $coordY, bool $hasAnt) : ArrayCollection
+    {
+        $chosenTile = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY]);
+        $adjacentTile = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 1, "coord_Y" => $coordY + 1]);
+        $adjacentTile2 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 1, "coord_Y" => $coordY - 1]);
+        $adjacentTile3 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 2, "coord_Y" => $coordY + 2]);
+        $adjacentTile4 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 2, "coord_Y" => $coordY]);
+        $adjacentTile5 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 2, "coord_Y" => $coordY + 2]);
+
+
+        $pivotMinusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 1, "coord_Y" => $coordY + 1]);
+        $adjacentTileMinusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY]);
+        $adjacentTileMinusOne2 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY + 2]);
+        $adjacentTileMinusOne3 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 1, "coord_Y" => $coordY + 1]);
+        $adjacentTileMinusOne4 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 1, "coord_Y" => $coordY - 1]);
+        $adjacentTileMinusOne5 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 1, "coord_Y" => $coordY + 3]);
+
+
+        $pivotPlusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 2, "coord_Y" => $coordY + 2]);
+        $adjacentTilePlusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 1, "coord_Y" => $coordY - 1]);
+        $adjacentTilePlusOne2 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY]);
+        $adjacentTilePlusOne3 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY + 2]);
+        $adjacentTilePlusOne4 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY + 4]);
+        $adjacentTilePlusOne5 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 1, "coord_Y" => $coordY + 3]);
+
+        $pivotPlusTwo = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 1, "coord_Y" => $coordY - 1]);
+        $adjacentTilePlusTwo1 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 1, "coord_Y" => $coordY + 1]);
+        $adjacentTilePlusTwo2 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY + 2]);
+        $adjacentTilePlusTwo3 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY]);
+        $adjacentTilePlusTwo4 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY - 2]);
+        $adjacentTilePlusTwo5 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 2, "coord_Y" => $coordY]);
+
+        $pivotMinusTwo = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 2, "coord_Y" => $coordY]);
+        $adjacentTileMinusTwo1 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 1, "coord_Y" => $coordY - 1]);
+        $adjacentTileMinusTwo2 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY - 2]);
+        $adjacentTileMinusTwo3 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY]);
+        $adjacentTileMinusTwo4 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY + 2]);
+        $adjacentTileMinusTwo5 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 1, "coord_Y" => $coordY + 1]);
+
+        $pivotMinusThree = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 2, "coord_Y" => $coordY - 2]);
+        $adjacentTileMinusThree1 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 1, "coord_Y" => $coordY - 3]);
+        $adjacentTileMinusThree2 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY - 4]);
+        $adjacentTileMinusThree3 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY - 2]);
+        $adjacentTileMinusThree4 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY]);
+        $adjacentTileMinusThree5 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 1, "coord_Y" => $coordY - 1]);
+
+        if ($hasAnt) {
+            $gardenWorker = new GardenWorkerMYR();
+            $gardenWorker->setTile($chosenTile);
+            $gardenWorker->setPlayer($player);
+            $gardenWorker->setMainBoardMYR($game->getMainBoardMYR());
+            $gardenWorker->setShiftsCount(0);
+            $this->entityManager->persist($gardenWorker);
+        }
+        $expectedList1 = new ArrayCollection([$chosenTile, $adjacentTile, $adjacentTile2, $adjacentTile3,
+            $adjacentTile4, $adjacentTile5]);
+        $expectedList2 = new ArrayCollection([$pivotMinusOne, $adjacentTileMinusOne, $adjacentTileMinusOne2,
+            $adjacentTileMinusOne3, $adjacentTileMinusOne4, $adjacentTileMinusOne5]);
+        $expectedList3 = new ArrayCollection([$pivotPlusOne, $adjacentTilePlusOne, $adjacentTilePlusOne2,
+            $adjacentTilePlusOne3, $adjacentTilePlusOne4, $adjacentTilePlusOne5]);
+        $expectedList4 = new ArrayCollection([$pivotPlusTwo, $adjacentTilePlusTwo1, $adjacentTilePlusTwo2,
+            $adjacentTilePlusTwo3, $adjacentTilePlusTwo4, $adjacentTilePlusTwo5]);
+        $expectedList5 = new ArrayCollection([$pivotMinusTwo, $adjacentTileMinusTwo1, $adjacentTileMinusTwo2,
+            $adjacentTileMinusTwo3, $adjacentTileMinusTwo4, $adjacentTileMinusTwo5]);
+        $expectedList6 = new ArrayCollection([$pivotMinusThree, $adjacentTileMinusThree1, $adjacentTileMinusThree2,
+            $adjacentTileMinusThree3, $adjacentTileMinusThree4, $adjacentTileMinusThree5]);
+        return new ArrayCollection([$expectedList1, $expectedList2, $expectedList3, $expectedList4,
+            $expectedList5, $expectedList6]);
     }
 
 }
