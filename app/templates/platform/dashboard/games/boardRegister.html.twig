@@ -100,16 +100,21 @@ Création d'une table
    const nbUsers = document.getElementById('nbUsers');
    const invitedContacts = document.getElementById('invitedContacts');
 
-   // init checkboxes + Create contact list
+   // init checkboxes and label + Create contact list
    const contactListRoot = document.getElementById("contactList");
    const checkboxes = invitedContacts.querySelectorAll('input[type="checkbox"]');
    const labels = invitedContacts.querySelectorAll('label');
 
    for (let i = 0; i < labels.length; i++ ){
-      checkboxes[i].disabled = true;
+      // init
+      labels[i].classList.add("cursor-pointer");
       checkboxes[i].classList.add("hidden");
+      checkboxes[i].addEventListener('change', function () {
+         labels[i].classList.add("hidden");
+      });
       resetInvitedContacts();
 
+      // contact list
       let li = document.getElementById("liTemplate").cloneNode(true);
       li.attributes.removeNamedItem("id");
       li.querySelector('p').textContent = labels[i].textContent;
