@@ -48,6 +48,9 @@ let antPosition = {x: 0, y: 0}
 //Initial movement points of the player
 let movementPoints = 0
 
+//identifier of the ant
+let antId = 0
+
 /**
  * initQueue: init the action queue for the worker phase with the selected base resources and positions
  * @param baseUrl
@@ -57,6 +60,7 @@ let movementPoints = 0
  * @param idHole
  * @param playerSoldierNumber
  * @param playerDirtNumber
+ * @param workerId
  */
 function initQueue(baseUrl,
                    playerMovementPoints,
@@ -64,13 +68,15 @@ function initQueue(baseUrl,
                    antCoordY,
                    idHole,
                    playerSoldierNumber,
-                   playerDirtNumber) {
+                   playerDirtNumber,
+                   workerId) {
     url = baseUrl
     movementPoints = playerMovementPoints
     antPosition.x = antCoordX
     antPosition.y = antCoordY
     soldierNumber = playerSoldierNumber
     dirtNumber = playerDirtNumber
+    antId = workerId
     queue.push(actions.PLACE_ANT(idHole))
 }
 
@@ -234,4 +240,23 @@ async function managePheromoneCleanedTiles() {
             cleanedTiles.push({x: parseInt(x), y: parseInt(y)})
         }
     )
+}
+
+function directionByAction(action) {
+    switch (action) {
+        case actions.MOVE_WEST:
+            return directions.WEST;
+        case actions.MOVE_NORTH_WEST:
+            return directions.NORTH_WEST;
+        case actions.MOVE_SOUTH_WEST:
+            return directions.SOUTH_WEST;
+        case actions.MOVE_EAST:
+            return directions.EAST;
+        case actions.MOVE_NORTH_EAST:
+            return directions.NORTH_EAST;
+        case directions.SOUTH_EAST:
+            return directions.SOUTH_EAST;
+        default:
+            return null;
+    }
 }
