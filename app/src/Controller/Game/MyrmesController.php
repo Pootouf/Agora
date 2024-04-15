@@ -615,7 +615,7 @@ class MyrmesController extends AbstractController
         }
     }
 
-    #[Route('/game/muyrmes/{gameId}/moveAnt/{antId}/direction/{dir}', name:'app_game_myrmes_move_ant')]
+    #[Route('/game/myrmes/{gameId}/moveAnt/{antId}/direction/{dir}', name:'app_game_myrmes_move_ant')]
     public function moveAnt(
         #[MapEntity(id: 'gameId')] GameMYR $gameMYR,
         #[MapEntity(id: 'antId')] GardenWorkerMYR $ant,
