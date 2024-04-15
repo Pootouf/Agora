@@ -29,6 +29,7 @@ use App\Repository\Game\Myrmes\TileTypeMYRRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
+use InvalidArgumentException;
 
 class WorkerMYRService
 {
@@ -140,7 +141,7 @@ class WorkerMYRService
      * @param int $coordY
      * @param GameMYR $gameMYR
      * @return int
-     * @throws Exception
+     * @throws InvalidArgumentException
      */
     public function getNeededSoldiers(int $coordX, int $coordY, GameMYR $gameMYR, PlayerMYR $player): int
     {
@@ -149,15 +150,17 @@ class WorkerMYRService
             "coord_X" => $coordX
         ]);
         if($tile == null) {
-            throw new Exception("Not a valid tile, can't identify if there is a prey on it");
+            throw new InvalidArgumentException("Not a valid tile, can't identify if there is a prey on it");
         }
         $prey = $this->getPrey($gameMYR, $tile);
-        $pheromoneTile = $this->pheromonTileMYRRepository->findOneBy([
-            "tile" => $tile,
-            "mainBoard" => $gameMYR->getMainBoardMYR()
-        ]);
+        $pheromoneTile = $this->getPheromoneTileOnTile($tile, $gameMYR);
+        $soldiersForPheromone = 0;
+        if($pheromoneTile != null) {
+            $soldiersForPheromone = $pheromoneTile->getPheromonMYR()->getPlayer() === $player ? 0 : 1;
+        }
+
         return ($prey == null ? 0 : MyrmesParameters::NUMBER_SOLDIERS_FOR_ATTACK_PREY[$prey->getType()])
-            + ($pheromoneTile == null ? 0 : ($pheromoneTile->getPlayer() == $player ? 0 : 1));
+            + $soldiersForPheromone;
     }
 
     /**
@@ -170,7 +173,7 @@ class WorkerMYRService
      * @param GameMYR $gameMYR
      * @param PlayerMYR $player
      * @return int
-     * @throws Exception
+     * @throws InvalidArgumentException
      */
     public function getNeededMovementPoints(int $coordX1, int $coordY1, int $coordX2, int $coordY2,
                                             GameMYR $gameMYR, PlayerMYR $player) : int
@@ -184,7 +187,7 @@ class WorkerMYRService
             "coord_X" => $coordX2
         ]);
         if ($tile1 == null || $tile2 == null) {
-            throw new Exception("Not a valid tile, can't identify if there is a prey on it");
+            throw new InvalidArgumentException("Not a valid tile, can't identify if there is a prey on it");
         }
         $pheromoneTile1 = $this->pheromonTileMYRRepository->findOneBy([
             "tile" => $tile1,
@@ -196,7 +199,6 @@ class WorkerMYRService
         ]);
         if ($pheromoneTile1 != null && $pheromoneTile2 != null
             && $pheromoneTile1->getPheromonMYR() == $pheromoneTile2->getPheromonMyr()
-            && $pheromoneTile1->getPheromonMyr()->getPlayer() == $player
         ) {
             return 0;
         }
@@ -227,7 +229,7 @@ class WorkerMYRService
     public function canCleanPheromone(PheromonMYR $pheromone, int $playerDirtQuantity): bool
     {
         $type = $pheromone->getType();
-        if (in_array($type, MyrmesParameters::SPECIAL_TILE_TYPES)) {
+        if (in_array($type->getType(), MyrmesParameters::SPECIAL_TILE_TYPES)) {
             return false;
         }
 
@@ -324,7 +326,7 @@ class WorkerMYRService
      * @param PheromonMYR $pheromone
      * @param PlayerMYR $player
      * @return void
-     * @throws Exception
+     * @throws InvalidArgumentException
      */
     public function cleanPheromone(PheromonMYR $pheromone, PlayerMYR $player) : void
     {
@@ -335,7 +337,7 @@ class WorkerMYRService
             }
         )->first();
         if(!$this->canCleanPheromone($pheromone, $dirtResource->getQuantity())) {
-            throw new Exception("Can't clean the pheromone");
+            throw new InvalidArgumentException("Can't clean the pheromone");
         }
 
         $dirtResource->setQuantity($dirtResource->getQuantity() - 1);
@@ -343,7 +345,7 @@ class WorkerMYRService
 
         if ($pheromone->getPlayer() !== $player) {
             $player->setScore($player->getScore()
-                + MyrmesParameters::PHEROMONE_TYPE_LEVEL[$pheromone->getType()]);
+                + MyrmesParameters::PHEROMONE_TYPE_LEVEL[$pheromone->getType()->getType()]);
             $this->entityManager->persist($player);
         }
 
