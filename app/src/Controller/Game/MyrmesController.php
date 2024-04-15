@@ -478,6 +478,143 @@ class MyrmesController extends AbstractController
         ]);
     }
 
+    #[Route('/game/myrmes/{gameId}/moveAnt/neededResources/soldierNb/{coordX}/{coordY}',
+        name:'app_game_myrmes_needed_soldiers_to_move')]
+    public function neededSoldiersToMove(
+        #[MapEntity(id: 'gameId')] GameMYR $gameMYR,
+        int $coordX,
+        int $coordY
+    ): Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('invalid player', Response::HTTP_FORBIDDEN);
+        }
+        try {
+            return new Response($this->workerMYRService->getNeededSoldiers($coordX, $coordY, $gameMYR, $player));
+        } catch (Exception $e) {
+            return new Response("can't get needed soldiers, invalid tile",
+                Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    #[Route('/game/myrmes/{gameId}/moveAnt/neededResources/movementPoints/' .
+        'originTile/{coordX1}/{coordY1}/destinationTile/{coordX2}/{coordY2}',
+        name:'app_game_myrmes_needed_movement_points_to_move')]
+    public function neededMovementPoints(
+        #[MapEntity(id: 'gameId')] GameMYR $gameMYR,
+        int $coordX1,
+        int $coordY1,
+        int $coordX2,
+        int $coordY2
+    ): Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('invalid player', Response::HTTP_FORBIDDEN);
+        }
+        try {
+            return new Response($this->workerMYRService->getNeededMovementPoints($coordX1, $coordY2, $coordX2, $coordY2, $gameMYR, $player));
+        } catch (Exception $e) {
+            return new Response("can't get needed movement points, invalid tile",
+                Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    #[Route('/game/myrmes/{gameId}/moveAnt/isValid/tile/{coordX}/{coordY}',
+        name:'app_game_myrmes_is_valid_tile_to_move')]
+    public function isValidTileToMoveAnt(
+        #[MapEntity(id: 'gameId')] GameMYR $gameMYR,
+        int $coordX,
+        int $coordY
+    ): Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('invalid player', Response::HTTP_FORBIDDEN);
+        }
+        $tile = $this->workerMYRService->getTileFromCoordinates($coordX, $coordY);
+        try {
+            return new Response($this->workerMYRService->isValidPositionForAnt($tile));
+        } catch (Exception $e) {
+            return new Response("invalid tile",
+                Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    #[Route('/game/myrmes/{gameId}/moveAnt/canClean/pheromone/{coordX}/{coordY}/{playerDirtQuantity}',
+        name:'app_game_myrmes_can_clean_pheromone')]
+    public function canCleanPheromone(
+        #[MapEntity(id: 'gameId')] GameMYR $gameMYR,
+        int $coordX,
+        int $coordY,
+        int $playerDirtQuantity
+    ): Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('invalid player', Response::HTTP_FORBIDDEN);
+        }
+        $tile = $this->workerMYRService->getTileFromCoordinates($coordX, $coordY);
+        $pheromone = $this->workerMYRService->getPheromoneFromTile($gameMYR, $tile);
+        if($tile != null) {
+            return new Response($this->workerMYRService->canCleanPheromone($pheromone, $playerDirtQuantity));
+        } else {
+            return new Response("invalid tile",
+                Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    #[Route('/game/myrmes/{gameId}/moveAnt/clean/pheromone/{coordX}/{coordY}',
+        name:'app_game_myrmes_clean_pheromone')]
+    public function cleanPheromone(
+        #[MapEntity(id: 'gameId')] GameMYR $gameMYR,
+        int $coordX,
+        int $coordY
+    ): Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('invalid player', Response::HTTP_FORBIDDEN);
+        }
+        $tile = $this->workerMYRService->getTileFromCoordinates($coordX, $coordY);
+        $pheromone = $this->workerMYRService->getPheromoneFromTile($gameMYR, $tile);
+        if($tile != null) {
+            try {
+                $this->workerMYRService->cleanPheromone($pheromone, $player);
+            } catch (Exception $e) {
+                return new Response("cannot clean the pheromone",
+                    Response::HTTP_FORBIDDEN);
+            }
+            return new Response;
+        } else {
+            return new Response("invalid tile",
+                Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    #[Route('/game/myrmes/{gameId}/moveAnt/getPheromoneTiles/coords/givenTile/{coordX}/{coordY}',
+        name:'app_game_myrmes_get_pheromone_tiles_coords')]
+    public function getPheromoneTilesCoords(
+        #[MapEntity(id: 'gameId')] GameMYR $gameMYR,
+        int $coordX,
+        int $coordY
+    ): Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('invalid player', Response::HTTP_FORBIDDEN);
+        }
+        $tile = $this->workerMYRService->getTileFromCoordinates($coordX, $coordY);
+        $pheromone = $this->workerMYRService->getPheromoneFromTile($gameMYR, $tile);
+        if($tile != null) {
+            return new Response($this->workerMYRService->getStringCoordsOfPheromoneTiles($pheromone));
+        } else {
+            return new Response("invalid tile",
+                Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
     #[Route('/game/muyrmes/{gameId}/moveAnt/{antId}/direction/{dir}', name:'app_game_myrmes_move_ant')]
     public function moveAnt(
         #[MapEntity(id: 'gameId')] GameMYR $gameMYR,
