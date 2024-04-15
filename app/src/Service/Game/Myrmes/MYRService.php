@@ -526,7 +526,7 @@ class MYRService
     public function getNursesAtPosition(PlayerMYR $player, int $position): ArrayCollection
     {
         $nurses =  $this->nurseMYRRepository->findBy(["area" => $position,
-            "player" => $player]);
+            "personalBoardMYR" => $player->getPersonalBoardMYR()]);
         return new ArrayCollection($nurses);
     }
 
