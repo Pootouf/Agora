@@ -89,13 +89,13 @@ class WorkerMYRServiceTest extends TestCase
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
         $ant = new AnthillWorkerMYR();
-        $ant->setPlayer($player);
         $ant->setPersonalBoardMYR($player->getPersonalBoardMYR());
         $player->getPersonalBoardMYR()->addAnthillWorker($ant);
         $hole = new AnthillHoleMYR();
         $hole->setMainBoardMYR($game->getMainBoardMYR());
         $hole->setPlayer($player);
-        $this->anthillWorkerMYRRepository->method("findOneBy")->willReturn($ant);
+        $this->anthillWorkerMYRRepository
+            ->method("findOneBy")->willReturn($ant);
 
         // WHEN
         $this->workerMYRService->takeOutAnt($player->getPersonalBoardMYR(), $hole);
@@ -110,14 +110,14 @@ class WorkerMYRServiceTest extends TestCase
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
         $ant = new AnthillWorkerMYR();
-        $ant->setPlayer($player);
         $ant->setWorkFloor(2);
         $ant->setPersonalBoardMYR($player->getPersonalBoardMYR());
         $player->getPersonalBoardMYR()->addAnthillWorker($ant);
         $hole = new AnthillHoleMYR();
         $hole->setMainBoardMYR($game->getMainBoardMYR());
         $hole->setPlayer($player);
-        $this->anthillWorkerMYRRepository->method("findOneBy")->willReturn(null);
+        $this->anthillWorkerMYRRepository
+            ->method("findOneBy")->willReturn(null);
 
         // THEN
         $this->expectException(\Exception::class);
@@ -132,13 +132,13 @@ class WorkerMYRServiceTest extends TestCase
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
         $ant = new AnthillWorkerMYR();
-        $ant->setPlayer($player);
         $ant->setPersonalBoardMYR($player->getPersonalBoardMYR());
         $player->getPersonalBoardMYR()->addAnthillWorker($ant);
         $hole = new AnthillHoleMYR();
         $hole->setMainBoardMYR($game->getMainBoardMYR());
         $hole->setPlayer($game->getPlayers()->last());
-        $this->anthillWorkerMYRRepository->method("findOneBy")->willReturn($ant);
+        $this->anthillWorkerMYRRepository
+            ->method("findOneBy")->willReturn($ant);
 
         // THEN
         $this->expectException(\Exception::class);
@@ -153,15 +153,16 @@ class WorkerMYRServiceTest extends TestCase
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
         $ant = new AnthillWorkerMYR();
-        $ant->setPlayer($player);
         $ant->setPersonalBoardMYR($player->getPersonalBoardMYR());
         $player->getPersonalBoardMYR()->addAnthillWorker($ant);
         $hole = new AnthillHoleMYR();
         $hole->setMainBoardMYR($game->getMainBoardMYR());
         $hole->setPlayer($player);
         $gardenWorker = new GardenWorkerMYR();
-        $this->anthillWorkerMYRRepository->method("findOneBy")->willReturn($ant);
-        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($gardenWorker);
+        $this->anthillWorkerMYRRepository
+            ->method("findOneBy")->willReturn($ant);
+        $this->gardenWorkerMYRRepository
+            ->method("findOneBy")->willReturn($gardenWorker);
 
         // THEN
         $this->expectException(\Exception::class);
@@ -175,16 +176,18 @@ class WorkerMYRServiceTest extends TestCase
         // GIVEN
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
-        $player->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::ANTHILL_LEVEL_TWO);
+        $player->getPersonalBoardMYR()->setAnthillLevel(
+            MyrmesParameters::ANTHILL_LEVEL_TWO);
         $selectedFloor = 2;
         $ant = new AnthillWorkerMYR();
-        $ant->setPlayer($player);
         $ant->setPersonalBoardMYR($player->getPersonalBoardMYR());
         $player->getPersonalBoardMYR()->addAnthillWorker($ant);
-        $this->anthillWorkerMYRRepository->method("findOneBy")->willReturn($ant);
+        $this->anthillWorkerMYRRepository
+            ->method("findOneBy")->willReturn($ant);
 
         // WHEN
-        $this->workerMYRService->placeAntInAnthill($player->getPersonalBoardMYR(), $selectedFloor);
+        $this->workerMYRService->placeAntInAnthill(
+            $player->getPersonalBoardMYR(), $selectedFloor);
 
         // THEN
         $this->assertEquals($selectedFloor, $ant->getWorkFloor());
@@ -196,13 +199,14 @@ class WorkerMYRServiceTest extends TestCase
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
         $player->getPersonalBoardMYR()->setBonus(-1);
-        $player->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::ANTHILL_LEVEL_TWO);
+        $player->getPersonalBoardMYR()->setAnthillLevel(
+            MyrmesParameters::ANTHILL_LEVEL_TWO);
         $selectedFloor = 3;
         $ant = new AnthillWorkerMYR();
-        $ant->setPlayer($player);
         $ant->setPersonalBoardMYR($player->getPersonalBoardMYR());
         $player->getPersonalBoardMYR()->addAnthillWorker($ant);
-        $this->anthillWorkerMYRRepository->method("findOneBy")->willReturn($ant);
+        $this->anthillWorkerMYRRepository
+            ->method("findOneBy")->willReturn($ant);
 
         // THEN
         $this->expectException(\Exception::class);
@@ -220,7 +224,6 @@ class WorkerMYRServiceTest extends TestCase
         $player->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::ANTHILL_LEVEL_TWO);
         $selectedFloor = 2;
         $ant = new AnthillWorkerMYR();
-        $ant->setPlayer($player);
         $ant->setWorkFloor(1);
         $ant->setPersonalBoardMYR($player->getPersonalBoardMYR());
         $player->getPersonalBoardMYR()->addAnthillWorker($ant);

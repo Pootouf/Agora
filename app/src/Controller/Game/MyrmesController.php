@@ -314,9 +314,7 @@ class MyrmesController extends AbstractController
             return new Response('invalid player', Response::HTTP_FORBIDDEN);
         }
         try {
-                $this->birthMYRService->placeNurse(
-                    $this->service->getNursesAtPosition($player, MyrmesParameters::BASE_AREA)->first(),
-                    $position);
+                $this->birthMYRService->placeNurse($player, $position);
         } catch (Exception) {
             $message = $player->getUsername()
                 . " a essayé de placer une nourrice sur la piste de naissance "
@@ -330,7 +328,7 @@ class MyrmesController extends AbstractController
         return new Response("nurse placed on birth track " . $position, Response::HTTP_OK);
     }
 
-    #[Route('/game/myrmes/{gameId}/confirmNursesPlacement', name: 'app_game_myrmes_confirm_nurses')]
+    #[Route('/game/myrmes/{gameId}/confirm/nursesPlacement', name: 'app_game_myrmes_confirm_nurses')]
     public function confirmNursesPlacement(
         #[MapEntity(id: 'gameId')] GameMYR $game
     ) : Response
@@ -354,7 +352,7 @@ class MyrmesController extends AbstractController
         return new Response("nurses placement confirmed", Response::HTTP_OK);
     }
 
-    #[Route('/game/myrmes/{gameId}/confirmNursesPlacement', name: 'app_game_myrmes_cancel_nurses')]
+    #[Route('/game/myrmes/{gameId}/cancel/nursesPlacement', name: 'app_game_myrmes_cancel_nurses')]
     public function cancelNursesPlacement(
         #[MapEntity(id: 'gameId')] GameMYR $game
     ) : Response
