@@ -49,7 +49,7 @@ class MyrGameManagerServiceTest extends KernelTestCase
         $game= $this->myrGameManagerService->createGame();
         $game = $this->gameMYRRepository->findOneBy(["id" => $game]);
         for ($i = 0; $i <= MyrmesParameters::MAX_NUMBER_OF_PLAYER; ++ $i) {
-            $player = new PlayerMYR("jean", $game);
+            $player = new PlayerMYR("test1".$i, $game);
             $player->setColor("blue");
             $player->setTurnOfPlayer(false);
             $player->setScore(0);
@@ -69,6 +69,7 @@ class MyrGameManagerServiceTest extends KernelTestCase
             $player->setPersonalBoardMYR($personalBoard);
             $this->entityManager->persist($player);
             $game->addPlayer($player);
+            $this->entityManager->flush();
         }
         $this->entityManager->persist($game);
         $this->entityManager->flush();
@@ -103,6 +104,7 @@ class MyrGameManagerServiceTest extends KernelTestCase
             $player->setPersonalBoardMYR($personalBoard);
             $this->entityManager->persist($player);
             $game->addPlayer($player);
+            $this->entityManager->flush();
         }
         $this->entityManager->persist($game);
         $this->entityManager->flush();
@@ -185,7 +187,7 @@ class MyrGameManagerServiceTest extends KernelTestCase
         $game= $this->myrGameManagerService->createGame();
         $game = $this->gameMYRRepository->findOneBy(["id" => $game]);
         for ($i = 0; $i < MyrmesParameters::MIN_NUMBER_OF_PLAYER - 1; ++ $i) {
-            $player = new PlayerMYR("jean", $game);
+            $player = new PlayerMYR("test3".$i, $game);
             $player->setColor("blue");
             $player->setTurnOfPlayer(false);
             $player->setScore(0);
@@ -205,6 +207,7 @@ class MyrGameManagerServiceTest extends KernelTestCase
             $player->setPersonalBoardMYR($personalBoard);
             $this->entityManager->persist($player);
             $game->addPlayer($player);
+            $this->entityManager->flush();
         }
         $this->entityManager->persist($game);
         $this->entityManager->flush();
@@ -220,7 +223,7 @@ class MyrGameManagerServiceTest extends KernelTestCase
         $game= $this->myrGameManagerService->createGame();
         $game = $this->gameMYRRepository->findOneBy(["id" => $game]);
         for ($i = 0; $i < MyrmesParameters::MAX_NUMBER_OF_PLAYER + 1; ++ $i) {
-            $player = new PlayerMYR("jean", $game);
+            $player = new PlayerMYR("test4".$i, $game);
             $player->setColor("blue");
             $player->setTurnOfPlayer(false);
             $player->setScore(0);
@@ -240,6 +243,7 @@ class MyrGameManagerServiceTest extends KernelTestCase
             $player->setPersonalBoardMYR($personalBoard);
             $this->entityManager->persist($player);
             $game->addPlayer($player);
+            $this->entityManager->flush();
         }
         $this->entityManager->persist($game);
         $this->entityManager->flush();
@@ -256,7 +260,7 @@ class MyrGameManagerServiceTest extends KernelTestCase
         $game = $this->gameMYRRepository->findOneBy(["id" => $game]);
         $game->setLaunched(true);
         for ($i = 0; $i < MyrmesParameters::MAX_NUMBER_OF_PLAYER; ++ $i) {
-            $player = new PlayerMYR("jean", $game);
+            $player = new PlayerMYR("test5".$i, $game);
             $player->setColor("blue");
             $player->setTurnOfPlayer(false);
             $player->setScore(0);
@@ -276,6 +280,7 @@ class MyrGameManagerServiceTest extends KernelTestCase
             $player->setPersonalBoardMYR($personalBoard);
             $this->entityManager->persist($player);
             $game->addPlayer($player);
+            $this->entityManager->flush();
         }
         $this->entityManager->persist($game);
         $this->entityManager->flush();
@@ -291,7 +296,7 @@ class MyrGameManagerServiceTest extends KernelTestCase
         $game= $this->myrGameManagerService->createGame();
         $game = $this->gameMYRRepository->findOneBy(["id" => $game]);
         for ($i = 0; $i < MyrmesParameters::MAX_NUMBER_OF_PLAYER; ++ $i) {
-            $player = new PlayerMYR("jean", $game);
+            $player = new PlayerMYR("test6".$i, $game);
             $player->setColor("blue");
             $player->setTurnOfPlayer(false);
             $player->setScore(0);
@@ -311,6 +316,7 @@ class MyrGameManagerServiceTest extends KernelTestCase
             $player->setPersonalBoardMYR($personalBoard);
             $this->entityManager->persist($player);
             $game->addPlayer($player);
+            $this->entityManager->flush();
         }
         $this->entityManager->persist($game);
         $this->entityManager->flush();
