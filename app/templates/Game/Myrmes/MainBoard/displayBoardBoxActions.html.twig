@@ -47,6 +47,14 @@
             {% if game.gamePhase == PHASE_WORKER and needToPlay %}
                 <button id="pheromone_placement"
                         class="rounded-lg bg-green-900 py-2 px-3 m-5 text-2xl items-center"
+                        {{ stimulus_action('myrmes','displayPheromonePlacement','click',
+                            {url:path('app_game_myrmes_display_personal_object_to_place',
+                                {
+                                    idGame: game.id,
+                                    tileId: boardBox.tile.id,
+                                }), open: true
+                            })
+                        }}
                 >
                     Placer une phéromone
                 </button>
