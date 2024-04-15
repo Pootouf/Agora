@@ -2,6 +2,7 @@
 
 namespace App\Tests\Game\Myrmes\Unit\Service;
 
+use App\Entity\Game\Myrmes\AnthillHoleMYR;
 use App\Entity\Game\Myrmes\GameMYR;
 use App\Entity\Game\Myrmes\MainBoardMYR;
 use App\Entity\Game\Myrmes\MyrmesParameters;
@@ -11,6 +12,7 @@ use App\Entity\Game\Myrmes\PheromonMYR;
 use App\Entity\Game\Myrmes\PlayerMYR;
 use App\Entity\Game\Myrmes\PlayerResourceMYR;
 use App\Entity\Game\Myrmes\ResourceMYR;
+use App\Entity\Game\Myrmes\TileMYR;
 use App\Repository\Game\Myrmes\AnthillHoleMYRRepository;
 use App\Repository\Game\Myrmes\NurseMYRRepository;
 use App\Repository\Game\Myrmes\PheromonMYRRepository;
@@ -40,6 +42,8 @@ class WorkshopMYRServiceTest extends TestCase
 
     private NurseMYRRepository $nurseMYRRepository;
 
+    private AnthillHoleMYRRepository $anthillHoleMYRRepository;
+
     protected function setUp() : void
     {
         $entityManager = $this->createMock(EntityManagerInterface::class);
@@ -68,7 +72,7 @@ class WorkshopMYRServiceTest extends TestCase
         $pheromoneTileMyrRepository = $this->getMockBuilder(PheromonTileMYRRepository::class)
             ->setConstructorArgs([$managerRegistry])
             ->getMock();
-        $anthillHoleMyrRepository = $this->getMockBuilder(AnthillHoleMYRRepository::class)
+        $this->anthillHoleMYRRepository = $this->getMockBuilder(AnthillHoleMYRRepository::class)
             ->setConstructorArgs([$managerRegistry])
             ->getMock();
         $preyMyrRepository = $this->getMockBuilder(PreyMYRRepository::class)
@@ -79,7 +83,7 @@ class WorkshopMYRServiceTest extends TestCase
         $playerResourceMYRRepository->method("findOneBy")->willReturn($playerFood);
         $this->workshopMYRService = new WorkshopMYRService($entityManager, $this->MYRService, $pheromoneTileMyrRepository,
             $preyMyrRepository, $tileMYRRepository, $pheromoneMyrRepository, $resourceMYRRepository,
-            $playerResourceMYRRepository, $this->nurseMYRRepository, $anthillHoleMyrRepository);
+            $playerResourceMYRRepository, $this->nurseMYRRepository, $this->anthillHoleMYRRepository);
     }
 
     public function testCanSetPhaseToWorkshopReturnTrueIfPlayerHasNursesInWorkshop(): void
@@ -418,6 +422,39 @@ class WorkshopMYRServiceTest extends TestCase
         $this->assertSame(4, $personalBoard->getLarvaCount());
     }
 
+    public function testGetAnthillHoleFromTileSucceedAndReturnAnthillHole() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $tile = new TileMYR();
+        $tile->setCoordX(0);
+        $tile->setCoordY(0);
+        $tile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $anthillHole = new AnthillHoleMYR();
+        $anthillHole->setTile($tile);
+        $anthillHole->setMainBoardMYR($game->getMainBoardMYR());
+        $this->anthillHoleMYRRepository->method("findOneBy")->willReturn($anthillHole);
+        //WHEN
+        $result = $this->workshopMYRService->getAnthillHoleFromTile($tile, $game);
+        //THEN
+        $this->assertSame($result, $anthillHole);
+    }
+
+    public function testGetAnthillHoleFromTileSucceedAndReturnNullIFDoesntExist() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $tile = new TileMYR();
+        $tile->setCoordX(0);
+        $tile->setCoordY(0);
+        $tile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $this->anthillHoleMYRRepository->method("findOneBy")->willReturn(null);
+        //WHEN
+        $result = $this->workshopMYRService->getAnthillHoleFromTile($tile, $game);
+        //THEN
+        $this->assertNull($result);
+    }
+
     private function createGame(int $numberOfPlayers) : GameMYR
     {
         if($numberOfPlayers < MyrmesParameters::MIN_NUMBER_OF_PLAYER ||
@@ -440,7 +477,6 @@ class WorkshopMYRServiceTest extends TestCase
             $personalBoard->setAnthillLevel(0);
             $nurse = new NurseMYR();
             $nurse->setArea(MyrmesParameters::WORKSHOP_AREA);
-            $nurse->setPlayer($player);
             $nurse->setAvailable(true);
             $player->setPersonalBoardMYR($personalBoard);
             $player->getPersonalBoardMYR()->addNurse($nurse);

@@ -1209,6 +1209,29 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
             $entityManager->persist($mainBoard);
         }
 
+        for ($i = $nbOfPlayers; $i < GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD; ++$i) {
+            $drawTiles = $mainBoard->getDrawTiles();
+            $level = 0;
+            for ($j = GlenmoreParameters::$TILE_LEVEL_ZERO; $j <= GlenmoreParameters::$TILE_LEVEL_THREE; ++$j) {
+                if ($drawTiles->get($j)->getTiles()->isEmpty()) {
+                    ++$level;
+                } else {
+                    break;
+                }
+            }
+            $draw = $drawTiles->get($level);
+            $tile = $draw->getTiles()->first();
+            $mainBoardTile = new BoardTileGLM();
+            $mainBoardTile->setTile($tile);
+            $mainBoard->addBoardTile($mainBoardTile);
+            $mainBoardTile->setMainBoardGLM($mainBoard);
+            $mainBoardTile->setPosition($i);
+            $entityManager->persist($mainBoardTile);
+            $draw->removeTile($tile);
+            $entityManager->persist($mainBoard);
+            $entityManager->persist($draw);
+        }
+
         for ($i = 0; $i < $nbOfPlayers; $i++) {
             $player = new PlayerGLM('test', $game);
             $player->setRoundPhase(0);
@@ -1250,29 +1273,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
             $personalBoard->addPlayerTile($playerTile);
             $entityManager->persist($personalBoard);
             $entityManager->persist($player);
-        }
-
-        for ($i = $nbOfPlayers; $i < GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD; ++$i) {
-            $drawTiles = $mainBoard->getDrawTiles();
-            $level = 0;
-            for ($j = GlenmoreParameters::$TILE_LEVEL_ZERO; $j <= GlenmoreParameters::$TILE_LEVEL_THREE; ++$j) {
-                if ($drawTiles->get($j)->getTiles()->isEmpty()) {
-                    ++$level;
-                } else {
-                    break;
-                }
-            }
-            $draw = $drawTiles->get($level);
-            $tile = $draw->getTiles()->first();
-            $mainBoardTile = new BoardTileGLM();
-            $mainBoardTile->setTile($tile);
-            $mainBoard->addBoardTile($mainBoardTile);
-            $mainBoardTile->setMainBoardGLM($mainBoard);
-            $mainBoardTile->setPosition($i);
-            $entityManager->persist($mainBoardTile);
-            $draw->removeTile($tile);
-            $entityManager->persist($mainBoard);
-            $entityManager->persist($draw);
+            $entityManager->flush();
         }
         $firstPlayer = $game->getPlayers()->first();
         $firstPlayer->setTurnOfPlayer(true);

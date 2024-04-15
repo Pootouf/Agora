@@ -27,9 +27,14 @@ class GameGoalMYR extends Component
     #[ORM\ManyToOne(inversedBy: 'gameGoalsLevelThree')]
     private ?MainBoardMYR $mainBoardLevelThree = null;
 
+    #[ORM\ManyToMany(targetEntity: PlayerMYR::class)]
+    #[ORM\JoinTable(name: "game_goal_player_myr_already_done")]
+    private Collection $goalAlreadyDone;
+
     public function __construct()
     {
         $this->precedentsPlayers = new ArrayCollection();
+        $this->goalAlreadyDone = new ArrayCollection();
     }
 
     /**
@@ -100,6 +105,30 @@ class GameGoalMYR extends Component
     public function setMainBoardLevelThree(?MainBoardMYR $mainBoardLevelThree): static
     {
         $this->mainBoardLevelThree = $mainBoardLevelThree;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PlayerMYR>
+     */
+    public function getGoalAlreadyDone(): Collection
+    {
+        return $this->goalAlreadyDone;
+    }
+
+    public function addGoalAlreadyDone(PlayerMYR $goalAlreadyDone): static
+    {
+        if (!$this->goalAlreadyDone->contains($goalAlreadyDone)) {
+            $this->goalAlreadyDone->add($goalAlreadyDone);
+        }
+
+        return $this;
+    }
+
+    public function removeGoalAlreadyDone(PlayerMYR $goalAlreadyDone): static
+    {
+        $this->goalAlreadyDone->removeElement($goalAlreadyDone);
 
         return $this;
     }

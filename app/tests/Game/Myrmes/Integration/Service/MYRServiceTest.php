@@ -12,6 +12,7 @@ use App\Entity\Game\Myrmes\PersonalBoardMYR;
 use App\Entity\Game\Myrmes\PlayerMYR;
 use App\Entity\Game\Myrmes\SeasonMYR;
 use App\Service\Game\Myrmes\MYRService;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Exception;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -190,6 +191,106 @@ class MYRServiceTest extends KernelTestCase
         $this->assertFalse($isEnded);
     }
 
+    public function testGetPlayerFromGameAndHisNameWhenReturnGoodPlayer() : void
+    {
+        // GIVEN
+
+        $myrService = static::getContainer()->get(MYRService::class);
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $entityManager->persist($player);
+        $entityManager->persist($game);
+        $entityManager->flush();
+        $expectedResult = $player;
+
+        // WHEN
+
+        $result = $myrService->getPlayerFromNameAndGame(
+            $game,
+            $player->getUsername()
+        );
+
+        // THEN
+
+        $this->assertEquals($expectedResult, $result);
+    }
+
+    public function testGetPlayerFromGameAndHisNameWhenIsNull() : void
+    {
+        // GIVEN
+
+        $myrService = static::getContainer()->get(MYRService::class);
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+
+        $entityManager->persist($player);
+        $entityManager->persist($game);
+        $entityManager->flush();
+        $wrongName = "gtaeuaioea";
+
+        // WHEN
+
+        $result = $myrService->getPlayerFromNameAndGame($game, $wrongName);
+
+        // THEN
+
+        $this->assertNull($result);
+    }
+
+    public function testGetDiceResults() : void
+    {
+        // GIVEN
+
+        $myrService = static::getContainer()->get(MYRService::class);
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $game = $this->createGame(2);
+        $game->getMainBoardMYR()->getSeasons()->clear();
+        $entityManager->persist($game);
+
+        $dice = 4;
+
+        $seasonSpring = new SeasonMYR();
+        $seasonSpring->setDiceResult($dice);
+        $seasonSpring->setActualSeason(false);
+        $seasonSpring->setName(MyrmesParameters::SPRING_SEASON_NAME);
+        $entityManager->persist($seasonSpring);
+
+        $seasonFall = new SeasonMYR();
+        $seasonFall->setDiceResult($dice);
+        $seasonFall->setActualSeason(false);
+        $seasonFall->setName(MyrmesParameters::FALL_SEASON_NAME);
+        $entityManager->persist($seasonFall);
+
+        $seasonSummer = new SeasonMYR();
+        $seasonSummer->setDiceResult($dice);
+        $seasonSummer->setActualSeason(false);
+        $seasonSummer->setName(MyrmesParameters::SUMMER_SEASON_NAME);
+        $entityManager->persist($seasonSummer);
+
+        $game->getMainBoardMYR()->addSeason($seasonSpring);
+        $game->getMainBoardMYR()->addSeason($seasonFall);
+        $game->getMainBoardMYR()->addSeason($seasonSummer);
+
+        $entityManager->persist($seasonSpring);
+        $entityManager->persist($seasonFall);
+        $entityManager->persist($seasonSummer);
+        $entityManager->persist($game->getMainBoardMYR());
+        $entityManager->flush();
+
+        // WHEN
+
+        $result = $myrService->getDiceResults($game);
+
+        // THEN
+
+        foreach ($result as $r)
+        {
+            $this->assertSame($dice, $r);
+        }
+    }
+
     private function createGame(int $numberOfPlayers) : GameMYR
     {
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);
@@ -198,8 +299,25 @@ class MYRServiceTest extends KernelTestCase
             throw new \Exception("TOO MUCH PLAYERS ON CREATE GAME");
         }
         $game = new GameMYR();
+        $mainBoard = new MainBoardMYR();
+        $mainBoard->setYearNum(0);
+        $mainBoard->setGame($game);
+        $entityManager->persist($mainBoard);
+        $season = new SeasonMYR();
+        $season->setName(MyrmesParameters::SPRING_SEASON_NAME);
+        $season->setDiceResult(1);
+        $season->setActualSeason(true);
+        $season->setMainBoard($mainBoard);
+        $mainBoard->addSeason($season);
+        $entityManager->persist($season);
+        $game->setMainBoardMYR($mainBoard);
+        $game->setGameName("test");
+        $game->setLaunched(true);
+        $game->setGamePhase(MyrmesParameters::PHASE_INVALID);
+        $entityManager->persist($mainBoard);
+        $entityManager->persist($game);
         for ($i = 0; $i < $numberOfPlayers; $i += 1) {
-            $player = new PlayerMYR('test', $game);
+            $player = new PlayerMYR('test' . $i, $game);
             $game->addPlayer($player);
             $player->setGameMyr($game);
             $player->setColor("");
@@ -218,28 +336,13 @@ class MYRServiceTest extends KernelTestCase
                 $nurse = new NurseMYR();
                 $nurse->setArea(MyrmesParameters::LARVAE_AREA);
                 $nurse->setAvailable(true);
-                $nurse->setPlayer($player);
                 $personalBoard->addNurse($nurse);
                 $entityManager->persist($nurse);
             }
             $entityManager->persist($player);
             $entityManager->persist($personalBoard);
+            $entityManager->flush();
         }
-        $mainBoard = new MainBoardMYR();
-        $mainBoard->setYearNum(0);
-        $mainBoard->setGame($game);
-        $entityManager->persist($mainBoard);
-        $season = new SeasonMYR();
-        $season->setName("Spring");
-        $season->setDiceResult(1);
-        $season->setActualSeason(true);
-        $season->setMainBoard($mainBoard);
-        $entityManager->persist($season);
-        $game->setMainBoardMYR($mainBoard);
-        $game->setGameName("test");
-        $game->setLaunched(true);
-        $game->setGamePhase(MyrmesParameters::PHASE_INVALID);
-        $entityManager->persist($game);
         $entityManager->flush();
         return $game;
     }

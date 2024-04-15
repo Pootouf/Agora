@@ -130,7 +130,7 @@ class SixQPGameManagerServiceIntegrationTest extends KernelTestCase
         $gameService = static::getContainer()->get(GameManagerService::class);
         $game = $this->createSixQPGame(3, 4);
         $gameId = $game->getId();
-        $userName = $game->getPlayerSixQPs()[0]->getUsername();
+        $userName = $game->getPlayers()[0]->getUsername();
         $user = new GameUser();
         $user->setUsername($userName);
         // WHEN
@@ -215,11 +215,6 @@ class SixQPGameManagerServiceIntegrationTest extends KernelTestCase
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);
         $game = new GameSixQP();
         $game->setGameName(AbstractGameManagerService::$SIXQP_LABEL);
-        for ($i = 0; $i < $numberOfPlayer; $i++) {
-            $player = new PlayerSixQP('test', $game);
-            $game->addPlayerSixQP($player);
-            $entityManager->persist($player);
-        }
         for ($i = 0; $i < $numberOfRow; $i++) {
             $row = new RowSixQP();
             $row->setPosition($i);
@@ -227,6 +222,12 @@ class SixQPGameManagerServiceIntegrationTest extends KernelTestCase
             $entityManager->persist($row);
         }
         $entityManager->persist($game);
+        for ($i = 0; $i < $numberOfPlayer; $i++) {
+            $player = new PlayerSixQP('test', $game);
+            $game->addPlayer($player);
+            $entityManager->persist($player);
+            $entityManager->flush();
+        }
         $entityManager->flush();
         return $game;
     }

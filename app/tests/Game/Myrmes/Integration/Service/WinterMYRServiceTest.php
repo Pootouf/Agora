@@ -149,6 +149,23 @@ class WinterMYRServiceTest extends KernelTestCase
             throw new \Exception("TOO MUCH PLAYERS ON CREATE GAME");
         }
         $game = new GameMYR();
+        $mainBoard = new MainBoardMYR();
+        $mainBoard->setYearNum(1);
+        $mainBoard->setGame($game);
+        $season = new SeasonMYR();
+        $season->setName("Spring");
+        $season->setDiceResult(1);
+        $season->setMainBoard($mainBoard);
+        $season->setActualSeason(true);
+        $mainBoard->addSeason($season);
+        $entityManager->persist($season);
+        $entityManager->persist($season);
+        $game->setMainBoardMYR($mainBoard);
+        $game->setGameName("test");
+        $game->setLaunched(true);
+        $game->setGamePhase(MyrmesParameters::PHASE_INVALID);
+        $entityManager->persist($mainBoard);
+        $entityManager->persist($game);
         for ($i = 0; $i < $numberOfPlayers; $i += 1) {
             $player = new PlayerMYR('test', $game);
             $game->addPlayer($player);
@@ -169,30 +186,13 @@ class WinterMYRServiceTest extends KernelTestCase
                 $nurse = new NurseMYR();
                 $nurse->setArea(MyrmesParameters::LARVAE_AREA);
                 $nurse->setAvailable(true);
-                $nurse->setPlayer($player);
                 $personalBoard->addNurse($nurse);
                 $entityManager->persist($nurse);
             }
             $entityManager->persist($player);
             $entityManager->persist($personalBoard);
+            $entityManager->flush();
         }
-        $mainBoard = new MainBoardMYR();
-        $mainBoard->setYearNum(1);
-        $mainBoard->setGame($game);
-        $season = new SeasonMYR();
-        $season->setName("Spring");
-        $season->setDiceResult(1);
-        $season->setMainBoard($mainBoard);
-        $season->setActualSeason(true);
-        $mainBoard->addSeason($season);
-        $entityManager->persist($season);
-        $entityManager->persist($season);
-        $game->setMainBoardMYR($mainBoard);
-        $game->setGameName("test");
-        $game->setLaunched(true);
-        $game->setGamePhase(MyrmesParameters::PHASE_INVALID);
-        $entityManager->persist($mainBoard);
-        $entityManager->persist($game);
         $entityManager->flush();
         return $game;
     }

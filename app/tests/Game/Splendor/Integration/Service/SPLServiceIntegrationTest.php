@@ -635,6 +635,7 @@ class SPLServiceIntegrationTest extends KernelTestCase
 
         }
         $entityManager->persist($mainBoard);
+        $entityManager->persist($game);
         for ($i = 0; $i < $numberOfPlayer; $i++) {
             $player = new PlayerSPL('test', $game);
             $game->addPlayer($player);
@@ -643,8 +644,8 @@ class SPLServiceIntegrationTest extends KernelTestCase
             $personalBoard->setPlayerSPL($player);
             $entityManager->persist($personalBoard);
             $entityManager->persist($player);
+            $entityManager->flush();
         }
-        $entityManager->persist($game);
         $entityManager->flush();
         return $game;
     }

@@ -9,7 +9,7 @@
         <div>
             <h2>Partie {{ game.id }}</h2>
             <div>
-                {% for player in game.playerSixQPs %}
+                {% for player in game.players %}
                     <p>{{ player.username }}</p>
                 {% endfor %}
             </div>

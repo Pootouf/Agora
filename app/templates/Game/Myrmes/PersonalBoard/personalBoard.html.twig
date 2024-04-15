@@ -50,6 +50,20 @@ This section displays the personal board of a player
         {# loading tailwind data#}
         {{ include('Game/Myrmes/PersonalBoard/loadingPersonalBoardData.html.twig') }}
         <div class="inlineFlexCol {% if isPreview %}gap-[0.3vw]{% else %}gap-[1vw]{% endif %} w-[45%]" id="left-column">
+            {#send worker on garden#}
+            {% if not isPreview and playerPhase == PHASE_WORKER and player.personalBoardMYR.anthillWorkers|length > 0 %}
+                <div class="w-full inlineFlex">
+                    <button type="button" class="h-[4vw]"
+                            {{ stimulus_action('myrmes','selectAntHillHoleToSendWorker','click',
+                                {url: path('app_game_myrmes_select_anthillhole',
+                                    {gameId: game.id})
+                                })
+                            }}>
+                        <img class="h-full" src="{{ asset('resourcesGames/Myrmes/personalBoard/sendWorkerToGardenButton.svg') }}"
+                             alt="send a worker to garden">
+                    </button>
+                </div>
+            {% endif %}
             {#birth tracks#}
             {{ include('Game/Myrmes/PersonalBoard/displayBirthTrack.html.twig') }}
             {#nurse counter#}

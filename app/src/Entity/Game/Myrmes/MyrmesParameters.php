@@ -31,7 +31,10 @@ interface MyrmesParameters
     const string PLAYER_COLOR_GRAY = 'gray';
 
     const array PLAYERS_COLORS = [
-        self::PLAYER_COLOR_BLUE, self::PLAYER_COLOR_YELLOW, self::PLAYER_COLOR_RED, self::PLAYER_COLOR_GRAY
+        self::PLAYER_COLOR_BLUE,
+        self::PLAYER_COLOR_YELLOW,
+        self::PLAYER_COLOR_RED,
+        self::PLAYER_COLOR_GRAY
     ];
 
 
@@ -42,6 +45,8 @@ interface MyrmesParameters
     const int SOLDIERS_AREA = 2;
     const int WORKER_AREA = 3;
     const int WORKSHOP_AREA = 4;
+    const int GOAL_AREA = 5;
+    const int AREA_COUNT = 6;
 
     // Workshop areas
 
@@ -75,6 +80,12 @@ interface MyrmesParameters
         4 => 2
     );
 
+    // Number of nurses by area
+
+    const array NUMBER_NURSE_IN_LARVAE_AREA = array(1, 1, 1);
+    const array NUMBER_NURSE_IN_WORKSHOP_AREA = array(1, 1, 1, 1);
+    const array NUMBER_NURSE_IN_SOLDIERS_AREA = array(2, 1);
+    const array NUMBER_NURSE_IN_WORKER_AREA = array(2, 2);
 
     // Events bonus
 
@@ -161,7 +172,7 @@ interface MyrmesParameters
 
     // Pheromone Amount
 
-    const array PHEROMONE_TYPE_AMOUNT = [6, 2, 2, 2, 2, 2, 1, 8, 8, 8];
+    const array PHEROMONE_TYPE_AMOUNT = [6, 2, 2, 2, 2, 2, 1];
 
 
     // Pheromone Type Level
@@ -180,6 +191,10 @@ interface MyrmesParameters
     // Special tiles
 
     // Special tiles Type
+
+    const array SPECIAL_TILE_TYPES = [MyrmesParameters::SPECIAL_TILE_TYPE_FARM,
+        MyrmesParameters::SPECIAL_TILE_TYPE_QUARRY,
+        MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL];
 
     const int SPECIAL_TILE_TYPE_FARM = 7;
     const int SPECIAL_TILE_TYPE_QUARRY = 8;
@@ -315,10 +330,69 @@ interface MyrmesParameters
     const string GOAL_PHEROMONE_NAME = "pheromone";
 
 
+    // Goal needed resources
+    // Goal Food
+    const int GOAL_NEEDED_RESOURCES_FOOD_LEVEL_ONE = 3;
+    const int GOAL_NEEDED_RESOURCES_FOOD_LEVEL_TWO = 5;
+
+    // Goal Stone
+    const int GOAL_NEEDED_RESOURCES_STONE_LEVEL_TWO = 3;
+    const int GOAL_NEEDED_RESOURCES_STONE_LEVEL_THREE = 5;
+
+    // Goal Stone or dirt
+    const int GOAL_NEEDED_RESOURCES_STONE_OR_DIRT_LEVEL_ONE = 2;
+    const int GOAL_NEEDED_RESOURCES_STONE_OR_DIRT_LEVEL_THREE = 6;
+
+    // Goal Soldier
+    const int GOAL_NEEDED_RESOURCES_SOLDIER_LEVEL_ONE = 2;
+
+    // Goal Nurse
+    const int GOAL_NEEDED_RESOURCES_NEEDED_NURSE_LEVEL_TWO = 6;
+    const int GOAL_NEEDED_RESOURCES_REMOVED_NURSE_LEVEL_TWO = 1;
+    const int GOAL_NEEDED_RESOURCES_NEEDED_NURSE_LEVEL_THREE = 8;
+    const int GOAL_NEEDED_RESOURCES_REMOVED_NURSE_LEVEL_THREE = 2;
+
+    // Goal Larvae
+    const int GOAL_NEEDED_RESOURCES_LARVAE_LEVEL_ONE = 5;
+    const int GOAL_NEEDED_RESOURCES_LARVAE_LEVEL_TWO = 9;
+
+    // Goal Prey
+    const int GOAL_NEEDED_RESOURCES_PREY_LEVEL_ONE = 2;
+    const int GOAL_NEEDED_RESOURCES_PREY_LEVEL_TWO = 3;
+    const int GOAL_NEEDED_RESOURCES_PREY_LEVEL_THREE = 4;
+
+    // Goal Anthill Level
+    const int GOAL_NEEDED_RESOURCES_NEEDED_ANTHILL_LEVEL_LEVEL_TWO = 2;
+    const int GOAL_NEEDED_RESOURCES_REMOVED_ANTHILL_LEVEL_LEVEL_TWO = 1;
+    const int GOAL_NEEDED_RESOURCES_NEEDED_ANTHILL_LEVEL_LEVEL_THREE = 3;
+    const int GOAL_NEEDED_RESOURCES_REMOVED_ANTHILL_LEVEL_LEVEL_THREE = 2;
+
+    // Goal Special Tile
+    const int GOAL_NEEDED_RESOURCES_NEEDED_SPECIAL_TILE_LEVEL_ONE = 3;
+    const int GOAL_NEEDED_RESOURCES_REMOVED_SPECIAL_TILE_LEVEL_ONE = 1;
+    const int GOAL_NEEDED_RESOURCES_NEEDED_SPECIAL_TILE_LEVEL_TWO = 3;
+    const int GOAL_NEEDED_RESOURCES_REMOVED_SPECIAL_TILE_LEVEL_TWO = 2;
+
+    // Goal Pheromone
+    const int GOAL_NEEDED_RESOURCES_NEEDED_PHEROMONE_LEVEL_ONE = 4;
+    const int GOAL_NEEDED_RESOURCES_NEEDED_PHEROMONE_LEVEL_THREE = 7;
+
+
     // Garden worker parameters
     const int DEFAULT_MOVEMENT_NUMBER = 3;
 
 
     // Anthill worker parameters
     const int NO_WORKFLOOR = -1;
+
+
+    // Score parameters
+    const array SCORE_INCREASE_GOAL_ALREADY_DONE = [
+        2 => 5,
+        3 => 4,
+        4 => 3,
+    ];
+    const int SCORE_INCREASE_GOAL_DIFFICULTY_ONE = 6;
+    const int SCORE_INCREASE_GOAL_DIFFICULTY_TWO = 9;
+    const int SCORE_INCREASE_GOAL_DIFFICULTY_THREE = 12;
 }

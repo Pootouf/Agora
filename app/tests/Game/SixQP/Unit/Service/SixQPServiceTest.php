@@ -46,7 +46,7 @@ class SixQPServiceTest extends TestCase
     {
         //GIVEN
         $game = $this->createGame(6, 4);
-        $players = $game->getPlayerSixQPs();
+        $players = $game->getPlayers();
         $rows = $game->getRowSixQPs();
         $expectedNumberOfCard = 1;
         //WHEN
@@ -146,7 +146,7 @@ class SixQPServiceTest extends TestCase
     {
         //GIVEN
         $game = $this->createGame(4, 4);
-        $player = $game->getPlayerSixQPs()->first();
+        $player = $game->getPlayers()->first();
         $card = new CardSixQP();
         $card->setValue(12);
         $chosenCard = new ChosenCardSixQP($player, $game, $card, true);
@@ -169,7 +169,7 @@ class SixQPServiceTest extends TestCase
     {
         //GIVEN
         $game = $this->createGame(4, 4);
-        $player = $game->getPlayerSixQPs()->first();
+        $player = $game->getPlayers()->first();
         $card = new CardSixQP();
         $card->setValue(12);
         $chosenCard = new ChosenCardSixQP($player, $game, $card);
@@ -203,7 +203,7 @@ class SixQPServiceTest extends TestCase
     {
         //GIVEN
         $game = $this->createGame(4, 4);
-        $players = $game->getPlayerSixQPs();
+        $players = $game->getPlayers();
         $player0 = $players->get(0);
         $player0->getDiscardSixQP()->addPoints(47);
         $player1 = $players->get(1);
@@ -226,7 +226,7 @@ class SixQPServiceTest extends TestCase
         //GIVEN
         $expectedPoint = 3;
         $game = $this->createGame(4, 4);
-        $player = $game->getPlayerSixQPs()->first();
+        $player = $game->getPlayers()->first();
         $card = new CardSixQP();
         $card->setPoints($expectedPoint);
         $player->getDiscardSixQP()->addCard($card);
@@ -240,7 +240,7 @@ class SixQPServiceTest extends TestCase
     public function testIsGameEndedWhenAPlayerStillHasACardShouldReturnFalse() : void {
         //GIVEN
         $game = $this->createGame(2, 4);
-        $player = $game->getPlayerSixQPs()->first();
+        $player = $game->getPlayers()->first();
         $card = new CardSixQP();
         $card -> setValue(1);
         $card -> setPoints(1);
@@ -254,7 +254,7 @@ class SixQPServiceTest extends TestCase
     public function testIsGameEndedWhenNoPlayerReachedLimitShouldReturnFalse() : void {
         //GIVEN
         $game = $this->createGame(2, 4);
-        $player = $game->getPlayerSixQPs()->first();
+        $player = $game->getPlayers()->first();
         $player->getDiscardSixQP()->addPoints(SixQPParameters::$MAX_POINTS - 1);
         //WHEN
         $result = $this->sixQPService->isGameEnded($game);
@@ -265,7 +265,7 @@ class SixQPServiceTest extends TestCase
     public function testIsGameEndedWhenPlayerReachedLimitShouldReturnTrue() : void {
         //GIVEN
         $game = $this->createGame(2, 4);
-        $player = $game->getPlayerSixQPs()->first();
+        $player = $game->getPlayers()->first();
         $player->getDiscardSixQP()->addPoints(SixQPParameters::$MAX_POINTS);
         //WHEN
         $result = $this->sixQPService->isGameEnded($game);
@@ -277,7 +277,7 @@ class SixQPServiceTest extends TestCase
     {
         //GIVEN
         $game = $this->createGame(2, 4);
-        $players = $game->getPlayerSixQPs();
+        $players = $game->getPlayers();
         //WHEN
         $result = $this->sixQPService->hasCardLeft($players);
         //THEN
@@ -288,8 +288,8 @@ class SixQPServiceTest extends TestCase
     {
         //GIVEN
         $game = $this->createGame(2, 4);
-        $players = $game->getPlayerSixQPs();
-        $player2 = $game->getPlayerSixQPs()->last();
+        $players = $game->getPlayers();
+        $player2 = $game->getPlayers()->last();
         $player2->addCard(new CardSixQP());
         //WHEN
         $result = $this->sixQPService->hasCardLeft($players);
@@ -301,7 +301,7 @@ class SixQPServiceTest extends TestCase
     {
         //GIVEN
         $game = $this->createGame(3, 4);
-        $players = $game->getPlayerSixQPs();
+        $players = $game->getPlayers();
         $player1 = $players->first();
         $player2 = $players[1];
         $player3 = $players->last();
@@ -324,7 +324,7 @@ class SixQPServiceTest extends TestCase
     {
         //GIVEN
         $game = $this->createGame(3, 4);
-        $players = $game->getPlayerSixQPs();
+        $players = $game->getPlayers();
         $player1 = $players->first();
         $player2 = $players[1];
         $player3 = $players->last();
@@ -347,13 +347,13 @@ class SixQPServiceTest extends TestCase
     {
         //GIVEN
         $game = $this->createGame(2, 4);
-        $player = $game->getPlayerSixQPs()->first();
+        $player = $game->getPlayers()->first();
         $discard = new DiscardSixQP($player, $game);
         $player->setDiscardSixQP($discard);
         $card = new CardSixQP();
         $player->addCard($card);
         $this->sixQPService->chooseCard($player, $card);
-        $player2 = $game->getPlayerSixQPs()->last();
+        $player2 = $game->getPlayers()->last();
         $discard2 = new DiscardSixQP($player2, $game);
         $player2->setDiscardSixQP($discard2);
         $card2 = new CardSixQP();
@@ -374,7 +374,7 @@ class SixQPServiceTest extends TestCase
         for ($i = 0; $i < $numberOfPlayer; $i++) {
             $player = new PlayerSixQP('test'.$i, $game);
             $player->setDiscardSixQP(new DiscardSixQP($player, $game));
-            $game->addPlayerSixQP($player);
+            $game->addPlayer($player);
         }
         for ($i = 0; $i < $numberOfRow; $i++) {
             $row = new RowSixQP();
