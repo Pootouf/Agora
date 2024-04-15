@@ -747,4 +747,35 @@ class MyrmesController extends AbstractController
 
         return new Response($answer);
     }
+
+    #[Route('/game/myrmes/{idGame}/placePheromone/{tileId}/{tileType}/{orientation}',
+        name: 'app_game_myrmes_place_pheromone')]
+    public function placePheromone(
+        #[MapEntity(id: 'idGame')] GameMYR $gameMYR,
+        #[MapEntity(id: 'tileId')] TileMYR $tileMYR,
+        #[MapEntity(id: 'tileType')] int $tileType,
+        #[MapEntity(id: 'orientation')] int $orientation,
+    ) : Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+        }
+        $tileTypeMYR = $this->service->getTileTypeFromTypeAndOrientation($tileType, $orientation);
+        if ($tileTypeMYR == null) {
+            return new Response('Invalid tile type', Response::HTTP_FORBIDDEN);
+        }
+
+        try {
+            $this->workerMYRService->placePheromone($player, $tileMYR, $tileTypeMYR);
+        }catch (Exception $e) {
+            $this->logService->sendPlayerLog($gameMYR, $player,
+                $player->getUsername() . " a essayé de placer la phéromone de type " . $tileTypeMYR->getType()
+                . " sur la tuile " . $tileMYR->getId() . "alors qu'il ne peut pas");
+            return new Response("Can't place the pheromone : " . $e->getMessage(),
+                Response::HTTP_FORBIDDEN);
+        }
+
+        return new Response('Pheromone positioned', Response::HTTP_OK);
+    }
 }
