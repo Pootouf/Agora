@@ -2633,19 +2633,60 @@ class WorkerMYRServiceTest extends TestCase
         $originPheromoneTile = new PheromonTileMYR();
         $destinationPheromoneTile = new PheromonTileMYR();
         $originPheromoneTile->setTile($originTile);
+        $originPheromoneTile->setMainBoard($game->getMainBoardMYR());
         $pheromone = new PheromonMYR();
         $pheromone->addPheromonTile($originPheromoneTile);
         $pheromone->addPheromonTile($destinationPheromoneTile);
         $originPheromoneTile->setPheromonMYR($pheromone);
         $destinationPheromoneTile->setTile($destinationTile);
         $destinationPheromoneTile->setPheromonMYR($pheromone);
+        $destinationPheromoneTile->setMainBoard($game->getMainBoardMYR());
         $destinationTile->setType(MyrmesParameters::DIRT_TILE_TYPE);
-        $player->getPersonalBoardMYR()->setWarriorsCount(1);
         $this->tileMYRRepository->method("findOneBy")->with(["coord_X" => 0, "coord_Y" => 2])->willReturn($destinationTile);
         $this->pheromonTileMYRRepository->method("findOneBy")
             ->willReturnMap([
-                [["tile" => $originTile, "mainBoard" => $game->getMainBoardMYR()], $destinationPheromoneTile],
-                [["tile" => $destinationTile, "mainBoard" => $game->getMainBoardMYR()], $originPheromoneTile],
+                [["tile" => $originTile, "mainBoard" => $game->getMainBoardMYR()], $originPheromoneTile],
+                [["tile" => $destinationTile, "mainBoard" => $game->getMainBoardMYR()], $destinationPheromoneTile],
+            ]);
+        //WHEN
+        $result = $this->workerMYRService->canWorkerMove($player, $gardenWorker, MyrmesParameters::DIRECTION_EAST);
+        //THEN
+        $this->assertTrue($result);
+    }
+
+    public function testCanWorkerMoveReturnTrueIfFuturePositionIsValidAndThereIsDifferentPheromoneFromThePlayerAndEnoughShiftCount() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $gardenWorker = new GardenWorkerMYR();
+        $originTile = new TileMYR();
+        $originTile->setCoordX(0);
+        $originTile->setCoordY(0);
+        $originTile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $gardenWorker->setTile($originTile);
+        $gardenWorker->setPlayer($player);
+        $gardenWorker->setShiftsCount(1);
+        $gardenWorker->setMainBoardMYR($game->getMainBoardMYR());
+        $destinationTile = new TileMYR();
+        $destinationTile->setCoordY(2);
+        $destinationTile->setCoordX(0);
+        $originPheromoneTile = new PheromonTileMYR();
+        $destinationPheromoneTile = new PheromonTileMYR();
+        $originPheromoneTile->setTile($originTile);
+        $originPheromone = new PheromonMYR();
+        $originPheromone->addPheromonTile($originPheromoneTile);
+        $destinationPheromone = new PheromonMYR();
+        $destinationPheromone->addPheromonTile($destinationPheromoneTile);
+        $originPheromoneTile->setPheromonMYR($originPheromone);
+        $destinationPheromoneTile->setTile($destinationTile);
+        $destinationPheromoneTile->setPheromonMYR($destinationPheromone);
+        $destinationTile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $this->tileMYRRepository->method("findOneBy")->with(["coord_X" => 0, "coord_Y" => 2])->willReturn($destinationTile);
+        $this->pheromonTileMYRRepository->method("findOneBy")
+            ->willReturnMap([
+                [["tile" => $originTile, "mainBoard" => $game->getMainBoardMYR()], $originPheromoneTile],
+                [["tile" => $destinationTile, "mainBoard" => $game->getMainBoardMYR()], $destinationPheromoneTile],
             ]);
         //WHEN
         $result = $this->workerMYRService->canWorkerMove($player, $gardenWorker, MyrmesParameters::DIRECTION_EAST);
