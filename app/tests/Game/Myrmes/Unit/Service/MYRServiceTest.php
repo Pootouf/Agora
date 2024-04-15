@@ -449,6 +449,22 @@ class MYRServiceTest extends TestCase
 
     }
 
+    public function testGetPlayerResourceOfTypeWhenIsUnknow() : void
+    {
+        // GIVEN
+
+        $game = $this->createGame(3);
+        $player = $game->getPlayers()->first();
+
+        // WHEN
+
+        $result = $this->MYRService->getPlayerResourceOfType($player, "Unknow");
+
+        // THEN
+
+        $this->assertNull($result);
+    }
+
     private function createGame(int $numberOfPlayers) : GameMYR
     {
         if ($numberOfPlayers < MyrmesParameters::MIN_NUMBER_OF_PLAYER ||
