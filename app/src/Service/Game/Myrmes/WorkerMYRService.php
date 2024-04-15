@@ -12,6 +12,7 @@ use App\Entity\Game\Myrmes\PersonalBoardMYR;
 use App\Entity\Game\Myrmes\PheromonMYR;
 use App\Entity\Game\Myrmes\PheromonTileMYR;
 use App\Entity\Game\Myrmes\PlayerMYR;
+use App\Entity\Game\Myrmes\PlayerResourceMYR;
 use App\Entity\Game\Myrmes\PreyMYR;
 use App\Entity\Game\Myrmes\TileMYR;
 use App\Entity\Game\Myrmes\TileTypeMYR;
@@ -510,15 +511,15 @@ class WorkerMYRService
             $this->getTileAtDirection($gardenWorker->getTile(), $direction);
         $gardenWorker->setTile($tile);
 
-        $prey = $this->getPreyOnTile($tile);
-        $pheromone = $this->getPheromoneOnTile($player->getGameMyr(), $tile);
-        $startPheromone = $this->getPheromoneOnTile($player->getGameMyr() ,$gardenWorker->getTile());
+        $prey = $this->getPreyOnTile($tile, $player->getGameMyr());
+        $destinationPheromone = $this->getPheromoneTileOnTile($tile, $player->getGameMyr());
+        $startPheromone = $this->getPheromoneTileOnTile($gardenWorker->getTile(), $player->getGameMyr());
 
         if ($prey != null)
         {
             $this->attackPrey($player, $prey);
-        } else if ($pheromone != null
-            && $pheromone->getPheromonMYR()->getPlayer() !== $player)
+        } else if ($destinationPheromone != null
+            && $destinationPheromone->getPheromonMYR()->getPlayer() !== $player)
         {
             $personalBoard = $player->getPersonalBoardMYR();
 
@@ -530,9 +531,9 @@ class WorkerMYRService
         $this->entityManager->persist($gardenWorker);
 
         if (!($startPheromone != null
-            && $pheromone != null
+            && $destinationPheromone != null
             && $startPheromone->getPheromonMYR()->getPlayer() === $player
-            && $pheromone === $startPheromone))
+            && $destinationPheromone === $startPheromone))
         {
             $gardenWorker->setShiftsCount(
                 $gardenWorker->getShiftsCount() - 1
@@ -555,35 +556,6 @@ class WorkerMYRService
             "coord_Y" => $coordY
         ]);
     }
-
-    /**
-     * canWorkerMove : check if worker can move depend on new tile.
-     * @param PlayerMYR $player
-     * @param GardenWorkerMYR $gardenWorker
-     * @param int $direction
-     * @return bool
-     */
-    public function canWorkerMove(PlayerMYR $player,
-                                  GardenWorkerMYR $gardenWorker, int $direction) : bool
-    {
-        $tile =
-            $this->getTileAtDirection($gardenWorker->getTile(), $direction);
-
-        if(!$this->isValidPositionForAnt($tile)) {
-            return false;
-        }
-
-        $prey = $this->getPreyOnTile($tile, $player->getGameMyr());
-        $destinationPheromoneTile = $this->getPheromoneTileOnTile($tile, $player->getGameMyr());
-        $originPheromoneTile = $this->getPheromoneTileOnTile($gardenWorker->getTile(), $player->getGameMyr());
-        $hasEnoughShiftsCount = $gardenWorker->getShiftsCount() > 0;
-
-        return ($prey == null && $originPheromoneTile == null && $destinationPheromoneTile == null && $hasEnoughShiftsCount)
-            || ($prey != null && $this->canWorkerAttackPrey($player, $prey) && $hasEnoughShiftsCount)
-            || (($originPheromoneTile != null || $destinationPheromoneTile != null)
-                && $this->canWorkerWalkAroundPheromone($player, $originPheromoneTile, $destinationPheromoneTile, $gardenWorker));
-    }
-
 
     /**
      * getAllAvailablePositionsFromTypeZero : returns all available positions for a pheromone of type Zero

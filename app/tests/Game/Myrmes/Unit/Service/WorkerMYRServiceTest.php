@@ -2613,6 +2613,47 @@ class WorkerMYRServiceTest extends TestCase
         $this->assertTrue($result);
     }
 
+    public function testCanWorkerMoveReturnTrueIfFuturePositionIsValidAndThereIsAPheromoneAndEnoughShiftCount() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $gardenWorker = new GardenWorkerMYR();
+        $originTile = new TileMYR();
+        $originTile->setCoordX(0);
+        $originTile->setCoordY(0);
+        $originTile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $gardenWorker->setTile($originTile);
+        $gardenWorker->setPlayer($player);
+        $gardenWorker->setShiftsCount(1);
+        $gardenWorker->setMainBoardMYR($game->getMainBoardMYR());
+        $destinationTile = new TileMYR();
+        $destinationTile->setCoordY(2);
+        $destinationTile->setCoordX(0);
+        $originPheromoneTile = new PheromonTileMYR();
+        $destinationPheromoneTile = new PheromonTileMYR();
+        $originPheromoneTile->setTile($originTile);
+        $pheromone = new PheromonMYR();
+        $pheromone->addPheromonTile($originPheromoneTile);
+        $pheromone->addPheromonTile($destinationPheromoneTile);
+        $originPheromoneTile->setPheromonMYR($pheromone);
+        $destinationPheromoneTile->setTile($destinationTile);
+        $destinationPheromoneTile->setPheromonMYR($pheromone);
+        $destinationTile->setType(MyrmesParameters::DIRT_TILE_TYPE);
+        $player->getPersonalBoardMYR()->setWarriorsCount(1);
+        $this->tileMYRRepository->method("findOneBy")->with(["coord_X" => 0, "coord_Y" => 2])->willReturn($destinationTile);
+        $this->pheromonTileMYRRepository->method("findOneBy")->with([
+            "tile" => $destinationTile, "mainBoard" => $game->getMainBoardMYR()
+        ])->willReturn($destinationPheromoneTile);
+        $this->pheromonTileMYRRepository->method("findOneBy")->with([
+            "tile" => $originTile, "mainBoard" => $game->getMainBoardMYR()
+        ])->willReturn($originPheromoneTile);
+        //WHEN
+        $result = $this->workerMYRService->canWorkerMove($player, $gardenWorker, MyrmesParameters::DIRECTION_EAST);
+        //THEN
+        $this->assertTrue($result);
+    }
+
     private function createGame(int $numberOfPlayers) : GameMYR
     {
         if($numberOfPlayers < MyrmesParameters::MIN_NUMBER_OF_PLAYER ||
