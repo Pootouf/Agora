@@ -205,6 +205,7 @@ class MyrmesController extends AbstractController
             'playerPhase' => $player->getPhase(),
             'hasFinishedObligatoryHarvesting' => $this->harvestMYRService->areAllPheromonesHarvested($player),
             'canStillHarvest' => $this->harvestMYRService->canStillHarvest($player),
+            'tile' => $tile,
         ]);
 
     }
@@ -678,14 +679,22 @@ class MyrmesController extends AbstractController
         );
     }
 
-    #[Route('/game/myrmes/{gameId}/displayPersonalObjectToPlace/{idPlayer}', name: 'app_game_display_personal_object_to_place')]
+    #[Route('/game/myrmes/{idGame}/displayPersonalObjectToPlace/{tileId}', name: 'app_game_myrmes_display_personal_object_to_place')]
     public function displayPersonalObjectToPlace(
         #[MapEntity(id: 'idGame')] GameMYR $gameMYR,
-        #[MapEntity(id: 'idPlayer')] PlayerMYR $playerMYR
+        #[MapEntity(id: 'tileId')] TileMYR $tileMYR
     ) : Response
     {
+        $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+        }
+
         return $this->render('Game/Myrmes/MainBoard/displayObjectPlacement.html.twig', [
-            'objects' => $playerMYR->getPheromonMYRs(),
+            'game' => $gameMYR,
+            'player' => $player,
+            'tile' => $tileMYR,
+            'tiles' => $this->workerMYRService->getAvailablePheromones($player)
         ]);
     }
 }
