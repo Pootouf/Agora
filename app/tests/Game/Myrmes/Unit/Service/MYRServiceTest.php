@@ -22,6 +22,7 @@ use App\Repository\Game\Myrmes\SeasonMYRRepository;
 use App\Repository\Game\Myrmes\TileMYRRepository;
 use App\Repository\Game\Myrmes\TileTypeMYRRepository;
 use App\Service\Game\Myrmes\MYRService;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 
@@ -30,6 +31,7 @@ class MYRServiceTest extends TestCase
     private MYRService $MYRService;
     private PlayerResourceMYRRepository $playerResourceMYRRepository;
     private ResourceMYRRepository $resourceMYRRepository;
+    private SeasonMYRRepository $seasonMYRRepository;
 
     protected function setUp() : void
     {
@@ -43,7 +45,7 @@ class MYRServiceTest extends TestCase
             TileMYRRepository::class);
         $tileTypeMYRRepository = $this->createMock(
             TileTypeMYRRepository::class);
-        $seasonMYRRepository = $this->createMock(
+        $this->seasonMYRRepository = $this->createMock(
             SeasonMYRRepository::class);
         $this->resourceMYRRepository = $this->createMock(
             ResourceMYRRepository::class);
@@ -57,7 +59,7 @@ class MYRServiceTest extends TestCase
             $nurseMYRRepository,
             $tileMYRRepository,
             $tileTypeMYRRepository,
-            $seasonMYRRepository,
+            $this->seasonMYRRepository,
             $goalMYRRepository,
             $this->resourceMYRRepository,
             $this->playerResourceMYRRepository
@@ -341,9 +343,132 @@ class MYRServiceTest extends TestCase
         $this->assertNull($value);
     }
 
+    public function testCanManageEndOfPhaseWhenReturnTrue() : void
+    {
+        // GIVEN
+
+        $game = $this->createGame(2);
+        $phase = MyrmesParameters::PHASE_EVENT;
+
+        foreach ($game->getPlayers() as $player)
+        {
+            $player->setPhase($phase + 1);
+        }
+
+        // WHEN
+
+        $result = $this->MYRService->canManageEndOfPhase($game, $phase);
+
+        // THEN
+
+        $this->assertTrue($result);
+    }
+
+    public function testCanManageEndOfPhaseWhenReturnFalse() : void
+    {
+        // GIVEN
+
+        $game = $this->createGame(2);
+        $phase = MyrmesParameters::PHASE_EVENT;
+
+        foreach ($game->getPlayers() as $player)
+        {
+            $player->setPhase($phase + 1);
+        }
+
+        $game->getPlayers()->first()->setPhase($phase);
+
+        // WHEN
+
+        $result = $this->MYRService->canManageEndOfPhase($game, $phase);
+
+        // THEN
+
+        $this->assertFalse($result);
+    }
+
+    public function testInitializeNewGame() : void
+    {
+        // GIVEN
+
+        $game = $this->createGame(2);
+        $mainBoard = $game->getMainBoardMYR();
+
+        foreach ($game->getPlayers() as $player)
+        {
+            $player->getPersonalBoardMYR()->getNurses()->clear();
+        }
+
+        $dirt = new ResourceMYR();
+        $dirt->setDescription(MyrmesParameters::RESOURCE_TYPE_DIRT);
+
+        $this->resourceMYRRepository
+            ->method("findAll")->willReturn(array($dirt));
+
+        // WHEN
+
+        $this->MYRService->initializeNewGame($game);
+
+        // THEN
+
+        $this->assertSame(1, $mainBoard->getYearNum());
+
+        // TODO check preys
+
+        foreach ($game->getPlayers() as $player)
+        {
+            $this->assertSame(
+                $this->MYRService->getActualSeason($game)->getDiceResult(),
+                $player->getPersonalBoardMYR()->getBonus()
+            );
+
+            $this->assertSame(MyrmesParameters::START_NURSES_COUNT_PER_PLAYER,
+                $player->getPersonalBoardMYR()->getNurses()->count());
+
+            $this->assertSame(MyrmesParameters::NUMBER_OF_WORKER_AT_START,
+                $player->getPersonalBoardMYR()->getAnthillWorkers()->count());
+
+            $this->assertSame(MyrmesParameters::NUMBER_OF_LARVAE_AT_START,
+                $player->getPersonalBoardMYR()->getLarvaCount());
+
+            $this->assertSame(MyrmesParameters::ANTHILL_START_LEVEL,
+                $player->getPersonalBoardMYR()->getAnthillLevel());
+
+            $this->assertSame(0, $player->getRemainingHarvestingBonus());
+
+            $this->assertSame($dirt, $player->getPersonalBoardMYR()
+                ->getPlayerResourceMYRs()->last()->getResource());
+
+            $this->assertSame(0, $player->getPersonalBoardMYR()
+                ->getPlayerResourceMYRs()->last()->getQuantity());
+
+            // TODO check anthill hole
+
+            $this->assertSame(MyrmesParameters::PLAYER_START_SCORE,
+                $player->getScore());
+        }
+
+    }
+
+    public function testGetPlayerResourceOfTypeWhenIsUnknow() : void
+    {
+        // GIVEN
+
+        $game = $this->createGame(3);
+        $player = $game->getPlayers()->first();
+
+        // WHEN
+
+        $result = $this->MYRService->getPlayerResourceOfType($player, "Unknow");
+
+        // THEN
+
+        $this->assertNull($result);
+    }
+
     private function createGame(int $numberOfPlayers) : GameMYR
     {
-        if($numberOfPlayers < MyrmesParameters::MIN_NUMBER_OF_PLAYER ||
+        if ($numberOfPlayers < MyrmesParameters::MIN_NUMBER_OF_PLAYER ||
             $numberOfPlayers > MyrmesParameters::MAX_NUMBER_OF_PLAYER) {
             throw new \Exception("TOO MUCH PLAYERS ON CREATE GAME");
         }

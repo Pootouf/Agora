@@ -156,7 +156,7 @@ class MYRService
     /**
      * getDiceResults : get dice results for all season
      * @param GameMYR $game
-     * @return ArrayCollection<
+     * @return ArrayCollection<Int, Int>
      */
     public function getDiceResults(GameMYR $game) : ArrayCollection
     {
@@ -406,9 +406,11 @@ class MYRService
         foreach ($this->resourceMYRRepository->findAll() as $resource) {
             $playerResource = new PlayerResourceMYR();
             $playerResource->setResource($resource);
-            $playerResource->setPersonalBoard($player->getPersonalBoardMYR());
             $playerResource->setQuantity(0);
+            $player->getPersonalBoardMYR()
+                ->addPlayerResourceMYR($playerResource);
             $this->entityManager->persist($playerResource);
+            $this->entityManager->persist($player->getPersonalBoardMYR());
         }
     }
 
@@ -422,8 +424,9 @@ class MYRService
         $nurse = new NurseMYR();
         $nurse->setArea(MyrmesParameters::BASE_AREA);
         $nurse->setAvailable(true);
-        $nurse->setPersonalBoardMYR($player->getPersonalBoardMYR());
+        $player->getPersonalBoardMYR()->addNurse($nurse);
         $this->entityManager->persist($nurse);
+        $this->entityManager->persist($player->getPersonalBoardMYR());
     }
 
     /**
@@ -434,9 +437,10 @@ class MYRService
     private function initializeWorker(PlayerMYR $player) : void
     {
         $worker = new AnthillWorkerMYR();
-        $worker->setPersonalBoardMYR($player->getPersonalBoardMYR());
         $worker->setWorkFloor(MyrmesParameters::NO_WORKFLOOR);
+        $player->getPersonalBoardMYR()->addAnthillWorker($worker);
         $this->entityManager->persist($worker);
+        $this->entityManager->persist($player->getPersonalBoardMYR());
     }
 
     /**
@@ -751,12 +755,7 @@ class MYRService
         $this->initializeNewSeason($game, MyrmesParameters::SPRING_SEASON_NAME);
         $this->initializeNewSeason($game, MyrmesParameters::SUMMER_SEASON_NAME);
         $this->initializeNewSeason($game, MyrmesParameters::FALL_SEASON_NAME);
-        $spring = $this->seasonMYRRepository->findOneBy(
-            [
-                "mainBoard" => $game->getMainBoardMYR(),
-                "name" => MyrmesParameters::SPRING_SEASON_NAME
-            ]
-        );
+        $spring = $game->getMainBoardMYR()->getSeasons()->first();
         $spring->setActualSeason(true);
         $this->entityManager->persist($game->getMainBoardMYR());
         $this->entityManager->persist($spring);
