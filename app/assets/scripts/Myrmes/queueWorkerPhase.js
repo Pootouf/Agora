@@ -260,3 +260,28 @@ function directionByAction(action) {
             return null;
     }
 }
+
+async function rewindQueueWorkerPhase(queue) {
+    while (!queue.isEmpty()) {
+        const action = queue.shift();
+        let routeUrl = url;
+        switch (action) {
+            case action.startsWith('MOVE'):
+                const dir = directionByAction(action);
+                routeUrl += '/moveAnt/' + antId + '/direction/' + dir;
+                await fetch(routeUrl);
+                break
+            case actions.CLEAN_PHEROMONE:
+                const pheromoneCoord = cleanedTiles.shift();
+                routeUrl += '/moveAnt/clean/pheromone/' + pheromoneCoord.x + '/' + pheromoneCoord.y;
+                await fetch(routeUrl);
+                break
+            case actions.PLACE_ANT:
+                routeUrl += '/placeWorkerOnAntHillHole/' + action.split('_').pop();
+                await fetch(routeUrl);
+                break
+            default:
+                break
+        }
+    }
+}
