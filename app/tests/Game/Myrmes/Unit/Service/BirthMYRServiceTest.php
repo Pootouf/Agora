@@ -107,6 +107,22 @@ class BirthMYRServiceTest extends TestCase
         $this->birthMYRService->placeNurse($firstPlayer, $area);
     }
 
+    public function testPlaceNurseAtInvalidArea() : void
+    {
+        // GIVEN
+
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+
+        // THEN
+
+        $this->expectException(\Exception::class);
+
+        // WHEN
+
+        $this->birthMYRService->placeNurse($player,-1);
+    }
+
     public function testCancelPlacementNurses() : void
     {
         // GIVEN
