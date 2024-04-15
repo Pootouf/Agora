@@ -27,7 +27,7 @@ class MessageServiceIntegrationTest extends KernelTestCase
         $game = new GameSixQP();
         $game->setGameName(AbstractGameManagerService::$SIXQP_LABEL);
         $player = new PlayerSixQP('test', $game);
-        $game->addPlayerSixQP($player);
+        $game->addPlayer($player);
         $this->entityManager->persist($player);
         $player->setGame($game);
         $this->entityManager->persist($game);
@@ -47,7 +47,7 @@ class MessageServiceIntegrationTest extends KernelTestCase
         $expectedMessage = "Bonjour à tous";
         $game->setGameName(AbstractGameManagerService::$SIXQP_LABEL);
         $player = new PlayerSixQP('test', $game);
-        $game->addPlayerSixQP($player);
+        $game->addPlayer($player);
         $this->entityManager->persist($player);
         $player->setGame($game);
         $this->entityManager->persist($game);
@@ -65,7 +65,7 @@ class MessageServiceIntegrationTest extends KernelTestCase
         $game = new GameSixQP();
         $game->setGameName(AbstractGameManagerService::$SIXQP_LABEL);
         $player = new PlayerSixQP('test', $game);
-        $game->addPlayerSixQP($player);
+        $game->addPlayer($player);
         $this->entityManager->persist($player);
         $player->setGame($game);
         $this->entityManager->persist($game);

@@ -416,6 +416,22 @@ class WorkshopMYRServiceTest extends KernelTestCase
     private function createGame(int $numberOfPlayers) : GameMYR
     {
         $game = new GameMYR();
+        $mainBoard = new MainBoardMYR();
+        $mainBoard->setYearNum(0);
+        $mainBoard->setGame($game);
+        $season = new SeasonMYR();
+        $season->setName("Spring");
+        $season->setDiceResult(1);
+        $season->setActualSeason(true);
+        $season->setMainBoard($mainBoard);
+        $mainBoard->addSeason($season);
+        $this->entityManager->persist($season);
+        $game->setMainBoardMYR($mainBoard);
+        $game->setGameName("test");
+        $game->setLaunched(true);
+        $game->setGamePhase(MyrmesParameters::PHASE_INVALID);
+        $this->entityManager->persist($mainBoard);
+        $this->entityManager->persist($game);
         for ($i = 0; $i < $numberOfPlayers; $i += 1) {
             $player = new PlayerMYR('test', $game);
             $game->addPlayer($player);
@@ -441,23 +457,8 @@ class WorkshopMYRServiceTest extends KernelTestCase
             $player->setRemainingHarvestingBonus(0);
             $this->entityManager->persist($player);
             $this->entityManager->persist($personalBoard);
+            $this->entityManager->flush();
         }
-        $mainBoard = new MainBoardMYR();
-        $mainBoard->setYearNum(0);
-        $mainBoard->setGame($game);
-        $season = new SeasonMYR();
-        $season->setName("Spring");
-        $season->setDiceResult(1);
-        $season->setActualSeason(true);
-        $season->setMainBoard($mainBoard);
-        $mainBoard->addSeason($season);
-        $this->entityManager->persist($season);
-        $game->setMainBoardMYR($mainBoard);
-        $game->setGameName("test");
-        $game->setLaunched(true);
-        $game->setGamePhase(MyrmesParameters::PHASE_INVALID);
-        $this->entityManager->persist($mainBoard);
-        $this->entityManager->persist($game);
         $this->entityManager->flush();
         return $game;
     }

@@ -9,36 +9,70 @@ use App\Entity\Game\Myrmes\GameMYR;
 use App\Entity\Game\SixQP\GameSixQP;
 use App\Entity\Game\Splendor\GameSPL;
 use App\Repository\Game\Glenmore\GameGLMRepository;
+use App\Repository\Game\Glenmore\PlayerGLMRepository;
 use App\Repository\Game\Myrmes\GameMYRRepository;
+use App\Repository\Game\Myrmes\PlayerMYRRepository;
 use App\Repository\Game\SixQP\GameSixQPRepository;
+use App\Repository\Game\SixQP\PlayerSixQPRepository;
 use App\Repository\Game\Splendor\GameSPLRepository;
+use App\Repository\Game\Splendor\PlayerSPLRepository;
 use App\Service\Game\AbstractGameManagerService;
 use App\Service\Game\GameManagerService;
 use App\Service\Game\Glenmore\GLMGameManagerService;
 use App\Service\Game\Myrmes\MYRGameManagerService;
 use App\Service\Game\SixQP\SixQPGameManagerService;
 use App\Service\Game\Splendor\SPLGameManagerService;
+use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 
 class GameManagerServiceTest extends TestCase
 {
-    /*
+
     private GameManagerService $gameService;
+    private SixQPGameManagerService $sixQPGameManagerService;
+    private SPLGameManagerService $SPLGameManagerService;
+    private GLMGameManagerService $GLMGameManagerService;
+    private MYRGameManagerService $MYRGameManagerService;
+    private GameSixQPRepository $gameSixQPRepository;
+    private GameSPLRepository $gameSPLRepository;
+    private GameGLMRepository $gameGLMRepository;
+    private GameMYRRepository $gameMYRRepository;
 
     protected function setUp(): void
     {
-        $gameSixQPRepository = $this->createMock(GameSixQPRepository::class);
-        $sixQPService = $this->createMock(SixQPGameManagerService::class);
-        $this->gameService = new GameManagerService($gameSixQPRepository, $sixQPService);
+        $this->gameSixQPRepository = $this->createMock(GameSixQPRepository::class);
+        $this->gameSPLRepository = $this->createMock(GameSPLRepository::class);
+        $this->gameGLMRepository = $this->createMock(GameGLMRepository::class);
+        $this->gameMYRRepository = $this->createMock(GameMYRRepository::class);
+
+        $playerSixQPRepository = $this->createMock(PlayerSixQPRepository::class);
+        $playerSplendorRepository = $this->createMock(PlayerSPLRepository::class);
+        $playerGlenmoreRepository = $this->createMock(PlayerGLMRepository::class);
+        $playerMyrmesRepository = $this->createMock(PlayerMYRRepository::class);
+
+        $this->sixQPGameManagerService = $this->createMock(SixQPGameManagerService::class);
+        $this->SPLGameManagerService = $this->createMock(SPLGameManagerService::class);
+        $this->GLMGameManagerService = $this->createMock(GLMGameManagerService::class);
+        $this->MYRGameManagerService = $this->createMock(MYRGameManagerService::class);
+
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+
+        $this->gameService = new GameManagerService(
+            $this->gameSixQPRepository, $this->gameSPLRepository,
+            $this->gameGLMRepository, $this->gameMYRRepository,
+            $playerSixQPRepository, $playerSplendorRepository, $playerGlenmoreRepository, $playerMyrmesRepository,
+            $this->sixQPGameManagerService, $this->SPLGameManagerService,
+            $this->GLMGameManagerService, $this->MYRGameManagerService,
+            $entityManager);
     }
-    */
+
 
     public function testCreate6QPGameSuccessful()
     {
         // GIVEN
-        $gameService = $this->createGameManagerServiceWithMockFunctionRepository('createGame');
+        $this->createGameManagerServiceWithMockFunctionRepository('createGame');
         // WHEN
-        $result = $gameService->createGame(AbstractGameManagerService::$SIXQP_LABEL);
+        $result = $this->gameService->createGame(AbstractGameManagerService::$SIXQP_LABEL);
         // THEN
         $this->assertEquals(1, $result);
     }
@@ -46,10 +80,9 @@ class GameManagerServiceTest extends TestCase
     public function testJoinGameWhenInvalidGame()
     {
         // GIVEN
-        $gameService = $this->createGameManagerService();
         $user = new GameUser();
         // WHEN
-        $result = $gameService->joinGame(-1, $user);
+        $result = $this->gameService->joinGame(-1, $user);
         // THEN
         $this->assertEquals(AbstractGameManagerService::$ERROR_INVALID_GAME, $result);
     }
@@ -57,12 +90,12 @@ class GameManagerServiceTest extends TestCase
     public function testJoinGameWhenGameAlreadyLaunched()
     {
         // GIVEN
-        $gameService = $this->createGameManagerServiceWithMockFunctionWillReturn('createPlayer',
+        $this->createGameManagerServiceWithMockFunctionWillReturn('createPlayer',
                                         AbstractGameManagerService::$ERROR_GAME_ALREADY_LAUNCHED);
         $user = new GameUser();
         $user->setUsername("testUser");
         // WHEN
-        $result = $gameService->joinGame(-1, $user);
+        $result = $this->gameService->joinGame(-1, $user);
         // THEN
         $this->assertEquals(AbstractGameManagerService::$ERROR_GAME_ALREADY_LAUNCHED, $result);
     }
@@ -70,12 +103,12 @@ class GameManagerServiceTest extends TestCase
     public function testJoinGameWhenPlayerAlreadyInParty()
     {
         // GIVEN
-        $gameService = $this->createGameManagerServiceWithMockFunctionWillReturn('createPlayer',
+       $this->createGameManagerServiceWithMockFunctionWillReturn('createPlayer',
             AbstractGameManagerService::$ERROR_ALREADY_IN_PARTY);
         $user = new GameUser();
         $user->setUsername("testUser");
         // WHEN
-        $result = $gameService->joinGame(-1, $user);
+        $result = $this->gameService->joinGame(-1, $user);
         // THEN
         $this->assertEquals(AbstractGameManagerService::$ERROR_ALREADY_IN_PARTY, $result);
     }
@@ -83,12 +116,12 @@ class GameManagerServiceTest extends TestCase
     public function testJoinGameWhenInvalidNumberOfPlayer()
     {
         // GIVEN
-        $gameService = $this->createGameManagerServiceWithMockFunctionWillReturn('createPlayer',
+        $this->createGameManagerServiceWithMockFunctionWillReturn('createPlayer',
             AbstractGameManagerService::$ERROR_INVALID_NUMBER_OF_PLAYER);
         $user = new GameUser();
         $user->setUsername("testUser");
         // WHEN
-        $result = $gameService->joinGame(-1, $user);
+        $result = $this->gameService->joinGame(-1, $user);
         // THEN
         $this->assertEquals(AbstractGameManagerService::$ERROR_INVALID_NUMBER_OF_PLAYER, $result);
     }
@@ -97,12 +130,12 @@ class GameManagerServiceTest extends TestCase
     {
         // GIVEN
 
-        $gameService = $this->createGameManagerServiceWithMockFunctionWillReturn('createPlayer',
+        $this->createGameManagerServiceWithMockFunctionWillReturn('createPlayer',
             AbstractGameManagerService::$SUCCESS);
         $user = new GameUser();
         $user->setUsername("testUser");
         // WHEN
-        $result = $gameService->joinGame(-1, $user);
+        $result = $this->gameService->joinGame(-1, $user);
         // THEN
         $this->assertEquals(AbstractGameManagerService::$SUCCESS, $result);
     }
@@ -110,10 +143,9 @@ class GameManagerServiceTest extends TestCase
     public function testDeletePlayerWhenGameIsInvalid()
     {
         // GIVEN
-        $gameService = $this->createGameManagerService();
         $user = new GameUser();
         // WHEN
-        $result = $gameService->quitGame(-1, $user);
+        $result = $this->gameService->quitGame(-1, $user);
         // THEN
         $this->assertEquals(AbstractGameManagerService::$ERROR_INVALID_GAME, $result);
     }
@@ -121,12 +153,12 @@ class GameManagerServiceTest extends TestCase
     public function testDeletePlayerWhenPlayerNotFound()
     {
         // GIVEN
-        $gameService = $this->createGameManagerServiceWithMockFunctionWillReturn('deletePlayer',
+        $this->createGameManagerServiceWithMockFunctionWillReturn('deletePlayer',
             AbstractGameManagerService::$ERROR_PLAYER_NOT_FOUND);
         $user = new GameUser();
         $user->setUsername("testUser");
         // WHEN
-        $result = $gameService->quitGame(-1, $user);
+        $result = $this->gameService->quitGame(-1, $user);
         // THEN
         $this->assertEquals(AbstractGameManagerService::$ERROR_PLAYER_NOT_FOUND, $result);
     }
@@ -134,12 +166,12 @@ class GameManagerServiceTest extends TestCase
     public function testDeletePlayerWhenGameAlreadyLaunched()
     {
         // GIVEN
-        $gameService = $this->createGameManagerServiceWithMockFunctionWillReturn('deletePlayer',
+        $this->createGameManagerServiceWithMockFunctionWillReturn('deletePlayer',
             AbstractGameManagerService::$ERROR_GAME_ALREADY_LAUNCHED);
         $user = new GameUser();
         $user->setUsername("testUser");
         // WHEN
-        $result = $gameService->quitGame(-1, $user);
+        $result = $this->gameService->quitGame(-1, $user);
         // THEN
         $this->assertEquals(AbstractGameManagerService::$ERROR_GAME_ALREADY_LAUNCHED, $result);
     }
@@ -147,12 +179,12 @@ class GameManagerServiceTest extends TestCase
     public function testDeletePlayerSuccessful()
     {
         // GIVEN
-        $gameService = $this->createGameManagerServiceWithMockFunctionWillReturn('deletePlayer',
+        $this->createGameManagerServiceWithMockFunctionWillReturn('deletePlayer',
             AbstractGameManagerService::$SUCCESS);
         $user = new GameUser();
         $user->setUsername("testUser");
         // WHEN
-        $result = $gameService->quitGame(-1, $user);
+        $result = $this->gameService->quitGame(-1, $user);
         // THEN
         $this->assertEquals(AbstractGameManagerService::$SUCCESS, $result);
     }
@@ -160,9 +192,8 @@ class GameManagerServiceTest extends TestCase
     public function testDeleteGameWhenGameIsInvalid()
     {
         // GIVEN
-        $gameService = $this->createGameManagerService();
         // WHEN
-        $result = $gameService->deleteGame(-1);
+        $result = $this->gameService->deleteGame(-1);
         // THEN
         $this->assertEquals(AbstractGameManagerService::$ERROR_INVALID_GAME, $result);
     }
@@ -170,12 +201,12 @@ class GameManagerServiceTest extends TestCase
     public function testDeleteGameSuccessful()
     {
         // GIVEN
-        $gameService = $this->createGameManagerServiceWithMockFunctionWillReturn('deleteGame',
+        $this->createGameManagerServiceWithMockFunctionWillReturn('deleteGame',
             AbstractGameManagerService::$SUCCESS);
         $user = new GameUser();
         $user->setUsername("testUser");
         // WHEN
-        $result = $gameService->deleteGame(-1);
+        $result = $this->gameService->deleteGame(-1);
         // THEN
         $this->assertEquals(AbstractGameManagerService::$SUCCESS, $result);
     }
@@ -183,9 +214,8 @@ class GameManagerServiceTest extends TestCase
     public function testLaunchGameWhenGameIsInvalid()
     {
         // GIVEN
-        $gameService = $this->createGameManagerService();
         // WHEN
-        $result = $gameService->launchGame(-1);
+        $result = $this->gameService->launchGame(-1);
         // THEN
         $this->assertEquals(AbstractGameManagerService::$ERROR_INVALID_GAME, $result);
     }
@@ -193,12 +223,12 @@ class GameManagerServiceTest extends TestCase
     public function testLaunchGameSuccessful()
     {
         // GIVEN
-        $gameService = $this->createGameManagerServiceWithMockFunctionWillReturn('launchGame',
+        $this->createGameManagerServiceWithMockFunctionWillReturn('launchGame',
             AbstractGameManagerService::$SUCCESS);
         $user = new GameUser();
         $user->setUsername("testUser");
         // WHEN
-        $result = $gameService->launchGame(-1);
+        $result = $this->gameService->launchGame(-1);
         // THEN
         $this->assertEquals(AbstractGameManagerService::$SUCCESS, $result);
     }
@@ -207,24 +237,14 @@ class GameManagerServiceTest extends TestCase
      * createGameManagerServiceWithMockFunction : initialize a GameManagerService and mock function name in parameter
      *          to return success
      * @param string $functionName
-     * @return GameManagerService
+     * @return void
      */
-    private function createGameManagerServiceWithMockFunctionRepository(string $functionName) : GameManagerService
+    private function createGameManagerServiceWithMockFunctionRepository(string $functionName) : void
     {
-        $gameSixQPRepository = $this->createMock(GameSixQPRepository::class);
-        $gameSplendorRepository = $this->createMock(GameSPLRepository::class);
-        $gameGlenmoreRepository = $this->createMock(GameGLMRepository::class);
-        $gameMyrmesRepository = $this->createMock(GameMYRRepository::class);
-        $sixQPService = $this->createMock(SixQPGameManagerService::class);
-        $sixQPService->method($functionName)->willReturn(AbstractGameManagerService::$SUCCESS);
-        $splendorService = $this->createMock(SPLGameManagerService::class);
-        $splendorService->method($functionName)->willReturn(AbstractGameManagerService::$SUCCESS);
-        $glenmoreService = $this->createMock(GLMGameManagerService::class);
-        $glenmoreService->method($functionName)->willReturn(AbstractGameManagerService::$SUCCESS);
-        $myrmesService = $this->createMock(MYRGameManagerService::class);
-        $myrmesService->method($functionName)->willReturn(AbstractGameManagerService::$SUCCESS);
-        return new GameManagerService($gameSixQPRepository, $gameSplendorRepository, $gameGlenmoreRepository,
-            $gameMyrmesRepository, $sixQPService, $splendorService, $glenmoreService, $myrmesService);
+        $this->sixQPGameManagerService->method($functionName)->willReturn(AbstractGameManagerService::$SUCCESS);
+        $this->SPLGameManagerService->method($functionName)->willReturn(AbstractGameManagerService::$SUCCESS);
+        $this->GLMGameManagerService->method($functionName)->willReturn(AbstractGameManagerService::$SUCCESS);
+        $this->MYRGameManagerService->method($functionName)->willReturn(AbstractGameManagerService::$SUCCESS);
     }
 
     /**
@@ -233,51 +253,19 @@ class GameManagerServiceTest extends TestCase
      *           to return success
      * @param string $functionNameService
      * @param int $returnCode
-     * @return GameManagerService
+     * @return void
      */
     private function createGameManagerServiceWithMockFunctionWillReturn(string $functionNameService,
                                                                         int $returnCode)
-    : GameManagerService
+    : void
     {
-        $gameSixQPRepository = $this->createMock(GameSixQPRepository::class);
-        $gameSixQPRepository->method('findOneBy')->willReturn(new GameSixQP());
-        $gameSplendorRepository = $this->createMock(GameSPLRepository::class);
-        $gameSplendorRepository->method('findOneBy')->willReturn(new GameSPL());
-        $gameGlenmoreRepository = $this->createMock(GameGLMRepository::class);
-        $gameGlenmoreRepository->method('findOneBy')->willReturn(new GameGLM());
-        $gameMyrmesRepository = $this->createMock(GameMYRRepository::class);
-        $gameMyrmesRepository->method('findOneBy')->willReturn(new GameMYR());
-        $sixQPService = $this->createMock(SixQPGameManagerService::class);
-        $sixQPService->method($functionNameService)->
-        willReturn($returnCode);
-        $splendorService = $this->createMock(SPLGameManagerService::class);
-        $splendorService->method($functionNameService)->
-        willReturn($returnCode);
-        $glenmoreService = $this->createMock(GLMGameManagerService::class);
-        $glenmoreService->method($functionNameService)->
-        willReturn($returnCode);
-        $myrmesService = $this->createMock(MYRGameManagerService::class);
-        $myrmesService->method($functionNameService)->
-        willReturn($returnCode);
-        return new GameManagerService($gameSixQPRepository, $gameSplendorRepository, $gameGlenmoreRepository,
-            $gameMyrmesRepository, $sixQPService, $splendorService, $glenmoreService, $myrmesService);
-    }
-
-    /**
-     * createGameManagerService : initialize a GameManagerService
-     * @return GameManagerService
-     */
-    private function createGameManagerService() : GameManagerService
-    {
-        $gameSixQPRepository = $this->createMock(GameSixQPRepository::class);
-        $gameSplendorRepository = $this->createMock(GameSPLRepository::class);
-        $gameGlenmoreRepository = $this->createMock(GameGLMRepository::class);
-        $gameMyrmesRepository = $this->createMock(GameMYRRepository::class);
-        $sixQPService = $this->createMock(SixQPGameManagerService::class);
-        $splendorService = $this->createMock(SPLGameManagerService::class);
-        $glenmoreService = $this->createMock(GLMGameManagerService::class);
-        $myrmesService = $this->createMock(MYRGameManagerService::class);
-        return new GameManagerService($gameSixQPRepository, $gameSplendorRepository, $gameGlenmoreRepository,
-            $gameMyrmesRepository, $sixQPService, $splendorService, $glenmoreService, $myrmesService);
+        $this->gameSixQPRepository->method('findOneBy')->willReturn(new GameSixQP());
+        $this->gameSPLRepository->method('findOneBy')->willReturn(new GameSPL());
+        $this->gameGLMRepository->method('findOneBy')->willReturn(new GameGLM());
+        $this->gameMYRRepository->method('findOneBy')->willReturn(new GameMYR());
+        $this->sixQPGameManagerService->method($functionNameService)->willReturn($returnCode);
+        $this->SPLGameManagerService->method($functionNameService)->willReturn($returnCode);
+        $this->GLMGameManagerService->method($functionNameService)->willReturn($returnCode);
+        $this->MYRGameManagerService->method($functionNameService)->willReturn($returnCode);
     }
 }

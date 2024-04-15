@@ -22,7 +22,7 @@ class PheromonMYR
     private ?bool $harvested = null;
 
     #[ORM\ManyToOne(inversedBy: 'pheromonMYRs')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?PlayerMYR $player = null;
 
     #[ORM\ManyToOne]
