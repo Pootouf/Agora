@@ -40,7 +40,8 @@ class HarvestMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($pheromoneFirstPlayer);
         $this->entityManager->flush();
         // WHEN
-        $result = $this->harvestMYRService->areAllPheromonesHarvested($firstPlayer);
+        $result = $this->harvestMYRService
+            ->areAllPheromonesHarvested($firstPlayer);
         // THEN
         $this->assertTrue($result);
     }
@@ -55,7 +56,8 @@ class HarvestMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($pheromoneFirstPlayer);
         $this->entityManager->flush();
         // WHEN
-        $result = $this->harvestMYRService->areAllPheromonesHarvested($firstPlayer);
+        $result = $this->harvestMYRService
+            ->areAllPheromonesHarvested($firstPlayer);
         // THEN
         $this->assertFalse($result);
     }
@@ -85,7 +87,8 @@ class HarvestMYRServiceTest extends KernelTestCase
         $playerResources = $firstPlayer->getPersonalBoardMYR()->getPlayerResourceMYRs();
         $resource = null;
         foreach ($playerResources as $playerResourceMYR) {
-            if($playerResourceMYR->getResource()->getDescription() == MyrmesParameters::RESOURCE_TYPE_DIRT){
+            if($playerResourceMYR->getResource()->getDescription()
+                == MyrmesParameters::RESOURCE_TYPE_DIRT){
                 $resource = $playerResourceMYR;
             }
         }
@@ -105,13 +108,7 @@ class HarvestMYRServiceTest extends KernelTestCase
         $pheromoneFirstPlayer->setHarvested(true);
         $this->entityManager->persist($pheromoneFirstPlayer);
         $tile = $pheromoneFirstPlayer->getPheromonTiles()->first()->getTile();
-        $playerResources = $firstPlayer->getPersonalBoardMYR()->getPlayerResourceMYRs();
-        $resource = null;
-        foreach ($playerResources as $playerResourceMYR) {
-            if($playerResourceMYR->getResource()->getDescription() == MyrmesParameters::RESOURCE_TYPE_DIRT){
-                $resource = $playerResourceMYR;
-            }
-        }
+
         // THEN
         $this->expectException(\Exception::class);
         // WHEN

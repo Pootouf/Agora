@@ -86,7 +86,6 @@ class BirthMYRService
                 break;
             case MyrmesParameters::BONUS_WORKER:
                 $anthillWorker = new AnthillWorkerMYR();
-                $anthillWorker->setPlayer($player);
                 $anthillWorker->setWorkFloor(-1); // TODO use parameters
                 $personalBoard->addAnthillWorker($anthillWorker);
                 $this->entityManager->persist($anthillWorker);
@@ -306,9 +305,7 @@ class BirthMYRService
         for ($count = 0; $count < $winWorker; $count++)
         {
             $worker = new AnthillWorkerMYR();
-            $worker->setPlayer($player);
             $worker->setWorkFloor(-1); // TODO use parameters
-
             $personalBoard->addAnthillWorker($worker);
             $this->entityManager->persist($worker);
         }
