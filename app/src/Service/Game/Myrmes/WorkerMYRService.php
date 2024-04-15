@@ -372,7 +372,7 @@ class WorkerMYRService
             throw new Exception('Invalid floor level');
         }
         $ant = $this->anthillWorkerMYRRepository->findOneBy([
-            'player' => $personalBoard->getPlayer(),
+            'personalBoardMYR' => $personalBoard,
             'workFloor' => MyrmesParameters::NO_WORKFLOOR
         ]);
         if(!$ant) {
@@ -399,7 +399,7 @@ class WorkerMYRService
             throw new Exception('Not an anthill hole of the player');
         }
         $ant = $this->anthillWorkerMYRRepository->findOneBy([
-            'player' => $personalBoard->getPlayer(),
+            'personalBoardMYR' => $personalBoard,
             'workFloor' => MyrmesParameters::NO_WORKFLOOR
         ]);
         if(!$ant) {

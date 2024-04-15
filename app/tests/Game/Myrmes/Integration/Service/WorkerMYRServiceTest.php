@@ -45,10 +45,10 @@ class WorkerMYRServiceTest extends KernelTestCase
 
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
-        $player->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::ANTHILL_LEVEL_TWO);
+        $player->getPersonalBoardMYR()->setAnthillLevel(
+            MyrmesParameters::ANTHILL_LEVEL_TWO);
         $this->entityManager->persist($player);
         $ant = new AnthillWorkerMYR();
-        $ant->setPlayer($player);
         $ant->setPersonalBoardMYR($player->getPersonalBoardMYR());
         $ant->setWorkFloor(MyrmesParameters::NO_WORKFLOOR);
         $player->getPersonalBoardMYR()->addAnthillWorker($ant);
@@ -65,10 +65,16 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($ant);
         $this->entityManager->persist($player->getPersonalBoardMYR());
         $this->entityManager->flush();
-        $gardenWorkerRepository = static::getContainer()->get(GardenWorkerMYRRepository::class);
+        $gardenWorkerRepository = static::getContainer()
+            ->get(GardenWorkerMYRRepository::class);
+
         // WHEN
-        $this->workerMYRService->takeOutAnt($player->getPersonalBoardMYR(), $hole);
+
+        $this->workerMYRService->takeOutAnt(
+            $player->getPersonalBoardMYR(), $hole);
+
         // THEN
+
         $gardenWorker = $gardenWorkerRepository->findOneBy(['player' => $player->getId()]);
         $this->assertNotNull($gardenWorker);
     }
@@ -79,10 +85,10 @@ class WorkerMYRServiceTest extends KernelTestCase
 
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
-        $player->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::ANTHILL_LEVEL_TWO);
+        $player->getPersonalBoardMYR()->setAnthillLevel(
+            MyrmesParameters::ANTHILL_LEVEL_TWO);
         $this->entityManager->persist($player);
         $ant = new AnthillWorkerMYR();
-        $ant->setPlayer($player);
         $ant->setPersonalBoardMYR($player->getPersonalBoardMYR());
         $ant->setWorkFloor(MyrmesParameters::NO_WORKFLOOR);
         $player->getPersonalBoardMYR()->addAnthillWorker($ant);
@@ -138,7 +144,6 @@ class WorkerMYRServiceTest extends KernelTestCase
         $player->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::ANTHILL_LEVEL_TWO);
         $this->entityManager->persist($player);
         $ant = new AnthillWorkerMYR();
-        $ant->setPlayer($player);
         $ant->setPersonalBoardMYR($player->getPersonalBoardMYR());
         $ant->setWorkFloor(MyrmesParameters::NO_WORKFLOOR);
         $player->getPersonalBoardMYR()->addAnthillWorker($ant);
@@ -176,7 +181,6 @@ class WorkerMYRServiceTest extends KernelTestCase
         $player->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::ANTHILL_LEVEL_TWO);
         $this->entityManager->persist($player);
         $ant = new AnthillWorkerMYR();
-        $ant->setPlayer($player);
         $ant->setPersonalBoardMYR($player->getPersonalBoardMYR());
         $ant->setWorkFloor(MyrmesParameters::NO_WORKFLOOR);
         $player->getPersonalBoardMYR()->addAnthillWorker($ant);
@@ -201,7 +205,6 @@ class WorkerMYRServiceTest extends KernelTestCase
         $player->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::ANTHILL_LEVEL_TWO);
         $this->entityManager->persist($player);
         $ant = new AnthillWorkerMYR();
-        $ant->setPlayer($player);
         $ant->setPersonalBoardMYR($player->getPersonalBoardMYR());
         $ant->setWorkFloor(MyrmesParameters::NO_WORKFLOOR);
         $player->getPersonalBoardMYR()->addAnthillWorker($ant);
@@ -224,7 +227,6 @@ class WorkerMYRServiceTest extends KernelTestCase
         $player->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::ANTHILL_LEVEL_TWO);
         $this->entityManager->persist($player);
         $ant = new AnthillWorkerMYR();
-        $ant->setPlayer($player);
         $ant->setPersonalBoardMYR($player->getPersonalBoardMYR());
         $ant->setWorkFloor(MyrmesParameters::ANTHILL_LEVEL_TWO);
         $player->getPersonalBoardMYR()->addAnthillWorker($ant);

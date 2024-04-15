@@ -58,7 +58,7 @@
                                 })
                             })
                         }}
-                    {% elseif sendingWorkerOnGarden %}
+                    {% elseif sendingWorkerOnGarden and playerPhase == PHASE_WORKER %}
                         {{ stimulus_action('myrmes', 'placeWorkerOnAntHillHole','click',
                             {url: path('app_game_myrmes_place_worker_anthillhole',
                                 {
@@ -87,7 +87,7 @@
     </div>
     <div class="visible middle">
     </div>
-    <div id="{{ sendingWorkerOnGarden }}" class="visible bottom">
+    <div class="visible bottom">
     </div>
 </div>
 
