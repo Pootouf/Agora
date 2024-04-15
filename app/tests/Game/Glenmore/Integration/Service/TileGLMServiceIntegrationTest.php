@@ -1866,7 +1866,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
     public function testActivateBonusWhenFairAndFiveResourceSelected() : void
     {
         //GIVEN
-        $game = $this->createGame(2);
+        $game = $this->createGame(3);
         $player = $game->getPlayers()->first();
         $playerTile = $this->givePlayerTile($player, GlenmoreParameters::$TILE_NAME_FAIR);
         $this->selectResource($playerTile);
