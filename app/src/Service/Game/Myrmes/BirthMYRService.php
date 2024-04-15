@@ -26,36 +26,34 @@ class BirthMYRService
      */
     public function placeNurse(PlayerMYR $player, int $area) : void
     {
+        if (!($area >= MyrmesParameters::BASE_AREA
+            && $area < MyrmesParameters::AREA_COUNT)) {
+            throw new Exception("Invalid area");
+        }
+
         $howMuchAvailableNurse = $this->haveAvailableNurse($player);
-        if ($howMuchAvailableNurse == 0)
-        {
+        if ($howMuchAvailableNurse == 0) {
             throw new Exception("Don't have nurses");
         }
 
         $nursesAlreadyOnArea = $this->MYRService
             ->getNursesAtPosition($player, $area)->count();
-
         $howMuchNurseCanIPut = $this->howMuchNurseCanPlaceInArea(
             $area, $nursesAlreadyOnArea
         );
-
         if ($howMuchNurseCanIPut == 0
-            || $howMuchAvailableNurse < $howMuchNurseCanIPut)
-        {
+            || $howMuchAvailableNurse < $howMuchNurseCanIPut) {
             throw new Exception("Don't place nurses in area");
         }
 
         $personalBoard = $player->getPersonalBoardMYR();
-
         foreach ($personalBoard->getNurses() as $nurse)
         {
-            if ($nurse->getArea() == MyrmesParameters::BASE_AREA)
-            {
+            if ($nurse->getArea() == MyrmesParameters::BASE_AREA) {
                 $howMuchNurseCanIPut--;
                 $nurse->setArea($area);
                 $this->entityManager->persist($nurse);
             }
-
             if ($howMuchNurseCanIPut == 0) {
                 break;
             }
@@ -169,14 +167,20 @@ class BirthMYRService
     }
 
     private function howMuchNurseCanPlaceInArea(int $area,
-        int $nursesCountAtArea) : int
+        int $nursesAlreadyOnArea) : int
     {
+
         $count = 0;
         $array = $this->getNeededNumberInArea($area);
 
+        if ($nursesAlreadyOnArea == array_sum($array))
+        {
+            return 0;
+        }
+
         if ($array != null) {
             foreach ($array as $nb) {
-                if ($count == $nursesCountAtArea) {
+                if ($count == $nursesAlreadyOnArea) {
                     return $nb;
                 } else {
                     $count += $nb;
@@ -208,8 +212,6 @@ class BirthMYRService
                 break;
             case MyrmesParameters::WORKER_AREA:
                 $array = MyrmesParameters::NUMBER_NURSE_IN_WORKER_AREA;
-                break;
-            default:
                 break;
         }
         return $array;
