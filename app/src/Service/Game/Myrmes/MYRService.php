@@ -420,7 +420,6 @@ class MYRService
     private function initializeNurse(PlayerMYR $player) : void
     {
         $nurse = new NurseMYR();
-        $nurse->setPlayer($player);
         $nurse->setArea(MyrmesParameters::BASE_AREA);
         $nurse->setAvailable(true);
         $nurse->setPersonalBoardMYR($player->getPersonalBoardMYR());
@@ -435,7 +434,6 @@ class MYRService
     private function initializeWorker(PlayerMYR $player) : void
     {
         $worker = new AnthillWorkerMYR();
-        $worker->setPlayer($player);
         $worker->setPersonalBoardMYR($player->getPersonalBoardMYR());
         $worker->setWorkFloor(MyrmesParameters::NO_WORKFLOOR);
         $this->entityManager->persist($worker);

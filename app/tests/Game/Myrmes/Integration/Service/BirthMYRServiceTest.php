@@ -96,7 +96,6 @@ class BirthMYRServiceTest extends KernelTestCase
         $nurse = new NurseMYR();
         $nurse->setAvailable(true);
         $nurse->setArea(MyrmesParameters::BASE_AREA);
-        $nurse->setPlayer($firstPlayer);
         $personalBoard->addNurse($nurse);
 
         $this->entityManager->persist($nurse);
@@ -157,7 +156,6 @@ class BirthMYRServiceTest extends KernelTestCase
                 $nurse = new NurseMYR();
                 $nurse->setArea(MyrmesParameters::BASE_AREA);
                 $nurse->setAvailable(true);
-                $nurse->setPlayer($player);
                 $personalBoard->addNurse($nurse);
                 $entityManager->persist($nurse);
             }

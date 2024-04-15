@@ -477,7 +477,6 @@ class WorkshopMYRServiceTest extends TestCase
             $personalBoard->setAnthillLevel(0);
             $nurse = new NurseMYR();
             $nurse->setArea(MyrmesParameters::WORKSHOP_AREA);
-            $nurse->setPlayer($player);
             $nurse->setAvailable(true);
             $player->setPersonalBoardMYR($personalBoard);
             $player->getPersonalBoardMYR()->addNurse($nurse);
