@@ -328,7 +328,7 @@ export default class extends Controller  {
 
         const response = await fetch(url);
         if (!response.ok) {
-            alert(response.text())
+            alert(await response.text())
             return;
         }
         const tiles = await response.text();
