@@ -2642,12 +2642,13 @@ class WorkerMYRServiceTest extends TestCase
         $destinationPheromoneTile->setPheromonMYR($pheromone);
         $destinationPheromoneTile->setMainBoard($game->getMainBoardMYR());
         $destinationTile->setType(MyrmesParameters::DIRT_TILE_TYPE);
-        $this->tileMYRRepository->method("findOneBy")->with(["coord_X" => 0, "coord_Y" => 2])->willReturn($destinationTile);
-        $this->pheromonTileMYRRepository->method("findOneBy")
-            ->willReturnMap([
-                [["tile" => $originTile, "mainBoard" => $game->getMainBoardMYR()], $originPheromoneTile],
-                [["tile" => $destinationTile, "mainBoard" => $game->getMainBoardMYR()], $destinationPheromoneTile],
-            ]);
+        $this->tileMYRRepository->method("findOneBy")
+                                ->with(["coord_X" => 0, "coord_Y" => 2])
+                                ->willReturn($destinationTile);
+        $this->pheromonTileMYRRepository
+            ->expects($this->any())
+            ->method("findOneBy")
+            ->will($this->onConsecutiveCalls($originPheromoneTile, $destinationPheromoneTile));
         //WHEN
         $result = $this->workerMYRService->canWorkerMove($player, $gardenWorker, MyrmesParameters::DIRECTION_EAST);
         //THEN

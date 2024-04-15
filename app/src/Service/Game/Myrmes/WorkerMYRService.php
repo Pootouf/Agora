@@ -985,15 +985,12 @@ class WorkerMYRService
     {
         if($originPheromoneTile != null && $destinationPheromoneTile != null
            && $originPheromoneTile->getPheromonMYR() === $destinationPheromoneTile->getPheromonMYR()) {
-            echo("test 1");
             return true;
         }
         if(($destinationPheromoneTile != null && $destinationPheromoneTile->getPheromonMYR()->getPlayer() === $player)
                 || $destinationPheromoneTile == null) {
-            echo("test 2");
             return $gardenWorker->getShiftsCount() >= 1;
         }
-        echo("test 3");
         return $gardenWorker->getShiftsCount() >= 1 && $player->getPersonalBoardMYR()->getWarriorsCount() >= 1;
     }
 
