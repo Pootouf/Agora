@@ -123,7 +123,6 @@ class WorkerMYRService
         if(!$this->isValidPositionForAnt($tile)) {
             return false;
         }
-
         $prey = $this->getPreyOnTile($tile, $player->getGameMyr());
         $destinationPheromoneTile = $this->getPheromoneTileOnTile($tile, $player->getGameMyr());
         $originPheromoneTile = $this->getPheromoneTileOnTile($gardenWorker->getTile(), $player->getGameMyr());
@@ -989,9 +988,9 @@ class WorkerMYRService
         }
         if(($destinationPheromoneTile != null && $destinationPheromoneTile->getPheromonMYR()->getPlayer() === $player)
                 || $destinationPheromoneTile == null) {
-            return $gardenWorker->getShiftsCount() > 1;
+            return $gardenWorker->getShiftsCount() >= 1;
         }
-        return $gardenWorker->getShiftsCount() > 1 && $player->getPersonalBoardMYR()->getWarriorsCount() > 1;
+        return $gardenWorker->getShiftsCount() >= 1 && $player->getPersonalBoardMYR()->getWarriorsCount() >= 1;
     }
 
     /**
