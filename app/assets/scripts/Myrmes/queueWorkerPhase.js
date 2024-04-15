@@ -242,6 +242,11 @@ async function managePheromoneCleanedTiles() {
     )
 }
 
+/**
+ * directionByAction: take an action and return a direction if action was a movement else return null
+ * @param action
+ * @returns {number|null}
+ */
 function directionByAction(action) {
     switch (action) {
         case actions.MOVE_WEST:
@@ -261,6 +266,11 @@ function directionByAction(action) {
     }
 }
 
+/**
+ * rewindQueueWorkerPhase take a queue and go through it and call appropriate controller routes for actions.
+ * @param queue
+ * @returns {Promise<void>}
+ */
 async function rewindQueueWorkerPhase(queue) {
     while (!queue.isEmpty()) {
         const action = queue.shift();
