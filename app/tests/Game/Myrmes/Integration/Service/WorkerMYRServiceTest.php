@@ -45,10 +45,10 @@ class WorkerMYRServiceTest extends KernelTestCase
 
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
-        $player->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::ANTHILL_LEVEL_TWO);
+        $player->getPersonalBoardMYR()->setAnthillLevel(
+            MyrmesParameters::ANTHILL_LEVEL_TWO);
         $this->entityManager->persist($player);
         $ant = new AnthillWorkerMYR();
-        $ant->setPlayer($player);
         $ant->setPersonalBoardMYR($player->getPersonalBoardMYR());
         $ant->setWorkFloor(MyrmesParameters::NO_WORKFLOOR);
         $player->getPersonalBoardMYR()->addAnthillWorker($ant);
@@ -65,10 +65,16 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($ant);
         $this->entityManager->persist($player->getPersonalBoardMYR());
         $this->entityManager->flush();
-        $gardenWorkerRepository = static::getContainer()->get(GardenWorkerMYRRepository::class);
+        $gardenWorkerRepository = static::getContainer()
+            ->get(GardenWorkerMYRRepository::class);
+
         // WHEN
-        $this->workerMYRService->takeOutAnt($player->getPersonalBoardMYR(), $hole);
+
+        $this->workerMYRService->takeOutAnt(
+            $player->getPersonalBoardMYR(), $hole);
+
         // THEN
+
         $gardenWorker = $gardenWorkerRepository->findOneBy(['player' => $player->getId()]);
         $this->assertNotNull($gardenWorker);
     }
@@ -79,10 +85,10 @@ class WorkerMYRServiceTest extends KernelTestCase
 
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
-        $player->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::ANTHILL_LEVEL_TWO);
+        $player->getPersonalBoardMYR()->setAnthillLevel(
+            MyrmesParameters::ANTHILL_LEVEL_TWO);
         $this->entityManager->persist($player);
         $ant = new AnthillWorkerMYR();
-        $ant->setPlayer($player);
         $ant->setPersonalBoardMYR($player->getPersonalBoardMYR());
         $ant->setWorkFloor(MyrmesParameters::NO_WORKFLOOR);
         $player->getPersonalBoardMYR()->addAnthillWorker($ant);
@@ -138,7 +144,6 @@ class WorkerMYRServiceTest extends KernelTestCase
         $player->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::ANTHILL_LEVEL_TWO);
         $this->entityManager->persist($player);
         $ant = new AnthillWorkerMYR();
-        $ant->setPlayer($player);
         $ant->setPersonalBoardMYR($player->getPersonalBoardMYR());
         $ant->setWorkFloor(MyrmesParameters::NO_WORKFLOOR);
         $player->getPersonalBoardMYR()->addAnthillWorker($ant);
@@ -176,7 +181,6 @@ class WorkerMYRServiceTest extends KernelTestCase
         $player->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::ANTHILL_LEVEL_TWO);
         $this->entityManager->persist($player);
         $ant = new AnthillWorkerMYR();
-        $ant->setPlayer($player);
         $ant->setPersonalBoardMYR($player->getPersonalBoardMYR());
         $ant->setWorkFloor(MyrmesParameters::NO_WORKFLOOR);
         $player->getPersonalBoardMYR()->addAnthillWorker($ant);
@@ -201,7 +205,6 @@ class WorkerMYRServiceTest extends KernelTestCase
         $player->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::ANTHILL_LEVEL_TWO);
         $this->entityManager->persist($player);
         $ant = new AnthillWorkerMYR();
-        $ant->setPlayer($player);
         $ant->setPersonalBoardMYR($player->getPersonalBoardMYR());
         $ant->setWorkFloor(MyrmesParameters::NO_WORKFLOOR);
         $player->getPersonalBoardMYR()->addAnthillWorker($ant);
@@ -224,7 +227,6 @@ class WorkerMYRServiceTest extends KernelTestCase
         $player->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::ANTHILL_LEVEL_TWO);
         $this->entityManager->persist($player);
         $ant = new AnthillWorkerMYR();
-        $ant->setPlayer($player);
         $ant->setPersonalBoardMYR($player->getPersonalBoardMYR());
         $ant->setWorkFloor(MyrmesParameters::ANTHILL_LEVEL_TWO);
         $player->getPersonalBoardMYR()->addAnthillWorker($ant);
@@ -4254,11 +4256,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $game = $this->createGame(2);
         $firstPlayer = $game->getPlayers()->first();
 
-        $workerTile = new TileMYR();
-        $workerTile->setType(MyrmesParameters::DIRT_TILE_TYPE);
-        $workerTile->setCoordY(0);
-        $workerTile->setCoordX(0);
-        $this->entityManager->persist($workerTile);
+        $workerTile = $this->tileMYRRepository->findOneBy(["coord_X" => 1, "coord_Y" => 16]);
 
         $gardenWorker = new GardenWorkerMYR();
         $gardenWorker->setPlayer($firstPlayer);
@@ -4267,11 +4265,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $gardenWorker->setTile($workerTile);
         $this->entityManager->persist($gardenWorker);
 
-        $dirtTile = new TileMYR();
-        $dirtTile->setType(MyrmesParameters::DIRT_TILE_TYPE);
-        $dirtTile->setCoordX(1);
-        $dirtTile->setCoordY(1);
-        $this->entityManager->persist($dirtTile);
+        $dirtTile = $this->tileMYRRepository->findOneBy(["coord_X" => 2, "coord_Y" => 17]);
 
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_ZERO);

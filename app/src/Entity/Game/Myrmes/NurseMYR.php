@@ -10,10 +10,6 @@ use Doctrine\ORM\Mapping as ORM;
 class NurseMYR extends Component
 {
 
-    #[ORM\ManyToOne(inversedBy: 'nurseMYRs')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?PlayerMYR $player = null;
-
     #[ORM\Column]
     private ?bool $available = null;
 
@@ -23,18 +19,6 @@ class NurseMYR extends Component
 
     #[ORM\Column]
     private ?int $area = null;
-
-    public function getPlayer(): ?PlayerMYR
-    {
-        return $this->player;
-    }
-
-    public function setPlayer(?PlayerMYR $player): static
-    {
-        $this->player = $player;
-
-        return $this;
-    }
 
     public function isAvailable(): ?bool
     {

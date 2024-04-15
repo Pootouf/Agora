@@ -195,7 +195,6 @@ class EventMYRServiceTest extends KernelTestCase
                 $nurse = new NurseMYR();
                 $nurse->setArea(MyrmesParameters::LARVAE_AREA);
                 $nurse->setAvailable(true);
-                $nurse->setPlayer($player);
                 $personalBoard->addNurse($nurse);
                 $entityManager->persist($nurse);
             }
