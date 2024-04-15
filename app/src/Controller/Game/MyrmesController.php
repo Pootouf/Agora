@@ -3,6 +3,7 @@
 namespace App\Controller\Game;
 
 use App\Entity\Game\DTO\Myrmes\BoardBoxMYR;
+use App\Entity\Game\DTO\Myrmes\BoardTileMYR;
 use App\Entity\Game\Myrmes\GameMYR;
 use App\Entity\Game\Myrmes\GardenWorkerMYR;
 use App\Entity\Game\Myrmes\MyrmesParameters;
@@ -213,6 +214,7 @@ class MyrmesController extends AbstractController
             'playerPhase' => $player->getPhase(),
             'hasFinishedObligatoryHarvesting' => $this->harvestMYRService->areAllPheromonesHarvested($player),
             'canStillHarvest' => $this->harvestMYRService->canStillHarvest($player),
+            'tile' => $tile,
         ]);
 
     }
@@ -933,5 +935,104 @@ class MyrmesController extends AbstractController
                 ['id' => $game->getId()]).'highlight'.$player->getId(),
             new Response($tile->getId())
         );
+    }
+
+    #[Route('/game/myrmes/{idGame}/displayPersonalObjectToPlace/{tileId}', name: 'app_game_myrmes_display_personal_object_to_place')]
+    public function displayPersonalObjectToPlace(
+        #[MapEntity(id: 'idGame')] GameMYR $gameMYR,
+        #[MapEntity(id: 'tileId')] TileMYR $tileMYR
+    ) : Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+        }
+
+        return $this->render('Game/Myrmes/MainBoard/displayObjectPlacement.html.twig', [
+            'game' => $gameMYR,
+            'player' => $player,
+            'tile' => $tileMYR,
+            'tiles' => $this->workerMYRService->getAvailablePheromones($player)
+        ]);
+    }
+
+    #[Route('/game/myrmes/{idGame}/displayMainBoardTilePositionPossibilities/{tileId}/{tileType}/{orientation}',
+        name: 'app_game_myrmes_display_mainBoard_tile_position_possibilities')]
+    public function displayMainBoardTilePositionPossibilities(
+        #[MapEntity(id: 'idGame')] GameMYR $gameMYR,
+        #[MapEntity(id: 'tileId')] TileMYR $tileMYR,
+        #[MapEntity(id: 'tileType')] int $tileType,
+        #[MapEntity(id: 'orientation')] int $orientation,
+    ) : Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+        }
+        $tileTypeMYR = $this->service->getTileTypeFromTypeAndOrientation($tileType, $orientation);
+        if ($tileTypeMYR == null) {
+            return new Response('Invalid tile type', Response::HTTP_FORBIDDEN);
+        }
+
+        try {
+            $positions = $this->workerMYRService->getAllAvailablePositions($player, $tileMYR, $tileTypeMYR);
+        }catch (Exception $e) {
+            return new Response("No positions available for this tile : " . $e->getMessage(),
+                Response::HTTP_FORBIDDEN);
+        }
+
+        $answer = "";
+        foreach ($positions as $position) {
+            /**
+             * @var BoardTileMYR $pivotPoint
+             */
+            $pivotPoint = $position->findFirst(function (int $key, BoardTileMYR $value) {
+                return $value->isPivot();
+            });
+            $position->removeElement($pivotPoint);
+            $otherTiles = [];
+
+            /**
+             * @var BoardTileMYR $boardTile
+             */
+            foreach ($position as $boardTile) {
+                $otherTiles[] = $boardTile->getTile()->getId();
+            }
+            $answer .= $pivotPoint->getTile()->getId() . "__" . implode("_", $otherTiles) . "___";
+        }
+        $answer = substr($answer, 0, strlen($answer)-3);
+
+        return new Response($answer);
+    }
+
+    #[Route('/game/myrmes/{idGame}/placePheromone/{tileId}/{tileType}/{orientation}',
+        name: 'app_game_myrmes_place_pheromone')]
+    public function placePheromone(
+        #[MapEntity(id: 'idGame')] GameMYR $gameMYR,
+        #[MapEntity(id: 'tileId')] TileMYR $tileMYR,
+        #[MapEntity(id: 'tileType')] int $tileType,
+        #[MapEntity(id: 'orientation')] int $orientation,
+    ) : Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+        }
+        $tileTypeMYR = $this->service->getTileTypeFromTypeAndOrientation($tileType, $orientation);
+        if ($tileTypeMYR == null) {
+            return new Response('Invalid tile type', Response::HTTP_FORBIDDEN);
+        }
+
+        try {
+            $this->workerMYRService->placePheromone($player, $tileMYR, $tileTypeMYR);
+        }catch (Exception $e) {
+            $this->logService->sendPlayerLog($gameMYR, $player,
+                $player->getUsername() . " a essayé de placer la phéromone de type " . $tileTypeMYR->getType()
+                . " sur la tuile " . $tileMYR->getId() . "alors qu'il ne peut pas");
+            return new Response("Can't place the pheromone : " . $e->getMessage(),
+                Response::HTTP_FORBIDDEN);
+        }
+
+        return new Response('Pheromone positioned', Response::HTTP_OK);
     }
 }
