@@ -2,13 +2,16 @@
 
 namespace App\Tests\Game\Glenmore\Integration\Service;
 
+use App\Entity\Game\DTO\Game;
 use App\Entity\Game\Glenmore\BoardTileGLM;
+use App\Entity\Game\Glenmore\CardGLM;
 use App\Entity\Game\Glenmore\DrawTilesGLM;
 use App\Entity\Game\Glenmore\GameGLM;
 use App\Entity\Game\Glenmore\GlenmoreParameters;
 use App\Entity\Game\Glenmore\MainBoardGLM;
 use App\Entity\Game\Glenmore\PawnGLM;
 use App\Entity\Game\Glenmore\PersonalBoardGLM;
+use App\Entity\Game\Glenmore\PlayerCardGLM;
 use App\Entity\Game\Glenmore\PlayerGLM;
 use App\Entity\Game\Glenmore\PlayerTileGLM;
 use App\Entity\Game\Glenmore\PlayerTileResourceGLM;
@@ -18,8 +21,11 @@ use App\Entity\Game\Glenmore\TileActivationBonusGLM;
 use App\Entity\Game\Glenmore\TileActivationCostGLM;
 use App\Entity\Game\Glenmore\TileGLM;
 use App\Entity\Game\Glenmore\WarehouseGLM;
+use App\Entity\Game\Glenmore\WarehouseLineGLM;
+use App\Repository\Game\Glenmore\CardGLMRepository;
 use App\Repository\Game\Glenmore\ResourceGLMRepository;
 use App\Repository\Game\Glenmore\TileGLMRepository;
+use App\Repository\Game\Glenmore\WarehouseLineGLMRepository;
 use App\Service\Game\AbstractGameManagerService;
 use App\Service\Game\Glenmore\GLMService;
 use App\Service\Game\Glenmore\TileGLMService;
@@ -34,6 +40,12 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
     private EntityManagerInterface $entityManager;
 
     private TileGLMRepository $tileGLMRepository;
+
+    private CardGLMRepository $cardGLMRepository;
+
+    private WarehouseLineGLMRepository $warehouseLineGLMRepository;
+
+    private ResourceGLMRepository $resourceGLMRepository;
 
    /* public function testCanPlaceTileSuccessWithValidPlacement() : void
     {
@@ -101,6 +113,74 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $this->assertTrue($result);
     }
 
+    public function testHasBuyCostWithLochOichShouldBeTrue() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $tile = $this->tileGLMRepository->findOneBy(["name" => GlenmoreParameters::$CARD_LOCH_OICH]);
+        $boardTile = new BoardTileGLM();
+        $boardTile->setTile($tile);
+        $boardTile->setPosition(0)
+            ->setMainBoardGLM($game->getMainBoard());
+        $this->entityManager->persist($boardTile);
+        $this->entityManager->flush();
+        //WHEN
+        $result = $this->service->hasBuyCost($boardTile);
+        //THEN
+        $this->assertTrue($result);
+    }
+
+    public function testHasBuyCostWithDistilleryShouldBeFalse() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        /** @var TileGLM $tile */
+        $tile = $this->tileGLMRepository->findOneBy(["name" => GlenmoreParameters::$TILE_NAME_TAVERN]);
+        $boardTile = new BoardTileGLM();
+        $boardTile->setTile($tile);
+        $boardTile->setPosition(0)
+                  ->setMainBoardGLM($game->getMainBoard());
+        $this->entityManager->persist($boardTile);
+        $this->entityManager->flush();
+        //WHEN
+        $result = $this->service->hasBuyCost($boardTile);
+        //THEN
+        $this->assertFalse($result);
+    }
+
+    public function testHasBuyCostWhenNoBuyCost() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $tile = $this->tileGLMRepository->findOneBy(["id" => 1]);
+        $boardTile = new BoardTileGLM();
+        $boardTile->setTile($tile);
+        $boardTile->setPosition(0)
+                  ->setMainBoardGLM($game->getMainBoard());
+        $this->entityManager->persist($boardTile);
+        $this->entityManager->flush();
+        //WHEN
+        $result = $this->service->hasBuyCost($boardTile);
+        //THEN
+        $this->assertFalse($result);
+    }
+
+    public function testHasBuyCostWhenBuyCost() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $tile = $this->tileGLMRepository->findOneBy(["name" => GlenmoreParameters::$CARD_IONA_ABBEY]);
+        $boardTile = new BoardTileGLM();
+        $boardTile->setTile($tile);
+        $boardTile->setPosition(0)
+                  ->setMainBoardGLM($game->getMainBoard());
+        $this->entityManager->persist($boardTile);
+        $this->entityManager->flush();
+        //WHEN
+        $result = $this->service->hasBuyCost($boardTile);
+        //THEN
+        $this->assertTrue($result);
+    }
     public function testGiveBuyBonusWithSimpleProductionTile() : void
     {
         //GIVEN
@@ -591,6 +671,106 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $playerTile2->setPersonalBoard($firstPlayer->getPersonalBoard());
         $entityManager->persist($playerTile2);
         $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile);
+        $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile2);
+        $entityManager->persist($firstPlayer->getPersonalBoard());
+        $entityManager->flush();
+        $expectedResult = new ArrayCollection([$playerTile2]);
+        //WHEN
+        $result = $tileGLMService->getActivableTiles($playerTile2);
+        //THEN
+        $this->assertEquals($expectedResult, $result);
+    }
+
+
+    public function testGetActivableTilesWithTilesNotAdjacentNotActivatedWithBonusAndPlayerBoughtLochOichInLast() : void
+    {
+        //GIVEN
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $tileGLMService = static ::getContainer()->get(TileGLMService::class);
+        $tileGLMRepository = static::getContainer()->get(TileGLMRepository::class);
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $startVillage = $firstPlayer->getPersonalBoard()->getPlayerTiles()->first();
+        $tile = $tileGLMRepository->findOneBy(["name" => GlenmoreParameters::$CARD_LOCH_OICH]);
+        $oich = new PlayerTileGLM();
+        $oich->setTile($tile);
+        $oich->setActivated(false);
+        $oich->setCoordX(0);
+        $oich->setCoordY(0);
+        $oich->setPersonalBoard($firstPlayer->getPersonalBoard());
+        $entityManager->persist($oich);
+        $card = $this->cardGLMRepository->findOneBy(["name" => GlenmoreParameters::$CARD_LOCH_OICH]);
+        $card = new PlayerCardGLM($firstPlayer->getPersonalBoard(), $card);
+        $this->entityManager->persist($card);
+        $firstPlayer->getPersonalBoard()->addPlayerCardGLM($card);
+        $tile = $tileGLMRepository->findOneBy(["id" => 1]);
+        $playerTile = new PlayerTileGLM();
+        $playerTile->setTile($tile);
+        $playerTile->setActivated(false);
+        $playerTile->setCoordX(0);
+        $playerTile->setCoordY(0);
+        $playerTile->setPersonalBoard($firstPlayer->getPersonalBoard());
+        $entityManager->persist($playerTile);
+        $playerTile2 = new PlayerTileGLM();
+        $tile = $tileGLMRepository->findOneBy(["id" => 2]);
+        $playerTile2->setTile($tile);
+        $playerTile2->setActivated(false);
+        $playerTile2->setCoordX(0);
+        $playerTile2->setCoordY(0);
+        $playerTile2->setPersonalBoard($firstPlayer->getPersonalBoard());
+        $entityManager->persist($playerTile2);
+        $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile);
+        $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile2);
+        $firstPlayer->getPersonalBoard()->addPlayerTile($oich);
+        $entityManager->persist($firstPlayer->getPersonalBoard());
+        $entityManager->flush();
+        $expectedResult = new ArrayCollection([$startVillage, $playerTile, $playerTile2]);
+        //WHEN
+        $result = $tileGLMService->getActivableTiles($playerTile2);
+        //THEN
+        foreach ($result as $item) {
+            $this->assertContains($item, $expectedResult);
+        }
+    }
+
+    public function testGetActivableTilesWithTilesNotAdjacentNotActivatedWithBonusAndPlayerBoughtLochOichNotLast() : void
+    {
+        //GIVEN
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $tileGLMService = static ::getContainer()->get(TileGLMService::class);
+        $tileGLMRepository = static::getContainer()->get(TileGLMRepository::class);
+        $game = $this->createGame(2);
+        $firstPlayer = $game->getPlayers()->first();
+        $tile = $tileGLMRepository->findOneBy(["name" => GlenmoreParameters::$CARD_LOCH_OICH]);
+        $card = $this->cardGLMRepository->findOneBy(["name" => GlenmoreParameters::$CARD_LOCH_OICH]);
+        $card = new PlayerCardGLM($firstPlayer->getPersonalBoard(), $card);
+        $this->entityManager->persist($card);
+        $firstPlayer->getPersonalBoard()->addPlayerCardGLM($card);
+        $oich = new PlayerTileGLM();
+        $oich->setTile($tile);
+        $oich->setActivated(false);
+        $oich->setCoordX(0);
+        $oich->setCoordY(0);
+        $oich->setPersonalBoard($firstPlayer->getPersonalBoard());
+        $entityManager->persist($oich);
+        $tile = $tileGLMRepository->findOneBy(["id" => 1]);
+        $playerTile = new PlayerTileGLM();
+        $playerTile->setTile($tile);
+        $playerTile->setActivated(false);
+        $playerTile->setCoordX(0);
+        $playerTile->setCoordY(0);
+        $playerTile->setPersonalBoard($firstPlayer->getPersonalBoard());
+        $entityManager->persist($playerTile);
+        $playerTile2 = new PlayerTileGLM();
+        $tile = $tileGLMRepository->findOneBy(["id" => 2]);
+        $playerTile2->setTile($tile);
+        $playerTile2->setActivated(false);
+        $playerTile2->setCoordX(0);
+        $playerTile2->setCoordY(0);
+        $playerTile2->setPersonalBoard($firstPlayer->getPersonalBoard());
+        $entityManager->persist($playerTile2);
+        $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile);
+        $firstPlayer->getPersonalBoard()->addPlayerTile($oich);
         $firstPlayer->getPersonalBoard()->addPlayerTile($playerTile2);
         $entityManager->persist($firstPlayer->getPersonalBoard());
         $entityManager->flush();
@@ -1232,14 +1412,606 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $this->assertTrue($playerTile->isActivated());
     }*/
 
+    public function testCanBuyTileWhenPlayerHasMoneyAndResourceAvailable() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $tile = $this->tileGLMRepository->findOneBy(["name" => GlenmoreParameters::$CARD_IONA_ABBEY]);
+        //WHEN
+        $result = $this->service->canBuyTile($tile, $player);
+        //THEN
+        $this->assertTrue($result);
+    }
+
+    public function testCanBuyTileWhenPlayerHasNotEnoughMoneyAndResourceAvailable() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $player->getPersonalBoard()->setMoney(5);
+        $this->entityManager->persist($player->getPersonalBoard());
+        $this->entityManager->flush();
+        $tile = $this->tileGLMRepository->findOneBy(["name" => GlenmoreParameters::$CARD_IONA_ABBEY]);
+        //WHEN
+        $result = $this->service->canBuyTile($tile, $player);
+        //THEN
+        $this->assertFalse($result);
+    }
+
+    public function testCanBuyTileWhenPlayerHasEnoughMoneyButResourceNotAvailable() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $resource = $this->resourceGLMRepository->findOneBy(["color" => GlenmoreParameters::$COLOR_WHITE]);
+        $line = $this->warehouseLineGLMRepository->findOneBy(
+            ["warehouseGLM" => $game->getMainBoard()->getWarehouse(), "resource" => $resource]
+        );
+        $line->setQuantity(3);
+        $this->entityManager->persist($line);
+        $this->entityManager->flush();
+        $tile = $this->tileGLMRepository->findOneBy(["name" => GlenmoreParameters::$CARD_IONA_ABBEY]);
+        //WHEN
+        $result = $this->service->canBuyTile($tile, $player);
+        //THEN
+        $this->assertFalse($result);
+    }
+
+    public function testCanBuyLochOichWithMoneyAndNoResources() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $tile = $this->tileGLMRepository->findOneBy(["name" => GlenmoreParameters::$CARD_LOCH_OICH]);
+        //WHEN
+        $result = $this->service->canBuyLochOich($tile, $player);
+        //THEN
+        $this->assertTrue($result);
+    }
+
+    public function testCanBuyLochOichWithMoneyAndOneResource() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $resource = $game->getMainBoard()->getWarehouse()->getWarehouseLine()->first()->getResource();
+        $player = $game->getPlayers()->first();
+        $playerTile = $player->getPersonalBoard()->getPlayerTiles()->first();
+        $playerTileResource = new PlayerTileResourceGLM();
+        $playerTileResource->setPlayer($player);
+        $playerTileResource->setPlayerTileGLM($playerTile);
+        $playerTileResource->setQuantity(1);
+        $playerTileResource->setResource($resource);
+        $this->entityManager->persist($playerTileResource);
+        $playerTile->addPlayerTileResource($playerTileResource);
+        $this->entityManager->persist($playerTile);
+        $this->entityManager->flush();
+        $tile = $this->tileGLMRepository->findOneBy(["name" => GlenmoreParameters::$CARD_LOCH_OICH]);
+        //WHEN
+        $result = $this->service->canBuyLochOich($tile, $player);
+        //THEN
+        $this->assertTrue($result);
+    }
+
+    public function testCanBuyLochOichWithMoneyAndOneResourceOfQUantityZero() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $resource = $game->getMainBoard()->getWarehouse()->getWarehouseLine()->first()->getResource();
+        $player = $game->getPlayers()->first();
+        $playerTile = $player->getPersonalBoard()->getPlayerTiles()->first();
+        $playerTileResource = new PlayerTileResourceGLM();
+        $playerTileResource->setPlayer($player);
+        $playerTileResource->setPlayerTileGLM($playerTile);
+        $playerTileResource->setQuantity(0);
+        $playerTileResource->setResource($resource);
+        $this->entityManager->persist($playerTileResource);
+        $playerTile->addPlayerTileResource($playerTileResource);
+        $this->entityManager->persist($playerTile);
+        $this->entityManager->flush();
+        $tile = $this->tileGLMRepository->findOneBy(["name" => GlenmoreParameters::$CARD_LOCH_OICH]);
+        //WHEN
+        $result = $this->service->canBuyLochOich($tile, $player);
+        //THEN
+        $this->assertTrue($result);
+    }
+
+
+    public function testCanBuyLochOichWhenPlayerHasNotEnoughMoneyAndResourceAvailable() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $player->getPersonalBoard()->setMoney(0);
+        $this->entityManager->persist($player->getPersonalBoard());
+        $this->entityManager->flush();
+        $tile = $this->tileGLMRepository->findOneBy(["name" => GlenmoreParameters::$CARD_LOCH_OICH]);
+        //WHEN
+        $result = $this->service->canBuyLochOich($tile, $player);
+        //THEN
+        $this->assertFalse($result);
+    }
+
+    public function testCanBuyLochOichWhenPlayerHasEnoughMoneyButResourcesNotAvailable() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $resource = $this->resourceGLMRepository->findOneBy(["color" => GlenmoreParameters::$COLOR_WHITE]);
+        $playerTile = $player->getPersonalBoard()->getPlayerTiles()->first();
+        $playerTileResource = new PlayerTileResourceGLM();
+        $playerTileResource->setPlayer($player);
+        $playerTileResource->setPlayerTileGLM($playerTile);
+        $playerTileResource->setQuantity(1);
+        $playerTileResource->setResource($resource);
+        $this->entityManager->persist($playerTileResource);
+        $playerTile->addPlayerTileResource($playerTileResource);
+        $this->entityManager->persist($playerTile);
+        foreach ($game->getMainBoard()->getWarehouse()->getWarehouseLine() as $line) {
+            $line->setQuantity(3);
+            $this->entityManager->persist($line);
+        }
+        $this->entityManager->flush();
+        $tile = $this->tileGLMRepository->findOneBy(["name" => GlenmoreParameters::$CARD_LOCH_OICH]);
+        //WHEN
+        $result = $this->service->canBuyLochOich($tile, $player);
+        //THEN
+        $this->assertFalse($result);
+    }
+
+    public function testCanBuyLochOichWhenPlayerHasMultipleDifferentResources() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $resource = $this->resourceGLMRepository->findOneBy(["color" => GlenmoreParameters::$COLOR_WHITE]);
+        $playerTile = $player->getPersonalBoard()->getPlayerTiles()->first();
+        $playerTileResource = new PlayerTileResourceGLM();
+        $playerTileResource->setPlayer($player);
+        $playerTileResource->setPlayerTileGLM($playerTile);
+        $playerTileResource->setQuantity(1);
+        $playerTileResource->setResource($resource);
+        $this->entityManager->persist($playerTileResource);
+        $playerTile->addPlayerTileResource($playerTileResource);
+        $this->entityManager->persist($playerTile);
+        $resource = $this->resourceGLMRepository->findOneBy(["color" => GlenmoreParameters::$COLOR_BROWN]);
+        $playerTile = $player->getPersonalBoard()->getPlayerTiles()->first();
+        $playerTileResource = new PlayerTileResourceGLM();
+        $playerTileResource->setPlayer($player);
+        $playerTileResource->setPlayerTileGLM($playerTile);
+        $playerTileResource->setQuantity(1);
+        $playerTileResource->setResource($resource);
+        $this->entityManager->persist($playerTileResource);
+        $playerTile->addPlayerTileResource($playerTileResource);
+        $this->entityManager->persist($playerTile);
+        $this->entityManager->flush();
+        $tile = $this->tileGLMRepository->findOneBy(["name" => GlenmoreParameters::$CARD_LOCH_OICH]);
+        //WHEN
+        $result = $this->service->canBuyLochOich($tile, $player);
+        //THEN
+        $this->assertTrue($result);
+    }
+
+    public function testCanBuyLochOichWhenPlayerHasMultipleSameResources() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $resource = $this->resourceGLMRepository->findOneBy(["color" => GlenmoreParameters::$COLOR_WHITE]);
+        $playerTile = $player->getPersonalBoard()->getPlayerTiles()->first();
+        $playerTileResource = new PlayerTileResourceGLM();
+        $playerTileResource->setPlayer($player);
+        $playerTileResource->setPlayerTileGLM($playerTile);
+        $playerTileResource->setQuantity(1);
+        $playerTileResource->setResource($resource);
+        $this->entityManager->persist($playerTileResource);
+        $playerTile->addPlayerTileResource($playerTileResource);
+        $this->entityManager->persist($playerTile);
+        $playerTile = $player->getPersonalBoard()->getPlayerTiles()->first();
+        $playerTileResource = new PlayerTileResourceGLM();
+        $playerTileResource->setPlayer($player);
+        $playerTileResource->setPlayerTileGLM($playerTile);
+        $playerTileResource->setQuantity(1);
+        $playerTileResource->setResource($resource);
+        $this->entityManager->persist($playerTileResource);
+        $playerTile->addPlayerTileResource($playerTileResource);
+        $this->entityManager->persist($playerTile);
+        $this->entityManager->flush();
+        $tile = $this->tileGLMRepository->findOneBy(["name" => GlenmoreParameters::$CARD_LOCH_OICH]);
+        //WHEN
+        $result = $this->service->canBuyLochOich($tile, $player);
+        //THEN
+        $this->assertTrue($result);
+    }
+
+    public function testCanBuyTileWithSelectedResourcesWhenTwoResourcesAndLochOich() : void
+    {
+        //GIVEN
+        $game = $this->createGame(1);
+        $lochOich = $this->tileGLMRepository->findOneBy(["name" => GlenmoreParameters::$CARD_LOCH_OICH]);
+        $player = $game->getPlayers()->first();
+        for ($i = 1; $i <= 2; ++$i) {
+            $resource = $this->resourceGLMRepository->findOneBy(["id" => $i]);
+            $selectedResource = new SelectedResourceGLM();
+            $selectedResource->setResource($resource);
+            $selectedResource->setQuantity(1);
+            $selectedResource->setPersonalBoardGLM($player->getPersonalBoard());
+            $selectedResource->setPlayerTile($player->getPersonalBoard()->getPlayerTiles()->first());
+            $this->entityManager->persist($selectedResource);
+            $player->getPersonalBoard()->addSelectedResource($selectedResource);
+            $this->entityManager->persist($player->getPersonalBoard());
+        }
+        $this->entityManager->flush();
+        //WHEN
+        $result = $this->service->canBuyTileWithSelectedResources($player, $lochOich);
+        //THEN
+        $this->assertTrue($result);
+    }
+
+    public function testCanBuyTileWithSelectedResourcesWhenOneResourceAndLochOich() : void
+    {
+        //GIVEN
+        $game = $this->createGame(1);
+        $lochOich = $this->tileGLMRepository->findOneBy(["name" => GlenmoreParameters::$CARD_LOCH_OICH]);
+        $player = $game->getPlayers()->first();
+        $resource = $this->resourceGLMRepository->findOneBy(["id" => 1]);
+        $selectedResource = new SelectedResourceGLM();
+        $selectedResource->setResource($resource);
+        $selectedResource->setQuantity(1);
+        $selectedResource->setPersonalBoardGLM($player->getPersonalBoard());
+        $selectedResource->setPlayerTile($player->getPersonalBoard()->getPlayerTiles()->first());
+        $this->entityManager->persist($selectedResource);
+        $player->getPersonalBoard()->addSelectedResource($selectedResource);
+        $this->entityManager->persist($player->getPersonalBoard());
+        $this->entityManager->flush();
+        //WHEN
+        $result = $this->service->canBuyTileWithSelectedResources($player, $lochOich);
+        //THEN
+        $this->assertFalse($result);
+    }
+
+    public function testCanBuyTileWithSelectedResourcesWhenNoResource() : void
+    {
+        //GIVEN
+        $game = $this->createGame(1);
+        $tile = $this->tileGLMRepository->findOneBy(["name" => GlenmoreParameters::$CARD_IONA_ABBEY]);
+        $player = $game->getPlayers()->first();
+        //WHEN
+        $result = $this->service->canBuyTileWithSelectedResources($player, $tile);
+        //THEN
+        $this->assertFalse($result);
+    }
+
+    public function testCanBuyTileWithSelectedResourcesWhenGoodResource() : void
+    {
+        //GIVEN
+        $game = $this->createGame(1);
+        $tile = $this->tileGLMRepository->findOneBy(["id" => 55]);
+        $player = $game->getPlayers()->first();
+        $resource = $this->resourceGLMRepository->findOneBy(["id" => 1]);
+        $selectedResource = new SelectedResourceGLM();
+        $selectedResource->setResource($resource);
+        $selectedResource->setQuantity(1);
+        $selectedResource->setPersonalBoardGLM($player->getPersonalBoard());
+        $selectedResource->setPlayerTile($player->getPersonalBoard()->getPlayerTiles()->first());
+        $this->entityManager->persist($selectedResource);
+        $player->getPersonalBoard()->addSelectedResource($selectedResource);
+        $this->entityManager->persist($player->getPersonalBoard());
+        $this->entityManager->flush();
+        //WHEN
+        $result = $this->service->canBuyTileWithSelectedResources($player, $tile);
+        //THEN
+        $this->assertTrue($result);
+    }
+
+    public function testCanBuyTileWithSelectedResourcesWhenBadResource() : void
+    {
+        //GIVEN
+        $game = $this->createGame(1);
+        $tile = $this->tileGLMRepository->findOneBy(["id" => 55]);
+        $player = $game->getPlayers()->first();
+        $resource = $this->resourceGLMRepository->findOneBy(["id" => 2]);
+        $selectedResource = new SelectedResourceGLM();
+        $selectedResource->setResource($resource);
+        $selectedResource->setQuantity(1);
+        $selectedResource->setPersonalBoardGLM($player->getPersonalBoard());
+        $selectedResource->setPlayerTile($player->getPersonalBoard()->getPlayerTiles()->first());
+        $this->entityManager->persist($selectedResource);
+        $player->getPersonalBoard()->addSelectedResource($selectedResource);
+        $this->entityManager->persist($player->getPersonalBoard());
+        $this->entityManager->flush();
+        //WHEN
+        $result = $this->service->canBuyTileWithSelectedResources($player, $tile);
+        //THEN
+        $this->assertFalse($result);
+    }
+
+    public function testActivateBonusWithIonaAbbey() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $playerTile = $this->givePlayerTile($player, GlenmoreParameters::$CARD_IONA_ABBEY);
+        $activableTiles = new ArrayCollection([$playerTile]);
+        //WHEN
+        $this->service->activateBonus($playerTile, $player, $activableTiles);
+        //THEN
+        $this->expectNotToPerformAssertions();
+    }
+
+    public function testActivateBonusWhenNoBonus() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $playerTile = $this->givePlayerTile($player, GlenmoreParameters::$CARD_LOCH_NESS);
+        $activableTiles = new ArrayCollection([$playerTile]);
+        //WHEN
+        $this->service->activateBonus($playerTile, $player, $activableTiles);
+        //THEN
+        $this->expectNotToPerformAssertions();
+    }
+
+    public function testActivateBonusWhenFairAndNoResourceSelected() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $playerTile = $this->givePlayerTile($player, GlenmoreParameters::$TILE_NAME_FAIR);
+        $activableTiles = new ArrayCollection([$playerTile]);
+        //THEN
+        $this->expectException(\Exception::class);
+        //WHEN
+        $this->service->activateBonus($playerTile, $player, $activableTiles);
+    }
+
+    public function testActivateBonusWhenFairAndOneResourceSelected() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $playerTile = $this->givePlayerTile($player, GlenmoreParameters::$TILE_NAME_FAIR);
+        $this->selectResource($playerTile);
+        $resource = $this->resourceGLMRepository->findOneBy(["id" => 1]);
+        $playerTileResource = new PlayerTileResourceGLM();
+        $playerTileResource->setResource($resource);
+        $playerTileResource->setQuantity(1);
+        $playerTileResource->setPlayerTileGLM($playerTile);
+        $playerTileResource->setPlayer($player);
+        $this->entityManager->persist($playerTileResource);
+        $playerTile->addPlayerTileResource($playerTileResource);
+        $this->entityManager->persist($playerTile);
+        $activableTiles = new ArrayCollection([$playerTile]);
+        //WHEN
+        $this->service->activateBonus($playerTile, $player, $activableTiles);
+        //THEN
+        $this->expectNotToPerformAssertions();
+    }
+
+    public function testActivateBonusWhenFairAndTwoResourceSelected() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $playerTile = $this->givePlayerTile($player, GlenmoreParameters::$TILE_NAME_FAIR);
+        $this->selectResource($playerTile);
+        $this->selectResource($playerTile);
+        $resource = $this->resourceGLMRepository->findOneBy(["id" => 1]);
+        $playerTileResource = new PlayerTileResourceGLM();
+        $playerTileResource->setResource($resource);
+        $playerTileResource->setQuantity(1);
+        $playerTileResource->setPlayerTileGLM($playerTile);
+        $playerTileResource->setPlayer($player);
+        $this->entityManager->persist($playerTileResource);
+        $playerTile->addPlayerTileResource($playerTileResource);
+        $this->entityManager->persist($playerTile);
+        $activableTiles = new ArrayCollection([$playerTile]);
+        //WHEN
+        $this->service->activateBonus($playerTile, $player, $activableTiles);
+        //THEN
+        $this->expectNotToPerformAssertions();
+    }
+
+    public function testActivateBonusWhenFairAndThreeResourceSelected() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $playerTile = $this->givePlayerTile($player, GlenmoreParameters::$TILE_NAME_FAIR);
+        $this->selectResource($playerTile);
+        $this->selectResource($playerTile);
+        $this->selectResource($playerTile);
+        $resource = $this->resourceGLMRepository->findOneBy(["id" => 1]);
+        $playerTileResource = new PlayerTileResourceGLM();
+        $playerTileResource->setResource($resource);
+        $playerTileResource->setQuantity(1);
+        $playerTileResource->setPlayerTileGLM($playerTile);
+        $playerTileResource->setPlayer($player);
+        $this->entityManager->persist($playerTileResource);
+        $playerTile->addPlayerTileResource($playerTileResource);
+        $this->entityManager->persist($playerTile);
+        $activableTiles = new ArrayCollection([$playerTile]);
+        //WHEN
+        $this->service->activateBonus($playerTile, $player, $activableTiles);
+        //THEN
+        $this->expectNotToPerformAssertions();
+    }
+
+    public function testActivateBonusWhenFairAndFourResourceSelected() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $playerTile = $this->givePlayerTile($player, GlenmoreParameters::$TILE_NAME_FAIR);
+        $this->selectResource($playerTile);
+        $this->selectResource($playerTile);
+        $this->selectResource($playerTile);
+        $this->selectResource($playerTile);
+        $resource = $this->resourceGLMRepository->findOneBy(["id" => 1]);
+        $playerTileResource = new PlayerTileResourceGLM();
+        $playerTileResource->setResource($resource);
+        $playerTileResource->setQuantity(1);
+        $playerTileResource->setPlayerTileGLM($playerTile);
+        $playerTileResource->setPlayer($player);
+        $this->entityManager->persist($playerTileResource);
+        $playerTile->addPlayerTileResource($playerTileResource);
+        $this->entityManager->persist($playerTile);
+        $activableTiles = new ArrayCollection([$playerTile]);
+        //WHEN
+        $this->service->activateBonus($playerTile, $player, $activableTiles);
+        //THEN
+        $this->expectNotToPerformAssertions();
+    }
+
+    public function testActivateBonusWhenFairAndFiveResourceSelected() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $playerTile = $this->givePlayerTile($player, GlenmoreParameters::$TILE_NAME_FAIR);
+        $this->selectResource($playerTile);
+        $this->selectResource($playerTile);
+        $this->selectResource($playerTile);
+        $this->selectResource($playerTile);
+        $this->selectResource($playerTile);
+        $resource = $this->resourceGLMRepository->findOneBy(["id" => 1]);
+        $playerTileResource = new PlayerTileResourceGLM();
+        $playerTileResource->setResource($resource);
+        $playerTileResource->setQuantity(1);
+        $playerTileResource->setPlayerTileGLM($playerTile);
+        $playerTileResource->setPlayer($player);
+        $this->entityManager->persist($playerTileResource);
+        $playerTile->addPlayerTileResource($playerTileResource);
+        $this->entityManager->persist($playerTile);
+        $activableTiles = new ArrayCollection([$playerTile]);
+        //WHEN
+        $this->service->activateBonus($playerTile, $player, $activableTiles);
+        //THEN
+        $this->expectNotToPerformAssertions();
+    }
+    public function testActivateBonusWhenGrocerAndNoResourceSelected() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $playerTile = $this->givePlayerTile($player, GlenmoreParameters::$TILE_NAME_GROCER);
+        $activableTiles = new ArrayCollection([$playerTile]);
+        //THEN
+        $this->expectException(\Exception::class);
+        //WHEN
+        $this->service->activateBonus($playerTile, $player, $activableTiles);
+    }
+
+    public function testActivateBonusWhenGrocerAndThreeResourceSelected() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $playerTile = $this->givePlayerTile($player, GlenmoreParameters::$TILE_NAME_GROCER);
+        $this->selectResource($playerTile);
+        $this->selectResource($playerTile);
+        $this->selectResource($playerTile);
+        $activableTiles = new ArrayCollection([$playerTile]);
+        //WHEN
+        $this->service->activateBonus($playerTile, $player, $activableTiles);
+        //THEN
+        $this->expectNotToPerformAssertions();
+    }
+
+    public function testActivateBonusBridge() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $playerTile = $this->givePlayerTile($player, GlenmoreParameters::$TILE_NAME_BRIDGE);
+        $this->selectResource($playerTile);
+        $this->selectResource($playerTile);
+        $this->selectResource($playerTile);
+        $activableTiles = new ArrayCollection([$playerTile]);
+        //WHEN
+        $this->service->activateBonus($playerTile, $player, $activableTiles);
+        //THEN
+        $this->expectNotToPerformAssertions();
+    }
+
+    public function testActivateCattleButFull() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $playerTile = $this->givePlayerTile($player, GlenmoreParameters::$TILE_NAME_CATTLE);
+        $resource = $this->resourceGLMRepository->findOneBy(["id" => 1]);
+        $playerTileResource = new PlayerTileResourceGLM();
+        $playerTileResource->setResource($resource);
+        $playerTileResource->setQuantity(3);
+        $playerTileResource->setPlayerTileGLM($playerTile);
+        $playerTileResource->setPlayer($player);
+        $this->entityManager->persist($playerTileResource);
+        $playerTile->addPlayerTileResource($playerTileResource);
+        $this->entityManager->persist($playerTile);
+        $this->entityManager->flush();
+        $activableTiles = new ArrayCollection([$playerTile]);
+        //THEN
+        $this->expectException(\Exception::class);
+        //WHEN
+        $this->service->activateBonus($playerTile, $player, $activableTiles);
+    }
+
+    public function testActivateBonusWhenNotActivable() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $playerTile = $this->givePlayerTile($player, GlenmoreParameters::$TILE_NAME_FAIR);
+        $this->selectResource($playerTile);
+        $activableTiles = new ArrayCollection([]);
+        //THEN
+        $this->expectException(\Exception::class);
+        //WHEN
+        $this->service->activateBonus($playerTile, $player, $activableTiles);
+    }
+
+    private function givePlayerTile(PlayerGLM $player, String $type) : PlayerTileGLM
+    {
+        $tile = $this->tileGLMRepository->findOneBy(["name" => $type]);
+        $playerTile = new PlayerTileGLM();
+        $playerTile->setTile($tile);
+        $playerTile->setActivated(false);
+        $playerTile->setCoordY(0);
+        $playerTile->setCoordX(3);
+        $playerTile->setPersonalBoard($player->getPersonalBoard());
+        $this->entityManager->persist($playerTile);
+        $player->getPersonalBoard()->addPlayerTile($playerTile);
+        $this->entityManager->persist($player->getPersonalBoard());
+        return $playerTile;
+    }
+
+    private function selectResource(PlayerTileGLM $playerTile) : void
+    {
+        $resource = $this->resourceGLMRepository->findOneBy(["id" => 1]);
+        $selectedResource = new SelectedResourceGLM();
+        $selectedResource->setResource($resource);
+        $selectedResource->setPlayerTile($playerTile);
+        $selectedResource->setPersonalBoardGLM($playerTile->getPersonalBoard());
+        $selectedResource->setQuantity(1);
+        $this->entityManager->persist($selectedResource);
+        $playerTile->addSelectedResource($selectedResource);
+        $this->entityManager->persist($playerTile);
+        $playerTile->getPersonalBoard()->addSelectedResource($selectedResource);
+        $this->entityManager->persist($playerTile->getPersonalBoard());
+    }
+
     private function createGame(int $nbOfPlayers) : GameGLM
     {
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);
         $tileGLMRepository = static::getContainer()->get(TileGLMRepository::class);
+        $this->warehouseLineGLMRepository = static::getContainer()->get(WarehouseLineGLMRepository::class);
         $this->tileGLMRepository = $tileGLMRepository;
+        $this->cardGLMRepository = static::getContainer()->get(CardGLMRepository::class);
         $this->entityManager = $entityManager;
         $this->service = static::getContainer()->get(TileGLMService::class);
         $resourceGLMRepository = static::getContainer()->get(ResourceGLMRepository::class);
+        $this->resourceGLMRepository = $resourceGLMRepository;
         $game = new GameGLM();
         $game->setGameName(AbstractGameManagerService::$GLM_LABEL);
         $mainBoard = new MainBoardGLM();
@@ -1263,6 +2035,35 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
             $warehouse = new WarehouseGLM();
             $warehouse->setMainBoardGLM($mainBoard);
             $entityManager->persist($warehouse);
+
+
+            $green_cube = $resourceGLMRepository->findOneBy(
+                ['type' => GlenmoreParameters::$PRODUCTION_RESOURCE, 'color' => GlenmoreParameters::$COLOR_GREEN]
+            );
+            $yellow_cube = $resourceGLMRepository->findOneBy(
+                ['type' => GlenmoreParameters::$PRODUCTION_RESOURCE, 'color' => GlenmoreParameters::$COLOR_YELLOW]
+            );
+            $brown_cube = $resourceGLMRepository->findOneBy(
+                ['type' => GlenmoreParameters::$PRODUCTION_RESOURCE, 'color' => GlenmoreParameters::$COLOR_BROWN]
+            );
+            $white_cube = $resourceGLMRepository->findOneBy(
+                ['type' => GlenmoreParameters::$PRODUCTION_RESOURCE, 'color' => GlenmoreParameters::$COLOR_WHITE]
+            );
+            $grey_cube = $resourceGLMRepository->findOneBy(
+                ['type' => GlenmoreParameters::$PRODUCTION_RESOURCE, 'color' => GlenmoreParameters::$COLOR_GREY]
+            );
+            $numberOfCoin = 0;
+            if ($game->getPlayers()->count() != GlenmoreParameters::$MAX_NUMBER_OF_PLAYER - 1) {
+                $numberOfCoin = 1;
+            }
+            $warehouse = $game->getMainBoard()->getWarehouse();
+            $this->addWarehouseLineToWarehouse($warehouse, $green_cube, $numberOfCoin);
+            $this->addWarehouseLineToWarehouse($warehouse, $yellow_cube, $numberOfCoin);
+            $this->addWarehouseLineToWarehouse($warehouse, $brown_cube, $numberOfCoin);
+            $this->addWarehouseLineToWarehouse($warehouse, $white_cube, $numberOfCoin);
+            $this->addWarehouseLineToWarehouse($warehouse, $grey_cube, $numberOfCoin);
+
+            $this->entityManager->persist($warehouse);
             $entityManager->persist($mainBoard);
         }
 
@@ -1337,6 +2138,20 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $entityManager->persist($firstPlayer);
         $entityManager->flush();
         return $game;
+    }
+    private function addWarehouseLineToWarehouse(WarehouseGLM $warehouse, ResourceGLM $resource, int $coinNumber): void
+    {
+        $warehouseLine = new WarehouseLineGLM();
+        $warehouseLine->setWarehouseGLM($warehouse);
+        $warehouseLine->setResource($resource);
+        $warehouseLine->setCoinNumber($coinNumber);
+        $quantity = $coinNumber == GlenmoreParameters::$COIN_NEEDED_FOR_RESOURCE_ONE ? 1 :
+            ($coinNumber == GlenmoreParameters::$COIN_NEEDED_FOR_RESOURCE_TWO ? 2 :
+                ($coinNumber == GlenmoreParameters::$COIN_NEEDED_FOR_RESOURCE_THREE ? 3 : 0));
+        $warehouseLine->setQuantity($quantity);
+        $this->entityManager->persist($warehouseLine);
+        $warehouse->addWarehouseLine($warehouseLine);
+        $this->entityManager->persist($warehouse);
     }
 
 }
