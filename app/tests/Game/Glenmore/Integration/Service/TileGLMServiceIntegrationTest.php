@@ -29,7 +29,11 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class TileGLMServiceIntegrationTest extends KernelTestCase
 {
+    private TileGLMService $service;
 
+    private EntityManagerInterface $entityManager;
+
+    private TileGLMRepository $tileGLMRepository;
 
    /* public function testCanPlaceTileSuccessWithValidPlacement() : void
     {
@@ -46,6 +50,56 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         //THEN
         $this->assertTrue($result);
     }*/
+
+    public function testGetAmountOfTilesToReplace() : void
+    {
+        //GIVEN
+        $game = $this->createGame(3);
+        $player = $game->getPlayers()->first();
+        $player->setTurnOfPlayer(false);
+        $this->entityManager->persist($player);
+        $lastPlayer = $game->getPlayers()->last();
+        $lastPlayer->setTurnOfPlayer(true);
+        $this->entityManager->persist($lastPlayer);
+        $this->entityManager->flush();
+        $expectedResult = 1;
+        //WHEN
+        $result = $this->service->getAmountOfTileToReplace($game->getMainBoard());
+        //THEN
+        $this->assertSame($expectedResult, $result);
+    }
+
+    public function testHasActivationCostWhenNoCost() : void
+    {
+        //GIVEN
+        $game = $this->createGame(3);
+        $player = $game->getPlayers()->first();
+        $tile = $player->getPersonalBoard()->getPlayerTiles()->first();
+        //WHEN
+        $result = $this->service->hasActivationCost($tile);
+        //THEN
+        $this->assertFalse($result);
+    }
+
+    public function testHasActivationCostWhenHasCost() : void
+    {
+        //GIVEN
+        $game = $this->createGame(3);
+        $player = $game->getPlayers()->first();
+        $tile = $this->tileGLMRepository->findOneBy(["id" => 49]);
+        $playerTile = new PlayerTileGLM();
+        $playerTile->setTile($tile);
+        $playerTile->setCoordX(0)
+                   ->setCoordY(0)
+                   ->setActivated(false)
+                   ->setPersonalBoard($player->getPersonalBoard());
+        $this->entityManager->persist($playerTile);
+        $this->entityManager->flush();
+        //WHEN
+        $result = $this->service->hasActivationCost($playerTile);
+        //THEN
+        $this->assertTrue($result);
+    }
 
     public function testGiveBuyBonusWithSimpleProductionTile() : void
     {
@@ -1182,6 +1236,9 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
     {
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);
         $tileGLMRepository = static::getContainer()->get(TileGLMRepository::class);
+        $this->tileGLMRepository = $tileGLMRepository;
+        $this->entityManager = $entityManager;
+        $this->service = static::getContainer()->get(TileGLMService::class);
         $resourceGLMRepository = static::getContainer()->get(ResourceGLMRepository::class);
         $game = new GameGLM();
         $game->setGameName(AbstractGameManagerService::$GLM_LABEL);
