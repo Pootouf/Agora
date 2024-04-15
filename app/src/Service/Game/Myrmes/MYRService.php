@@ -156,7 +156,7 @@ class MYRService
     /**
      * getDiceResults : get dice results for all season
      * @param GameMYR $game
-     * @return ArrayCollection<
+     * @return ArrayCollection<Int, Int>
      */
     public function getDiceResults(GameMYR $game) : ArrayCollection
     {

@@ -31,6 +31,7 @@ class MYRServiceTest extends TestCase
     private MYRService $MYRService;
     private PlayerResourceMYRRepository $playerResourceMYRRepository;
     private ResourceMYRRepository $resourceMYRRepository;
+    private SeasonMYRRepository $seasonMYRRepository;
 
     protected function setUp() : void
     {
@@ -44,7 +45,7 @@ class MYRServiceTest extends TestCase
             TileMYRRepository::class);
         $tileTypeMYRRepository = $this->createMock(
             TileTypeMYRRepository::class);
-        $seasonMYRRepository = $this->createMock(
+        $this->seasonMYRRepository = $this->createMock(
             SeasonMYRRepository::class);
         $this->resourceMYRRepository = $this->createMock(
             ResourceMYRRepository::class);
@@ -58,7 +59,7 @@ class MYRServiceTest extends TestCase
             $nurseMYRRepository,
             $tileMYRRepository,
             $tileTypeMYRRepository,
-            $seasonMYRRepository,
+            $this->seasonMYRRepository,
             $goalMYRRepository,
             $this->resourceMYRRepository,
             $this->playerResourceMYRRepository
