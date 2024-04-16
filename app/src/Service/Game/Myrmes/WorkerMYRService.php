@@ -650,7 +650,7 @@ class WorkerMYRService
                 return $this->getAllAvailablePositionsFromOrientation($player, $tile, $tileType, $coords, $translations);
             case 1:
                 $coords = $this->getAllCoordinatesFromTileType($player, $tile, $tileType);
-                $translations = [[0, 0], [1, +1], [0, 2]];
+                $translations = [[0, 0], [-1, +1], [0, 2]];
                 return $this->getAllAvailablePositionsFromOrientation($player, $tile, $tileType, $coords, $translations);
             case 2:
                 $coords = $this->getAllCoordinatesFromTileType($player, $tile, $tileType);
@@ -662,7 +662,7 @@ class WorkerMYRService
                 return $this->getAllAvailablePositionsFromOrientation($player, $tile, $tileType, $coords, $translations);
             case 4:
                 $coords = $this->getAllCoordinatesFromTileType($player, $tile, $tileType);
-                $translations = [[0, 0], [1, 1], [0, -2]];
+                $translations = [[0, 0], [1, -1], [0, -2]];
                 return $this->getAllAvailablePositionsFromOrientation($player, $tile, $tileType, $coords, $translations);
             case 5:
                 $coords = $this->getAllCoordinatesFromTileType($player, $tile, $tileType);
@@ -688,27 +688,27 @@ class WorkerMYRService
         switch ($orientation) {
             case 0:
                 $coords = $this->getAllCoordinatesFromTileType($player, $tile, $tileType);
-                $translations = [[0, 0], [0, -2], [-1, -1], [-1, -3]];
+                $translations = [[0, 0], [-2, 0], [-1, -1], [-1, 1]];
                 return $this->getAllAvailablePositionsFromOrientation($player, $tile, $tileType, $coords, $translations);
             case 1:
                 $coords = $this->getAllCoordinatesFromTileType($player, $tile, $tileType);
-                $translations = [[0, 0], [-1, -1], [-1, 1], [-2, 0]];
+                $translations = [[0, 0], [-1, 3], [-1, 1], [0, 2]];
                 return $this->getAllAvailablePositionsFromOrientation($player, $tile, $tileType, $coords, $translations);
             case 2:
                 $coords = $this->getAllCoordinatesFromTileType($player, $tile, $tileType);
-                $translations = [[0, 0], [-1, 1], [1, 3], [0, 2]];
+                $translations = [[0, 0], [0, 2], [1, 1], [1, 3]];
                 return $this->getAllAvailablePositionsFromOrientation($player, $tile, $tileType, $coords, $translations);
             case 3:
                 $coords = $this->getAllCoordinatesFromTileType($player, $tile, $tileType);
-                $translations = [[0, 0], [0, 2], [1, 3], [1, 1]];
+                $translations = [[0, 0], [2, 0], [1, -1], [1, 1]];
                 return $this->getAllAvailablePositionsFromOrientation($player, $tile, $tileType, $coords, $translations);
             case 4:
                 $coords = $this->getAllCoordinatesFromTileType($player, $tile, $tileType);
-                $translations = [[0, 0], [2, 0], [1, 1], [1, -1]];
+                $translations = [[0, 0], [0, -2], [1, -3], [1, -1]];
                 return $this->getAllAvailablePositionsFromOrientation($player, $tile, $tileType, $coords, $translations);
             case 5:
                 $coords = $this->getAllCoordinatesFromTileType($player, $tile, $tileType);
-                $translations = [[0, 0], [0, -2], [1, -3], [1, -1]];
+                $translations = [[0, 0], [0, -2], [-1, -3], [-1, -1]];
                 return $this->getAllAvailablePositionsFromOrientation($player, $tile, $tileType, $coords, $translations);
             default:
                 return new ArrayCollection();
@@ -730,51 +730,51 @@ class WorkerMYRService
         switch ($orientation) {
             case 0:
                 $coords = $this->getAllCoordinatesFromTileType($player, $tile, $tileType);
-                $translations = [[0, 0], [-1, -1], [-1, 1], [-2, -2]];
+                $translations = [[0, 0], [-1, -1], [-2, -2], [0, -2]];
                 return $this->getAllAvailablePositionsFromOrientation($player, $tile, $tileType, $coords, $translations);
             case 1:
                 $coords = $this->getAllCoordinatesFromTileType($player, $tile, $tileType);
-                $translations = [[0, 0], [0, 2], [-1, 1], [-2, 2]];
+                $translations = [[0, 0], [-2, 2], [-1, 1], [-1, -1]];
                 return $this->getAllAvailablePositionsFromOrientation($player, $tile, $tileType, $coords, $translations);
             case 2:
                 $coords = $this->getAllCoordinatesFromTileType($player, $tile, $tileType);
-                $translations = [[0, 0], [0, 2], [0, 4], [1, 1]];
+                $translations = [[0, 0], [0, 2], [0, 4], [-1, 1]];
                 return $this->getAllAvailablePositionsFromOrientation($player, $tile, $tileType, $coords, $translations);
             case 3:
                 $coords = $this->getAllCoordinatesFromTileType($player, $tile, $tileType);
-                $translations = [[0, 0], [1, -1], [1, 1], [2, 2]];
+                $translations = [[0, 0], [0, 4], [-1, 1], [0, 2]];
                 return $this->getAllAvailablePositionsFromOrientation($player, $tile, $tileType, $coords, $translations);
             case 4:
                 $coords = $this->getAllCoordinatesFromTileType($player, $tile, $tileType);
-                $translations = [[0, 0], [0, -2], [1, -1], [2, -2]];
+                $translations = [[0, 0], [1, 1], [1, -1], [2, -2]];
                 return $this->getAllAvailablePositionsFromOrientation($player, $tile, $tileType, $coords, $translations);
             case 5:
                 $coords = $this->getAllCoordinatesFromTileType($player, $tile, $tileType);
-                $translations = [[0, 0], [0, -2], [0, -4], [-1, -1]];
+                $translations = [[0, 0], [0, -2], [0, -4], [1, -1]];
                 return $this->getAllAvailablePositionsFromOrientation($player, $tile, $tileType, $coords, $translations);
             case 6:
                 $coords = $this->getAllCoordinatesFromTileType($player, $tile, $tileType);
-                $translations = [[0, 0], [0, -2], [-1, -1], [-2, -2]];
+                $translations = [[0, 0], [0, 2], [-1, 1], [-2, 2]];
                 return $this->getAllAvailablePositionsFromOrientation($player, $tile, $tileType, $coords, $translations);
             case 7:
                 $coords = $this->getAllCoordinatesFromTileType($player, $tile, $tileType);
-                $translations = [[0, 0], [-1, -1], [-1, 1], [-2, 2]];
+                $translations = [[0, 0], [1, 1], [0, 4], [0, 2]];
                 return $this->getAllAvailablePositionsFromOrientation($player, $tile, $tileType, $coords, $translations);
             case 8:
                 $coords = $this->getAllCoordinatesFromTileType($player, $tile, $tileType);
-                $translations = [[0, 0], [-1, 1], [0, 2], [0, 4]];
+                $translations = [[0, 0], [1, 1], [1, -1], [2, 2]];
                 return $this->getAllAvailablePositionsFromOrientation($player, $tile, $tileType, $coords, $translations);
             case 9:
                 $coords = $this->getAllCoordinatesFromTileType($player, $tile, $tileType);
-                $translations = [[0, 0], [0, 2], [1, 1], [2, 2]];
+                $translations = [[0, 0], [0, -2], [1, -1], [2, -2]];
                 return $this->getAllAvailablePositionsFromOrientation($player, $tile, $tileType, $coords, $translations);
             case 10:
                 $coords = $this->getAllCoordinatesFromTileType($player, $tile, $tileType);
-                $translations = [[0, 0], [1, 1], [1, -1], [2, -2]];
+                $translations = [[0, 0], [0, -2], [0, -4], [-1, -1]];
                 return $this->getAllAvailablePositionsFromOrientation($player, $tile, $tileType, $coords, $translations);
             case 11:
                 $coords = $this->getAllCoordinatesFromTileType($player, $tile, $tileType);
-                $translations = [[0, 0], [1, -1], [0, -2], [0, -4]];
+                $translations = [[0, 0], [-1, 1], [-1, -1], [-2, -2]];
                 return $this->getAllAvailablePositionsFromOrientation($player, $tile, $tileType, $coords, $translations);
             default:
                 return new ArrayCollection();
@@ -800,7 +800,7 @@ class WorkerMYRService
                 return $this->getAllAvailablePositionsFromOrientation($player, $tile, $tileType, $coords, $translations);
             case 1:
                 $coords = $this->getAllCoordinatesFromTileType($player, $tile, $tileType);
-                $translations = [[0, 0], [-1, -1], [-2, 0], [1, 1], [0, 2]];
+                $translations = [[0, 0], [-1, -1], [-2, 0], [-1, 1], [0, 2]];
                 return $this->getAllAvailablePositionsFromOrientation($player, $tile, $tileType, $coords, $translations);
             case 2:
                 $coords = $this->getAllCoordinatesFromTileType($player, $tile, $tileType);
@@ -812,7 +812,7 @@ class WorkerMYRService
                 return $this->getAllAvailablePositionsFromOrientation($player, $tile, $tileType, $coords, $translations);
             case 4:
                 $coords = $this->getAllCoordinatesFromTileType($player, $tile, $tileType);
-                $translations = [[0, 0], [1, 1], [0, 2], [1, -1], [0, -2]];
+                $translations = [[0, 0], [1, 1], [0, -2], [1, -1], [2, 0]];
                 return $this->getAllAvailablePositionsFromOrientation($player, $tile, $tileType, $coords, $translations);
             case 5:
                 $coords = $this->getAllCoordinatesFromTileType($player, $tile, $tileType);
