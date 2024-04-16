@@ -18,11 +18,14 @@
                              src="{{ asset('resourcesGames/Myrmes/Goals/' ~ goal.getGoal().getId() ~ '.svg') }}"
                              alt="goal_{{ goal.id }}">
                         <div class="flex flex-row w-full">
-                            {% for i in 1..4 %}
+
+                            {% for i in 0..3 %}
+                                {% set color = 
+                                    i < goal.precedentsPlayers.count ? goal.precedentsPlayers[i].color : 'black' %}
                                 <svg viewBox="0 0 125 125"
                                      class="mb-5">
                                     <polygon points="40 13,80 13,110 40,110 80,80 110,40 110,13 80, 13 40"
-                                             fill="black"/>
+                                             fill="{{ color }}"/>
                                 </svg>
                             {% endfor %}
                         </div>

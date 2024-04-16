@@ -113,7 +113,7 @@ export default class extends Controller  {
 
     async displayBoxActions(boardBox) {
         closeSelectedBoxWindow();
-        let url = boardBox.params.url
+        let url = boardBox.params.url;
         const response = await fetch(url);
         let tree = document.getElementById("index_myrmes");
         let placeholder = document.createElement("div");
@@ -123,8 +123,8 @@ export default class extends Controller  {
     }
 
     async displayObjectives(objective) {
-        closeObjectivesWindow();
         let url = objective.params.url;
+        document.getElementById('objectives_button').setAttribute('disabled', '');
         const response = await fetch(url);
         let tree = document.getElementById("index_myrmes");
         let placeholder = document.createElement("div");

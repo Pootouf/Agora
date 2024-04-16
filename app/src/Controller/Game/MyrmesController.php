@@ -113,6 +113,8 @@ class MyrmesController extends AbstractController
             'possibleAnthillHolePlacement' => $game->getGamePhase() == MyrmesParameters::PHASE_WORKSHOP ?
                 $this->workshopMYRService->getAvailableAnthillHolesPositions($player)
                 : null,
+            /*'goalsDone' => $this->gameGoalMYRRepository->findOneBy(["goal_id" => ,
+                                                                "goalAlreadyDone" => ]),*/
         ]);
     }
 
