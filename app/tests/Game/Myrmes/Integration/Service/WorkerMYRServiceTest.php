@@ -45,10 +45,10 @@ class WorkerMYRServiceTest extends KernelTestCase
 
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
-        $player->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::ANTHILL_LEVEL_TWO);
+        $player->getPersonalBoardMYR()->setAnthillLevel(
+            MyrmesParameters::ANTHILL_LEVEL_TWO);
         $this->entityManager->persist($player);
         $ant = new AnthillWorkerMYR();
-        $ant->setPlayer($player);
         $ant->setPersonalBoardMYR($player->getPersonalBoardMYR());
         $ant->setWorkFloor(MyrmesParameters::NO_WORKFLOOR);
         $player->getPersonalBoardMYR()->addAnthillWorker($ant);
@@ -65,10 +65,16 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($ant);
         $this->entityManager->persist($player->getPersonalBoardMYR());
         $this->entityManager->flush();
-        $gardenWorkerRepository = static::getContainer()->get(GardenWorkerMYRRepository::class);
+        $gardenWorkerRepository = static::getContainer()
+            ->get(GardenWorkerMYRRepository::class);
+
         // WHEN
-        $this->workerMYRService->takeOutAnt($player->getPersonalBoardMYR(), $hole);
+
+        $this->workerMYRService->takeOutAnt(
+            $player->getPersonalBoardMYR(), $hole);
+
         // THEN
+
         $gardenWorker = $gardenWorkerRepository->findOneBy(['player' => $player->getId()]);
         $this->assertNotNull($gardenWorker);
     }
@@ -79,10 +85,10 @@ class WorkerMYRServiceTest extends KernelTestCase
 
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
-        $player->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::ANTHILL_LEVEL_TWO);
+        $player->getPersonalBoardMYR()->setAnthillLevel(
+            MyrmesParameters::ANTHILL_LEVEL_TWO);
         $this->entityManager->persist($player);
         $ant = new AnthillWorkerMYR();
-        $ant->setPlayer($player);
         $ant->setPersonalBoardMYR($player->getPersonalBoardMYR());
         $ant->setWorkFloor(MyrmesParameters::NO_WORKFLOOR);
         $player->getPersonalBoardMYR()->addAnthillWorker($ant);
@@ -138,7 +144,6 @@ class WorkerMYRServiceTest extends KernelTestCase
         $player->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::ANTHILL_LEVEL_TWO);
         $this->entityManager->persist($player);
         $ant = new AnthillWorkerMYR();
-        $ant->setPlayer($player);
         $ant->setPersonalBoardMYR($player->getPersonalBoardMYR());
         $ant->setWorkFloor(MyrmesParameters::NO_WORKFLOOR);
         $player->getPersonalBoardMYR()->addAnthillWorker($ant);
@@ -176,7 +181,6 @@ class WorkerMYRServiceTest extends KernelTestCase
         $player->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::ANTHILL_LEVEL_TWO);
         $this->entityManager->persist($player);
         $ant = new AnthillWorkerMYR();
-        $ant->setPlayer($player);
         $ant->setPersonalBoardMYR($player->getPersonalBoardMYR());
         $ant->setWorkFloor(MyrmesParameters::NO_WORKFLOOR);
         $player->getPersonalBoardMYR()->addAnthillWorker($ant);
@@ -201,7 +205,6 @@ class WorkerMYRServiceTest extends KernelTestCase
         $player->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::ANTHILL_LEVEL_TWO);
         $this->entityManager->persist($player);
         $ant = new AnthillWorkerMYR();
-        $ant->setPlayer($player);
         $ant->setPersonalBoardMYR($player->getPersonalBoardMYR());
         $ant->setWorkFloor(MyrmesParameters::NO_WORKFLOOR);
         $player->getPersonalBoardMYR()->addAnthillWorker($ant);
@@ -224,7 +227,6 @@ class WorkerMYRServiceTest extends KernelTestCase
         $player->getPersonalBoardMYR()->setAnthillLevel(MyrmesParameters::ANTHILL_LEVEL_TWO);
         $this->entityManager->persist($player);
         $ant = new AnthillWorkerMYR();
-        $ant->setPlayer($player);
         $ant->setPersonalBoardMYR($player->getPersonalBoardMYR());
         $ant->setWorkFloor(MyrmesParameters::ANTHILL_LEVEL_TWO);
         $player->getPersonalBoardMYR()->addAnthillWorker($ant);
@@ -682,13 +684,13 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($tile);
         $newTile = new TileMYR();
         $newTile->setType(MyrmesParameters::GRASS_TILE_TYPE);
-        $newTile->setCoordX(-1);
-        $newTile->setCoordY(1);
+        $newTile->setCoordX(0);
+        $newTile->setCoordY(-2);
         $this->entityManager->persist($newTile);
         $newTile2 = new TileMYR();
         $newTile2->setType(MyrmesParameters::GRASS_TILE_TYPE);
-        $newTile2->setCoordX(1);
-        $newTile2->setCoordY(-1);
+        $newTile2->setCoordX(0);
+        $newTile2->setCoordY(2);
         $this->entityManager->persist($newTile2);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_ONE);
@@ -723,13 +725,13 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($tile);
         $newTile = new TileMYR();
         $newTile->setType(MyrmesParameters::GRASS_TILE_TYPE);
-        $newTile->setCoordX(0);
-        $newTile->setCoordY(-2);
+        $newTile->setCoordX(-1);
+        $newTile->setCoordY(1);
         $this->entityManager->persist($newTile);
         $newTile2 = new TileMYR();
         $newTile2->setType(MyrmesParameters::GRASS_TILE_TYPE);
-        $newTile2->setCoordX(0);
-        $newTile2->setCoordY(2);
+        $newTile2->setCoordX(1);
+        $newTile2->setCoordY(-1);
         $this->entityManager->persist($newTile2);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_ONE);
@@ -892,7 +894,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($tile);
         $newTile = new TileMYR();
         $newTile->setType(MyrmesParameters::GRASS_TILE_TYPE);
-        $newTile->setCoordX(-1);
+        $newTile->setCoordX(1);
         $newTile->setCoordY(-1);
         $this->entityManager->persist($newTile);
         $newTile2 = new TileMYR();
@@ -1016,7 +1018,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $newTile = new TileMYR();
         $newTile->setType(MyrmesParameters::GRASS_TILE_TYPE);
         $newTile->setCoordX(-1);
-        $newTile->setCoordY(-1);
+        $newTile->setCoordY(1);
         $this->entityManager->persist($newTile);
         $newTile2 = new TileMYR();
         $newTile2->setType(MyrmesParameters::STONE_TILE_TYPE);
@@ -1184,8 +1186,8 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($tile);
         $newTile = new TileMYR();
         $newTile->setType(MyrmesParameters::GRASS_TILE_TYPE);
-        $newTile->setCoordX(0);
-        $newTile->setCoordY(2);
+        $newTile->setCoordX(2);
+        $newTile->setCoordY(0);
         $this->entityManager->persist($newTile);
         $newTile2 = new TileMYR();
         $newTile2->setType(MyrmesParameters::GRASS_TILE_TYPE);
@@ -1195,7 +1197,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $newTile3 = new TileMYR();
         $newTile3->setType(MyrmesParameters::STONE_TILE_TYPE);
         $newTile3->setCoordX(1);
-        $newTile3->setCoordY(3);
+        $newTile3->setCoordY(-1);
         $this->entityManager->persist($newTile3);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_THREE);
@@ -1236,12 +1238,12 @@ class WorkerMYRServiceTest extends KernelTestCase
         $newTile2 = new TileMYR();
         $newTile2->setType(MyrmesParameters::GRASS_TILE_TYPE);
         $newTile2->setCoordX(1);
-        $newTile2->setCoordY(1);
+        $newTile2->setCoordY(-3);
         $this->entityManager->persist($newTile2);
         $newTile3 = new TileMYR();
         $newTile3->setType(MyrmesParameters::STONE_TILE_TYPE);
-        $newTile3->setCoordX(2);
-        $newTile3->setCoordY(0);
+        $newTile3->setCoordX(0);
+        $newTile3->setCoordY(-2);
         $this->entityManager->persist($newTile3);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_THREE);
@@ -1276,7 +1278,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($tile);
         $newTile = new TileMYR();
         $newTile->setType(MyrmesParameters::GRASS_TILE_TYPE);
-        $newTile->setCoordX(1);
+        $newTile->setCoordX(-1);
         $newTile->setCoordY(-1);
         $this->entityManager->persist($newTile);
         $newTile2 = new TileMYR();
@@ -1322,13 +1324,13 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($tile);
         $newTile = new TileMYR();
         $newTile->setType(MyrmesParameters::GRASS_TILE_TYPE);
-        $newTile->setCoordX(0);
-        $newTile->setCoordY(-2);
+        $newTile->setCoordX(-2);
+        $newTile->setCoordY(0);
         $this->entityManager->persist($newTile);
         $newTile2 = new TileMYR();
         $newTile2->setType(MyrmesParameters::GRASS_TILE_TYPE);
         $newTile2->setCoordX(-1);
-        $newTile2->setCoordY(-3);
+        $newTile2->setCoordY(1);
         $this->entityManager->persist($newTile2);
         $newTile3 = new TileMYR();
         $newTile3->setType(MyrmesParameters::STONE_TILE_TYPE);
@@ -1368,13 +1370,13 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($tile);
         $newTile = new TileMYR();
         $newTile->setType(MyrmesParameters::GRASS_TILE_TYPE);
-        $newTile->setCoordX(-2);
-        $newTile->setCoordY(0);
+        $newTile->setCoordX(0);
+        $newTile->setCoordY(2);
         $this->entityManager->persist($newTile);
         $newTile2 = new TileMYR();
         $newTile2->setType(MyrmesParameters::GRASS_TILE_TYPE);
         $newTile2->setCoordX(-1);
-        $newTile2->setCoordY(-1);
+        $newTile2->setCoordY(3);
         $this->entityManager->persist($newTile2);
         $newTile3 = new TileMYR();
         $newTile3->setType(MyrmesParameters::STONE_TILE_TYPE);
@@ -1419,12 +1421,12 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($newTile);
         $newTile2 = new TileMYR();
         $newTile2->setType(MyrmesParameters::GRASS_TILE_TYPE);
-        $newTile2->setCoordX(-1);
+        $newTile2->setCoordX(1);
         $newTile2->setCoordY(3);
         $this->entityManager->persist($newTile2);
         $newTile3 = new TileMYR();
         $newTile3->setType(MyrmesParameters::STONE_TILE_TYPE);
-        $newTile3->setCoordX(-1);
+        $newTile3->setCoordX(1);
         $newTile3->setCoordY(1);
         $this->entityManager->persist($newTile3);
         $tileType = new TileTypeMYR();
@@ -1562,12 +1564,12 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($newTile);
         $newTile2 = new TileMYR();
         $newTile2->setType(MyrmesParameters::DIRT_TILE_TYPE);
-        $newTile2->setCoordX(1);
-        $newTile2->setCoordY(-1);
+        $newTile2->setCoordX(2);
+        $newTile2->setCoordY(2);
         $this->entityManager->persist($newTile2);
         $newTile3 = new TileMYR();
         $newTile3->setType(MyrmesParameters::STONE_TILE_TYPE);
-        $newTile3->setCoordX(2);
+        $newTile3->setCoordX(0);
         $newTile3->setCoordY(2);
         $this->entityManager->persist($newTile3);
         $tileType = new TileTypeMYR();
@@ -1603,8 +1605,8 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($tile);
         $newTile = new TileMYR();
         $newTile->setType(MyrmesParameters::GRASS_TILE_TYPE);
-        $newTile->setCoordX(0);
-        $newTile->setCoordY(-2);
+        $newTile->setCoordX(1);
+        $newTile->setCoordY(1);
         $this->entityManager->persist($newTile);
         $newTile2 = new TileMYR();
         $newTile2->setType(MyrmesParameters::GRASS_TILE_TYPE);
@@ -1654,7 +1656,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($newTile);
         $newTile2 = new TileMYR();
         $newTile2->setType(MyrmesParameters::GRASS_TILE_TYPE);
-        $newTile2->setCoordX(-1);
+        $newTile2->setCoordX(1);
         $newTile2->setCoordY(-1);
         $this->entityManager->persist($newTile2);
         $newTile3 = new TileMYR();
@@ -1695,8 +1697,8 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($tile);
         $newTile = new TileMYR();
         $newTile->setType(MyrmesParameters::GRASS_TILE_TYPE);
-        $newTile->setCoordX(-1);
-        $newTile->setCoordY(1);
+        $newTile->setCoordX(-2);
+        $newTile->setCoordY(-2);
         $this->entityManager->persist($newTile);
         $newTile2 = new TileMYR();
         $newTile2->setType(MyrmesParameters::GRASS_TILE_TYPE);
@@ -1705,7 +1707,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($newTile2);
         $newTile3 = new TileMYR();
         $newTile3->setType(MyrmesParameters::STONE_TILE_TYPE);
-        $newTile3->setCoordX(-2);
+        $newTile3->setCoordX(0);
         $newTile3->setCoordY(-2);
         $this->entityManager->persist($newTile3);
         $tileType = new TileTypeMYR();
@@ -1741,13 +1743,13 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($tile);
         $newTile = new TileMYR();
         $newTile->setType(MyrmesParameters::GRASS_TILE_TYPE);
-        $newTile->setCoordX(0);
-        $newTile->setCoordY(2);
+        $newTile->setCoordX(-1);
+        $newTile->setCoordY(1);
         $this->entityManager->persist($newTile);
         $newTile2 = new TileMYR();
         $newTile2->setType(MyrmesParameters::GRASS_TILE_TYPE);
         $newTile2->setCoordX(-1);
-        $newTile2->setCoordY(1);
+        $newTile2->setCoordY(-1);
         $this->entityManager->persist($newTile2);
         $newTile3 = new TileMYR();
         $newTile3->setType(MyrmesParameters::STONE_TILE_TYPE);
@@ -1792,13 +1794,13 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($newTile);
         $newTile2 = new TileMYR();
         $newTile2->setType(MyrmesParameters::GRASS_TILE_TYPE);
-        $newTile2->setCoordX(0);
-        $newTile2->setCoordY(4);
+        $newTile2->setCoordX(-1);
+        $newTile2->setCoordY(1);
         $this->entityManager->persist($newTile2);
         $newTile3 = new TileMYR();
         $newTile3->setType(MyrmesParameters::STONE_TILE_TYPE);
-        $newTile3->setCoordX(1);
-        $newTile3->setCoordY(1);
+        $newTile3->setCoordX(0);
+        $newTile3->setCoordY(4);
         $this->entityManager->persist($newTile3);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_FOUR);
@@ -1834,17 +1836,17 @@ class WorkerMYRServiceTest extends KernelTestCase
         $newTile = new TileMYR();
         $newTile->setType(MyrmesParameters::GRASS_TILE_TYPE);
         $newTile->setCoordX(0);
-        $newTile->setCoordY(2);
+        $newTile->setCoordY(-2);
         $this->entityManager->persist($newTile);
         $newTile2 = new TileMYR();
         $newTile2->setType(MyrmesParameters::GRASS_TILE_TYPE);
-        $newTile2->setCoordX(2);
-        $newTile2->setCoordY(2);
+        $newTile2->setCoordX(1);
+        $newTile2->setCoordY(-1);
         $this->entityManager->persist($newTile2);
         $newTile3 = new TileMYR();
         $newTile3->setType(MyrmesParameters::STONE_TILE_TYPE);
-        $newTile3->setCoordX(1);
-        $newTile3->setCoordY(1);
+        $newTile3->setCoordX(2);
+        $newTile3->setCoordY(-2);
         $this->entityManager->persist($newTile3);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_FOUR);
@@ -1879,17 +1881,17 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($tile);
         $newTile = new TileMYR();
         $newTile->setType(MyrmesParameters::GRASS_TILE_TYPE);
-        $newTile->setCoordX(1);
-        $newTile->setCoordY(1);
+        $newTile->setCoordX(-1);
+        $newTile->setCoordY(-1);
         $this->entityManager->persist($newTile);
         $newTile2 = new TileMYR();
         $newTile2->setType(MyrmesParameters::GRASS_TILE_TYPE);
-        $newTile2->setCoordX(1);
-        $newTile2->setCoordY(-1);
+        $newTile2->setCoordX(0);
+        $newTile2->setCoordY(-4);
         $this->entityManager->persist($newTile2);
         $newTile3 = new TileMYR();
         $newTile3->setType(MyrmesParameters::STONE_TILE_TYPE);
-        $newTile3->setCoordX(2);
+        $newTile3->setCoordX(0);
         $newTile3->setCoordY(-2);
         $this->entityManager->persist($newTile3);
         $tileType = new TileTypeMYR();
@@ -1925,18 +1927,18 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($tile);
         $newTile = new TileMYR();
         $newTile->setType(MyrmesParameters::GRASS_TILE_TYPE);
-        $newTile->setCoordX(1);
+        $newTile->setCoordX(-1);
         $newTile->setCoordY(-1);
         $this->entityManager->persist($newTile);
         $newTile2 = new TileMYR();
         $newTile2->setType(MyrmesParameters::GRASS_TILE_TYPE);
-        $newTile2->setCoordX(0);
-        $newTile2->setCoordY(-2);
+        $newTile2->setCoordX(-1);
+        $newTile2->setCoordY(1);
         $this->entityManager->persist($newTile2);
         $newTile3 = new TileMYR();
         $newTile3->setType(MyrmesParameters::STONE_TILE_TYPE);
-        $newTile3->setCoordX(0);
-        $newTile3->setCoordY(-4);
+        $newTile3->setCoordX(-2);
+        $newTile3->setCoordY(-2);
         $this->entityManager->persist($newTile3);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_FOUR);
@@ -1972,17 +1974,17 @@ class WorkerMYRServiceTest extends KernelTestCase
         $newTile = new TileMYR();
         $newTile->setType(MyrmesParameters::GRASS_TILE_TYPE);
         $newTile->setCoordX(0);
-        $newTile->setCoordY(-2);
+        $newTile->setCoordY(2);
         $this->entityManager->persist($newTile);
         $newTile2 = new TileMYR();
         $newTile2->setType(MyrmesParameters::GRASS_TILE_TYPE);
         $newTile2->setCoordX(-1);
-        $newTile2->setCoordY(-1);
+        $newTile2->setCoordY(1);
         $this->entityManager->persist($newTile2);
         $newTile3 = new TileMYR();
         $newTile3->setType(MyrmesParameters::STONE_TILE_TYPE);
         $newTile3->setCoordX(-2);
-        $newTile3->setCoordY(-2);
+        $newTile3->setCoordY(2);
         $this->entityManager->persist($newTile3);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_FOUR);
@@ -2017,17 +2019,17 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($tile);
         $newTile = new TileMYR();
         $newTile->setType(MyrmesParameters::GRASS_TILE_TYPE);
-        $newTile->setCoordX(-1);
-        $newTile->setCoordY(-1);
+        $newTile->setCoordX(0);
+        $newTile->setCoordY(4);
         $this->entityManager->persist($newTile);
         $newTile2 = new TileMYR();
         $newTile2->setType(MyrmesParameters::GRASS_TILE_TYPE);
-        $newTile2->setCoordX(-1);
+        $newTile2->setCoordX(1);
         $newTile2->setCoordY(1);
         $this->entityManager->persist($newTile2);
         $newTile3 = new TileMYR();
         $newTile3->setType(MyrmesParameters::STONE_TILE_TYPE);
-        $newTile3->setCoordX(-2);
+        $newTile3->setCoordX(0);
         $newTile3->setCoordY(2);
         $this->entityManager->persist($newTile3);
         $tileType = new TileTypeMYR();
@@ -2063,18 +2065,18 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($tile);
         $newTile = new TileMYR();
         $newTile->setType(MyrmesParameters::GRASS_TILE_TYPE);
-        $newTile->setCoordX(-1);
-        $newTile->setCoordY(1);
+        $newTile->setCoordX(1);
+        $newTile->setCoordY(-1);
         $this->entityManager->persist($newTile);
         $newTile2 = new TileMYR();
         $newTile2->setType(MyrmesParameters::GRASS_TILE_TYPE);
-        $newTile2->setCoordX(0);
+        $newTile2->setCoordX(2);
         $newTile2->setCoordY(2);
         $this->entityManager->persist($newTile2);
         $newTile3 = new TileMYR();
         $newTile3->setType(MyrmesParameters::STONE_TILE_TYPE);
-        $newTile3->setCoordX(0);
-        $newTile3->setCoordY(4);
+        $newTile3->setCoordX(1);
+        $newTile3->setCoordY(1);
         $this->entityManager->persist($newTile3);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_FOUR);
@@ -2267,7 +2269,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($newTile2);
         $newTile3 = new TileMYR();
         $newTile3->setType(MyrmesParameters::STONE_TILE_TYPE);
-        $newTile3->setCoordX(-1);
+        $newTile3->setCoordX(1);
         $newTile3->setCoordY(-1);
         $this->entityManager->persist($newTile3);
         $newTile4 = new TileMYR();
@@ -2416,7 +2418,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $newTile2 = new TileMYR();
         $newTile2->setType(MyrmesParameters::GRASS_TILE_TYPE);
         $newTile2->setCoordX(0);
-        $newTile2->setCoordY(-2);
+        $newTile2->setCoordY(2);
         $this->entityManager->persist($newTile2);
         $newTile3 = new TileMYR();
         $newTile3->setType(MyrmesParameters::STONE_TILE_TYPE);
@@ -2425,8 +2427,8 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($newTile3);
         $newTile4 = new TileMYR();
         $newTile4->setType(MyrmesParameters::STONE_TILE_TYPE);
-        $newTile4->setCoordX(0);
-        $newTile4->setCoordY(2);
+        $newTile4->setCoordX(-2);
+        $newTile4->setCoordY(0);
         $this->entityManager->persist($newTile4);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_FIVE);
@@ -3258,8 +3260,8 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($tile);
         $newTile = new TileMYR();
         $newTile->setType(MyrmesParameters::GRASS_TILE_TYPE);
-        $newTile->setCoordX(0);
-        $newTile->setCoordY(2);
+        $newTile->setCoordX(2);
+        $newTile->setCoordY(0);
         $this->entityManager->persist($newTile);
         $newTile2 = new TileMYR();
         $newTile2->setType(MyrmesParameters::GRASS_TILE_TYPE);
@@ -3269,7 +3271,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $newTile3 = new TileMYR();
         $newTile3->setType(MyrmesParameters::STONE_TILE_TYPE);
         $newTile3->setCoordX(1);
-        $newTile3->setCoordY(3);
+        $newTile3->setCoordY(-1);
         $this->entityManager->persist($newTile3);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL);
@@ -3998,13 +4000,13 @@ class WorkerMYRServiceTest extends KernelTestCase
         for ($i = MyrmesParameters::PHEROMONE_TYPE_ZERO; $i <= MyrmesParameters::PHEROMONE_TYPE_SIX; ++$i) {
             $remaining = MyrmesParameters::PHEROMONE_TYPE_AMOUNT[$i] ;
             if ($remaining > 0) {
-                $expected->add([$i, $remaining]);
+                $expected->add([$i, $remaining, MyrmesParameters::PHEROMONE_TYPE_ORIENTATIONS[$i]]);
             }
         }
         for ($i = MyrmesParameters::SPECIAL_TILE_TYPE_FARM; $i <= MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL; ++$i) {
             $remaining = MyrmesParameters::SPECIAL_TILE_TYPE_AMOUNT[$i];
             if ($remaining > 0) {
-                $expected->add([$i, $remaining]);
+                $expected->add([$i, $remaining, MyrmesParameters::SPECIAL_TILES_TYPE_ORIENTATIONS[$i]]);
             }
         }
         // WHEN
@@ -4030,17 +4032,17 @@ class WorkerMYRServiceTest extends KernelTestCase
         $firstPlayer->addPheromonMYR($playerPheromone);
         $expected = new ArrayCollection();
         $remaining = MyrmesParameters::PHEROMONE_TYPE_AMOUNT[MyrmesParameters::PHEROMONE_TYPE_ZERO] - 1;
-        $expected->add([MyrmesParameters::PHEROMONE_TYPE_ZERO, $remaining]);
+        $expected->add([MyrmesParameters::PHEROMONE_TYPE_ZERO, $remaining, MyrmesParameters::PHEROMONE_TYPE_ORIENTATIONS[0]]);
         for ($i = MyrmesParameters::PHEROMONE_TYPE_ONE; $i <= MyrmesParameters::PHEROMONE_TYPE_SIX; ++$i) {
             $remaining = MyrmesParameters::PHEROMONE_TYPE_AMOUNT[$i] ;
             if ($remaining > 0) {
-                $expected->add([$i, $remaining]);
+                $expected->add([$i, $remaining, MyrmesParameters::PHEROMONE_TYPE_ORIENTATIONS[$i]]);
             }
         }
         for ($i = MyrmesParameters::SPECIAL_TILE_TYPE_FARM; $i <= MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL; ++$i) {
             $remaining = MyrmesParameters::SPECIAL_TILE_TYPE_AMOUNT[$i];
             if ($remaining > 0) {
-                $expected->add([$i, $remaining]);
+                $expected->add([$i, $remaining, MyrmesParameters::SPECIAL_TILES_TYPE_ORIENTATIONS[$i]]);
             }
         }
         // WHEN
@@ -4254,11 +4256,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $game = $this->createGame(2);
         $firstPlayer = $game->getPlayers()->first();
 
-        $workerTile = new TileMYR();
-        $workerTile->setType(MyrmesParameters::DIRT_TILE_TYPE);
-        $workerTile->setCoordY(0);
-        $workerTile->setCoordX(0);
-        $this->entityManager->persist($workerTile);
+        $workerTile = $this->tileMYRRepository->findOneBy(["coord_X" => 1, "coord_Y" => 16]);
 
         $gardenWorker = new GardenWorkerMYR();
         $gardenWorker->setPlayer($firstPlayer);
@@ -4267,11 +4265,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $gardenWorker->setTile($workerTile);
         $this->entityManager->persist($gardenWorker);
 
-        $dirtTile = new TileMYR();
-        $dirtTile->setType(MyrmesParameters::DIRT_TILE_TYPE);
-        $dirtTile->setCoordX(1);
-        $dirtTile->setCoordY(1);
-        $this->entityManager->persist($dirtTile);
+        $dirtTile = $this->tileMYRRepository->findOneBy(["coord_X" => 2, "coord_Y" => 17]);
 
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_ZERO);

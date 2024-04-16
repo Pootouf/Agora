@@ -32,17 +32,23 @@
                     {{ include('/Game/Myrmes/MainBoard/mainBoard.html.twig') }}
                 </div>
             {% endblock %}
+            {% block objectPlacement %}
+                <div id="objectPlacement" class="absolute w-[28%] h-[70%] top-0 right-0">
+                </div>
+            {% endblock %}
             {% block nav %}
                 {{ include('/Game/Utils/navigation.html.twig') }}
             {% endblock %}
         </div>
     </div>
-    {#<script>
-        {% if needToPlay %}
+    <script>
+        {#{% if needToPlay %}
         alert("A toi de jouer ! ");
-        {% endif %}
+        {% endif %}#}
+
+        let currentTileMode = 1;
     </script>
-    #}
+
 
     {# MAIN BOARD CLOSURE MANAGEMENT #}
     <script>
@@ -50,18 +56,28 @@
             let window = document.getElementById('personalBoard');
             window.remove();
         }
-        function closeSelectedBoxWindow() {
+        function closeSelectedBoxWindow(unselectTile = true) {
             let window = document.getElementById('selectedBoxActions');
             if(window !== null) {
                 let tile = document.getElementsByClassName("displayedActionsTile").item(0);
-                tile.classList.value = "";
-                tile.classList.add("fill-[rgba(0,_0,_0,_0)]")
+                if (unselectTile) {
+                    tile.classList.value = "";
+                    tile.classList.add("fill-[rgba(0,_0,_0,_0)]")
+                }
                 window.remove();
             }
         }
         function closeThrowResourceActions() {
             let window = document.getElementById('throwResourceActions');
             window.remove();
+        }
+        function closeObjectivesWindow() {
+            let window = document.getElementById('objectives');
+            if (window != null) {
+                window.remove();
+                document.getElementById('objectives_button').removeAttribute('disabled');
+                currentTileMode = 1;
+            }
         }
     </script>
 
@@ -75,6 +91,66 @@
                 tile.classList.value = "";
                 tile.classList.add("fill-[rgba(255,_255,_255,_0.35)]")
                 tile.classList.add("displayedActionsTile")
+        }
+    </script>
+
+    {# TILE POSITIONING MANAGEMENT #}
+    <script>
+        let selectedObjectId;
+        let selectedOrientation;
+        let clickableTilesForPlacement = [];
+
+        function PrepareTilePositioning(id) {
+            selectedOrientation = id;
+            document.getElementById('selectObjectTitle').innerText = "Placement de la tuile"
+
+            let divTemplate = document.getElementById('PrepareTilePositioningTemplate');
+            let divClone = divTemplate.cloneNode(true)
+            divClone.id = 'PrepareTilePositioning';
+
+            let selectedRotationimage = document.getElementById('ObjectOrientation_' + id).cloneNode(true);
+
+            divClone.querySelector("#imageDiv").appendChild(selectedRotationimage.firstElementChild);
+
+            document.getElementById('ObjectSelectionList').parentElement.appendChild(divClone)
+            document.getElementById('ObjectOrientationList').classList.add('hidden')
+        }
+
+        function selectOrientationTile(objectId, nbRotation) {
+            selectedObjectId = objectId;
+            let divTemplate = document.getElementById('ObjectOrientationListTemplate');
+            let divClone = divTemplate.cloneNode(true)
+            divClone.id = 'ObjectOrientationList';
+
+            let buttonTemplate = document.getElementById('ObjectOrientationTemplate');
+
+            let objectImage = document.getElementById('objectImage_' + objectId);
+
+            let flipCpt = 1;
+            if (objectId === "4") {
+                flipCpt = 2;
+                nbRotation = 6
+            }
+
+            for (let j = 0; j < flipCpt; j++) {
+                let newScr = j === 0 ? objectImage.dataset.firstOrientationSrc : objectImage.dataset.flipOrientationSrc
+                let flipGap = nbRotation * j;
+                for (let i = 0; i < nbRotation; i++) {
+                    let button = buttonTemplate.cloneNode(true);
+                    button.id = `ObjectOrientation_${i + flipGap}`;
+                    button.setAttribute("data-myrmes-tileid-param", objectId);
+                    button.setAttribute("data-myrmes-orientation-param", i + flipGap);
+                    let image = objectImage.cloneNode(true);
+                    image.src = newScr;
+                    image.style.transform = `rotate(${(360 / nbRotation) * i}deg)`;
+                    button.appendChild(image);
+                    divClone.appendChild(button);
+                }
+            }
+
+            document.getElementById('selectObjectTitle').innerText = "Orientation de la tuile"
+            document.getElementById('ObjectSelectionList').parentElement.appendChild(divClone)
+            document.getElementById('ObjectSelectionList').classList.add('hidden')
         }
     </script>
 {% endblock %}

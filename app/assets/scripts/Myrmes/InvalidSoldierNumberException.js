@@ -1,0 +1,1 @@
+class InvalidSoldierNumberException extends Error{}

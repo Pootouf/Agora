@@ -7,6 +7,7 @@ use App\Entity\Game\Myrmes\AnthillWorkerMYR;
 use App\Entity\Game\Myrmes\GameGoalMYR;
 use App\Entity\Game\Myrmes\GameMYR;
 use App\Entity\Game\Myrmes\GoalMYR;
+use App\Entity\Game\Myrmes\MainBoardMYR;
 use App\Entity\Game\Myrmes\MyrmesParameters;
 use App\Entity\Game\Myrmes\NurseMYR;
 use App\Entity\Game\Myrmes\PlayerMYR;
@@ -42,6 +43,18 @@ class MYRService
                 private readonly PlayerResourceMYRRepository $playerResourceMYRRepository)
     {
 
+    }
+
+    /**
+     * @param int $type
+     * @param int $orientation
+     * @return TileTypeMYR|null
+     */
+    public function getTileTypeFromTypeAndOrientation(int $type, int $orientation) : ?TileTypeMYR
+    {
+        return $this->tileTypeMYRRepository->findOneBy([
+            "type" => $type, "orientation" => $orientation
+        ]);
     }
 
     /**
@@ -101,7 +114,7 @@ class MYRService
 
         $this->initializePreys($game);
 
-        //TODO: initialize game objective
+        $this->initializeGoals($game);
 
         $i = 0;
         $anthillPositions = MyrmesParameters::ANTHILL_HOLE_POSITION_BY_NUMBER_OF_PLAYER[$game->getPlayers()->count()];
@@ -156,7 +169,7 @@ class MYRService
     /**
      * getDiceResults : get dice results for all season
      * @param GameMYR $game
-     * @return ArrayCollection<
+     * @return ArrayCollection<Int, Int>
      */
     public function getDiceResults(GameMYR $game) : ArrayCollection
     {
@@ -246,9 +259,36 @@ class MYRService
             $this->discardLarvae($player);
             $this->replaceWorkers($player);
             $this->replaceNurses($player);
+            $this->resetWorkshopActions($player);
         }
         $this->endRoundOfFirstPlayer($game);
         $this->endSeason($game);
+        $this->resetGameGoalsDoneDuringTheRound($game);
+    }
+
+    /**
+     * resetGameGoalsDoneDuringTheRound : at the end of the round, for each game goal,
+     *  clears the list of players who've accomplished an objective during the round
+     *
+     * @param GameMYR $game
+     * @return void
+     */
+    private function resetGameGoalsDoneDuringTheRound(GameMYR $game) : void
+    {
+        $mainBoard = $game->getMainBoardMYR();
+        foreach ($mainBoard->getGameGoalsLevelOne() as $gameGoal) {
+           $gameGoal->getGoalAlreadyDone()->clear();
+           $this->entityManager->persist($gameGoal);
+        }
+        foreach ($mainBoard->getGameGoalsLevelTwo() as $gameGoal) {
+            $gameGoal->getGoalAlreadyDone()->clear();
+            $this->entityManager->persist($gameGoal);
+        }
+        foreach ($mainBoard->getGameGoalsLevelThree() as $gameGoal) {
+            $gameGoal->getGoalAlreadyDone()->clear();
+            $this->entityManager->persist($gameGoal);
+        }
+        $this->entityManager->flush();
     }
 
     /**
@@ -380,9 +420,11 @@ class MYRService
         foreach ($this->resourceMYRRepository->findAll() as $resource) {
             $playerResource = new PlayerResourceMYR();
             $playerResource->setResource($resource);
-            $playerResource->setPersonalBoard($player->getPersonalBoardMYR());
             $playerResource->setQuantity(0);
+            $player->getPersonalBoardMYR()
+                ->addPlayerResourceMYR($playerResource);
             $this->entityManager->persist($playerResource);
+            $this->entityManager->persist($player->getPersonalBoardMYR());
         }
     }
 
@@ -394,11 +436,11 @@ class MYRService
     private function initializeNurse(PlayerMYR $player) : void
     {
         $nurse = new NurseMYR();
-        $nurse->setPlayer($player);
         $nurse->setArea(MyrmesParameters::BASE_AREA);
         $nurse->setAvailable(true);
-        $nurse->setPersonalBoardMYR($player->getPersonalBoardMYR());
+        $player->getPersonalBoardMYR()->addNurse($nurse);
         $this->entityManager->persist($nurse);
+        $this->entityManager->persist($player->getPersonalBoardMYR());
     }
 
     /**
@@ -409,10 +451,10 @@ class MYRService
     private function initializeWorker(PlayerMYR $player) : void
     {
         $worker = new AnthillWorkerMYR();
-        $worker->setPlayer($player);
-        $worker->setPersonalBoardMYR($player->getPersonalBoardMYR());
         $worker->setWorkFloor(MyrmesParameters::NO_WORKFLOOR);
+        $player->getPersonalBoardMYR()->addAnthillWorker($worker);
         $this->entityManager->persist($worker);
+        $this->entityManager->persist($player->getPersonalBoardMYR());
     }
 
     /**
@@ -502,7 +544,7 @@ class MYRService
     public function getNursesAtPosition(PlayerMYR $player, int $position): ArrayCollection
     {
         $nurses =  $this->nurseMYRRepository->findBy(["area" => $position,
-            "player" => $player]);
+            "personalBoardMYR" => $player->getPersonalBoardMYR()]);
         return new ArrayCollection($nurses);
     }
 
@@ -727,12 +769,7 @@ class MYRService
         $this->initializeNewSeason($game, MyrmesParameters::SPRING_SEASON_NAME);
         $this->initializeNewSeason($game, MyrmesParameters::SUMMER_SEASON_NAME);
         $this->initializeNewSeason($game, MyrmesParameters::FALL_SEASON_NAME);
-        $spring = $this->seasonMYRRepository->findOneBy(
-            [
-                "mainBoard" => $game->getMainBoardMYR(),
-                "name" => MyrmesParameters::SPRING_SEASON_NAME
-            ]
-        );
+        $spring = $game->getMainBoardMYR()->getSeasons()->first();
         $spring->setActualSeason(true);
         $this->entityManager->persist($game->getMainBoardMYR());
         $this->entityManager->persist($spring);
@@ -740,7 +777,11 @@ class MYRService
         $this->entityManager->flush();
     }
 
-
+    /**
+     * initializeGoals: initialize random goals for the game
+     * @param GameMYR $game
+     * @return void
+     */
     private function initializeGoals(GameMYR $game) : void
     {
         $goalsLevelOne = $this->goalMYRRepository->findBy([
@@ -755,15 +796,45 @@ class MYRService
         shuffle($goalsLevelOne);
         shuffle($goalsLevelTwo);
         shuffle($goalsLevelThree);
-        $game->getMainBoardMYR()->addGameGoalsLevelOne($goalsLevelOne[0]);
-        $game->getMainBoardMYR()->addGameGoalsLevelOne($goalsLevelOne[1]);
-        $game->getMainBoardMYR()->addGameGoalsLevelTwo($goalsLevelTwo[0]);
-        $game->getMainBoardMYR()->addGameGoalsLevelTwo($goalsLevelTwo[1]);
-        $game->getMainBoardMYR()->addGameGoalsLevelThree($goalsLevelThree[0]);
-        $game->getMainBoardMYR()->addGameGoalsLevelThree($goalsLevelThree[1]);
+
+        $this->createGameGoal($goalsLevelOne[0], $game->getMainBoardMYR());
+        $this->createGameGoal($goalsLevelOne[1], $game->getMainBoardMYR());
+        $this->createGameGoal($goalsLevelTwo[0], $game->getMainBoardMYR());
+        $this->createGameGoal($goalsLevelTwo[1], $game->getMainBoardMYR());
+        $this->createGameGoal($goalsLevelThree[0], $game->getMainBoardMYR());
+        $this->createGameGoal($goalsLevelThree[1], $game->getMainBoardMYR());
 
         $this->entityManager->persist($game->getMainBoardMYR());
         $this->entityManager->flush();
+    }
+
+    /**
+     * createGameGoal: create game goal entity
+     * @param GoalMYR $goal
+     * @param MainBoardMYR $mainBoard
+     * @return void
+     */
+    private function createGameGoal(GoalMYR $goal, MainBoardMYR $mainBoard) : void
+    {
+        $gameGoal = new GameGoalMYR();
+        $gameGoal->setGoal($goal);
+        switch ($goal->getDifficulty()) {
+            case MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE:
+                $gameGoal->setMainBoardLevelOne($mainBoard);
+                $mainBoard->addGameGoalsLevelOne($gameGoal);
+                break;
+            case MyrmesParameters::GOAL_DIFFICULTY_LEVEL_TWO:
+                $gameGoal->setMainBoardLevelTwo($mainBoard);
+                $mainBoard->addGameGoalsLevelTwo($gameGoal);
+                break;
+            case MyrmesParameters::GOAL_DIFFICULTY_LEVEL_THREE:
+                $gameGoal->setMainBoardLevelThree($mainBoard);
+                $mainBoard->addGameGoalsLevelThree($gameGoal);
+                break;
+        }
+        $this->entityManager->persist($gameGoal);
+        $this->entityManager->flush();
+
     }
 
     /**
@@ -779,6 +850,17 @@ class MYRService
             $game->getMainBoardMYR()->removeSeason($season);
         }
         $this->entityManager->persist($game->getMainBoardMYR());
+        $this->entityManager->flush();
+    }
+
+    private function resetWorkshopActions(PlayerMYR $player) : void
+    {
+        $playerActions = array();
+        for($j = MyrmesParameters::WORKSHOP_GOAL_AREA; $j <= MyrmesParameters::WORKSHOP_NURSE_AREA; $j += 1) {
+            $playerActions[$j] = 0;
+        }
+        $player->setWorkshopActions($playerActions);
+        $this->entityManager->persist($player);
         $this->entityManager->flush();
     }
 
