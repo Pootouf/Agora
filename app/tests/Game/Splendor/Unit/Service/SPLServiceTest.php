@@ -310,7 +310,7 @@ class SPLServiceTest extends TestCase
         $level = 3;
         $mainBoard = $game->getMainBoard();
         $card = $mainBoard->getDrawCards()->get($level - 1)->getDevelopmentCards()->last();
-        $card->setPrestigePoints(3);
+        $card->setPoints(3);
 
         // THEN
 
@@ -332,7 +332,7 @@ class SPLServiceTest extends TestCase
         $level = 3;
         $mainBoard = $game->getMainBoard();
         $card = $mainBoard->getDrawCards()->get($level - 1)->getDevelopmentCards()->last();
-        $card->setPrestigePoints(3);
+        $card->setPoints(3);
         $playerCard = new PlayerCardSPL($player, $card, true);
         $player->getPersonalBoard()->addPlayerCard($playerCard);
 
@@ -843,7 +843,7 @@ class SPLServiceTest extends TestCase
     {
         $card = new DevelopmentCardsSPL();
         $card->setColor($color);
-        $card->setPrestigePoints(0);
+        $card->setPoints(0);
         $card->setLevel(0);
         $playerCard = new PlayerCardSPL($player, $card, false);
         return $playerCard;
