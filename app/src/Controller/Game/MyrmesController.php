@@ -2,6 +2,7 @@
 
 namespace App\Controller\Game;
 
+use App\Entity\Game\DTO\Game;
 use App\Entity\Game\DTO\Myrmes\BoardBoxMYR;
 use App\Entity\Game\DTO\Myrmes\BoardTileMYR;
 use App\Entity\Game\Myrmes\GameMYR;
@@ -64,6 +65,9 @@ class MyrmesController extends AbstractController
         return $this->render('/Game/Myrmes/index.html.twig', [
             'player' => $player,
             'game' => $game,
+            'goalsLevelOne' => $game->getMainBoardMYR()->getGameGoalsLevelOne(),
+            'goalsLevelTwo' => $game->getMainBoardMYR()->getGameGoalsLevelTwo(),
+            'goalsLevelThree' => $game->getMainBoardMYR()->getGameGoalsLevelThree(),
             'boardBoxes' => $boardBoxes,
             'isPreview' => true,
             'preys' => $game->getMainBoardMYR()->getPreys(),
@@ -111,6 +115,8 @@ class MyrmesController extends AbstractController
             'possibleAnthillHolePlacement' => $game->getGamePhase() == MyrmesParameters::PHASE_WORKSHOP ?
                 $this->workshopMYRService->getAvailableAnthillHolesPositions($player)
                 : null,
+            /*'goalsDone' => $this->gameGoalMYRRepository->findOneBy(["goal_id" => ,
+                                                                "goalAlreadyDone" => ]),*/
         ]);
     }
 
@@ -217,6 +223,19 @@ class MyrmesController extends AbstractController
             'tile' => $tile,
         ]);
 
+    }
+
+    #[Route('/game/myrmes/{idGame}/display/objectives',
+        name: 'app_game_myrmes_display_objectives')]
+    public function displayObjectives(
+        #[MapEntity(id: 'idGame')] GameMYR $gameMYR): Response
+    {
+        return $this->render('Game/Myrmes/MainBoard/displayObjectives.html.twig', [
+            'game' => $gameMYR,
+            'goalsLevelOne' => $gameMYR->getMainBoardMYR()->getGameGoalsLevelOne(),
+            'goalsLevelTwo' => $gameMYR->getMainBoardMYR()->getGameGoalsLevelTwo(),
+            'goalsLevelThree' => $gameMYR->getMainBoardMYR()->getGameGoalsLevelThree(),
+        ]);
     }
 
     #[Route('/game/myrmes/{id}/display/personalBoard/throwResource/{playerResourceId}/actions',

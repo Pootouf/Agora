@@ -3,7 +3,9 @@
 namespace App\Tests\Game\Myrmes\Unit\Service;
 
 use App\Entity\Game\Myrmes\AnthillHoleMYR;
+use App\Entity\Game\Myrmes\GameGoalMYR;
 use App\Entity\Game\Myrmes\GameMYR;
+use App\Entity\Game\Myrmes\GoalMYR;
 use App\Entity\Game\Myrmes\MainBoardMYR;
 use App\Entity\Game\Myrmes\MyrmesParameters;
 use App\Entity\Game\Myrmes\NurseMYR;
@@ -489,6 +491,25 @@ class WorkshopMYRServiceTest extends TestCase
         $this->assertNull($result);
     }
 
+    public function testCanPlayerDoGoalWhenPlayerHasNotAlreadyDoneSelectedGoalWhenReturnFalse()
+    {
+        // GIVEN
+
+        $game = $this->createGame(3);
+        $gameGoal = $game->getMainBoardMYR()->getGameGoalsLevelOne()->first();
+
+        $player = $game->getPlayers()->first();
+        $gameGoal->addPrecedentsPlayer($player);
+
+        // WHEN
+
+        $result = $this->workshopMYRService->canPlayerDoGoal($player, $gameGoal);
+
+        // THEN
+
+        $this->assertFalse($result);
+    }
+
     private function createGame(int $numberOfPlayers) : GameMYR
     {
         if($numberOfPlayers < MyrmesParameters::MIN_NUMBER_OF_PLAYER ||
@@ -526,6 +547,15 @@ class WorkshopMYRServiceTest extends TestCase
         }
         $mainBoard = new MainBoardMYR();
         $mainBoard->setYearNum(MyrmesParameters::FIRST_YEAR_NUM);
+
+        $gameGoal = new GameGoalMYR();
+        $goal = new GoalMYR();
+        $goal->setDifficulty(1);
+        $goal->setName("goal");
+        $gameGoal->setGoal($goal);
+
+        $mainBoard->addGameGoalsLevelOne($gameGoal);
+
         $game->setMainBoardMYR($mainBoard);
         $game->setGamePhase(MyrmesParameters::PHASE_INVALID);
         return $game;
