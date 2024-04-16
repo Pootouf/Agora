@@ -241,6 +241,7 @@ export default class extends Controller  {
         let place = placement.params.placement;
         switch (place) {
             case 1:
+                workshop.toggleWorkshop(false);
                 await fetch(url);
                 break;
             case 2:
