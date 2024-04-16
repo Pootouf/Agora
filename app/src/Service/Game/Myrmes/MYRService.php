@@ -258,6 +258,7 @@ class MYRService
             $this->discardLarvae($player);
             $this->replaceWorkers($player);
             $this->replaceNurses($player);
+            $this->resetWorkshopActions($player);
         }
         $this->endRoundOfFirstPlayer($game);
         $this->endSeason($game);
@@ -814,6 +815,17 @@ class MYRService
             $game->getMainBoardMYR()->removeSeason($season);
         }
         $this->entityManager->persist($game->getMainBoardMYR());
+        $this->entityManager->flush();
+    }
+
+    private function resetWorkshopActions(PlayerMYR $player) : void
+    {
+        $playerActions = array();
+        for($j = MyrmesParameters::WORKSHOP_GOAL_AREA; $j <= MyrmesParameters::WORKSHOP_NURSE_AREA; $j += 1) {
+            $playerActions[$j] = 0;
+        }
+        $player->setWorkshopActions($playerActions);
+        $this->entityManager->persist($player);
         $this->entityManager->flush();
     }
 
