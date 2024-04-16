@@ -90,11 +90,6 @@ export default class extends Controller  {
 
     // workshop actions
 
-    async choseAnthillHolePlacement(placement) {
-        let url = placement.params.url;
-        await fetch(url);
-    }
-
     async cancelAnthillHolePlacement(placement) {
         alert("Ouvrir menu de l'atelier");
     }
@@ -177,7 +172,7 @@ export default class extends Controller  {
         let place = placement.params.placement;
         switch (place) {
             case 1:
-                alert("anthill hole");
+                await fetch(url);
                 break;
             case 2:
                 if (window.confirm("Confirmez vous l'augmentation du niveau de la fourmilière ?")) {
