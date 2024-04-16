@@ -33,6 +33,8 @@ class MYRServiceTest extends TestCase
     private ResourceMYRRepository $resourceMYRRepository;
     private SeasonMYRRepository $seasonMYRRepository;
 
+    private GoalMYRRepository $goalMYRRepository;
+
     protected function setUp() : void
     {
         $entityManager = $this->createMock(
@@ -53,6 +55,7 @@ class MYRServiceTest extends TestCase
             PlayerResourceMYRRepository::class);
         $goalMYRRepository = $this->createMock(
             GoalMYRRepository::class);
+        $this->goalMYRRepository = $goalMYRRepository;
         $this->MYRService = new MYRService(
             $playerMYRRepository,
             $entityManager,
@@ -387,7 +390,7 @@ class MYRServiceTest extends TestCase
         $this->assertFalse($result);
     }
 
-    /*public function testInitializeNewGame() : void
+    public function testInitializeNewGame() : void
     {
         // GIVEN
 
@@ -404,7 +407,10 @@ class MYRServiceTest extends TestCase
 
         $this->resourceMYRRepository
             ->method("findAll")->willReturn(array($dirt));
-
+        $goal = new GoalMYR();
+        $goal2 = new GoalMYR();
+        $goal3 = new GoalMYR();
+        $this->goalMYRRepository->method("findBy")->willReturn(array($goal, $goal2, $goal3));
         // WHEN
 
         $this->MYRService->initializeNewGame($game);
@@ -448,7 +454,7 @@ class MYRServiceTest extends TestCase
                 $player->getScore());
         }
 
-    }*/
+    }
 
     public function testGetPlayerResourceOfTypeWhenIsUnknow() : void
     {
