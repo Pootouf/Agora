@@ -90,7 +90,9 @@ export default class extends Controller  {
 
     async placeWorkerOnColonyLevelTrack(level) {
         let url = level.params.url;
-        await fetch(url);
+        if (window.confirm("Confirmez vous le placement de l'ouvrière sur le niveau " + url.split('/').pop())) {
+            await fetch(url);
+        }
     }
 
     //harvest a resource
