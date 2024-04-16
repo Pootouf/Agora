@@ -216,6 +216,40 @@ class WorkshopMYRServiceTest extends TestCase
             MyrmesParameters::WORKSHOP_LEVEL_AREA);
     }
 
+    public function testGiveBonusWhenAskIncreaseLevelAndActionAlreadyDone() : void
+    {
+        // GIVEN
+
+        $game = $this->createGame(2);
+        $action = MyrmesParameters::WORKSHOP_LEVEL_AREA;
+
+        foreach ($game->getPlayers() as $player)
+        {
+            $player->setPhase(MyrmesParameters::PHASE_WORKSHOP);
+            $player->getWorkshopActions()[$action] = 1;
+        }
+
+        $player = $game->getPlayers()->first();
+        $personalBoard = $player->getPersonalBoardMYR();
+        $personalBoard->setAnthillLevel(1);
+
+        $array = new ArrayCollection();
+        $nurse = $personalBoard->getNurses()->first();
+        $nurse->setArea(MyrmesParameters::WORKSHOP_LEVEL_AREA);
+        $array->add($nurse);
+        $this->MYRService->method("getNursesAtPosition")->willReturn($array);
+
+        // THEN
+
+        $this->expectException(\Exception::class);
+
+        // WHEN
+
+
+        $this->workshopMYRService->manageWorkshop($player,
+            $action);
+    }
+
     public function testGiveBonusWhenAskNewNurseWhenCanAdd() : void
     {
         // GIVEN
@@ -484,6 +518,11 @@ class WorkshopMYRServiceTest extends TestCase
                 $nurse = new NurseMYR();
                 $personalBoard->addNurse($nurse);
             }
+            $playerActions = array();
+            for($j = MyrmesParameters::WORKSHOP_GOAL_AREA; $j <= MyrmesParameters::WORKSHOP_NURSE_AREA; $j += 1) {
+                $playerActions[$j] = 0;
+            }
+            $player->setWorkshopActions($playerActions);
         }
         $mainBoard = new MainBoardMYR();
         $mainBoard->setYearNum(MyrmesParameters::FIRST_YEAR_NUM);
