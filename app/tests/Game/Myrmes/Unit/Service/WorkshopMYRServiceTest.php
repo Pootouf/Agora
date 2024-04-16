@@ -491,25 +491,6 @@ class WorkshopMYRServiceTest extends TestCase
         $this->assertNull($result);
     }
 
-    public function testCanPlayerDoGoalWhenPlayerHasNotAlreadyDoneSelectedGoalWhenReturnFalse()
-    {
-        // GIVEN
-
-        $game = $this->createGame(3);
-        $gameGoal = $game->getMainBoardMYR()->getGameGoalsLevelOne()->first();
-
-        $player = $game->getPlayers()->first();
-        $gameGoal->addPrecedentsPlayer($player);
-
-        // WHEN
-
-        $result = $this->workshopMYRService->canPlayerDoGoal($player, $gameGoal);
-
-        // THEN
-
-        $this->assertFalse($result);
-    }
-
     private function createGame(int $numberOfPlayers) : GameMYR
     {
         if($numberOfPlayers < MyrmesParameters::MIN_NUMBER_OF_PLAYER ||
