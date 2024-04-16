@@ -246,11 +246,13 @@ class SPLServiceTest extends TestCase
         $player->setTurnOfPlayer(true);
         $player2 = $game->getPlayers()->last();
         $nobleTile1 = new NobleTileSPL();
-        $nobleTile1->setPrestigePoints(2);
+        $nobleTile1->setPrestigePoints(3);
         $player->getPersonalBoard()->addNobleTile($nobleTile1);
         $nobleTile2 = new NobleTileSPL();
         $nobleTile2->setPrestigePoints(3);
         $player2->getPersonalBoard()->addNobleTile($nobleTile2);
+        $player2->getPersonalBoard()->addPlayerCard(new PlayerCardSPL($player2, new DevelopmentCardsSPL(), false));
+        $player2->getPersonalBoard()->addPlayerCard(new PlayerCardSPL($player2, new DevelopmentCardsSPL(), true));
         $expectedRanking = array($player2, $player);
         $this->SPLService->calculatePrestigePoints($player);
         $this->SPLService->calculatePrestigePoints($player2);
@@ -305,12 +307,12 @@ class SPLServiceTest extends TestCase
 
         $game = $this->createGame(SplendorParameters::$MIN_NUMBER_OF_PLAYER);
         $player = $game->getPlayers()->first();
-        $lastPoints = $player->getTotalPoints();
+        $lastPoints = $player->getScore();
 
         $level = 3;
         $mainBoard = $game->getMainBoard();
         $card = $mainBoard->getDrawCards()->get($level - 1)->getDevelopmentCards()->last();
-        $card->setPrestigePoints(3);
+        $card->setPoints(3);
 
         // THEN
 
@@ -318,7 +320,7 @@ class SPLServiceTest extends TestCase
 
         // WHEN
 
-        $this->assertNotSame($player->getTotalPoints(), $lastPoints);
+        $this->assertNotSame($player->getScore(), $lastPoints);
     }
 
     public function testBuyReservedCardWhenPlayerHasEnoughMoneyChangePoints()
@@ -327,12 +329,12 @@ class SPLServiceTest extends TestCase
 
         $game = $this->createGame(SplendorParameters::$MIN_NUMBER_OF_PLAYER);
         $player = $game->getPlayers()->first();
-        $lastPoints = $player->getTotalPoints();
+        $lastPoints = $player->getScore();
 
         $level = 3;
         $mainBoard = $game->getMainBoard();
         $card = $mainBoard->getDrawCards()->get($level - 1)->getDevelopmentCards()->last();
-        $card->setPrestigePoints(3);
+        $card->setPoints(3);
         $playerCard = new PlayerCardSPL($player, $card, true);
         $player->getPersonalBoard()->addPlayerCard($playerCard);
 
@@ -342,7 +344,7 @@ class SPLServiceTest extends TestCase
 
         // WHEN
 
-        $this->assertNotSame($player->getTotalPoints(), $lastPoints);
+        $this->assertNotSame($player->getScore(), $lastPoints);
     }
 
     public function testAssignNobleTileWhenPlayerHasEnoughMoneyChangePoints()
@@ -353,7 +355,7 @@ class SPLServiceTest extends TestCase
         $mainBoard = $game->getMainBoard();
         $player = $game->getPlayers()->first();
         $personal = $player->getPersonalBoard();
-        $lastPoints = $player->getTotalPoints();
+        $lastPoints = $player->getScore();
 
         $price = 3;
         $noble = $this->createNobleTile(array(SplendorParameters::$COLOR_BLUE => $price));
@@ -376,7 +378,7 @@ class SPLServiceTest extends TestCase
 
         $this->assertNotSame(-1, $addingNoble);
         $this->assertNotNull($addingNoble);
-        $this->assertSame($player->getTotalPoints(),
+        $this->assertSame($player->getScore(),
             $lastPoints + SplendorParameters::$POINT_PRESTIGE_BY_NOBLE_TILE);
     }
 
@@ -843,7 +845,7 @@ class SPLServiceTest extends TestCase
     {
         $card = new DevelopmentCardsSPL();
         $card->setColor($color);
-        $card->setPrestigePoints(0);
+        $card->setPoints(0);
         $card->setLevel(0);
         $playerCard = new PlayerCardSPL($player, $card, false);
         return $playerCard;

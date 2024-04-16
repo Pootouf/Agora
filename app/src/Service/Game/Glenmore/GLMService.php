@@ -93,11 +93,11 @@ class GLMService
         $players = $gameGLM->getPlayers();
         $maxPoint = 0;
         foreach ($players as $player) {
-            if ($player->getPoints() > $maxPoint) {
-                $maxPoint = $player->getPoints();
+            if ($player->getScore() > $maxPoint) {
+                $maxPoint = $player->getScore();
                 $winners->clear();
                 $winners->add($player);
-            } else if ($player->getPoints() == $maxPoint) {
+            } else if ($player->getScore() == $maxPoint) {
                 $winners->add($player);
             }
         }
@@ -580,7 +580,7 @@ class GLMService
             $resourceAmount = $playersResources[$i][1];
             $difference = $resourceAmount - $minResource;
             $points = $this->getPointsPerDifference($difference);
-            $player->setPoints($player->getPoints() + $points);
+            $player->setScore($player->getScore() + $points);
             $this->entityManager->persist($player);
         }
     }
@@ -599,7 +599,7 @@ class GLMService
                 continue;
             }
             $resourceAmount = $player->getPersonalBoard()->getMoney();
-            $player->setPoints($player->getPoints() + $resourceAmount);
+            $player->setScore($player->getScore() + $resourceAmount);
             $this->entityManager->persist($player);
         }
     }
@@ -618,7 +618,7 @@ class GLMService
             $player = $playersResources[$i][0];
             $resourceAmount = $playersResources[$i][1];
             $difference = $resourceAmount - $minResource;
-            $player->setPoints($player->getPoints() - 3 * $difference);
+            $player->setScore($player->getScore() - 3 * $difference);
             $this->entityManager->persist($player);
         }
     }
@@ -687,7 +687,7 @@ class GLMService
         $dice->setPlayerGLM($bot);
         $this->entityManager->persist($dice);
         $bot->setPawn($dice);
-        $bot->setPoints(0);
+        $bot->setScore(0);
         $bot->setRoundPhase(GlenmoreParameters::$STABLE_PHASE);
         $game->addPlayer($bot);
         $game->getMainBoard()->addPawn($dice);

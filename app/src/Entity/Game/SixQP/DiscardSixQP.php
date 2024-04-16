@@ -23,8 +23,6 @@ class DiscardSixQP extends Component
     #[ORM\ManyToMany(targetEntity: CardSixQP::class)]
     private Collection $cards;
 
-    #[ORM\Column]
-    private ?int $totalPoints = 0;
 
     public function __construct(PlayerSixQP $player, GameSixQP $game)
     {
@@ -77,18 +75,6 @@ class DiscardSixQP extends Component
     public function removeCard(CardSixQP $card): static
     {
         $this->cards->removeElement($card);
-
-        return $this;
-    }
-
-    public function getTotalPoints(): ?int
-    {
-        return $this->totalPoints;
-    }
-
-    public function setTotalPoints(int $totalPoints): static
-    {
-        $this->totalPoints = $totalPoints;
 
         return $this;
     }

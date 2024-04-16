@@ -407,7 +407,7 @@ class CardGLMServiceIntegrationTest extends KernelTestCase
         //WHEN
         $this->cardGLMService->applyIonaAbbey($game);
         //THEN
-        $this->assertSame($expectedPoints, $player->getPoints());
+        $this->assertSame($expectedPoints, $player->getScore());
     }
 
     public function testApplyLochMorar() : void
@@ -421,7 +421,7 @@ class CardGLMServiceIntegrationTest extends KernelTestCase
         //WHEN
         $this->cardGLMService->applyLochMorar($game);
         //THEN
-        $this->assertSame($expectedPoints, $player->getPoints());
+        $this->assertSame($expectedPoints, $player->getScore());
     }
 
     public function testApplyDuartCastle() : void
@@ -435,7 +435,7 @@ class CardGLMServiceIntegrationTest extends KernelTestCase
         //WHEN
         $this->cardGLMService->applyDuartCastle($game);
         //THEN
-        $this->assertSame($expectedPoints, $player->getPoints());
+        $this->assertSame($expectedPoints, $player->getScore());
     }
 
     private function giveExpectedPoints(PlayerGLM $player, int $points, String $type) : int
@@ -546,7 +546,7 @@ class CardGLMServiceIntegrationTest extends KernelTestCase
             $player->setRoundPhase(0);
             $player->setGameGLM($game);
             $player->setTurnOfPlayer(false);
-            $player->setPoints(0);
+            $player->setScore(0);
             $game->addPlayer($player);
             $personalBoard = new PersonalBoardGLM();
             $player->setPersonalBoard($personalBoard);

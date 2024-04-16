@@ -115,22 +115,11 @@ class SPLService
     public function hasOnePlayerReachedLimit(GameSPL $game): bool
     {
         foreach ($game->getPlayers() as $player) {
-            if ($this->getPrestigePoints($player) >= SplendorParameters::$MAX_PRESTIGE_POINTS) {
+            if ($player->getScore() >= SplendorParameters::$MAX_PRESTIGE_POINTS) {
                 return true;
             }
         }
         return false;
-    }
-
-    /**
-     * getPrestigePoints : returns total prestige points of a player
-     *
-     * @param PlayerSPL $player
-     * @return int
-     */
-    private function getPrestigePoints(PlayerSPL $player): int
-    {
-        return $player->getTotalPoints();
     }
 
     /**
@@ -172,9 +161,29 @@ class SPLService
         $array = $gameSPL->getPlayers()->toArray();
         usort($array,
             function(PlayerSPL $player1, PlayerSPL $player2) {
-                return $this->getPrestigePoints($player2) - $this->getPrestigePoints($player1);
+                $gap = $player2->getScore() - $player1->getScore();
+                if ($gap == 0) {
+                    return $this->getBoughtDevelopmentCards($player2) - $this->getBoughtDevelopmentCards($player1);
+                }
+                return $gap;
             });
         return $array;
+    }
+
+    /**
+     * getBoughtDevelopmentCards : returns the amount of card a player bought
+     * @param PlayerSPL $player
+     * @return int
+     */
+    public function getBoughtDevelopmentCards(PlayerSPL $player) : int
+    {
+        $result = 0;
+        foreach ($player->getPersonalBoard()->getPlayerCards() as $card) {
+            if (!$card->isIsReserved()) {
+                ++$result;
+            }
+        }
+        return $result;
     }
 
     /**
@@ -427,10 +436,10 @@ class SPLService
         }
         foreach ($developCards as $card) {
             if(!$card->isIsReserved()) {
-                $total += $card->getDevelopmentCard()->getPrestigePoints();
+                $total += $card->getDevelopmentCard()->getPoints();
             }
         }
-        $player->setTotalPoints($total);
+        $player->setScore($total);
         $this->entityManager->persist($player);
         $this->entityManager->flush();
     }

@@ -23,16 +23,6 @@ class DevelopmentCardsSPLTest extends TestCase
         $this->assertEmpty($this->developmentCardsSPL->getCardCost());
     }
 
-    public function testSetPrestigePoints(): void
-    {
-        //GIVEN
-        $points = 456;
-        //WHEN
-        $this->developmentCardsSPL->setPrestigePoints($points);
-        //THEN
-        $this->assertSame($points, $this->developmentCardsSPL->getPrestigePoints());
-    }
-
     public function testSetColor(): void
     {
         //GIVEN

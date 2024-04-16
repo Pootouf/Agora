@@ -22,7 +22,7 @@ class PlayerSPLTest extends TestCase
         //THEN
         $this->assertSame($username, $player->getUsername());
         $this->assertSame($game, $player->getGameSPL());
-        $this->assertSame($points, $player->getTotalPoints());
+        $this->assertSame($points, $player->getScore());
     }
 
     public function testSetPersonalBoard(): void
@@ -45,15 +45,6 @@ class PlayerSPLTest extends TestCase
         $this->assertSame($game, $this->playerSPL->getGameSPL());
     }
 
-    public function testSetTotalPoints(): void
-    {
-        //GIVEN
-        $points = 123;
-        //WHEN
-        $this->playerSPL->setTotalPoints($points);
-        //THEN
-        $this->assertSame($points, $this->playerSPL->getTotalPoints());
-    }
     protected function setUp(): void
     {
         $game = new GameSPL();
