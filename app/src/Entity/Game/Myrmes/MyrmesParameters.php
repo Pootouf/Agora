@@ -187,6 +187,17 @@ interface MyrmesParameters
         6 => 8
     ];
 
+    // Pheromone Type Orientation
+
+    const array PHEROMONE_TYPE_ORIENTATIONS = [
+        0 => 6,
+        1 => 3,
+        2 => 6,
+        3 => 6,
+        4 => 12,
+        5 => 6,
+        6 => 6,
+    ];
 
     // Special tiles
 
@@ -213,6 +224,15 @@ interface MyrmesParameters
         7 => 2,
         8 => 2,
         9 => 4
+    ];
+
+
+    // Special tiles Orientation
+
+    const array SPECIAL_TILES_TYPE_ORIENTATIONS = [
+        7 => 6,
+        8 => 6,
+        9 => 6,
     ];
 
 
