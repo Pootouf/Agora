@@ -90,7 +90,9 @@ export default class extends Controller  {
 
     async placeWorkerOnColonyLevelTrack(level) {
         let url = level.params.url;
-        await fetch(url);
+        if (window.confirm("Confirmez vous le placement de l'ouvrière sur le niveau " + url.split('/').pop())) {
+            await fetch(url);
+        }
     }
 
     //harvest a resource
@@ -106,11 +108,6 @@ export default class extends Controller  {
     }
 
     // workshop actions
-
-    async choseAnthillHolePlacement(placement) {
-        let url = placement.params.url;
-        await fetch(url);
-    }
 
     async cancelAnthillHolePlacement(placement) {
         alert("Ouvrir menu de l'atelier");
@@ -244,7 +241,8 @@ export default class extends Controller  {
         let place = placement.params.placement;
         switch (place) {
             case 1:
-                alert("anthill hole");
+                workshop.toggleWorkshop(false);
+                await fetch(url);
                 break;
             case 2:
                 if (window.confirm("Confirmez vous l'augmentation du niveau de la fourmilière ?")) {

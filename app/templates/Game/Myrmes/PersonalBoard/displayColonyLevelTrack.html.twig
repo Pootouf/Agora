@@ -27,6 +27,10 @@ This section displays player's colony level track with the crafts available for 
             {% if anthillLevel == 0 %}
                 <circle cx="298" cy="90" r="50" fill="{{ player.color }}"/>
             {% endif %}
+            {% if workersOnAnthillLevels[0] %}
+                <rect height="120" width="120" x="80" y="30" fill="{{ player.color }}" fill-opacity="0.5" rx="25"/>
+                <image href="{{ asset('resourcesGames/Myrmes/ant.svg') }}" x="90" y="40" height="100" width="100"/>
+            {% endif %}
         </svg>
 
     </{% if not isPreview and canSendWorkerToAnthill %}button{% else %}div{% endif %}>
@@ -47,6 +51,10 @@ This section displays player's colony level track with the crafts available for 
                        x="0" y="0" height="300" width="600" alt="colony track level {{ i }}"/>
                 {% if anthillLevel == i %}
                     <circle cx="298" cy="90" r="50" fill="{{ player.color }}"/>
+                {% endif %}
+                {% if workersOnAnthillLevels[i] %}
+                    <rect height="120" width="120" x="80" y="30" fill="{{ player.color }}" fill-opacity="0.5" rx="25"/>
+                    <image href="{{ asset('resourcesGames/Myrmes/ant.svg') }}" x="90" y="40" height="100" width="100"/>
                 {% endif %}
             </svg>
         </{% if not isPreview and canSendWorkerToAnthill %}button{% else %}div{% endif %}>
