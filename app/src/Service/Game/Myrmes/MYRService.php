@@ -45,6 +45,18 @@ class MYRService
     }
 
     /**
+     * @param int $type
+     * @param int $orientation
+     * @return TileTypeMYR|null
+     */
+    public function getTileTypeFromTypeAndOrientation(int $type, int $orientation) : ?TileTypeMYR
+    {
+        return $this->tileTypeMYRRepository->findOneBy([
+            "type" => $type, "orientation" => $orientation
+        ]);
+    }
+
+    /**
      * getPlayerResourceAmount : returns the quantity of player's resource type
      * @param PlayerMYR $playerMYR
      * @param string $resourceName
