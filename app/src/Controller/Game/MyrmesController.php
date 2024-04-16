@@ -115,6 +115,7 @@ class MyrmesController extends AbstractController
             'possibleAnthillHolePlacement' => $game->getGamePhase() == MyrmesParameters::PHASE_WORKSHOP ?
                 $this->workshopMYRService->getAvailableAnthillHolesPositions($player)
                 : null,
+            'workersOnAnthillLevels' => $this->dataManagementMYRService->workerOnAnthillLevels($player->getPersonalBoardMYR())
             /*'goalsDone' => $this->gameGoalMYRRepository->findOneBy(["goal_id" => ,
                                                                 "goalAlreadyDone" => ]),*/
         ]);
@@ -156,7 +157,8 @@ class MyrmesController extends AbstractController
             )->count(),
             'mustThrowResources' => $player != null
                 && $this->service->isInPhase($player, MyrmesParameters::PHASE_WINTER)
-                && $this->winterMYRService->mustDropResourcesForWinter($player)
+                && $this->winterMYRService->mustDropResourcesForWinter($player),
+            'workersOnAnthillLevels' => $this->dataManagementMYRService->workerOnAnthillLevels($player->getPersonalBoardMYR())
         ]);
     }
 
@@ -194,7 +196,8 @@ class MyrmesController extends AbstractController
                     $playerMYR,
                     MyrmesParameters::WORKSHOP_AREA
                 )->count(),
-                'mustThrowResources' => false
+                'mustThrowResources' => false,
+                'workersOnAnthillLevels' => $this->dataManagementMYRService->workerOnAnthillLevels($playerMYR->getPersonalBoardMYR())
             ]);
     }
 
