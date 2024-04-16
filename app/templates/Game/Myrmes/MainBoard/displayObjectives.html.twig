@@ -1,0 +1,45 @@
+{#
+    Represents the display of objectives when you click on the button on the main board.
+    param:
+    return :
+#}
+
+<div id="objectives"
+     class="absolute top-0 right-0 w-[28%] h-full flex z-50 bg-black bg-opacity-75 items-center justify-center text-white">
+    <div class="absolute bg-orange-500 p-5 w-full h-[60%] rounded-lg flex items-center justify-center flex-col">
+        <div class="flex flex-row">
+            {% set goalsLevel =
+                [goalsLevelOne, goalsLevelTwo, goalsLevelThree]
+            %}
+            {% for goalLevel in goalsLevel %}
+                <div class="flew flex-col">
+                    {% for goal in goalLevel %}
+                        <img class="items-center justify-center rounded-lg shadow-black shadow-lg max-h-full"
+                             src="{{ asset('resourcesGames/Myrmes/Goals/' ~ goal.getGoal().getId() ~ '.svg') }}"
+                             alt="goal_{{ goal.id }}">
+                        <div class="flex flex-row w-full">
+
+                            {% for i in 0..3 %}
+                                {% set color = 
+                                    i < goal.precedentsPlayers.count ? goal.precedentsPlayers[i].color : 'black' %}
+                                <svg viewBox="0 0 125 125"
+                                     class="mb-5">
+                                    <polygon points="40 13,80 13,110 40,110 80,80 110,40 110,13 80, 13 40"
+                                             fill="{{ color }}"/>
+                                </svg>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+
+        <button id="return_board" onclick="closeObjectivesWindow()"
+                class="absolute rounded-lg bg-green-900 py-2 px-3 m-1 text-2xl right-0 bottom-0 items-center"
+        >
+            <img src="{{ asset('resourcesGames/utils/return-arrow.svg') }}" id="returnArrow"
+                 alt="return on board"
+                 class="h-8 max-h-full">
+        </button>
+    </div>
+</div>

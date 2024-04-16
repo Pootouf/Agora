@@ -300,6 +300,7 @@ class WorkshopMYRService
             case MyrmesParameters::WORKSHOP_GOAL_AREA:
                 break;
         }
+        $player->getWorkshopActions()[$workshop] = 1;
         $this->entityManager->flush();
     }
 
@@ -334,6 +335,11 @@ class WorkshopMYRService
         if ($player->getPhase() != MyrmesParameters::PHASE_WORKSHOP) {
             return false;
         }
+
+        if($player->getWorkshopActions()[$workshopArea] > 0) {
+            return false;
+        }
+
         return $this->MYRService->getNursesAtPosition($player, $workshopArea)->count() > 0;
     }
 

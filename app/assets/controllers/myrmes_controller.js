@@ -133,7 +133,7 @@ export default class extends Controller  {
     async displayBoxActions(boardBox) {
         if (currentTileMode === 1) {
             closeSelectedBoxWindow();
-            let url = boardBox.params.url
+            let url = boardBox.params.url;
             const response = await fetch(url);
             let tree = document.getElementById("index_myrmes");
             let placeholder = document.createElement("div");
@@ -178,6 +178,18 @@ export default class extends Controller  {
                 currentTileMode = 2;
             }
         }
+    }
+
+    async displayObjectives(objective) {
+        let url = objective.params.url;
+        document.getElementById('objectives_button').setAttribute('disabled', '');
+        const response = await fetch(url);
+        let tree = document.getElementById("index_myrmes");
+        let placeholder = document.createElement("div");
+        placeholder.innerHTML = await response.text();
+        const node = placeholder.firstElementChild;
+        tree.appendChild(node);
+        currentTileMode = 0;
     }
 
     async displayPlayerPersonalBoard(board) {

@@ -7,7 +7,7 @@ This section displays the prey count of already hunted prey by player.
     <p class="relative w-fit mb-px {% if isPreview %}text_mini {% else %} text2-4 {% endif %}">Proies</p>
     <div class="relative w-full h-fit inline-flex align-center justify-around items-center" id="countPrey">
         <p class="h-fit w-[25%] {% if isPreview %}text_mini {% else %} text3-5 {% endif %}">
-            {{ preys.count }}
+            {{ player.preyMYRs.count }}
         </p>
         {#prey icon#}
         <img class="w-[65%]" id="preyIcon"
