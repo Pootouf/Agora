@@ -246,11 +246,13 @@ class SPLServiceTest extends TestCase
         $player->setTurnOfPlayer(true);
         $player2 = $game->getPlayers()->last();
         $nobleTile1 = new NobleTileSPL();
-        $nobleTile1->setPrestigePoints(2);
+        $nobleTile1->setPrestigePoints(3);
         $player->getPersonalBoard()->addNobleTile($nobleTile1);
         $nobleTile2 = new NobleTileSPL();
         $nobleTile2->setPrestigePoints(3);
         $player2->getPersonalBoard()->addNobleTile($nobleTile2);
+        $player2->getPersonalBoard()->addPlayerCard(new PlayerCardSPL($player2, new DevelopmentCardsSPL(), false));
+        $player2->getPersonalBoard()->addPlayerCard(new PlayerCardSPL($player2, new DevelopmentCardsSPL(), true));
         $expectedRanking = array($player2, $player);
         $this->SPLService->calculatePrestigePoints($player);
         $this->SPLService->calculatePrestigePoints($player2);
