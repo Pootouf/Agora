@@ -21,6 +21,8 @@ use App\Service\Game\Myrmes\WinterMYRService;
 use App\Service\Game\Myrmes\WorkerMYRService;
 use App\Service\Game\Myrmes\WorkshopMYRService;
 use App\Service\Game\PublishService;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -214,7 +216,6 @@ class MyrmesController extends AbstractController
             'hasFinishedObligatoryHarvesting' => $this->harvestMYRService->areAllPheromonesHarvested($player),
             'canStillHarvest' => $this->harvestMYRService->canStillHarvest($player),
         ]);
-
     }
 
     #[Route('/game/myrmes/{id}/display/personalBoard/throwResource/{playerResourceId}/actions',
@@ -370,6 +371,51 @@ class MyrmesController extends AbstractController
         return new Response("nurses placement canceled", Response::HTTP_OK);
     }
 
+    /**
+     * @param GameMYR $game
+     * @param int $antCoordX
+     * @param int $antCoordY
+     * @param int $shiftsCount
+     * @param string $cleanedTiles is a formatted string with each tiles coordinates
+     *                      separated by a space and each coordinate separated by a _
+     * @return Response
+     */
+    #[Route('/game/myrmes/{gameId}/workerPhase/mainBoard/{antCoordX}/{antCoordY}/{shiftsCount}/{cleanedTiles}',
+    name: "app_game_worker_phase_display_main_board")]
+    public function displayMainBoardDuringWorkerPhase(
+        #[MapEntity(id: 'gameId')] GameMYR $game,
+        int $antCoordX,
+        int $antCoordY,
+        int $shiftsCount,
+        string $cleanedTiles
+    ) : Response
+    {
+        if ($game->isPaused() || !$game->isLaunched())
+            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('invalid player', Response::HTTP_FORBIDDEN);
+        }
+        $stringCoords = explode(" ", $cleanedTiles);
+        $coords = [];
+        foreach($stringCoords as $stringCoord) {
+            $coords[] = array_map(function (string $value) {
+                return intval($value);
+            }, explode("_", $stringCoord));
+        }
+        try {
+            $boardBoxes = $this->dataManagementMYRService->organizeMainBoardRows(
+                $game, true, $antCoordX, $antCoordY, $player, $shiftsCount, new ArrayCollection($coords));
+        } catch (Exception) {
+            return new Response("Error while calculating main board tiles disposition",
+                Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+        return $this->returnMainBoard(
+            $game, $player, $boardBoxes, null,
+            false, false
+        );
+    }
+
     #[Route('/game/myrmes/{gameId}/placeWorkerOnColonyLevelTrack/{level}', name: 'app_game_myrmes_place_worker_colony')]
     public function placeWorkerOnColonyLevelTrack(
         #[MapEntity(id: 'gameId')] GameMYR $game,
@@ -382,7 +428,6 @@ class MyrmesController extends AbstractController
         if ($player == null) {
             return new Response('invalid player', Response::HTTP_FORBIDDEN);
         }
-        $personalBoard = $player->getPersonalBoardMYR();
         try {
             $this->workerMYRService->placeAntInAnthill($player->getPersonalBoardMYR(), $level);
         } catch (Exception) {
@@ -894,25 +939,36 @@ class MyrmesController extends AbstractController
         return new Response("confirmed workshop actions", Response::HTTP_OK);
     }
 
+    private function returnMainBoard(GameMYR $game, ?PlayerMYR $player, Collection $boardBoxes,
+                                     ?BoardBoxMYR $selectedBox, bool $sendingWorkerOnGarden,
+                                     bool $hasSelectedAnthillHolePlacement ) : Response
+    {
+        return $this->render('/Game/Myrmes/MainBoard/mainBoard.html.twig', [
+            'player' => $player,
+            'game' => $game,
+            'boardBoxes' => $boardBoxes,
+            'isSpectator' => $player == null,
+            'needToPlay' => $player == null ? false : $player->isTurnOfPlayer(),
+            'selectedBox' => $selectedBox,
+            'playerPhase' => $player->getPhase(),
+            'actualSeason' => $this->service->getActualSeason($game),
+            'sendingWorkerOnGarden' => $sendingWorkerOnGarden,
+            'hasSelectedAnthillHolePlacement' => $hasSelectedAnthillHolePlacement
+        ]);
+    }
+
     /**
      * publishMainBoard: publish with mercure the main board
      * @param GameMYR $game
      * @return void
      */
-    private function publishMainBoard(GameMYR $game, BoardBoxMYR $selectedBox) : void
+    private function publishMainBoard(GameMYR $game, BoardBoxMYR $selectedBox, Collection $boardBoxes,
+                                      bool $sendingWorkerOnGarden, bool $hasSelectedAnthillHolePlacement ) : void
     {
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
-        $response = $this->render('Game/Myrmes/MainBoard/mainBoard.html.twig',
-            [
-                'game' => $game,
-                'player' => $player,
-                'boardBoxes' =>  $this->dataManagementMYRService->organizeMainBoardRows($game),
-                'isPreview' => true,
-                'preys' => $game->getMainBoardMYR()->getPreys(),
-                'isSpectator' => $player == null,
-                'needToPlay' => $player == null ? false : $player->isTurnOfPlayer(),
-                'selectedBox' => $selectedBox,
-            ]);
+        $response = $this->returnMainBoard(
+            $game, $player, $boardBoxes, $selectedBox, $sendingWorkerOnGarden, $hasSelectedAnthillHolePlacement
+        );
         $this->publishService->publish(
             $this->generateUrl('app_game_show_glm',
                 ['id' => $game->getId()]).'mainBoard'.$player->getId(),

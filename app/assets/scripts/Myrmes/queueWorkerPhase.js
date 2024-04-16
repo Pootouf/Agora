@@ -60,15 +60,11 @@ let movementPoints = 0
  */
 function initQueue(baseUrl,
                    playerMovementPoints,
-                   antCoordX,
-                   antCoordY,
                    idHole,
                    playerSoldierNumber,
                    playerDirtNumber) {
     url = baseUrl
     movementPoints = playerMovementPoints
-    antPosition.x = antCoordX
-    antPosition.y = antCoordY
     soldierNumber = playerSoldierNumber
     dirtNumber = playerDirtNumber
     queue.push(actions.PLACE_ANT(idHole))
@@ -119,6 +115,17 @@ async function cleanPheromone() {
     queue.push(actions.CLEAN_PHEROMONE)
 }
 
+/**
+ * placeWorkerOnAnthillHole : place the worker on the specified tileId
+ * @param tileId
+ * @param coordX
+ * @param coordY
+ */
+function placeWorkerOnAnthillHole(tileId, coordX, coordY) {
+    queue.push(actions.PLACE_ANT(tileId))
+    antPosition.x = coordX
+    antPosition.y = coordY
+}
 
 /**
  * calculateNewCoordinateWithSelectedMovement: modify the coord object depending on the selected direction, and return

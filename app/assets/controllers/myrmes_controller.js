@@ -79,11 +79,10 @@ export default class extends Controller  {
     }
 
     async placeWorkerOnAntHillHole(hole) {
-        let url = hole.params.url;
-        const response = await fetch(url);
-        if (response.status === 200) {
-            document.getElementById('mainBoard').innerHTML = await response.text();
-        }
+        let tileId = hole.params.tileId;
+        let coordX = hole.params.coordX
+        let coordY = hole.params.coordY
+        placeWorkerOnAnthillHole(tileId)
     }
 
     //place worker on colony level track

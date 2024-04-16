@@ -13,6 +13,7 @@ use App\Entity\Game\Glenmore\PlayerGLM;
 use App\Entity\Game\Myrmes\GameMYR;
 use App\Entity\Game\Myrmes\GardenWorkerMYR;
 use App\Entity\Game\Myrmes\PheromonTileMYR;
+use App\Entity\Game\Myrmes\PlayerMYR;
 use App\Entity\Game\Myrmes\TileMYR;
 use App\Entity\Game\Splendor\SplendorParameters;
 use App\Repository\Game\Glenmore\PlayerTileGLMRepository;
@@ -43,12 +44,20 @@ class DataManagementMYRService
 
     /**
      * organizeMainBoardRows : return a collection of rows, a row is a collection of tiles or null.
-     *  It represents each row of the main board from top to bottom.
+     *   It represents each row of the main board from top to bottom.
      * @param GameMYR $game
+     * @param bool $isInWorkerPhase (optional)
+     * @param int|null $coordX (optional)
+     * @param int|null $coordY (optional)
+     * @param PlayerMYR|null $player (optional)
+     * @param int|null $shiftsCount (optional)
+     * @param Collection|null $cleanedTiles (optional)
      * @return Collection
      * @throws \Exception
      */
-    public function organizeMainBoardRows(GameMYR $game) : Collection
+    public function organizeMainBoardRows(GameMYR $game, bool $isInWorkerPhase = false, ?int $antCoordX = null,
+                                          ?int $antCoordY = null, ?PlayerMYR $player = null,
+                                          ?int $shiftsCount = null, ?Collection $cleanedTiles = null) : Collection
     {
         $result = new ArrayCollection();
 
@@ -95,7 +104,12 @@ class DataManagementMYRService
                 $currentLine->add($this->createBoardBox($game, null, $x, $y));
                 $y+=2;
             }
-            $currentLine->add($this->createBoardBox($game, $tile, $x, $y));
+            !$isInWorkerPhase ?
+                $currentLine->add($this->createBoardBox($game, $tile, $x, $y))
+                : $currentLine->add($this->createBoardBoxWorkerPhase(
+                    $game, $tile, $x, $y, $antCoordX == $x || $antCoordY == $y,
+                    $player, $shiftsCount, $cleanedTiles
+                ));
             $previousX = $tile->getCoordX();
             $y+=2;
         }
@@ -109,7 +123,63 @@ class DataManagementMYRService
     }
 
     /**
-     * createBoardBox : create a board box tile with tile, ant and pheromone
+     * createBoardBoxWorkerPhase : create a board box tile with tile, ant, prey and pheromone with the given parameters
+     *                              during the worker phase
+     * @param GameMYR $game
+     * @param TileMYR|null $tile
+     * @param int $graphicX
+     * @param int $graphicY
+     * @param int|null $shiftsCount
+     * @param Collection $cleanedTiles
+     * @return BoardBoxMYR
+     * @throws \Exception
+     */
+    public function createBoardBoxWorkerPhase(GameMYR $game, ?TileMYR $tile, int $graphicX, int $graphicY,
+                                              bool $hasAnt, PlayerMYR $player,
+                                              ?int $shiftsCount, Collection $cleanedTiles) : BoardBoxMYR
+    {
+        $ant = null;
+        if($hasAnt) {
+            $ant = new GardenWorkerMYR();
+            $ant->setTile($tile);
+            $ant->setMainBoardMYR($game->getMainBoardMYR());
+            $ant->setPlayer($player);
+            $ant->setShiftsCount($shiftsCount);
+        }
+        $pheromoneTile = null;
+        $anthillHole = null;
+        $prey = null;
+        if($cleanedTiles->forAll(function (array $coords) use ($tile) {
+            return $coords[0] != $tile->getCoordX() && $coords[1] != $tile->getCoordY();
+        })) {
+            $pheromoneTile = $this->pheromonTileMYRRepository->findOneBy(
+                [
+                    'mainBoard' => $game->getMainBoardMYR(),
+                    'tile' => $tile->getId()
+                ]
+            );
+            $prey = $this->preyMYRRepository->findOneBy(
+                [
+                    'mainBoardMYR' => $game->getMainBoardMYR(),
+                    'tile' => $tile->getId()
+                ]
+            );
+            $anthillHole = $this->anthillHoleMYRRepository->findOneBy(
+                [
+                    'mainBoardMYR' => $game->getMainBoardMYR(),
+                    'tile' => $tile->getId()
+                ]
+            );
+        }
+        return new BoardBoxMYR($tile, $ant, $pheromoneTile, $anthillHole, $prey, $graphicX, $graphicY);
+    }
+    /**
+     * createBoardBox : create a board box tile with tile, ant, prey and pheromone in phases other than worker phase
+     * @param GameMYR $game
+     * @param TileMYR|null $tile
+     * @param int $x
+     * @param int $y
+     * @return BoardBoxMYR
      * @throws \Exception
      */
     public function createBoardBox(GameMYR $game, ?TileMYR $tile, int $x, int $y) : BoardBoxMYR
