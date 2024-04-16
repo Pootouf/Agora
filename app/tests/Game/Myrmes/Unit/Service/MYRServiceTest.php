@@ -500,6 +500,11 @@ class MYRServiceTest extends TestCase
                 $nurse = new NurseMYR();
                 $personalBoard->addNurse($nurse);
             }
+            $playerActions = array();
+            for($j = MyrmesParameters::WORKSHOP_GOAL_AREA; $j <= MyrmesParameters::WORKSHOP_NURSE_AREA; $j += 1) {
+                $playerActions[$j] = 0;
+            }
+            $player->setWorkshopActions($playerActions);
         }
         $mainBoard = new MainBoardMYR();
         $game->setMainBoardMYR($mainBoard);

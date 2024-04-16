@@ -364,6 +364,25 @@ class WorkshopMYRServiceTest extends KernelTestCase
         $this->assertSame($expectedPlayerDirtResourceNb, $playerDirtResource->getQuantity());
     }
 
+    public function testGiveBonusWhenAskIncreaseLevelAndActionAlreadyDone() : void
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $action = MyrmesParameters::WORKSHOP_LEVEL_AREA;
+        foreach ($game->getPlayers() as $player)
+        {
+            $player->setPhase(MyrmesParameters::PHASE_WORKSHOP);
+            $player->getWorkshopActions()[$action] = 1;
+            $this->entityManager->persist($player);
+        }
+        $player = $game->getPlayers()->first();
+        // THEN
+        $this->expectException(\Exception::class);
+        // WHEN
+        $this->workshopMYRService->manageWorkshop($player,
+            $action);
+    }
+
     public function testGetAvailableAnthillPositions() : void
     {
         //GIVEN
@@ -466,6 +485,11 @@ class WorkshopMYRServiceTest extends KernelTestCase
             $player->setScore(0);
             $player->setGoalLevel(0);
             $player->setRemainingHarvestingBonus(0);
+            $playerActions = array();
+            for($j = MyrmesParameters::WORKSHOP_GOAL_AREA; $j <= MyrmesParameters::WORKSHOP_NURSE_AREA; $j += 1) {
+                $playerActions[$j] = 0;
+            }
+            $player->setWorkshopActions($playerActions);
             $this->entityManager->persist($player);
             $this->entityManager->persist($personalBoard);
             $this->entityManager->flush();

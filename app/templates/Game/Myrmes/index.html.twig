@@ -71,6 +71,14 @@
             let window = document.getElementById('throwResourceActions');
             window.remove();
         }
+        function closeObjectivesWindow() {
+            let window = document.getElementById('objectives');
+            if (window != null) {
+                window.remove();
+                document.getElementById('objectives_button').removeAttribute('disabled');
+                currentTileMode = 1;
+            }
+        }
     </script>
 
     {# NOTIFICATION MANAGEMENT #}
