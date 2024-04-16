@@ -49,6 +49,37 @@ class PlayerTest extends TestCase
         //THEN
         $this->assertTrue($this->player->isTurnOfPlayer());
     }
+
+    public function testSetExcludedWhenReturnTrue() : void
+    {
+        // GIVEN
+
+        $excluded = true;
+
+        // WHEN
+
+        $this->player->setExcluded($excluded);
+
+        // THEN
+
+        $this->assertTrue($this->player->isExcluded());
+    }
+
+    public function testSetExcludedWhenReturnFalse() : void
+    {
+        // GIVEN
+
+        $excluded = false;
+
+        // WHEN
+
+        $this->player->setExcluded($excluded);
+
+        // THEN
+
+        $this->assertFalse($this->player->isExcluded());
+    }
+
     protected function setUp(): void
     {
         $this->player = new Player();
