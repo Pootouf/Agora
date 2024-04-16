@@ -187,6 +187,7 @@ export default class extends Controller  {
         placeholder.innerHTML = await response.text();
         const node = placeholder.firstElementChild;
         tree.appendChild(node);
+        currentTileMode = 0;
     }
 
     async displayPlayerPersonalBoard(board) {
