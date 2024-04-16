@@ -82,7 +82,7 @@
                         {% endif %}
                         class="h-full p-2 w-full"
                 >
-                        <img id='image_card_{{ card.id }}'
+                        <img alt="image_card_{{ card.id }}" id='image_card_{{ card.id }}'
                                 {% set shadowColor = 'red-800' %}
                                 {% for purchasableCard in purchasableCards|filter(purchasableCard => purchasableCard == card) %}
                                     {% set shadowColor = 'green-700' %}
