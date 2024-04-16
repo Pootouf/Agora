@@ -161,9 +161,29 @@ class SPLService
         $array = $gameSPL->getPlayers()->toArray();
         usort($array,
             function(PlayerSPL $player1, PlayerSPL $player2) {
-                return $player2->getScore() - $player1->getScore();
+                $gap = $player2->getScore() - $player1->getScore();
+                if ($gap == 0) {
+                    return $this->getBoughtDevelopmentCards($player2) - $this->getBoughtDevelopmentCards($player1);
+                }
+                return $gap;
             });
         return $array;
+    }
+
+    /**
+     * getBoughtDevelopmentCards : returns the amount of card a player bought
+     * @param PlayerSPL $player
+     * @return int
+     */
+    public function getBoughtDevelopmentCards(PlayerSPL $player) : int
+    {
+        $result = 0;
+        foreach ($player->getPersonalBoard()->getPlayerCards() as $card) {
+            if (!$card->isIsReserved()) {
+                ++$result;
+            }
+        }
+        return $result;
     }
 
     /**
