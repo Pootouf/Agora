@@ -12,6 +12,7 @@ use App\Entity\Game\Myrmes\PersonalBoardMYR;
 use App\Entity\Game\Myrmes\PlayerMYR;
 use App\Entity\Game\Myrmes\SeasonMYR;
 use App\Service\Game\Myrmes\MYRService;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Exception;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -238,6 +239,58 @@ class MYRServiceTest extends KernelTestCase
         $this->assertNull($result);
     }
 
+    public function testGetDiceResults() : void
+    {
+        // GIVEN
+
+        $myrService = static::getContainer()->get(MYRService::class);
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $game = $this->createGame(2);
+        $game->getMainBoardMYR()->getSeasons()->clear();
+        $entityManager->persist($game);
+
+        $dice = 4;
+
+        $seasonSpring = new SeasonMYR();
+        $seasonSpring->setDiceResult($dice);
+        $seasonSpring->setActualSeason(false);
+        $seasonSpring->setName(MyrmesParameters::SPRING_SEASON_NAME);
+        $entityManager->persist($seasonSpring);
+
+        $seasonFall = new SeasonMYR();
+        $seasonFall->setDiceResult($dice);
+        $seasonFall->setActualSeason(false);
+        $seasonFall->setName(MyrmesParameters::FALL_SEASON_NAME);
+        $entityManager->persist($seasonFall);
+
+        $seasonSummer = new SeasonMYR();
+        $seasonSummer->setDiceResult($dice);
+        $seasonSummer->setActualSeason(false);
+        $seasonSummer->setName(MyrmesParameters::SUMMER_SEASON_NAME);
+        $entityManager->persist($seasonSummer);
+
+        $game->getMainBoardMYR()->addSeason($seasonSpring);
+        $game->getMainBoardMYR()->addSeason($seasonFall);
+        $game->getMainBoardMYR()->addSeason($seasonSummer);
+
+        $entityManager->persist($seasonSpring);
+        $entityManager->persist($seasonFall);
+        $entityManager->persist($seasonSummer);
+        $entityManager->persist($game->getMainBoardMYR());
+        $entityManager->flush();
+
+        // WHEN
+
+        $result = $myrService->getDiceResults($game);
+
+        // THEN
+
+        foreach ($result as $r)
+        {
+            $this->assertSame($dice, $r);
+        }
+    }
+
     private function createGame(int $numberOfPlayers) : GameMYR
     {
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);
@@ -251,7 +304,7 @@ class MYRServiceTest extends KernelTestCase
         $mainBoard->setGame($game);
         $entityManager->persist($mainBoard);
         $season = new SeasonMYR();
-        $season->setName("Spring");
+        $season->setName(MyrmesParameters::SPRING_SEASON_NAME);
         $season->setDiceResult(1);
         $season->setActualSeason(true);
         $season->setMainBoard($mainBoard);
@@ -283,10 +336,14 @@ class MYRServiceTest extends KernelTestCase
                 $nurse = new NurseMYR();
                 $nurse->setArea(MyrmesParameters::LARVAE_AREA);
                 $nurse->setAvailable(true);
-                $nurse->setPlayer($player);
                 $personalBoard->addNurse($nurse);
                 $entityManager->persist($nurse);
             }
+            $playerActions = array();
+            for($j = MyrmesParameters::WORKSHOP_GOAL_AREA; $j <= MyrmesParameters::WORKSHOP_NURSE_AREA; $j += 1) {
+                $playerActions[$j] = 0;
+            }
+            $player->setWorkshopActions($playerActions);
             $entityManager->persist($player);
             $entityManager->persist($personalBoard);
             $entityManager->flush();
