@@ -103,7 +103,8 @@ class WorkshopMYRServiceTest extends KernelTestCase
         //THEN
         $this->expectException(\Exception::class);
         //WHEN
-        $this->workshopMYRService->manageWorkshop($player, MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA, $tile);
+        $this->workshopMYRService->manageWorkshop($player,
+            MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA, $tile);
     }
 
     public function testPlaceAnthillLevelShouldFailBecauseChosenTileIsOnWater() : void
@@ -121,7 +122,8 @@ class WorkshopMYRServiceTest extends KernelTestCase
         //THEN
         $this->expectException(\Exception::class);
         //WHEN
-        $this->workshopMYRService->manageWorkshop($player, MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA, $tile);
+        $this->workshopMYRService->manageWorkshop($player,
+            MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA, $tile);
     }
 
     public function testPlaceAnthillLevelShouldFailBecauseChosenTileIsOnPheromoneTile() : void
@@ -154,7 +156,8 @@ class WorkshopMYRServiceTest extends KernelTestCase
         //THEN
         $this->expectException(\Exception::class);
         //WHEN
-        $this->workshopMYRService->manageWorkshop($player, MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA, $tile);
+        $this->workshopMYRService->manageWorkshop($player,
+            MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA, $tile);
     }
 
     public function testPlaceAnthillLevelShouldFailBecauseChosenTileIsOnAnthillHole() : void
@@ -179,7 +182,8 @@ class WorkshopMYRServiceTest extends KernelTestCase
         //THEN
         $this->expectException(\Exception::class);
         //WHEN
-        $this->workshopMYRService->manageWorkshop($player, MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA, $tile);
+        $this->workshopMYRService->manageWorkshop($player,
+            MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA, $tile);
     }
 
     public function testPlaceAnthillLevelShouldFailBecauseChosenTileIsOnPrey() : void
@@ -204,7 +208,8 @@ class WorkshopMYRServiceTest extends KernelTestCase
         //THEN
         $this->expectException(\Exception::class);
         //WHEN
-        $this->workshopMYRService->manageWorkshop($player, MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA, $tile);
+        $this->workshopMYRService->manageWorkshop($player,
+            MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA, $tile);
     }
 
     public function testPlaceAnthillLevelShouldFailBecauseChosenTileNotAroundPheromones() : void
@@ -223,7 +228,8 @@ class WorkshopMYRServiceTest extends KernelTestCase
         //THEN
         $this->expectException(\Exception::class);
         //WHEN
-        $this->workshopMYRService->manageWorkshop($player, MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA, $tile);
+        $this->workshopMYRService->manageWorkshop($player,
+            MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA, $tile);
     }
 
     public function testPlaceAnthillLevelShouldNotFailBecauseChosenTileAroundPheromones() : void
@@ -258,7 +264,8 @@ class WorkshopMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($nurse2);
         $this->entityManager->flush();
         //WHEN
-        $this->workshopMYRService->manageWorkshop($player, MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA, $tile);
+        $this->workshopMYRService->manageWorkshop($player,
+            MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA, $tile);
         //THEN
         $this->expectNotToPerformAssertions();
     }
@@ -292,10 +299,12 @@ class WorkshopMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($nurse);
         $this->entityManager->flush();
         $expectedAnthillHoleNb = 1;
-        $dirtResource = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::RESOURCE_TYPE_DIRT]);
+        $dirtResource = $this->resourceMYRRepository->findOneBy(
+            ["description" => MyrmesParameters::RESOURCE_TYPE_DIRT]);
         $expectedPlayerDirtResourceNb = 1;
         //WHEN
-        $this->workshopMYRService->manageWorkshop($player, MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA, $tile);
+        $this->workshopMYRService->manageWorkshop($player,
+            MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA, $tile);
         //THEN
         $this->assertSame($expectedAnthillHoleNb, $player->getAnthillHoleMYRs()->count());
         /** @var PlayerResourceMYR $playerDirtResource */
@@ -313,7 +322,8 @@ class WorkshopMYRServiceTest extends KernelTestCase
         $player->setPhase(MyrmesParameters::PHASE_WORKSHOP);
         $nurse = $player->getPersonalBoardMYR()->getNurses()->first();
         $nurse->setArea(MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA);
-        $tile = $this->tileMYRRepository->findOneBy(["coord_X" => 7, "coord_Y" => 12]);
+        $tile = $this->tileMYRRepository->findOneBy(
+            ["coord_X" => 7, "coord_Y" => 12]);
         $pheromone = new PheromonMYR();
         $pheromone->setPlayer($player);
         $pheromone->setHarvested(false);
@@ -322,14 +332,16 @@ class WorkshopMYRServiceTest extends KernelTestCase
         );
         $pheromone->setType($tileType);
         $pheromoneTile = new PheromonTileMYR();
-        $tile2 = $this->tileMYRRepository->findOneBy(["coord_X" => 6, "coord_Y" => 11]);
+        $tile2 = $this->tileMYRRepository->findOneBy(
+            ["coord_X" => 6, "coord_Y" => 11]);
         $pheromoneTile->setTile($tile2);
         $pheromoneTile->setResource(null);
         $pheromoneTile->setPheromonMYR($pheromone);
         $pheromoneTile->setMainBoard($game->getMainBoardMYR());
         $this->entityManager->persist($pheromoneTile);
         $pheromone->addPheromonTile($pheromoneTile);
-        $dirtResource = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::RESOURCE_TYPE_DIRT]);
+        $dirtResource = $this->resourceMYRRepository->findOneBy(
+            ["description" => MyrmesParameters::RESOURCE_TYPE_DIRT]);
         $playerDirtResource = new PlayerResourceMYR();
         $playerDirtResource->setResource($dirtResource);
         $playerDirtResource->setQuantity(1);
@@ -350,6 +362,25 @@ class WorkshopMYRServiceTest extends KernelTestCase
             ["resource" => $dirtResource, "personalBoard" => $player->getPersonalBoardMYR()]
         );
         $this->assertSame($expectedPlayerDirtResourceNb, $playerDirtResource->getQuantity());
+    }
+
+    public function testGiveBonusWhenAskIncreaseLevelAndActionAlreadyDone() : void
+    {
+        // GIVEN
+        $game = $this->createGame(2);
+        $action = MyrmesParameters::WORKSHOP_LEVEL_AREA;
+        foreach ($game->getPlayers() as $player)
+        {
+            $player->setPhase(MyrmesParameters::PHASE_WORKSHOP);
+            $player->getWorkshopActions()[$action] = 1;
+            $this->entityManager->persist($player);
+        }
+        $player = $game->getPlayers()->first();
+        // THEN
+        $this->expectException(\Exception::class);
+        // WHEN
+        $this->workshopMYRService->manageWorkshop($player,
+            $action);
     }
 
     public function testGetAvailableAnthillPositions() : void
@@ -445,7 +476,6 @@ class WorkshopMYRServiceTest extends KernelTestCase
             $personalBoard->setWarriorsCount(0);
             $personalBoard->setBonus(0);
             $nurse = new NurseMYR();
-            $nurse->setPlayer($player);
             $nurse->setArea(MyrmesParameters::BASE_AREA);
             $nurse->setAvailable(true);
             $nurse->setPersonalBoardMYR($personalBoard);
@@ -455,6 +485,11 @@ class WorkshopMYRServiceTest extends KernelTestCase
             $player->setScore(0);
             $player->setGoalLevel(0);
             $player->setRemainingHarvestingBonus(0);
+            $playerActions = array();
+            for($j = MyrmesParameters::WORKSHOP_GOAL_AREA; $j <= MyrmesParameters::WORKSHOP_NURSE_AREA; $j += 1) {
+                $playerActions[$j] = 0;
+            }
+            $player->setWorkshopActions($playerActions);
             $this->entityManager->persist($player);
             $this->entityManager->persist($personalBoard);
             $this->entityManager->flush();

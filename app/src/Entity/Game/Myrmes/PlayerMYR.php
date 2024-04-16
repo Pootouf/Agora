@@ -6,6 +6,7 @@ use App\Entity\Game\DTO\Player;
 use App\Repository\Game\Myrmes\PlayerMYRRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PlayerMYRRepository::class)]
@@ -48,6 +49,9 @@ class PlayerMYR extends Player
 
     #[ORM\Column]
     private ?int $remainingHarvestingBonus = null;
+
+    #[ORM\Column(type: Types::ARRAY)]
+    private array $workshopActions = [];
 
     public function __construct(string $name, GameMYR $game)
     {
@@ -294,6 +298,18 @@ class PlayerMYR extends Player
     public function setRemainingHarvestingBonus(int $remainingHarvestingBonus): static
     {
         $this->remainingHarvestingBonus = $remainingHarvestingBonus;
+
+        return $this;
+    }
+
+    public function &getWorkshopActions(): array
+    {
+        return $this->workshopActions;
+    }
+
+    public function setWorkshopActions(array $workshopActions): static
+    {
+        $this->workshopActions = $workshopActions;
 
         return $this;
     }

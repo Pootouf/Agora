@@ -167,6 +167,9 @@ class CardGLMService
         }
         if ($createdResources->count() == 1) {
             $createdResource = $createdResources->first();
+            if ($createdResource->getQuantity() >= 2) {
+                throw new Exception("can't pick of this resource");
+            }
             if ($createdResource->getResource()->getColor() === $resourceGLM->getColor()) {
                 $createdResource->setQuantity($createdResource->getQuantity() + 1);
                 $this->entityManager->persist($createdResource);
@@ -232,6 +235,16 @@ class CardGLMService
     }
 
     /**
+     * applyCastleMoil : gives a whisky barrel to the player
+     * @param PlayerTileGLM $playerTileGLM
+     * @return void
+     */
+    private function applyCastleMoil(PlayerTileGLM $playerTileGLM) : void
+    {
+        $this->giveWhisky($playerTileGLM, 1);
+    }
+
+    /**
      * applyEndGameCard : applies effect of special cards for points count at the end of the game.
      *
      * @param GameGLM $gameGLM    the game
@@ -263,16 +276,6 @@ class CardGLMService
             $this->entityManager->persist($player);
         }
         $this->entityManager->flush();
-    }
-
-    /**
-     * applyCastleMoil : gives a whisky barrel to the player
-     * @param PlayerTileGLM $playerTileGLM
-     * @return void
-     */
-    private function applyCastleMoil(PlayerTileGLM $playerTileGLM) : void
-    {
-        $this->giveWhisky($playerTileGLM, 1);
     }
 
     /**
@@ -345,6 +348,9 @@ class CardGLMService
     {
         $tiles = $personalBoard->getPlayerTiles();
         foreach ($tiles as $tile) {
+            if ($tile->getTile()->getName() === GlenmoreParameters::$CARD_LOCH_LOCHY) {
+                continue;
+            }
             foreach ($tile->getPlayerTileResource() as $playerTileResource) {
                 if ($playerTileResource->getResource()->getType()
                     == GlenmoreParameters::$PRODUCTION_RESOURCE) {
