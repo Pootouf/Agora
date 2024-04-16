@@ -126,7 +126,7 @@ export default class extends Controller  {
     }
 
     async displayBoxActions(boardBox) {
-        if (currentTileMode === 1) {
+        if (window.currentTileMode === 1) {
             closeSelectedBoxWindow();
             let url = boardBox.params.url;
             const response = await fetch(url);
@@ -135,8 +135,8 @@ export default class extends Controller  {
             placeholder.innerHTML = await response.text();
             const node = placeholder.firstElementChild;
             tree.appendChild(node);
-        } else if (currentTileMode === 2 && clickableTilesForPlacement.includes(boardBox.target)) {
-            currentTileMode = 0;
+        } else if (window.currentTileMode === 2 && window.clickableTilesForPlacement.includes(boardBox.target)) {
+            window.currentTileMode = 0;
             let confirmButton = document.getElementById('PrepareTilePositioning')
                 .querySelector('#objectPositioningValidation');
             let cancelButton = document.getElementById('PrepareTilePositioning')
@@ -170,7 +170,7 @@ export default class extends Controller  {
                 for (const pivotPoint of clickableTilesForPlacement) {
                     pivotPoint.parentElement.parentElement.classList.add("selectedTilePlacement");
                 }
-                currentTileMode = 2;
+                window.currentTileMode = 2;
             }
         }
     }
@@ -306,9 +306,9 @@ export default class extends Controller  {
             ).addEventListener("finish",
                 () => {
                     openedDisplayObjectPlacement.remove();
-                    selectedObjectId = null;
-                    selectedOrientation = null;
-                    currentTileMode = 1;
+                    window.selectedObjectId = null;
+                    window.selectedOrientation = null;
+                    window.currentTileMode = 1;
                 });
             let tile = document.getElementsByClassName("displayedActionsTile").item(0);
             tile.classList.value = "";
@@ -330,8 +330,8 @@ export default class extends Controller  {
             for (const tile of document.querySelectorAll('.selectedTilePlacement')) {
                 tile.classList.remove('selectedTilePlacement')
             }
-            currentTileMode = 0;
-            clickableTilesForPlacement = [];
+            window.currentTileMode = 0;
+            window.clickableTilesForPlacement = [];
 
         // Menu choix orientation d'une tuile
         } else if (document.getElementById('ObjectOrientationList')) {
@@ -374,7 +374,7 @@ export default class extends Controller  {
             boardBox.dataset.connectedTiles = tilesSplit[1];
         }
 
-        currentTileMode = 2;
+        window.currentTileMode = 2;
     }
 
     async placePheromone(boardBox) {

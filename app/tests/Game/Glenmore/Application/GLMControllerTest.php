@@ -609,7 +609,7 @@ class GLMControllerTest extends WebTestCase
         $this->client->request("GET", $newUrl);
         $this->client->request("GET", $newUrl);
         // THEN
-        $this->assertEquals(Response::HTTP_UNAVAILABLE_FOR_LEGAL_REASONS,
+        $this->assertEquals(Response::HTTP_FORBIDDEN,
             $this->client->getResponse()->getStatusCode());
     }
 
