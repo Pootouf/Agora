@@ -12,7 +12,7 @@ This section displays the personal board of a player
     {% set gapBetweenAreasSize = '' %}
 {% else %}
     {% set gapSize = 'gap-[1vw]' %}
-    {% set gapBetweenAreasSize = 'gap-[2vw]' %}
+    {% set gapBetweenAreasSize = 'gap-[2vw] sm:gap-[1vw]' %}
 {% endif %}
 {% if not isAnotherPlayerBoard %}
 
@@ -59,7 +59,8 @@ This section displays the personal board of a player
                                     {gameId: game.id})
                                 })
                             }}>
-                        <img class="h-full" src="{{ asset('resourcesGames/Myrmes/personalBoard/sendWorkerToGardenButton.svg') }}"
+                        <img class="h-full"
+                             src="{{ asset('resourcesGames/Myrmes/personalBoard/sendWorkerToGardenButton.svg') }}"
                              alt="send a worker to garden">
                     </button>
                 </div>
@@ -74,7 +75,8 @@ This section displays the personal board of a player
             {#event track#}
             {{ include('Game/Myrmes/PersonalBoard/displayEventTrack.html.twig') }}
         </div>
-        <div class="inline-flex flex-col items-center justify-around w-[20%] {{ gapBetweenAreasSize }}" id="rightColumn">
+        <div class="inline-flex flex-col items-center justify-around w-[20%] {{ gapBetweenAreasSize }}"
+             id="rightColumn">
             {#workshop#}
             {{ include('Game/Myrmes/PersonalBoard/displayWorkshop.html.twig') }}
             {#prey counter#}
