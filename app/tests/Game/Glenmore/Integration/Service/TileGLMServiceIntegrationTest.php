@@ -1895,6 +1895,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
         $playerTile = $this->givePlayerTile($player, GlenmoreParameters::$TILE_NAME_GROCER);
+        $this->selectResource($playerTile);
         $activableTiles = new ArrayCollection([$playerTile]);
         //THEN
         $this->expectException(\Exception::class);
@@ -1911,6 +1912,16 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $this->selectResource($playerTile);
         $this->selectResource($playerTile);
         $this->selectResource($playerTile);
+        $resource = $this->resourceGLMRepository->findOneBy(["id" => 1]);
+        $playerTileResource = new PlayerTileResourceGLM();
+        $playerTileResource->setResource($resource);
+        $playerTileResource->setQuantity(1);
+        $playerTileResource->setPlayerTileGLM($playerTile);
+        $playerTileResource->setPlayer($player);
+        $this->entityManager->persist($playerTileResource);
+        $playerTile->addPlayerTileResource($playerTileResource);
+        $this->entityManager->persist($playerTile);
+        $this->entityManager->flush();
         $activableTiles = new ArrayCollection([$playerTile]);
         //WHEN
         $this->service->activateBonus($playerTile, $player, $activableTiles);
@@ -1940,7 +1951,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
         $playerTile = $this->givePlayerTile($player, GlenmoreParameters::$TILE_NAME_CATTLE);
-        $resource = $this->resourceGLMRepository->findOneBy(["id" => 1]);
+        $resource = $this->resourceGLMRepository->findOneBy(["color" => GlenmoreParameters::$COLOR_BROWN]);
         $playerTileResource = new PlayerTileResourceGLM();
         $playerTileResource->setResource($resource);
         $playerTileResource->setQuantity(3);
@@ -1956,6 +1967,91 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         //WHEN
         $this->service->activateBonus($playerTile, $player, $activableTiles);
     }
+
+    public function testActivateCattleWhenExistsResourceOnTile() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $playerTile = $this->givePlayerTile($player, GlenmoreParameters::$TILE_NAME_CATTLE);
+        $resource = $this->resourceGLMRepository->findOneBy(["color" => GlenmoreParameters::$COLOR_BROWN]);
+        $playerTileResource = new PlayerTileResourceGLM();
+        $playerTileResource->setResource($resource);
+        $playerTileResource->setQuantity(1);
+        $playerTileResource->setPlayerTileGLM($playerTile);
+        $playerTileResource->setPlayer($player);
+        $this->entityManager->persist($playerTileResource);
+        $playerTile->addPlayerTileResource($playerTileResource);
+        $this->entityManager->persist($playerTile);
+        $this->entityManager->flush();
+        $activableTiles = new ArrayCollection([$playerTile]);
+        //WHEN
+        $this->service->activateBonus($playerTile, $player, $activableTiles);
+        //THEN
+        $this->assertSame(2, $playerTile->getPlayerTileResource()->first()->getQuantity());
+    }
+
+    public function testActivateCattleWhenNotExistsResourceOnTile() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $playerTile = $this->givePlayerTile($player, GlenmoreParameters::$TILE_NAME_CATTLE);
+        $activableTiles = new ArrayCollection([$playerTile]);
+        //WHEN
+        $this->service->activateBonus($playerTile, $player, $activableTiles);
+        //THEN
+        $this->assertSame(1, $playerTile->getPlayerTileResource()->first()->getQuantity());
+    }
+
+    public function testActivateButcherWhenNoResourceSelected()
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $playerTile = $this->givePlayerTile($player, GlenmoreParameters::$TILE_NAME_BUTCHER);
+        $resource = $this->resourceGLMRepository->findOneBy(["color" => GlenmoreParameters::$COLOR_WHITE]);
+        $playerTileResource = new PlayerTileResourceGLM();
+        $playerTileResource->setResource($resource);
+        $playerTileResource->setQuantity(1);
+        $playerTileResource->setPlayerTileGLM($playerTile);
+        $playerTileResource->setPlayer($player);
+        $this->entityManager->persist($playerTileResource);
+        $playerTile->addPlayerTileResource($playerTileResource);
+        $this->entityManager->persist($playerTile);
+        $this->entityManager->flush();
+        $this->selectResource($playerTile, 3);
+        $activableTiles = new ArrayCollection([$playerTile]);
+        //WHEN
+        $this->service->activateBonus($playerTile, $player, $activableTiles);
+        //THEN
+        $this->expectNotToPerformAssertions();
+    }
+
+    public function testActivateDistilleryWhenNoResourceSelected()
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $playerTile = $this->givePlayerTile($player, GlenmoreParameters::$TILE_NAME_DISTILLERY);
+        $resource = $this->resourceGLMRepository->findOneBy(["color" => GlenmoreParameters::$COLOR_YELLOW]);
+        $playerTileResource = new PlayerTileResourceGLM();
+        $playerTileResource->setResource($resource);
+        $playerTileResource->setQuantity(1);
+        $playerTileResource->setPlayerTileGLM($playerTile);
+        $playerTileResource->setPlayer($player);
+        $this->entityManager->persist($playerTileResource);
+        $playerTile->addPlayerTileResource($playerTileResource);
+        $this->entityManager->persist($playerTile);
+        $this->entityManager->flush();
+        $this->selectResource($playerTile, 6);
+        $activableTiles = new ArrayCollection([$playerTile]);
+        //WHEN
+        $this->service->activateBonus($playerTile, $player, $activableTiles);
+        //THEN
+        $this->expectNotToPerformAssertions();
+    }
+
 
     public function testActivateBonusWhenNotActivable() : void
     {
@@ -1986,9 +2082,9 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         return $playerTile;
     }
 
-    private function selectResource(PlayerTileGLM $playerTile) : void
+    private function selectResource(PlayerTileGLM $playerTile, int $id = 1) : void
     {
-        $resource = $this->resourceGLMRepository->findOneBy(["id" => 1]);
+        $resource = $this->resourceGLMRepository->findOneBy(["id" => $id]);
         $selectedResource = new SelectedResourceGLM();
         $selectedResource->setResource($resource);
         $selectedResource->setPlayerTile($playerTile);
