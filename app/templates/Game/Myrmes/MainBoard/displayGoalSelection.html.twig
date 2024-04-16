@@ -16,7 +16,7 @@ return :
                  alt="return on board"
                  class="h-6 max-h-full">
         </button>
-        <p id="selectObjectTitle" class="flex-grow content-center text-2xl text-center font-bold text-white">
+        <p id="selectGoalTitle" class="flex-grow content-center text-2xl text-center font-bold text-white">
             Selection d'un objectif
         </p>
     </div>
@@ -26,9 +26,9 @@ return :
         %}
         {% for goalLevel in goalsLevel %}
                 {% for goal in goalLevel %}
-                    <button id="goalSelection_{{ goal.goal.id }}" data-goalid="{{ goal.goal.id }}"
-                            class="relative aspect-square rounded-lg bg-[#fb923c] hover:#c2410c p-3 "
-                            onclick="">
+                    <button id="goalSelection_{{ goal.goal.id }}"
+                            class="relative aspect-square rounded-lg bg-[#fb923c] enabled:hover:bg-[#ea580c] p-3"
+                            onclick="goalSelected(this)">
                         <img class="items-center justify-center rounded-lg shadow-black shadow-lg max-h-full w-full"
                              src="{{ asset('resourcesGames/Myrmes/Goals/' ~ goal.goal.id ~ '.svg') }}"
                              alt="goal_{{ goal.id }}">
@@ -36,8 +36,7 @@ return :
                             {% for i in 0..3 %}
                                 {% set color =
                                     i < goal.precedentsPlayers.count ? goal.precedentsPlayers[i].color : 'black' %}
-                                <svg viewBox="0 0 125 125"
-                                     class="">
+                                <svg viewBox="0 0 125 125">
                                     <polygon points="40 13,80 13,110 40,110 80,80 110,40 110,13 80, 13 40"
                                              fill="{{ color }}"/>
                                 </svg>
@@ -46,5 +45,39 @@ return :
                     </button>
                 {% endfor %}
         {% endfor %}
+    </div>
+    <div class="hidden">
+        <div id="goalSelectionTemplate" class="flex flex-col justify-between items-center gap-4 h-[92%] p-2 ">
+            <div></div>
+            <div class="w-full flex flex-col items-center gap-2 ">
+                <p class="text-xl font-bold text-center">
+                    Souhaitez-vous valider cet objectif ?
+                </p>
+                <div id="imageDiv" class="aspect-square rounded-lg bg-[#000000]"></div>
+            </div>
+            <div class="flex flex-col w-full items-center">
+                <p class="font-bold italic text-center">
+                    Choisissez où poser votre tuile en cliquant sur une des cases ⬡ en blanc
+                </p>
+                <div class="flex flex-row w-full">
+                    <button id="objectPositioningValidation"
+                            class="bg-[#15803d] w-full
+					            rounded-l-lg p-2 text-2xl text-white font-bold"
+                            {{ stimulus_action('myrmes','placePheromone','click',
+                                {url:path('app_game_myrmes_place_pheromone',
+                                    {
+                                        idGame: game.id,
+                                        tileId: "tileId",
+                                        tileType: "tileType",
+                                        orientation: "orientation",
+                                    })
+                                })
+                            }}
+                    >
+                        Confirmer
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 </div>

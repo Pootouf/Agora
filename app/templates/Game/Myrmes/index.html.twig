@@ -156,5 +156,19 @@
             document.getElementById('ObjectSelectionList').parentElement.appendChild(divClone)
             document.getElementById('ObjectSelectionList').classList.add('hidden')
         }
+
+        {# GOAL SELECTION MANAGEMENT #}
+        function goalSelected(goal) {
+
+            let divTemplate = document.getElementById('goalSelectionTemplate');
+            let divClone = divTemplate.cloneNode(true)
+            divClone.id = 'confirmGoalSelected';
+            let selectedGoal = goal.cloneNode(true);
+            selectedGoal.setAttribute('disabled', '');
+            divClone.querySelector("#imageDiv").appendChild(selectedGoal);
+
+            document.getElementById('ObjectSelectionList').parentElement.appendChild(divClone)
+            document.getElementById('ObjectSelectionList').classList.add('hidden')
+        }
     </script>
 {% endblock %}
