@@ -123,6 +123,7 @@ export default class extends Controller  {
     }
 
     async displayObjectives(objective) {
+        closeObjectivesWindow();
         let url = objective.params.url;
         const response = await fetch(url);
         let tree = document.getElementById("index_myrmes");

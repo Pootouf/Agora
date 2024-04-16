@@ -65,7 +65,9 @@
         }
         function closeObjectivesWindow() {
             let window = document.getElementById('objectives');
-            window.remove();
+            if (window != null) {
+                window.remove();
+            }
         }
     </script>
 
