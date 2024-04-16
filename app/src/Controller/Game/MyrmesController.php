@@ -750,7 +750,7 @@ class MyrmesController extends AbstractController
             return new Response("Error while calculating main board tiles disposition",
                 Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-        return $this->render('/Game/Myrmes/index.html.twig', [
+        return $this->render('/Game/Myrmes/MainBoard/mainBoard.html.twig', [
             'player' => $player,
             'game' => $gameMYR,
             'boardBoxes' => $boardBoxes,
@@ -762,7 +762,12 @@ class MyrmesController extends AbstractController
             'playerPhase' => $player== null ? $gameMYR->getPlayers()->first()->getPhase() : $player->getPhase(),
             'actualSeason' => $this->service->getActualSeason($gameMYR),
             'hasSelectedAnthillHolePlacement' => true,
-            'possibleAnthillHolePlacement' => $this->workshopMYRService->getAvailableAnthillHolesPositions($player)
+            'sendingWorkerOnGarden' => false,
+            'possibleAnthillHolePlacement' => $this->workshopMYRService->getAvailableAnthillHolesPositions($player),
+            'nursesOnWorkshop' => $this->service->getNursesAtPosition(
+                $player,
+                MyrmesParameters::WORKSHOP_AREA
+            )->count()
         ]);
     }
 
