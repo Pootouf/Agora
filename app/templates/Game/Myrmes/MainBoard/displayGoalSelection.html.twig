@@ -1,0 +1,50 @@
+{#
+Represents the display of possible goals where a player can validate one
+param: goalsLevelOne, goalsLevelTwo, goalsLevelThree
+return :
+#}
+<div id="openedDisplayGoalSelection"
+     class="bg-[#FFFFFF] size-full rounded-l-lg overflow-hidden"
+        {{ stimulus_controller('myrmes') }}>
+    <div class="w-full h-[8%] bg-[#c67b24] rounded-tl-lg inline-flex shadow-lg">
+        <button id="return_dop"
+                class="shadow-inner aspect-square relative h-full rounded-tl-lg
+		            bg-[#8F901F] hover:bg-[#7d7e1b] py-2 px-3 portrait:text-2xl items-center"
+                {{ stimulus_action('myrmes', 'returnMenuPheromonePlacement', 'click', ) }}
+        >
+            <img src="{{ asset('resourcesGames/utils/return-arrow.svg') }}" id="returnArrow"
+                 alt="return on board"
+                 class="h-6 max-h-full">
+        </button>
+        <p id="selectObjectTitle" class="flex-grow content-center text-2xl text-center font-bold text-white">
+            Selection d'un objectif
+        </p>
+    </div>
+    <div id="ObjectSelectionList" class="grid grid-cols-2 gap-4 overflow-y-auto h-[92%] p-2">
+        {% set goalsLevel =
+            [goalsLevelOne, goalsLevelTwo, goalsLevelThree]
+        %}
+        {% for goalLevel in goalsLevel %}
+                {% for goal in goalLevel %}
+                    <button id="goalSelection_{{ goal.goal.id }}" data-goalid="{{ goal.goal.id }}"
+                            class="relative aspect-square rounded-lg bg-[#fb923c] hover:#c2410c p-3 "
+                            onclick="">
+                        <img class="items-center justify-center rounded-lg shadow-black shadow-lg max-h-full w-full"
+                             src="{{ asset('resourcesGames/Myrmes/Goals/' ~ goal.goal.id ~ '.svg') }}"
+                             alt="goal_{{ goal.id }}">
+                        <span class="flex flex-row w-full pt-3">
+                            {% for i in 0..3 %}
+                                {% set color =
+                                    i < goal.precedentsPlayers.count ? goal.precedentsPlayers[i].color : 'black' %}
+                                <svg viewBox="0 0 125 125"
+                                     class="">
+                                    <polygon points="40 13,80 13,110 40,110 80,80 110,40 110,13 80, 13 40"
+                                             fill="{{ color }}"/>
+                                </svg>
+                            {% endfor %}
+                        </span>
+                    </button>
+                {% endfor %}
+        {% endfor %}
+    </div>
+</div>

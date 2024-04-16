@@ -238,6 +238,19 @@ class MyrmesController extends AbstractController
         ]);
     }
 
+    #[Route('/game/myrmes/{idGame}/display/objectives/selection',
+        name: 'app_game_myrmes_display_objective_selection')]
+    public function displayObjectiveSelection(
+        #[MapEntity(id: 'idGame')] GameMYR $gameMYR): Response
+    {
+        return $this->render('Game/Myrmes/MainBoard/displayGoalSelection.html.twig', [
+            'game' => $gameMYR,
+            'goalsLevelOne' => $gameMYR->getMainBoardMYR()->getGameGoalsLevelOne(),
+            'goalsLevelTwo' => $gameMYR->getMainBoardMYR()->getGameGoalsLevelTwo(),
+            'goalsLevelThree' => $gameMYR->getMainBoardMYR()->getGameGoalsLevelThree(),
+        ]);
+    }
+
     #[Route('/game/myrmes/{id}/display/personalBoard/throwResource/{playerResourceId}/actions',
         name: 'app_game_myrmes_display_throw_resource_actions')]
     public function displayThrowResourceActions(

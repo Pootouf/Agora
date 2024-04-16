@@ -242,6 +242,7 @@ export default class extends Controller  {
     async activateWorkshop(placement) {
         let url = placement.params.url;
         let place = placement.params.placement;
+        console.log(place)
         switch (place) {
             case 1:
                 alert("anthill hole");
@@ -252,7 +253,11 @@ export default class extends Controller  {
                 }
                 break;
             case 3:
-                alert("objectives");
+                console.log("pascool")
+                const response = await fetch(url);
+                console.log("ok")
+                document.getElementById('goalSelection').innerHTML = await response.text();
+                await this.toggleGoalSelection(true);
                 break;
             case 4:
                 if (window.confirm("Confirmez vous la création d'une nouvelle nourrice ?")) {
@@ -266,6 +271,36 @@ export default class extends Controller  {
 
     async confirmWorkshopActions(confirm) {
         await fetch(confirm.params.url);
+    }
+
+    async toggleGoalSelection(open) {
+        const openedDisplayGoalSelection = document.getElementById("openedDisplayGoalSelection");
+        const Timing = {
+            duration: 750,
+            iterations: 1,
+        }
+        if (open) {
+            openedDisplayGoalSelection.removeAttribute("hidden");
+            const openingSliding = [
+                {transform: "translateX(60rem)"},
+                {transform: "translateX(0rem)"}
+            ]
+            openedDisplayGoalSelection.animate(openingSliding, Timing);
+        } else {
+            openedDisplayGoalSelection.animate(
+                [
+                    {transform: "translateX(0rem)"},
+                    {transform: "translateX(60rem)"},
+                ],
+                {
+                    duration: Timing.duration,
+                    fill: "forwards",
+                }
+            ).addEventListener("finish",
+                () => {
+                    openedDisplayGoalSelection.remove();
+                });
+        }
     }
 
     async displayPheromonePlacement(board)  {
@@ -293,8 +328,6 @@ export default class extends Controller  {
                 {transform: "translateX(0rem)"}
             ]
             openedDisplayObjectPlacement.animate(openingSliding, Timing);
-
-            let personalBoard = document.getElementById('persoBoard');
         } else {
             openedDisplayObjectPlacement.animate(
                 [

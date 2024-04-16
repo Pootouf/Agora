@@ -50,7 +50,11 @@ This section displays workshop menu.
                            href="{{ asset('resourcesGames/Myrmes/workshop/objectives.svg') }}"
                            x="0" y="0" height="{{ imageSize }}" width="{{ imageSize }}"
                             {{ stimulus_action('myrmes','activateWorkshop','click',
-                                {placement: 3}) }}/>
+                                {
+                                    placement: 3,
+                                    url:path('app_game_myrmes_display_objective_selection', {idGame: game.id})
+                                })
+                            }}/>
                 </svg>
             </div>
             {#creating new nurse#}

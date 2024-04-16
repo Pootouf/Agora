@@ -41,9 +41,9 @@ This section displays the main board that every player and spectator can see
             {% endif %}
             {{ include('Game/Myrmes/MainBoard/seasonsDices.html.twig') }}
         </div>
-        {% if game.gamePhase == PHASE_WORKSHOP and needToPlay %}
+{#        {% if game.gamePhase == PHASE_WORKSHOP and needToPlay %}#}
             {{ include('Game/Myrmes/MainBoard/workshop.html.twig') }}
-        {% endif %}
+        {#{% endif %}#}
         <div class="absolute bottom-0 right-0 m-3">
             <button id="objectives_button"
                     {{ stimulus_action('myrmes', 'displayObjectives', 'click',
