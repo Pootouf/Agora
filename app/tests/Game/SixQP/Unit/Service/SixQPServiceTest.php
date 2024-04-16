@@ -205,13 +205,13 @@ class SixQPServiceTest extends TestCase
         $game = $this->createGame(4, 4);
         $players = $game->getPlayers();
         $player0 = $players->get(0);
-        $player0->getDiscardSixQP()->addPoints(47);
+        $player0->addScore(47);
         $player1 = $players->get(1);
-        $player1->getDiscardSixQP()->addPoints(23);
+        $player1->addScore(23);
         $player2 = $players->get(2);
-        $player2->getDiscardSixQP()->addPoints(2);
+        $player2->addScore(2);
         $player3 = $players->get(3);
-        $player3->getDiscardSixQP()->addPoints(33);
+        $player3->addScore(33);
         //WHEN
         $ranking = $this->sixQPService->getRanking($game);
         //THEN
@@ -233,7 +233,7 @@ class SixQPServiceTest extends TestCase
         //WHEN
         $this->sixQPService->calculatePoints($player->getDiscardSixQP());
         //THEN
-        $this->assertTrue($player->getDiscardSixQP()->getTotalPoints() == $expectedPoint);
+        $this->assertTrue($player->getScore() == $expectedPoint);
     }
 
 
@@ -255,7 +255,7 @@ class SixQPServiceTest extends TestCase
         //GIVEN
         $game = $this->createGame(2, 4);
         $player = $game->getPlayers()->first();
-        $player->getDiscardSixQP()->addPoints(SixQPParameters::$MAX_POINTS - 1);
+        $player->addScore(SixQPParameters::$MAX_POINTS - 1);
         //WHEN
         $result = $this->sixQPService->isGameEnded($game);
         //THEN
@@ -266,7 +266,7 @@ class SixQPServiceTest extends TestCase
         //GIVEN
         $game = $this->createGame(2, 4);
         $player = $game->getPlayers()->first();
-        $player->getDiscardSixQP()->addPoints(SixQPParameters::$MAX_POINTS);
+        $player->addScore(SixQPParameters::$MAX_POINTS);
         //WHEN
         $result = $this->sixQPService->isGameEnded($game);
         //THEN
@@ -307,13 +307,13 @@ class SixQPServiceTest extends TestCase
         $player3 = $players->last();
         $discard1 = new DiscardSixQP($player1, $game);
         $player1->setDiscardSixQP($discard1);
-        $discard1->addPoints(10);
+        $player1->addScore(10);
         $discard2 = new DiscardSixQP($player2, $game);
         $player2->setDiscardSixQP($discard2);
-        $discard2->addPoints(10);
+        $player2->addScore(10);
         $discard3 = new DiscardSixQP($player3, $game);
         $player3->setDiscardSixQP($discard3);
-        $discard3->addPoints(SixQPParameters::$MAX_POINTS);
+        $player3->addScore(SixQPParameters::$MAX_POINTS);
         //WHEN
         $result = $this->sixQPService->getWinner($game);
         //THEN
@@ -330,13 +330,13 @@ class SixQPServiceTest extends TestCase
         $player3 = $players->last();
         $discard1 = new DiscardSixQP($player1, $game);
         $player1->setDiscardSixQP($discard1);
-        $discard1->addPoints(11);
+        $player1->addScore(11);
         $discard2 = new DiscardSixQP($player2, $game);
         $player2->setDiscardSixQP($discard2);
-        $discard2->addPoints(10);
+        $player2->addScore(10);
         $discard3 = new DiscardSixQP($player3, $game);
         $player3->setDiscardSixQP($discard3);
-        $discard3->addPoints(SixQPParameters::$MAX_POINTS);
+        $player3->addScore(SixQPParameters::$MAX_POINTS);
         //WHEN
         $result = $this->sixQPService->getWinner($game);
         //THEN
@@ -373,6 +373,7 @@ class SixQPServiceTest extends TestCase
         $game = new GameSixQP();
         for ($i = 0; $i < $numberOfPlayer; $i++) {
             $player = new PlayerSixQP('test'.$i, $game);
+            $player->setScore(0);
             $player->setDiscardSixQP(new DiscardSixQP($player, $game));
             $game->addPlayer($player);
         }

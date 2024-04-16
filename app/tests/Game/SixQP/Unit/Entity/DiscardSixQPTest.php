@@ -62,26 +62,4 @@ class DiscardSixQPTest extends TestCase
         $cards = $this->discardSixQP->getCards();
         $this->assertNotContains($card, $cards);
     }
-
-    public function testSetTotalPoints() : void
-    {
-        //GIVEN
-        $total = 13;
-        //WHEN
-        $this->discardSixQP->setTotalPoints($total);
-        //THEN
-        $this->assertSame($total, $this->discardSixQP->getTotalPoints());
-    }
-
-    public function testAddTotalPoints() : void
-    {
-        //GIVEN
-        $total = 13;
-        $this->discardSixQP->setTotalPoints($total);
-        $bonus = 1;
-        //WHEN
-        $this->discardSixQP->addPoints($bonus);
-        //THEN
-        $this->assertSame($total + $bonus, $this->discardSixQP->getTotalPoints());
-    }
 }

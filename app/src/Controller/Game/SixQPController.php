@@ -285,7 +285,7 @@ class SixQPController extends AbstractController
         $this->publishService->publish(
             $this->generateUrl('app_game_show_sixqp',
                 ['id' => $game->getId()]).'ranking',
-            new Response(''.$player->getUsername().' '.$player->getDiscardSixQP()->getTotalPoints()));
+            new Response(''.$player->getUsername().' '.$player->getScore()));
     }
 
     private function publishChosenCards(GameSixQP $game): void

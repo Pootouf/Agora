@@ -11,9 +11,6 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: DevelopmentCardsSPLRepository::class)]
 class DevelopmentCardsSPL extends Card
 {
-    #[ORM\Column]
-    private ?int $prestigePoints = null;
-
     #[ORM\Column(length: 255)]
     private ?string $color = null;
 
@@ -35,18 +32,6 @@ class DevelopmentCardsSPL extends Card
     public function __construct()
     {
         $this->cardCost = new ArrayCollection();
-    }
-
-    public function getPrestigePoints(): ?int
-    {
-        return $this->prestigePoints;
-    }
-
-    public function setPrestigePoints(int $prestigePoints): static
-    {
-        $this->prestigePoints = $prestigePoints;
-
-        return $this;
     }
 
     public function getColor(): ?string

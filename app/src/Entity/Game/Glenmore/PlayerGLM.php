@@ -15,9 +15,6 @@ class PlayerGLM extends Player
     #[ORM\JoinColumn(nullable: false)]
     private ?PersonalBoardGLM $personalBoard = null;
 
-    #[ORM\Column]
-    private ?int $points = null;
-
     #[ORM\OneToOne(inversedBy: 'playerGLM', cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?PawnGLM $pawn = null;
@@ -59,18 +56,6 @@ class PlayerGLM extends Player
     public function setPersonalBoard(PersonalBoardGLM $personalBoard): static
     {
         $this->personalBoard = $personalBoard;
-
-        return $this;
-    }
-
-    public function getPoints(): ?int
-    {
-        return $this->points;
-    }
-
-    public function setPoints(int $points): static
-    {
-        $this->points = $points;
 
         return $this;
     }

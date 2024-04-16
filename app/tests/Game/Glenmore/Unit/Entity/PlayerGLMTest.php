@@ -40,21 +40,6 @@ class PlayerGLMTest extends TestCase
         $this->assertSame($personalBoard, $this->playerGLM->getPersonalBoard());
     }
 
-    public function testSetPoints() : void
-    {
-        // GIVEN
-
-        $point = 40;
-
-        // WHEN
-
-        $this->playerGLM->setPoints($point);
-
-        // THEN
-
-        $this->assertSame($point, $this->playerGLM->getPoints());
-    }
-
     public function testSetPawn() : void
     {
         // GIVEN

@@ -100,7 +100,7 @@ class SixQPService
             throw new Exception("Player has already chosen a card");
         }
 
-        $chosenCardSixQP = new ChosenCardSixQP($player, $player->getGame(), $cardSixQP, false);
+        $chosenCardSixQP = new ChosenCardSixQP($player, $player->getGame(), $cardSixQP);
         $player->removeCard($cardSixQP);
         $player->setChosenCardSixQP($chosenCardSixQP);
         $this->entityManager->persist($chosenCardSixQP);
@@ -150,7 +150,7 @@ class SixQPService
         $array = $gameSixQP->getPlayers()->toArray();
         usort($array,
             function (PlayerSixQP $player1, PlayerSixQP $player2) {
-                return $player1->getDiscardSixQP()->getTotalPoints() - $player2->getDiscardSixQP()->getTotalPoints();
+                return $player1->getScore() - $player2->getScore();
             });
         return $array;
     }
@@ -167,8 +167,8 @@ class SixQPService
         foreach ($cards as $card) {
             $totalPoints += $card->getPoints();
         }
-        $discardSixQP->setTotalPoints($totalPoints);
-        $this->entityManager->persist($discardSixQP);
+        $discardSixQP->getPlayer()->setScore($totalPoints);
+        $this->entityManager->persist($discardSixQP->getPlayer());
         $this->entityManager->flush();
     }
 
@@ -277,7 +277,7 @@ class SixQPService
         $total = 0;
         foreach ($row->getCards() as $card) {
             $player->getDiscardSixQP()->addCard($card);
-            $player->getDiscardSixQP()->addPoints($card->getPoints());
+            $player->addScore($card->getPoints());
             $total += $card->getPoints();
             $row->removeCard($card);
         }
@@ -327,10 +327,10 @@ class SixQPService
         $winner = null;
         $winnerScore = INF;
         foreach ($game->getPlayers() as $player) {
-            if ($player->getDiscardSixQP()->getTotalPoints() < $winnerScore) {
+            if ($player->getScore() < $winnerScore) {
                 $winner = $player;
-                $winnerScore = $player->getDiscardSixQP()->getTotalPoints();
-            } elseif ($player->getDiscardSixQP()->getTotalPoints() == $winnerScore) {
+                $winnerScore = $player->getScore();
+            } elseif ($player->getScore() == $winnerScore) {
                 $winner = null;
             }
         }
@@ -361,7 +361,7 @@ class SixQPService
     private function hasPlayerLost(Collection $players): bool
     {
         foreach($players as $player) {
-            if ($player -> getDiscardSixQP() -> getTotalPoints() >= SixQPParameters::$MAX_POINTS) {
+            if ($player->getScore() >= SixQPParameters::$MAX_POINTS) {
                 return true;
             }
         }
