@@ -187,7 +187,7 @@ class DataManagementGLMServiceTest extends TestCase
             $player = new PlayerGLM('test', $game);
             $player->setGameGLM($game);
             $player->setTurnOfPlayer(false);
-            $player->setPoints(0);
+            $player->setScore(0);
             $game->addPlayer($player);
             $personalBoard = new PersonalBoardGLM();
             $player->setPersonalBoard($personalBoard);

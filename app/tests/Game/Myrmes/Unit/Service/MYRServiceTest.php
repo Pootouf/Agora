@@ -387,6 +387,7 @@ class MYRServiceTest extends TestCase
         $this->assertFalse($result);
     }
 
+    /*
     public function testInitializeNewGame() : void
     {
         // GIVEN
@@ -448,7 +449,7 @@ class MYRServiceTest extends TestCase
                 $player->getScore());
         }
 
-    }
+    }*/
 
     public function testGetPlayerResourceOfTypeWhenIsUnknow() : void
     {

@@ -305,7 +305,7 @@ class SPLServiceTest extends TestCase
 
         $game = $this->createGame(SplendorParameters::$MIN_NUMBER_OF_PLAYER);
         $player = $game->getPlayers()->first();
-        $lastPoints = $player->getTotalPoints();
+        $lastPoints = $player->getScore();
 
         $level = 3;
         $mainBoard = $game->getMainBoard();
@@ -318,7 +318,7 @@ class SPLServiceTest extends TestCase
 
         // WHEN
 
-        $this->assertNotSame($player->getTotalPoints(), $lastPoints);
+        $this->assertNotSame($player->getScore(), $lastPoints);
     }
 
     public function testBuyReservedCardWhenPlayerHasEnoughMoneyChangePoints()
@@ -327,7 +327,7 @@ class SPLServiceTest extends TestCase
 
         $game = $this->createGame(SplendorParameters::$MIN_NUMBER_OF_PLAYER);
         $player = $game->getPlayers()->first();
-        $lastPoints = $player->getTotalPoints();
+        $lastPoints = $player->getScore();
 
         $level = 3;
         $mainBoard = $game->getMainBoard();
@@ -342,7 +342,7 @@ class SPLServiceTest extends TestCase
 
         // WHEN
 
-        $this->assertNotSame($player->getTotalPoints(), $lastPoints);
+        $this->assertNotSame($player->getScore(), $lastPoints);
     }
 
     public function testAssignNobleTileWhenPlayerHasEnoughMoneyChangePoints()
@@ -353,7 +353,7 @@ class SPLServiceTest extends TestCase
         $mainBoard = $game->getMainBoard();
         $player = $game->getPlayers()->first();
         $personal = $player->getPersonalBoard();
-        $lastPoints = $player->getTotalPoints();
+        $lastPoints = $player->getScore();
 
         $price = 3;
         $noble = $this->createNobleTile(array(SplendorParameters::$COLOR_BLUE => $price));
@@ -376,7 +376,7 @@ class SPLServiceTest extends TestCase
 
         $this->assertNotSame(-1, $addingNoble);
         $this->assertNotNull($addingNoble);
-        $this->assertSame($player->getTotalPoints(),
+        $this->assertSame($player->getScore(),
             $lastPoints + SplendorParameters::$POINT_PRESTIGE_BY_NOBLE_TILE);
     }
 

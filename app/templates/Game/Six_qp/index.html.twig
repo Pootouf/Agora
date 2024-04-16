@@ -170,10 +170,10 @@
             {# Arbitrary value impossible to reach  #}
             {% set winnerScore = 9999 %}
             {% for player in game.players %}
-                {% if player.discardSixQP.totalPoints < winnerScore %}
-                    {% set winnerScore = player.discardSixQP.totalPoints %}
+                {% if player.score < winnerScore %}
+                    {% set winnerScore = player.score %}
                     {% set winner = player.username %}
-                {% elseif player.discardSixQP.totalPoints == winnerScore %}
+                {% elseif player.score == winnerScore %}
                     {% set winner = null %}
                 {% endif %}
             {% endfor %}

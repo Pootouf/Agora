@@ -12,10 +12,6 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: PlayerMYRRepository::class)]
 class PlayerMYR extends Player
 {
-
-    #[ORM\Column]
-    private ?int $score = null;
-
     #[ORM\Column]
     private ?int $goalLevel = null;
 
@@ -62,19 +58,6 @@ class PlayerMYR extends Player
         $this->gameMYR = $game;
         $this->pheromonMYRs = new ArrayCollection();
         $this->preyMYRs = new ArrayCollection();
-    }
-
-
-    public function getScore(): ?int
-    {
-        return $this->score;
-    }
-
-    public function setScore(int $score): static
-    {
-        $this->score = $score;
-
-        return $this;
     }
 
     public function getGoalLevel(): ?int

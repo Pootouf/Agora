@@ -130,7 +130,7 @@ class SPLService
      */
     private function getPrestigePoints(PlayerSPL $player): int
     {
-        return $player->getTotalPoints();
+        return $player->getScore();
     }
 
     /**
@@ -430,7 +430,7 @@ class SPLService
                 $total += $card->getDevelopmentCard()->getPrestigePoints();
             }
         }
-        $player->setTotalPoints($total);
+        $player->setScore($total);
         $this->entityManager->persist($player);
         $this->entityManager->flush();
     }

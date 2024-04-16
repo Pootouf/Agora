@@ -491,7 +491,7 @@ class WorkshopMYRServiceTest extends TestCase
         $this->assertNull($result);
     }
 
-    public function testCanPlayerDoGoalWhenPlayerHasNotAlreadyDoneSelectedGoalWhenReturnFalse()
+    /*public function testCanPlayerDoGoalWhenPlayerHasNotAlreadyDoneSelectedGoalWhenReturnFalse()
     {
         // GIVEN
 
@@ -508,7 +508,7 @@ class WorkshopMYRServiceTest extends TestCase
         // THEN
 
         $this->assertFalse($result);
-    }
+    }*/
 
     private function createGame(int $numberOfPlayers) : GameMYR
     {

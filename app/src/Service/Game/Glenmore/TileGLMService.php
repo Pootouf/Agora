@@ -483,12 +483,12 @@ class TileGLMService
             $selectedLevel = min($resourcesTypesCount, $activationCostsLevels);
             $activationBonus = $tile->getActivationBonus()->get($bonusNb);
             if ($tileGLM->getTile()->getName() === GlenmoreParameters::$TILE_NAME_BRIDGE) {
-                $playerGLM->setPoints($playerGLM->getPoints() + 7);
+                $playerGLM->setScore($playerGLM->getScore() + 7);
             } else if ($tileGLM->getTile()->getName() === GlenmoreParameters::$TILE_NAME_BUTCHER
                 && !$tileGLM->getTile()->getBuyPrice()->isEmpty()) {
-                $playerGLM->setPoints($playerGLM->getPoints() + 5);
+                $playerGLM->setScore($playerGLM->getScore() + 5);
             } else {
-                $playerGLM->setPoints($playerGLM->getPoints() + $activationBonus->getAmount());
+                $playerGLM->setScore($playerGLM->getScore() + $activationBonus->getAmount());
             }
             $this->entityManager->persist($playerGLM);
         }
@@ -1846,7 +1846,7 @@ class TileGLMService
             }
         }
         $player = $personalBoard->getPlayerGLM();
-        $player->setPoints($player->getPoints() + $points);
+        $player->setScore($player->getScore() + $points);
         $this->entityManager->persist($player);
         $tileGLM->setActivated(true);
         $this->entityManager->persist($tileGLM);
@@ -1875,7 +1875,7 @@ class TileGLMService
             }
         }
         $player = $personalBoard->getPlayerGLM();
-        $player->setPoints($player->getPoints() + $points);
+        $player->setScore($player->getScore() + $points);
         $this->entityManager->persist($player);
         $tileGLM->setActivated(true);
         $this->entityManager->persist($tileGLM);
