@@ -99,6 +99,37 @@ class GameGoalMYRTest extends TestCase
         $this->assertSame($mainBoardThree, $this->gameGoalMYR->getMainBoardLevelThree());
     }
 
+    public function testAddGoalAlreadyDoneNotYetAdded() : void
+    {
+        // GIVEN
+
+        $player = new PlayerMYR("test", new GameMYR());
+
+        // WHEN
+
+        $this->gameGoalMYR->addGoalAlreadyDone($player);
+
+        // THEN
+
+        $this->assertContains($player, $this->gameGoalMYR->getGoalAlreadyDone());
+    }
+
+    public function testRemoveGoalAlreadyDone() : void
+    {
+        // GIVEN
+
+        $player = new PlayerMYR("test", new GameMYR());
+        $this->gameGoalMYR->addGoalAlreadyDone($player);
+
+        // WHEN
+
+        $this->gameGoalMYR->removeGoalAlreadyDone($player);
+
+        // THEN
+
+        $this->assertNotContains($player, $this->gameGoalMYR->getGoalAlreadyDone());
+    }
+
     protected function setUp(): void
     {
         $this->gameGoalMYR = new GameGoalMYR();
