@@ -118,7 +118,7 @@ class TokenSPLService
         $personalBoard->addSelectedToken($selectedToken);
         $this->entityManager->persist($personalBoard);
         $this->entityManager->persist($selectedToken);
-        $mainBoard = $playerSPL->getGameSPL()->getMainBoard();
+        $mainBoard = $playerSPL->getGame()->getMainBoard();
         $mainBoard->removeToken($tokenSPL);
         $this->entityManager->persist($mainBoard);
         $this->entityManager->flush();
@@ -141,7 +141,7 @@ class TokenSPLService
         $firstToken = $selectedTokens->first()->getToken();
         $lastToken = $selectedTokens->last()->getToken();
         if ($tokensNb + $selectedTokensNb == SplendorParameters::$PLAYER_MAX_TOKEN
-                || !$this->canSelectTokenOfOtherColors($playerSPL->getGameSPL(), $selectedTokens)
+                || !$this->canSelectTokenOfOtherColors($playerSPL->getGame(), $selectedTokens)
             || $selectedTokensNb == 3
             || $selectedTokensNb == 2 && $firstToken->getColor() == $lastToken->getColor()
         ) {
@@ -179,7 +179,7 @@ class TokenSPLService
      */
     public function clearSelectedTokens(PlayerSPL $playerSPL): void
     {
-        $mainBoard = $playerSPL->getGameSPL()->getMainBoard();
+        $mainBoard = $playerSPL->getGame()->getMainBoard();
         $selectedTokens = $playerSPL->getPersonalBoard()->getSelectedTokens();
         foreach($selectedTokens as $selectedToken) {
             $mainBoard->addToken($selectedToken->getToken());
@@ -226,7 +226,7 @@ class TokenSPLService
      */
     private function selectTokensWithColor(PlayerSPL $playerSPL, TokenSPL $tokenSPL): int
     {
-        $game = $playerSPL->getGameSPL();
+        $game = $playerSPL->getGame();
         $color = $tokenSPL->getColor();
         $tokens = $game->getMainBoard()->getTokens();
         $result = 0;

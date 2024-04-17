@@ -19,7 +19,6 @@ use App\Service\Game\LogService;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
-use function PHPUnit\Framework\isNull;
 
 class SixQPService
 {

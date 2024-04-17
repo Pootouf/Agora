@@ -140,17 +140,6 @@ class SPLService
     }
 
     /**
-     * getPlayerFromNameAndGame : return the player associated with a username and a game
-     * @param GameSPL $game
-     * @param string  $name
-     * @return ?PlayerSPL
-     */
-    public function getPlayerFromNameAndGame(GameSPL $game, string $name): ?PlayerSPL
-    {
-        return $this->playerSPLRepository->findOneBy(['gameSPL' => $game->getId(), 'username' => $name]);
-    }
-
-    /**
      * getRanking : returns a sorted array of player
      *
      * @param GameSPL $gameSPL
@@ -193,7 +182,7 @@ class SPLService
      */
     public function getActivePlayer(GameSPL $gameSPL): PlayerSPL
     {
-        return $this->playerSPLRepository->findOneBy(["gameSPL" => $gameSPL->getId(),
+        return $this->playerSPLRepository->findOneBy(["game" => $gameSPL->getId(),
             "turnOfPlayer" => true]);
     }
 
@@ -388,7 +377,7 @@ class SPLService
             throw new Exception("You can't reserve cards");
         }
 
-        $game = $player->getGameSPL();
+        $game = $player->getGame();
         $mainBoard = $game->getMainBoard();
         $personalBoard = $player->getPersonalBoard();
 
@@ -476,7 +465,7 @@ class SPLService
     public function buyCard(PlayerSPL $playerSPL,
                             DevelopmentCardsSPL $developmentCardsSPL): array
     {
-        $playerCardSPL = $this->getPlayerCardFromDevelopmentCard($playerSPL->getGameSPL(), $developmentCardsSPL);
+        $playerCardSPL = $this->getPlayerCardFromDevelopmentCard($playerSPL->getGame(), $developmentCardsSPL);
         if ($playerCardSPL != null
             && $playerCardSPL->getPersonalBoardSPL()->getPlayerSPL()->getId() != $playerSPL->getId()
         ) {
@@ -501,8 +490,8 @@ class SPLService
                 $playerCardSPL->setIsReserved(false);
                 $this->entityManager->persist($playerCardSPL);
             } else {
-                $mainBoard = $playerSPL->getGameSPL()->getMainBoard();
-                $game = $playerSPL->getGameSPL();
+                $mainBoard = $playerSPL->getGame()->getMainBoard();
+                $game = $playerSPL->getGame();
                 $row = $game->getMainBoard()->getRowsSPL()->get($developmentCardsSPL->getLevel() - 1);
                 //Remove the bought card from row
                 $row->removeDevelopmentCard($developmentCardsSPL);
@@ -596,7 +585,7 @@ class SPLService
 
     private function canReserveCard(PlayerSPL $player, DevelopmentCardsSPL $card): bool
     {
-        $playerCard = $this->getPlayerCardFromDevelopmentCard($player->getGameSPL(), $card);
+        $playerCard = $this->getPlayerCardFromDevelopmentCard($player->getGame(), $card);
         return !$this->doesPlayerAlreadyHaveMaxNumberOfReservedCard($player)
             && $playerCard == null;
     }
@@ -659,7 +648,7 @@ class SPLService
         $tokens = $personalBoard->getTokens();
         if ($tokens->count() < SplendorParameters::$PLAYER_MAX_TOKEN)
         {
-            $game = $player->getGameSPL();
+            $game = $player->getGame();
             $mainBoard = $game->getMainBoard();
             if ($this->getNumberOfTokenAtColorAtMainBoard($mainBoard,
                 SplendorParameters::$LABEL_JOKER) > 0)
@@ -826,7 +815,7 @@ class SPLService
                     && $amount > 0){
                     $playerSPL->getPersonalBoard()->removeToken($token);
                     $amount -= 1;
-                    $playerSPL->getGameSPL()->getMainBoard()->addToken($token);
+                    $playerSPL->getGame()->getMainBoard()->addToken($token);
                     $selectedTokensForAnimation[] = $token->getType();
                 }
             }
@@ -840,7 +829,7 @@ class SPLService
                     if($token->getColor() == SplendorParameters::$COLOR_YELLOW && $amount > 0){
                         $playerSPL->getPersonalBoard()->removeToken($token);
                         $amount -= 1;
-                        $playerSPL->getGameSPL()->getMainBoard()->addToken($token);
+                        $playerSPL->getGame()->getMainBoard()->addToken($token);
                         $selectedTokensForAnimation[] = $token->getType();
                     }
                 }

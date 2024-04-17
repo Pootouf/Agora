@@ -18,6 +18,7 @@ use App\Entity\Game\Splendor\SplendorParameters;
 use App\Entity\Game\Splendor\TokenSPL;
 use App\Repository\Game\SixQP\ChosenCardSixQPRepository;
 use App\Repository\Game\SixQP\PlayerSixQPRepository;
+use App\Service\Game\GameService;
 use App\Service\Game\LogService;
 use App\Service\Game\MessageService;
 use App\Service\Game\PublishService;
@@ -43,7 +44,8 @@ class SplendorController extends AbstractController
                                 private SPLService $SPLService,
                                 private LogService $logService,
                                 private PublishService $publishService,
-                                private MessageService $messageService)
+                                private MessageService $messageService,
+                                private GameService $gameService)
     {}
 
     #[Route('/game/splendor/{id}', name: 'app_game_show_spl')]
@@ -51,7 +53,7 @@ class SplendorController extends AbstractController
     {
         if ($game->isPaused() || !$game->isLaunched())
             return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
-        $player = $this->SPLService->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        $player = $this->gameService->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         $isSpectator = false;
         $needToPlay = false;
         if ($player == null) {
@@ -117,7 +119,8 @@ class SplendorController extends AbstractController
      {
          if ($game->isPaused() || !$game->isLaunched())
              return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
-         $player = $this->SPLService->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+         /** @var ?PlayerSPL $player */
+         $player = $this->gameService->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
          return $this->render('Game/Splendor/MainBoard/cardActions.html.twig',
          [
              'selectedCard' => $card,
@@ -137,7 +140,8 @@ class SplendorController extends AbstractController
      {
          if ($game->isPaused() || !$game->isLaunched())
              return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
-         $player = $this->SPLService->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+         $player = $this->gameService->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+         /** @var ?PlayerSPL $player */
          return $this->render('Game/Splendor/MainBoard/cardActions.html.twig',
              [
                  'levelCard' => $level,
@@ -155,7 +159,8 @@ class SplendorController extends AbstractController
      {
          if ($game->isPaused() || !$game->isLaunched())
              return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
-         $player = $this->SPLService->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+         /** @var ?PlayerSPL $player */
+         $player = $this->gameService->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
          return $this->render('Game/Splendor/MainBoard/cardActions.html.twig',
              [
                  'selectedCard' => null,
@@ -176,7 +181,7 @@ class SplendorController extends AbstractController
      {
          if ($game->isPaused() || !$game->isLaunched())
              return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
-         $player = $this->SPLService->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+         $player = $this->gameService->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
          if ($player == null) {
              return new Response('Invalid player', Response::HTTP_FORBIDDEN);
          }
@@ -259,7 +264,7 @@ class SplendorController extends AbstractController
      {
          if ($game->isPaused() || !$game->isLaunched())
              return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
-         $player = $this->SPLService->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+         $player = $this->gameService->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
          if ($player == null) {
              return new Response('Invalid player', Response::HTTP_FORBIDDEN);
          }
@@ -306,7 +311,7 @@ class SplendorController extends AbstractController
      {
          if ($game->isPaused() || !$game->isLaunched())
              return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
-         $player = $this->SPLService->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+         $player = $this->gameService->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
          if ($player == null) {
              return new Response('Invalid player', Response::HTTP_FORBIDDEN);
          }
@@ -352,7 +357,8 @@ class SplendorController extends AbstractController
      {
          if ($gameSPL->isPaused() || !$gameSPL->isLaunched())
              return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
-         $player = $this->SPLService->getPlayerFromNameAndGame($gameSPL, $this->getUser()->getUsername());
+         $player = $this->gameService->getPlayerFromNameAndGame($gameSPL, $this->getUser()->getUsername());
+         /** @var ?PlayerSPL $player */
          if ($player == null) {
              return new Response('Invalid player', Response::HTTP_FORBIDDEN);
          }
@@ -370,7 +376,7 @@ class SplendorController extends AbstractController
      {
          if ($gameSPL->isPaused() || !$gameSPL->isLaunched())
              return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
-         $player = $this->SPLService->getPlayerFromNameAndGame($gameSPL, $this->getUser()->getUsername());
+         $player = $this->gameService->getPlayerFromNameAndGame($gameSPL, $this->getUser()->getUsername());
          if ($player == null) {
              return new Response('Invalid player', Response::HTTP_FORBIDDEN);
          }

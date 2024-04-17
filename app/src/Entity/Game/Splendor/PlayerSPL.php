@@ -16,12 +16,12 @@ class PlayerSPL extends Player
 
     #[ORM\ManyToOne(inversedBy: 'players')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?GameSPL $gameSPL = null;
+    private ?GameSPL $game = null;
 
     public function __construct(string $username, GameSPL $gameSPL)
     {
         $this->username = $username;
-        $this->gameSPL = $gameSPL;
+        $this->game = $gameSPL;
         $this->score = 0;
     }
     public function getPersonalBoard(): ?PersonalBoardSPL
@@ -36,14 +36,14 @@ class PlayerSPL extends Player
         return $this;
     }
 
-    public function getGameSPL(): ?GameSPL
+    public function getGame(): ?GameSPL
     {
-        return $this->gameSPL;
+        return $this->game;
     }
 
-    public function setGameSPL(?GameSPL $gameSPL): static
+    public function setGame(?GameSPL $game): static
     {
-        $this->gameSPL = $gameSPL;
+        $this->game = $game;
 
         return $this;
     }

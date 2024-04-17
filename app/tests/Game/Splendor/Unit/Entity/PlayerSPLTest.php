@@ -21,7 +21,7 @@ class PlayerSPLTest extends TestCase
         $player = new PlayerSPL($username, $game);
         //THEN
         $this->assertSame($username, $player->getUsername());
-        $this->assertSame($game, $player->getGameSPL());
+        $this->assertSame($game, $player->getGame());
         $this->assertSame($points, $player->getScore());
     }
 
@@ -40,9 +40,9 @@ class PlayerSPLTest extends TestCase
         //GIVEN
         $game = new GameSPL();
         //WHEN
-        $this->playerSPL->setGameSPL($game);
+        $this->playerSPL->setGame($game);
         //THEN
-        $this->assertSame($game, $this->playerSPL->getGameSPL());
+        $this->assertSame($game, $this->playerSPL->getGame());
     }
 
     protected function setUp(): void

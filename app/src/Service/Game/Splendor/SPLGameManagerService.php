@@ -17,6 +17,7 @@ use App\Entity\Game\Splendor\SplendorParameters;
 use App\Repository\Game\SixQP\PlayerSixQPRepository;
 use App\Repository\Game\Splendor\PlayerSPLRepository;
 use App\Service\Game\AbstractGameManagerService;
+use App\Service\Game\GameService;
 use App\Service\Game\LogService;
 use App\Service\Game\SixQP\SixQPService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -29,7 +30,8 @@ class SPLGameManagerService extends AbstractGameManagerService
         private SPLService $SPLService,
         private PlayerSPLRepository $playerSPLRepository,
         private LogService $logService,
-        private TokenSPLService $tokenSPLService)
+        private TokenSPLService $tokenSPLService,
+        private GameService $gameService)
     {}
 
 
@@ -75,12 +77,12 @@ class SPLGameManagerService extends AbstractGameManagerService
             return SPLGameManagerService::$ERROR_INVALID_NUMBER_OF_PLAYER;
         }
         if ($this->playerSPLRepository->findOneBy(
-            ['username' => $playerName, 'gameSPL' => $game->getId()]) != null) {
+            ['username' => $playerName, 'game' => $game->getId()]) != null) {
             return SPLGameManagerService::$ERROR_ALREADY_IN_PARTY;
         }
         $player = new PlayerSPL($playerName, $game);
         $personalBoard = new PersonalBoardSPL();
-        $player->setGameSPL($game);
+        $player->setGame($game);
         $player->setPersonalBoard($personalBoard);
         $personalBoard->setPlayerSPL($player);
         $player->setPersonalBoard($personalBoard);
@@ -105,7 +107,7 @@ class SPLGameManagerService extends AbstractGameManagerService
         if ($game->isLaunched()) {
             return SPLGameManagerService::$ERROR_GAME_ALREADY_LAUNCHED;
         }
-        $player = $this->SPLService->getPlayerFromNameAndGame($game, $playerName);
+        $player = $this->gameService->getPlayerFromNameAndGame($game, $playerName);
         if ($player == null) {
             return SPLGameManagerService::$ERROR_PLAYER_NOT_FOUND;
         }

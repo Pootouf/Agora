@@ -133,7 +133,7 @@ class GameManagerService
     public function getExcludedPlayerFromGameId(int $gameId): ?Player {
         $player = $this->playerSixQPRepository->findOneBy(['game' => $gameId, 'excluded' => true]);
         if ($player == null) {
-            $player = $this->playerSPLRepository->findOneBy(['gameSPL' => $gameId, 'excluded' => true]);
+            $player = $this->playerSPLRepository->findOneBy(['game' => $gameId, 'excluded' => true]);
         }
         if ($player == null) {
             $player = $this->playerGLMRepository->findOneBy(['gameGLM' => $gameId, 'excluded' => true]);

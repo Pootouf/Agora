@@ -875,7 +875,7 @@ class SPLServiceTest extends TestCase
         for ($i = 0; $i < $numberOfPlayers; ++$i) {
             $player = new PlayerSPL('test', $game);
             $game->addPlayer($player);
-            $player->setGameSPL($game);
+            $player->setGame($game);
             $personalBoard = new PersonalBoardSPL();
             $player->setPersonalBoard($personalBoard);
         }
