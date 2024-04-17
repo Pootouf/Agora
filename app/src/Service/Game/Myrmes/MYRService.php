@@ -13,7 +13,6 @@ use App\Entity\Game\Myrmes\NurseMYR;
 use App\Entity\Game\Myrmes\PlayerMYR;
 use App\Entity\Game\Myrmes\PlayerResourceMYR;
 use App\Entity\Game\Myrmes\PreyMYR;
-use App\Entity\Game\Myrmes\ResourceMYR;
 use App\Entity\Game\Myrmes\SeasonMYR;
 use App\Repository\Game\Myrmes\GoalMYRRepository;
 use App\Repository\Game\Myrmes\NurseMYRRepository;
@@ -32,7 +31,7 @@ use Exception;
 class MYRService
 {
 
-    public function __construct(private PlayerMYRRepository $playerMYRRepository,
+    public function __construct(private readonly PlayerMYRRepository $playerMYRRepository,
                 private readonly EntityManagerInterface $entityManager,
                 private readonly NurseMYRRepository $nurseMYRRepository,
                 private readonly TileMYRRepository $tileMYRRepository,
@@ -662,7 +661,7 @@ class MYRService
                 MyrmesParameters::GOAL_REWARD_WHEN_GOAL_ALREADY_DONE);
             $this->entityManager->persist($player);
         }
-        $gameGoals = $playerMYR->getGameGoalMYRs();
+        //$gameGoals = $playerMYR->getGameGoalMYRs();
         switch ($goalMYR->getGoal()->getDifficulty()) {
             case MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE :
                 $playerMYR->setScore($playerMYR->getScore() + MyrmesParameters::GOAL_REWARD_LEVEL_ONE);

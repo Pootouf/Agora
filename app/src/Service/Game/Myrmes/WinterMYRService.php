@@ -2,15 +2,12 @@
 
 namespace App\Service\Game\Myrmes;
 
-
-use App\Entity\Game\DTO\Game;
 use App\Entity\Game\Myrmes\GameMYR;
 use App\Entity\Game\Myrmes\MyrmesParameters;
 use App\Entity\Game\Myrmes\PlayerMYR;
 use App\Entity\Game\Myrmes\PlayerResourceMYR;
 use App\Repository\Game\Myrmes\PlayerResourceMYRRepository;
 use App\Repository\Game\Myrmes\ResourceMYRRepository;
-use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 
