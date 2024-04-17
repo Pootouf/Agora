@@ -10,6 +10,7 @@ use App\Entity\Game\SixQP\RowSixQP;
 use App\Entity\Game\SixQP\SixQPParameters;
 use App\Repository\Game\SixQP\PlayerSixQPRepository;
 use App\Service\Game\AbstractGameManagerService;
+use App\Service\Game\GameService;
 use App\Service\Game\LogService;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
@@ -20,15 +21,19 @@ class SixQPGameManagerService extends AbstractGameManagerService
     private PlayerSixQPRepository $playerSixQPRepository;
     private SixQPService $sixQPService;
     private LogService $logService;
+
+    private GameService $gameService;
     public function __construct(EntityManagerInterface $entityManager,
         PlayerSixQPRepository $playerSixQPRepository,
         SixQPService $sixQPService,
-        LogService $logService)
+        LogService $logService,
+        GameService $gameService)
     {
         $this->entityManager = $entityManager;
         $this->playerSixQPRepository = $playerSixQPRepository;
         $this->sixQPService = $sixQPService;
         $this->logService = $logService;
+        $this->gameService = $gameService;
     }
 
 
@@ -96,7 +101,7 @@ class SixQPGameManagerService extends AbstractGameManagerService
         if ($game->isLaunched()) {
             return SixQPGameManagerService::$ERROR_GAME_ALREADY_LAUNCHED;
         }
-        $player = $this->sixQPService->getPlayerFromNameAndGame($game, $playerName);
+        $player = $this->gameService->getPlayerFromNameAndGame($game, $playerName);
         if ($player == null) {
             return SixQPGameManagerService::$ERROR_PLAYER_NOT_FOUND;
         }

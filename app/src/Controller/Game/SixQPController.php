@@ -2,6 +2,7 @@
 
 namespace App\Controller\Game;
 
+use App\Entity\Game\DTO\Game;
 use App\Entity\Game\SixQP\CardSixQP;
 use App\Entity\Game\SixQP\ChosenCardSixQP;
 use App\Entity\Game\SixQP\GameSixQP;
@@ -9,6 +10,7 @@ use App\Entity\Game\SixQP\PlayerSixQP;
 use App\Entity\Game\SixQP\RowSixQP;
 use App\Repository\Game\SixQP\ChosenCardSixQPRepository;
 use App\Repository\Game\SixQP\PlayerSixQPRepository;
+use App\Service\Game\GameService;
 use App\Service\Game\LogService;
 use App\Service\Game\MessageService;
 use App\Service\Game\SixQP\SixQPService;
@@ -31,12 +33,15 @@ class SixQPController extends AbstractController
     private LogService $logService;
     private MessageService $messageService;
 
+    private GameService $gameService;
+
     public function __construct(EntityManagerInterface $entityManager,
                                 ChosenCardSixQPRepository $chosenCardSixQPRepository,
                                 SixQPService $service,
                                 LogService $logService,
                                 PublishService $publishService,
-                                MessageService $messageService)
+                                MessageService $messageService,
+                                GameService $gameService)
     {
         $this->publishService = $publishService;
         $this->entityManager = $entityManager;
@@ -44,6 +49,7 @@ class SixQPController extends AbstractController
         $this->logService = $logService;
         $this->service = $service;
         $this->messageService = $messageService;
+        $this->gameService = $gameService;
     }
 
     #[Route('/game/sixqp/{id}', name: 'app_game_show_sixqp')]
@@ -51,7 +57,7 @@ class SixQPController extends AbstractController
     {
         if ($game->isPaused() || !$game->isLaunched())
             return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
-        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        $player = $this->gameService->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         $chosenCards = $this->chosenCardSixQPRepository->findBy(['game' => $game->getId()]);
         $isSpectator = false;
         $needToChoose = false;
@@ -100,7 +106,7 @@ class SixQPController extends AbstractController
         if ($game->isPaused() || !$game->isLaunched())
             return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
         /** @var PlayerSixQP $player */
-        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        $player = $this->gameService->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
         }
@@ -142,7 +148,7 @@ class SixQPController extends AbstractController
         if ($game->isPaused() || !$game->isLaunched())
             return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
         /** @var PlayerSixQP $player */
-        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        $player = $this->gameService->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
         }

@@ -26,8 +26,6 @@ class SixQPService
     private EntityManagerInterface $entityManager;
     private CardSixQPRepository $cardSixQPRepository;
     private ChosenCardSixQPRepository $chosenCardSixQPRepository;
-    private PlayerSixQPRepository $playerSixQPRepository;
-
     private LogService $logService;
 
     public function __construct(EntityManagerInterface $entityManager,
@@ -39,7 +37,6 @@ class SixQPService
         $this->entityManager = $entityManager;
         $this->cardSixQPRepository = $cardSixQPRepository;
         $this->chosenCardSixQPRepository = $chosenCardSixQPRepository;
-        $this->playerSixQPRepository = $playerSixQPRepository;
         $this->logService = $logService;
     }
 
@@ -226,18 +223,6 @@ class SixQPService
         }
         return $this->hasPlayerLost($players);
     }
-
-    /**
-     * getPlayerFromNameAndGame: search for the player with name $name in the game, null if not found
-     * @param GameSixQP $game the game of the player
-     * @param string $name
-     * @return ?PlayerSixQP
-     */
-    public function getPlayerFromNameAndGame(GameSixQP $game, string $name): ?PlayerSixQP
-    {
-        return $this->playerSixQPRepository->findOneBy(['game' => $game->getId(), 'username' => $name]);
-    }
-
 
     /**
      * getValidRowForCard : calculate the row with the nearest value to the chosen card,

@@ -7,6 +7,7 @@ use App\Entity\Game\SixQP\PlayerSixQP;
 use App\Repository\Game\GameUserRepository;
 use App\Repository\Game\SixQP\GameSixQPRepository;
 use App\Repository\Game\SixQP\PlayerSixQPRepository;
+use App\Service\Game\GameService;
 use App\Service\Game\PublishService;
 use App\Service\Game\SixQP\SixQPGameManagerService;
 use App\Service\Game\SixQP\SixQPService;
@@ -16,20 +17,18 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class SixQPControllerTest extends WebTestCase
 {
-    private SixQPGameManagerService $managerService;
     private GameUserRepository $gameUserRepository;
 
     private GameSixQPRepository $gameSixQPRepository;
     private PlayerSixQPRepository $playerSixQPRepository;
-
-    private PublishService $publishService;
 
     private KernelBrowser $client1;
     private KernelBrowser $client2;
 
     private KernelBrowser $client3;
 
-    private SixQPService $sixQPService;
+    private GameService $gameService;
+
     public function testPlayersHaveAccessToGame() : void
     {
         $gameId = $this->initializeGameWithTwoPlayers();
@@ -63,7 +62,7 @@ class SixQPControllerTest extends WebTestCase
         $url = "/game/sixqp/" . $gameId;
         $this->client1->request("GET", $url);
         $game = $this->gameSixQPRepository->findOneBy(["id" => $gameId]);
-        $player = $this->sixQPService->getPlayerFromNameAndGame($game, "test0");
+        $player = $this->gameService->getPlayerFromNameAndGame($game, "test0");
         $card = $player->getCards()[0];
         $card2 = $player->getCards()[1];
         $newUrl = "/game/" . $gameId . "/sixqp/select/" . $card->getId();
@@ -122,23 +121,23 @@ class SixQPControllerTest extends WebTestCase
         $this->client1 =  static::createClient();
         $this->client2 = clone $this->client1;
         $this->client3 = clone $this->client1;
-        $this->managerService = static::getContainer()->get(SixQPGameManagerService::class);
+        $managerService = static::getContainer()->get(SixQPGameManagerService::class);
         $this->gameUserRepository = static::getContainer()->get(GameUserRepository::class);
         $this->gameSixQPRepository = static::getContainer()->get(GameSixQPRepository::class);
         $this->playerSixQPRepository = static::getContainer()->get(PlayerSixQPRepository::class);
-        $this->sixQPService = static::getContainer()->get(SixQPService::class);
+        $this->gameService = static::getContainer()->get(GameService::class);
         $user1 = $this->gameUserRepository->findOneByUsername("test0");
         $user2 = $this->gameUserRepository->findOneByUsername("test1");
         $user3 = $this->gameUserRepository->findOneByUsername("test2");
         $this->client1->loginUser($user1);
         $this->client2->loginUser($user2);
         $this->client3->loginUser($user3);
-        $gameId = $this->managerService->createGame();
+        $gameId = $managerService->createGame();
         $game = $this->gameSixQPRepository->findOneById($gameId);
-        $this->managerService->createPlayer("test0", $game);
-        $this->managerService->createPlayer("test1", $game);
+        $managerService->createPlayer("test0", $game);
+        $managerService->createPlayer("test1", $game);
         try {
-            $this->managerService->launchGame($game);
+            $managerService->launchGame($game);
         } catch (\Exception $e) {
             $this->hasFailed();
         }

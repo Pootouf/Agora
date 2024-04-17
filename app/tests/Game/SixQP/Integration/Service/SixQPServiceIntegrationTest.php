@@ -10,6 +10,7 @@ use App\Entity\Game\SixQP\RowSixQP;
 use App\Entity\Game\SixQP\SixQPParameters;
 use App\Repository\Game\SixQP\GameSixQPRepository;
 use App\Service\Game\AbstractGameManagerService;
+use App\Service\Game\GameService;
 use App\Service\Game\SixQP\SixQPService;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
@@ -469,7 +470,7 @@ class SixQPServiceIntegrationTest extends KernelTestCase
     public function testGetPlayerFromNameAndGameShouldReturnGoodPlayer() : void
     {
         //GIVEN
-        $sixQPService = static::getContainer()->get(SixQPService::class);
+        $gameService = static::getContainer()->get(GameService::class);
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);
         $game = $this->createGame(2, 4);
         $player = $game->getPlayers()->first();
@@ -478,7 +479,7 @@ class SixQPServiceIntegrationTest extends KernelTestCase
         $entityManager->flush();
         $expectedResult = $player;
         //WHEN
-        $result = $sixQPService->getPlayerFromNameAndGame($game, $player->getUsername());
+        $result = $gameService->getPlayerFromNameAndGame($game, $player->getUsername());
         //THEN
         $this->assertEquals($expectedResult, $result);
     }
@@ -486,7 +487,7 @@ class SixQPServiceIntegrationTest extends KernelTestCase
     public function testGetPlayerFromNameAndGameShouldReturnNothing() : void
     {
         //GIVEN
-        $sixQPService = static::getContainer()->get(SixQPService::class);
+        $gameService = static::getContainer()->get(GameService::class);
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);
         $game = $this->createGame(2, 4);
         $player = $game->getPlayers()->first();
@@ -496,7 +497,7 @@ class SixQPServiceIntegrationTest extends KernelTestCase
         $expectedResult = null;
         $wrongName = "gtaeuaioea";
         //WHEN
-        $result = $sixQPService->getPlayerFromNameAndGame($game, $wrongName);
+        $result = $gameService->getPlayerFromNameAndGame($game, $wrongName);
         //THEN
         $this->assertEquals($expectedResult, $result);
     }
