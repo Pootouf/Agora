@@ -95,6 +95,7 @@ async function move(direction) {
     cleanedTiles.push(coord)
     antPosition = coord
     queue.push(action)
+    await refreshMainBoard()
 }
 
 /**
@@ -113,6 +114,7 @@ async function cleanPheromone() {
 
     spentDirt += 1
     queue.push(actions.CLEAN_PHEROMONE)
+    await refreshMainBoard()
 }
 
 /**
@@ -121,10 +123,11 @@ async function cleanPheromone() {
  * @param coordX
  * @param coordY
  */
-function placeWorkerOnAnthillHole(tileId, coordX, coordY) {
+async function placeWorkerOnAnthillHole(tileId, coordX, coordY) {
     queue.push(actions.PLACE_ANT(tileId))
     antPosition.x = coordX
     antPosition.y = coordY
+    await refreshMainBoard()
 }
 
 /**
@@ -241,4 +244,45 @@ async function managePheromoneCleanedTiles() {
             cleanedTiles.push({x: parseInt(x), y: parseInt(y)})
         }
     )
+}
+
+/**
+ * refreshMainBoard : refresh the main board based on the state of the worker phase
+ * @returns {Promise<void>}
+ */
+async function refreshMainBoard() {
+    const cleanedTilesString = getCleanedTilesString()
+    const response = await fetch(url + "/workerPhase/mainBoard/" + antPosition.x + "/"
+    + antPosition.y + "/" + movementPoints + "/" + cleanedTilesString);
+    if (response.status === 200) {
+        closeWindow();
+        document.getElementById('mainBoard').innerHTML = await response.text();
+    }
+}
+
+/**
+ * displayBoardBoxActions : display the board box actions based on the state of the tile given during worker phase
+ * @param tileId
+ * @returns {Promise<void>}
+ */
+async function displayBoardBoxActions(tileId) {
+    const cleanedTilesString = getCleanedTilesString()
+    const response = await fetch(url + "/workerPhase/displayBoardBoxActions/"
+    + antPosition.x + "/" + antPosition.y + "/" + movementPoints + "/" + cleanedTilesString);
+    if (response.status === 200) {
+        closeWindow();
+        document.getElementById('boardBoxActions').innerHTML = await response.text();
+    }
+}
+
+/**
+ * getCleanedTilesString : format the cleaned tiles array to fetch route
+ * @returns {Promise<string>}
+ */
+async function getCleanedTilesString() {
+    return cleanedTiles.map(
+        function ([x, y]) {
+            return x + "_" + y
+        }
+    ).join(" ")
 }

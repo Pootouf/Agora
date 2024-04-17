@@ -138,6 +138,12 @@ export default class extends Controller  {
         tree.appendChild(node);
     }
 
+    async displayBoxActionsWorkerPhase(boardBox) {
+        closeSelectedBoxWindow();
+        let tileId = boardBox.params.tileId
+        await displayBoardBoxActions(tileId)
+    }
+
     async displayPlayerPersonalBoard(board) {
         let url = board.params.url;
         let open = board.params.open;

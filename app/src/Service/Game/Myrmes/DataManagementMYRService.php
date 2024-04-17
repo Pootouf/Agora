@@ -43,6 +43,24 @@ class DataManagementMYRService
 
 
     /**
+     * getListOfCoordinatesFromString: split a string in format "X_Y ... X_Y" into an array of coordinates
+     * @param String $coordinateString
+     * @return array<array<int, int>> an array of coordinates
+     */
+    public function getListOfCoordinatesFromString(string $coordinateString) : array
+    {
+        $stringCoords = explode(" ", $coordinateString);
+        $coords = [];
+        foreach($stringCoords as $stringCoord) {
+            $coords[] = array_map(function (string $value) {
+                return intval($value);
+            }, explode("_", $stringCoord));
+        }
+        return $coords;
+    }
+
+
+    /**
      * organizeMainBoardRows : return a collection of rows, a row is a collection of tiles or null.
      *   It represents each row of the main board from top to bottom.
      * @param GameMYR $game

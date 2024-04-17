@@ -2,6 +2,7 @@
 
 namespace App\Controller\Game;
 
+use App\Entity\Game\DTO\Game;
 use App\Entity\Game\DTO\Myrmes\BoardBoxMYR;
 use App\Entity\Game\Myrmes\GameMYR;
 use App\Entity\Game\Myrmes\GardenWorkerMYR;
@@ -207,15 +208,34 @@ class MyrmesController extends AbstractController
         }
         $boardBox = $this->dataManagementMYRService->createBoardBox($game, $tile, 0, 0);
         $this->publishHighlightTile($game, $player, $tile);
-        return $this->render('Game/Myrmes/MainBoard/displayBoardBoxActions.html.twig', [
-            'game' => $game,
-            'player' => $player,
-            'selectedBox' => $boardBox,
-            'needToPlay' => true, //$player == null ? false : $player->isTurnOfPlayer(),
-            'playerPhase' => $player->getPhase(),
-            'hasFinishedObligatoryHarvesting' => $this->harvestMYRService->areAllPheromonesHarvested($player),
-            'canStillHarvest' => $this->harvestMYRService->canStillHarvest($player),
-        ]);
+        return $this->returnDisplayBoardActions($game, $player, $boardBox);
+    }
+
+    #[Route('/game/myrmes/{id}/workerPhase/displayBoardBoxActions/{antCoordX}/{antCoordY}/{shiftsCount}/{cleanedTiles}',
+        name: 'app_game_myrmes_display_main_board_box_actions_worker_phase')]
+    public function displayMainBoardBoxActionsWorkerPhase(
+        #[MapEntity(id: 'id')] GameMYR $game,
+        #[MapEntity(id: 'tileId')] TileMYR $tile,
+        int $antCoordX,
+        int $antCoordY,
+        int $shiftsCount,
+        string $cleanedTiles
+    ): Response
+    {
+        if ($game->isPaused() || !$game->isLaunched())
+            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+        }
+        $coords = $this->dataManagementMYRService->getListOfCoordinatesFromString($cleanedTiles);
+        $boardBox = $this->dataManagementMYRService->createBoardBoxWorkerPhase(
+            $game, $tile, 0, 0,
+            $antCoordY == $tile->getCoordY() && $antCoordX == $tile->getCoordX(),
+            $player, $shiftsCount, new ArrayCollection($coords)
+        );
+        $this->publishHighlightTile($game, $player, $tile);
+        return $this->returnDisplayBoardActions($game, $player, $boardBox);
     }
 
     #[Route('/game/myrmes/{id}/display/personalBoard/throwResource/{playerResourceId}/actions',
@@ -396,13 +416,7 @@ class MyrmesController extends AbstractController
         if ($player == null) {
             return new Response('invalid player', Response::HTTP_FORBIDDEN);
         }
-        $stringCoords = explode(" ", $cleanedTiles);
-        $coords = [];
-        foreach($stringCoords as $stringCoord) {
-            $coords[] = array_map(function (string $value) {
-                return intval($value);
-            }, explode("_", $stringCoord));
-        }
+        $coords = $this->dataManagementMYRService->getListOfCoordinatesFromString($cleanedTiles);
         try {
             $boardBoxes = $this->dataManagementMYRService->organizeMainBoardRows(
                 $game, true, $antCoordX, $antCoordY, $player, $shiftsCount, new ArrayCollection($coords));
@@ -939,6 +953,16 @@ class MyrmesController extends AbstractController
         return new Response("confirmed workshop actions", Response::HTTP_OK);
     }
 
+    /**
+     * returnMainBoard : return the response with the given parameters for main board
+     * @param GameMYR $game
+     * @param PlayerMYR|null $player
+     * @param Collection $boardBoxes
+     * @param BoardBoxMYR|null $selectedBox
+     * @param bool $sendingWorkerOnGarden
+     * @param bool $hasSelectedAnthillHolePlacement
+     * @return Response
+     */
     private function returnMainBoard(GameMYR $game, ?PlayerMYR $player, Collection $boardBoxes,
                                      ?BoardBoxMYR $selectedBox, bool $sendingWorkerOnGarden,
                                      bool $hasSelectedAnthillHolePlacement ) : Response
@@ -954,6 +978,26 @@ class MyrmesController extends AbstractController
             'actualSeason' => $this->service->getActualSeason($game),
             'sendingWorkerOnGarden' => $sendingWorkerOnGarden,
             'hasSelectedAnthillHolePlacement' => $hasSelectedAnthillHolePlacement
+        ]);
+    }
+
+    /**
+     * returnDisplayBoardActions : return the response with the given parameters for display board actions
+     * @param GameMYR $game
+     * @param PlayerMYR|null $player
+     * @param BoardBoxMYR $boardBox
+     * @return Response
+     */
+    private function returnDisplayBoardActions(GameMYR $game, ?PlayerMYR $player, BoardBoxMYR $boardBox): Response
+    {
+        return $this->render('Game/Myrmes/MainBoard/displayBoardBoxActions.html.twig', [
+            'game' => $game,
+            'player' => $player,
+            'selectedBox' => $boardBox,
+            'needToPlay' => $player == null ? false : $player->isTurnOfPlayer(),
+            'playerPhase' => $player->getPhase(),
+            'hasFinishedObligatoryHarvesting' => $this->harvestMYRService->areAllPheromonesHarvested($player),
+            'canStillHarvest' => $this->harvestMYRService->canStillHarvest($player),
         ]);
     }
 
