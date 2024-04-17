@@ -104,6 +104,10 @@ class MyrmesController extends AbstractController
                 $player,
                 MyrmesParameters::WORKSHOP_AREA
             )->count(),
+            'nursesOnBaseArea' => $this->service->getNursesAtPosition(
+                $player,
+                MyrmesParameters::BASE_AREA
+            )->count(),
             'sendingWorkerOnGarden' => false,
             'mustThrowResources' => $player != null
                 && $this->service->isInPhase($player, MyrmesParameters::PHASE_WINTER)
@@ -155,6 +159,10 @@ class MyrmesController extends AbstractController
                 $player,
                 MyrmesParameters::WORKSHOP_AREA
             )->count(),
+            'nursesOnBaseArea' => $this->service->getNursesAtPosition(
+                $player,
+                MyrmesParameters::BASE_AREA
+            )->count(),
             'mustThrowResources' => $player != null
                 && $this->service->isInPhase($player, MyrmesParameters::PHASE_WINTER)
                 && $this->winterMYRService->mustDropResourcesForWinter($player),
@@ -195,6 +203,10 @@ class MyrmesController extends AbstractController
                 'nursesOnWorkshop' => $this->service->getNursesAtPosition(
                     $playerMYR,
                     MyrmesParameters::WORKSHOP_AREA
+                )->count(),
+                'nursesOnBaseArea' => $this->service->getNursesAtPosition(
+                    $playerMYR,
+                    MyrmesParameters::BASE_AREA
                 )->count(),
                 'mustThrowResources' => false,
                 'workersOnAnthillLevels' => $this->dataManagementMYRService->workerOnAnthillLevels($playerMYR->getPersonalBoardMYR())
