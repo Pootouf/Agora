@@ -184,7 +184,7 @@ export default class extends Controller  {
         placeholder.innerHTML = await response.text();
         const node = placeholder.firstElementChild;
         tree.appendChild(node);
-        currentTileMode = 0;
+        window.currentTileMode = 0;
     }
 
     async displayPlayerPersonalBoard(board) {
@@ -312,7 +312,7 @@ export default class extends Controller  {
                 });
             let tile = document.getElementsByClassName("displayedActionsTile").item(0);
             tile.classList.value = "";
-            tile.classList.add("fill-[rgba(0,_0,_0,_0)]")
+            tile.classList.add("fill-[rgba(0,_0,_0,_0)]");
         }
     }
 
