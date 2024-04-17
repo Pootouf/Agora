@@ -34,7 +34,7 @@ class EventMYRService
         if ($playerBonus + 1 > MyrmesParameters::BONUS_WORKER) {
             throw new Exception("this bonus does not exist");
         }
-        $seasons = $player->getGameMyr()->getMainBoardMYR()->getSeasons();
+        $seasons = $player->getGame()->getMainBoardMYR()->getSeasons();
         $gameBonus = 0;
         foreach ($seasons as $season) {
             if ($season->isActualSeason()) {
@@ -77,7 +77,7 @@ class EventMYRService
             throw new Exception("this bonus does not exist");
         }
         $gameBonus = 0;
-        $seasons = $player->getGameMyr()->getMainBoardMYR()->getSeasons();
+        $seasons = $player->getGame()->getMainBoardMYR()->getSeasons();
         foreach ($seasons as $season) {
             if ($season->isActualSeason()) {
                 $gameBonus = $season->getDiceResult();

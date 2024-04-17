@@ -90,7 +90,7 @@ class WorkshopMYRServiceTest extends KernelTestCase
         $tile = $this->tileMYRRepository->findOneBy(["coord_X" => 7, "coord_Y" => 12]);
         for ($i = 0; $i < MyrmesParameters::MAX_ANTHILL_HOLE_NB; ++$i) {
             $anthillHole = new AnthillHoleMYR();
-            $anthillHole->setMainBoardMYR($player->getGameMyr()->getMainBoardMYR());
+            $anthillHole->setMainBoardMYR($player->getGame()->getMainBoardMYR());
             $anthillHole->setPlayer($player);
             $anthillHole->setTile($tile);
             $this->entityManager->persist($anthillHole);
@@ -170,7 +170,7 @@ class WorkshopMYRServiceTest extends KernelTestCase
         $nurse->setArea(MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA);
         $tile = $this->tileMYRRepository->findOneBy(["coord_X" => 7, "coord_Y" => 12]);
         $anthillHole = new AnthillHoleMYR();
-        $anthillHole->setMainBoardMYR($player->getGameMyr()->getMainBoardMYR());
+        $anthillHole->setMainBoardMYR($player->getGame()->getMainBoardMYR());
         $anthillHole->setPlayer($player);
         $anthillHole->setTile($tile);
         $player->addAnthillHoleMYR($anthillHole);
@@ -466,7 +466,7 @@ class WorkshopMYRServiceTest extends KernelTestCase
         for ($i = 0; $i < $numberOfPlayers; $i += 1) {
             $player = new PlayerMYR('test', $game);
             $game->addPlayer($player);
-            $player->setGameMyr($game);
+            $player->setGame($game);
             $player->setColor("");
             $player->setPhase(MyrmesParameters::PHASE_EVENT);
             $personalBoard = new PersonalBoardMYR();

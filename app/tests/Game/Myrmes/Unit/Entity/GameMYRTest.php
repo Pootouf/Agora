@@ -51,7 +51,7 @@ class GameMYRTest extends TestCase
         // THEN
 
         $this->assertContains($player, $this->gameMYR->getPlayers());
-        $this->assertSame($this->gameMYR, $player->getGameMyr());
+        $this->assertSame($this->gameMYR, $player->getGame());
     }
 
     public function testRemovePlayersNotYetRemoved() : void
@@ -68,7 +68,7 @@ class GameMYRTest extends TestCase
         // THEN
 
         $this->assertNotContains($player, $this->gameMYR->getPlayers());
-        $this->assertNull($player->getGameMyr());
+        $this->assertNull($player->getGame());
     }
 
     public function testSetGamePhase() : void

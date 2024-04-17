@@ -40,7 +40,6 @@ class WorkerMYRService
                                 private readonly PheromonMYRRepository $pheromonMYRRepository,
                                 private readonly PreyMYRRepository $preyMYRRepository,
                                 private readonly TileMYRRepository $tileMYRRepository,
-                                private readonly PlayerResourceMYRRepository $playerResourceMYRRepository,
                                 private readonly ResourceMYRRepository $resourceMYRRepository,
                                 private readonly TileTypeMYRRepository $tileTypeMYRRepository,
                                 private readonly GardenWorkerMYRRepository $gardenWorkerMYRRepository,
@@ -125,9 +124,9 @@ class WorkerMYRService
             return false;
         }
 
-        $prey = $this->getPreyOnTile($tile, $player->getGameMyr());
-        $destinationPheromoneTile = $this->getPheromoneTileOnTile($tile, $player->getGameMyr());
-        $originPheromoneTile = $this->getPheromoneTileOnTile($gardenWorker->getTile(), $player->getGameMyr());
+        $prey = $this->getPreyOnTile($tile, $player->getGame());
+        $destinationPheromoneTile = $this->getPheromoneTileOnTile($tile, $player->getGame());
+        $originPheromoneTile = $this->getPheromoneTileOnTile($gardenWorker->getTile(), $player->getGame());
         $hasEnoughShiftsCount = $gardenWorker->getShiftsCount() > 0;
 
         return ($prey == null && $originPheromoneTile == null && $destinationPheromoneTile == null && $hasEnoughShiftsCount)
@@ -408,7 +407,7 @@ class WorkerMYRService
             throw new Exception('No more free ants');
         }
         $gardenWorker = $this->gardenWorkerMYRRepository->findOneBy([
-            'mainBoardMYR' => $personalBoard->getPlayer()->getGameMyr()->getMainBoardMYR()->getId(),
+            'mainBoardMYR' => $personalBoard->getPlayer()->getGame()->getMainBoardMYR()->getId(),
             'tile' => $exitHole->getTile()
         ]);
         if ($gardenWorker != null) {
@@ -417,7 +416,7 @@ class WorkerMYRService
         $gardenWorker = new GardenWorkerMYR();
         $gardenWorker->setTile($exitHole->getTile());
         $gardenWorker->setPlayer($personalBoard->getPlayer());
-        $gardenWorker->setMainBoardMYR($personalBoard->getPlayer()->getGameMyr()->getMainBoardMYR());
+        $gardenWorker->setMainBoardMYR($personalBoard->getPlayer()->getGame()->getMainBoardMYR());
         $gardenWorker->setShiftsCount(MyrmesParameters::DEFAULT_MOVEMENT_NUMBER
             + ($personalBoard->getBonus() == MyrmesParameters::BONUS_MOVEMENT ? 3 : 0));
         $this->entityManager->persist($gardenWorker);
@@ -434,13 +433,13 @@ class WorkerMYRService
      */
     public function placeAnthillHole(PlayerMYR $playerMYR, TileMYR $tileMYR) : void
     {
-        if(!$this->isPositionAvailable($playerMYR->getGameMyr(), $tileMYR)) {
+        if(!$this->isPositionAvailable($playerMYR->getGame(), $tileMYR)) {
             throw new Exception("Can't place anthill hole here");
         }
         $anthillHole = new AnthillHoleMYR();
         $anthillHole->setPlayer($playerMYR);
         $anthillHole->setTile($tileMYR);
-        $anthillHole->setMainBoardMYR($playerMYR->getGameMyr()->getMainBoardMYR());
+        $anthillHole->setMainBoardMYR($playerMYR->getGame()->getMainBoardMYR());
         $playerMYR->addAnthillHoleMYR($anthillHole);
         $this->entityManager->persist($anthillHole);
         $this->entityManager->persist($playerMYR);
@@ -517,9 +516,9 @@ class WorkerMYRService
             $this->getTileAtDirection($gardenWorker->getTile(), $direction);
         $gardenWorker->setTile($tile);
 
-        $prey = $this->getPreyOnTile($tile, $player->getGameMyr());
-        $destinationPheromone = $this->getPheromoneTileOnTile($tile, $player->getGameMyr());
-        $startPheromone = $this->getPheromoneTileOnTile($gardenWorker->getTile(), $player->getGameMyr());
+        $prey = $this->getPreyOnTile($tile, $player->getGame());
+        $destinationPheromone = $this->getPheromoneTileOnTile($tile, $player->getGame());
+        $startPheromone = $this->getPheromoneTileOnTile($gardenWorker->getTile(), $player->getGame());
 
         if ($prey != null)
         {
@@ -883,7 +882,7 @@ class WorkerMYRService
     private function getAllAvailablePositionsFromOrientation(PlayerMYR $player, TileMYR $tile,
         TileTypeMYR $tileType, ArrayCollection $coords, Array $translations) : ArrayCollection
     {
-        $game = $player->getGameMyr();
+        $game = $player->getGame();
         $result = new ArrayCollection();
         foreach ($translations as $translation) {
             $isPivot = true;
@@ -1132,7 +1131,7 @@ class WorkerMYRService
     {
         $coordX = $tile->getCoordX();
         $coordY = $tile->getCoordY();
-        $game = $player->getGameMyr();
+        $game = $player->getGame();
         if (!$this->isPositionAvailable($game, $tile) || $this->containsPrey($game, $tile)) {
             return new ArrayCollection();
         }
@@ -1175,7 +1174,7 @@ class WorkerMYRService
     {
         $coordX = $tile->getCoordX();
         $coordY = $tile->getCoordY();
-        $game = $player->getGameMyr();
+        $game = $player->getGame();
         if (!$this->isPositionAvailable($game, $tile) || $this->containsPrey($game, $tile)) {
             throw new Exception("can't place this tile");
         }
@@ -1209,7 +1208,7 @@ class WorkerMYRService
     {
         $coordX = $tile->getCoordX();
         $coordY = $tile->getCoordY();
-        $game = $player->getGameMyr();
+        $game = $player->getGame();
         if (!$this->isPositionAvailable($game, $tile) || $this->containsPrey($game, $tile)) {
             throw new Exception("can't place this tile");
         }
@@ -1252,7 +1251,7 @@ class WorkerMYRService
     {
         $coordX = $tile->getCoordX();
         $coordY = $tile->getCoordY();
-        $game = $player->getGameMyr();
+        $game = $player->getGame();
         if (!$this->isPositionAvailable($game, $tile) || $this->containsPrey($game, $tile)) {
             throw new Exception("can't place this tile");
         }
@@ -1296,7 +1295,7 @@ class WorkerMYRService
     {
         $coordX = $tile->getCoordX();
         $coordY = $tile->getCoordY();
-        $game = $player->getGameMyr();
+        $game = $player->getGame();
         if (!$this->isPositionAvailable($game, $tile) || $this->containsPrey($game, $tile)) {
             throw new Exception("can't place this tile");
         }
@@ -1357,7 +1356,7 @@ class WorkerMYRService
     {
         $coordX = $tile->getCoordX();
         $coordY = $tile->getCoordY();
-        $game = $player->getGameMyr();
+        $game = $player->getGame();
         if (!$this->isPositionAvailable($game, $tile) || $this->containsPrey($game, $tile)) {
             throw new Exception("can't place this tile");
         }
@@ -1400,7 +1399,7 @@ class WorkerMYRService
     {
         $coordX = $tile->getCoordX();
         $coordY = $tile->getCoordY();
-        $game = $player->getGameMyr();
+        $game = $player->getGame();
         if (!$this->isPositionAvailable($game, $tile) || $this->containsPrey($game, $tile)) {
             throw new Exception("can't place this tile");
         }
@@ -1701,7 +1700,7 @@ class WorkerMYRService
             $pheromoneTile->setTile($tile);
             $pheromoneTile->setPheromonMYR($pheromone);
             $this->placeResourceOnTile($pheromoneTile);
-            $pheromoneTile->setMainBoard($playerMYR->getGameMyr()->getMainBoardMYR());
+            $pheromoneTile->setMainBoard($playerMYR->getGame()->getMainBoardMYR());
             $this->entityManager->persist($pheromoneTile);
             $pheromone->addPheromonTile($pheromoneTile);
         }

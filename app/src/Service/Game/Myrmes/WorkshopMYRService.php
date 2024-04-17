@@ -364,7 +364,7 @@ class WorkshopMYRService
         if ($tile->getType() === MyrmesParameters::WATER_TILE_TYPE) {
             return false;
         }
-        $mainBoard = $player->getGameMyr()->getMainBoardMYR();
+        $mainBoard = $player->getGame()->getMainBoardMYR();
         $pheromoneTile = $this->pheromoneTileMYRRepository->findOneBy(["mainBoard" => $mainBoard, "tile" => $tile]);
         if ($pheromoneTile != null) {
             return false;
@@ -439,7 +439,7 @@ class WorkshopMYRService
             $anthillHole = new AnthillHoleMYR();
             $anthillHole->setTile($tile);
             $anthillHole->setPlayer($player);
-            $anthillHole->setMainBoardMYR($player->getGameMyr()->getMainBoardMYR());
+            $anthillHole->setMainBoardMYR($player->getGame()->getMainBoardMYR());
             $this->entityManager->persist($anthillHole);
             $player->addAnthillHoleMYR($anthillHole);
             $this->giveDirtToPlayer($player);
@@ -1236,7 +1236,7 @@ class WorkshopMYRService
     private function calculateScoreAfterGoalAccomplish(GameGoalMYR $gameGoal, PlayerMYR $player): void
     {
         $previousPlayers = $gameGoal->getPrecedentsPlayers();
-        $game = $player->getGameMyr();
+        $game = $player->getGame();
         foreach ($previousPlayers as $previousPlayer) {
             if (!$gameGoal->getGoalAlreadyDone()->contains($previousPlayer)) {
                 $previousPlayer->setScore(
@@ -1285,7 +1285,7 @@ class WorkshopMYRService
      */
     private function doesPlayerHaveDoneDifficultyOneGoal(PlayerMYR $player) : bool
     {
-        $game = $player->getGameMyr();
+        $game = $player->getGame();
         $goals = $game->getMainBoardMYR()->getGameGoalsLevelOne();
         return  $this->doesPlayerHaveDoneOneOfTheSelectedGoal($goals, $player);
     }
@@ -1297,7 +1297,7 @@ class WorkshopMYRService
      */
     private function doesPlayerHaveDoneDifficultyTwoGoal(PlayerMYR $player) : bool
     {
-        $game = $player->getGameMyr();
+        $game = $player->getGame();
         $goals = $game->getMainBoardMYR()->getGameGoalsLevelTwo();
         return  $this->doesPlayerHaveDoneOneOfTheSelectedGoal($goals, $player);
     }

@@ -329,7 +329,7 @@ class HarvestMYRServiceTest extends KernelTestCase
             $player = new PlayerMYR('test', $game);
             $game->addPlayer($player);
 
-            $player->setGameMyr($game);
+            $player->setGame($game);
             $player->setColor("");
             $player->setPhase(MyrmesParameters::PHASE_EVENT);
 

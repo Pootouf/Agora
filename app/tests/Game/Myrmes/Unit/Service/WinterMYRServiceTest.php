@@ -428,7 +428,7 @@ class WinterMYRServiceTest extends TestCase
             $player = new PlayerMYR('test', $game);
             $player->setScore(0);
             $game->addPlayer($player);
-            $player->setGameMyr($game);
+            $player->setGame($game);
             $personalBoard = new PersonalBoardMYR();
             $resource = new ResourceMYR();
             $resource->setDescription(MyrmesParameters::RESOURCE_TYPE_GRASS);

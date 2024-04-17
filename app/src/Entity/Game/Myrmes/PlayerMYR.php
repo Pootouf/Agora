@@ -29,7 +29,7 @@ class PlayerMYR extends Player
 
     #[ORM\ManyToOne(inversedBy: 'players')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?GameMYR $gameMYR = null;
+    private ?GameMYR $game = null;
 
     #[ORM\OneToMany(targetEntity: PheromonMYR::class, mappedBy: 'player', orphanRemoval: true)]
     private Collection $pheromonMYRs;
@@ -55,7 +55,7 @@ class PlayerMYR extends Player
         $this->gameGoalMYRs = new ArrayCollection();
         $this->anthillHoleMYRs = new ArrayCollection();
         $this->username = $name;
-        $this->gameMYR = $game;
+        $this->game = $game;
         $this->pheromonMYRs = new ArrayCollection();
         $this->preyMYRs = new ArrayCollection();
     }
@@ -177,14 +177,14 @@ class PlayerMYR extends Player
         return $this;
     }
 
-    public function getGameMyr(): ?GameMYR
+    public function getGame(): ?GameMYR
     {
-        return $this->gameMYR;
+        return $this->game;
     }
 
-    public function setGameMyr(?GameMYR $gameMYR): static
+    public function setGame(?GameMYR $game): static
     {
-        $this->gameMYR = $gameMYR;
+        $this->game = $game;
 
         return $this;
     }

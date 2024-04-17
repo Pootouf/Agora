@@ -346,7 +346,7 @@ class BirthMYRServiceTest extends TestCase
         for ($i = 0; $i < $numberOfPlayers; $i += 1) {
             $player = new PlayerMYR('test', $game);
             $game->addPlayer($player);
-            $player->setGameMyr($game);
+            $player->setGame($game);
             $personalBoard = new PersonalBoardMYR();
             $player->setPersonalBoardMYR($personalBoard);
             for($j = 0; $j < MyrmesParameters::START_NURSES_COUNT_PER_PLAYER; $j += 1) {

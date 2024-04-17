@@ -100,7 +100,7 @@ class MYRService
      */
     public function getPlayerFromNameAndGame(GameMYR $game, string $name): ?PlayerMYR
     {
-        return $this->playerMYRRepository->findOneBy(['gameMYR' => $game->getId(), 'username' => $name]);
+        return $this->playerMYRRepository->findOneBy(['game' => $game->getId(), 'username' => $name]);
     }
 
     /**
@@ -469,9 +469,9 @@ class MYRService
         $hole = new AnthillHoleMYR();
         $hole->setPlayer($player);
         $hole->setTile($tile);
-        $player->getGameMyr()->getMainBoardMYR()->addAnthillHole($hole);
+        $player->getGame()->getMainBoardMYR()->addAnthillHole($hole);
         $this->entityManager->persist($hole);
-        $this->entityManager->persist($player->getGameMyr()->getMainBoardMYR());
+        $this->entityManager->persist($player->getGame()->getMainBoardMYR());
     }
 
     /**
@@ -610,14 +610,14 @@ class MYRService
     {
         $playerMYR->setPhase($phase);
         $areAllPlayerAtTheSamePhase = true;
-        foreach($playerMYR->getGameMyr()->getPlayers() as $player) {
+        foreach($playerMYR->getGame()->getPlayers() as $player) {
             if($player->getPhase() != $phase) {
                 $areAllPlayerAtTheSamePhase = false;
             }
         }
         if($areAllPlayerAtTheSamePhase) {
-            $playerMYR->getGameMyr()->setGamePhase($phase);
-            $this->entityManager->persist($playerMYR->getGameMyr());
+            $playerMYR->getGame()->setGamePhase($phase);
+            $this->entityManager->persist($playerMYR->getGame());
         }
         $this->entityManager->persist($playerMYR);
         $this->entityManager->flush();

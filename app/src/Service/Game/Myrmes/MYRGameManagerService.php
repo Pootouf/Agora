@@ -77,7 +77,7 @@ class MYRGameManagerService extends AbstractGameManagerService
             return MYRGameManagerService::$ERROR_INVALID_NUMBER_OF_PLAYER;
         }
         if ($this->playerMYRRepository->findOneBy(
-            ['username' => $playerName, 'gameMYR' => $game->getId()]) != null) {
+            ['username' => $playerName, 'game' => $game->getId()]) != null) {
             return MYRGameManagerService::$ERROR_ALREADY_IN_PARTY;
         }
         $player = new PlayerMYR($playerName, $game);

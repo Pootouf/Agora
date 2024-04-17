@@ -33,8 +33,6 @@ class MYRServiceTest extends TestCase
     private ResourceMYRRepository $resourceMYRRepository;
     private SeasonMYRRepository $seasonMYRRepository;
 
-    private GoalMYRRepository $goalMYRRepository;
-
     protected function setUp() : void
     {
         $entityManager = $this->createMock(
@@ -483,7 +481,7 @@ class MYRServiceTest extends TestCase
         for ($i = 0; $i < $numberOfPlayers; $i += 1) {
             $player = new PlayerMYR('test' . $i, $game);
             $game->addPlayer($player);
-            $player->setGameMyr($game);
+            $player->setGame($game);
             $player->setPhase(MyrmesParameters::PHASE_INVALID);
 
             $personalBoard = new PersonalBoardMYR();

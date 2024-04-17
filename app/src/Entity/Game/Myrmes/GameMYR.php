@@ -15,7 +15,7 @@ class GameMYR extends Game
     #[ORM\JoinColumn(nullable: true)]
     private ?PlayerMYR $firstPlayer = null;
 
-    #[ORM\OneToMany(targetEntity: PlayerMYR::class, mappedBy: 'gameMYR', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: PlayerMYR::class, mappedBy: 'game', orphanRemoval: true)]
     private Collection $players;
 
     #[ORM\OneToOne(mappedBy: 'game', cascade: ['persist', 'remove'])]
@@ -54,7 +54,7 @@ class GameMYR extends Game
     {
         if (!$this->players->contains($player)) {
             $this->players->add($player);
-            $player->setGameMYR($this);
+            $player->setGame($this);
         }
 
         return $this;
@@ -64,8 +64,8 @@ class GameMYR extends Game
     {
         if ($this->players->removeElement($player)) {
             // set the owning side to null (unless already changed)
-            if ($player->getGameMYR() === $this) {
-                $player->setGameMYR(null);
+            if ($player->getGame() === $this) {
+                $player->setGame(null);
             }
         }
 

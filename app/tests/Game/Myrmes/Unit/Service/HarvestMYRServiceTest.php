@@ -314,7 +314,7 @@ class HarvestMYRServiceTest extends TestCase
         for ($i = 0; $i < $numberOfPlayers; $i += 1) {
             $player = new PlayerMYR('test', $game);
             $game->addPlayer($player);
-            $player->setGameMyr($game);
+            $player->setGame($game);
             $personalBoard = new PersonalBoardMYR();
 
             $resource = new ResourceMYR();

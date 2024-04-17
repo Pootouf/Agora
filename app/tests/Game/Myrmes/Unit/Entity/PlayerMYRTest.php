@@ -6,7 +6,6 @@ use App\Entity\Game\Myrmes\AnthillHoleMYR;
 use App\Entity\Game\Myrmes\AnthillWorkerMYR;
 use App\Entity\Game\Myrmes\GameGoalMYR;
 use App\Entity\Game\Myrmes\GameMYR;
-use App\Entity\Game\Myrmes\GardenTileMYR;
 use App\Entity\Game\Myrmes\GardenWorkerMYR;
 use App\Entity\Game\Myrmes\MyrmesParameters;
 use App\Entity\Game\Myrmes\NurseMYR;
@@ -188,11 +187,11 @@ class PlayerMYRTest extends TestCase
 
         // WHEN
 
-        $this->playerMYR->setGameMyr($game);
+        $this->playerMYR->setGame($game);
 
         // THEN
 
-        $this->assertSame($game, $this->playerMYR->getGameMyr());
+        $this->assertSame($game, $this->playerMYR->getGame());
     }
 
     public function testAddPheromoneYetNotAdded() : void

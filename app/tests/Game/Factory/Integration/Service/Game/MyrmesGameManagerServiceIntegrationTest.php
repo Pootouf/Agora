@@ -286,7 +286,7 @@ class MyrmesGameManagerServiceIntegrationTest extends KernelTestCase
         for ($i = 0; $i < $numberOfPlayer; $i += 1) {
             $player = new PlayerMYR('test'.$i, $game);
             $game->addPlayer($player);
-            $player->setGameMyr($game);
+            $player->setGame($game);
             $player->setColor("");
             $player->setPhase(MyrmesParameters::PHASE_EVENT);
             $personalBoard = new PersonalBoardMYR();

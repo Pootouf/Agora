@@ -98,7 +98,7 @@ class WinterMYRService
      */
     public function retrievePoints(PlayerMYR $player) : void
     {
-        $game = $player->getGameMyr();
+        $game = $player->getGame();
         $currentYear = $game->getMainBoardMYR()->getYearNum();
         $amountToSpend = $this->getAmountToSpend($player, $currentYear);
         $food = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::RESOURCE_TYPE_GRASS]);
