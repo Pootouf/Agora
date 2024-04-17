@@ -271,7 +271,11 @@ export default class extends Controller  {
         let open = board.params.open;
         if (open) {
             const response = await fetch(url);
-            document.getElementById('objectPlacement').innerHTML = await response.text();
+            let tree = document.getElementById("index_myrmes");
+            let placeholder = document.createElement("div");
+            placeholder.innerHTML = await response.text();
+            const node = placeholder.firstElementChild;
+            tree.appendChild(node);
         }
 
         await this.togglePheromonePlacement(open);
