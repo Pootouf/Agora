@@ -11,6 +11,8 @@ use App\Entity\Game\Myrmes\NurseMYR;
 use App\Entity\Game\Myrmes\PersonalBoardMYR;
 use App\Entity\Game\Myrmes\PlayerMYR;
 use App\Entity\Game\Myrmes\SeasonMYR;
+use App\Service\Game\AbstractGameManagerService;
+use App\Service\Game\GameService;
 use App\Service\Game\Myrmes\MYRService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Exception;
@@ -23,10 +25,13 @@ class MYRServiceTest extends KernelTestCase
     private EntityManagerInterface $entityManager;
     private MYRService $MYRService;
 
+    private GameService $gameService;
+
     protected function setUp() : void
     {
         $this->entityManager = static::getContainer()->get(EntityManagerInterface::class);
         $this->MYRService = static::getContainer()->get(MYRService::class);
+        $this->gameService = static::getContainer()->get(GameService::class);
     }
 
     public function testActivateGoalWhenGoalIsLevelOne() : void
@@ -195,7 +200,6 @@ class MYRServiceTest extends KernelTestCase
     {
         // GIVEN
 
-        $myrService = static::getContainer()->get(MYRService::class);
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
@@ -206,7 +210,7 @@ class MYRServiceTest extends KernelTestCase
 
         // WHEN
 
-        $result = $myrService->getPlayerFromNameAndGame(
+        $result = $this->gameService->getPlayerFromNameAndGame(
             $game,
             $player->getUsername()
         );
@@ -232,7 +236,7 @@ class MYRServiceTest extends KernelTestCase
 
         // WHEN
 
-        $result = $myrService->getPlayerFromNameAndGame($game, $wrongName);
+        $result = $this->gameService->getPlayerFromNameAndGame($game, $wrongName);
 
         // THEN
 
@@ -311,7 +315,7 @@ class MYRServiceTest extends KernelTestCase
         $mainBoard->addSeason($season);
         $entityManager->persist($season);
         $game->setMainBoardMYR($mainBoard);
-        $game->setGameName("test");
+        $game->setGameName(AbstractGameManagerService::$MYR_LABEL);
         $game->setLaunched(true);
         $game->setGamePhase(MyrmesParameters::PHASE_INVALID);
         $entityManager->persist($mainBoard);

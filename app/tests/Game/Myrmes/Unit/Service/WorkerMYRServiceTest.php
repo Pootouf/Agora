@@ -77,7 +77,6 @@ class WorkerMYRServiceTest extends TestCase
             $this->pheromonMYRRepository,
             $this->preyMYRRepository,
             $this->tileMYRRepository,
-            $this->playerResourceMYRRepository,
             $this->resourceMYRRepository,
             $this->tileTypeMYRRepository,
             $this->gardenWorkerMYRRepository,

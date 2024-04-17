@@ -53,7 +53,6 @@ class MYRServiceTest extends TestCase
             PlayerResourceMYRRepository::class);
         $goalMYRRepository = $this->createMock(
             GoalMYRRepository::class);
-        $this->goalMYRRepository = $goalMYRRepository;
         $this->MYRService = new MYRService(
             $playerMYRRepository,
             $entityManager,

@@ -20,6 +20,7 @@ use App\Entity\Game\Myrmes\SeasonMYR;
 use App\Repository\Game\Glenmore\PlayerGLMRepository;
 use App\Repository\Game\Myrmes\PlayerMYRRepository;
 use App\Service\Game\AbstractGameManagerService;
+use App\Service\Game\GameService;
 use App\Service\Game\Glenmore\GLMService;
 use App\Service\Game\LogService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -33,7 +34,8 @@ class MYRGameManagerService extends AbstractGameManagerService
     public function __construct(private EntityManagerInterface $entityManager,
         private PlayerMYRRepository $playerMYRRepository,
         private MYRService $MYRService,
-        private LogService $logService)
+        private LogService $logService,
+        private GameService $gameService)
     {}
 
 
@@ -114,7 +116,7 @@ class MYRGameManagerService extends AbstractGameManagerService
         if ($game->isLaunched()) {
             return MYRGameManagerService::$ERROR_GAME_ALREADY_LAUNCHED;
         }
-        $player = $this->MYRService->getPlayerFromNameAndGame($game, $playerName);
+        $player = $this->gameService->getPlayerFromNameAndGame($game, $playerName);
         if ($player == null) {
             return MYRGameManagerService::$ERROR_PLAYER_NOT_FOUND;
         }

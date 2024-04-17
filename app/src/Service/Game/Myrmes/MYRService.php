@@ -32,7 +32,7 @@ use Exception;
 class MYRService
 {
 
-    public function __construct(private PlayerMYRRepository $playerMYRRepository,
+    public function __construct(private readonly PlayerMYRRepository $playerMYRRepository,
                 private readonly EntityManagerInterface $entityManager,
                 private readonly NurseMYRRepository $nurseMYRRepository,
                 private readonly TileMYRRepository $tileMYRRepository,
@@ -90,17 +90,6 @@ class MYRService
     public function isInPhase(PlayerMYR $playerMYR, int $phase): bool
     {
         return $playerMYR->getPhase() == $phase;
-    }
-
-    /**
-     * getPlayerFromNameAndGame : return the player associated with a username and a game
-     * @param GameMYR $game
-     * @param string  $name
-     * @return ?PlayerMYR
-     */
-    public function getPlayerFromNameAndGame(GameMYR $game, string $name): ?PlayerMYR
-    {
-        return $this->playerMYRRepository->findOneBy(['game' => $game->getId(), 'username' => $name]);
     }
 
     /**
