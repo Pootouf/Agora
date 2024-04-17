@@ -72,6 +72,7 @@ class SixQPGameManagerService extends AbstractGameManagerService
             return SixQPGameManagerService::$ERROR_ALREADY_IN_PARTY;
         }
         $player = new PlayerSixQP($playerName, $game);
+        $player->setScore(0);
         $discard = new DiscardSixQP($player, $game);
         $player->setDiscardSixQP($discard);
         $game->addPlayer($player);

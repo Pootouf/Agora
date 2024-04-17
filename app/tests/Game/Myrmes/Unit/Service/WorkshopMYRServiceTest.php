@@ -3,7 +3,9 @@
 namespace App\Tests\Game\Myrmes\Unit\Service;
 
 use App\Entity\Game\Myrmes\AnthillHoleMYR;
+use App\Entity\Game\Myrmes\GameGoalMYR;
 use App\Entity\Game\Myrmes\GameMYR;
+use App\Entity\Game\Myrmes\GoalMYR;
 use App\Entity\Game\Myrmes\MainBoardMYR;
 use App\Entity\Game\Myrmes\MyrmesParameters;
 use App\Entity\Game\Myrmes\NurseMYR;
@@ -214,6 +216,40 @@ class WorkshopMYRServiceTest extends TestCase
 
         $this->workshopMYRService->manageWorkshop($player,
             MyrmesParameters::WORKSHOP_LEVEL_AREA);
+    }
+
+    public function testGiveBonusWhenAskIncreaseLevelAndActionAlreadyDone() : void
+    {
+        // GIVEN
+
+        $game = $this->createGame(2);
+        $action = MyrmesParameters::WORKSHOP_LEVEL_AREA;
+
+        foreach ($game->getPlayers() as $player)
+        {
+            $player->setPhase(MyrmesParameters::PHASE_WORKSHOP);
+            $player->getWorkshopActions()[$action] = 1;
+        }
+
+        $player = $game->getPlayers()->first();
+        $personalBoard = $player->getPersonalBoardMYR();
+        $personalBoard->setAnthillLevel(1);
+
+        $array = new ArrayCollection();
+        $nurse = $personalBoard->getNurses()->first();
+        $nurse->setArea(MyrmesParameters::WORKSHOP_LEVEL_AREA);
+        $array->add($nurse);
+        $this->MYRService->method("getNursesAtPosition")->willReturn($array);
+
+        // THEN
+
+        $this->expectException(\Exception::class);
+
+        // WHEN
+
+
+        $this->workshopMYRService->manageWorkshop($player,
+            $action);
     }
 
     public function testGiveBonusWhenAskNewNurseWhenCanAdd() : void
@@ -455,6 +491,25 @@ class WorkshopMYRServiceTest extends TestCase
         $this->assertNull($result);
     }
 
+    /*public function testCanPlayerDoGoalWhenPlayerHasNotAlreadyDoneSelectedGoalWhenReturnFalse()
+    {
+        // GIVEN
+
+        $game = $this->createGame(3);
+        $gameGoal = $game->getMainBoardMYR()->getGameGoalsLevelOne()->first();
+
+        $player = $game->getPlayers()->first();
+        $gameGoal->addPrecedentsPlayer($player);
+
+        // WHEN
+
+        $result = $this->workshopMYRService->canPlayerDoGoal($player, $gameGoal);
+
+        // THEN
+
+        $this->assertFalse($result);
+    }*/
+
     private function createGame(int $numberOfPlayers) : GameMYR
     {
         if($numberOfPlayers < MyrmesParameters::MIN_NUMBER_OF_PLAYER ||
@@ -484,9 +539,23 @@ class WorkshopMYRServiceTest extends TestCase
                 $nurse = new NurseMYR();
                 $personalBoard->addNurse($nurse);
             }
+            $playerActions = array();
+            for($j = MyrmesParameters::WORKSHOP_GOAL_AREA; $j <= MyrmesParameters::WORKSHOP_NURSE_AREA; $j += 1) {
+                $playerActions[$j] = 0;
+            }
+            $player->setWorkshopActions($playerActions);
         }
         $mainBoard = new MainBoardMYR();
         $mainBoard->setYearNum(MyrmesParameters::FIRST_YEAR_NUM);
+
+        $gameGoal = new GameGoalMYR();
+        $goal = new GoalMYR();
+        $goal->setDifficulty(1);
+        $goal->setName("goal");
+        $gameGoal->setGoal($goal);
+
+        $mainBoard->addGameGoalsLevelOne($gameGoal);
+
         $game->setMainBoardMYR($mainBoard);
         $game->setGamePhase(MyrmesParameters::PHASE_INVALID);
         return $game;

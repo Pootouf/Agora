@@ -50,6 +50,37 @@ class GameTest extends TestCase
         //THEN
         $this->assertSame($name, $this->game->getGameName());
     }
+
+    public function testSetPausedWhenReturnTrue() : void
+    {
+        // GIVEN
+
+        $paused = true;
+
+        // WHEN
+
+        $this->game->setPaused($paused);
+
+        // THEN
+
+        $this->assertTrue($this->game->isPaused());
+    }
+
+    public function testSetPausedWhenReturnFalse() : void
+    {
+        // GIVEN
+
+        $paused = false;
+
+        // WHEN
+
+        $this->game->setPaused($paused);
+
+        // THEN
+
+        $this->assertFalse($this->game->isPaused());
+    }
+
     protected function setUp(): void
     {
         $this->game = new Game();

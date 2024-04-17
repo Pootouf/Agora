@@ -22,6 +22,9 @@ class Player
     #[ORM\Column(nullable: true)]
     protected ?bool $turnOfPlayer = null;
 
+    #[ORM\Column]
+    protected ?int $score = null;
+
     #[ORM\Column(nullable: false)]
     protected bool $excluded = false;
 
@@ -60,6 +63,24 @@ class Player
     public function setTurnOfPlayer(bool $turnOfPlayer) : static
     {
         $this->turnOfPlayer = $turnOfPlayer;
+
+        return $this;
+    }
+
+    public function getScore(): ?int
+    {
+        return $this->score;
+    }
+
+    public function setScore(int $score): static
+    {
+        $this->score = $score;
+
+        return $this;
+    }
+    public function addScore(int $score): static
+    {
+        $this->score += $score;
 
         return $this;
     }

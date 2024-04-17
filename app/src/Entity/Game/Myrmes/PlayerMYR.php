@@ -6,15 +6,12 @@ use App\Entity\Game\DTO\Player;
 use App\Repository\Game\Myrmes\PlayerMYRRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PlayerMYRRepository::class)]
 class PlayerMYR extends Player
 {
-
-    #[ORM\Column]
-    private ?int $score = null;
-
     #[ORM\Column]
     private ?int $goalLevel = null;
 
@@ -49,6 +46,9 @@ class PlayerMYR extends Player
     #[ORM\Column]
     private ?int $remainingHarvestingBonus = null;
 
+    #[ORM\Column(type: Types::ARRAY)]
+    private array $workshopActions = [];
+
     public function __construct(string $name, GameMYR $game)
     {
         $this->gardenWorkerMYRs = new ArrayCollection();
@@ -58,19 +58,6 @@ class PlayerMYR extends Player
         $this->gameMYR = $game;
         $this->pheromonMYRs = new ArrayCollection();
         $this->preyMYRs = new ArrayCollection();
-    }
-
-
-    public function getScore(): ?int
-    {
-        return $this->score;
-    }
-
-    public function setScore(int $score): static
-    {
-        $this->score = $score;
-
-        return $this;
     }
 
     public function getGoalLevel(): ?int
@@ -294,6 +281,18 @@ class PlayerMYR extends Player
     public function setRemainingHarvestingBonus(int $remainingHarvestingBonus): static
     {
         $this->remainingHarvestingBonus = $remainingHarvestingBonus;
+
+        return $this;
+    }
+
+    public function &getWorkshopActions(): array
+    {
+        return $this->workshopActions;
+    }
+
+    public function setWorkshopActions(array $workshopActions): static
+    {
+        $this->workshopActions = $workshopActions;
 
         return $this;
     }

@@ -339,6 +339,11 @@ class MYRServiceTest extends KernelTestCase
                 $personalBoard->addNurse($nurse);
                 $entityManager->persist($nurse);
             }
+            $playerActions = array();
+            for($j = MyrmesParameters::WORKSHOP_GOAL_AREA; $j <= MyrmesParameters::WORKSHOP_NURSE_AREA; $j += 1) {
+                $playerActions[$j] = 0;
+            }
+            $player->setWorkshopActions($playerActions);
             $entityManager->persist($player);
             $entityManager->persist($personalBoard);
             $entityManager->flush();

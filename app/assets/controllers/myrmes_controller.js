@@ -89,7 +89,9 @@ export default class extends Controller  {
 
     async placeWorkerOnColonyLevelTrack(level) {
         let url = level.params.url;
-        await fetch(url);
+        if (window.confirm("Confirmez vous le placement de l'ouvrière sur le niveau " + url.split('/').pop())) {
+            await fetch(url);
+        }
     }
 
     //harvest a resource
@@ -105,11 +107,6 @@ export default class extends Controller  {
     }
 
     // workshop actions
-
-    async choseAnthillHolePlacement(placement) {
-        let url = placement.params.url;
-        await fetch(url);
-    }
 
     async cancelAnthillHolePlacement(placement) {
         alert("Ouvrir menu de l'atelier");
@@ -128,14 +125,65 @@ export default class extends Controller  {
     }
 
     async displayBoxActions(boardBox) {
-        closeSelectedBoxWindow();
-        let url = boardBox.params.url
+        if (window.currentTileMode === 1) {
+            closeSelectedBoxWindow();
+            let url = boardBox.params.url;
+            const response = await fetch(url);
+            let tree = document.getElementById("index_myrmes");
+            let placeholder = document.createElement("div");
+            placeholder.innerHTML = await response.text();
+            const node = placeholder.firstElementChild;
+            tree.appendChild(node);
+        } else if (window.currentTileMode === 2 && window.clickableTilesForPlacement.includes(boardBox.target)) {
+            window.currentTileMode = 0;
+            let confirmButton = document.getElementById('PrepareTilePositioning')
+                .querySelector('#objectPositioningValidation');
+            let cancelButton = document.getElementById('PrepareTilePositioning')
+                .querySelector('#objectPositioningCancel');
+
+            for (const tile of document.querySelectorAll('.selectedTilePlacement')) {
+                tile.classList.remove('selectedTilePlacement')
+            }
+
+            for (const connectedTile of boardBox.target.parentElement.dataset.connectedTiles.split("_")) {
+                let tile = document.getElementById(`${connectedTile}-clickable-zone`);
+                tile.parentElement.classList.add("linkedTilePlacement");
+            }
+            boardBox.target.parentElement.parentElement.classList.add("selectedTilePlacement");
+
+            confirmButton.removeAttribute("disabled");
+            cancelButton.removeAttribute("disabled");
+
+            confirmButton.setAttribute("data-myrmes-tileid-param", boardBox.target.parentElement.parentElement.id);
+
+
+
+            cancelButton.onclick = () => {
+                confirmButton.setAttribute("disabled", "");
+                cancelButton.setAttribute("disabled", "");
+                document.querySelector('.selectedTilePlacement').classList.remove('selectedTilePlacement')
+                for (const tile of document.querySelectorAll('.linkedTilePlacement')) {
+                    tile.classList.remove('linkedTilePlacement')
+                }
+
+                for (const pivotPoint of clickableTilesForPlacement) {
+                    pivotPoint.parentElement.parentElement.classList.add("selectedTilePlacement");
+                }
+                window.currentTileMode = 2;
+            }
+        }
+    }
+
+    async displayObjectives(objective) {
+        let url = objective.params.url;
+        document.getElementById('objectives_button').setAttribute('disabled', '');
         const response = await fetch(url);
         let tree = document.getElementById("index_myrmes");
         let placeholder = document.createElement("div");
         placeholder.innerHTML = await response.text();
         const node = placeholder.firstElementChild;
         tree.appendChild(node);
+        currentTileMode = 0;
     }
 
     async displayBoxActionsWorkerPhase(boardBox) {
@@ -157,7 +205,6 @@ export default class extends Controller  {
 
     async togglePlayerPersonalBoard(open) {
         const openedPlayerPersonalBoard = document.getElementById("openedPlayerPersonalBoard");
-        console.log(openedPlayerPersonalBoard)
         const Timing = {
             duration: 750,
             iterations: 1,
@@ -199,7 +246,8 @@ export default class extends Controller  {
         let place = placement.params.placement;
         switch (place) {
             case 1:
-                alert("anthill hole");
+                workshop.toggleWorkshop(false);
+                await fetch(url);
                 break;
             case 2:
                 if (window.confirm("Confirmez vous l'augmentation du niveau de la fourmilière ?")) {
@@ -221,5 +269,126 @@ export default class extends Controller  {
 
     async confirmWorkshopActions(confirm) {
         await fetch(confirm.params.url);
+    }
+
+    async displayPheromonePlacement(board)  {
+        let url = board.params.url;
+        let open = board.params.open;
+        if (open) {
+            const response = await fetch(url);
+            document.getElementById('objectPlacement').innerHTML = await response.text();
+        }
+
+        await this.togglePheromonePlacement(open);
+    }
+
+    async togglePheromonePlacement(open) {
+        const openedDisplayObjectPlacement = document.getElementById("openedDisplayObjectPlacement");
+        const Timing = {
+            duration: 750,
+            iterations: 1,
+        }
+        if (open) {
+            closeSelectedBoxWindow(false);
+            openedDisplayObjectPlacement.removeAttribute("hidden");
+            const openingSliding = [
+                {transform: "translateX(60rem)"},
+                {transform: "translateX(0rem)"}
+            ]
+            openedDisplayObjectPlacement.animate(openingSliding, Timing);
+
+            let personalBoard = document.getElementById('persoBoard');
+        } else {
+            openedDisplayObjectPlacement.animate(
+                [
+                    {transform: "translateX(0rem)"},
+                    {transform: "translateX(60rem)"},
+                ],
+                {
+                    duration: Timing.duration,
+                    fill: "forwards",
+                }
+            ).addEventListener("finish",
+                () => {
+                    openedDisplayObjectPlacement.remove();
+                    window.selectedObjectId = null;
+                    window.selectedOrientation = null;
+                    window.currentTileMode = 1;
+                });
+            let tile = document.getElementsByClassName("displayedActionsTile").item(0);
+            tile.classList.value = "";
+            tile.classList.add("fill-[rgba(0,_0,_0,_0)]")
+        }
+    }
+
+    async returnMenuPheromonePlacement(board) {
+        // Menu positionnement d'une tuile
+        if (document.getElementById('PrepareTilePositioning')) {
+            document.getElementById('PrepareTilePositioning').remove();
+            document.getElementById('ObjectOrientationList').classList.remove('hidden');
+
+            document.getElementById('selectObjectTitle').innerText = "Orientation de la tuile"
+
+            for (const tile of document.querySelectorAll('.linkedTilePlacement')) {
+                tile.classList.remove('linkedTilePlacement')
+            }
+            for (const tile of document.querySelectorAll('.selectedTilePlacement')) {
+                tile.classList.remove('selectedTilePlacement')
+            }
+            window.currentTileMode = 0;
+            window.clickableTilesForPlacement = [];
+
+        // Menu choix orientation d'une tuile
+        } else if (document.getElementById('ObjectOrientationList')) {
+            document.getElementById('ObjectOrientationList').remove();
+            document.getElementById('ObjectSelectionList').classList.remove('hidden');
+            document.getElementById('selectObjectTitle').innerText = "Selection d'une tuile à placer";
+        // Menu choix d'une tuile
+        } else {
+            await this.displayPheromonePlacement(board);
+        }
+    }
+
+    async showAvailablePlacementForTile(tileSelected) {
+        let tiletype = tileSelected.params.tileid;
+        let orientation = tileSelected.params.orientation;
+        let url = tileSelected.params.url
+            .replace("tileType", tiletype)
+            .replace("orientation", orientation);
+
+
+
+        const response = await fetch(url);
+        if (!response.ok) {
+            alert(await response.text())
+            return;
+        }
+        const tiles = await response.text();
+
+        PrepareTilePositioning(orientation);
+
+        for (const tile of tiles.split("___")) {
+            let tilesSplit = tile.split("__")
+            let pivotPoint = tilesSplit[0];
+
+            let boardBox = document.getElementById(`${pivotPoint}-clickable-zone`)
+
+            boardBox.parentElement.classList.add("selectedTilePlacement");
+            clickableTilesForPlacement.push(boardBox.firstElementChild);
+
+            boardBox.dataset.connectedTiles = tilesSplit[1];
+        }
+
+        window.currentTileMode = 2;
+    }
+
+    async placePheromone(boardBox) {
+        let url = boardBox.params.url
+            .replace("tileType", selectedObjectId)
+            .replace("orientation", selectedOrientation)
+            .replace("tileId", boardBox.params.tileid);
+        const response = await fetch(url);
+
+        await this.togglePheromonePlacement(false);
     }
 }

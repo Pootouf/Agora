@@ -12,6 +12,7 @@ use App\Entity\Game\Glenmore\GlenmoreParameters;
 use App\Entity\Game\Glenmore\PlayerGLM;
 use App\Entity\Game\Myrmes\GameMYR;
 use App\Entity\Game\Myrmes\GardenWorkerMYR;
+use App\Entity\Game\Myrmes\PersonalBoardMYR;
 use App\Entity\Game\Myrmes\PheromonTileMYR;
 use App\Entity\Game\Myrmes\PlayerMYR;
 use App\Entity\Game\Myrmes\TileMYR;
@@ -237,5 +238,17 @@ class DataManagementMYRService
             $prey = $prey ?: null;
         }
         return new BoardBoxMYR($tile, $ant, $pheromoneTile, $anthillHole, $prey, $x, $y);
+    }
+
+    public function workerOnAnthillLevels(PersonalBoardMYR $personalBoardMYR) : array
+    {
+        $anthillWorkers = $personalBoardMYR->getAnthillWorkers();
+        $result = array(false, false, false, false);
+        for ($i = 0; $i < 4; $i++) {
+            $result[$i] =  $anthillWorkers->filter(function ($ant) use ($i) {
+                return $ant->getWorkFloor() == $i;
+            })->count() > 0;
+        }
+        return $result;
     }
 }

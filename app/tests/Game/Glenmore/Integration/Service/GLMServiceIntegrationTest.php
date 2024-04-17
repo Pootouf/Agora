@@ -132,9 +132,9 @@ class GLMServiceIntegrationTest extends KernelTestCase
         $game = $this->createGame(2);
         $firstPlayer = $game->getPlayers()->first();
         $lastPlayer = $game->getPlayers()->last();
-        $firstPlayer->setPoints(12);
+        $firstPlayer->setScore(12);
         $entityManager->persist($firstPlayer);
-        $lastPlayer->setPoints(15);
+        $lastPlayer->setScore(15);
         $entityManager->persist($lastPlayer);
         $entityManager->flush();
         $expectedResult = new ArrayCollection([$lastPlayer]);
@@ -154,9 +154,9 @@ class GLMServiceIntegrationTest extends KernelTestCase
         $game = $this->createGame(2);
         $firstPlayer = $game->getPlayers()->first();
         $lastPlayer = $game->getPlayers()->last();
-        $firstPlayer->setPoints(12);
+        $firstPlayer->setScore(12);
         $entityManager->persist($firstPlayer);
-        $lastPlayer->setPoints(12);
+        $lastPlayer->setScore(12);
         $entityManager->persist($lastPlayer);
         $tile = $tileGLMRepository->findOneBy(["id" => 12]);
         $playerTile = new PlayerTileGLM();
@@ -210,9 +210,9 @@ class GLMServiceIntegrationTest extends KernelTestCase
         $game = $this->createGame(2);
         $firstPlayer = $game->getPlayers()->first();
         $lastPlayer = $game->getPlayers()->last();
-        $firstPlayer->setPoints(12);
+        $firstPlayer->setScore(12);
         $entityManager->persist($firstPlayer);
-        $lastPlayer->setPoints(12);
+        $lastPlayer->setScore(12);
         $entityManager->persist($lastPlayer);
         $tile = $tileGLMRepository->findOneBy(["id" => 12]);
         $playerTile = new PlayerTileGLM();
@@ -308,8 +308,8 @@ class GLMServiceIntegrationTest extends KernelTestCase
         //WHEN
         $GLMService->calculatePointsAtEndOfLevel($game);
         //THEN
-        $result = [$players[0]->getPoints(), $players[1]->getPoints(), $players[2]->getPoints(),
-            $players[3]->getPoints(), $players[4]->getPoints()];
+        $result = [$players[0]->getScore(), $players[1]->getScore(), $players[2]->getScore(),
+            $players[3]->getScore(), $players[4]->getScore()];
         $this->assertSame($expectedResult, $result);
     }
 
@@ -375,7 +375,7 @@ class GLMServiceIntegrationTest extends KernelTestCase
         //WHEN
         $GLMService->calculatePointsAtEndOfLevel($game);
         //THEN
-        $result = [$players[0]->getPoints(), $players[1]->getPoints()];
+        $result = [$players[0]->getScore(), $players[1]->getScore()];
         $this->assertSame($expectedResult, $result);
     }
 
@@ -396,11 +396,11 @@ class GLMServiceIntegrationTest extends KernelTestCase
         //WHEN
         $GLMService->calculatePointsAtEndOfGame($game);
         //THEN
-        $result = [$players->get(0)->getPoints(),
-            $players->get(1)->getPoints(),
-            $players->get(2)->getPoints(),
-            $players->get(3)->getPoints(),
-            $players->get(4)->getPoints()];
+        $result = [$players->get(0)->getScore(),
+            $players->get(1)->getScore(),
+            $players->get(2)->getScore(),
+            $players->get(3)->getScore(),
+            $players->get(4)->getScore()];
         $this->assertSame($expectedResult, $result);
     }
 
@@ -433,8 +433,8 @@ class GLMServiceIntegrationTest extends KernelTestCase
         //WHEN
         $GLMService->calculatePointsAtEndOfGame($game);
         //THEN
-        $result = [$players->get(0)->getPoints(),
-            $players->get(1)->getPoints()];
+        $result = [$players->get(0)->getScore(),
+            $players->get(1)->getScore()];
         $this->assertSame($expectedResult, $result);
     }
 
@@ -544,7 +544,7 @@ class GLMServiceIntegrationTest extends KernelTestCase
             $player->setRoundPhase(0);
             $player->setGameGLM($game);
             $player->setTurnOfPlayer(false);
-            $player->setPoints(0);
+            $player->setScore(0);
             $game->addPlayer($player);
             $personalBoard = new PersonalBoardGLM();
             $player->setPersonalBoard($personalBoard);

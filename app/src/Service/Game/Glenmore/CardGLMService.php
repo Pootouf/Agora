@@ -268,7 +268,7 @@ class CardGLMService
             if ($owns) {
                 foreach ($player->getPersonalBoard()->getPlayerTiles() as $tile) {
                     if ($tile->getTile()->getType() == $tileColor) {
-                        $player->setPoints($player->getPoints() + $cardPoints);
+                        $player->setScore($player->getScore() + $cardPoints);
                     }
                 }
                 break;
