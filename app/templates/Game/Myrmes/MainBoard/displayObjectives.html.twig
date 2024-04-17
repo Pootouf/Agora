@@ -14,7 +14,7 @@
             {% for goalLevel in goalsLevel %}
                 <div class="flew flex-col">
                     {% for goal in goalLevel %}
-                        <img class="items-center justify-center rounded-lg shadow-black shadow-lg max-h-full"
+                        <img class="items-center justify-center rounded-lg shadow-black shadow-lg max-h-full mx-1"
                              src="{{ asset('resourcesGames/Myrmes/Goals/' ~ goal.goal.id ~ '.svg') }}"
                              alt="goal_{{ goal.id }}">
                         <div class="flex flex-row w-full">

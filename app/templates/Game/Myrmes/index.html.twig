@@ -161,7 +161,7 @@
         function goalSelected(goal) {
 
             let divTemplate = document.getElementById('goalSelectionTemplate');
-            let divClone = divTemplate.cloneNode(true)
+            let divClone = divTemplate.cloneNode(true);
             divClone.id = 'confirmGoalSelected';
             let selectedGoal = goal.cloneNode(true);
             selectedGoal.setAttribute('disabled', '');

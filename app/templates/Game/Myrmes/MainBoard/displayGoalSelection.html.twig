@@ -10,14 +10,14 @@ return :
         <button id="return_dop"
                 class="shadow-inner aspect-square relative h-full rounded-tl-lg
 		            bg-[#8F901F] hover:bg-[#7d7e1b] py-2 px-3 portrait:text-2xl items-center"
-                {{ stimulus_action('myrmes', 'returnMenuPheromonePlacement', 'click', ) }}
+                {{ stimulus_action('myrmes', 'returnMenuGoalSelection', 'click', ) }}
         >
             <img src="{{ asset('resourcesGames/utils/return-arrow.svg') }}" id="returnArrow"
                  alt="return on board"
                  class="h-6 max-h-full">
         </button>
         <p id="selectGoalTitle" class="flex-grow content-center text-2xl text-center font-bold text-white">
-            Selection d'un objectif
+            Sélection d'un objectif
         </p>
     </div>
     <div id="ObjectSelectionList" class="grid grid-cols-2 gap-4 overflow-y-auto h-[92%] p-2">
@@ -57,7 +57,7 @@ return :
             </div>
             <div class="flex flex-col w-full items-center">
                 <p class="font-bold italic text-center">
-                    Choisissez où poser votre tuile en cliquant sur une des cases ⬡ en blanc
+                    Les ressources demandées seront utilisées.
                 </p>
                 <div class="flex flex-row w-full">
                     <button id="objectPositioningValidation"

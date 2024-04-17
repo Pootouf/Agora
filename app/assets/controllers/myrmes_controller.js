@@ -242,7 +242,6 @@ export default class extends Controller  {
     async activateWorkshop(placement) {
         let url = placement.params.url;
         let place = placement.params.placement;
-        console.log(place)
         switch (place) {
             case 1:
                 alert("anthill hole");
@@ -253,9 +252,7 @@ export default class extends Controller  {
                 }
                 break;
             case 3:
-                console.log("pascool")
                 const response = await fetch(url);
-                console.log("ok")
                 document.getElementById('goalSelection').innerHTML = await response.text();
                 await this.toggleGoalSelection(true);
                 break;
@@ -300,6 +297,17 @@ export default class extends Controller  {
                 () => {
                     openedDisplayGoalSelection.remove();
                 });
+        }
+    }
+
+    async returnMenuGoalSelection(board) {
+        // Menu sélection d'un objectif
+        if (document.getElementById('confirmGoalSelected')) {
+            document.getElementById('confirmGoalSelected').remove();
+            document.getElementById('ObjectSelectionList').classList.remove('hidden');
+
+        } else {
+            await this.toggleGoalSelection(false);
         }
     }
 
