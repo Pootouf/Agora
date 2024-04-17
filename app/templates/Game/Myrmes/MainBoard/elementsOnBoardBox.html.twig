@@ -4,6 +4,13 @@
     return : display ant, anthill hole, prey or pheromone
 #}
 
+{% set WEST = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::DIRECTION_WEST') %}
+{% set NORTH_WEST = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::DIRECTION_NORTH_WEST') %}
+{% set SOUTH_WEST = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::DIRECTION_WEST') %}
+{% set EAST = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::DIRECTION_EAST') %}
+{% set NORTH_EAST = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::DIRECTION_NORTH_EAST') %}
+{% set SOUTH_EAST = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::DIRECTION_SOUTH_EAST') %}
+
 {# Definition of variable for elements display #}
 {% set isAbsolute = "" %}
 {% if not isActionable %}
@@ -37,8 +44,7 @@
         >
     </div>
 {% endif %}
- {% if boardBox.ant != null %}
-
+{% if boardBox.ant != null %}
      {# Display the directions if it is worker phase and the player has shifts count #}
     {% if isActionable and
         game.gamePhase == PHASE_WORKER and needToPlay and boardBox.ant.shiftsCount > 0 %}
@@ -47,10 +53,8 @@
 
             <button class="w-6 flex items-center justify-center"
                     {{ stimulus_action('myrmes', 'moveAnt', 'click',
-                                    {url:path('app_game_myrmes_move_ant',
-                                        {gameId: game.id, antId : boardBox.ant.id, dir: WEST})
-                                    })
-                                }}
+                                    {dir: WEST})
+                    }}
             >
                             <span class="bg-green-700 p-1 mr-2 rounded-lg -rotate-90 whitespace-nowrap">
                                 &uarr;
@@ -60,10 +64,8 @@
             <div class="flex-1 flex flex-col">
                 <button class="absolute left-0 w-6 flex items-center justify-center"
                         {{ stimulus_action('myrmes', 'moveAnt', 'click',
-                                    {url:path('app_game_myrmes_move_ant',
-                                        {gameId: game.id, antId : boardBox.ant.id, dir: NORTH_WEST})
-                                    })
-                                }}
+                            {dir: NORTH_WEST})
+                        }}
                 >
                                 <span class="bg-green-700 p-1 rounded-lg -rotate-45 whitespace-nowrap">
                                     &uarr;
@@ -71,10 +73,8 @@
                 </button>
                 <button class=" absolute bottom-0 left-0 w-6 flex items-center justify-center"
                         {{ stimulus_action('myrmes', 'moveAnt', 'click',
-                                    {url:path('app_game_myrmes_move_ant',
-                                        {gameId: game.id, antId : boardBox.ant.id, dir: SOUTH_WEST})
-                                    })
-                                }}
+                            {dir: SOUTH_WEST})
+                        }}
                 >
                                 <span class="bg-green-700 p-1 rounded-lg mt-2 rotate-45 whitespace-nowrap">
                                     &darr;
@@ -99,29 +99,23 @@
                 </div>
                 <button class=" absolute right-0 w-6 flex items-center justify-center"
                         {{ stimulus_action('myrmes', 'moveAnt', 'click',
-                                    {url:path('app_game_myrmes_move_ant',
-                                        {gameId: game.id, antId : boardBox.ant.id, dir: NORTH_EAST})
-                                    })
-                                }}
+                            {dir: NORTH_EAST})
+                        }}
                 >
                     <span class="bg-green-700 p-1 rounded-lg rotate-45 whitespace-nowrap">&uarr;</span>
                 </button>
                 <button class=" absolute bottom-0 right-0 w-6 flex items-center justify-center"
                         {{ stimulus_action('myrmes', 'moveAnt', 'click',
-                                    {url:path('app_game_myrmes_move_ant',
-                                        {gameId: game.id, antId : boardBox.ant.id, dir: SOUTH_EAST})
-                                    })
-                                }}
+                            {dir: SOUTH_EAST})
+                        }}
                 >
                     <span class="bg-green-700 p-1 rounded-lg -rotate-45 whitespace-nowrap">&darr;</span>
                 </button>
             </div>
             <button class="w-6 flex items-center justify-center"
                     {{ stimulus_action('myrmes', 'moveAnt', 'click',
-                                    {url:path('app_game_myrmes_move_ant',
-                                        {gameId: game.id, antId : boardBox.ant.id, dir: EAST})
-                                    })
-                                }}
+                        {dir: EAST})
+                    }}
             >
                 <span class="bg-green-700 p-1 rounded-lg ml-2 rotate-90 whitespace-nowrap">&uarr;</span>
             </button>

@@ -38,6 +38,18 @@ This section displays the main board that every player and spectator can see
                         {{ stimulus_action('myrmes','cancelAnthillHolePlacement','click') }}>
                     Revenir au choix de la zone d'atelier
                 </button>
+
+            {% elseif game.gamePhase == PHASE_WORKER and needToPlay %}
+                <button
+                        class="rounded-lg bg-green-900 py-2 px-3 m-1 text-lg items-center"
+                        {{ stimulus_action('myrmes','confirmWorkerPhase','click') }}>
+                    Mettre fin au tour
+                </button>
+                <button
+                        class="rounded-lg bg-green-900 py-2 px-3 m-1 text-lg items-center"
+                        {{ stimulus_action('myrmes','cancelWorkerPhase','click') }}>
+                    Annuler les actions du tour
+                </button>
             {% endif %}
             {{ include('Game/Myrmes/MainBoard/seasonsDices.html.twig') }}
         </div>

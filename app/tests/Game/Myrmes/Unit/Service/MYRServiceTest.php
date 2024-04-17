@@ -307,30 +307,6 @@ class MYRServiceTest extends TestCase
         $this->assertFalse($resultCheck);
     }
 
-    public function testInitializeNewSeason() : void
-    {
-        // GIVEN
-
-        $game = $this->createGame(2);
-        $mainBoard = $game->getMainBoardMYR();
-
-        // WHEN
-
-        $this->MYRService->initializeNewSeason($game,
-            MyrmesParameters::WINTER_SEASON_NAME);
-
-        $resultFilter = array_filter
-        (
-            $mainBoard->getSeasons()->toArray(),
-            fn ($season) => $season->getName()
-                === MyrmesParameters::WINTER_SEASON_NAME
-        );
-
-        // THEN
-
-        $this->assertTrue(count($resultFilter) == 1);
-    }
-
     public function testGetActualSeasonWhenActualSeasonIsNull() : void
     {
         // GIVEN

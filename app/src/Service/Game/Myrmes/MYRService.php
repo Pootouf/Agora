@@ -13,7 +13,6 @@ use App\Entity\Game\Myrmes\NurseMYR;
 use App\Entity\Game\Myrmes\PlayerMYR;
 use App\Entity\Game\Myrmes\PlayerResourceMYR;
 use App\Entity\Game\Myrmes\PreyMYR;
-use App\Entity\Game\Myrmes\ResourceMYR;
 use App\Entity\Game\Myrmes\SeasonMYR;
 use App\Repository\Game\Myrmes\GoalMYRRepository;
 use App\Repository\Game\Myrmes\NurseMYRRepository;
@@ -26,6 +25,7 @@ use App\Repository\Game\Myrmes\SeasonMYRRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use App\Repository\Game\Myrmes\TileMYRRepository;
 use App\Repository\Game\Myrmes\TileTypeMYRRepository;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 
@@ -43,6 +43,34 @@ class MYRService
                 private readonly PlayerResourceMYRRepository $playerResourceMYRRepository)
     {
 
+    }
+
+    /**
+     * getNumberOfFreeWorkerOfPlayer: return the number of free worker of the player
+     * @param PlayerMYR $player
+     * @return int
+     */
+    public function getNumberOfFreeWorkerOfPlayer(PlayerMYR $player) : int
+    {
+        return $player->getPersonalBoardMYR()->getAnthillWorkers()->filter(
+            function (AnthillWorkerMYR $anthillWorkerMYR) {
+                return $anthillWorkerMYR->getWorkFloor() == MyrmesParameters::NO_WORKFLOOR;
+            }
+        )->count();
+    }
+
+    /**
+     * getNursesInWorkshopFromPlayer: return the nurses in the workshop area of the player
+     * @param PlayerMYR $player
+     * @return Collection<NurseMYR>
+     */
+    public function getNursesInWorkshopFromPlayer(PlayerMYR $player) : Collection
+    {
+        return $player->getPersonalBoardMYR()->getNurses()->filter(
+            function (NurseMYR $nurse) {
+                return $nurse->getArea() == MyrmesParameters::WORKSHOP_NURSE_AREA;
+            }
+        );
     }
 
     /**
@@ -79,6 +107,24 @@ class MYRService
     {
         $personalBoard = $playerMYR->getPersonalBoardMYR();
         return $personalBoard->getLarvaCount() - $personalBoard->getSelectedEventLarvaeAmount();
+    }
+
+    /**
+     * canOnePlayerDoWorkshopPhase : check if at least one player has nurses in workshop area
+     * @param GameMYR $game
+     * @return bool
+     */
+    public function canOnePlayerDoWorkshopPhase(GameMYR $game): bool
+    {
+        foreach ($game->getPlayers() as $player) {
+            $personalBoard = $player->getPersonalBoardMYR();
+            foreach($personalBoard->getNurses() as $nurse) {
+                if($nurse->getArea() == MyrmesParameters::WORKSHOP_AREA) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -130,6 +176,8 @@ class MYRService
         $this->initializeEventBonus($game);
         $this->initializeMainBoardTiles($game);
 
+        $game->setFirstPlayer($game->getPlayers()->first());
+
         $this->entityManager->persist($game);
         $this->entityManager->flush();
     }
@@ -144,26 +192,6 @@ class MYRService
         return new ArrayCollection($this->tileTypeMYRRepository->findBy(
             ["type" => $type]
         ));
-    }
-
-    /**
-     * initializeNewSeason: initialize in the DB a new season with the selected name
-     * @param GameMYR $game
-     * @param string $seasonName
-     * @return void
-     */
-    public function initializeNewSeason(GameMYR $game, string $seasonName) : void
-    {
-        $season = new SeasonMYR();
-        $mainBoard = $game->getMainBoardMYR();
-        $season->setMainBoard($mainBoard);
-        $season->setName($seasonName);
-        $season->setDiceResult(rand(1, 6));
-        $season->setActualSeason(false);
-        $mainBoard->addSeason($season);
-        $this->entityManager->persist($mainBoard);
-        $this->entityManager->persist($season);
-        $this->entityManager->flush();
     }
 
     /**
@@ -222,6 +250,179 @@ class MYRService
     }
 
     /**
+     * isGameEnded : returns true if the game reached its end
+     * @param GameMYR $game
+     * @return bool
+     */
+    public function isGameEnded(GameMYR $game) : bool
+    {
+        return $game->getMainBoardMYR()->getYearNum() > MyrmesParameters::THIRD_YEAR_NUM;
+    }
+
+    /**
+     * getNursesAtPosition : return nurses which is in $position
+     * @param PlayerMYR $player
+     * @param int $position
+     * @return ArrayCollection
+     */
+    public function getNursesAtPosition(PlayerMYR $player, int $position): ArrayCollection
+    {
+        $nurses =  $this->nurseMYRRepository->findBy(["area" => $position,
+            "personalBoardMYR" => $player->getPersonalBoardMYR()]);
+        return new ArrayCollection($nurses);
+    }
+
+    /**
+     * manageNursesAfterBonusGive : Replace all nurses that have been used
+     * @param PlayerMYR $player
+     * @param int $nurseCount
+     * @param int $positionOfNurse
+     * @return void
+     * @throws Exception
+     */
+    public function manageNursesAfterBonusGive(PlayerMYR $player, int $nurseCount, int $positionOfNurse) : void
+    {
+        if ($nurseCount > 0) {
+            $nurses = $this->getNursesAtPosition($player, $positionOfNurse);
+            foreach ($nurses as $n) {
+                if ($nurseCount == 0) {
+                    return;
+                }
+                switch ($positionOfNurse) {
+                    case MyrmesParameters::LARVAE_AREA:
+                    case MyrmesParameters::SOLDIERS_AREA:
+                    case MyrmesParameters::WORKER_AREA:
+                    case MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA:
+                    case MyrmesParameters::WORKSHOP_LEVEL_AREA:
+                    case MyrmesParameters::WORKSHOP_NURSE_AREA:
+                        $n->setArea(MyrmesParameters::BASE_AREA);
+                        $this->entityManager->persist($n);
+                        break;
+                    case MyrmesParameters::WORKSHOP_GOAL_AREA:
+                        break;
+                    default:
+                        throw new Exception("Don't manage bonus");
+                }
+                $nurseCount--;
+            }
+        }
+    }
+
+    /**
+     * doGameGoal : Activate a game goal for the player, retrieve the resources associated and gives the points
+     * @param PlayerMYR $playerMYR
+     * @param GameGoalMYR $goalMYR
+     * @return void
+     * @throws Exception
+     */
+    public function doGameGoal(PlayerMYR $playerMYR, GameGoalMYR $goalMYR): void
+    {
+        if(!$this->canDoGoal($playerMYR, $goalMYR)) {
+            throw new Exception("Player can't do goal");
+        }
+        // TODO : COMPUTE GOAL COSTS
+        $this->computePlayerRewardPointsWithGoal($playerMYR, $goalMYR);
+    }
+
+    /**
+     * setPhase: Set a new phase of the game for a player, and change the game phase if all player have the same
+     * @param PlayerMYR $playerMYR
+     * @param int $phase
+     * @return void
+     */
+    public function setPhase(PlayerMYR $playerMYR, int $phase): void
+    {
+        $playerMYR->setPhase($phase);
+        $areAllPlayerAtTheSamePhase = true;
+        foreach($playerMYR->getGameMyr()->getPlayers() as $player) {
+            if($player->getPhase() != $phase) {
+                $areAllPlayerAtTheSamePhase = false;
+            }
+        }
+        if($areAllPlayerAtTheSamePhase) {
+            $playerMYR->getGameMyr()->setGamePhase($phase);
+            $this->entityManager->persist($playerMYR->getGameMyr());
+
+            if ($phase == MyrmesParameters::PHASE_EVENT
+                && $playerMYR->getGameMyr()->getMainBoardMYR()->getYearNum() != MyrmesParameters::FIRST_YEAR_NUM) {
+                $this->manageEndOfRound($playerMYR->getGameMyr());
+            }
+
+            $players = $playerMYR->getGameMyr()->getPlayers();
+            $this->manageTurnOfPlayerNewPhase($players, $phase);
+        }
+        $this->entityManager->persist($playerMYR);
+        $this->entityManager->flush();
+    }
+
+    /**
+     * setNextPlayerTurn: Set the turn of play to the next player (for sequential phase)
+     *                    Do nothing if it's the last player to play of the phase
+     *                    Make the loop turn until no worker left in worker phase
+     * @param PlayerMYR $actualPlayer
+     * @return void
+     */
+    public function setNextPlayerTurn(PlayerMYR $actualPlayer): void
+    {
+        $game = $actualPlayer->getGameMyr();
+        $actualPlayer->setTurnOfPlayer(false);
+        $this->entityManager->persist($actualPlayer);
+
+        $isInWorkerPhase = $game->getGamePhase() == MyrmesParameters::PHASE_WORKER;
+        if ($isInWorkerPhase && !$this->canPlayersStillDoWorkerPhase($game)) {
+            return;
+        }
+
+        $isInWorkshopPhase = $game->getGamePhase() == MyrmesParameters::PHASE_WORKSHOP;
+        if ($isInWorkshopPhase && !$this->canOnePlayerDoWorkshopPhase($game)) {
+            return;
+        }
+
+        $players = $this->getOrderOfPlayers($actualPlayer->getGameMyr());
+        $isActualPlayerFound = false;
+        foreach ($players as $player) {
+            if ($isActualPlayerFound) {
+                if ($isInWorkerPhase && $this->getNumberOfFreeWorkerOfPlayer($player) <= 0) {
+                    continue;
+                }
+                if ($isInWorkshopPhase && $this->getNursesInWorkshopFromPlayer($player)->count() <= 0) {
+                    continue;
+                }
+                $player->setTurnOfPlayer(true);
+                $this->entityManager->persist($player);
+                $isActualPlayerFound = false;
+                break;
+            }
+            $isActualPlayerFound = $actualPlayer === $player;
+        }
+        if ($isInWorkerPhase && $isActualPlayerFound) {
+            // True if the actual player is the last player
+            // or if no player can play after him
+            // (needs to loop in worker phase)
+            foreach ($players as $player) {
+                if ($this->getNumberOfFreeWorkerOfPlayer($player) <= 0) {
+                    continue;
+                }
+                $player->setTurnOfPlayer(true);
+                $this->entityManager->persist($player);
+            }
+        }
+        $this->entityManager->flush();
+    }
+
+    /**
+     * endPlayerRound: end the turn of the player (for parallel phase)
+     * @param PlayerMYR $player
+     * @return void
+     */
+    public function endPlayerRound(PlayerMYR $player): void
+    {
+        $player->setTurnOfPlayer(false);
+        $this->entityManager->persist($player);
+        $this->entityManager->flush();
+    }
+
+    /**
      * canManageEndOfPhase : indicate if all players have played this phase and are waiting for the next one
      * @param GameMYR $gameMYR
      * @param int $phase
@@ -235,16 +436,6 @@ class MYRService
             }
         }
         return true;
-    }
-
-    /**
-     * isGameEnded : returns true if the game reached its end
-     * @param GameMYR $game
-     * @return bool
-     */
-    public function isGameEnded(GameMYR $game) : bool
-    {
-        return $game->getMainBoardMYR()->getYearNum() > MyrmesParameters::THIRD_YEAR_NUM;
     }
 
     /**
@@ -264,6 +455,26 @@ class MYRService
         $this->endRoundOfFirstPlayer($game);
         $this->endSeason($game);
         $this->resetGameGoalsDoneDuringTheRound($game);
+    }
+
+    /**
+     * initializeNewSeason: initialize in the DB a new season with the selected name
+     * @param GameMYR $game
+     * @param string $seasonName
+     * @return void
+     */
+    private function initializeNewSeason(GameMYR $game, string $seasonName) : void
+    {
+        $season = new SeasonMYR();
+        $mainBoard = $game->getMainBoardMYR();
+        $season->setMainBoard($mainBoard);
+        $season->setName($seasonName);
+        $season->setDiceResult(rand(1, 6));
+        $season->setActualSeason(false);
+        $mainBoard->addSeason($season);
+        $this->entityManager->persist($mainBoard);
+        $this->entityManager->persist($season);
+        $this->entityManager->flush();
     }
 
     /**
@@ -314,7 +525,7 @@ class MYRService
     {
         $anthillWorkers = $player->getPersonalBoardMYR()->getAnthillWorkers();
         foreach ($anthillWorkers as $worker) {
-            $worker->setWorkFloor(MyrmesParameters::WORKER_AREA);
+            $worker->setWorkFloor(MyrmesParameters::NO_WORKFLOOR);
             $this->entityManager->persist($worker);
         }
         $this->entityManager->flush();
@@ -403,11 +614,11 @@ class MYRService
 
         $this->initializeColorForPlayer($player, $color);
         $this->initializePlayerResources($player);
-
+        $player->setPhase(MyrmesParameters::PHASE_EVENT);
+        $player->setTurnOfPlayer(true);
         $this->entityManager->persist($player);
         $this->entityManager->persist($personalBoard);
         $this->entityManager->flush();
-        $this->setPhase($player, MyrmesParameters::PHASE_EVENT);
     }
 
     /**
@@ -536,91 +747,57 @@ class MYRService
     }
 
     /**
-     * getNursesAtPosition : return nurses which is in $position
-     * @param PlayerMYR $player
-     * @param int $position
-     * @return ArrayCollection
-     */
-    public function getNursesAtPosition(PlayerMYR $player, int $position): ArrayCollection
-    {
-        $nurses =  $this->nurseMYRRepository->findBy(["area" => $position,
-            "personalBoardMYR" => $player->getPersonalBoardMYR()]);
-        return new ArrayCollection($nurses);
-    }
-
-    /**
-     * manageNursesAfterBonusGive : Replace all nurses that have been used
-     * @param PlayerMYR $player
-     * @param int $nurseCount
-     * @param int $positionOfNurse
-     * @return void
-     * @throws Exception
-     */
-    public function manageNursesAfterBonusGive(PlayerMYR $player, int $nurseCount, int $positionOfNurse) : void
-    {
-        if ($nurseCount > 0) {
-            $nurses = $this->getNursesAtPosition($player, $positionOfNurse);
-            foreach ($nurses as $n) {
-                if ($nurseCount == 0) {
-                    return;
-                }
-                switch ($positionOfNurse) {
-                    case MyrmesParameters::LARVAE_AREA:
-                    case MyrmesParameters::SOLDIERS_AREA:
-                    case MyrmesParameters::WORKER_AREA:
-                    case MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA:
-                    case MyrmesParameters::WORKSHOP_LEVEL_AREA:
-                    case MyrmesParameters::WORKSHOP_NURSE_AREA:
-                        $n->setArea(MyrmesParameters::BASE_AREA);
-                        $this->entityManager->persist($n);
-                        break;
-                    case MyrmesParameters::WORKSHOP_GOAL_AREA:
-                        break;
-                    default:
-                        throw new Exception("Don't manage bonus");
-                }
-                $nurseCount--;
-            }
-        }
-    }
-
-    /**
-     * doGameGoal : Activate a game goal for the player, retrieve the resources associated and gives the points
-     * @param PlayerMYR $playerMYR
-     * @param GameGoalMYR $goalMYR
-     * @return void
-     * @throws Exception
-     */
-    public function doGameGoal(PlayerMYR $playerMYR, GameGoalMYR $goalMYR): void
-    {
-        if(!$this->canDoGoal($playerMYR, $goalMYR)) {
-            throw new Exception("Player can't do goal");
-        }
-        // TODO : COMPUTE GOAL COSTS
-        $this->computePlayerRewardPointsWithGoal($playerMYR, $goalMYR);
-    }
-
-    /**
-     * setPhase: Set a new phase of the game for a player, and change the game phase if all player have the same
-     * @param PlayerMYR $playerMYR
+     * manageTurnOfPlayerNewPhase: modify the turn of player for the players of the game depending on the phase
+     * @param Collection<PlayerMYR> $players
      * @param int $phase
      * @return void
      */
-    public function setPhase(PlayerMYR $playerMYR, int $phase): void
+    private function manageTurnOfPlayerNewPhase(Collection $players, int $phase): void
     {
-        $playerMYR->setPhase($phase);
-        $areAllPlayerAtTheSamePhase = true;
-        foreach($playerMYR->getGameMyr()->getPlayers() as $player) {
-            if($player->getPhase() != $phase) {
-                $areAllPlayerAtTheSamePhase = false;
+        switch ($phase) {
+            case MyrmesParameters::PHASE_EVENT :
+            case MyrmesParameters::PHASE_BIRTH :
+            case MyrmesParameters::PHASE_HARVEST :
+            case MyrmesParameters::PHASE_WINTER :
+                foreach ($players as $player) {
+                    $player->setTurnOfPlayer(true);
+                    $this->entityManager->persist($player);
+                    $this->entityManager->flush();
+                }
+                break;
+            case MyrmesParameters::PHASE_WORKER :
+            case MyrmesParameters::PHASE_WORKSHOP :
+                foreach($players as $player) {
+                    $player->setTurnOfPlayer($player->getGameMyr()->getFirstPlayer() == $player);
+                    $this->entityManager->persist($player);
+                    $this->entityManager->flush();
+                }
+                break;
+        }
+    }
+
+    /**
+     * getOrderOfPlayers: return the player of the game in the order of turn of play
+     * @param GameMYR $gameMYR
+     * @return Collection<PlayerMYR>
+     */
+    private function getOrderOfPlayers(GameMYR $gameMYR): Collection
+    {
+        $firstPlayer = $gameMYR->getFirstPlayer();
+        $isFirstPlayerManaged = false;
+        $queue = [];
+        $head = [];
+        foreach ($gameMYR->getPlayers() as $player) {
+            if ($firstPlayer === $player) {
+                $isFirstPlayerManaged = true;
+            }
+            if (!$isFirstPlayerManaged) {
+                $queue[] = $player;
+            } else {
+                $head[] = $player;
             }
         }
-        if($areAllPlayerAtTheSamePhase) {
-            $playerMYR->getGameMyr()->setGamePhase($phase);
-            $this->entityManager->persist($playerMYR->getGameMyr());
-        }
-        $this->entityManager->persist($playerMYR);
-        $this->entityManager->flush();
+        return new ArrayCollection(array_merge($head, $queue));
     }
 
     /**
@@ -862,6 +1039,21 @@ class MYRService
         $player->setWorkshopActions($playerActions);
         $this->entityManager->persist($player);
         $this->entityManager->flush();
+    }
+
+    /**
+     * canPlayersStillDoWorkerPhase: return true if at least one player can do the worker phase (still have at least
+     *                               one worker ant)
+     * @param GameMYR $game
+     * @return bool
+     */
+    private function canPlayersStillDoWorkerPhase(GameMYR $game) : bool
+    {
+        return $game->getPlayers()->exists(
+            function (PlayerMYR $player) {
+                return $this->getNumberOfFreeWorkerOfPlayer($player) > 0;
+            }
+        );
     }
 
 }

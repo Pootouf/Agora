@@ -79,11 +79,11 @@ export default class extends Controller  {
     }
 
     async placeWorkerOnAntHillHole(hole) {
-        let url = hole.params.url;
-        const response = await fetch(url);
-        if (response.status === 200) {
-            document.getElementById('mainBoard').innerHTML = await response.text();
-        }
+        let tileId = hole.params.tileId;
+        let coordX = hole.params.coordX
+        let coordY = hole.params.coordY
+        let movementPoints = hole.params.movementPoints
+        await placeWorkerOnAnthillHole(tileId, coordX, coordY, movementPoints)
     }
 
     //place worker on colony level track
@@ -93,6 +93,16 @@ export default class extends Controller  {
         if (window.confirm("Confirmez vous le placement de l'ouvrière sur le niveau " + url.split('/').pop())) {
             await fetch(url);
         }
+    }
+
+    //management of worker phase
+
+    async confirmWorkerPhase() {
+        await rewindQueueWorkerPhase(queue)
+    }
+
+    async cancelWorkerPhase() {
+        location.reload()
     }
 
     //harvest a resource
@@ -112,6 +122,14 @@ export default class extends Controller  {
     async cancelAnthillHolePlacement(placement) {
         alert("Ouvrir menu de l'atelier");
     }
+
+    // ant movement
+
+    async moveAnt(dir) {
+        let direction = dir.params.dir;
+        await move(direction)
+    }
+
 
     // dynamic display
 
@@ -185,6 +203,12 @@ export default class extends Controller  {
         const node = placeholder.firstElementChild;
         tree.appendChild(node);
         window.currentTileMode = 0;
+    }
+
+    async displayBoxActionsWorkerPhase(boardBox) {
+        closeSelectedBoxWindow();
+        let tileId = boardBox.params.tileId
+        await displayBoardBoxActions(tileId)
     }
 
     async displayPlayerPersonalBoard(board) {
@@ -264,6 +288,10 @@ export default class extends Controller  {
 
     async confirmWorkshopActions(confirm) {
         await fetch(confirm.params.url);
+    }
+
+    async cleanPheromoneAction() {
+        await cleanPheromone()
     }
 
     async displayPheromonePlacement(board)  {
@@ -369,6 +397,7 @@ export default class extends Controller  {
         for (const tile of tiles.split("___")) {
             let tilesSplit = tile.split("__")
             let pivotPoint = tilesSplit[0];
+            alert(pivotPoint)
 
             let boardBox = document.getElementById(`${pivotPoint}-clickable-zone`)
 
@@ -385,9 +414,9 @@ export default class extends Controller  {
         let url = boardBox.params.url
             .replace("tileType", selectedObjectId)
             .replace("orientation", selectedOrientation)
-            .replace("tileId", boardBox.params.tileid);
-        const response = await fetch(url);
-
+            .replace("tileId", boardBox.params.tileId);
+        await fetch(url);
         await this.togglePheromonePlacement(false);
+        await canPlacePheromone(selectedObjectId, selectedOrientation, boardBox.params.tileId);
     }
 }

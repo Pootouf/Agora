@@ -26,10 +26,10 @@ return : display a panel to choose an object to place on mainboard
 			<button id="objectSelection_{{ tile[0] }}" data-tileid="{{ tile[0] }}" data-nbrotation="{{ tile[2] }}"
 			        class="relative aspect-square rounded-lg bg-[#000000]"
 			        onclick="selectOrientationTile(this.dataset.tileid, this.dataset.nbrotation)">
-				<p class="absolute aspect-square h-[15%] rounded-tr-lg rounded-bl-lg bg-[#8F901F] top-0 right-0
-					content-center font-bold text-white">
+				<span class="absolute aspect-square h-[15%] rounded-tr-lg rounded-bl-lg bg-[#8F901F] top-0 right-0
+				content-center font-bold text-white">
 					{{ tile[1] }}
-				</p>
+				</span>
 				<img id="objectImage_{{ tile[0] }}"
 				     src="{{ asset('resourcesGames/Myrmes/tiles/presentation/' ~ tile[0] ~ imageSuffix ~ '.svg') }}"
 				     data-first-orientation-src="{{ asset('resourcesGames/Myrmes/tiles/' ~ tile[0] ~ imageSuffix ~ '.svg') }}"
