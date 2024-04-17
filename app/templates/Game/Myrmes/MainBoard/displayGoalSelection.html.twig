@@ -4,7 +4,7 @@ param: goalsLevelOne, goalsLevelTwo, goalsLevelThree
 return :
 #}
 <div id="openedDisplayGoalSelection"
-     class="bg-[#FFFFFF] size-full rounded-l-lg overflow-hidden"
+     class="absolute w-[28%] h-[70%] top-0 right-0 bg-[#FFFFFF] size-full rounded-l-lg overflow-hidden"
         {{ stimulus_controller('myrmes') }}>
     <div class="w-full h-[8%] bg-[#c67b24] rounded-tl-lg inline-flex shadow-lg">
         <button id="return_dop"
@@ -38,7 +38,7 @@ return :
                                     i < goal.precedentsPlayers.count ? goal.precedentsPlayers[i].color : 'black' %}
                                 <svg viewBox="0 0 125 125">
                                     <polygon points="40 13,80 13,110 40,110 80,80 110,40 110,13 80, 13 40"
-                                             fill="{{ color }}"/>
+                                             fill="{{ color }}"></polygon>
                                 </svg>
                             {% endfor %}
                         </span>
@@ -62,7 +62,7 @@ return :
                 <div class="flex flex-row w-full">
                     <button id="objectPositioningValidation"
                             class="bg-[#15803d] w-full
-					            rounded-l-lg p-2 text-2xl text-white font-bold"
+					            rounded-lg p-2 text-2xl text-white font-bold"
                             {{ stimulus_action('myrmes','placePheromone','click',
                                 {url:path('app_game_myrmes_place_pheromone',
                                     {

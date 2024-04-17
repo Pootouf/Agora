@@ -252,9 +252,15 @@ export default class extends Controller  {
                 }
                 break;
             case 3:
-                const response = await fetch(url);
-                document.getElementById('goalSelection').innerHTML = await response.text();
-                await this.toggleGoalSelection(true);
+                if (document.getElementById("openedDisplayGoalSelection") == null) {
+                    const response = await fetch(url);
+                    let tree = document.getElementById("index_myrmes");
+                    let placeholder = document.createElement("div");
+                    placeholder.innerHTML = await response.text();
+                    const node = placeholder.firstElementChild;
+                    tree.appendChild(node);
+                    await this.toggleGoalSelection(true);
+                }
                 break;
             case 4:
                 if (window.confirm("Confirmez vous la création d'une nouvelle nourrice ?")) {
