@@ -13,6 +13,7 @@ use App\Entity\Game\Glenmore\PlayerGLM;
 use App\Entity\Game\Glenmore\WarehouseGLM;
 use App\Repository\Game\Glenmore\PlayerGLMRepository;
 use App\Service\Game\AbstractGameManagerService;
+use App\Service\Game\GameService;
 use App\Service\Game\LogService;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
@@ -23,7 +24,8 @@ class GLMGameManagerService extends AbstractGameManagerService
     public function __construct(private EntityManagerInterface $entityManager,
         private GLMService $GLMService,
         private PlayerGLMRepository $playerGLMRepository,
-        private LogService $logService)
+        private LogService $logService,
+        private GameService $gameService)
     {}
 
 
@@ -120,7 +122,7 @@ class GLMGameManagerService extends AbstractGameManagerService
         if ($game->isLaunched()) {
             return GLMGameManagerService::$ERROR_GAME_ALREADY_LAUNCHED;
         }
-        $player = $this->GLMService->getPlayerFromNameAndGame($game, $playerName);
+        $player = $this->gameService->getPlayerFromNameAndGame($game, $playerName);
         if ($player == null) {
             return GLMGameManagerService::$ERROR_PLAYER_NOT_FOUND;
         }

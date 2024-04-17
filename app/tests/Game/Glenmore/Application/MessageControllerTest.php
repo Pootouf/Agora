@@ -5,6 +5,7 @@ namespace App\Tests\Game\Glenmore\Application;
 use App\Entity\Game\Glenmore\GameGLM;
 use App\Repository\Game\GameUserRepository;
 use App\Repository\Game\Glenmore\GameGLMRepository;
+use App\Service\Game\GameService;
 use App\Service\Game\Glenmore\GLMGameManagerService;
 use App\Service\Game\Glenmore\GLMService;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -15,13 +16,9 @@ class MessageControllerTest extends WebTestCase
 {
     private KernelBrowser $client;
 
-    private GLMService $service;
-    private GameUserRepository $gameUserRepository;
-
-    private GLMGameManagerService $GLMGameManagerService;
-
     private GameGLMRepository $gameGLMRepository;
 
+    private GameService $gameService;
     public function testSendMessage() : void
     {
         //GIVEN
@@ -30,7 +27,7 @@ class MessageControllerTest extends WebTestCase
         $message = "test";
         /** @var GameGLM $game */
         $game = $this->gameGLMRepository->findOneBy(["id" => $gameId]);
-        $player = $this->service->getPlayerFromNameAndGame($game, $authorUsername);
+        $player = $this->gameService->getPlayerFromNameAndGame($game, $authorUsername);
         $url = "/game/" . $gameId . "/message/send/" . $player->getId() . "/" . $authorUsername . "/" . $message;
         //WHEN
         $this->client->request("GET", $url);
@@ -55,22 +52,22 @@ class MessageControllerTest extends WebTestCase
     private function initializeGameWithFivePlayers() : int
     {
         $this->client = static::createClient();
-        $this->service = static::getContainer()->get(GLMService::class);
-        $this->GLMGameManagerService = static::getContainer()->get(GLMGameManagerService::class);
-        $this->gameUserRepository = static::getContainer()->get(GameUserRepository::class);
+        $this->gameService = static::getContainer()->get(GameService::class);
+        $GLMGameManagerService = static::getContainer()->get(GLMGameManagerService::class);
+        $gameUserRepository = static::getContainer()->get(GameUserRepository::class);
         $this->gameGLMRepository = static::getContainer()->get(GameGLMRepository::class);
-        $user1 = $this->gameUserRepository->findOneByUsername("test0");
+        $user1 = $gameUserRepository->findOneByUsername("test0");
         $this->client->loginUser($user1);
-        $gameId = $this->GLMGameManagerService->createGame();
+        $gameId = $GLMGameManagerService->createGame();
         $game = $this->gameGLMRepository->findOneById($gameId);
-        $this->GLMGameManagerService->createPlayer("test0", $game);
-        $this->GLMGameManagerService->createPlayer("test1", $game);
-        $this->GLMGameManagerService->createPlayer("test2", $game);
-        $this->GLMGameManagerService->createPlayer("test3", $game);
-        $this->GLMGameManagerService->createPlayer("test4", $game);
+        $GLMGameManagerService->createPlayer("test0", $game);
+        $GLMGameManagerService->createPlayer("test1", $game);
+        $GLMGameManagerService->createPlayer("test2", $game);
+        $GLMGameManagerService->createPlayer("test3", $game);
+        $GLMGameManagerService->createPlayer("test4", $game);
 
         try {
-            $this->GLMGameManagerService->launchGame($game);
+            $GLMGameManagerService->launchGame($game);
         } catch (\Exception $e) {
             echo $e->getMessage();
         }

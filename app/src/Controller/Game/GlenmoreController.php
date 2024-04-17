@@ -2,6 +2,7 @@
 
 namespace App\Controller\Game;
 
+use App\Entity\Game\DTO\Game;
 use App\Entity\Game\DTO\GameParameters;
 use App\Entity\Game\DTO\GameTranslation;
 use App\Entity\Game\DTO\Player;
@@ -14,6 +15,7 @@ use App\Entity\Game\Glenmore\PlayerTileGLM;
 use App\Entity\Game\Glenmore\PlayerTileResourceGLM;
 use App\Entity\Game\Glenmore\WarehouseLineGLM;
 use App\Repository\Game\Glenmore\ResourceGLMRepository;
+use App\Service\Game\GameService;
 use App\Service\Game\Glenmore\CardGLMService;
 use App\Service\Game\Glenmore\DataManagementGLMService;
 use App\Service\Game\Glenmore\GLMService;
@@ -41,7 +43,8 @@ class GlenmoreController extends AbstractController
                                 private ResourceGLMRepository $resourceGLMRepository,
                                 private PublishService $publishService,
                                 private WarehouseGLMService $warehouseGLMService,
-                                private EntityManagerInterface $entityManager)
+                                private EntityManagerInterface $entityManager,
+                                private GameService $gameService)
     {}
 
     #[Route('/game/glenmore/{id}', name: 'app_game_show_glm')]
@@ -51,7 +54,7 @@ class GlenmoreController extends AbstractController
             return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE,
                 Response::HTTP_FORBIDDEN);
         }
-        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        $player = $this->gameService->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         $isSpectator = false;
         $needToPlay = false;
         if ($player == null) {
@@ -116,7 +119,7 @@ class GlenmoreController extends AbstractController
                 Response::HTTP_FORBIDDEN
             );
         }
-        $player = $this->service->getPlayerFromNameAndGame($gameGLM, $playerGLM->getUsername());
+        $player = $this->gameService->getPlayerFromNameAndGame($gameGLM, $playerGLM->getUsername());
         return $this->render('Game/Glenmore/PersonalBoard/displayPropertyCards.html.twig', [
             'player' => $player,
         ]);
@@ -135,7 +138,7 @@ class GlenmoreController extends AbstractController
                 Response::HTTP_FORBIDDEN
             );
         }
-        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        $player = $this->gameService->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         return $this->render('Game/Glenmore/MainBoard/Warehouse/warehouseActions.html.twig', [
             'player' => $player,
             'game' => $game,
@@ -157,7 +160,7 @@ class GlenmoreController extends AbstractController
                 Response::HTTP_FORBIDDEN
             );
         }
-        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        $player = $this->gameService->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         return $this->render('Game/Glenmore/MainBoard/Warehouse/warehouseActions.html.twig', [
             'player' => $player,
             'game' => $game,
@@ -179,7 +182,7 @@ class GlenmoreController extends AbstractController
                 Response::HTTP_FORBIDDEN
             );
         }
-        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        $player = $this->gameService->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
@@ -232,7 +235,7 @@ class GlenmoreController extends AbstractController
                 Response::HTTP_FORBIDDEN
             );
         }
-        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        $player = $this->gameService->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
@@ -273,7 +276,7 @@ class GlenmoreController extends AbstractController
                 Response::HTTP_FORBIDDEN
             );
         }
-        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        $player = $this->gameService->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
@@ -332,7 +335,7 @@ class GlenmoreController extends AbstractController
                 Response::HTTP_FORBIDDEN
             );
         }
-        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        $player = $this->gameService->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
@@ -397,7 +400,8 @@ class GlenmoreController extends AbstractController
                 Response::HTTP_FORBIDDEN
             );
         }
-        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        /** @var PlayerGLM $player */
+        $player = $this->gameService->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
@@ -433,7 +437,8 @@ class GlenmoreController extends AbstractController
                 Response::HTTP_FORBIDDEN
             );
         }
-        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        /** @var PlayerGLM $player */
+        $player = $this->gameService->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
@@ -507,7 +512,8 @@ class GlenmoreController extends AbstractController
                 Response::HTTP_FORBIDDEN
             );
         }
-        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        /** @var PlayerGLM $player */
+        $player = $this->gameService->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
@@ -540,7 +546,8 @@ class GlenmoreController extends AbstractController
                 Response::HTTP_FORBIDDEN
             );
         }
-        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        /** @var PlayerGLM $player */
+        $player = $this->gameService->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
@@ -600,7 +607,7 @@ class GlenmoreController extends AbstractController
                 Response::HTTP_FORBIDDEN
             );
         }
-        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        $player = $this->gameService->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
@@ -651,7 +658,7 @@ class GlenmoreController extends AbstractController
                 Response::HTTP_FORBIDDEN
             );
         }
-        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        $player = $this->gameService->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
@@ -712,7 +719,8 @@ class GlenmoreController extends AbstractController
                 Response::HTTP_FORBIDDEN
             );
         }
-        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        /** @var PlayerGLM $player */
+        $player = $this->gameService->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
@@ -760,7 +768,8 @@ class GlenmoreController extends AbstractController
                 Response::HTTP_FORBIDDEN
             );
         }
-        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        /** @var PlayerGLM $player */
+        $player = $this->gameService->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
@@ -790,7 +799,7 @@ class GlenmoreController extends AbstractController
                 Response::HTTP_FORBIDDEN
             );
         }
-        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        $player = $this->gameService->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
@@ -838,7 +847,8 @@ class GlenmoreController extends AbstractController
                 Response::HTTP_FORBIDDEN
             );
         }
-        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        /** @var PlayerGLM $player */
+        $player = $this->gameService->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
@@ -879,7 +889,8 @@ class GlenmoreController extends AbstractController
                 Response::HTTP_FORBIDDEN
             );
         }
-        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        /** @var PlayerGLM $player */
+        $player = $this->gameService->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
@@ -904,7 +915,8 @@ class GlenmoreController extends AbstractController
                 Response::HTTP_FORBIDDEN
             );
         }
-        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        /** @var PlayerGLM $player */
+        $player = $this->gameService->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
@@ -1001,7 +1013,8 @@ class GlenmoreController extends AbstractController
                 Response::HTTP_FORBIDDEN
             );
         }
-        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        /** @var PlayerGLM $player */
+        $player = $this->gameService->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response(GameTranslation::INVALID_PLAYER_MESSAGE,
                 Response::HTTP_FORBIDDEN);
@@ -1027,7 +1040,8 @@ class GlenmoreController extends AbstractController
                 Response::HTTP_FORBIDDEN
             );
         }
-        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        /** @var PlayerGLM $player */
+        $player = $this->gameService->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response(GameTranslation::INVALID_PLAYER_MESSAGE,
                 Response::HTTP_FORBIDDEN);
@@ -1079,7 +1093,7 @@ class GlenmoreController extends AbstractController
                 Response::HTTP_FORBIDDEN
             );
         }
-        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        $player = $this->gameService->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         return $this->render('Game/Glenmore/MainBoard/mainBoard.html.twig',
             [
                 'game' => $game,
@@ -1101,24 +1115,15 @@ class GlenmoreController extends AbstractController
                 Response::HTTP_FORBIDDEN
             );
         }
-        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        /** @var PlayerGLM $player */
+        $player = $this->gameService->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         $this->tileGLMService->clearTileSelection($player);
-        $this->tileGLMService->clearResourceSelection($player);
-        $this->service->setPhase($player, GlenmoreParameters::$BUYING_PHASE);
-        $player->setActivatedResourceSelection(false);
-        $this->entityManager->persist($player);
-        $this->entityManager->flush();
-        $this->publishPersonalBoard($player, []);
-        $this->publishPersonalBoardSpectator($game);
-        $this->publishMainBoardPreview($game);
-        $this->publishPlayerRoundManagement($game);
-        $this->logService->sendPlayerLog($game, $player,
-            $player->getUsername() . GlenmoreTranslation::CANCEL_TILE_ACQUISITION);
-        return new Response(GlenmoreTranslation::RESPONSE_CANCEL_TILE_ACQUISITION,
-            Response::HTTP_OK);
+        return $this->clearResourceSelectionActions($game, $player, GlenmoreParameters::$BUYING_PHASE,
+        GlenmoreTranslation::CANCEL_TILE_ACQUISITION,
+            GlenmoreTranslation::RESPONSE_CANCEL_TILE_ACQUISITION);
     }
 
     #[Route('/game/{idGame}/glenmore/cancel/activating/tile', name: 'app_game_glenmore_cancel_activating_tile')]
@@ -1131,14 +1136,32 @@ class GlenmoreController extends AbstractController
                 Response::HTTP_FORBIDDEN
             );
         }
-        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        /** @var PlayerGLM $player */
+        $player = $this->gameService->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response(GameTranslation::INVALID_PLAYER_MESSAGE,
                 Response::HTTP_FORBIDDEN);
         }
         $this->tileGLMService->clearTileActivationSelection($player);
+        return $this->clearResourceSelectionActions($game, $player, GlenmoreParameters::$ACTIVATION_PHASE,
+        GlenmoreTranslation::CANCEL_TILE_ACTIVATION,
+            GlenmoreTranslation::RESPONSE_CANCEL_TILE_ACTIVATION);
+    }
+
+    /**
+     * clearResourceSelectionActions : do all actions after a resource selection was canceled
+     *
+     * @param GameGLM   $game
+     * @param PlayerGLM $player
+     * @param int       $phase
+     * @param String    $logMessage
+     * @param String    $responseMessage
+     * @return Response
+     */
+    private function clearResourceSelectionActions(GameGLM $game, PlayerGLM $player, int $phase,
+        String $logMessage, String $responseMessage) : Response {
         $this->tileGLMService->clearResourceSelection($player);
-        $this->service->setPhase($player, GlenmoreParameters::$ACTIVATION_PHASE);
+        $this->service->setPhase($player, $phase);
         $player->setActivatedResourceSelection(false);
         $this->entityManager->persist($player);
         $this->entityManager->flush();
@@ -1147,8 +1170,8 @@ class GlenmoreController extends AbstractController
         $this->publishMainBoardPreview($game);
         $this->publishPlayerRoundManagement($game);
         $this->logService->sendPlayerLog($game, $player,
-            $player->getUsername() . GlenmoreTranslation::CANCEL_TILE_ACTIVATION);
-        return new Response(GlenmoreTranslation::RESPONSE_CANCEL_TILE_ACTIVATION,
+            $player->getUsername() . $logMessage);
+        return new Response($responseMessage,
             Response::HTTP_OK);
     }
 

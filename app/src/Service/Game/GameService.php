@@ -4,6 +4,8 @@ namespace App\Service\Game;
 
 use App\Entity\Game\DTO\Game;
 use App\Entity\Game\DTO\Player;
+use App\Entity\Game\Glenmore\PlayerGLM;
+use App\Repository\Game\Glenmore\PlayerGLMRepository;
 use App\Repository\Game\SixQP\PlayerSixQPRepository;
 use App\Repository\Game\Splendor\PlayerSPLRepository;
 
@@ -12,11 +14,13 @@ class GameService
     private array $playerRepositories;
 
     public function __construct(private readonly PlayerSixQPRepository $playerSixQPRepository,
-                                private readonly PlayerSPLRepository $playerSPLRepository
+                                private readonly PlayerSPLRepository $playerSPLRepository,
+                                private readonly PlayerGLMRepository $playerGLMRepository
     )
     {
         $this->playerRepositories[AbstractGameManagerService::$SIXQP_LABEL] = $this->playerSixQPRepository;
         $this->playerRepositories[AbstractGameManagerService::$SPL_LABEL] = $this->playerSPLRepository;
+        $this->playerRepositories[AbstractGameManagerService::$GLM_LABEL] = $this->playerGLMRepository;
     }
 
     /**

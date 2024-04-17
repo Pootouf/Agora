@@ -51,18 +51,6 @@ class GLMService
     }
 
     /**
-     * getPlayerFromNameAndGame : return the player associated with a username and a game
-     * @param GameGLM $game
-     * @param string  $name
-     * @return ?PlayerGLM
-     */
-    public function getPlayerFromNameAndGame(GameGLM $game, string $name): ?PlayerGLM
-    {
-        return $this->playerGLMRepository->findOneBy(['game' => $game->getId(), 'username' => $name]);
-    }
-
-
-    /**
      * getTilesFromGame : return the tiles from the board with the given game
      * @param GameGLM $game
      * @return Collection
@@ -219,7 +207,6 @@ class GLMService
             }
         }
         if ($this->isGameEnded($gameGLM)) {
-            // TODO RETURN CODE TO PUBLISH WINNERS
             $winners = $this->getWinner($gameGLM);
             $message = "";
             foreach ($winners as $winner) {
@@ -227,8 +214,6 @@ class GLMService
             }
             $message .= " ont gagné la partie " . $gameGLM->getId();
             $this->logService->sendSystemLog($gameGLM, $message);
-        } else {
-            // TODO RETURN CODE TO PUBLISH
         }
         if ($newPlayer->isBot()) {
             $this->manageBotAction($newPlayer);

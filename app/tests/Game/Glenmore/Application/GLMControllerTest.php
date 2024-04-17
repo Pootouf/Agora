@@ -24,6 +24,7 @@ use App\Repository\Game\Glenmore\ResourceGLMRepository;
 use App\Repository\Game\Glenmore\TileGLMRepository;
 use App\Repository\Game\Glenmore\WarehouseLineGLMRepository;
 use App\Repository\Game\Myrmes\PlayerResourceMYRRepository;
+use App\Service\Game\GameService;
 use App\Service\Game\Glenmore\CardGLMService;
 use App\Service\Game\Glenmore\DataManagementGLMService;
 use App\Service\Game\Glenmore\GLMGameManagerService;
@@ -42,27 +43,21 @@ class GLMControllerTest extends WebTestCase
     private KernelBrowser $client;
     private GameUserRepository$gameUserRepository;
 
-    private PlayerGLMRepository $playerGLMRepository;
     private GLMGameManagerService $GLMGameManagerService;
 
     private EntityManagerInterface $entityManager;
     private GameGLMRepository $gameGLMRepository;
-    private GLMService $GLMService;
-    private CardGLMService $cardGLMService;
-    private DataManagementGLMService $dataManagementGLMService;
-    private TileGLMService $tileGLMService;
-    private WarehouseGLMService $warehouseGLMService;
 
     private WarehouseLineGLMRepository $warehouseLineGLMRepository;
 
     private TileGLMRepository $tileGLMRepository;
 
-    private BoardTileGLMRepository $boardTileGLMRepository;
-
     private ResourceGLMRepository $resourceGLMRepository;
 
     private PlayerTileGLMRepository $playerTileGLMRepository;
     private PlayerTileResourceGLMRepository $playerTileResourceGLMRepository;
+
+    private GameService $gameService;
 
     public function testPlayersHaveAccessToGame(): void
     {
@@ -94,7 +89,7 @@ class GLMControllerTest extends WebTestCase
         //GIVEN
         $gameId = $this->initializeGameWithFivePlayers();
         $game = $this->gameGLMRepository->findOneById($gameId);
-        $player = $this->GLMService->getPlayerFromNameAndGame($game, "test0");
+        $player = $this->gameService->getPlayerFromNameAndGame($game, "test0");
         $player->setRoundPhase(GlenmoreParameters::$ACTIVATION_PHASE);
         $this->entityManager->persist($player);
         $this->entityManager->flush();
@@ -220,7 +215,7 @@ class GLMControllerTest extends WebTestCase
         $tileId = 17;
         /** @var TileGLM $tile */
         $tile = $this->tileGLMRepository->findOneBy(["id" => $tileId]);
-        $player = $this->GLMService->getPlayerFromNameAndGame($game, "test0");
+        $player = $this->gameService->getPlayerFromNameAndGame($game, "test0");
         $boardTile = new BoardTileGLM();
         $boardTile->setTile($tile);
         $boardTile->setMainBoardGLM($game->getMainBoard());
@@ -292,7 +287,7 @@ class GLMControllerTest extends WebTestCase
         // GIVEN
         $gameId = $this->initializeGameWithFivePlayers();
         $game = $this->gameGLMRepository->findOneById($gameId);
-        $player = $this->GLMService->getPlayerFromNameAndGame($game, "test0");
+        $player = $this->gameService->getPlayerFromNameAndGame($game, "test0");
         $player->setActivatedResourceSelection(true);
         $this->entityManager->persist($player);
         $this->entityManager->flush();
@@ -380,7 +375,7 @@ class GLMControllerTest extends WebTestCase
         $gameId = $this->initializeGameWithFivePlayers();
         /** @var GameGLM $game */
         $game = $this->gameGLMRepository->findOneById($gameId);
-        $player = $this->GLMService->getPlayerFromNameAndGame($game, "test0");
+        $player = $this->gameService->getPlayerFromNameAndGame($game, "test0");
         $player->getPersonalBoard()->setPlayerGLM($player);
         $this->entityManager->persist($player);
         /** @var TileGLM $tile */
@@ -412,7 +407,7 @@ class GLMControllerTest extends WebTestCase
         $gameId = $this->initializeGameWithFivePlayers();
         /** @var GameGLM $game */
         $game = $this->gameGLMRepository->findOneById($gameId);
-        $player = $this->GLMService->getPlayerFromNameAndGame($game, "test0");
+        $player = $this->gameService->getPlayerFromNameAndGame($game, "test0");
         $player->getPersonalBoard()->setPlayerGLM($player);
         $this->entityManager->persist($player);
         /** @var TileGLM $tile */
@@ -441,7 +436,7 @@ class GLMControllerTest extends WebTestCase
         $gameId = $this->initializeGameWithFivePlayers();
         /** @var GameGLM $game */
         $game = $this->gameGLMRepository->findOneById($gameId);
-        $player = $this->GLMService->getPlayerFromNameAndGame($game, "test0");
+        $player = $this->gameService->getPlayerFromNameAndGame($game, "test0");
         $player->getPersonalBoard()->setPlayerGLM($player);
         $resource = $this->resourceGLMRepository->findOneBy(["color" => GlenmoreParameters::$COLOR_GREEN]);
         /** @var PlayerTileGLM $village */
@@ -482,7 +477,7 @@ class GLMControllerTest extends WebTestCase
         // GIVEN
         $gameId = $this->initializeGameWithFivePlayers();
         $game = $this->gameGLMRepository->findOneById($gameId);
-        $player = $this->GLMService->getPlayerFromNameAndGame($game, "test0");
+        $player = $this->gameService->getPlayerFromNameAndGame($game, "test0");
         /** @var PlayerTileGLM $village */
         $village = $this->playerTileGLMRepository->findOneBy(["personalBoard" => $player->getPersonalBoard()]);
         $newUrl = "/game/glenmore/" . $gameId . "/select/tile/personalBoard/" . $village->getId();
@@ -500,7 +495,7 @@ class GLMControllerTest extends WebTestCase
         // GIVEN
         $gameId = $this->initializeGameWithFivePlayers();
         $game = $this->gameGLMRepository->findOneById($gameId);
-        $player = $this->GLMService->getPlayerFromNameAndGame($game, "test0");
+        $player = $this->gameService->getPlayerFromNameAndGame($game, "test0");
         /** @var PlayerTileGLM $village */
         $village = $this->playerTileGLMRepository->findOneBy(["personalBoard" => $player->getPersonalBoard()]);
         $newUrl = "/game/glenmore/" . $gameId . "/select/tile/personalBoard/" . $village->getId();
@@ -546,7 +541,7 @@ class GLMControllerTest extends WebTestCase
         $game = $this->gameGLMRepository->findOneById($gameId);
         $newUrl = "/game/glenmore/" . $gameId . "/select/leader";
         /** @var PlayerGLM $player */
-        $player = $this->GLMService->getPlayerFromNameAndGame($game, "test0");
+        $player = $this->gameService->getPlayerFromNameAndGame($game, "test0");
         $player->setRoundPhase(GlenmoreParameters::$BUYING_PHASE);
         $player->getPersonalBoard()->setPlayerGLM($player);
         $this->entityManager->persist($player->getPersonalBoard());
@@ -583,7 +578,7 @@ class GLMControllerTest extends WebTestCase
         $game = $this->gameGLMRepository->findOneById($gameId);
         $newUrl = "/game/glenmore/" . $gameId . "/select/leader";
         /** @var PlayerGLM $player */
-        $player = $this->GLMService->getPlayerFromNameAndGame($game, "test0");
+        $player = $this->gameService->getPlayerFromNameAndGame($game, "test0");
         $player->setRoundPhase(GlenmoreParameters::$BUYING_PHASE);
         $player->getPersonalBoard()->setPlayerGLM($player);
         $leaderResource = $this->resourceGLMRepository->findOneBy(["type" => GlenmoreParameters::$VILLAGER_RESOURCE]);
@@ -626,7 +621,7 @@ class GLMControllerTest extends WebTestCase
         // GIVEN
         $gameId = $this->initializeGameWithFivePlayers();
         $game = $this->gameGLMRepository->findOneById($gameId);
-        $player = $this->GLMService->getPlayerFromNameAndGame($game, "test0");
+        $player = $this->gameService->getPlayerFromNameAndGame($game, "test0");
         $villagerResource = $this->resourceGLMRepository->findOneBy(["type" => GlenmoreParameters::$VILLAGER_RESOURCE]);
         /** @var PlayerTileGLM $village */
         $village = $this->playerTileGLMRepository->findOneBy(["personalBoard" => $player->getPersonalBoard()]);
@@ -648,7 +643,7 @@ class GLMControllerTest extends WebTestCase
         // GIVEN
         $gameId = $this->initializeGameWithFivePlayers();
         $game = $this->gameGLMRepository->findOneById($gameId);
-        $player = $this->GLMService->getPlayerFromNameAndGame($game, "test0");
+        $player = $this->gameService->getPlayerFromNameAndGame($game, "test0");
         $villagerResource = $this->resourceGLMRepository->findOneBy(["type" => GlenmoreParameters::$VILLAGER_RESOURCE]);
         /** @var PlayerTileGLM $village */
         $village = $this->playerTileGLMRepository->findOneBy(["personalBoard" => $player->getPersonalBoard()]);
@@ -670,7 +665,7 @@ class GLMControllerTest extends WebTestCase
         // GIVEN
         $gameId = $this->initializeGameWithFivePlayers();
         $game = $this->gameGLMRepository->findOneById($gameId);
-        $player = $this->GLMService->getPlayerFromNameAndGame($game, "test0");
+        $player = $this->gameService->getPlayerFromNameAndGame($game, "test0");
         $player->getPersonalBoard()->setPlayerGLM($player);
         $this->entityManager->persist($player->getPersonalBoard());
         $this->entityManager->flush();
@@ -695,7 +690,7 @@ class GLMControllerTest extends WebTestCase
         // GIVEN
         $gameId = $this->initializeGameWithFivePlayers();
         $game = $this->gameGLMRepository->findOneById($gameId);
-        $player = $this->GLMService->getPlayerFromNameAndGame($game, "test0");
+        $player = $this->gameService->getPlayerFromNameAndGame($game, "test0");
         $player->getPersonalBoard()->setPlayerGLM($player);
         $this->entityManager->persist($player->getPersonalBoard());
         $villagerResource = $this->resourceGLMRepository->findOneBy(["type" => GlenmoreParameters::$VILLAGER_RESOURCE]);
@@ -797,7 +792,7 @@ class GLMControllerTest extends WebTestCase
         // GIVEN
         $gameId = $this->initializeGameWithFivePlayers();
         $game = $this->gameGLMRepository->findOneBy(["id" => $gameId]);
-        $player = $this->GLMService->getPlayerFromNameAndGame($game, "test0");
+        $player = $this->gameService->getPlayerFromNameAndGame($game, "test0");
         $player->setRoundPhase(GlenmoreParameters::$ACTIVATION_PHASE);
         $this->entityManager->persist($player);
         $this->entityManager->flush();
@@ -846,7 +841,7 @@ class GLMControllerTest extends WebTestCase
         $tileId = 17;
         /** @var TileGLM $tile */
         $tile = $this->tileGLMRepository->findOneBy(["id" => $tileId]);
-        $player = $this->GLMService->getPlayerFromNameAndGame($game, "test0");
+        $player = $this->gameService->getPlayerFromNameAndGame($game, "test0");
         $boardTile = new BoardTileGLM();
         $boardTile->setTile($tile);
         $boardTile->setMainBoardGLM($game->getMainBoard());
@@ -930,21 +925,15 @@ class GLMControllerTest extends WebTestCase
     {
         $this->client = static::createClient();
         $this->GLMGameManagerService = static::getContainer()->get(GLMGameManagerService::class);
+        $this->gameService = static::getContainer()->get(GameService::class);
         $this->gameUserRepository = static::getContainer()->get(GameUserRepository::class);
         $this->playerTileGLMRepository = static::getContainer()->get(PlayerTileGLMRepository::class);
-        $this->playerGLMRepository = static::getContainer()->get(PlayerGLMRepository::class);
         $this->gameGLMRepository = static::getContainer()->get(GameGLMRepository::class);
         $this->resourceGLMRepository = static::getContainer()->get(ResourceGLMRepository::class);
         $this->playerTileResourceGLMRepository = static::getContainer()->get(PlayerTileResourceGLMRepository::class);
         $this->tileGLMRepository = static::getContainer()->get(TileGLMRepository::class);
-        $this->boardTileGLMRepository = static::getContainer()->get(BoardTileGLMRepository::class);
         $this->entityManager = static::getContainer()->get(EntityManagerInterface::class);
-        $this->GLMService = static::getContainer()->get(GLMService::class);
-        $this->cardGLMService = static::getContainer()->get(CardGLMService::class);
-        $this->dataManagementGLMService = static::getContainer()->get(DataManagementGLMService::class);
-        $this->tileGLMService = static::getContainer()->get(TileGLMService::class);
         $this->warehouseLineGLMRepository = static::getContainer()->get(WarehouseLineGLMRepository::class);
-        $this->warehouseGLMService = static::getContainer()->get(WarehouseGLMService::class);
         $user1 = $this->gameUserRepository->findOneByUsername("test0");
         $this->client->loginUser($user1);
         $gameId = $this->GLMGameManagerService->createGame();
