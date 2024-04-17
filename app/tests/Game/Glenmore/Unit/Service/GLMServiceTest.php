@@ -150,8 +150,8 @@ class GLMServiceTest extends TestCase
         $game = $this->createGame(2);
         $firstPlayer = $game->getPlayers()->first();
         $lastPlayer = $game->getPlayers()->last();
-        $firstPlayer->setPoints(12);
-        $lastPlayer->setPoints(15);
+        $firstPlayer->setScore(12);
+        $lastPlayer->setScore(15);
         $expectedResult = new ArrayCollection([$lastPlayer]);
         //WHEN
         $winner = $this->GLMService->getWinner($game);
@@ -165,8 +165,8 @@ class GLMServiceTest extends TestCase
         $game = $this->createGame(2);
         $firstPlayer = $game->getPlayers()->first();
         $lastPlayer = $game->getPlayers()->last();
-        $firstPlayer->setPoints(12);
-        $lastPlayer->setPoints(12);
+        $firstPlayer->setScore(12);
+        $lastPlayer->setScore(12);
         $tile = new TileGLM();
         $playerTile = new PlayerTileGLM();
         $playerTile->setTile($tile);
@@ -202,8 +202,8 @@ class GLMServiceTest extends TestCase
         $game = $this->createGame(2);
         $firstPlayer = $game->getPlayers()->first();
         $lastPlayer = $game->getPlayers()->last();
-        $firstPlayer->setPoints(12);
-        $lastPlayer->setPoints(12);
+        $firstPlayer->setScore(12);
+        $lastPlayer->setScore(12);
         $tile = new TileGLM();
         $playerTile = new PlayerTileGLM();
         $playerTile->setTile($tile);
@@ -267,8 +267,8 @@ class GLMServiceTest extends TestCase
         //WHEN
         $this->GLMService->calculatePointsAtEndOfLevel($game);
         //THEN
-        $result = [$players[0]->getPoints(), $players[1]->getPoints(), $players[2]->getPoints(),
-            $players[3]->getPoints(), $players[4]->getPoints()];
+        $result = [$players[0]->getScore(), $players[1]->getScore(), $players[2]->getScore(),
+            $players[3]->getScore(), $players[4]->getScore()];
         $this->assertSame($expectedResult, $result);
     }
 
@@ -310,7 +310,7 @@ class GLMServiceTest extends TestCase
         //WHEN
         $this->GLMService->calculatePointsAtEndOfLevel($game);
         //THEN
-        $result = [$players[0]->getPoints(), $players[1]->getPoints()];
+        $result = [$players[0]->getScore(), $players[1]->getScore()];
         $this->assertSame($expectedResult, $result);
     }
 
@@ -327,11 +327,11 @@ class GLMServiceTest extends TestCase
         //WHEN
         $this->GLMService->calculatePointsAtEndOfGame($game);
         //THEN
-        $result = [$players->get(0)->getPoints(),
-            $players->get(1)->getPoints(),
-            $players->get(2)->getPoints(),
-            $players->get(3)->getPoints(),
-            $players->get(4)->getPoints()];
+        $result = [$players->get(0)->getScore(),
+            $players->get(1)->getScore(),
+            $players->get(2)->getScore(),
+            $players->get(3)->getScore(),
+            $players->get(4)->getScore()];
         $this->assertSame($expectedResult, $result);
     }
 
@@ -353,8 +353,8 @@ class GLMServiceTest extends TestCase
         //WHEN
         $this->GLMService->calculatePointsAtEndOfGame($game);
         //THEN
-        $result = [$players->get(0)->getPoints(),
-            $players->get(1)->getPoints()];
+        $result = [$players->get(0)->getScore(),
+            $players->get(1)->getScore()];
         $this->assertSame($expectedResult, $result);
     }
 
@@ -453,7 +453,7 @@ class GLMServiceTest extends TestCase
             $player = new PlayerGLM('test', $game);
             $player->setGameGLM($game);
             $player->setTurnOfPlayer(false);
-            $player->setPoints(0);
+            $player->setScore(0);
             $game->addPlayer($player);
             $personalBoard = new PersonalBoardGLM();
             $player->setPersonalBoard($personalBoard);

@@ -32,10 +32,6 @@
                     {{ include('/Game/Myrmes/MainBoard/mainBoard.html.twig') }}
                 </div>
             {% endblock %}
-            {% block objectPlacement %}
-                <div id="objectPlacement" class="absolute w-[28%] h-[70%] top-0 right-0">
-                </div>
-            {% endblock %}
             {% block nav %}
                 {{ include('/Game/Utils/navigation.html.twig') }}
             {% endblock %}
@@ -46,37 +42,37 @@
         alert("A toi de jouer ! ");
         {% endif %}#}
 
-        let currentTileMode = 1;
+        window.currentTileMode = 1;
     </script>
 
 
     {# MAIN BOARD CLOSURE MANAGEMENT #}
     <script>
         function closeWindow() {
-            let window = document.getElementById('personalBoard');
-            window.remove();
+            let personalBoard = document.getElementById('personalBoard');
+            personalBoard.remove();
         }
         function closeSelectedBoxWindow(unselectTile = true) {
-            let window = document.getElementById('selectedBoxActions');
-            if(window !== null) {
+            let selectedBoxActions = document.getElementById('selectedBoxActions');
+            if(selectedBoxActions !== null) {
                 let tile = document.getElementsByClassName("displayedActionsTile").item(0);
                 if (unselectTile) {
                     tile.classList.value = "";
                     tile.classList.add("fill-[rgba(0,_0,_0,_0)]")
                 }
-                window.remove();
+                selectedBoxActions.remove();
             }
         }
         function closeThrowResourceActions() {
-            let window = document.getElementById('throwResourceActions');
-            window.remove();
+            let throwResourceActions = document.getElementById('throwResourceActions');
+            throwResourceActions.remove();
         }
         function closeObjectivesWindow() {
-            let window = document.getElementById('objectives');
-            if (window != null) {
-                window.remove();
+            let objectives = document.getElementById('objectives');
+            if (objectives != null) {
+                objectives.remove();
                 document.getElementById('objectives_button').removeAttribute('disabled');
-                currentTileMode = 1;
+                window.currentTileMode = 1;
             }
         }
     </script>

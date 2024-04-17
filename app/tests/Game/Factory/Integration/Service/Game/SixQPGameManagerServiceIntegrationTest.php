@@ -224,6 +224,7 @@ class SixQPGameManagerServiceIntegrationTest extends KernelTestCase
         $entityManager->persist($game);
         for ($i = 0; $i < $numberOfPlayer; $i++) {
             $player = new PlayerSixQP('test', $game);
+            $player->setScore(0);
             $game->addPlayer($player);
             $entityManager->persist($player);
             $entityManager->flush();

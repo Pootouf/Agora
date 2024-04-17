@@ -342,7 +342,7 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $array = new ArrayCollection();
         $array->add($cardCost);
         $developmentCard = DevelopmentCardsSPL::createDevelopmentCard($array);
-        $developmentCard->setPrestigePoints(1);
+        $developmentCard->setPoints(1);
         $developmentCard->setColor("red");
         $developmentCard->setLevel(SplendorParameters::$DEVELOPMENT_CARD_LEVEL_ONE);
         $developmentCard->setValue(1);
@@ -373,7 +373,7 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $array = new ArrayCollection();
         $array->add($cardCost);
         $developmentCard = DevelopmentCardsSPL::createDevelopmentCard($array);
-        $developmentCard->setPrestigePoints(1);
+        $developmentCard->setPoints(1);
         $developmentCard->setColor("red");
         $developmentCard->setLevel(SplendorParameters::$DEVELOPMENT_CARD_LEVEL_ONE);
         $developmentCard->setValue(1);
@@ -405,7 +405,7 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $array = new ArrayCollection();
         $array->add($cardCost);
         $developmentCard = DevelopmentCardsSPL::createDevelopmentCard($array);
-        $developmentCard->setPrestigePoints(1);
+        $developmentCard->setPoints(1);
         $developmentCard->setColor("red");
         $developmentCard->setLevel(SplendorParameters::$DEVELOPMENT_CARD_LEVEL_ONE);
         $developmentCard->setValue(1);
@@ -467,7 +467,7 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $array = new ArrayCollection();
         $array->add($cardCost);
         $developmentCard = DevelopmentCardsSPL::createDevelopmentCard($array);
-        $developmentCard->setPrestigePoints(1);
+        $developmentCard->setPoints(1);
         $developmentCard->setColor("red");
         $developmentCard->setLevel(SplendorParameters::$DEVELOPMENT_CARD_LEVEL_ONE);
         $developmentCard->setValue(1);
@@ -498,7 +498,7 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $array = new ArrayCollection();
         $array->add($cardCost);
         $developmentCard = DevelopmentCardsSPL::createDevelopmentCard($array);
-        $developmentCard->setPrestigePoints(1);
+        $developmentCard->setPoints(1);
         $developmentCard->setColor("red");
         $developmentCard->setLevel(SplendorParameters::$DEVELOPMENT_CARD_LEVEL_ONE);
         $developmentCard->setValue(1);
@@ -573,7 +573,7 @@ class SPLServiceIntegrationTest extends KernelTestCase
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);
         $card = new DevelopmentCardsSPL();
         $card->setColor($color);
-        $card->setPrestigePoints(0);
+        $card->setPoints(0);
         $card->setLevel(0);
         $entityManager->persist($card);
         $playerCard = new PlayerCardSPL($player, $card, false);
@@ -609,7 +609,7 @@ class SPLServiceIntegrationTest extends KernelTestCase
             for ($c = 0; $c < 10; $c++) {
                 $card = new DevelopmentCardsSPL();
                 $card->setLevel($i + 1);
-                $card->setPrestigePoints(1);
+                $card->setPoints(1);
                 $card->setColor("red");
                 $card->setValue(1);
                 $entityManager->persist($card);
@@ -623,7 +623,7 @@ class SPLServiceIntegrationTest extends KernelTestCase
             for ($c = 0; $c < 4; $c++) {
                 $card = new DevelopmentCardsSPL();
                 $card->setLevel($i + 1);
-                $card->setPrestigePoints(1);
+                $card->setPoints(1);
                 $card->setColor("red");
                 $card->setValue(1);
                 $entityManager->persist($card);

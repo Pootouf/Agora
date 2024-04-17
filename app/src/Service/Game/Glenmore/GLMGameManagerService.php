@@ -87,7 +87,7 @@ class GLMGameManagerService extends AbstractGameManagerService
             return GLMGameManagerService::$ERROR_ALREADY_IN_PARTY;
         }
         $player = new PlayerGLM($playerName, $game);
-        $player->setPoints(0);
+        $player->setScore(0);
         $pawn = new PawnGLM();
         $pawn->setPosition(0);
         $pawn->setColor(GlenmoreParameters::$COLOR_FROM_POSITION[$game->getPlayers()->count()]);

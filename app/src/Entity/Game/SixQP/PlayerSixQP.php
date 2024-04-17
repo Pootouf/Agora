@@ -11,7 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: PlayerSixQPRepository::class)]
 class PlayerSixQP extends Player
 {
-    #[ORM\ManyToOne(inversedBy: 'playerSixQPs')]
+    #[ORM\ManyToOne(inversedBy: 'players')]
     #[ORM\JoinColumn(nullable: false)]
     private ?GameSixQP $game;
 

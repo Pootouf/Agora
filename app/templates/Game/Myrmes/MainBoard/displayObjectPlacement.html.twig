@@ -4,7 +4,7 @@ param :
 return : display a panel to choose an object to place on mainboard
 #}
 <div id="openedDisplayObjectPlacement"
-     class="bg-[#FFFFFF] size-full rounded-l-lg overflow-hidden"
+     class="absolute w-[28%] h-[70%] top-0 right-0 bg-[#FFFFFF] size-full rounded-l-lg overflow-hidden"
 	 {{ stimulus_controller('myrmes') }}>
 	<div class="w-full h-[8%] bg-[#c67b24] rounded-tl-lg inline-flex shadow-lg">
 		<button id="return_dop"
@@ -27,17 +27,17 @@ return : display a panel to choose an object to place on mainboard
 			        class="relative aspect-square rounded-lg bg-[#000000]"
 			        onclick="selectOrientationTile(this.dataset.tileid, this.dataset.nbrotation)">
 				<p class="absolute aspect-square h-[15%] rounded-tr-lg rounded-bl-lg bg-[#8F901F] top-0 right-0
-				content-center font-bold text-white">
+					content-center font-bold text-white">
 					{{ tile[1] }}
 				</p>
 				<img id="objectImage_{{ tile[0] }}"
 				     src="{{ asset('resourcesGames/Myrmes/tiles/presentation/' ~ tile[0] ~ imageSuffix ~ '.svg') }}"
 				     data-first-orientation-src="{{ asset('resourcesGames/Myrmes/tiles/' ~ tile[0] ~ imageSuffix ~ '.svg') }}"
-				     {% if tile[0] == 4 %}
-					     data-flip-orientation-src="{{ asset('resourcesGames/Myrmes/tiles/' ~ tile[0] ~ 'flip' ~ imageSuffix ~ '.svg') }}"
-				     {% endif %}
-				alt="tile"
-				     class="size-full p-10">
+						{% if tile[0] == 4 %}
+							data-flip-orientation-src="{{ asset('resourcesGames/Myrmes/tiles/' ~ tile[0] ~ 'flip' ~ imageSuffix ~ '.svg') }}"
+						{% endif %}
+                     alt="tile"
+                     class="size-full p-10">
 			</button>
 		{% endfor %}
 	</div>
@@ -60,7 +60,7 @@ return : display a panel to choose an object to place on mainboard
 				<div class="flex flex-row w-full">
 					<button disabled id="objectPositioningValidation"
 					        class="bg-[#15803d] w-full disabled:opacity-50 enabled:hover:bg-[#166534]
-					            rounded-l-lg p-2 text-2xl text-white font-bold"
+				            rounded-l-lg p-2 text-2xl text-white font-bold"
 							{{ stimulus_action('myrmes','placePheromone','click',
 								{url:path('app_game_myrmes_place_pheromone',
 									{
@@ -76,7 +76,8 @@ return : display a panel to choose an object to place on mainboard
 					</button>
 					<button disabled id="objectPositioningCancel"
 					        class="bg-[#b91c1c] w-full disabled:opacity-50 enabled:hover:bg-[#991b1b]
-					        rounded-r-lg p-2 text-2xl text-white font-bold">
+					        rounded-r-lg p-2 text-2xl text-white font-bold"
+					>
 						Annuler la selection
 					</button>
 				</div>
