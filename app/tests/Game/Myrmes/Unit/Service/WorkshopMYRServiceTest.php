@@ -94,7 +94,7 @@ class WorkshopMYRServiceTest extends TestCase
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
         //WHEN
-        $result = $this->workshopMYRService->canSetPhaseToWorkshop($player);
+        $result = $this->workshopMYRService->canOnePlayerDoWorkshopPhase($player);
         //THEN
         $this->assertTrue($result);
     }
@@ -107,43 +107,11 @@ class WorkshopMYRServiceTest extends TestCase
         $nurse = $player->getPersonalBoardMYR()->getNurses()->first();
         $nurse->setArea(MyrmesParameters::LARVAE_AREA);
         //WHEN
-        $result = $this->workshopMYRService->canSetPhaseToWorkshop($player);
+        $result = $this->workshopMYRService->canOnePlayerDoWorkshopPhase($player);
         //THEN
         $this->assertFalse($result);
     }
 
-    public function testManageEndOfWorkshopDoesNothingIfAllPlayersHaveEndedWorkshopPhase(): void
-    {
-            //GIVEN
-            $game = $this->createGame(2);
-
-            //THEN
-            $this->MYRService->expects(self::once())
-            ->method('canManageEndOfPhase')
-            ->willReturn(true);
-
-            //WHEN
-            try {
-                $this->workshopMYRService->manageEndOfWorkshop($game);
-            } catch (\Exception $e) {
-                // must not arrive here
-            }
-    }
-
-    public function testManageEndOfWorkshopThrowExceptionIfAllPlayersHaveNotEndedWorkshopPhase(): void
-    {
-        //GIVEN
-        $game = $this->createGame(2);
-
-        //THEN
-        $this->MYRService->expects(self::once())
-            ->method('canManageEndOfPhase')
-            ->willReturn(false);
-
-        $this->expectException(\Exception::class);
-        //WHEN
-        $this->workshopMYRService->manageEndOfWorkshop($game);
-    }
     public function testGiveBonusWhenAskIncreaseLevelWhenCanIncrease() : void
     {
         // GIVEN

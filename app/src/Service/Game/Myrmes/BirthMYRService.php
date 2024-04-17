@@ -86,13 +86,13 @@ class BirthMYRService
                 break;
             case MyrmesParameters::BONUS_WORKER:
                 $anthillWorker = new AnthillWorkerMYR();
-                $anthillWorker->setWorkFloor(-1); // TODO use parameters
+                $anthillWorker->setWorkFloor(MyrmesParameters::NO_WORKFLOOR);
                 $personalBoard->addAnthillWorker($anthillWorker);
                 $this->entityManager->persist($anthillWorker);
                 $this->entityManager->persist($personalBoard);
                 break;
             default:
-                throw new Exception("Don't give bonus");
+                break;
         }
         $this->entityManager->flush();
     }
@@ -123,8 +123,9 @@ class BirthMYRService
                     $this->manageWorker($player, $nursesCount);
                     break;
             }
-            $this->entityManager->flush();
         }
+        $this->giveBonusesFromEvent($player);
+        $this->entityManager->flush();
     }
 
     /**

@@ -4,6 +4,9 @@
 
 {% block body %}
 
+    {% set PHASE_WORKER = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::PHASE_WORKER') %}
+    {% set RESOURCE_DIRT = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::RESOURCE_TYPE_DIRT') %}
+
     <div class="h-screen w-screen overflow-hidden absolute" {{ stimulus_controller('myrmes') }}>
         <div id="index_myrmes" class="h-full w-full static overflow-hidden">
             {#{% block endGame %}
@@ -41,6 +44,10 @@
             {% endblock %}
         </div>
     </div>
+
+    <script type="text/javascript" src="{{ asset('scripts/GameFactory/queue.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('scripts/Myrmes/queueWorkerPhase.js') }}"></script>
+
     <script>
         {#{% if needToPlay %}
         alert("A toi de jouer ! ");
@@ -60,7 +67,7 @@
             let window = document.getElementById('selectedBoxActions');
             if(window !== null) {
                 let tile = document.getElementsByClassName("displayedActionsTile").item(0);
-                if (unselectTile) {
+                if (tile != null && unselectTile) {
                     tile.classList.value = "";
                     tile.classList.add("fill-[rgba(0,_0,_0,_0)]")
                 }
@@ -153,4 +160,18 @@
             document.getElementById('ObjectSelectionList').classList.add('hidden')
         }
     </script>
+
+    {% if game.gamePhase == PHASE_WORKER %}
+        <script>
+            initQueue("{{ path('app_game_show_myr',
+                {
+                    id: game.id
+                }) }}",
+                    {{ player.personalBoardMYR.warriorsCount }},
+                    {{ player.personalBoardMYR.playerResourceMYRs|filter(
+                        resource => resource.resource.description == RESOURCE_DIRT
+                    )|first.quantity
+                    }})
+        </script>
+    {% endif %}
 {% endblock %}

@@ -324,6 +324,17 @@ class WorkerMYRService
     }
 
     /**
+     * getPlayerMovementPoints: return the player movement points
+     * @param PlayerMYR $player
+     * @return int
+     */
+    public function getPlayerMovementPoints(PlayerMYR $player): int
+    {
+        return MyrmesParameters::DEFAULT_MOVEMENT_NUMBER
+        + ($player->getPersonalBoardMYR()->getBonus() == MyrmesParameters::BONUS_MOVEMENT ? 3 : 0);
+    }
+
+    /**
      * cleanPheromone : retrieve the pheromone from the main board; the action cost a dirt resource
      * @param PheromonMYR $pheromone
      * @param PlayerMYR $player
@@ -418,8 +429,7 @@ class WorkerMYRService
         $gardenWorker->setTile($exitHole->getTile());
         $gardenWorker->setPlayer($personalBoard->getPlayer());
         $gardenWorker->setMainBoardMYR($personalBoard->getPlayer()->getGameMyr()->getMainBoardMYR());
-        $gardenWorker->setShiftsCount(MyrmesParameters::DEFAULT_MOVEMENT_NUMBER
-            + ($personalBoard->getBonus() == MyrmesParameters::BONUS_MOVEMENT ? 3 : 0));
+        $gardenWorker->setShiftsCount($this->getPlayerMovementPoints($personalBoard->getPlayer()));
         $this->entityManager->persist($gardenWorker);
         $this->entityManager->remove($ant);
         $this->entityManager->flush();
