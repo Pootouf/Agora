@@ -921,6 +921,106 @@ class GLMControllerTest extends WebTestCase
             $this->client->getResponse()->getStatusCode());
     }
 
+    public function testValidateResourceSelectionWhenBuyingPhaseShouldFailBecauseNotEnoughResources() : void
+    {
+        //GIVEN
+        $gameId = $this->initializeGameWithFivePlayers();
+        $newUrl = 'game/glenmore/' . $gameId . '/validate/resources/selection';
+        /** @var GameGLM $game */
+        $game = $this->gameGLMRepository->findOneBy(["id" => $gameId]);
+        /** @var PlayerGLM $player */
+        $player = $this->gameService->getPlayerFromNameAndGame($game, "test0");
+        $player->setRoundPhase(GlenmoreParameters::$BUYING_PHASE);
+        $tileId = 17;
+        /** @var TileGLM $tile */
+        $tile = $this->tileGLMRepository->findOneBy(["id" => $tileId]);
+        $player = $this->gameService->getPlayerFromNameAndGame($game, "test0");
+        $boardTile = new BoardTileGLM();
+        $boardTile->setTile($tile);
+        $boardTile->setMainBoardGLM($game->getMainBoard());
+        $boardTile->setPosition(0);
+        $this->entityManager->persist($boardTile);
+        $buyingTile = new BuyingTileGLM();
+        $buyingTile->setCoordY(0);
+        $buyingTile->setCoordX(0);
+        $buyingTile->setPersonalBoardGLM($player->getPersonalBoard());
+        $buyingTile->setBoardTile($boardTile);
+        $this->entityManager->persist($buyingTile);
+        $player->getPersonalBoard()->setBuyingTile($buyingTile);
+        $this->entityManager->persist($player->getPersonalBoard());
+        $this->entityManager->persist($player);
+        $this->entityManager->flush();
+        $user0 = $this->gameUserRepository->findOneByUsername("test0");
+        //WHEN
+        $this->client->request("GET", $newUrl);
+        //THEN
+        $this->assertEquals(Response::HTTP_FORBIDDEN,
+            $this->client->getResponse()->getStatusCode());
+    }
+
+    public function testValidateResourceSelectionWhenActivatingPhaseShouldFailBecauseNotEnoughResources() : void
+    {
+        //GIVEN
+        $gameId = $this->initializeGameWithFivePlayers();
+        $newUrl = 'game/glenmore/' . $gameId . '/validate/resources/selection';
+        /** @var GameGLM $game */
+        $game = $this->gameGLMRepository->findOneBy(["id" => $gameId]);
+        /** @var PlayerGLM $player */
+        $player = $this->gameService->getPlayerFromNameAndGame($game, "test0");
+        $player->setRoundPhase(GlenmoreParameters::$ACTIVATION_PHASE);
+        $playerTile = new PlayerTileGLM();
+        $tileId = 17;
+        /** @var TileGLM $tile */
+        $tile = $this->tileGLMRepository->findOneBy(["id" => $tileId]);
+        $playerTile->setTile($tile);
+        $playerTile->setCoordY(0);
+        $playerTile->setCoordX(256);
+        $playerTile->setActivated(false);
+        $playerTile->setPersonalBoard($player->getPersonalBoard());
+        $this->entityManager->persist($playerTile);
+        $player->getPersonalBoard()->addPlayerTile($playerTile);
+        $player->getPersonalBoard()->setActivatedTile($player->getPersonalBoard()->getPlayerTiles()->first());
+        $this->entityManager->persist($player->getPersonalBoard());
+        $this->entityManager->persist($player);
+        $this->entityManager->flush();
+        $user0 = $this->gameUserRepository->findOneByUsername("test0");
+        //WHEN
+        $this->client->request("GET", $newUrl);
+        //THEN
+        $this->assertEquals(Response::HTTP_FORBIDDEN,
+            $this->client->getResponse()->getStatusCode());
+    }
+
+    public function testValidateResourceSelectionWhenSellingPhaseShouldFail() : void
+    {
+        //GIVEN
+        $gameId = $this->initializeGameWithFivePlayers();
+        $newUrl = 'game/glenmore/' . $gameId . '/validate/resources/selection';
+        /** @var GameGLM $game */
+        $game = $this->gameGLMRepository->findOneBy(["id" => $gameId]);
+        /** @var PlayerGLM $player */
+        $player = $this->gameService->getPlayerFromNameAndGame($game, "test0");
+        $player->setRoundPhase(GlenmoreParameters::$SELLING_PHASE);
+        $resource = $this->resourceGLMRepository->findOneBy(["id" => 1]);
+        $player->getPersonalBoard()->setResourceToSell($resource);
+        $selectedResource = new SelectedResourceGLM();
+        $selectedResource->setResource($resource);
+        $selectedResource->setPersonalBoardGLM($player->getPersonalBoard());
+        $selectedResource->setQuantity(1);
+        $selectedResource->setPlayerTile($player->getPersonalBoard()->getPlayerTiles()->first());
+        $this->entityManager->persist($selectedResource);
+        $player->getPersonalBoard()->addSelectedResource($selectedResource);
+        $this->entityManager->persist($player->getPersonalBoard());
+        $this->entityManager->persist($player);
+        $this->entityManager->flush();
+        $user0 = $this->gameUserRepository->findOneByUsername("test0");
+        //WHEN
+        $this->client->request("GET", $newUrl);
+        //THEN
+        $this->assertEquals(Response::HTTP_FORBIDDEN,
+            $this->client->getResponse()->getStatusCode());
+    }
+
     private function initializeGameWithFivePlayers() : int
     {
         $this->client = static::createClient();
