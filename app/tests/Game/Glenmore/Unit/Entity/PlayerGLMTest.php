@@ -20,7 +20,7 @@ class PlayerGLMTest extends TestCase
 
         // THEN
         $this->assertTrue($this->playerGLM->getId() >= 0);
-        $this->assertNotNull($this->playerGLM->getGameGLM());
+        $this->assertNotNull($this->playerGLM->getGame());
         $this->assertSame("user", $this->playerGLM->getUsername());
         $this->assertNotNull($this->playerGLM->getPlayerTileResourceGLMs());
     }
@@ -63,11 +63,11 @@ class PlayerGLMTest extends TestCase
 
         // WHEN
 
-        $this->playerGLM->setGameGLM($game);
+        $this->playerGLM->setGame($game);
 
         // THEN
 
-        $this->assertSame($game, $this->playerGLM->getGameGLM());
+        $this->assertSame($game, $this->playerGLM->getGame());
     }
 
     public function testAddPlayerTileResourceYetNotAdded() : void

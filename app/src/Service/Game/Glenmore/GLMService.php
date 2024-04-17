@@ -46,7 +46,7 @@ class GLMService
 
     public function getActivePlayer(GameGLM $gameGLM): PlayerGLM
     {
-        return $this->playerGLMRepository->findOneBy(["gameGLM" => $gameGLM->getId(),
+        return $this->playerGLMRepository->findOneBy(["game" => $gameGLM->getId(),
             "turnOfPlayer" => true]);
     }
 
@@ -58,7 +58,7 @@ class GLMService
      */
     public function getPlayerFromNameAndGame(GameGLM $game, string $name): ?PlayerGLM
     {
-        return $this->playerGLMRepository->findOneBy(['gameGLM' => $game->getId(), 'username' => $name]);
+        return $this->playerGLMRepository->findOneBy(['game' => $game->getId(), 'username' => $name]);
     }
 
 
@@ -333,7 +333,7 @@ class GLMService
     }
 
     /**
-     * calculatePointsAtEndOfLevel : adds points to each player in gameGLM
+     * calculatePointsAtEndOfLevel : adds points to each player in game
      *
      * @param GameGLM $gameGLM
      * @return void
@@ -351,7 +351,7 @@ class GLMService
     }
 
     /**
-     * calculatePointsAtEndOfGame : adds points to each player in gameGLM
+     * calculatePointsAtEndOfGame : adds points to each player in game
      *
      * @param GameGLM $gameGLM
      * @return void
@@ -857,7 +857,7 @@ class GLMService
        if ($bot->getPawn()->getPosition() >= GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD) {
             $bot->getPawn()->setPosition(0);
         }
-        $pawns = $bot->getGameGLM()->getMainBoard()->getPawns();
+        $pawns = $bot->getGame()->getMainBoard()->getPawns();
         while ($pawns->filter(function (PawnGLM $pawn) use ($bot) {
             return $pawn->getId() != $bot->getPawn()->getId()
                 && $pawn->getPosition() == $bot->getPawn()->getPosition();
@@ -869,12 +869,12 @@ class GLMService
         }
         $this->entityManager->persist($bot->getPawn());
         $tile = $this->boardTileGLMRepository->findOneBy([
-            'mainBoardGLM' => $bot->getGameGLM()->getMainBoard()->getId(),
+            'mainBoardGLM' => $bot->getGame()->getMainBoard()->getId(),
             'position' => $bot->getPawn()->getPosition()
         ]);
         $this->entityManager->remove($tile);
-        $bot->getGameGLM()->getMainBoard()->setLastPosition($position);
-        $this->entityManager->persist($bot->getGameGLM()->getMainBoard());
+        $bot->getGame()->getMainBoard()->setLastPosition($position);
+        $this->entityManager->persist($bot->getGame()->getMainBoard());
         $this->entityManager->flush();
 
     }

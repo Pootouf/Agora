@@ -136,7 +136,7 @@ class GameManagerService
             $player = $this->playerSPLRepository->findOneBy(['game' => $gameId, 'excluded' => true]);
         }
         if ($player == null) {
-            $player = $this->playerGLMRepository->findOneBy(['gameGLM' => $gameId, 'excluded' => true]);
+            $player = $this->playerGLMRepository->findOneBy(['game' => $gameId, 'excluded' => true]);
         }
         if ($player == null) {
             $player = $this->playerMYRRepository->findOneBy(['gameMYR' => $gameId, 'excluded' => true]);

@@ -11,6 +11,7 @@ use App\Entity\Game\Glenmore\PlayerGLM;
 use App\Entity\Game\Glenmore\PlayerTileGLM;
 use App\Entity\Game\Glenmore\PlayerTileResourceGLM;
 use App\Entity\Game\Glenmore\ResourceGLM;
+use App\Entity\Game\Glenmore\SelectedResourceGLM;
 use App\Entity\Game\Glenmore\TileGLM;
 use App\Entity\Game\Glenmore\WarehouseLineGLM;
 use App\Repository\Game\GameUserRepository;
@@ -585,6 +586,14 @@ class GLMControllerTest extends WebTestCase
         $player = $this->GLMService->getPlayerFromNameAndGame($game, "test0");
         $player->setRoundPhase(GlenmoreParameters::$BUYING_PHASE);
         $player->getPersonalBoard()->setPlayerGLM($player);
+        $leaderResource = $this->resourceGLMRepository->findOneBy(["type" => GlenmoreParameters::$VILLAGER_RESOURCE]);
+        $selectedResource = new SelectedResourceGLM();
+        $selectedResource->setResource($leaderResource);
+        $selectedResource->setQuantity(1);
+        $selectedResource->setPersonalBoardGLM($player->getPersonalBoard());
+        $selectedResource->setPlayerTile($player->getPersonalBoard()->getPlayerTiles()->first());
+        $this->entityManager->persist($selectedResource);
+        $player->getPersonalBoard()->addSelectedResource($selectedResource);
         $this->entityManager->persist($player->getPersonalBoard());
         $this->entityManager->persist($player);
         /** @var TileGLM $tile */
@@ -606,7 +615,6 @@ class GLMControllerTest extends WebTestCase
         $user = $this->gameUserRepository->findOneByUsername("test0");
         $this->client->loginUser($user);
         // WHEN
-        $this->client->request("GET", $newUrl);
         $this->client->request("GET", $newUrl);
         // THEN
         $this->assertEquals(Response::HTTP_FORBIDDEN,

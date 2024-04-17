@@ -83,7 +83,7 @@ class GLMGameManagerService extends AbstractGameManagerService
             return GLMGameManagerService::$ERROR_INVALID_NUMBER_OF_PLAYER;
         }
         if ($this->playerGLMRepository->findOneBy(
-            ['username' => $playerName, 'gameGLM' => $game->getId()]) != null) {
+            ['username' => $playerName, 'game' => $game->getId()]) != null) {
             return GLMGameManagerService::$ERROR_ALREADY_IN_PARTY;
         }
         $player = new PlayerGLM($playerName, $game);

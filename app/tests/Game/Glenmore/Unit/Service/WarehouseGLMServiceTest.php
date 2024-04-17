@@ -210,7 +210,7 @@ class WarehouseGLMServiceTest extends TestCase
         }
         for ($i = 0; $i < $nbOfPlayers; $i++) {
             $player = new PlayerGLM('test', $game);
-            $player->setGameGLM($game);
+            $player->setGame($game);
             $player->setTurnOfPlayer(false);
             $player->setScore(0);
             $game->addPlayer($player);

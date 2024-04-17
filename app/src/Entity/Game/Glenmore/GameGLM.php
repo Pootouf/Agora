@@ -11,7 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: GameGLMRepository::class)]
 class GameGLM extends Game
 {
-    #[ORM\OneToMany(targetEntity: PlayerGLM::class, mappedBy: 'gameGLM', orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'game', targetEntity: PlayerGLM::class, orphanRemoval: true)]
     private Collection $players;
 
     #[ORM\OneToOne(inversedBy: 'gameGLM', cascade: ['persist', 'remove'])]
@@ -35,7 +35,7 @@ class GameGLM extends Game
     {
         if (!$this->players->contains($player)) {
             $this->players->add($player);
-            $player->setGameGLM($this);
+            $player->setGame($this);
         }
 
         return $this;
@@ -45,8 +45,8 @@ class GameGLM extends Game
     {
         if ($this->players->removeElement($player)) {
             // set the owning side to null (unless already changed)
-            if ($player->getGameGLM() === $this) {
-                $player->setGameGLM(null);
+            if ($player->getGame() === $this) {
+                $player->setGame(null);
             }
         }
 

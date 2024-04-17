@@ -204,7 +204,7 @@ class TileGLMService
     {
         $globalResources = $player->getPlayerTileResourceGLMs();
         $money = $player->getPersonalBoard()->getMoney();
-        $game = $player->getGameGLM();
+        $game = $player->getGame();
         $warehouse = $game->getMainBoard()->getWarehouse();
         foreach ($tile->getBuyPrice() as $buyPrice) {
             $resourceTile = $buyPrice->getResource();
@@ -254,7 +254,7 @@ class TileGLMService
     {
         $playerTiles = $player->getPersonalBoard()->getPlayerTiles();
         $playerResources = new ArrayCollection();
-        $warehouse = $player->getGameGLM()->getMainBoard()->getWarehouse();
+        $warehouse = $player->getGame()->getMainBoard()->getWarehouse();
         $money = $player->getPersonalBoard()->getMoney();
         foreach ($playerTiles as $playerTile) {
             foreach ($playerTile->getPlayerTileResource() as $playerTileResource) {
@@ -788,7 +788,7 @@ class TileGLMService
     {
         // Initialization
 
-        $mainBoard = $player->getGameGLM()->getMainBoard();
+        $mainBoard = $player->getGame()->getMainBoard();
         $currentPosition = $player->getPawn()->getPosition();
         $posTile = $currentPosition;
         $posTile -= 1;
@@ -1012,7 +1012,7 @@ class TileGLMService
 
         // Initialization
         $personalBoard = $player->getPersonalBoard();
-        $mainBoard = $player->getGameGLM()->getMainBoard();
+        $mainBoard = $player->getGame()->getMainBoard();
         $tileSelected = $personalBoard->getBuyingTile()->getBoardTile();
         $lastPosition = $player->getPawn()->getPosition();
         $newPosition = $tileSelected->getPosition();
@@ -1260,7 +1260,7 @@ class TileGLMService
      */
     public function getActivePlayer(GameGLM $gameGLM): PlayerGLM
     {
-        return $this->playerGLMRepository->findOneBy(["gameGLM" => $gameGLM->getId(),
+        return $this->playerGLMRepository->findOneBy(["game" => $gameGLM->getId(),
             "turnOfPlayer" => true]);
     }
 
@@ -1374,7 +1374,7 @@ class TileGLMService
                 })->first();
             $priceCost = !$priceCost ? 0 : $priceCost->getPrice();
             if ($numberOfSelectedResources >= $priceCost) {
-                throw new \Exception('Impossible to choose this resource');
+                throw new Exception('Impossible to choose this resource');
             }
         } else if ($player->getRoundPhase() == GlenmoreParameters::$ACTIVATION_PHASE) {
             $activationCost = $cost->filter(

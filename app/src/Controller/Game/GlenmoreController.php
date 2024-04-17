@@ -1160,7 +1160,7 @@ class GlenmoreController extends AbstractController
     private function publishCreateResource(PlayerTileGLM $playerTileGLM) : void
     {
         $player = $playerTileGLM->getPersonalBoard()->getPlayerGLM();
-        $game = $player->getGameGLM();
+        $game = $player->getGame();
         $activatedActivationPhase = $playerTileGLM->getTile()->getName() == GlenmoreParameters::$CARD_IONA_ABBEY;
         $response = $this->render('Game/Glenmore/PersonalBoard/selectTile.html.twig',
         [
@@ -1191,7 +1191,7 @@ class GlenmoreController extends AbstractController
     private function publishSelectResource(PlayerTileGLM $playerTileGLM) : void
     {
         $player = $playerTileGLM->getPersonalBoard()->getPlayerGLM();
-        $game = $player->getGameGLM();
+        $game = $player->getGame();
         $response = $this->render('Game/Glenmore/PersonalBoard/selectTile.html.twig',
             [
                 'player' => $player,
@@ -1250,7 +1250,7 @@ class GlenmoreController extends AbstractController
     {
         $response = $this->render('Game/Glenmore/PersonalBoard/personalBoard.html.twig', [
             'isSpectator' => $player === null,
-            'game' => $player->getGameGLM(),
+            'game' => $player->getGame(),
             'player' => $player,
             'activableTiles' => $this->service->isInActivationPhase($player) ?
                 $this->tileGLMService->getActivableTiles($player->getPersonalBoard()->getPlayerTiles()->last())
@@ -1261,7 +1261,7 @@ class GlenmoreController extends AbstractController
         ]);
         $this->publishService->publish(
             $this->generateUrl('app_game_show_glm',
-                ['id' => $player->getGameGLM()->getId()]).'personalBoard'.$player->getId(),
+                ['id' => $player->getGame()->getId()]).'personalBoard'.$player->getId(),
             $response
         );
     }
@@ -1277,7 +1277,7 @@ class GlenmoreController extends AbstractController
         foreach($game->getPlayers() as $player) {
             $response = $this->render('Game/Glenmore/MainBoard/playerPersonalBoard.html.twig', [
                 'isSpectator' => $player === null,
-                'game' => $player->getGameGLM(),
+                'game' => $player->getGame(),
                 'player' => $player,
                 'activableTiles' => $this->service->isInActivationPhase($player) ?
                     $this->tileGLMService->getActivableTiles($player->getPersonalBoard()->getPlayerTiles()->last())
@@ -1291,7 +1291,7 @@ class GlenmoreController extends AbstractController
             ]);
             $this->publishService->publish(
                 $this->generateUrl('app_game_show_glm',
-                    ['id' => $player->getGameGLM()->getId()]).'personalBoardSpectator'.$player->getId(),
+                    ['id' => $player->getGame()->getId()]).'personalBoardSpectator'.$player->getId(),
                 $response
             );
         }

@@ -35,7 +35,7 @@ class WarehouseGLMService
     {
         // Initialization
         $personalBoard = $player->getPersonalBoard();
-        $mainBoard = $player->getGameGLM()->getMainBoard();
+        $mainBoard = $player->getGame()->getMainBoard();
         $warehouse = $mainBoard->getWarehouse();
 
         // Check if money available
@@ -87,7 +87,7 @@ class WarehouseGLMService
      */
     public function buyResourceFromWarehouse(PlayerGLM $player, ResourceGLM $resource): void
     {
-        $warehouse = $player->getGameGLM()->getMainBoard()->getWarehouse();
+        $warehouse = $player->getGame()->getMainBoard()->getWarehouse();
         $warehouseLine = $this->getWarehouseLineOfResource(
             $warehouse,
             $resource

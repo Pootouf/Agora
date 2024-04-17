@@ -21,7 +21,7 @@ class PlayerGLM extends Player
 
     #[ORM\ManyToOne(inversedBy: 'players')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?GameGLM $gameGLM = null;
+    private ?GameGLM $game = null;
 
     #[ORM\OneToMany(targetEntity: PlayerTileResourceGLM::class, mappedBy: 'player', orphanRemoval: true)]
     private Collection $playerTileResourceGLMs;
@@ -44,7 +44,7 @@ class PlayerGLM extends Player
     public function __construct(string $username, GameGLM $game)
     {
         $this->username = $username;
-        $this->gameGLM = $game;
+        $this->game = $game;
         $this->playerTileResourceGLMs = new ArrayCollection();
     }
 
@@ -72,14 +72,14 @@ class PlayerGLM extends Player
         return $this;
     }
 
-    public function getGameGLM(): ?GameGLM
+    public function getGame(): ?GameGLM
     {
-        return $this->gameGLM;
+        return $this->game;
     }
 
-    public function setGameGLM(?GameGLM $gameGLM): static
+    public function setGame(?GameGLM $game): static
     {
-        $this->gameGLM = $gameGLM;
+        $this->game = $game;
 
         return $this;
     }
