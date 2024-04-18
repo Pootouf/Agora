@@ -418,8 +418,9 @@ class MyrmesController extends AbstractController
             $this->logService->sendPlayerLog($game, $player, $message);
             return new Response('failed to confirm nurses', Response::HTTP_FORBIDDEN);
         }
-        $this->service->setPhase($player, MyrmesParameters::PHASE_WORKER);
+
         $this->service->endPlayerRound($player);
+        $this->service->setPhase($player, MyrmesParameters::PHASE_WORKER);
 
         $message = $player->getUsername() . " a confirmé le placement de ses nourrices";
         $this->logService->sendPlayerLog($game, $player, $message);
