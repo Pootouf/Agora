@@ -8,13 +8,13 @@ This section displays the ranking with a view of the other players' possessions
 <div id="logo" class="w-full h-[10vw] landscape:1/6  lg:h-1/5 justify-center flex">
     <div>
         {% for season in seasons %}
-            <div class="flex justify-center items-center size-[70%] mt-5 mr-4 ml-4">
                 {% if season.actualSeason %}
-                    <img class="h-[6vw]"
-                         src="{{ asset('resourcesGames/Myrmes/seasonsDices/' ~ season.name ~ '/' ~ season.name ~ 'Dice' ~ season.diceResult ~ '.svg') }}"
-                         alt="{{ season.name }} dice {{ season.diceResult }}">
+                    <div class="flex justify-center items-center size-[70%] mt-5 mr-4 ml-4">
+                        <img class="h-[6vw]"
+                             src="{{ asset('resourcesGames/Myrmes/seasonsDices/' ~ season.name ~ '/' ~ season.name ~ 'Dice' ~ season.diceResult ~ '.svg') }}"
+                             alt="{{ season.name }} dice {{ season.diceResult }}">
+                    </div>
                 {% endif %}
-            </div>
         {% endfor %}
     </div>
     <div class="flex justify-center items-center w-[70%] h-[80%] mt-4 mr-4">
