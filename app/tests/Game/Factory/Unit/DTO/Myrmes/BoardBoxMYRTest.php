@@ -62,6 +62,7 @@ class BoardBoxMYRTest extends TestCase
         $this->gardenWorkerMYR = new GardenWorkerMYR();
         $this->pheromoneTileMYR = new PheromonTileMYR();
         $this->anthillHoleMYR = new AnthillHoleMYR();
+        $this->gardenWorkerMYR->setShiftsCount(3);
         $this->preyMYR = new PreyMYR();
         $this->boardBoxMYR = new BoardBoxMYR(
             $this->tileMYR,
@@ -69,6 +70,7 @@ class BoardBoxMYRTest extends TestCase
             $this->pheromoneTileMYR,
             $this->anthillHoleMYR,
             $this->preyMYR,
+            0,
             0,
             0
         );
