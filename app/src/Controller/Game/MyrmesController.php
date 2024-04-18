@@ -69,7 +69,7 @@ class MyrmesController extends AbstractController
             'isPreview' => true,
             'preys' => $game->getMainBoardMYR()->getPreys(),
             'isSpectator' => $player == null,
-            'needToPlay' => true,//$player == null ? false : $player->isTurnOfPlayer(),
+            'needToPlay' => $player == null ? false : $player->isTurnOfPlayer(),
             'selectedBox' => null,
             'playerPhase' => $player== null ? $game->getPlayers()->first()->getPhase() : $player->getPhase(),
             'actualSeason' => $this->service->getActualSeason($game),
@@ -136,7 +136,7 @@ class MyrmesController extends AbstractController
             'preys' => $player->getPreyMYRs(),
             'isPreview' => false,
             'isSpectator' => $player == null,
-            'needToPlay' => true,//$player == null ? false : $player->isTurnOfPlayer()
+            'needToPlay' => $player->isTurnOfPlayer(),
             'isAnotherPlayerBoard' => false,
             'playerPhase' => $player->getPhase(),
             'availableLarvae' => $this->service->getAvailableLarvae($player),
