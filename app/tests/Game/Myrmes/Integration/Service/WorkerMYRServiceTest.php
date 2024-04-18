@@ -3999,13 +3999,13 @@ class WorkerMYRServiceTest extends KernelTestCase
         $expected = new ArrayCollection();
         for ($i = MyrmesParameters::PHEROMONE_TYPE_ZERO; $i <= MyrmesParameters::PHEROMONE_TYPE_SIX; ++$i) {
             $remaining = MyrmesParameters::PHEROMONE_TYPE_AMOUNT[$i] ;
-            if ($remaining > 0) {
+            if ($remaining > 0 && $i == 0) {
                 $expected->add([$i, $remaining, MyrmesParameters::PHEROMONE_TYPE_ORIENTATIONS[$i]]);
             }
         }
         for ($i = MyrmesParameters::SPECIAL_TILE_TYPE_FARM; $i <= MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL; ++$i) {
             $remaining = MyrmesParameters::SPECIAL_TILE_TYPE_AMOUNT[$i];
-            if ($remaining > 0) {
+            if ($remaining > 0 && $i == 0) {
                 $expected->add([$i, $remaining, MyrmesParameters::SPECIAL_TILES_TYPE_ORIENTATIONS[$i]]);
             }
         }
@@ -4035,13 +4035,13 @@ class WorkerMYRServiceTest extends KernelTestCase
         $expected->add([MyrmesParameters::PHEROMONE_TYPE_ZERO, $remaining, MyrmesParameters::PHEROMONE_TYPE_ORIENTATIONS[0]]);
         for ($i = MyrmesParameters::PHEROMONE_TYPE_ONE; $i <= MyrmesParameters::PHEROMONE_TYPE_SIX; ++$i) {
             $remaining = MyrmesParameters::PHEROMONE_TYPE_AMOUNT[$i] ;
-            if ($remaining > 0) {
+            if ($remaining > 0 && $i == 0) {
                 $expected->add([$i, $remaining, MyrmesParameters::PHEROMONE_TYPE_ORIENTATIONS[$i]]);
             }
         }
         for ($i = MyrmesParameters::SPECIAL_TILE_TYPE_FARM; $i <= MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL; ++$i) {
             $remaining = MyrmesParameters::SPECIAL_TILE_TYPE_AMOUNT[$i];
-            if ($remaining > 0) {
+            if ($remaining > 0 && $i == 0) {
                 $expected->add([$i, $remaining, MyrmesParameters::SPECIAL_TILES_TYPE_ORIENTATIONS[$i]]);
             }
         }
