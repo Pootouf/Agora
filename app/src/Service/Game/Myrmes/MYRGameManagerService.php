@@ -3,14 +3,24 @@
 namespace App\Service\Game\Myrmes;
 
 use App\Entity\Game\DTO\Game;
+use App\Entity\Game\Glenmore\DrawTilesGLM;
+use App\Entity\Game\Glenmore\GameGLM;
+use App\Entity\Game\Glenmore\GlenmoreParameters;
+use App\Entity\Game\Glenmore\MainBoardGLM;
+use App\Entity\Game\Glenmore\PawnGLM;
+use App\Entity\Game\Glenmore\PersonalBoardGLM;
+use App\Entity\Game\Glenmore\PlayerGLM;
+use App\Entity\Game\Glenmore\WarehouseGLM;
 use App\Entity\Game\Myrmes\GameMYR;
 use App\Entity\Game\Myrmes\MainBoardMYR;
 use App\Entity\Game\Myrmes\MyrmesParameters;
 use App\Entity\Game\Myrmes\PersonalBoardMYR;
 use App\Entity\Game\Myrmes\PlayerMYR;
 use App\Entity\Game\Myrmes\SeasonMYR;
+use App\Repository\Game\Glenmore\PlayerGLMRepository;
 use App\Repository\Game\Myrmes\PlayerMYRRepository;
 use App\Service\Game\AbstractGameManagerService;
+use App\Service\Game\Glenmore\GLMService;
 use App\Service\Game\LogService;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;

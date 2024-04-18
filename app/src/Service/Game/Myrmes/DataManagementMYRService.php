@@ -2,18 +2,30 @@
 
 namespace App\Service\Game\Myrmes;
 
+use App\Entity\Game\DTO\Glenmore\BoardBoxGLM;
+use App\Entity\Game\DTO\Glenmore\PersonalBoardBoxGLM;
+use App\Entity\Game\DTO\Glenmore\PlayerResourcesDataGLM;
 use App\Entity\Game\DTO\Myrmes\BoardBoxMYR;
+use App\Entity\Game\DTO\Tile;
+use App\Entity\Game\Glenmore\GameGLM;
+use App\Entity\Game\Glenmore\GlenmoreParameters;
+use App\Entity\Game\Glenmore\PlayerGLM;
 use App\Entity\Game\Myrmes\GameMYR;
+use App\Entity\Game\Myrmes\GardenWorkerMYR;
 use App\Entity\Game\Myrmes\PersonalBoardMYR;
+use App\Entity\Game\Myrmes\PheromonTileMYR;
 use App\Entity\Game\Myrmes\TileMYR;
+use App\Entity\Game\Splendor\SplendorParameters;
+use App\Repository\Game\Glenmore\PlayerTileGLMRepository;
 use App\Repository\Game\Myrmes\AnthillHoleMYRRepository;
 use App\Repository\Game\Myrmes\GardenWorkerMYRRepository;
 use App\Repository\Game\Myrmes\PheromonTileMYRRepository;
 use App\Repository\Game\Myrmes\PreyMYRRepository;
 use App\Repository\Game\Myrmes\TileMYRRepository;
+use App\Service\Game\Glenmore\TileGLMService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Exception;
+use Psr\Log\LoggerInterface;
 
 
 /**
@@ -35,7 +47,7 @@ class DataManagementMYRService
      *  It represents each row of the main board from top to bottom.
      * @param GameMYR $game
      * @return Collection
-     * @throws Exception
+     * @throws \Exception
      */
     public function organizeMainBoardRows(GameMYR $game) : Collection
     {
@@ -99,7 +111,7 @@ class DataManagementMYRService
 
     /**
      * createBoardBox : create a board box tile with tile, ant and pheromone
-     * @throws Exception
+     * @throws \Exception
      */
     public function createBoardBox(GameMYR $game, ?TileMYR $tile, int $x, int $y) : BoardBoxMYR
     {

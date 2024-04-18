@@ -102,7 +102,7 @@ class WorkshopMYRService
      * canPlayerDoGoal: return true if the player can do the selected goal.
      *                  If the pheromone goal is selected, always true
      * @param PlayerMYR $player
-     * @param GameGoalMYR $gameGoal
+     * @param GameGoalMYR $goal
      * @return bool
      * @throws Exception
      */
@@ -1414,7 +1414,7 @@ class WorkshopMYRService
      * @param mixed $object
      * @return void
      */
-    private function addInCollectionOnlyIfDistinct(Collection $collection, mixed $object): void
+    private function addInCollectionOnlyIfDistinct(Collection $collection, mixed $object)
     {
         if ($object !== null && !$collection->contains($object)) {
             $collection->add($object);
