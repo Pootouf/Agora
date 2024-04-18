@@ -102,13 +102,12 @@ class EventMYRService
     }
 
     /**
-     * confirmBonus : player confirm his bonus and ends his event phase
+     * confirmBonus : player confirm his bonus
      * @param PlayerMYR $player
      * @return void
      */
     public function confirmBonus(PlayerMYR $player) : void
     {
-        $player->setPhase(MyrmesParameters::PHASE_BIRTH);
         $bonus = $player->getPersonalBoardMYR()->getBonus();
         if ($bonus == MyrmesParameters::BONUS_HARVEST)
         {

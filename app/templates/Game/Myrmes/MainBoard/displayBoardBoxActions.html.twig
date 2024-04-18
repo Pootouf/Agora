@@ -43,27 +43,29 @@
                 {% set isActionable = true %}
                 {{ include('Game/Myrmes/MainBoard/boardBox.html.twig') }}
             </div>
+            {% if boardBox.ant != null %}
+                {% if game.gamePhase == PHASE_WORKER and needToPlay %}
+                    <button id="pheromone_placement"
+                            class="rounded-lg bg-green-900 py-2 px-3 m-5 text-2xl items-center"
+                            {{ stimulus_action('myrmes','displayPheromonePlacement','click',
+                                {url:path('app_game_myrmes_display_personal_object_to_place',
+                                    {
+                                        idGame: game.id,
+                                        tileId: boardBox.tile.id,
+                                    }), open: true
+                                })
+                            }}
+                    >
+                        Placer une phéromone
+                    </button>
 
-            {% if game.gamePhase == PHASE_WORKER and needToPlay %}
-                <button id="pheromone_placement"
-                        class="rounded-lg bg-green-900 py-2 px-3 m-5 text-2xl items-center"
-                        {{ stimulus_action('myrmes','displayPheromonePlacement','click',
-                            {url:path('app_game_myrmes_display_personal_object_to_place',
-                                {
-                                    idGame: game.id,
-                                    tileId: boardBox.tile.id,
-                                }), open: true
-                            })
-                        }}
-                >
-                    Placer une phéromone
-                </button>
-
-                <button id="clean_phermone"
-                        class="rounded-lg bg-green-900 py-2 px-3 m-5 text-2xl items-center"
-                >
-                    Nettoyer la phéromone adverse
-                </button>
+                    <button id="clean_phermone"
+                            class="rounded-lg bg-green-900 py-2 px-3 m-5 text-2xl items-center"
+                            {{ stimulus_action('myrmes','cleanPheromoneAction','click') }}
+                    >
+                        Nettoyer la phéromone adverse
+                    </button>
+                {% endif %}
             {% endif %}
             {% if playerPhase == PHASE_WORKSHOP %}
                 <button id="anthill_hole_placement"

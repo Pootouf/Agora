@@ -48,36 +48,19 @@ let antPosition = {x: 0, y: 0}
 //Initial movement points of the player
 let movementPoints = 0
 
-//identifier of the ant
-let antId = 0
 
 /**
  * initQueue: init the action queue for the worker phase with the selected base resources and positions
  * @param baseUrl
- * @param playerMovementPoints
- * @param antCoordX
- * @param antCoordY
- * @param idHole
  * @param playerSoldierNumber
  * @param playerDirtNumber
- * @param workerId
  */
 function initQueue(baseUrl,
-                   playerMovementPoints,
-                   antCoordX,
-                   antCoordY,
-                   idHole,
                    playerSoldierNumber,
-                   playerDirtNumber,
-                   workerId) {
+                   playerDirtNumber) {
     url = baseUrl
-    movementPoints = playerMovementPoints
-    antPosition.x = antCoordX
-    antPosition.y = antCoordY
     soldierNumber = playerSoldierNumber
     dirtNumber = playerDirtNumber
-    antId = workerId
-    queue.push(actions.PLACE_ANT(idHole))
 }
 
 /**
@@ -105,6 +88,7 @@ async function move(direction) {
     cleanedTiles.push(coord)
     antPosition = coord
     queue.push(action)
+    await refreshMainBoard()
 }
 
 /**
@@ -123,8 +107,23 @@ async function cleanPheromone() {
 
     spentDirt += 1
     queue.push(actions.CLEAN_PHEROMONE)
+    await refreshMainBoard()
 }
 
+/**
+ * placeWorkerOnAnthillHole : place the worker on the specified tileId
+ * @param tileId
+ * @param coordX
+ * @param coordY
+ * @param playerMovementPoints
+ */
+async function placeWorkerOnAnthillHole(tileId, coordX, coordY, playerMovementPoints) {
+    queue.push(actions.PLACE_ANT(tileId))
+    antPosition.x = coordX
+    antPosition.y = coordY
+    movementPoints = playerMovementPoints
+    await refreshMainBoard()
+}
 
 /**
  * calculateNewCoordinateWithSelectedMovement: modify the coord object depending on the selected direction, and return
@@ -243,6 +242,49 @@ async function managePheromoneCleanedTiles() {
 }
 
 /**
+ * refreshMainBoard : refresh the main board based on the state of the worker phase
+ * @returns {Promise<void>}
+ */
+async function refreshMainBoard() {
+    const cleanedTilesString = getCleanedTilesString()
+    const response = await fetch(url + "/workerPhase/mainBoard/" + antPosition.x + "/"
+    + antPosition.y + "/" + movementPoints + "/" + cleanedTilesString);
+    if (response.status === 200) {
+        document.getElementById('mainBoard').innerHTML = await response.text();
+    }
+}
+
+/**
+ * displayBoardBoxActions : display the board box actions based on the state of the tile given during worker phase
+ * @param tileId
+ * @returns {Promise<void>}
+ */
+async function displayBoardBoxActions(tileId) {
+    const cleanedTilesString = getCleanedTilesString()
+    const response = await fetch(url + "/workerPhase/displayBoardBoxActions/"
+    + antPosition.x + "/" + antPosition.y + "/" + movementPoints + "/" + tileId + "/" + cleanedTilesString);
+    if (response.status === 200) {
+        closeSelectedBoxWindow();
+        let placeholder = document.createElement("div");
+        placeholder.innerHTML = await response.text();
+        const node = placeholder.firstElementChild;
+        document.getElementById('index_myrmes').appendChild(node);
+    }
+}
+
+/**
+ * getCleanedTilesString : format the cleaned tiles array to fetch route
+ * @returns {string}
+ */
+function getCleanedTilesString() {
+    return "[" + cleanedTiles.map(
+        function ({x, y}) {
+            return x + "_" + y
+        }
+    ).join(" ") + "]"
+}
+
+/**
  * directionByAction: take an action and return a direction if action was a movement else return null
  * @param action
  * @returns {number|null}
@@ -272,26 +314,32 @@ function directionByAction(action) {
  * @returns {Promise<void>}
  */
 async function rewindQueueWorkerPhase(queue) {
+    alert("test")
     while (!queue.isEmpty()) {
         const action = queue.shift();
         let routeUrl = url;
-        switch (action) {
-            case action.startsWith('MOVE'):
-                const dir = directionByAction(action);
-                routeUrl += '/moveAnt/' + antId + '/direction/' + dir;
-                await fetch(routeUrl);
-                break
-            case actions.CLEAN_PHEROMONE:
-                const pheromoneCoord = cleanedTiles.shift();
-                routeUrl += '/moveAnt/clean/pheromone/' + pheromoneCoord.x + '/' + pheromoneCoord.y;
-                await fetch(routeUrl);
-                break
-            case actions.PLACE_ANT:
-                routeUrl += '/placeWorkerOnAntHillHole/' + action.split('_').pop();
-                await fetch(routeUrl);
-                break
-            default:
-                break
+        if (action.startsWith('MOVE')) {
+            const dir = directionByAction(action);
+            routeUrl += '/moveAnt/direction/' + dir;
+            await fetch(routeUrl);
+        } else if (action.startsWith('HOLE')) {
+            alert("test2")
+            routeUrl += '/placeWorkerOnAntHillHole/' + action.split('_').pop();
+            await fetch(routeUrl);
+        } else {
+            const pheromoneCoord = cleanedTiles.shift();
+            routeUrl += '/moveAnt/clean/pheromone/' + pheromoneCoord.x + '/' + pheromoneCoord.y;
+            await fetch(routeUrl);
         }
+    }
+}
+
+async function canPlacePheromone(type, orientation, tileId) {
+    const cleanedTilesString = getCleanedTilesString()
+    const response = await fetch(url + "/canPlace/pheromone/" + antPosition.x
+    + "/" + antPosition.y + "/" + type + "/" + orientation + "/" + cleanedTilesString);
+    if (response.status === 200 && await response.text() === "1") {
+        await rewindQueueWorkerPhase(queue)
+        await fetch(url + "/placePheromone/" + tileId + "/" + type + "/" + orientation);
     }
 }

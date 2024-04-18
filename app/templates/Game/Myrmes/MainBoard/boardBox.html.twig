@@ -8,7 +8,7 @@
 {% set shift = "ml-[1.90vw]" %}
 
 {# Utilization of hex.css to display an hexagon with the background color of the box type #}
-<div id="{{ boardBox.tile.id }}" class="relative hex invisible bg-{{ color }} border-b-{{ color }} border-t-{{ color }}
+<div id="{{ boardBox.tile.id }}" class=" {{ boardBox.coordX }} relative hex invisible bg-{{ color }} border-b-{{ color }} border-t-{{ color }}
     {# Display the cursor in a pointer if the player need to play, so he can click on the box #}
     {% if not isActionable and needToPlay %}
         cursor-pointer
@@ -58,24 +58,31 @@
                                 })
                             })
                         }}
-                    {% elseif sendingWorkerOnGarden and playerPhase == PHASE_WORKER %}
+                    {% elseif sendingWorkerOnGarden and playerPhase == PHASE_WORKER and boardBox.anthillHole != null %}
                         {{ stimulus_action('myrmes', 'placeWorkerOnAntHillHole','click',
-                            {url: path('app_game_myrmes_place_worker_anthillhole',
                                 {
-                                    gameId: game.id,
+                                    tileId: boardBox.tile.id,
+                                    coordX: boardBox.tile.coordX,
+                                    coordY: boardBox.tile.coordY,
+                                    movementPoints: boardBox.movementPoints
+                                }
+                            )
+                        }}
+                    {% elseif playerPhase == PHASE_WORKER %}
+                        {{ stimulus_action('myrmes','displayBoxActionsWorkerPhase','click',
+                            {
+                                tileId: boardBox.tile.id
+                            })
+                        }}
+                    {% else %}
+                        {{ stimulus_action('myrmes','displayBoxActions','click',
+                            {url:path('app_game_myrmes_display_main_board_box_actions',
+                                {
+                                    id: game.id,
                                     tileId: boardBox.tile.id
                                 })
                             })
                         }}
-                    {% else %}
-                    {{ stimulus_action('myrmes','displayBoxActions','click',
-                        {url:path('app_game_myrmes_display_main_board_box_actions',
-                            {
-                                id: game.id,
-                                tileId: boardBox.tile.id
-                            })
-                        })
-                    }}
                     {% endif %}
             >
             </polygon>

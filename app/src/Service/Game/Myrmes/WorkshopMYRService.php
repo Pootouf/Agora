@@ -68,22 +68,6 @@ class WorkshopMYRService
     }
 
     /**
-     * canSetPhaseToWorkshop : before entering workshop phase, check if the player has nurses in workshop area
-     * @param PlayerMYR $playerMYR
-     * @return bool
-     */
-    public function canSetPhaseToWorkshop(PlayerMYR $playerMYR): bool
-    {
-        $personalBoard = $playerMYR->getPersonalBoardMYR();
-        foreach($personalBoard->getNurses() as $nurse) {
-            if($nurse->getArea() == MyrmesParameters::WORKSHOP_AREA) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
      * getAnthillHoleFromTile : return the anthill hole if it exists on the given tile from the given game
      * @param TileMYR $tile
      * @param GameMYR $game
@@ -275,6 +259,9 @@ class WorkshopMYRService
      */
     public function manageWorkshop(PlayerMYR $player, int $workshop, TileMYR $tile = null): void
     {
+        if ($player->getGameMyr()->getGamePhase() != MyrmesParameters::PHASE_WORKSHOP) {
+            throw new Exception("Not in phase workshop, can't do the craft");
+        }
         if (!$this->canChooseThisBonus($player, $workshop)) {
             throw new Exception("player can not choose this bonus");
         }
@@ -302,20 +289,6 @@ class WorkshopMYRService
         }
         $player->getWorkshopActions()[$workshop] = 1;
         $this->entityManager->flush();
-    }
-
-    /**
-     * manageEndOfWorkshop : end the workshop round
-     * @param GameMYR $gameMYR
-     * @return void
-     * @throws Exception
-     */
-    public function manageEndOfWorkshop(GameMYR $gameMYR): void
-    {
-        if(!$this->MYRService->canManageEndOfPhase($gameMYR, MyrmesParameters::PHASE_WORKSHOP)) {
-            throw new Exception("All members have not played yet");
-        }
-        $this->MYRService->manageEndOfRound($gameMYR);
     }
 
     /**

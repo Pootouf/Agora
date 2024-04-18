@@ -69,7 +69,7 @@ This section displays the personal board of a player
             {#nurse counter#}
             <div class="w-full" id="nurses">
                 <p class="{% if isPreview %}text_mini {% else %} text1-4 {% endif %}">
-                    Nourrices : {{ player.personalBoardMYR.nurses.count }}</p>
+                    Nourrices : {{ nursesOnBaseArea }}</p>
             </div>
             {#event track#}
             {{ include('Game/Myrmes/PersonalBoard/displayEventTrack.html.twig') }}
