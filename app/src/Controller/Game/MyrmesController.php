@@ -2,6 +2,7 @@
 
 namespace App\Controller\Game;
 
+use App\Entity\Game\DTO\GameTranslation;
 use App\Entity\Game\DTO\Myrmes\BoardBoxMYR;
 use App\Entity\Game\DTO\Myrmes\BoardTileMYR;
 use App\Entity\Game\Myrmes\GameMYR;
@@ -47,8 +48,9 @@ class MyrmesController extends AbstractController
     #[Route('/game/myrmes/{id}', name: 'app_game_show_myr')]
     public function showGame(GameMYR $game): Response
     {
-        if ($game->isPaused() || !$game->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
 
         $boardBoxes = null;
@@ -126,8 +128,9 @@ class MyrmesController extends AbstractController
     public function showPersonalBoard(
         #[MapEntity(id: 'id')] GameMYR $game): Response
     {
-        if ($game->isPaused() || !$game->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
 
         return $this->render('/Game/Myrmes/PersonalBoard/personalBoard.html.twig', [
@@ -170,21 +173,22 @@ class MyrmesController extends AbstractController
     #[Route('/game/myrmes/{idGame}/displayPersonalBoard/{idPlayer}',
         name: 'app_game_myrmes_display_player_personal_board')]
     public function showPlayerPersonalBoard(
-        #[MapEntity(id: 'idGame')] GameMYR $gameMYR,
+        #[MapEntity(id: 'idGame')] GameMYR     $game,
         #[MapEntity(id: 'idPlayer')] PlayerMYR $playerMYR): Response
     {
-        if ($gameMYR->isPaused() || !$gameMYR->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
         return $this->render('Game/Myrmes/PersonalBoard/playerPersonalBoard.html.twig',
             [
-                'game' => $gameMYR,
+                'game' => $game,
                 'player' => $playerMYR,
                 'preys' => $playerMYR->getPreyMYRs(),
                 'isPreview' => false,
                 'isSpectator' => true,
                 'isAnotherPlayerBoard' => true,
                 'playerPhase' => $playerMYR->getPhase(),
-                'actualSeason' => $this->service->getActualSeason($gameMYR),
+                'actualSeason' => $this->service->getActualSeason($game),
                 'availableLarvae' => $this->service->getAvailableLarvae($playerMYR),
                 'isBirthPhase' => $this->service->isInPhase($playerMYR, MyrmesParameters::PHASE_BIRTH),
                 'nursesOnLarvaeBirthTrack' => $this->service->getNursesAtPosition(
@@ -216,8 +220,9 @@ class MyrmesController extends AbstractController
         #[MapEntity(id: 'id')] GameMYR $game,
         #[MapEntity(id: 'tileId')] TileMYR $tile): Response
     {
-        if ($game->isPaused() || !$game->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
@@ -238,8 +243,9 @@ class MyrmesController extends AbstractController
         string $cleanedTiles
     ): Response
     {
-        if ($game->isPaused() || !$game->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
@@ -257,13 +263,16 @@ class MyrmesController extends AbstractController
     #[Route('/game/myrmes/{idGame}/display/objectives',
         name: 'app_game_myrmes_display_objectives')]
     public function displayObjectives(
-        #[MapEntity(id: 'idGame')] GameMYR $gameMYR): Response
+        #[MapEntity(id: 'idGame')] GameMYR $game): Response
     {
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
         return $this->render('Game/Myrmes/MainBoard/displayObjectives.html.twig', [
-            'game' => $gameMYR,
-            'goalsLevelOne' => $gameMYR->getMainBoardMYR()->getGameGoalsLevelOne(),
-            'goalsLevelTwo' => $gameMYR->getMainBoardMYR()->getGameGoalsLevelTwo(),
-            'goalsLevelThree' => $gameMYR->getMainBoardMYR()->getGameGoalsLevelThree(),
+            'game' => $game,
+            'goalsLevelOne' => $game->getMainBoardMYR()->getGameGoalsLevelOne(),
+            'goalsLevelTwo' => $game->getMainBoardMYR()->getGameGoalsLevelTwo(),
+            'goalsLevelThree' => $game->getMainBoardMYR()->getGameGoalsLevelThree(),
         ]);
     }
 
@@ -273,8 +282,9 @@ class MyrmesController extends AbstractController
         #[MapEntity(id: 'id')] GameMYR $game,
         #[MapEntity(id: 'playerResourceId')] PlayerResourceMYR $playerResourceMYR): Response
     {
-        if ($game->isPaused() || !$game->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
@@ -292,8 +302,9 @@ class MyrmesController extends AbstractController
         #[MapEntity(id: 'idGame')] GameMYR $game,
     ) : Response
     {
-        if ($game->isPaused() || !$game->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
@@ -318,8 +329,9 @@ class MyrmesController extends AbstractController
         #[MapEntity(id: 'idGame')] GameMYR $game,
     ) : Response
     {
-        if ($game->isPaused() || !$game->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
@@ -344,8 +356,9 @@ class MyrmesController extends AbstractController
         #[MapEntity(id: 'idGame')] GameMYR $game,
     ) : Response
     {
-        if ($game->isPaused() || !$game->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
@@ -370,8 +383,9 @@ class MyrmesController extends AbstractController
         int $position
     ) : Response
     {
-        if ($game->isPaused() || !$game->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('invalid player', Response::HTTP_FORBIDDEN);
@@ -401,8 +415,9 @@ class MyrmesController extends AbstractController
         #[MapEntity(id: 'gameId')] GameMYR $game
     ) : Response
     {
-        if ($game->isPaused() || !$game->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('invalid player', Response::HTTP_FORBIDDEN);
@@ -432,8 +447,9 @@ class MyrmesController extends AbstractController
         #[MapEntity(id: 'gameId')] GameMYR $game
     ) : Response
     {
-        if ($game->isPaused() || !$game->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('invalid player', Response::HTTP_FORBIDDEN);
@@ -454,8 +470,9 @@ class MyrmesController extends AbstractController
         #[MapEntity(id: 'gameId')] GameMYR $game
     ) : Response
     {
-        if ($game->isPaused() || !$game->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('invalid player', Response::HTTP_FORBIDDEN);
@@ -491,8 +508,9 @@ class MyrmesController extends AbstractController
         string $cleanedTiles
     ) : Response
     {
-        if ($game->isPaused() || !$game->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('invalid player', Response::HTTP_FORBIDDEN);
@@ -517,8 +535,9 @@ class MyrmesController extends AbstractController
         int $level
     ) : Response
     {
-        if ($game->isPaused() || !$game->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('invalid player', Response::HTTP_FORBIDDEN);
@@ -562,8 +581,9 @@ class MyrmesController extends AbstractController
         #[MapEntity(id: 'tileId')] TileMYR $tile
     ) : Response
     {
-        if ($game->isPaused() || !$game->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('invalid player', Response::HTTP_FORBIDDEN);
@@ -601,19 +621,20 @@ class MyrmesController extends AbstractController
     #[Route('/game/myrmes/{gameId}/moveAnt/neededResources/soldierNb/{coordX}/{coordY}',
         name:'app_game_myrmes_needed_soldiers_to_move')]
     public function neededSoldiersToMove(
-        #[MapEntity(id: 'gameId')] GameMYR $gameMYR,
-        int $coordX,
-        int $coordY
+        #[MapEntity(id: 'gameId')] GameMYR $game,
+        int                                $coordX,
+        int                                $coordY
     ): Response
     {
-        if ($gameMYR->isPaused() || !$gameMYR->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
-        $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('invalid player', Response::HTTP_FORBIDDEN);
         }
         try {
-            return new Response($this->workerMYRService->getNeededSoldiers($coordX, $coordY, $gameMYR, $player));
+            return new Response($this->workerMYRService->getNeededSoldiers($coordX, $coordY, $game, $player));
         } catch (Exception $e) {
             return new Response("can't get needed soldiers, invalid tile",
                 Response::HTTP_INTERNAL_SERVER_ERROR);
@@ -624,22 +645,23 @@ class MyrmesController extends AbstractController
         'originTile/{coordX1}/{coordY1}/destinationTile/{coordX2}/{coordY2}',
         name:'app_game_myrmes_needed_movement_points_to_move')]
     public function neededMovementPoints(
-        #[MapEntity(id: 'gameId')] GameMYR $gameMYR,
-        int $coordX1,
-        int $coordY1,
-        int $coordX2,
-        int $coordY2
+        #[MapEntity(id: 'gameId')] GameMYR $game,
+        int                                $coordX1,
+        int                                $coordY1,
+        int                                $coordX2,
+        int                                $coordY2
     ): Response
     {
-        if ($gameMYR->isPaused() || !$gameMYR->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
-        $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('invalid player', Response::HTTP_FORBIDDEN);
         }
         try {
             return new Response($this->workerMYRService
-                ->getNeededMovementPoints($coordX1, $coordY1, $coordX2, $coordY2, $gameMYR, $player));
+                ->getNeededMovementPoints($coordX1, $coordY1, $coordX2, $coordY2, $game, $player));
         } catch (Exception $e) {
             return new Response("can't get needed movement points, invalid tile",
                 Response::HTTP_INTERNAL_SERVER_ERROR);
@@ -649,14 +671,15 @@ class MyrmesController extends AbstractController
     #[Route('/game/myrmes/{gameId}/moveAnt/isValid/tile/{coordX}/{coordY}',
         name:'app_game_myrmes_is_valid_tile_to_move')]
     public function isValidTileToMoveAnt(
-        #[MapEntity(id: 'gameId')] GameMYR $gameMYR,
-        int $coordX,
-        int $coordY
+        #[MapEntity(id: 'gameId')] GameMYR $game,
+        int                                $coordX,
+        int                                $coordY
     ): Response
     {
-        if ($gameMYR->isPaused() || !$gameMYR->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
-        $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('invalid player', Response::HTTP_FORBIDDEN);
         }
@@ -672,20 +695,21 @@ class MyrmesController extends AbstractController
     #[Route('/game/myrmes/{gameId}/moveAnt/canClean/pheromone/{coordX}/{coordY}/{playerDirtQuantity}',
         name:'app_game_myrmes_can_clean_pheromone')]
     public function canCleanPheromone(
-        #[MapEntity(id: 'gameId')] GameMYR $gameMYR,
-        int $coordX,
-        int $coordY,
-        int $playerDirtQuantity
+        #[MapEntity(id: 'gameId')] GameMYR $game,
+        int                                $coordX,
+        int                                $coordY,
+        int                                $playerDirtQuantity
     ): Response
     {
-        if ($gameMYR->isPaused() || !$gameMYR->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
-        $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('invalid player', Response::HTTP_FORBIDDEN);
         }
         $tile = $this->workerMYRService->getTileFromCoordinates($coordX, $coordY);
-        $pheromone = $this->workerMYRService->getPheromoneFromTile($gameMYR, $tile);
+        $pheromone = $this->workerMYRService->getPheromoneFromTile($game, $tile);
         if($tile != null) {
             return new Response($this->workerMYRService->canCleanPheromone($pheromone, $playerDirtQuantity));
         } else {
@@ -697,17 +721,18 @@ class MyrmesController extends AbstractController
     #[Route('/game/myrmes/{gameId}/canPlace/pheromone/{coordX}/{coordY}/{tileType}/{orientation}/{cleanedTiles}',
         name:'app_game_myrmes_can_place_pheromone')]
     public function canPlacePheromone(
-        #[MapEntity(id: 'gameId')] GameMYR $gameMYR,
-        int $coordX,
-        int $coordY,
-        int $tileType,
-        int $orientation,
-        string $cleanedTiles
+        #[MapEntity(id: 'gameId')] GameMYR $game,
+        int                                $coordX,
+        int                                $coordY,
+        int                                $tileType,
+        int                                $orientation,
+        string                             $cleanedTiles
     ): Response
     {
-        if ($gameMYR->isPaused() || !$gameMYR->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
-        $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('invalid player', Response::HTTP_FORBIDDEN);
         }
@@ -728,14 +753,15 @@ class MyrmesController extends AbstractController
     #[Route('/game/myrmes/{gameId}/moveAnt/clean/pheromone/{coordX}/{coordY}',
         name:'app_game_myrmes_clean_pheromone')]
     public function cleanPheromone(
-        #[MapEntity(id: 'gameId')] GameMYR $gameMYR,
-        int $coordX,
-        int $coordY
+        #[MapEntity(id: 'gameId')] GameMYR $game,
+        int                                $coordX,
+        int                                $coordY
     ): Response
     {
-        if ($gameMYR->isPaused() || !$gameMYR->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
-        $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('invalid player', Response::HTTP_FORBIDDEN);
         }
@@ -744,7 +770,7 @@ class MyrmesController extends AbstractController
         }
 
         $tile = $this->workerMYRService->getTileFromCoordinates($coordX, $coordY);
-        $pheromone = $this->workerMYRService->getPheromoneFromTile($gameMYR, $tile);
+        $pheromone = $this->workerMYRService->getPheromoneFromTile($game, $tile);
         if($tile == null) {
             return new Response("invalid tile",
                 Response::HTTP_INTERNAL_SERVER_ERROR);
@@ -768,19 +794,20 @@ class MyrmesController extends AbstractController
     #[Route('/game/myrmes/{gameId}/moveAnt/getPheromoneTiles/coords/givenTile/{coordX}/{coordY}',
         name:'app_game_myrmes_get_pheromone_tiles_coords')]
     public function getPheromoneTilesCoords(
-        #[MapEntity(id: 'gameId')] GameMYR $gameMYR,
-        int $coordX,
-        int $coordY
+        #[MapEntity(id: 'gameId')] GameMYR $game,
+        int                                $coordX,
+        int                                $coordY
     ): Response
     {
-        if ($gameMYR->isPaused() || !$gameMYR->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
-        $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('invalid player', Response::HTTP_FORBIDDEN);
         }
         $tile = $this->workerMYRService->getTileFromCoordinates($coordX, $coordY);
-        $pheromone = $this->workerMYRService->getPheromoneFromTile($gameMYR, $tile);
+        $pheromone = $this->workerMYRService->getPheromoneFromTile($game, $tile);
 
         if($tile != null) {
             return new Response($this->workerMYRService->getStringCoordsOfPheromoneTiles($pheromone));
@@ -792,14 +819,15 @@ class MyrmesController extends AbstractController
 
     #[Route('/game/myrmes/{gameId}/moveAnt/direction/{direction}', name:'app_game_myrmes_move_ant')]
     public function moveAnt(
-        #[MapEntity(id: 'gameId')] GameMYR $gameMYR,
-        int $direction
+        #[MapEntity(id: 'gameId')] GameMYR $game,
+        int                                $direction
 
     ): Response
     {
-        if ($gameMYR->isPaused() || !$gameMYR->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
-        $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('invalid player', Response::HTTP_FORBIDDEN);
         }
@@ -819,12 +847,12 @@ class MyrmesController extends AbstractController
                 . " a essayé de déplacer la fourmi dans la direction "
                 . $direction
                 . " mais n'a pas pu.";
-            $this->logService->sendPlayerLog($gameMYR, $player, $message);
+            $this->logService->sendPlayerLog($game, $player, $message);
             return new Response('failed to move ant in this direction', Response::HTTP_FORBIDDEN);
         }
 
         $message = $player->getUsername() . " a déplacé la fourmi ". $ant->getId() . "dans la direction " . $direction;
-        $this->logService->sendPlayerLog($gameMYR, $player, $message);
+        $this->logService->sendPlayerLog($game, $player, $message);
         return new Response("moved ant in this direction", Response::HTTP_OK);
     }
 
@@ -834,8 +862,9 @@ class MyrmesController extends AbstractController
         #[MapEntity(id: 'tileId')] TileMYR $tileMYR
     ): Response
     {
-        if ($game->isPaused() || !$game->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('invalid player', Response::HTTP_FORBIDDEN);
@@ -865,8 +894,9 @@ class MyrmesController extends AbstractController
         #[MapEntity(id: 'gameId')] GameMYR $game
     ): Response
     {
-        if ($game->isPaused() || !$game->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('invalid player', Response::HTTP_FORBIDDEN);
@@ -886,7 +916,7 @@ class MyrmesController extends AbstractController
 
         if($this->service->canOnePlayerDoWorkshopPhase($game)) {
             $this->service->setPhase($player, MyrmesParameters::PHASE_WORKSHOP);
-        } else if($this->winterMYRService->canSetPhaseToWinter($game)) {
+        } elseif($this->winterMYRService->canSetPhaseToWinter($game)) {
                 $this->service->setPhase($player, MyrmesParameters::PHASE_WINTER);
         } else {
             $this->service->setPhase($player, MyrmesParameters::PHASE_EVENT);
@@ -904,8 +934,9 @@ class MyrmesController extends AbstractController
         #[MapEntity(id: 'gameId')] GameMYR $game
     ): Response
     {
-        if ($game->isPaused() || !$game->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('invalid player', Response::HTTP_FORBIDDEN);
@@ -931,8 +962,9 @@ class MyrmesController extends AbstractController
         #[MapEntity(id: 'tileId')] TileMYR $tileMYR
     ): Response
     {
-        if ($game->isPaused() || !$game->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('invalid player', Response::HTTP_FORBIDDEN);
@@ -964,8 +996,9 @@ class MyrmesController extends AbstractController
         #[MapEntity(id: 'gameId')] GameMYR $game
     ) : Response
     {
-        if ($game->isPaused() || !$game->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('invalid player', Response::HTTP_FORBIDDEN);
@@ -992,8 +1025,9 @@ class MyrmesController extends AbstractController
         #[MapEntity(id: 'gameId')] GameMYR $game
     ) : Response
     {
-        if ($game->isPaused() || !$game->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('invalid player', Response::HTTP_FORBIDDEN);
@@ -1018,10 +1052,11 @@ class MyrmesController extends AbstractController
     #[Route('/Game/{gameId}/confirmWorkshopActions', name: 'app_game_myrmes_confirm_workshop_actions')]
     public function confirmWorkshopActions(
         #[MapEntity(id: 'gameId')] GameMYR $game
-    )
+    ) : Response
     {
-        if ($game->isPaused() || !$game->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('invalid player', Response::HTTP_FORBIDDEN);
@@ -1068,8 +1103,9 @@ class MyrmesController extends AbstractController
         #[MapEntity(id: 'playerResourceId')] PlayerResourceMYR $playerResourceMYR
     ): Response
     {
-        if ($game->isPaused() || !$game->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('invalid player', Response::HTTP_FORBIDDEN);
@@ -1118,17 +1154,20 @@ class MyrmesController extends AbstractController
 
     #[Route('/game/myrmes/{idGame}/displayPersonalObjectToPlace/{tileId}', name: 'app_game_myrmes_display_personal_object_to_place')]
     public function displayPersonalObjectToPlace(
-        #[MapEntity(id: 'idGame')] GameMYR $gameMYR,
+        #[MapEntity(id: 'idGame')] GameMYR $game,
         #[MapEntity(id: 'tileId')] TileMYR $tileMYR
     ) : Response
     {
-        $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
         }
 
         return $this->render('Game/Myrmes/MainBoard/displayObjectPlacement.html.twig', [
-            'game' => $gameMYR,
+            'game' => $game,
             'player' => $player,
             'tile' => $tileMYR,
             'tiles' => $this->workerMYRService->getAvailablePheromones($player)
@@ -1138,13 +1177,16 @@ class MyrmesController extends AbstractController
     #[Route('/game/myrmes/{idGame}/displayMainBoardTilePositionPossibilities/{tileId}/{tileType}/{orientation}',
         name: 'app_game_myrmes_display_mainBoard_tile_position_possibilities')]
     public function displayMainBoardTilePositionPossibilities(
-        #[MapEntity(id: 'idGame')] GameMYR $gameMYR,
-        #[MapEntity(id: 'tileId')] TileMYR $tileMYR,
-        #[MapEntity(id: 'tileType')] int $tileType,
+        #[MapEntity(id: 'idGame')] GameMYR  $game,
+        #[MapEntity(id: 'tileId')] TileMYR  $tileMYR,
+        #[MapEntity(id: 'tileType')] int    $tileType,
         #[MapEntity(id: 'orientation')] int $orientation,
     ) : Response
     {
-        $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
         }
@@ -1193,8 +1235,9 @@ class MyrmesController extends AbstractController
         #[MapEntity(id: 'orientation')] int $orientation,
     ) : Response
     {
-        if ($game->isPaused() || !$game->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response('Invalid player', Response::HTTP_FORBIDDEN);
