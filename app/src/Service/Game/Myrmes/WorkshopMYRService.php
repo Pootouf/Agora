@@ -86,7 +86,7 @@ class WorkshopMYRService
      * canPlayerDoGoal: return true if the player can do the selected goal.
      *                  If the pheromone goal is selected, always true
      * @param PlayerMYR $player
-     * @param GameGoalMYR $goal
+     * @param GameGoalMYR $gameGoal
      * @return bool
      * @throws Exception
      */
@@ -693,7 +693,7 @@ class WorkshopMYRService
         return match ($goalDifficulty) {
             MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE =>
                 $player->getPersonalBoardMYR()->getLarvaCount() >=
-                MyrmesParameters::GOAL_NEEDED_RESOURCES_LARVAE_LEVEL_TWO,
+                MyrmesParameters::GOAL_NEEDED_RESOURCES_LARVAE_LEVEL_ONE,
             MyrmesParameters::GOAL_DIFFICULTY_LEVEL_TWO =>
                 $player->getPersonalBoardMYR()->getLarvaCount() >=
                 MyrmesParameters::GOAL_NEEDED_RESOURCES_LARVAE_LEVEL_TWO,
@@ -811,16 +811,28 @@ class WorkshopMYRService
      * getNumberOfResourcesFromSelectedType: return the number of resources of the player from the selected type
      * @param PlayerMYR $player
      * @param string $selectedType
-     * @return PlayerResourceMYR
+     * @return PlayerResourceMYR|null
      */
-    private function getPlayerResourcesFromSelectedType(PlayerMYR $player, string $selectedType) : PlayerResourceMYR
+    private function getPlayerResourcesFromSelectedType(PlayerMYR $player, string $selectedType) : ?PlayerResourceMYR
     {
-        return $player->getPersonalBoardMYR()->getPlayerResourceMYRs()
-            ->filter(
-                function (PlayerResourceMYR $resourceMYR) use ($selectedType) {
-                    return $resourceMYR->getResource()->getDescription() == $selectedType;
-                }
-            )->first();
+        echo $player->getPersonalBoardMYR()->getPlayerResourceMYRs()->count();
+        foreach ($player->getPersonalBoardMYR()->getPlayerResourceMYRs() as $pResource) {
+            $resourceMYR = $pResource->getResource();
+            echo $resourceMYR->getDescription();
+            echo $pResource->getQuantity();
+        }
+        $personalBoard = $player->getPersonalBoardMYR();
+        $playerResources = $personalBoard->getPlayerResourceMYRs();
+        foreach ($playerResources as $pResource) {
+            $resourceMYR = $pResource->getResource();
+            echo $resourceMYR->getDescription();
+            if ($resourceMYR->getDescription() == $selectedType)
+            {
+                return $pResource;
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -1106,12 +1118,14 @@ class WorkshopMYRService
         }
         switch($goal->getDifficulty()) {
             case MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE :
-                if ($specialTiles->count() != MyrmesParameters::GOAL_NEEDED_RESOURCES_REMOVED_SPECIAL_TILE_LEVEL_ONE)  {
+                if ($specialTiles->count()
+                    != MyrmesParameters::GOAL_NEEDED_RESOURCES_REMOVED_SPECIAL_TILE_LEVEL_ONE)  {
                     throw new Exception("Invalid number of special tiles to do goal");
                 }
                 break;
             case MyrmesParameters::GOAL_DIFFICULTY_LEVEL_TWO :
-                if ($specialTiles->count() != MyrmesParameters::GOAL_NEEDED_RESOURCES_REMOVED_SPECIAL_TILE_LEVEL_TWO)  {
+                if ($specialTiles->count()
+                    != MyrmesParameters::GOAL_NEEDED_RESOURCES_REMOVED_SPECIAL_TILE_LEVEL_TWO)  {
                     throw new Exception("Invalid number of special tiles to do goal");
                 }
                 break;
@@ -1214,18 +1228,23 @@ class WorkshopMYRService
             if (!$gameGoal->getGoalAlreadyDone()->contains($previousPlayer)) {
                 $previousPlayer->setScore(
                     $previousPlayer->getScore()
-                    + MyrmesParameters::SCORE_INCREASE_GOAL_ALREADY_DONE[$game->getPlayers()->count()]
+                    + MyrmesParameters::SCORE_INCREASE_GOAL_ALREADY_DONE[
+                        $game->getPlayers()->count()
+                    ]
                 );
                 $this->entityManager->persist($previousPlayer);
             }
         }
         match ($gameGoal->getGoal()->getDifficulty()) {
             MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE =>
-                $player->setScore($player->getScore() + MyrmesParameters::SCORE_INCREASE_GOAL_DIFFICULTY_ONE),
+                $player->setScore($player->getScore()
+                    + MyrmesParameters::SCORE_INCREASE_GOAL_DIFFICULTY_ONE),
             MyrmesParameters::GOAL_DIFFICULTY_LEVEL_TWO =>
-                $player->setScore($player->getScore() + MyrmesParameters::SCORE_INCREASE_GOAL_DIFFICULTY_TWO),
+                $player->setScore($player->getScore()
+                    + MyrmesParameters::SCORE_INCREASE_GOAL_DIFFICULTY_TWO),
             MyrmesParameters::GOAL_DIFFICULTY_LEVEL_THREE =>
-                $player->setScore($player->getScore() + MyrmesParameters::SCORE_INCREASE_GOAL_DIFFICULTY_THREE),
+                $player->setScore($player->getScore()
+                    + MyrmesParameters::SCORE_INCREASE_GOAL_DIFFICULTY_THREE),
         };
         $this->entityManager->persist($player);
 
@@ -1387,7 +1406,7 @@ class WorkshopMYRService
      * @param mixed $object
      * @return void
      */
-    private function addInCollectionOnlyIfDistinct(Collection $collection, mixed $object)
+    private function addInCollectionOnlyIfDistinct(Collection $collection, mixed $object): void
     {
         if ($object !== null && !$collection->contains($object)) {
             $collection->add($object);
@@ -1422,8 +1441,13 @@ class WorkshopMYRService
      */
     private function hasPlayerAlreadyDoneSelectedGoal(PlayerMYR $player, GameGoalMYR $gameGoal) : bool
     {
-        return $gameGoal->getPrecedentsPlayers()->forAll(function (PlayerMYR $previousPlayer) use ($player) {
-           return $previousPlayer !== $player;
-        });
+        foreach ($gameGoal->getPrecedentsPlayers() as $previousPlayer)
+        {
+            if ($previousPlayer === $player) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
