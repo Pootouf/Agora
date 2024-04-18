@@ -88,35 +88,12 @@ class WorkshopMYRServiceTest extends TestCase
             $playerResourceMYRRepository, $this->nurseMYRRepository, $this->anthillHoleMYRRepository);
     }
 
-    public function testCanSetPhaseToWorkshopReturnTrueIfPlayerHasNursesInWorkshop(): void
-    {
-        //GIVEN
-        $game = $this->createGame(2);
-        $player = $game->getPlayers()->first();
-        //WHEN
-        $result = $this->workshopMYRService->canOnePlayerDoWorkshopPhase($player);
-        //THEN
-        $this->assertTrue($result);
-    }
-
-    public function testCanSetPhaseToWorkshopReturnFalseIfPlayerHasNoNursesInWorkshop(): void
-    {
-        //GIVEN
-        $game = $this->createGame(2);
-        $player = $game->getPlayers()->first();
-        $nurse = $player->getPersonalBoardMYR()->getNurses()->first();
-        $nurse->setArea(MyrmesParameters::LARVAE_AREA);
-        //WHEN
-        $result = $this->workshopMYRService->canOnePlayerDoWorkshopPhase($player);
-        //THEN
-        $this->assertFalse($result);
-    }
-
     public function testGiveBonusWhenAskIncreaseLevelWhenCanIncrease() : void
     {
         // GIVEN
 
         $game = $this->createGame(2);
+        $game->setGamePhase(MyrmesParameters::PHASE_WORKSHOP);
 
         foreach ($game->getPlayers() as $p)
         {
@@ -159,7 +136,7 @@ class WorkshopMYRServiceTest extends TestCase
         // GIVEN
 
         $game = $this->createGame(2);
-
+        $game->setGamePhase(MyrmesParameters::PHASE_WORKSHOP);
         foreach ($game->getPlayers() as $p)
         {
             $p->setPhase(MyrmesParameters::PHASE_WORKSHOP);
@@ -191,6 +168,7 @@ class WorkshopMYRServiceTest extends TestCase
         // GIVEN
 
         $game = $this->createGame(2);
+        $game->setGamePhase(MyrmesParameters::PHASE_WORKSHOP);
         $action = MyrmesParameters::WORKSHOP_LEVEL_AREA;
 
         foreach ($game->getPlayers() as $player)
@@ -225,7 +203,7 @@ class WorkshopMYRServiceTest extends TestCase
         // GIVEN
 
         $game = $this->createGame(2);
-
+        $game->setGamePhase(MyrmesParameters::PHASE_WORKSHOP);
         foreach ($game->getPlayers() as $p)
         {
             $p->setPhase(MyrmesParameters::PHASE_WORKSHOP);
@@ -260,7 +238,7 @@ class WorkshopMYRServiceTest extends TestCase
         // GIVEN
 
         $game = $this->createGame(2);
-
+        $game->setGamePhase(MyrmesParameters::PHASE_WORKSHOP);
         foreach ($game->getPlayers() as $p)
         {
             $p->setPhase(MyrmesParameters::PHASE_WORKSHOP);
@@ -295,7 +273,7 @@ class WorkshopMYRServiceTest extends TestCase
         // GIVEN
 
         $game = $this->createGame(2);
-
+        $game->setGamePhase(MyrmesParameters::PHASE_WORKSHOP);
         foreach ($game->getPlayers() as $p)
         {
             $p->setPhase(MyrmesParameters::PHASE_WORKSHOP);
@@ -331,7 +309,7 @@ class WorkshopMYRServiceTest extends TestCase
         // GIVEN
 
         $game = $this->createGame(2);
-
+        $game->setGamePhase(MyrmesParameters::PHASE_WORKSHOP);
         foreach ($game->getPlayers() as $p)
         {
             $p->setPhase(MyrmesParameters::PHASE_WORKSHOP);
@@ -365,7 +343,7 @@ class WorkshopMYRServiceTest extends TestCase
         // GIVEN
 
         $game = $this->createGame(2);
-
+        $game->setGamePhase(MyrmesParameters::PHASE_INVALID);
         foreach ($game->getPlayers() as $p)
         {
             $p->setPhase(MyrmesParameters::PHASE_INVALID);
@@ -398,7 +376,7 @@ class WorkshopMYRServiceTest extends TestCase
         // GIVEN
 
         $game = $this->createGame(2);
-
+        $game->setGamePhase(MyrmesParameters::PHASE_WORKSHOP);
         foreach ($game->getPlayers() as $p)
         {
             $p->setPhase(MyrmesParameters::PHASE_WORKSHOP);

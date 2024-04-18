@@ -55,9 +55,11 @@ class WorkshopMYRServiceTest extends KernelTestCase
     {
         //GIVEN
         $game = $this->createGame(2);
+        $game->setGamePhase(MyrmesParameters::PHASE_WORKSHOP);
         $player = $game->getPlayers()->first();
         $player->setPhase(MyrmesParameters::PHASE_HARVEST);
         $this->entityManager->persist($player);
+        $this->entityManager->persist($game);
         $this->entityManager->flush();
         //THEN
         $this->expectException(\Exception::class);
@@ -69,9 +71,11 @@ class WorkshopMYRServiceTest extends KernelTestCase
     {
         //GIVEN
         $game = $this->createGame(2);
+        $game->setGamePhase(MyrmesParameters::PHASE_WORKSHOP);
         $player = $game->getPlayers()->first();
         $player->setPhase(MyrmesParameters::PHASE_WORKSHOP);
         $this->entityManager->persist($player);
+        $this->entityManager->persist($game);
         $this->entityManager->flush();
         //THEN
         $this->expectException(\Exception::class);
@@ -83,6 +87,7 @@ class WorkshopMYRServiceTest extends KernelTestCase
     {
         //GIVEN
         $game = $this->createGame(2);
+        $game->setGamePhase(MyrmesParameters::PHASE_WORKSHOP);
         $player = $game->getPlayers()->first();
         $player->setPhase(MyrmesParameters::PHASE_WORKSHOP);
         $nurse = $player->getPersonalBoardMYR()->getNurses()->first();
@@ -99,6 +104,7 @@ class WorkshopMYRServiceTest extends KernelTestCase
         }
         $this->entityManager->persist($nurse);
         $this->entityManager->persist($player);
+        $this->entityManager->persist($game);
         $this->entityManager->flush();
         //THEN
         $this->expectException(\Exception::class);
@@ -111,6 +117,7 @@ class WorkshopMYRServiceTest extends KernelTestCase
     {
         //GIVEN
         $game = $this->createGame(2);
+        $game->setGamePhase(MyrmesParameters::PHASE_WORKSHOP);
         $player = $game->getPlayers()->first();
         $player->setPhase(MyrmesParameters::PHASE_WORKSHOP);
         $nurse = $player->getPersonalBoardMYR()->getNurses()->first();
@@ -118,6 +125,7 @@ class WorkshopMYRServiceTest extends KernelTestCase
         $tile = $this->tileMYRRepository->findOneBy(["coord_X" => 10, "coord_Y" => 11]);
         $this->entityManager->persist($nurse);
         $this->entityManager->persist($player);
+        $this->entityManager->persist($game);
         $this->entityManager->flush();
         //THEN
         $this->expectException(\Exception::class);
@@ -130,6 +138,7 @@ class WorkshopMYRServiceTest extends KernelTestCase
     {
         //GIVEN
         $game = $this->createGame(2);
+        $game->setGamePhase(MyrmesParameters::PHASE_WORKSHOP);
         $player = $game->getPlayers()->first();
         $player->setPhase(MyrmesParameters::PHASE_WORKSHOP);
         $nurse = $player->getPersonalBoardMYR()->getNurses()->first();
@@ -152,6 +161,7 @@ class WorkshopMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($pheromone);
         $this->entityManager->persist($nurse);
         $this->entityManager->persist($player);
+        $this->entityManager->persist($game);
         $this->entityManager->flush();
         //THEN
         $this->expectException(\Exception::class);
@@ -164,6 +174,7 @@ class WorkshopMYRServiceTest extends KernelTestCase
     {
         //GIVEN
         $game = $this->createGame(2);
+        $game->setGamePhase(MyrmesParameters::PHASE_WORKSHOP);
         $player = $game->getPlayers()->first();
         $player->setPhase(MyrmesParameters::PHASE_WORKSHOP);
         $nurse = $player->getPersonalBoardMYR()->getNurses()->first();
@@ -178,6 +189,7 @@ class WorkshopMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($anthillHole);
         $this->entityManager->persist($nurse);
         $this->entityManager->persist($player);
+        $this->entityManager->persist($game);
         $this->entityManager->flush();
         //THEN
         $this->expectException(\Exception::class);
@@ -190,6 +202,7 @@ class WorkshopMYRServiceTest extends KernelTestCase
     {
         //GIVEN
         $game = $this->createGame(2);
+        $game->setGamePhase(MyrmesParameters::PHASE_WORKSHOP);
         $player = $game->getPlayers()->first();
         $player->setPhase(MyrmesParameters::PHASE_WORKSHOP);
         $nurse = $player->getPersonalBoardMYR()->getNurses()->first();
@@ -204,6 +217,7 @@ class WorkshopMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($prey);
         $this->entityManager->persist($nurse);
         $this->entityManager->persist($player);
+        $this->entityManager->persist($game);
         $this->entityManager->flush();
         //THEN
         $this->expectException(\Exception::class);
@@ -216,14 +230,15 @@ class WorkshopMYRServiceTest extends KernelTestCase
     {
         //GIVEN
         $game = $this->createGame(2);
+        $game->setGamePhase(MyrmesParameters::PHASE_WORKSHOP);
         $player = $game->getPlayers()->first();
         $player->setPhase(MyrmesParameters::PHASE_WORKSHOP);
         $nurse = $player->getPersonalBoardMYR()->getNurses()->first();
         $nurse->setArea(MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA);
         $tile = $this->tileMYRRepository->findOneBy(["coord_X" => 7, "coord_Y" => 12]);
-        $this->entityManager->persist($player);
         $this->entityManager->persist($nurse);
         $this->entityManager->persist($player);
+        $this->entityManager->persist($game);
         $this->entityManager->flush();
         //THEN
         $this->expectException(\Exception::class);
@@ -236,6 +251,7 @@ class WorkshopMYRServiceTest extends KernelTestCase
     {
         //GIVEN
         $game = $this->createGame(2);
+        $game->setGamePhase(MyrmesParameters::PHASE_WORKSHOP);
         $player = $game->getPlayers()->first();
         $player->setPhase(MyrmesParameters::PHASE_WORKSHOP);
         $nurse = $player->getPersonalBoardMYR()->getNurses()->first();
@@ -262,6 +278,7 @@ class WorkshopMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($player);
         $this->entityManager->persist($nurse);
         $this->entityManager->persist($nurse2);
+        $this->entityManager->persist($game);
         $this->entityManager->flush();
         //WHEN
         $this->workshopMYRService->manageWorkshop($player,
@@ -274,6 +291,7 @@ class WorkshopMYRServiceTest extends KernelTestCase
     {
         //GIVEN
         $game = $this->createGame(2);
+        $game->setGamePhase(MyrmesParameters::PHASE_WORKSHOP);
         $player = $game->getPlayers()->first();
         $player->setPhase(MyrmesParameters::PHASE_WORKSHOP);
         $nurse = $player->getPersonalBoardMYR()->getNurses()->first();
@@ -297,6 +315,7 @@ class WorkshopMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($pheromone);
         $this->entityManager->persist($player);
         $this->entityManager->persist($nurse);
+        $this->entityManager->persist($game);
         $this->entityManager->flush();
         $expectedAnthillHoleNb = 1;
         $dirtResource = $this->resourceMYRRepository->findOneBy(
@@ -318,6 +337,7 @@ class WorkshopMYRServiceTest extends KernelTestCase
     {
         //GIVEN
         $game = $this->createGame(2);
+        $game->setGamePhase(MyrmesParameters::PHASE_WORKSHOP);
         $player = $game->getPlayers()->first();
         $player->setPhase(MyrmesParameters::PHASE_WORKSHOP);
         $nurse = $player->getPersonalBoardMYR()->getNurses()->first();
@@ -350,6 +370,7 @@ class WorkshopMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($pheromone);
         $this->entityManager->persist($player);
         $this->entityManager->persist($nurse);
+        $this->entityManager->persist($game);
         $this->entityManager->flush();
         $expectedAnthillHoleNb = 1;
         $expectedPlayerDirtResourceNb = 2;
@@ -368,6 +389,7 @@ class WorkshopMYRServiceTest extends KernelTestCase
     {
         // GIVEN
         $game = $this->createGame(2);
+        $game->setGamePhase(MyrmesParameters::PHASE_WORKSHOP);
         $action = MyrmesParameters::WORKSHOP_LEVEL_AREA;
         foreach ($game->getPlayers() as $player)
         {
@@ -375,6 +397,7 @@ class WorkshopMYRServiceTest extends KernelTestCase
             $player->getWorkshopActions()[$action] = 1;
             $this->entityManager->persist($player);
         }
+        $this->entityManager->persist($game);
         $player = $game->getPlayers()->first();
         // THEN
         $this->expectException(\Exception::class);
