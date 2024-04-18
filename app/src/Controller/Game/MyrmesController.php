@@ -7,6 +7,7 @@ use App\Entity\Game\DTO\Myrmes\BoardBoxMYR;
 use App\Entity\Game\DTO\Myrmes\BoardTileMYR;
 use App\Entity\Game\Myrmes\GameMYR;
 use App\Entity\Game\Myrmes\MyrmesParameters;
+use App\Entity\Game\Myrmes\MyrmesTranslation;
 use App\Entity\Game\Myrmes\PlayerMYR;
 use App\Entity\Game\Myrmes\PlayerResourceMYR;
 use App\Entity\Game\Myrmes\TileMYR;
@@ -20,7 +21,6 @@ use App\Service\Game\Myrmes\WinterMYRService;
 use App\Service\Game\Myrmes\WorkerMYRService;
 use App\Service\Game\Myrmes\WorkshopMYRService;
 use App\Service\Game\PublishService;
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -53,11 +53,10 @@ class MyrmesController extends AbstractController
         }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
 
-        $boardBoxes = null;
         try {
             $boardBoxes = $this->dataManagementMYRService->organizeMainBoardRows($game);
-        } catch (\Exception $e) {
-            return new Response("Error while calculating main board tiles disposition",
+        } catch (Exception) {
+            return new Response(MyrmesTranslation::RESPONSE_ERROR_CALCULATING_MAIN_BOARD,
                 Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
@@ -111,14 +110,15 @@ class MyrmesController extends AbstractController
             'mustThrowResources' => $player != null
                 && $this->service->isInPhase($player, MyrmesParameters::PHASE_WINTER)
                 && $this->winterMYRService->mustDropResourcesForWinter($player),
-            'hasFinishedObligatoryHarvesting' => !($player != null)
+            'hasFinishedObligatoryHarvesting' => $player == null
                 || $this->harvestMYRService->areAllPheromonesHarvested($player),
             'canStillHarvest' => $player != null && $this->harvestMYRService->canStillHarvest($player),
             'hasSelectedAnthillHolePlacement' => false,
             'possibleAnthillHolePlacement' => $game->getGamePhase() == MyrmesParameters::PHASE_WORKSHOP ?
                 $this->workshopMYRService->getAvailableAnthillHolesPositions($player)
                 : null,
-            'workersOnAnthillLevels' => $this->dataManagementMYRService->workerOnAnthillLevels($player->getPersonalBoardMYR())
+            'workersOnAnthillLevels' => $this->dataManagementMYRService
+                ->workerOnAnthillLevels($player->getPersonalBoardMYR())
             /*'goalsDone' => $this->gameGoalMYRRepository->findOneBy(["goal_id" => ,
                                                                 "goalAlreadyDone" => ]),*/
         ]);
@@ -166,7 +166,8 @@ class MyrmesController extends AbstractController
             'mustThrowResources' => $player != null
                 && $this->service->isInPhase($player, MyrmesParameters::PHASE_WINTER)
                 && $this->winterMYRService->mustDropResourcesForWinter($player),
-            'workersOnAnthillLevels' => $this->dataManagementMYRService->workerOnAnthillLevels($player->getPersonalBoardMYR())
+            'workersOnAnthillLevels' => $this->dataManagementMYRService
+                ->workerOnAnthillLevels($player->getPersonalBoardMYR())
         ]);
     }
 
@@ -210,7 +211,8 @@ class MyrmesController extends AbstractController
                     MyrmesParameters::BASE_AREA
                 )->count(),
                 'mustThrowResources' => false,
-                'workersOnAnthillLevels' => $this->dataManagementMYRService->workerOnAnthillLevels($playerMYR->getPersonalBoardMYR())
+                'workersOnAnthillLevels' => $this->dataManagementMYRService
+                    ->workerOnAnthillLevels($playerMYR->getPersonalBoardMYR())
             ]);
     }
 
@@ -225,14 +227,15 @@ class MyrmesController extends AbstractController
         }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         $boardBox = $this->dataManagementMYRService->createBoardBox($game, $tile, 0, 0);
         $this->publishHighlightTile($game, $player, $tile);
         return $this->returnDisplayBoardActions($game, $player, $boardBox, $tile);
     }
 
-    #[Route('/game/myrmes/{id}/workerPhase/displayBoardBoxActions/{antCoordX}/{antCoordY}/{shiftsCount}/{tileId}/{cleanedTiles}',
+    #[Route('/game/myrmes/{id}/workerPhase/displayBoardBoxActions'
+        .'/{antCoordX}/{antCoordY}/{shiftsCount}/{tileId}/{cleanedTiles}',
         name: 'app_game_myrmes_display_main_board_box_actions_worker_phase')]
     public function displayMainBoardBoxActionsWorkerPhase(
         #[MapEntity(id: 'id')] GameMYR $game,
@@ -248,7 +251,7 @@ class MyrmesController extends AbstractController
         }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         $coords = $this->dataManagementMYRService->getListOfCoordinatesFromString($cleanedTiles);
         $boardBox = $this->dataManagementMYRService->createBoardBoxWorkerPhase(
@@ -287,7 +290,7 @@ class MyrmesController extends AbstractController
         }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         return $this->render('Game/Myrmes/PersonalBoard/ActionsMenu/throwResourceMenu.html.twig', [
             'game' => $game,
@@ -307,10 +310,10 @@ class MyrmesController extends AbstractController
         }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         if (!$player->isTurnOfPlayer()) {
-            return new Response('Not the turn of the player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::NOT_PLAYER_TURN, Response::HTTP_FORBIDDEN);
         }
         try {
             $this->eventMYRService->upBonus($player);
@@ -334,10 +337,10 @@ class MyrmesController extends AbstractController
         }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         if (!$player->isTurnOfPlayer()) {
-            return new Response('Not the turn of the player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::NOT_PLAYER_TURN, Response::HTTP_FORBIDDEN);
         }
         try {
             $this->eventMYRService->lowerBonus($player);
@@ -361,10 +364,10 @@ class MyrmesController extends AbstractController
         }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         if (!$player->isTurnOfPlayer()) {
-            return new Response('Not the turn of the player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::NOT_PLAYER_TURN, Response::HTTP_FORBIDDEN);
         }
 
         $this->eventMYRService->confirmBonus($player);
@@ -388,10 +391,10 @@ class MyrmesController extends AbstractController
         }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         if (!$player->isTurnOfPlayer()) {
-            return new Response('Not the turn of the player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::NOT_PLAYER_TURN, Response::HTTP_FORBIDDEN);
         }
 
         try {
@@ -420,10 +423,10 @@ class MyrmesController extends AbstractController
         }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         if (!$player->isTurnOfPlayer()) {
-            return new Response('Not the turn of the player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::NOT_PLAYER_TURN, Response::HTTP_FORBIDDEN);
         }
 
         try {
@@ -452,10 +455,10 @@ class MyrmesController extends AbstractController
         }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         if (!$player->isTurnOfPlayer()) {
-            return new Response('Not the turn of the player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::NOT_PLAYER_TURN, Response::HTTP_FORBIDDEN);
         }
 
         $this->birthMYRService->cancelNursesPlacement($player);
@@ -475,14 +478,14 @@ class MyrmesController extends AbstractController
         }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         try {
             $boardBoxes = $this->dataManagementMYRService->organizeMainBoardRows($game,
                 true, null, null, $player,
                 $this->workerMYRService->getPlayerMovementPoints($player));
         } catch (Exception) {
-            return new Response("Error while calculating main board tiles disposition",
+            return new Response(MyrmesTranslation::RESPONSE_ERROR_CALCULATING_MAIN_BOARD,
                 Response::HTTP_INTERNAL_SERVER_ERROR);
         }
         return $this->returnMainBoard($game, $player, $boardBoxes,
@@ -513,14 +516,14 @@ class MyrmesController extends AbstractController
         }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         $coords = $this->dataManagementMYRService->getListOfCoordinatesFromString($cleanedTiles);
         try {
             $boardBoxes = $this->dataManagementMYRService->organizeMainBoardRows(
                 $game, true, $antCoordX, $antCoordY, $player, $shiftsCount, $coords);
         } catch (Exception) {
-            return new Response("Error while calculating main board tiles disposition",
+            return new Response(MyrmesTranslation::RESPONSE_ERROR_CALCULATING_MAIN_BOARD,
                 Response::HTTP_INTERNAL_SERVER_ERROR);
         }
         return $this->returnMainBoard(
@@ -540,10 +543,10 @@ class MyrmesController extends AbstractController
         }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         if (!$player->isTurnOfPlayer()) {
-            return new Response('Not the turn of the player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::NOT_PLAYER_TURN, Response::HTTP_FORBIDDEN);
         }
 
         try {
@@ -552,7 +555,7 @@ class MyrmesController extends AbstractController
             $message = $player->getUsername()
                 . " a essayé de placer une ouvrière sur le niveau de fourmilière "
                 . $level
-                . " mais n'a pas pu.";
+                . MyrmesTranslation::NOT_ABLE;
             $this->logService->sendPlayerLog($game, $player, $message);
             return new Response('failed to place worker on colony', Response::HTTP_FORBIDDEN);
         }
@@ -586,10 +589,10 @@ class MyrmesController extends AbstractController
         }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         if (!$player->isTurnOfPlayer()) {
-            return new Response('Not the turn of the player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::NOT_PLAYER_TURN, Response::HTTP_FORBIDDEN);
         }
 
         $anthillHole = $this->workshopMYRService->getAnthillHoleFromTile($tile, $game);
@@ -610,7 +613,7 @@ class MyrmesController extends AbstractController
         try {
             $boardBoxes = $this->dataManagementMYRService->organizeMainBoardRows($game);
         } catch (Exception) {
-            return new Response("Error while calculating main board tiles disposition",
+            return new Response(MyrmesTranslation::RESPONSE_ERROR_CALCULATING_MAIN_BOARD,
                 Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
@@ -631,7 +634,7 @@ class MyrmesController extends AbstractController
         }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         try {
             return new Response($this->workerMYRService->getNeededSoldiers($coordX, $coordY, $game, $player));
@@ -657,7 +660,7 @@ class MyrmesController extends AbstractController
         }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         try {
             return new Response($this->workerMYRService
@@ -681,13 +684,13 @@ class MyrmesController extends AbstractController
         }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         $tile = $this->workerMYRService->getTileFromCoordinates($coordX, $coordY);
         try {
             return new Response($this->workerMYRService->isValidPositionForAnt($tile));
-        } catch (Exception $e) {
-            return new Response("invalid tile",
+        } catch (Exception) {
+            return new Response(MyrmesTranslation::RESPONSE_INVALID_TILE,
                 Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -706,14 +709,14 @@ class MyrmesController extends AbstractController
         }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         $tile = $this->workerMYRService->getTileFromCoordinates($coordX, $coordY);
         $pheromone = $this->workerMYRService->getPheromoneFromTile($game, $tile);
         if($tile != null) {
             return new Response($this->workerMYRService->canCleanPheromone($pheromone, $playerDirtQuantity));
         } else {
-            return new Response("invalid tile",
+            return new Response(MyrmesTranslation::RESPONSE_INVALID_TILE,
                 Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -734,18 +737,18 @@ class MyrmesController extends AbstractController
         }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         $tile = $this->workerMYRService->getTileFromCoordinates($coordX, $coordY);
         $coords = $this->dataManagementMYRService->getListOfCoordinatesFromString($cleanedTiles);
         $type = $this->service->getTileTypeFromTypeAndOrientation($tileType, $orientation);
         if ($type == null) {
-            return new Response('Invalid tile type', Response::HTTP_FORBIDDEN);
+            return new Response(MyrmesTranslation::RESPONSE_INVALID_TILE_TYPE, Response::HTTP_FORBIDDEN);
         }
         if($tile != null) {
             return new Response($this->workerMYRService->canPlacePheromone($player, $tile, $type, $coords));
         } else {
-            return new Response("invalid tile",
+            return new Response(MyrmesTranslation::RESPONSE_INVALID_TILE,
                 Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -763,16 +766,16 @@ class MyrmesController extends AbstractController
         }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         if (!$player->isTurnOfPlayer()) {
-            return new Response('Not the turn of the player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::NOT_PLAYER_TURN, Response::HTTP_FORBIDDEN);
         }
 
         $tile = $this->workerMYRService->getTileFromCoordinates($coordX, $coordY);
         $pheromone = $this->workerMYRService->getPheromoneFromTile($game, $tile);
         if($tile == null) {
-            return new Response("invalid tile",
+            return new Response(MyrmesTranslation::RESPONSE_INVALID_TILE,
                 Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
@@ -804,7 +807,7 @@ class MyrmesController extends AbstractController
         }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         $tile = $this->workerMYRService->getTileFromCoordinates($coordX, $coordY);
         $pheromone = $this->workerMYRService->getPheromoneFromTile($game, $tile);
@@ -812,7 +815,7 @@ class MyrmesController extends AbstractController
         if($tile != null) {
             return new Response($this->workerMYRService->getStringCoordsOfPheromoneTiles($pheromone));
         } else {
-            return new Response("invalid tile",
+            return new Response(MyrmesTranslation::RESPONSE_INVALID_TILE,
                 Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -829,10 +832,10 @@ class MyrmesController extends AbstractController
         }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         if (!$player->isTurnOfPlayer()) {
-            return new Response('Not the turn of the player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::NOT_PLAYER_TURN, Response::HTTP_FORBIDDEN);
         }
 
         $ant = $player->getGardenWorkerMYRs()->first();
@@ -846,7 +849,7 @@ class MyrmesController extends AbstractController
             $message = $player->getUsername()
                 . " a essayé de déplacer la fourmi dans la direction "
                 . $direction
-                . " mais n'a pas pu.";
+                . MyrmesTranslation::NOT_ABLE;
             $this->logService->sendPlayerLog($game, $player, $message);
             return new Response('failed to move ant in this direction', Response::HTTP_FORBIDDEN);
         }
@@ -867,10 +870,10 @@ class MyrmesController extends AbstractController
         }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         if (!$player->isTurnOfPlayer()) {
-            return new Response('Not the turn of the player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::NOT_PLAYER_TURN, Response::HTTP_FORBIDDEN);
         }
 
         try {
@@ -879,7 +882,7 @@ class MyrmesController extends AbstractController
             $message = $player->getUsername()
                 . " a essayé de récolter une ressource sur la tuile "
                 . $tileMYR->getId()
-                . " mais n'a pas pu.";
+                . MyrmesTranslation::NOT_ABLE;
             $this->logService->sendPlayerLog($game, $player, $message);
             return new Response('failed to harvest resource on this tile', Response::HTTP_FORBIDDEN);
         }
@@ -899,10 +902,10 @@ class MyrmesController extends AbstractController
         }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         if (!$player->isTurnOfPlayer()) {
-            return new Response('Not the turn of the player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::NOT_PLAYER_TURN, Response::HTTP_FORBIDDEN);
         }
 
         if(!$this->harvestMYRService->areAllPheromonesHarvested($player)) {
@@ -939,16 +942,16 @@ class MyrmesController extends AbstractController
         }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         if (!$player->isTurnOfPlayer()) {
-            return new Response('Not the turn of the player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::NOT_PLAYER_TURN, Response::HTTP_FORBIDDEN);
         }
 
         try {
             $boardBoxes = $this->dataManagementMYRService->organizeMainBoardRows($game);
         } catch (Exception ) {
-            return new Response("Error while calculating main board tiles disposition",
+            return new Response(MyrmesTranslation::RESPONSE_ERROR_CALCULATING_MAIN_BOARD,
                 Response::HTTP_INTERNAL_SERVER_ERROR);
         }
         return $this->returnMainBoard($game, $player, $boardBoxes,
@@ -967,10 +970,10 @@ class MyrmesController extends AbstractController
         }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         if (!$player->isTurnOfPlayer()) {
-            return new Response('Not the turn of the player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::NOT_PLAYER_TURN, Response::HTTP_FORBIDDEN);
         }
 
         try {
@@ -979,7 +982,7 @@ class MyrmesController extends AbstractController
         } catch (Exception) {
             $message = $player->getUsername()
                 . " a essayé de poser un trou de fourmilière "
-                . " mais n'a pas pu.";
+                . MyrmesTranslation::NOT_ABLE;
             $this->logService->sendPlayerLog($game, $player, $message);
             return new Response('failed to place anthill hole', Response::HTTP_FORBIDDEN);
         }
@@ -1001,10 +1004,10 @@ class MyrmesController extends AbstractController
         }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         if (!$player->isTurnOfPlayer()) {
-            return new Response('Not the turn of the player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::NOT_PLAYER_TURN, Response::HTTP_FORBIDDEN);
         }
 
         try {
@@ -1030,10 +1033,10 @@ class MyrmesController extends AbstractController
         }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         if (!$player->isTurnOfPlayer()) {
-            return new Response('Not the turn of the player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::NOT_PLAYER_TURN, Response::HTTP_FORBIDDEN);
         }
 
         try {
@@ -1059,10 +1062,10 @@ class MyrmesController extends AbstractController
         }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         if (!$player->isTurnOfPlayer()) {
-            return new Response('Not the turn of the player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::NOT_PLAYER_TURN, Response::HTTP_FORBIDDEN);
         }
         if ($game->getGamePhase() != MyrmesParameters::PHASE_WORKSHOP) {
             return new Response("Not in phase workshop, can't end it", Response::HTTP_FORBIDDEN);
@@ -1108,10 +1111,10 @@ class MyrmesController extends AbstractController
         }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         if (!$player->isTurnOfPlayer()) {
-            return new Response('Not the turn of the player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::NOT_PLAYER_TURN, Response::HTTP_FORBIDDEN);
         }
         if ($game->getGamePhase() != MyrmesParameters::PHASE_WINTER) {
             return new Response("Not in phase winter, can't throw resources", Response::HTTP_FORBIDDEN);
@@ -1152,7 +1155,8 @@ class MyrmesController extends AbstractController
         return new Response("threw resource from warehouse", Response::HTTP_OK);
     }
 
-    #[Route('/game/myrmes/{idGame}/displayPersonalObjectToPlace/{tileId}', name: 'app_game_myrmes_display_personal_object_to_place')]
+    #[Route('/game/myrmes/{idGame}/displayPersonalObjectToPlace/{tileId}',
+        name: 'app_game_myrmes_display_personal_object_to_place')]
     public function displayPersonalObjectToPlace(
         #[MapEntity(id: 'idGame')] GameMYR $game,
         #[MapEntity(id: 'tileId')] TileMYR $tileMYR
@@ -1163,7 +1167,7 @@ class MyrmesController extends AbstractController
         }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
 
         return $this->render('Game/Myrmes/MainBoard/displayObjectPlacement.html.twig', [
@@ -1188,11 +1192,11 @@ class MyrmesController extends AbstractController
         }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         $tileTypeMYR = $this->service->getTileTypeFromTypeAndOrientation($tileType, $orientation);
         if ($tileTypeMYR == null) {
-            return new Response('Invalid tile type', Response::HTTP_FORBIDDEN);
+            return new Response(MyrmesTranslation::RESPONSE_INVALID_TILE_TYPE, Response::HTTP_FORBIDDEN);
         }
 
         try {
@@ -1240,15 +1244,15 @@ class MyrmesController extends AbstractController
         }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         if (!$player->isTurnOfPlayer()) {
-            return new Response('Not the turn of the player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::NOT_PLAYER_TURN, Response::HTTP_FORBIDDEN);
         }
 
         $tileTypeMYR = $this->service->getTileTypeFromTypeAndOrientation($tileType, $orientation);
         if ($tileTypeMYR == null) {
-            return new Response('Invalid tile type', Response::HTTP_FORBIDDEN);
+            return new Response(MyrmesTranslation::RESPONSE_INVALID_TILE_TYPE, Response::HTTP_FORBIDDEN);
         }
 
         try {
@@ -1311,7 +1315,11 @@ class MyrmesController extends AbstractController
      * @param TileMYR $tile
      * @return Response
      */
-    private function returnDisplayBoardActions(GameMYR $game, ?PlayerMYR $player, BoardBoxMYR $boardBox, TileMYR $tile): Response
+    private function returnDisplayBoardActions(GameMYR $game,
+                                               ?PlayerMYR $player,
+                                               BoardBoxMYR $boardBox,
+                                               TileMYR $tile
+    ): Response
     {
         return $this->render('Game/Myrmes/MainBoard/displayBoardBoxActions.html.twig', [
             'game' => $game,
@@ -1329,6 +1337,10 @@ class MyrmesController extends AbstractController
     /**
      * publishMainBoard: publish with mercure the main board
      * @param GameMYR $game
+     * @param BoardBoxMYR $selectedBox
+     * @param Collection $boardBoxes
+     * @param bool $sendingWorkerOnGarden
+     * @param bool $hasSelectedAnthillHolePlacement
      * @return void
      */
     private function publishMainBoard(GameMYR $game, BoardBoxMYR $selectedBox, Collection $boardBoxes,
