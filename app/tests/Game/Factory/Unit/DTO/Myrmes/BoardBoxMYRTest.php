@@ -15,10 +15,7 @@ class BoardBoxMYRTest extends TestCase
 {
 
     private TileMYR $tileMYR;
-    private PheromonTileMYR $pheromoneTileMYR;
     private GardenWorkerMYR $gardenWorkerMYR;
-    private AnthillHoleMYR $anthillHoleMYR;
-    private PreyMYR $preyMYR;
     private BoardBoxMYR $boardBoxMYR;
 
     public function testSetUp() : void
@@ -27,12 +24,11 @@ class BoardBoxMYRTest extends TestCase
         // Is triggered by setUp method
 
         // THEN
-
         $this->assertSame($this->tileMYR, $this->boardBoxMYR->getTile());
-        $this->assertSame($this->anthillHoleMYR, $this->boardBoxMYR->getAnthillHole());
-        $this->assertSame($this->preyMYR, $this->boardBoxMYR->getPrey());
-        $this->assertSame($this->anthillHoleMYR, $this->boardBoxMYR->getAnthillHole());
-        $this->assertSame($this->pheromoneTileMYR, $this->boardBoxMYR->getPheromonTile());
+        $this->assertNull($this->boardBoxMYR->getAnthillHole());
+        $this->assertNull($this->boardBoxMYR->getPrey());
+        $this->assertNull($this->boardBoxMYR->getAnthillHole());
+        $this->assertNull($this->boardBoxMYR->getPheromonTile());
         $this->assertSame($this->gardenWorkerMYR, $this->boardBoxMYR->getAnt());
         $this->assertSame(0, $this->boardBoxMYR->getCoordX());
         $this->assertSame(0, $this->boardBoxMYR->getCoordY());
@@ -40,7 +36,7 @@ class BoardBoxMYRTest extends TestCase
         $this->assertFalse($this->boardBoxMYR->isEmptyBox());
     }
 
-    public function testCreateBoardBoxWithError() : void
+    public function testCreateBoardBoxWithErrorWithTileIsNull() : void
     {
         // THEN
 
@@ -49,8 +45,40 @@ class BoardBoxMYRTest extends TestCase
         // WHEN
 
         new BoardBoxMYR(null, $this->gardenWorkerMYR,
-            $this->pheromoneTileMYR, $this->anthillHoleMYR,
-            $this->preyMYR, 0 ,0, 0);
+            new PheromonTileMYR(), null,
+            null, 0 ,0, 0);
+    }
+
+    public function testCreateBoardBoxWithErrorWithAntIsNull() : void
+    {
+        // GIVEN
+
+        $movementsPoints = 6;
+
+        // WHEN
+
+        $boardBox = new BoardBoxMYR(null, null,
+            null, null,
+            null, 0 ,0, $movementsPoints);
+
+        // THEN
+
+        $this->assertSame($movementsPoints, $boardBox->getMovementPoints());
+    }
+
+    public function testSetMovementsPoints() : void
+    {
+        // GIVEN
+
+        $movementsPoints = 5;
+
+        // WHEN
+
+        $this->boardBoxMYR->setMovementPoints($movementsPoints);
+
+        // THEN
+
+        $this->assertSame($movementsPoints, $this->boardBoxMYR->getMovementPoints());
     }
 
     /**
@@ -60,16 +88,13 @@ class BoardBoxMYRTest extends TestCase
     {
         $this->tileMYR = new TileMYR();
         $this->gardenWorkerMYR = new GardenWorkerMYR();
-        $this->pheromoneTileMYR = new PheromonTileMYR();
-        $this->anthillHoleMYR = new AnthillHoleMYR();
-        $this->gardenWorkerMYR->setShiftsCount(3);
-        $this->preyMYR = new PreyMYR();
+        $this->gardenWorkerMYR->setShiftsCount(4);
         $this->boardBoxMYR = new BoardBoxMYR(
             $this->tileMYR,
             $this->gardenWorkerMYR,
-            $this->pheromoneTileMYR,
-            $this->anthillHoleMYR,
-            $this->preyMYR,
+            null,
+            null,
+            null,
             0,
             0,
             0

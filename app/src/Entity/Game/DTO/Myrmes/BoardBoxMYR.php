@@ -33,7 +33,7 @@ class BoardBoxMYR
                                 ?AnthillHoleMYR $anthillHoleMYR, ?PreyMYR $preyMYR, int $coordX, int $coordY,
                                 int $movementPoints = 0)
     {
-        if ($tile == null && ($ant != null || $pheromonTile != null || $preyMYR != null || $anthillHoleMYR != null)) {
+        if ($tile == null && ($pheromonTile != null || $preyMYR != null || $anthillHoleMYR != null)) {
             throw new Exception("Invalid placement");
         }
         $this->tile = $tile;
