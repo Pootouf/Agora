@@ -22,7 +22,7 @@
 
 <div id="selectedBoxActions"
      class="absolute top-0 right-0 w-[28%] h-full flex z-50 bg-black bg-opacity-75 items-center justify-center text-white">
-    <div class="absolute bg-orange-500 p-5 w-full h-[50%] rounded-lg flex items-center justify-center flex-col">
+    <div class="absolute bg-orange-500 p-5 w-full h-full rounded-lg flex items-center justify-center flex-col">
 
         {% if selectedBox.tile != null %}
             {% set color = "" %}
@@ -39,14 +39,14 @@
             {% endif %}
             {% set boardBox = selectedBox %}
             {% set isShifted = false %}
-            <div class="flex flex-col items-center justify-center h-full w-full rounded-xl bg-black bg-opacity-25">
+            <div class="flex flex-col items-center justify-center h-auto w-full rounded-xl bg-black bg-opacity-25">
                 {% set isActionable = true %}
                 {{ include('Game/Myrmes/MainBoard/boardBox.html.twig') }}
             </div>
             {% if boardBox.ant != null %}
                 {% if game.gamePhase == PHASE_WORKER and needToPlay %}
                     <button id="pheromone_placement"
-                            class="rounded-lg bg-green-900 py-2 px-3 m-5 text-2xl items-center"
+                            class="rounded-lg bg-green-900 py-2 px-3 m-3 text-2xl items-center"
                             {{ stimulus_action('myrmes','displayPheromonePlacement','click',
                                 {url:path('app_game_myrmes_display_personal_object_to_place',
                                     {
@@ -60,7 +60,7 @@
                     </button>
 
                     <button id="clean_phermone"
-                            class="rounded-lg bg-green-900 py-2 px-3 m-5 text-2xl items-center"
+                            class="rounded-lg bg-green-900 py-2 px-3 m-3 text-2xl items-center"
                             {{ stimulus_action('myrmes','cleanPheromoneAction','click') }}
                     >
                         Nettoyer la phéromone adverse
