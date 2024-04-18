@@ -3,7 +3,7 @@
 namespace App\Service\Game;
 
 use App\Entity\Game\DTO\Game;
-use App\Entity\Game\GameUser;
+use App\Entity\Platform\User;
 use App\Repository\Game\Glenmore\GameGLMRepository;
 use App\Repository\Game\Myrmes\GameMYRRepository;
 use App\Repository\Game\SixQP\GameSixQPRepository;
@@ -36,7 +36,7 @@ class GameManagerService
         return $this->gameManagerServices[$gameName]->createGame();
     }
 
-    public function joinGame(int $gameId, GameUser $user): int {
+    public function joinGame(int $gameId, User $user): int {
         $game = $this->getGameFromId($gameId);
         if ($game == null) {
             return AbstractGameManagerService::$ERROR_INVALID_GAME;
@@ -44,7 +44,7 @@ class GameManagerService
         return $this->gameManagerServices[$game->getGameName()]->createPlayer($user->getUsername(), $game);
     }
 
-    public function quitGame(int $gameId, GameUser $user): int
+    public function quitGame(int $gameId, User $user): int
     {
         $game = $this->getGameFromId($gameId);
         if ($game == null) {
