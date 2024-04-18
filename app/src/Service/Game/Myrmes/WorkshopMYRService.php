@@ -291,6 +291,29 @@ class WorkshopMYRService
         $this->entityManager->flush();
     }
 
+    /** playerAvailableGoals : give player's available goals
+     * @param PlayerMYR $player
+     * @param GameMYR $game
+     * @return ArrayCollection
+     */
+    public function playerAvailableGoals(PlayerMYR $player, GameMYR $game): ArrayCollection
+    {
+        $gameGoalLevels = [$game->getMainBoardMYR()->getGameGoalsLevelOne(),
+            $game->getMainBoardMYR()->getGameGoalsLevelTwo(),
+            $game->getMainBoardMYR()->getGameGoalsLevelThree()];
+
+        $availableGoals = new ArrayCollection();
+
+        foreach ($gameGoalLevels as $gameGoalLevel) {
+            foreach ($gameGoalLevel as $gameGoal) {
+                if (!$this->hasPlayerAlreadyDoneSelectedGoal($player, $gameGoal) && $this->doesPlayerHaveDoneGoalWithLowerDifficulty($player, $gameGoal->getGoal())) {
+                    $availableGoals->add($gameGoal);
+                }
+            }
+        }
+        return $availableGoals;
+    }
+
     /**
      * canChooseThisBonus : checks if the player can choose the selected bonus in the workshopArea
      * @param PlayerMYR $player
@@ -1422,8 +1445,8 @@ class WorkshopMYRService
      */
     private function hasPlayerAlreadyDoneSelectedGoal(PlayerMYR $player, GameGoalMYR $gameGoal) : bool
     {
-        return $gameGoal->getPrecedentsPlayers()->forAll(function (PlayerMYR $previousPlayer) use ($player) {
-           return $previousPlayer !== $player;
+        return $gameGoal->getPrecedentsPlayers()->exists(function (int $key, PlayerMYR $previousPlayer) use ($player) {
+           return $previousPlayer === $player;
         });
     }
 }
