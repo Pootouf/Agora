@@ -50,7 +50,7 @@ class BoardBoxMYRTest extends TestCase
 
         new BoardBoxMYR(null, $this->gardenWorkerMYR,
             $this->pheromoneTileMYR, $this->anthillHoleMYR,
-            $this->preyMYR, 0 ,0);
+            $this->preyMYR, 0 ,0, 0);
     }
 
     /**
