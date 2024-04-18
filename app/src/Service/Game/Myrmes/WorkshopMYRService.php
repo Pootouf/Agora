@@ -51,6 +51,7 @@ class WorkshopMYRService
     public function getAvailableAnthillHolesPositions(PlayerMYR $player) : ArrayCollection
     {
         $pheromones = $player->getPheromonMYRs();
+        $antHillHoles = $player->getAnthillHoleMYRs();
         $result = new ArrayCollection();
         foreach ($pheromones as $pheromone) {
             $pheromoneTiles = $pheromone->getPheromonTiles();
@@ -61,6 +62,15 @@ class WorkshopMYRService
                     if ($adjacentTile != null && $this->isValidPosition($player, $adjacentTile)) {
                         $result->add($adjacentTile);
                     }
+                }
+            }
+        }
+        foreach ($antHillHoles as $antHillHole) {
+            $tile = $antHillHole->getTile();
+            $adjacentTiles = $this->getAdjacentTiles($tile);
+            foreach ($adjacentTiles as $adjacentTile) {
+                if ($adjacentTile != null && $this->isValidPosition($player, $adjacentTile)) {
+                    $result->add($adjacentTile);
                 }
             }
         }
@@ -354,6 +364,8 @@ class WorkshopMYRService
         $adjacentTiles = $this->getAdjacentTiles($tile);
         /** @var Array<PheromonMYR> $playerPheromones */
         $playerPheromones = $this->pheromonMYRRepository->findBy(["player" => $player]);
+        /** @var Array<AnthillHoleMYR> $playerAnthillHoles */
+        $playerAnthillHoles = $this->anthillHoleMYRRepository->findBy(["player" => $player]);
         foreach ($adjacentTiles as $adjacentTile) {
             foreach ($playerPheromones as $playerPheromone) {
                 foreach ($playerPheromone->getPheromonTiles() as $pheromoneTile) {
@@ -362,7 +374,13 @@ class WorkshopMYRService
                     }
                 }
             }
+            foreach ($playerAnthillHoles as $playerAnthillHole) {
+                if ($playerAnthillHole->getTile() === $adjacentTile) {
+                    return true;
+                }
+            }
         }
+
         return false;
     }
 
