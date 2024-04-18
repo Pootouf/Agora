@@ -79,18 +79,30 @@ export default class extends Controller  {
     }
 
     async placeWorkerOnAntHillHole(hole) {
-        let url = hole.params.url;
-        const response = await fetch(url);
-        if (response.status === 200) {
-            document.getElementById('mainBoard').innerHTML = await response.text();
-        }
+        let tileId = hole.params.tileId;
+        let coordX = hole.params.coordX
+        let coordY = hole.params.coordY
+        let movementPoints = hole.params.movementPoints
+        await placeWorkerOnAnthillHole(tileId, coordX, coordY, movementPoints)
     }
 
     //place worker on colony level track
 
     async placeWorkerOnColonyLevelTrack(level) {
         let url = level.params.url;
-        await fetch(url);
+        if (window.confirm("Confirmez vous le placement de l'ouvrière sur le niveau " + url.split('/').pop())) {
+            await fetch(url);
+        }
+    }
+
+    //management of worker phase
+
+    async confirmWorkerPhase() {
+        await rewindQueueWorkerPhase(queue)
+    }
+
+    async cancelWorkerPhase() {
+        location.reload()
     }
 
     //harvest a resource
@@ -107,14 +119,17 @@ export default class extends Controller  {
 
     // workshop actions
 
-    async choseAnthillHolePlacement(placement) {
-        let url = placement.params.url;
-        await fetch(url);
-    }
-
     async cancelAnthillHolePlacement(placement) {
         alert("Ouvrir menu de l'atelier");
     }
+
+    // ant movement
+
+    async moveAnt(dir) {
+        let direction = dir.params.dir;
+        await move(direction)
+    }
+
 
     // dynamic display
 
@@ -129,7 +144,7 @@ export default class extends Controller  {
     }
 
     async displayBoxActions(boardBox) {
-        if (currentTileMode === 1) {
+        if (window.currentTileMode === 1) {
             closeSelectedBoxWindow();
             let url = boardBox.params.url;
             const response = await fetch(url);
@@ -138,8 +153,8 @@ export default class extends Controller  {
             placeholder.innerHTML = await response.text();
             const node = placeholder.firstElementChild;
             tree.appendChild(node);
-        } else if (currentTileMode === 2 && clickableTilesForPlacement.includes(boardBox.target)) {
-            currentTileMode = 0;
+        } else if (window.currentTileMode === 2 && window.clickableTilesForPlacement.includes(boardBox.target)) {
+            window.currentTileMode = 0;
             let confirmButton = document.getElementById('PrepareTilePositioning')
                 .querySelector('#objectPositioningValidation');
             let cancelButton = document.getElementById('PrepareTilePositioning')
@@ -173,7 +188,7 @@ export default class extends Controller  {
                 for (const pivotPoint of clickableTilesForPlacement) {
                     pivotPoint.parentElement.parentElement.classList.add("selectedTilePlacement");
                 }
-                currentTileMode = 2;
+                window.currentTileMode = 2;
             }
         }
     }
@@ -187,7 +202,13 @@ export default class extends Controller  {
         placeholder.innerHTML = await response.text();
         const node = placeholder.firstElementChild;
         tree.appendChild(node);
-        currentTileMode = 0;
+        window.currentTileMode = 0;
+    }
+
+    async displayBoxActionsWorkerPhase(boardBox) {
+        closeSelectedBoxWindow();
+        let tileId = boardBox.params.tileId
+        await displayBoardBoxActions(tileId)
     }
 
     async displayPlayerPersonalBoard(board) {
@@ -244,7 +265,8 @@ export default class extends Controller  {
         let place = placement.params.placement;
         switch (place) {
             case 1:
-                alert("anthill hole");
+                workshop.toggleWorkshop(false);
+                await fetch(url);
                 break;
             case 2:
                 if (window.confirm("Confirmez vous l'augmentation du niveau de la fourmilière ?")) {
@@ -274,6 +296,10 @@ export default class extends Controller  {
 
     async confirmWorkshopActions(confirm) {
         await fetch(confirm.params.url);
+    }
+
+    async cleanPheromoneAction() {
+        await cleanPheromone()
     }
 
     async toggleGoalSelection(open) {
@@ -322,7 +348,11 @@ export default class extends Controller  {
         let open = board.params.open;
         if (open) {
             const response = await fetch(url);
-            document.getElementById('objectPlacement').innerHTML = await response.text();
+            let tree = document.getElementById("index_myrmes");
+            let placeholder = document.createElement("div");
+            placeholder.innerHTML = await response.text();
+            const node = placeholder.firstElementChild;
+            tree.appendChild(node);
         }
 
         await this.togglePheromonePlacement(open);
@@ -355,13 +385,13 @@ export default class extends Controller  {
             ).addEventListener("finish",
                 () => {
                     openedDisplayObjectPlacement.remove();
-                    selectedObjectId = null;
-                    selectedOrientation = null;
-                    currentTileMode = 1;
+                    window.selectedObjectId = null;
+                    window.selectedOrientation = null;
+                    window.currentTileMode = 1;
                 });
             let tile = document.getElementsByClassName("displayedActionsTile").item(0);
             tile.classList.value = "";
-            tile.classList.add("fill-[rgba(0,_0,_0,_0)]")
+            tile.classList.add("fill-[rgba(0,_0,_0,_0)]");
         }
     }
 
@@ -379,8 +409,8 @@ export default class extends Controller  {
             for (const tile of document.querySelectorAll('.selectedTilePlacement')) {
                 tile.classList.remove('selectedTilePlacement')
             }
-            currentTileMode = 0;
-            clickableTilesForPlacement = [];
+            window.currentTileMode = 0;
+            window.clickableTilesForPlacement = [];
 
         // Menu choix orientation d'une tuile
         } else if (document.getElementById('ObjectOrientationList')) {
@@ -414,6 +444,7 @@ export default class extends Controller  {
         for (const tile of tiles.split("___")) {
             let tilesSplit = tile.split("__")
             let pivotPoint = tilesSplit[0];
+            alert(pivotPoint)
 
             let boardBox = document.getElementById(`${pivotPoint}-clickable-zone`)
 
@@ -423,16 +454,16 @@ export default class extends Controller  {
             boardBox.dataset.connectedTiles = tilesSplit[1];
         }
 
-        currentTileMode = 2;
+        window.currentTileMode = 2;
     }
 
     async placePheromone(boardBox) {
         let url = boardBox.params.url
             .replace("tileType", selectedObjectId)
             .replace("orientation", selectedOrientation)
-            .replace("tileId", boardBox.params.tileid);
-        const response = await fetch(url);
-
+            .replace("tileId", boardBox.params.tileId);
+        await fetch(url);
         await this.togglePheromonePlacement(false);
+        await canPlacePheromone(selectedObjectId, selectedOrientation, boardBox.params.tileId);
     }
 }

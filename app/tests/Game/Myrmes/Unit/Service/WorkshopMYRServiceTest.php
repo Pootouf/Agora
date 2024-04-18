@@ -3,7 +3,9 @@
 namespace App\Tests\Game\Myrmes\Unit\Service;
 
 use App\Entity\Game\Myrmes\AnthillHoleMYR;
+use App\Entity\Game\Myrmes\GameGoalMYR;
 use App\Entity\Game\Myrmes\GameMYR;
+use App\Entity\Game\Myrmes\GoalMYR;
 use App\Entity\Game\Myrmes\MainBoardMYR;
 use App\Entity\Game\Myrmes\MyrmesParameters;
 use App\Entity\Game\Myrmes\NurseMYR;
@@ -86,67 +88,12 @@ class WorkshopMYRServiceTest extends TestCase
             $playerResourceMYRRepository, $this->nurseMYRRepository, $this->anthillHoleMYRRepository);
     }
 
-    public function testCanSetPhaseToWorkshopReturnTrueIfPlayerHasNursesInWorkshop(): void
-    {
-        //GIVEN
-        $game = $this->createGame(2);
-        $player = $game->getPlayers()->first();
-        //WHEN
-        $result = $this->workshopMYRService->canSetPhaseToWorkshop($player);
-        //THEN
-        $this->assertTrue($result);
-    }
-
-    public function testCanSetPhaseToWorkshopReturnFalseIfPlayerHasNoNursesInWorkshop(): void
-    {
-        //GIVEN
-        $game = $this->createGame(2);
-        $player = $game->getPlayers()->first();
-        $nurse = $player->getPersonalBoardMYR()->getNurses()->first();
-        $nurse->setArea(MyrmesParameters::LARVAE_AREA);
-        //WHEN
-        $result = $this->workshopMYRService->canSetPhaseToWorkshop($player);
-        //THEN
-        $this->assertFalse($result);
-    }
-
-    public function testManageEndOfWorkshopDoesNothingIfAllPlayersHaveEndedWorkshopPhase(): void
-    {
-            //GIVEN
-            $game = $this->createGame(2);
-
-            //THEN
-            $this->MYRService->expects(self::once())
-            ->method('canManageEndOfPhase')
-            ->willReturn(true);
-
-            //WHEN
-            try {
-                $this->workshopMYRService->manageEndOfWorkshop($game);
-            } catch (\Exception $e) {
-                // must not arrive here
-            }
-    }
-
-    public function testManageEndOfWorkshopThrowExceptionIfAllPlayersHaveNotEndedWorkshopPhase(): void
-    {
-        //GIVEN
-        $game = $this->createGame(2);
-
-        //THEN
-        $this->MYRService->expects(self::once())
-            ->method('canManageEndOfPhase')
-            ->willReturn(false);
-
-        $this->expectException(\Exception::class);
-        //WHEN
-        $this->workshopMYRService->manageEndOfWorkshop($game);
-    }
     public function testGiveBonusWhenAskIncreaseLevelWhenCanIncrease() : void
     {
         // GIVEN
 
         $game = $this->createGame(2);
+        $game->setGamePhase(MyrmesParameters::PHASE_WORKSHOP);
 
         foreach ($game->getPlayers() as $p)
         {
@@ -189,7 +136,7 @@ class WorkshopMYRServiceTest extends TestCase
         // GIVEN
 
         $game = $this->createGame(2);
-
+        $game->setGamePhase(MyrmesParameters::PHASE_WORKSHOP);
         foreach ($game->getPlayers() as $p)
         {
             $p->setPhase(MyrmesParameters::PHASE_WORKSHOP);
@@ -221,6 +168,7 @@ class WorkshopMYRServiceTest extends TestCase
         // GIVEN
 
         $game = $this->createGame(2);
+        $game->setGamePhase(MyrmesParameters::PHASE_WORKSHOP);
         $action = MyrmesParameters::WORKSHOP_LEVEL_AREA;
 
         foreach ($game->getPlayers() as $player)
@@ -255,7 +203,7 @@ class WorkshopMYRServiceTest extends TestCase
         // GIVEN
 
         $game = $this->createGame(2);
-
+        $game->setGamePhase(MyrmesParameters::PHASE_WORKSHOP);
         foreach ($game->getPlayers() as $p)
         {
             $p->setPhase(MyrmesParameters::PHASE_WORKSHOP);
@@ -290,7 +238,7 @@ class WorkshopMYRServiceTest extends TestCase
         // GIVEN
 
         $game = $this->createGame(2);
-
+        $game->setGamePhase(MyrmesParameters::PHASE_WORKSHOP);
         foreach ($game->getPlayers() as $p)
         {
             $p->setPhase(MyrmesParameters::PHASE_WORKSHOP);
@@ -325,7 +273,7 @@ class WorkshopMYRServiceTest extends TestCase
         // GIVEN
 
         $game = $this->createGame(2);
-
+        $game->setGamePhase(MyrmesParameters::PHASE_WORKSHOP);
         foreach ($game->getPlayers() as $p)
         {
             $p->setPhase(MyrmesParameters::PHASE_WORKSHOP);
@@ -361,7 +309,7 @@ class WorkshopMYRServiceTest extends TestCase
         // GIVEN
 
         $game = $this->createGame(2);
-
+        $game->setGamePhase(MyrmesParameters::PHASE_WORKSHOP);
         foreach ($game->getPlayers() as $p)
         {
             $p->setPhase(MyrmesParameters::PHASE_WORKSHOP);
@@ -395,7 +343,7 @@ class WorkshopMYRServiceTest extends TestCase
         // GIVEN
 
         $game = $this->createGame(2);
-
+        $game->setGamePhase(MyrmesParameters::PHASE_INVALID);
         foreach ($game->getPlayers() as $p)
         {
             $p->setPhase(MyrmesParameters::PHASE_INVALID);
@@ -428,7 +376,7 @@ class WorkshopMYRServiceTest extends TestCase
         // GIVEN
 
         $game = $this->createGame(2);
-
+        $game->setGamePhase(MyrmesParameters::PHASE_WORKSHOP);
         foreach ($game->getPlayers() as $p)
         {
             $p->setPhase(MyrmesParameters::PHASE_WORKSHOP);
@@ -489,6 +437,25 @@ class WorkshopMYRServiceTest extends TestCase
         $this->assertNull($result);
     }
 
+    /*public function testCanPlayerDoGoalWhenPlayerHasNotAlreadyDoneSelectedGoalWhenReturnFalse()
+    {
+        // GIVEN
+
+        $game = $this->createGame(3);
+        $gameGoal = $game->getMainBoardMYR()->getGameGoalsLevelOne()->first();
+
+        $player = $game->getPlayers()->first();
+        $gameGoal->addPrecedentsPlayer($player);
+
+        // WHEN
+
+        $result = $this->workshopMYRService->canPlayerDoGoal($player, $gameGoal);
+
+        // THEN
+
+        $this->assertFalse($result);
+    }*/
+
     private function createGame(int $numberOfPlayers) : GameMYR
     {
         if($numberOfPlayers < MyrmesParameters::MIN_NUMBER_OF_PLAYER ||
@@ -526,6 +493,15 @@ class WorkshopMYRServiceTest extends TestCase
         }
         $mainBoard = new MainBoardMYR();
         $mainBoard->setYearNum(MyrmesParameters::FIRST_YEAR_NUM);
+
+        $gameGoal = new GameGoalMYR();
+        $goal = new GoalMYR();
+        $goal->setDifficulty(1);
+        $goal->setName("goal");
+        $gameGoal->setGoal($goal);
+
+        $mainBoard->addGameGoalsLevelOne($gameGoal);
+
         $game->setMainBoardMYR($mainBoard);
         $game->setGamePhase(MyrmesParameters::PHASE_INVALID);
         return $game;

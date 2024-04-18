@@ -24,12 +24,14 @@ class BoardBoxMYR
     private ?PreyMYR $prey;
     private int $coordX;
     private int $coordY;
+    private int $movementPoints;
 
     /**
      * @throws Exception
      */
     public function __construct(?TileMYR $tile, ?GardenWorkerMYR $ant, ?PheromonTileMYR $pheromonTile,
-                                ?AnthillHoleMYR $anthillHoleMYR, ?PreyMYR $preyMYR, int $coordX, int $coordY)
+                                ?AnthillHoleMYR $anthillHoleMYR, ?PreyMYR $preyMYR, int $coordX, int $coordY,
+                                int $movementPoints = 0)
     {
         if ($tile == null && ($ant != null || $pheromonTile != null || $preyMYR != null || $anthillHoleMYR != null)) {
             throw new Exception("Invalid placement");
@@ -41,6 +43,11 @@ class BoardBoxMYR
         $this->coordY = $coordY;
         $this->anthillHole = $anthillHoleMYR;
         $this->prey = $preyMYR;
+        if ($ant != null) {
+            $this->movementPoints = $ant->getShiftsCount();
+        } else {
+            $this->movementPoints = $movementPoints;
+        }
     }
 
     /**
@@ -114,5 +121,15 @@ class BoardBoxMYR
     public function getPrey(): ?PreyMYR
     {
         return $this->prey;
+    }
+
+    public function getMovementPoints(): int
+    {
+        return $this->movementPoints;
+    }
+
+    public function setMovementPoints(int $movementPoints): void
+    {
+        $this->movementPoints = $movementPoints;
     }
 }

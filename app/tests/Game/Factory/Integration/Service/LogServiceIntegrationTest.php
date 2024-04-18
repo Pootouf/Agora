@@ -25,6 +25,7 @@ class LogServiceIntegrationTest extends KernelTestCase
         $game->addPlayer($player);
         $entityManager->persist($player);
         $player->setGame($game);
+        $player->setScore(0);
         $entityManager->persist($game);
         $entityManager->flush();
         $message = "test";

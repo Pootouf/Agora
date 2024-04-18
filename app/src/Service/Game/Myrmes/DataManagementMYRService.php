@@ -2,29 +2,20 @@
 
 namespace App\Service\Game\Myrmes;
 
-use App\Entity\Game\DTO\Glenmore\BoardBoxGLM;
-use App\Entity\Game\DTO\Glenmore\PersonalBoardBoxGLM;
-use App\Entity\Game\DTO\Glenmore\PlayerResourcesDataGLM;
 use App\Entity\Game\DTO\Myrmes\BoardBoxMYR;
-use App\Entity\Game\DTO\Tile;
-use App\Entity\Game\Glenmore\GameGLM;
-use App\Entity\Game\Glenmore\GlenmoreParameters;
-use App\Entity\Game\Glenmore\PlayerGLM;
 use App\Entity\Game\Myrmes\GameMYR;
 use App\Entity\Game\Myrmes\GardenWorkerMYR;
-use App\Entity\Game\Myrmes\PheromonTileMYR;
+use App\Entity\Game\Myrmes\PersonalBoardMYR;
+use App\Entity\Game\Myrmes\PlayerMYR;
 use App\Entity\Game\Myrmes\TileMYR;
-use App\Entity\Game\Splendor\SplendorParameters;
-use App\Repository\Game\Glenmore\PlayerTileGLMRepository;
 use App\Repository\Game\Myrmes\AnthillHoleMYRRepository;
 use App\Repository\Game\Myrmes\GardenWorkerMYRRepository;
 use App\Repository\Game\Myrmes\PheromonTileMYRRepository;
 use App\Repository\Game\Myrmes\PreyMYRRepository;
 use App\Repository\Game\Myrmes\TileMYRRepository;
-use App\Service\Game\Glenmore\TileGLMService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Psr\Log\LoggerInterface;
+use Exception;
 
 
 /**
@@ -42,13 +33,45 @@ class DataManagementMYRService
 
 
     /**
-     * organizeMainBoardRows : return a collection of rows, a row is a collection of tiles or null.
-     *  It represents each row of the main board from top to bottom.
-     * @param GameMYR $game
-     * @return Collection
-     * @throws \Exception
+     * getListOfCoordinatesFromString: split a string in format "[X_Y ... X_Y]" into an array of coordinates
+     * @param String $coordinateString
+     * @return array<array<int, int>> an array of coordinates
      */
-    public function organizeMainBoardRows(GameMYR $game) : Collection
+    public function getListOfCoordinatesFromString(string $coordinateString) : array
+    {
+        $coordinateString = str_replace("[", "", $coordinateString);
+        $coordinateString = str_replace("]", "", $coordinateString);
+        $stringCoords = explode(" ", $coordinateString);
+        $coords = [];
+        foreach($stringCoords as $stringCoord) {
+            if ($stringCoord == "" || $stringCoord == " ") {
+                continue;
+            }
+            $coords[] = array_map(function (string $value) {
+                return intval($value);
+            }, explode("_", $stringCoord));
+        }
+        return $coords;
+    }
+
+
+    /**
+     * organizeMainBoardRows : return a collection of rows, a row is a collection of tiles or null.
+     *   It represents each row of the main board from top to bottom.
+     * @param GameMYR $game
+     * @param bool $isInWorkerPhase (optional)
+     * @param int|null $antCoordX (optional)
+     * @param int|null $antCoordY (optional)
+     * @param PlayerMYR|null $player (optional)
+     * @param int|null $shiftsCount (optional)
+     * @param Collection|null $cleanedTiles (optional)
+     * @return Collection
+     * @throws Exception
+     */
+    public function organizeMainBoardRows(GameMYR $game, bool $isInWorkerPhase = false, ?int $antCoordX = null,
+                                          ?int $antCoordY = null, ?PlayerMYR $player = null,
+                                          ?int $shiftsCount = null, ?array $cleanedTiles = []
+    ) : Collection
     {
         $result = new ArrayCollection();
 
@@ -65,13 +88,12 @@ class DataManagementMYRService
         }
         $resultLine = [];
         foreach ($lines as $line) {
-            $resultLine = sizeof($line) >= sizeof($resultLine) ? $line : $resultLine;
+            $resultLine = sizeof($line) > sizeof($resultLine) ? $line : $resultLine;
         }
 
         $miny = $resultLine[0]->getCoordY();
         $minx = $resultLine[0]->getCoordX();
         $maxy = $resultLine[sizeof($resultLine) - 1]->getCoordY();
-        $maxx = $resultLine[sizeof($resultLine) - 1]->getCoordX();
 
         $previousX = $minx;
         $currentLine = new ArrayCollection();
@@ -95,7 +117,12 @@ class DataManagementMYRService
                 $currentLine->add($this->createBoardBox($game, null, $x, $y));
                 $y+=2;
             }
-            $currentLine->add($this->createBoardBox($game, $tile, $x, $y));
+            !$isInWorkerPhase ?
+                $currentLine->add($this->createBoardBox($game, $tile, $x, $y))
+                : $currentLine->add($this->createBoardBoxWorkerPhase(
+                    $game, $tile, $x, $y, $antCoordX == $x && $antCoordY == ($y - 1 + $x % 2),
+                    $player, $shiftsCount, $cleanedTiles
+                ));
             $previousX = $tile->getCoordX();
             $y+=2;
         }
@@ -109,8 +136,68 @@ class DataManagementMYRService
     }
 
     /**
-     * createBoardBox : create a board box tile with tile, ant and pheromone
-     * @throws \Exception
+     * createBoardBoxWorkerPhase : create a board box tile with tile, ant, prey and pheromone with the given parameters
+     *                              during the worker phase
+     * @param GameMYR $game
+     * @param TileMYR|null $tile
+     * @param int $graphicX
+     * @param int $graphicY
+     * @param bool $hasAnt
+     * @param PlayerMYR $player
+     * @param int|null $shiftsCount
+     * @param array $cleanedTiles
+     * @return BoardBoxMYR
+     * @throws Exception
+     */
+    public function createBoardBoxWorkerPhase(GameMYR $game, ?TileMYR $tile, int $graphicX, int $graphicY,
+                                              bool $hasAnt, PlayerMYR $player,
+                                              ?int $shiftsCount, array $cleanedTiles) : BoardBoxMYR
+    {
+        $ant = null;
+        if($hasAnt) {
+            $ant = new GardenWorkerMYR();
+            $ant->setTile($tile);
+            $ant->setMainBoardMYR($game->getMainBoardMYR());
+            $ant->setPlayer($player);
+            $ant->setShiftsCount($shiftsCount);
+        }
+        $pheromoneTile = null;
+        $anthillHole = null;
+        $prey = null;
+        $isNotCleaned = true;
+        foreach ($cleanedTiles as $coords) {
+            $isNotCleaned = $isNotCleaned && ($coords[0] != $tile->getCoordX() || $coords[1] != $tile->getCoordY());
+        }
+        if($isNotCleaned) {
+            $pheromoneTile = $this->pheromonTileMYRRepository->findOneBy(
+                [
+                    'mainBoard' => $game->getMainBoardMYR(),
+                    'tile' => $tile->getId()
+                ]
+            );
+            $prey = $this->preyMYRRepository->findOneBy(
+                [
+                    'mainBoardMYR' => $game->getMainBoardMYR(),
+                    'tile' => $tile->getId()
+                ]
+            );
+            $anthillHole = $this->anthillHoleMYRRepository->findOneBy(
+                [
+                    'mainBoardMYR' => $game->getMainBoardMYR(),
+                    'tile' => $tile->getId()
+                ]
+            );
+        }
+        return new BoardBoxMYR($tile, $ant, $pheromoneTile, $anthillHole, $prey, $graphicX, $graphicY, $shiftsCount);
+    }
+    /**
+     * createBoardBox : create a board box tile with tile, ant, prey and pheromone in phases other than worker phase
+     * @param GameMYR $game
+     * @param TileMYR|null $tile
+     * @param int $x
+     * @param int $y
+     * @return BoardBoxMYR
+     * @throws Exception
      */
     public function createBoardBox(GameMYR $game, ?TileMYR $tile, int $x, int $y) : BoardBoxMYR
     {
@@ -149,5 +236,17 @@ class DataManagementMYRService
             $prey = $prey ?: null;
         }
         return new BoardBoxMYR($tile, $ant, $pheromoneTile, $anthillHole, $prey, $x, $y);
+    }
+
+    public function workerOnAnthillLevels(PersonalBoardMYR $personalBoardMYR) : array
+    {
+        $anthillWorkers = $personalBoardMYR->getAnthillWorkers();
+        $result = array(false, false, false, false);
+        for ($i = 0; $i < 4; $i++) {
+            $result[$i] =  $anthillWorkers->filter(function ($ant) use ($i) {
+                return $ant->getWorkFloor() == $i;
+            })->count() > 0;
+        }
+        return $result;
     }
 }

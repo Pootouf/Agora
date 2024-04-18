@@ -3,6 +3,7 @@
 namespace App\Tests\Game\Myrmes\Unit\Service;
 
 use App\Entity\Game\Myrmes\GameMYR;
+use App\Entity\Game\Myrmes\GardenWorkerMYR;
 use App\Entity\Game\Myrmes\MainBoardMYR;
 use App\Entity\Game\Myrmes\MyrmesParameters;
 use App\Entity\Game\Myrmes\NurseMYR;
@@ -157,13 +158,16 @@ class BirthMYRServiceTest extends TestCase
         $personalBoard = $firstPlayer->getPersonalBoardMYR();
         $personalBoard->setBonus(MyrmesParameters::BONUS_MOVEMENT);
 
-        // THEN
-
-        $this->expectException(\Exception::class);
+        $gardenWorker = $firstPlayer->getGardenWorkerMYRs()->first();
+        $oldMovement = $gardenWorker->getShiftsCount();
 
         // WHEN
 
         $this->birthMYRService->giveBonusesFromEvent($firstPlayer);
+
+        // THEN
+
+        $this->assertSame($oldMovement, $gardenWorker->getShiftsCount());
     }
 
     public function testGiveLarvaeBonusFromEventPhase() : void
@@ -347,6 +351,13 @@ class BirthMYRServiceTest extends TestCase
             $player = new PlayerMYR('test', $game);
             $game->addPlayer($player);
             $player->setGameMyr($game);
+
+            $gardenWorker = new GardenWorkerMYR();
+            $gardenWorker->setTile(null);
+            $gardenWorker->setShiftsCount(6);
+            $gardenWorker->setMainBoardMYR(null);
+            $player->addGardenWorkerMYR($gardenWorker);
+
             $personalBoard = new PersonalBoardMYR();
             $player->setPersonalBoardMYR($personalBoard);
             for($j = 0; $j < MyrmesParameters::START_NURSES_COUNT_PER_PLAYER; $j += 1) {

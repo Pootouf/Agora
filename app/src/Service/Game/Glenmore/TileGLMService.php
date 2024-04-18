@@ -258,29 +258,42 @@ class TileGLMService
         $money = $player->getPersonalBoard()->getMoney();
         foreach ($playerTiles as $playerTile) {
             foreach ($playerTile->getPlayerTileResource() as $playerTileResource) {
+                if ($playerTileResource->getQuantity() == 0) {
+                    continue;
+                }
+                if ($playerTileResource->getResource()->getType() != GlenmoreParameters::$PRODUCTION_RESOURCE) {
+                    continue;
+                }
                 if (!$playerResources->contains($playerTileResource->getResource())) {
-                    $playerResources->add($playerTileResource);
+                    $playerResources->add($playerTileResource->getResource());
                 }
             }
         }
+        if ($playerResources->count() >= 2) {
+            return true;
+        }
         $i = 0;
-        while ($playerResources->count() < 2 && $i < 5) {
+        while ($i < 5) {
             $line = $warehouse->getWarehouseLine()->get($i);
             ++$i;
             if ($playerResources->contains($line->getResource())) {
                 continue;
             }
             if ($line->getQuantity() == 3) {
-                return false;
+                continue;
             }
             $neededMoney = GlenmoreParameters::$MONEY_FROM_QUANTITY[$line->getQuantity()];
             $money -= $neededMoney;
             if ($money < 0) {
-                return false;
+                $money += $neededMoney;
+                continue;
             }
             $playerResources->add($line->getResource());
+            if ($playerResources->count() == 2) {
+                return true;
+            }
         }
-        return true;
+        return false;
     }
 
 
@@ -463,22 +476,19 @@ class TileGLMService
             $selectedResources = $playerGLM->getPersonalBoard()->getSelectedResources();
             $resourcesTypes = new ArrayCollection();
             foreach ($selectedResources as $selectedResource){
-                // if($resourcesTypes->contains($selectedResource->getResource()->getColor())){
                 $resourcesTypes->add($selectedResource->getResource()->getColor());
-                // }
             }
             $resourcesTypesCount = $resourcesTypes->count();
             $activationCostsLevels = $tileGLM->getTile()->getActivationPrice()->count();
             $selectedLevel = min($resourcesTypesCount, $activationCostsLevels);
-            $activationBonus = $tileGLM->getTile()->getActivationBonus()->get($selectedLevel - 1);
             $activationBonus = $tile->getActivationBonus()->get($bonusNb);
             if ($tileGLM->getTile()->getName() === GlenmoreParameters::$TILE_NAME_BRIDGE) {
-                $playerGLM->setPoints($playerGLM->getPoints() + 7);
+                $playerGLM->setScore($playerGLM->getScore() + 7);
             } else if ($tileGLM->getTile()->getName() === GlenmoreParameters::$TILE_NAME_BUTCHER
                 && !$tileGLM->getTile()->getBuyPrice()->isEmpty()) {
-                $playerGLM->setPoints($playerGLM->getPoints() + 5);
+                $playerGLM->setScore($playerGLM->getScore() + 5);
             } else {
-                $playerGLM->setPoints($playerGLM->getPoints() + $activationBonus->getAmount());
+                $playerGLM->setScore($playerGLM->getScore() + $activationBonus->getAmount());
             }
             $this->entityManager->persist($playerGLM);
         }
@@ -1107,14 +1117,7 @@ class TileGLMService
                         $playerResourceCount += $selectedResource->getQuantity();
                     }
                 }
-            } else {
-                foreach ($selectedResources as $selectedResource){
-                    if($selectedResource->getResource()->getType() == $resourceType){
-                        $playerResourceCount += $selectedResource->getQuantity();
-                    }
-                }
             }
-
             if($playerResourceCount >= $resourceAmount){
                 $result += 1;
             }
@@ -1843,7 +1846,7 @@ class TileGLMService
             }
         }
         $player = $personalBoard->getPlayerGLM();
-        $player->setPoints($player->getPoints() + $points);
+        $player->setScore($player->getScore() + $points);
         $this->entityManager->persist($player);
         $tileGLM->setActivated(true);
         $this->entityManager->persist($tileGLM);
@@ -1872,7 +1875,7 @@ class TileGLMService
             }
         }
         $player = $personalBoard->getPlayerGLM();
-        $player->setPoints($player->getPoints() + $points);
+        $player->setScore($player->getScore() + $points);
         $this->entityManager->persist($player);
         $tileGLM->setActivated(true);
         $this->entityManager->persist($tileGLM);

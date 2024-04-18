@@ -278,47 +278,60 @@ class WorkerMYRService
      * @param PlayerMYR   $player
      * @param TileMYR     $tile
      * @param TileTypeMYR $tileType
+     * @param array<array<Int, Int>>       $availablePositions (optional)
      * @return ArrayCollection<Int, TileMYR>
      * @throws Exception
      */
-    public function getAllCoordinatesFromTileType(PlayerMYR $player, TileMYR $tile, TileTypeMYR $tileType) : ArrayCollection
+    public function getAllCoordinatesFromTileType(PlayerMYR $player,
+        TileMYR $tile, TileTypeMYR $tileType, array $availablePositions = []) : ArrayCollection
     {
         switch ($tileType->getType()) {
             case MyrmesParameters::PHEROMONE_TYPE_ZERO:
-                return $this->getAllCoordinatesOfPheromoneTypeZero($player, $tile, $tileType);
+                return $this->getAllCoordinatesOfPheromoneTypeZero($player, $tile, $tileType, $availablePositions);
             case MyrmesParameters::PHEROMONE_TYPE_ONE:
-                return $this->getAllCoordinatesOfPheromoneTypeOne($player, $tile, $tileType);
+                return $this->getAllCoordinatesOfPheromoneTypeOne($player, $tile, $tileType, $availablePositions);
             case MyrmesParameters::PHEROMONE_TYPE_TWO:
-                return $this->getAllCoordinatesOfPheromoneTypeTwo($player, $tile, $tileType);
+                return $this->getAllCoordinatesOfPheromoneTypeTwo($player, $tile, $tileType, $availablePositions);
             case MyrmesParameters::PHEROMONE_TYPE_THREE:
-                return $this->getAllCoordinatesOfPheromoneTypeThree($player, $tile, $tileType);
+                return $this->getAllCoordinatesOfPheromoneTypeThree($player, $tile, $tileType, $availablePositions);
             case MyrmesParameters::PHEROMONE_TYPE_FOUR:
-                return $this->getAllCoordinatesOfPheromoneTypeFour($player, $tile, $tileType);
+                return $this->getAllCoordinatesOfPheromoneTypeFour($player, $tile, $tileType, $availablePositions);
             case MyrmesParameters::PHEROMONE_TYPE_FIVE:
-                return $this->getAllCoordinatesOfPheromoneTypeFive($player, $tile, $tileType);
+                return $this->getAllCoordinatesOfPheromoneTypeFive($player, $tile, $tileType, $availablePositions);
             case MyrmesParameters::PHEROMONE_TYPE_SIX:
-                return $this->getAllCoordinatesOfPheromoneTypeSix($player, $tile, $tileType);
+                return $this->getAllCoordinatesOfPheromoneTypeSix($player, $tile, $tileType, $availablePositions);
             case MyrmesParameters::SPECIAL_TILE_TYPE_FARM:
                 if ($this->getAllCoordinatesOfPheromoneFarm($player)) {
-                    return $this->getAllCoordinatesOfPheromoneTypeTwo($player, $tile, $tileType);
+                    return $this->getAllCoordinatesOfPheromoneTypeTwo($player, $tile, $tileType, $availablePositions);
                 } else {
                     return new ArrayCollection();
                 }
             case MyrmesParameters::SPECIAL_TILE_TYPE_QUARRY:
                 if ($this->getAllCoordinatesOfPheromoneQuarry($player)) {
-                    return $this->getAllCoordinatesOfPheromoneTypeTwo($player, $tile, $tileType);
+                    return $this->getAllCoordinatesOfPheromoneTypeTwo($player, $tile, $tileType, $availablePositions);
                 } else {
                     return new ArrayCollection();
                 }
             case MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL:
                 if ($this->getAllCoordinatesOfPheromoneSubanthill($player)) {
-                    return $this->getAllCoordinatesOfPheromoneTypeThree($player, $tile, $tileType);
+                    return $this->getAllCoordinatesOfPheromoneTypeThree($player, $tile, $tileType, $availablePositions);
                 } else {
                     return new ArrayCollection();
                 }
             default:
                 return new ArrayCollection();
         }
+    }
+
+    /**
+     * getPlayerMovementPoints: return the player movement points
+     * @param PlayerMYR $player
+     * @return int
+     */
+    public function getPlayerMovementPoints(PlayerMYR $player): int
+    {
+        return MyrmesParameters::DEFAULT_MOVEMENT_NUMBER
+        + ($player->getPersonalBoardMYR()->getBonus() == MyrmesParameters::BONUS_MOVEMENT ? 3 : 0);
     }
 
     /**
@@ -416,8 +429,7 @@ class WorkerMYRService
         $gardenWorker->setTile($exitHole->getTile());
         $gardenWorker->setPlayer($personalBoard->getPlayer());
         $gardenWorker->setMainBoardMYR($personalBoard->getPlayer()->getGameMyr()->getMainBoardMYR());
-        $gardenWorker->setShiftsCount(MyrmesParameters::DEFAULT_MOVEMENT_NUMBER
-            + ($personalBoard->getBonus() == MyrmesParameters::BONUS_MOVEMENT ? 3 : 0));
+        $gardenWorker->setShiftsCount($this->getPlayerMovementPoints($personalBoard->getPlayer()));
         $this->entityManager->persist($gardenWorker);
         $this->entityManager->remove($ant);
         $this->entityManager->flush();
@@ -446,15 +458,17 @@ class WorkerMYRService
     }
 
 
-
     /**
      * canPlacePheromone : checks if a player can place a pheromone of a type on a tile
+     *
      * @param PlayerMYR   $player
      * @param TileMYR     $tile
      * @param TileTypeMYR $tileType
+     * @param array<array<Int, Int>>       $availablePositions (optional)
      * @return bool
      */
-    public function canPlacePheromone(PlayerMYR $player, TileMYR $tile, TileTypeMYR $tileType) : bool
+    public function canPlacePheromone(PlayerMYR $player, TileMYR $tile, TileTypeMYR $tileType,
+        array $availablePositions = []) : bool
     {
         $pheromoneCount = $this->getPheromoneCountOfType($player, $tileType);
         try {
@@ -468,7 +482,7 @@ class WorkerMYRService
             return false;
         }
         try {
-            $tiles = $this->getAllCoordinatesFromTileType($player, $tile, $tileType);
+            $tiles = $this->getAllCoordinatesFromTileType($player, $tile, $tileType, $availablePositions);
         } catch (Exception $e) {
             return false;
         }
@@ -1119,10 +1133,12 @@ class WorkerMYRService
      * @param PlayerMYR   $player
      * @param TileMYR     $tile
      * @param TileTypeMYR $tileType
+     * @param array<array<Int, Int>>       $availablePositions (optional)
      * @return ArrayCollection<Int, TileMYR>
      * @throws Exception
      */
-    private function getAllCoordinatesOfPheromoneTypeZero(PlayerMYR $player, TileMYR $tile, TileTypeMYR $tileType) : ArrayCollection
+    private function getAllCoordinatesOfPheromoneTypeZero(PlayerMYR $player,
+        TileMYR $tile, TileTypeMYR $tileType, array $availablePositions = []) : ArrayCollection
     {
         $coordX = $tile->getCoordX();
         $coordY = $tile->getCoordY();
@@ -1133,22 +1149,22 @@ class WorkerMYRService
         switch ($tileType->getOrientation()) {
             case 0:
                 $coords = [[0, 0], [1, 1]];
-                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY);
+                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY, $availablePositions);
             case 1:
                 $coords = [[0, 0], [1, -1]];
-                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY);
+                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY, $availablePositions);
             case 2:
                 $coords = [[0, 0], [0, -2]];
-                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY);
+                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY, $availablePositions);
             case 3:
                 $coords = [[0, 0], [-1, -1]];
-                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY);
+                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY, $availablePositions);
             case 4:
                 $coords = [[0, 0], [-1, 1]];
-                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY);
+                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY, $availablePositions);
             case 5:
                 $coords = [[0, 0], [0, 2]];
-                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY);
+                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY, $availablePositions);
             default:
                 throw new Exception("impossible case");
         }
@@ -1160,10 +1176,12 @@ class WorkerMYRService
      * @param PlayerMYR   $player
      * @param TileMYR     $tile
      * @param TileTypeMYR $tileType
+     * @param array<array<Int, Int>>      $availablePositions (optional)
      * @return ArrayCollection<Int, TileMYR>
      * @throws Exception
      */
-    private function getAllCoordinatesOfPheromoneTypeOne(PlayerMYR $player, TileMYR $tile, TileTypeMYR $tileType) : ArrayCollection
+    private function getAllCoordinatesOfPheromoneTypeOne(PlayerMYR $player,
+        TileMYR $tile, TileTypeMYR $tileType, array $availablePositions = []) : ArrayCollection
     {
         $coordX = $tile->getCoordX();
         $coordY = $tile->getCoordY();
@@ -1174,13 +1192,13 @@ class WorkerMYRService
         switch ($tileType->getOrientation()) {
             case 0:
                 $coords = [[0, 0], [-1, -1], [1, 1]];
-                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY);
+                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY, $availablePositions);
             case 1:
                 $coords = [[0, 0], [0, -2], [0, 2]];
-                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY);
+                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY, $availablePositions);
             case 2:
                 $coords = [[0, 0], [-1, 1], [1, -1]];
-                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY);
+                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY, $availablePositions);
             default:
                 throw new Exception("can't place this tile");
         }
@@ -1192,10 +1210,12 @@ class WorkerMYRService
      * @param PlayerMYR   $player
      * @param TileMYR     $tile
      * @param TileTypeMYR $tileType
+     * @param array<array<Int, Int>>       $availablePositions
      * @return ArrayCollection<Int, TileMYR>
      * @throws Exception
      */
-    private function getAllCoordinatesOfPheromoneTypeTwo(PlayerMYR $player, TileMYR $tile, TileTypeMYR $tileType) : ArrayCollection
+    private function getAllCoordinatesOfPheromoneTypeTwo(PlayerMYR $player,
+        TileMYR $tile, TileTypeMYR $tileType, array $availablePositions = []) : ArrayCollection
     {
         $coordX = $tile->getCoordX();
         $coordY = $tile->getCoordY();
@@ -1206,22 +1226,22 @@ class WorkerMYRService
         switch ($tileType->getOrientation()) {
             case 0:
                 $coords = [[0, 0], [1, -1], [1, 1]];
-                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY);
+                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY, $availablePositions);
             case 1:
                 $coords = [[0, 0], [1, -1], [0, -2]];
-                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY);
+                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY, $availablePositions);
             case 2:
                 $coords = [[0, 0], [0, -2], [-1, -1]];
-                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY);
+                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY, $availablePositions);
             case 3:
                 $coords = [[0, 0], [-1, -1], [-1, 1]];
-                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY);
+                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY, $availablePositions);
             case 4:
                 $coords = [[0, 0], [-1, 1], [0, 2]];
-                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY);
+                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY, $availablePositions);
             case 5:
                 $coords = [[0, 0], [0, 2], [1, 1]];
-                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY);
+                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY, $availablePositions);
             default:
                 throw new Exception("can't place this tile");
         }
@@ -1233,10 +1253,12 @@ class WorkerMYRService
      * @param PlayerMYR   $player
      * @param TileMYR     $tile
      * @param TileTypeMYR $tileType
+     * @param array<array<Int, Int>>       $availablePositions (optional)
      * @return ArrayCollection<Int, TileMYR>
      * @throws Exception
      */
-    private function getAllCoordinatesOfPheromoneTypeThree(PlayerMYR $player, TileMYR $tile, TileTypeMYR $tileType) : ArrayCollection
+    private function getAllCoordinatesOfPheromoneTypeThree(PlayerMYR $player,
+        TileMYR $tile, TileTypeMYR $tileType, array $availablePositions = []) : ArrayCollection
     {
         $coordX = $tile->getCoordX();
         $coordY = $tile->getCoordY();
@@ -1247,22 +1269,22 @@ class WorkerMYRService
         switch ($tileType->getOrientation()) {
             case 0:
                 $coords = [[0, 0], [1, 1], [1, -1], [2, 0]];
-                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY);
+                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY, $availablePositions);
             case 1:
                 $coords = [[0, 0], [0, -2], [1, -1], [1, -3]];
-                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY);
+                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY, $availablePositions);
             case 2:
                 $coords = [[0, 0], [-1, -1], [-1, -3], [0, -2]];
-                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY);
+                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY, $availablePositions);
             case 3:
                 $coords = [[0, 0], [-2, 0], [-1, -1], [-1, 1]];
-                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY);
+                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY, $availablePositions);
             case 4:
                 $coords = [[0, 0], [0, 2], [-1, 3], [-1, 1]];
-                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY);
+                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY, $availablePositions);
             case 5:
                 $coords = [[0, 0], [1, 1], [1, 3], [0, 2]];
-                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY);
+                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY, $availablePositions);
             default:
                 throw new Exception("can't place this tile");
         }
@@ -1275,10 +1297,12 @@ class WorkerMYRService
      * @param PlayerMYR   $player
      * @param TileMYR     $tile
      * @param TileTypeMYR $tileType
+     * @param array<array<Int, Int>>       $availablePositions (optional)
      * @return ArrayCollection<Int, TileMYR>
      * @throws Exception
      */
-    private function getAllCoordinatesOfPheromoneTypeFour(PlayerMYR $player, TileMYR $tile, TileTypeMYR $tileType) : ArrayCollection
+    private function getAllCoordinatesOfPheromoneTypeFour(PlayerMYR $player,
+        TileMYR $tile, TileTypeMYR $tileType, array $availablePositions = []) : ArrayCollection
     {
         $coordX = $tile->getCoordX();
         $coordY = $tile->getCoordY();
@@ -1289,40 +1313,40 @@ class WorkerMYRService
         switch ($tileType->getOrientation()) {
             case 0:
                 $coords = [[0, 0], [0, 2], [1, 1], [2, 2]];
-                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY);
+                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY, $availablePositions);
             case 1:
                 $coords = [[0, 0], [1, -1], [1, 1], [2, -2]];
-                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY);
+                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY, $availablePositions);
             case 2:
                 $coords = [[0, 0], [0, -2], [0, -4], [1, -1]];
-                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY);
+                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY, $availablePositions);
             case 3:
                 $coords = [[0, 0], [0, -2], [-1, -1], [-2, -2]];
-                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY);
+                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY, $availablePositions);
             case 4:
                 $coords = [[0, 0], [-1, -1], [-1, 1], [-2, 2]];
-                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY);
+                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY, $availablePositions);
             case 5:
                 $coords = [[0, 0], [0, 2], [0, 4], [-1, 1]];
-                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY);
+                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY, $availablePositions);
             case 6:
                 $coords = [[0, 0], [0, -2], [1, -1], [2, -2]];
-                 return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY);
+                 return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY, $availablePositions);
             case 7:
                 $coords = [[0, 0], [0, -2], [0, -4], [-1, -1]];
-                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY);
+                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY, $availablePositions);
             case 8:
                 $coords = [[0, 0], [-1, -1], [-1, 1], [-2, -2]];
-                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY);
+                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY, $availablePositions);
             case 9:
                 $coords = [[0, 0], [0, 2], [-1, 1], [-2, 2]];
-                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY);
+                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY, $availablePositions);
             case 10:
                 $coords = [[0, 0], [0, 2], [0, 4], [1, 1]];
-                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY);
+                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY, $availablePositions);
             case 11:
                 $coords = [[0, 0], [1, -1], [1, 1], [2, 2]];
-                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY);
+                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY, $availablePositions);
             default:
                 throw new Exception("can't place this tile");
         }
@@ -1334,10 +1358,12 @@ class WorkerMYRService
      * @param PlayerMYR   $player
      * @param TileMYR     $tile
      * @param TileTypeMYR $tileType
+     * @param array<array<Int, Int>>       $availablePositions
      * @return ArrayCollection<Int, TileMYR>
      * @throws Exception
      */
-    private function getAllCoordinatesOfPheromoneTypeFive(PlayerMYR $player, TileMYR $tile, TileTypeMYR $tileType) : ArrayCollection
+    private function getAllCoordinatesOfPheromoneTypeFive(PlayerMYR $player,
+        TileMYR $tile, TileTypeMYR $tileType, array $availablePositions = []) : ArrayCollection
     {
         $coordX = $tile->getCoordX();
         $coordY = $tile->getCoordY();
@@ -1348,22 +1374,22 @@ class WorkerMYRService
         switch ($tileType->getOrientation()) {
             case 0:
                 $coords = [[0, 0], [0, 2], [1, 3], [1, 1], [1, -1]];
-                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY);
+                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY, $availablePositions);
             case 1:
                 $coords = [[0, 0], [1, 1], [2, 0], [1, -1], [0, -2]];
-                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY);
+                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY, $availablePositions);
             case 2:
                 $coords = [[0, 0], [1, -1], [1, -3], [0, -2], [-1, -1]];
-                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY);
+                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY, $availablePositions);
             case 3:
                 $coords = [[0, 0], [0, -2], [-1, -3], [-1, -1], [-1, 1]];
-                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY);
+                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY, $availablePositions);
             case 4:
                 $coords = [[0, 0], [-1, -1], [0, 2], [-1, 1], [-2, 0]];
-                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY);
+                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY, $availablePositions);
             case 5:
                 $coords = [[0, 0], [-1, 1], [-1, 3], [0, 2], [1, 1]];
-                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY);
+                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY, $availablePositions);
             default:
                 throw new Exception("can't place this tile");
         }
@@ -1375,10 +1401,12 @@ class WorkerMYRService
      * @param PlayerMYR   $player
      * @param TileMYR     $tile
      * @param TileTypeMYR $tileType
+     * @param array<array<Int, Int>>      $availablePositions (optional)
      * @return ArrayCollection<Int, TileMYR>
      * @throws Exception
      */
-    private function getAllCoordinatesOfPheromoneTypeSix(PlayerMYR $player, TileMYR $tile, TileTypeMYR $tileType) : ArrayCollection
+    private function getAllCoordinatesOfPheromoneTypeSix(PlayerMYR $player,
+        TileMYR $tile, TileTypeMYR $tileType, array $availablePositions = []) : ArrayCollection
     {
         $coordX = $tile->getCoordX();
         $coordY = $tile->getCoordY();
@@ -1389,22 +1417,22 @@ class WorkerMYRService
         switch ($tileType->getOrientation()) {
             case 0:
                 $coords = [[0, 0], [1, 1], [2, 2], [2, 0], [2, -2], [1, -1]];
-                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY);
+                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY, $availablePositions);
             case 1:
                 $coords = [[0, 0], [1, -1], [2, -2], [1, -3], [0, -4], [0, -2]];
-                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY);
+                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY, $availablePositions);
             case 2:
                 $coords = [[0, 0], [0, -2], [0, -4], [-1, -3], [-2, -2], [-1, -1]];
-                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY);
+                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY, $availablePositions);
             case 3:
                 $coords = [[0, 0], [-1, -1], [-2, -2], [-2, 0], [-2, 2], [-1, 1]];
-                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY);
+                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY, $availablePositions);
             case 4:
                 $coords = [[0, 0], [-1, 1], [-2, 2], [0, 2], [0, 4], [-1, 3]];
-                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY);
+                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY, $availablePositions);
             case 5:
                 $coords = [[0, 0], [0, 2], [0, 4], [1, 3], [2, 2], [1, 1]];
-                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY);
+                return $this->getAllTiles($coords, $game, $player, $tileType, $coordX, $coordY, $availablePositions);
             default:
                 throw new Exception("can't place this tile");
         }
@@ -1714,24 +1742,35 @@ class WorkerMYRService
      * @param TileTypeMYR $tileType
      * @param int         $x      the abscissa of asked tile
      * @param int         $y      the ordinate of asked tile
+     * @param array<array<Int, Int>>       $availablePositions (optional))
      * @return ArrayCollection<Int, TileMYR>
      * @throws Exception
      */
     private function getAllTiles(Array $coords, GameMYR $game, PlayerMYR $player,
-        TileTypeMYR $tileType, int $x, int $y) : ArrayCollection
+        TileTypeMYR $tileType, int $x, int $y, array $availablePositions = []) : ArrayCollection
     {
         $tiles = new ArrayCollection();
         foreach ($coords as $coord) {
             $coordX = $coord[0];
             $coordY = $coord[1];
+            /** @var TileMYR $newTile */
             $newTile = $this->tileMYRRepository->findOneBy(
                 ["coord_X" => $coordX + $x, "coord_Y" => $coordY + $y]
             );
             if ($newTile == null) {
                 throw new Exception("can't place this tile");
             }
+            $newTileX = $newTile->getCoordX();
+            $newTileY = $newTile->getCoordY();
+            $isInAvailablePositions = false;
+            for ($i = 0; $i < count($availablePositions); ++$i) {
+                if ($newTileX === $availablePositions[$i][0] && $newTileY === $availablePositions[$i][1]) {
+                    $isInAvailablePositions = true;
+                    break;
+                }
+            }
             $result = $this->isPositionAvailable($game, $newTile) && !$this->containsPrey($game, $newTile);
-            if (!$result) {
+            if (!$result && !$isInAvailablePositions) {
                 throw new Exception("can't place this tile");
             }
             $tiles->add($newTile);

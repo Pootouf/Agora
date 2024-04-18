@@ -8,13 +8,13 @@ This section displays the ranking with a view of the other players' possessions
 <div id="logo" class="w-full h-[10vw] landscape:1/6  lg:h-1/5 justify-center flex">
     <div>
         {% for season in seasons %}
-            <div class="flex justify-center items-center size-[70%] mt-5 mr-4 ml-4">
                 {% if season.actualSeason %}
-                    <img class="h-[6vw]"
-                         src="{{ asset('resourcesGames/Myrmes/seasonsDices/' ~ season.name ~ '/' ~ season.name ~ 'Dice' ~ season.diceResult ~ '.svg') }}"
-                         alt="{{ season.name }} dice {{ season.diceResult }}">
+                    <div class="flex justify-center items-center size-[70%] mt-5 mr-4 ml-4">
+                        <img class="h-[6vw]"
+                             src="{{ asset('resourcesGames/Myrmes/seasonsDices/' ~ season.name ~ '/' ~ season.name ~ 'Dice' ~ season.diceResult ~ '.svg') }}"
+                             alt="{{ season.name }} dice {{ season.diceResult }}">
+                    </div>
                 {% endif %}
-            </div>
         {% endfor %}
     </div>
     <div class="flex justify-center items-center w-[70%] h-[80%] mt-4 mr-4">
@@ -24,6 +24,19 @@ This section displays the ranking with a view of the other players' possessions
 
 <div class="flex-grow-0 w-full lg:h-[80%] md:h-[70%] overflow-y-auto">
     {% for p in game.players %}
+
+        {#player resources#}
+        {% set playerResources = p.personalBoardMYR.playerResourceMYRs %}
+        {% for r in playerResources %}
+            <div id="{{ r.resource.description }}"></div>
+        {% endfor %}
+        {% set playerDirt = playerResources[0].quantity %}
+        {% set playerStone = playerResources[1].quantity %}
+        {% set playerGrass = playerResources[2].quantity %}
+        {% set playerLarvae = p.personalBoardMYR.larvaCount - p.personalBoardMYR.selectedEventLarvaeAmount %}
+        {% set playerNurses = p.personalBoardMYR.nurses|filter(n => n.area == 0)|length %}
+        {% set playerSoldiers = p.personalBoardMYR.warriorsCount %}
+        {% set playerWorkers = p.personalBoardMYR.anthillWorkers.count %}
 
         {# Tailwind loading of background color in order red yellow blue gray #}
         <div hidden class="bg-[#910016] bg-[#e3d400] bg-[#1105f5] bg-[#374151]"></div>
@@ -84,7 +97,7 @@ This section displays the ranking with a view of the other players' possessions
                                     font-bold text-white
                                     bg-red-500 border-2 border-white rounded-full top-0 start-5 dark:border-gray-900"
                         >
-                        {{ availableLarvae }}
+                        {{ playerLarvae }}
                     </span>
                     </div>
                     <div class="relative w-[1/6]">
@@ -96,7 +109,7 @@ This section displays the ranking with a view of the other players' possessions
                                     font-bold text-white
                                     bg-red-500 border-2 border-white rounded-full top-0 start-5 dark:border-gray-900"
                         >
-                        {{ player.personalBoardMYR.nurses.count }}
+                        {{ playerNurses }}
                     </span>
                     </div>
                     <div class="relative w-[1/6]">
@@ -108,7 +121,7 @@ This section displays the ranking with a view of the other players' possessions
                                     font-bold text-white
                                     bg-red-500 border-2 border-white rounded-full top-0 lg:start-3 sm:start-2 dark:border-gray-900"
                         >
-                            {{ p.personalBoardMYR.warriorsCount }}
+                            {{ playerSoldiers }}
                         </span>
                     </div>
                     <div class="relative w-[1/6]">
@@ -120,7 +133,7 @@ This section displays the ranking with a view of the other players' possessions
                                     font-bold text-white
                                     bg-red-500 border-2 border-white rounded-full top-0 lg:start-3 sm:start-2 dark:border-gray-900"
                         >
-                            {{ p.personalBoardMYR.anthillWorkers.count }}
+                            {{ playerWorkers }}
                         </span>
                     </div>
                 </div>
@@ -134,7 +147,7 @@ This section displays the ranking with a view of the other players' possessions
                                     font-bold text-white
                                     bg-red-500 border-2 border-white rounded-full top-0 start-5 dark:border-gray-900"
                         >
-                            {{ grass }}
+                            {{ playerGrass }}
                         </span>
                     </div>
                     <div class="relative w-[1/6]">
@@ -146,7 +159,7 @@ This section displays the ranking with a view of the other players' possessions
                                     font-bold text-white
                                     bg-red-500 border-2 border-white rounded-full top-0 start-5 dark:border-gray-900"
                         >
-                            {{ dirt }}
+                            {{ playerDirt }}
                         </span>
                     </div>
                     <div class="relative w-[1/6]">
@@ -158,7 +171,7 @@ This section displays the ranking with a view of the other players' possessions
                                     font-bold text-white
                                     bg-red-500 border-2 border-white rounded-full top-0 start-5 dark:border-gray-900"
                         >
-                            {{ stone }}
+                            {{ playerStone }}
                         </span>
                     </div>
                 </div>

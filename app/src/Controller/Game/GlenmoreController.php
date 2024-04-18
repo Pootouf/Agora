@@ -2,10 +2,13 @@
 
 namespace App\Controller\Game;
 
+use App\Entity\Game\DTO\GameParameters;
+use App\Entity\Game\DTO\GameTranslation;
 use App\Entity\Game\DTO\Player;
 use App\Entity\Game\Glenmore\BoardTileGLM;
 use App\Entity\Game\Glenmore\GameGLM;
 use App\Entity\Game\Glenmore\GlenmoreParameters;
+use App\Entity\Game\Glenmore\GlenmoreTranslation;
 use App\Entity\Game\Glenmore\PlayerGLM;
 use App\Entity\Game\Glenmore\PlayerTileGLM;
 use App\Entity\Game\Glenmore\PlayerTileResourceGLM;
@@ -44,8 +47,10 @@ class GlenmoreController extends AbstractController
     #[Route('/game/glenmore/{id}', name: 'app_game_show_glm')]
     public function showGame(GameGLM $game): Response
     {
-        if ($game->isPaused() || !$game->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE,
+                Response::HTTP_FORBIDDEN);
+        }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         $isSpectator = false;
         $needToPlay = false;
@@ -105,8 +110,12 @@ class GlenmoreController extends AbstractController
         #[MapEntity(id: 'idGame')] GameGLM $gameGLM,
         #[MapEntity(id: 'idPlayer')] PlayerGLM $playerGLM): Response
     {
-        if ($gameGLM->isPaused() || !$gameGLM->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+        if ($gameGLM->isPaused() || !$gameGLM->isLaunched()) {
+            return new Response(
+                GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE,
+                Response::HTTP_FORBIDDEN
+            );
+        }
         $player = $this->service->getPlayerFromNameAndGame($gameGLM, $playerGLM->getUsername());
         return $this->render('Game/Glenmore/PersonalBoard/displayPropertyCards.html.twig', [
             'player' => $player,
@@ -120,8 +129,12 @@ class GlenmoreController extends AbstractController
         #[MapEntity(id: 'idResourceLine')] WarehouseLineGLM $line
     )  : Response
     {
-        if ($game->isPaused() || !$game->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(
+                GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE,
+                Response::HTTP_FORBIDDEN
+            );
+        }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         return $this->render('Game/Glenmore/MainBoard/Warehouse/warehouseActions.html.twig', [
             'player' => $player,
@@ -138,8 +151,12 @@ class GlenmoreController extends AbstractController
         #[MapEntity(id: 'idResourceLine')] WarehouseLineGLM $line
     )  : Response
     {
-        if ($game->isPaused() || !$game->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(
+                GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE,
+                Response::HTTP_FORBIDDEN
+            );
+        }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         return $this->render('Game/Glenmore/MainBoard/Warehouse/warehouseActions.html.twig', [
             'player' => $player,
@@ -156,38 +173,50 @@ class GlenmoreController extends AbstractController
         #[MapEntity(id: 'idResourceLine')] WarehouseLineGLM $line
     )  : Response
     {
-        if ($game->isPaused() || !$game->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(
+                GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE,
+                Response::HTTP_FORBIDDEN
+            );
+        }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         if ($this->service->getActivePlayer($game) !== $player) {
             $this->logService->sendPlayerLog($game, $player,
-                $player->getUsername() . " a essayé d'acheter une ressource hors de son tour");
-            return new Response("Not player's turn", Response::HTTP_FORBIDDEN);
+                $player->getUsername() . GlenmoreTranslation::TRY_BUY_RESOURCE_NOT_PLAYER_ROUND);
+            return new Response(GameTranslation::NOT_PLAYER_TURN, Response::HTTP_FORBIDDEN);
         }
         try {
             $this->warehouseGLMService->buyResourceFromWarehouse($player, $line->getResource());
-        } catch (Exception $e) {
-            $this->publishNotification($game, GlenmoreParameters::$NOTIFICATION_DURATION, "Attention !",
-                "Tu ne peux pas acheter cette ressource !", "alert",
-                "red", $player->getUsername());
-            $message = $player->getUsername() . " a essayé d'acheter une ressource " . $line->getResource()->getColor()
-                . " mais n'a pas pu";
+        } catch (Exception) {
+            $this->publishNotification($game, GlenmoreParameters::$NOTIFICATION_DURATION,
+                GlenmoreTranslation::WARNING,
+                GlenmoreTranslation::CANNOT_BUY_RESOURCE, GameParameters::ALERT_NOTIFICATION_TYPE,
+                GameParameters::NOTIFICATION_COLOR_RED, $player->getUsername());
+            $message = $player->getUsername()
+                . GlenmoreTranslation::TRY_BUY_RESOURCE
+                . $line->getResource()->getColor()
+                . GlenmoreTranslation::NOT_ABLE;
             $this->logService->sendPlayerLog($game, $player, $message);
-            return new Response("can't afford this resource", Response::HTTP_FORBIDDEN);
+            return new Response(GlenmoreTranslation::RESPONSE_CANNOT_AFFORD_RESOURCE, Response::HTTP_FORBIDDEN);
         }
         $prod = $this->typeResources($line->getResource()->getColor());
-        $this->publishNotification($game, GlenmoreParameters::$NOTIFICATION_DURATION, "Achat validé !",
-            "Tu as acheté ".$prod, "validation",
-            "green", $player->getUsername());
+        $this->publishNotification($game, GlenmoreParameters::$NOTIFICATION_DURATION,
+            GlenmoreTranslation::VALIDATE_BUY,
+            GlenmoreTranslation::BUY_DESCRIPTION.$prod,
+            GameParameters::VALIDATION_NOTIFICATION_TYPE,
+            GameParameters::NOTIFICATION_COLOR_GREEN,
+            $player->getUsername());
         $this->publishMainBoardPreview($game);
         $this->publishRanking($game);
         $this->publishMainBoard($game);
-        $message = $player->getUsername() . " a acheté une ressource " . $line->getResource()->getColor();
+        $message = $player->getUsername()
+            . GlenmoreTranslation::BUY_RESOURCE
+            . $line->getResource()->getColor();
         $this->logService->sendPlayerLog($game, $player, $message);
-        return new Response('player bought this resource', Response::HTTP_OK);
+        return new Response(GlenmoreTranslation::RESPONSE_RESOURCE_BOUGHT, Response::HTTP_OK);
     }
 
     #[Route('game/glenmore/{idGame}/activate/selling/resource/warehouse/production/mainBoard/{idResourceLine}',
@@ -197,22 +226,25 @@ class GlenmoreController extends AbstractController
         #[MapEntity(id: 'idResourceLine')] WarehouseLineGLM $line
     )  : Response
     {
-        if ($game->isPaused() || !$game->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(
+                GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE,
+                Response::HTTP_FORBIDDEN
+            );
+        }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         if ($this->service->getActivePlayer($game) !== $player) {
             $this->logService->sendPlayerLog($game, $player,
-                $player->getUsername() . " a essayé de vendre une ressource hors de son tour");
-            return new Response("Not player's turn", Response::HTTP_FORBIDDEN);
+                $player->getUsername() . GlenmoreTranslation::TRY_SELL_RESOURCE_NOT_PLAYER_ROUND);
+            return new Response(GameTranslation::NOT_PLAYER_TURN, Response::HTTP_FORBIDDEN);
         }
         if ($player->isActivatedResourceSelection()) {
             $this->logService->sendPlayerLog($game, $player,
-                $player->getUsername() . " n'a pas pu vendre une ressource car il était déjà
-                    en sélection de ressources");
-            return new Response("Can't sell a resource when already in resource selection",
+                $player->getUsername() . GlenmoreTranslation::TRY_SELL_RESOURCE_ALREADY_IN_SELECTION);
+            return new Response(GlenmoreTranslation::RESPONSE_TRY_SELL_RESOURCE_ALREADY_IN_SELECTION,
                 Response::HTTP_FORBIDDEN);
         }
         $player->getPersonalBoard()->setResourceToSell($line->getResource());
@@ -222,10 +254,10 @@ class GlenmoreController extends AbstractController
         $this->entityManager->persist($player);
         $this->entityManager->persist($player->getPersonalBoard());
         $this->entityManager->flush();
-        $this->publishPlayerRoundManagement($game, false);
+        $this->publishPlayerRoundManagement($game);
         $this->logService->sendPlayerLog($game, $player,
-            $player->getUsername() . " est entré en phase de sélection de ressources pour vendre");
-        return new Response('player activated selling selection of resource', Response::HTTP_OK);
+            $player->getUsername() . GlenmoreTranslation::ENTER_SELLING_PHASE);
+        return new Response(GlenmoreTranslation::RESPONSE_ENTER_SELLING_PHASE, Response::HTTP_OK);
     }
 
     #[Route('game/glenmore/{idGame}/select/tile/mainBoard/{idTile}',
@@ -235,27 +267,36 @@ class GlenmoreController extends AbstractController
         #[MapEntity(id: 'idTile')] BoardTileGLM $tile
     )  : Response
     {
-        if ($game->isPaused() || !$game->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(
+                GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE,
+                Response::HTTP_FORBIDDEN
+            );
+        }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         if ($this->service->getActivePlayer($game) !== $player) {
             $this->logService->sendPlayerLog($game, $player,
-                $player->getUsername() . " a essayé de choisir une tuile hors de son tour");
-            return new Response("Not player's turn", Response::HTTP_FORBIDDEN);
+                $player->getUsername() . GlenmoreTranslation::TRY_SELECT_TILE_NOT_PLAYER_ROUND);
+            return new Response(GameTranslation::NOT_PLAYER_TURN, Response::HTTP_FORBIDDEN);
         }
         try {
             $possiblePlacement = $this->tileGLMService->assignTileToPlayer($tile, $player);
         } catch (Exception $e) {
-            $this->publishNotification($game, GlenmoreParameters::$NOTIFICATION_DURATION, "Attention !",
-                "Tu ne peux pas acheter/placer cette tuile !", "alert",
-                "red", $player->getUsername());
-            $message = $player->getUsername() . " a choisi la tuile " . $tile->getId()
-                . " mais ne peut pas l'acheter";
+            $this->publishNotification($game, GlenmoreParameters::$NOTIFICATION_DURATION,
+                GlenmoreTranslation::WARNING,
+                GlenmoreTranslation::CANNOT_BUY_OR_PLACE_TILE,
+                GameParameters::ALERT_NOTIFICATION_TYPE,
+                GameParameters::NOTIFICATION_COLOR_RED,
+                $player->getUsername());
+            $message = $player->getUsername()
+                . GlenmoreTranslation::CHOOSE_TILE . $tile->getId()
+                . GlenmoreTranslation::CANNOT_BUY;
             $this->logService->sendPlayerLog($game, $player, $message);
-            return new Response("can't afford this tile" . $e->getMessage(), Response::HTTP_FORBIDDEN);
+            return new Response(GlenmoreTranslation::RESPONSE_CANNOT_AFFORD_TILE
+                . $e->getMessage(), Response::HTTP_FORBIDDEN);
         }
         if($this->tileGLMService->hasBuyCost($tile)) {
             $player->setActivatedResourceSelection(true);
@@ -270,11 +311,11 @@ class GlenmoreController extends AbstractController
         $this->publishRanking($game);
         $this->publishMainBoard($game);
         $this->publishPersonalBoard($player, $possiblePlacement);
-        $this->publishPersonalBoardSpectator($game, []);
-        $this->publishPlayerRoundManagement($game, false);
-        $message = $player->getUsername() . " a choisi la tuile " . $tile->getId();
+        $this->publishPersonalBoardSpectator($game);
+        $this->publishPlayerRoundManagement($game);
+        $message = $player->getUsername() . GlenmoreTranslation::CHOOSE_TILE . $tile->getId();
         $this->logService->sendPlayerLog($game, $player, $message);
-        return new Response('player selected this tile', Response::HTTP_OK);
+        return new Response(GlenmoreTranslation::RESPONSE_SELECTED_TILE, Response::HTTP_OK);
     }
 
     #[Route('game/glenmore/{idGame}/select/tile/mainBoard/{coordX}/{coordY}',
@@ -285,30 +326,35 @@ class GlenmoreController extends AbstractController
         int $coordY
     )  : Response
     {
-        if ($game->isPaused() || !$game->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(
+                GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE,
+                Response::HTTP_FORBIDDEN
+            );
+        }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         if ($this->service->getActivePlayer($game) !== $player) {
             $this->logService->sendPlayerLog($game, $player,
-                $player->getUsername() . " a essayé de placer une tuile hors de son tour");
-            return new Response("Not player's turn", Response::HTTP_FORBIDDEN);
+                $player->getUsername() . GlenmoreTranslation::TRY_PLACE_TILE_NOT_PLAYER_ROUND);
+            return new Response(GameTranslation::NOT_PLAYER_TURN, Response::HTTP_FORBIDDEN);
         }
         if($player->isActivatedResourceSelection()) {
             $this->logService->sendPlayerLog($game, $player,
-                $player->getUsername() . " a essayé de placer une tuile mais est en sélection de ressources");
-            return new Response("can't place this tile, need to validate selection of proper resources",
+                $player->getUsername() . GlenmoreTranslation::TRY_PLACE_TILE_IN_RESOURCE_SELECTION);
+            return new Response(GlenmoreTranslation::RESPONSE_TRY_PLACE_TILE_IN_RESOURCE_SELECTION,
                 Response::HTTP_FORBIDDEN);
         }
         try {
             $this->tileGLMService->setPlaceTileAlreadySelected($player, $coordX, $coordY);
         } catch (Exception $e) {
             $this->logService->sendPlayerLog($game, $player,
-                $player->getUsername() . " n'a pas pu placer la tuile " .
+                $player->getUsername() . GlenmoreTranslation::NOT_ABLE_TO_PLACE_TILE .
                 $player->getPersonalBoard()->getBuyingTile()->getBoardTile()->getTile()->getId());
-            return new Response("can't place this tile" . $e, Response::HTTP_FORBIDDEN);
+            return new Response(GlenmoreTranslation::RESPONSE_NOT_ABLE_TO_PLACE_TILE . $e,
+                Response::HTTP_FORBIDDEN);
         }
         $this->service->setPhase($player, GlenmoreParameters::$ACTIVATION_PHASE);
         $player->setActivatedResourceSelection(false);
@@ -319,19 +365,23 @@ class GlenmoreController extends AbstractController
             $this->publishCreateResource($playerTile);
         } else {
             $this->publishPersonalBoard($player, []);
-            $this->publishPersonalBoardSpectator($game, []);
+            $this->publishPersonalBoardSpectator($game);
         }
-        $this->publishNotification($game, GlenmoreParameters::$NOTIFICATION_DURATION, "Action validée !",
-            "Ta tuile a bien été posée, active tes tuiles ou finis la phase.", "validation",
-            "green", $player->getUsername());
+        $this->publishNotification($game, GlenmoreParameters::$NOTIFICATION_DURATION,
+            GlenmoreTranslation::VALIDATE_ACTION,
+            GlenmoreTranslation::TILE_PLACED_DESCRIPTION,
+            GameParameters::VALIDATION_NOTIFICATION_TYPE,
+            GameParameters::NOTIFICATION_COLOR_GREEN,
+            $player->getUsername());
         $this->entityManager->persist($player);
         $this->entityManager->flush();
         $this->publishPlayerRoundManagement($game);
         $this->publishRanking($game);
         $this->publishMainBoardPreview($game);
-        $message = $player->getUsername() . " a placé la tuile " . $playerTile->getTile()->getId();
+        $message = $player->getUsername() . GlenmoreTranslation::TILE_PLACED
+            . $playerTile->getTile()->getId();
         $this->logService->sendPlayerLog($game, $player, $message);
-        return new Response('player put this tile', Response::HTTP_OK);
+        return new Response(GlenmoreTranslation::RESPONSE_TILE_PLACED, Response::HTTP_OK);
     }
 
     #[Route('game/glenmore/{idGame}/select/tile/personalBoard/{idTile}',
@@ -341,11 +391,15 @@ class GlenmoreController extends AbstractController
         #[MapEntity(id: 'idTile')] PlayerTileGLM $tile
     )  : Response
     {
-        if ($game->isPaused() || !$game->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(
+                GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE,
+                Response::HTTP_FORBIDDEN
+            );
+        }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         return $this->render('/Game/Glenmore/PersonalBoard/selectTile.html.twig', [
             'selectedTile' => $tile,
@@ -373,54 +427,72 @@ class GlenmoreController extends AbstractController
         #[MapEntity(id: 'idTile')] PlayerTileGLM $tile
     )  : Response
     {
-        if ($game->isPaused() || !$game->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(
+                GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE,
+                Response::HTTP_FORBIDDEN
+            );
+        }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         $phase = $player->getRoundPhase();
         if ($phase == GlenmoreParameters::$BUYING_PHASE) {
             try {
                 $this->tileGLMService->selectResourcesFromTileToBuy($tile, $resourceGLM->getResource());
-            } catch (\Exception $e) {
-                $this->publishNotification($game, GlenmoreParameters::$NOTIFICATION_DURATION, "Attention !",
-                    "Pas cette ressource, fais un effort !", "alert",
-                    "red", $player->getUsername());
+            } catch (Exception $e) {
+                $this->publishNotification($game, GlenmoreParameters::$NOTIFICATION_DURATION,
+                    GlenmoreTranslation::WARNING,
+                    GlenmoreTranslation::WRONG_RESOURCE_SELECTED_TO_BUY,
+                    GameParameters::ALERT_NOTIFICATION_TYPE,
+                    GameParameters::NOTIFICATION_COLOR_RED,
+                    $player->getUsername());
                 $this->logService->sendPlayerLog($game, $player,
-                    $player->getUsername() . " a essayé de sélectionner une ressource mais n'a pas pu");
+                    $player->getUsername() . GlenmoreTranslation::TRY_SELECT_RESOURCE_NOT_ABLE);
                 return new Response($e->getMessage(), Response::HTTP_FORBIDDEN);
             }
         } else if ($phase == GlenmoreParameters::$ACTIVATION_PHASE) {
             try {
                 $this->tileGLMService->selectResourcesFromTileToActivate($tile, $resourceGLM->getResource());
-            } catch (\Exception $e) {
-                $this->publishNotification($game, GlenmoreParameters::$NOTIFICATION_DURATION, "Attention !",
-                    "Choisis une autre ressource !", "alert",
-                    "red", $player->getUsername());
+            } catch (Exception $e) {
+                $this->publishNotification($game, GlenmoreParameters::$NOTIFICATION_DURATION,
+                    GlenmoreTranslation::WARNING,
+                    GlenmoreTranslation::WRONG_RESOURCE_SELECTED_TO_ACTIVATE,
+                    GameParameters::ALERT_NOTIFICATION_TYPE,
+                    GameParameters::NOTIFICATION_COLOR_RED,
+                    $player->getUsername());
                 $this->logService->sendPlayerLog($game, $player,
-                    $player->getUsername() . " a essayé de sélectionner une ressource mais n'a pas pu");
+                    $player->getUsername() . GlenmoreTranslation::TRY_SELECT_RESOURCE_NOT_ABLE);
                 return new Response($e->getMessage(), Response::HTTP_FORBIDDEN);
             }
         } else if ($phase == GlenmoreParameters::$SELLING_PHASE) {
             try {
                 $this->tileGLMService->selectResourcesFromTileToSellResource($tile, $resourceGLM->getResource());
             } catch (Exception $e) {
-                $this->publishNotification($game, GlenmoreParameters::$NOTIFICATION_DURATION, "Attention !",
-                    "C'est pas ça que tu as choisi de vendre !", "alert",
-                    "red", $player->getUsername());
+                $this->publishNotification($game, GlenmoreParameters::$NOTIFICATION_DURATION,
+                    GlenmoreTranslation::WARNING,
+                    GlenmoreTranslation::WRONG_RESOURCE_SELECTED_TO_SELL,
+                    GameParameters::ALERT_NOTIFICATION_TYPE,
+                    GameParameters::NOTIFICATION_COLOR_RED,
+                    $player->getUsername());
                 $this->logService->sendPlayerLog($game, $player,
-                    $player->getUsername() . " a essayé de sélectionner une ressource mais n'a pas pu");
+                    $player->getUsername() . GlenmoreTranslation::TRY_SELECT_RESOURCE_NOT_ABLE);
                 return new Response($e->getMessage(), Response::HTTP_FORBIDDEN);
             }
         }
-        $this->publishNotification($game, GlenmoreParameters::$NOTIFICATION_DURATION, "Ressource sélectionnée !",
-            "Si tu as fini n'oublie pas de validé ton choix !", "validation", "green",
+        $this->publishNotification($game, GlenmoreParameters::$NOTIFICATION_DURATION,
+            GlenmoreTranslation::VALIDATE_RESOURCE_SELECTION,
+            GlenmoreTranslation::RESOURCE_SELECTION_DESCRIPTION,
+            GameParameters::VALIDATION_NOTIFICATION_TYPE,
+            GameParameters::NOTIFICATION_COLOR_GREEN,
             $player->getUsername());
         $this->publishSelectResource($tile);
         $this->logService->sendPlayerLog($game, $player,
-            $player->getUsername() . " a sélectionné la ressource " . $resourceGLM->getResource()->getId());
-        return new Response('a new resource has been selected', Response::HTTP_OK);
+            $player->getUsername()
+            . GlenmoreTranslation::RESOURCE_SELECTED
+            . $resourceGLM->getResource()->getId());
+        return new Response(GlenmoreTranslation::RESPONSE_RESOURCE_SELECTED, Response::HTTP_OK);
     }
 
     #[Route('game/glenmore/{idGame}/select/leader',
@@ -429,25 +501,29 @@ class GlenmoreController extends AbstractController
         #[MapEntity(id: 'idGame')] GameGLM $game
     )  : Response
     {
-        if ($game->isPaused() || !$game->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(
+                GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE,
+                Response::HTTP_FORBIDDEN
+            );
+        }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         $phase = $player->getRoundPhase();
         if ($phase == GlenmoreParameters::$BUYING_PHASE) {
             try {
                 $this->tileGLMService->selectLeader($player);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->logService->sendPlayerLog($game, $player,
-                    $player->getUsername() . " a essayé de sélectionner un chef de village mais n'a pas pu");
-                return new Response($e->getMessage(), Response::HTTP_UNAVAILABLE_FOR_LEGAL_REASONS);
+                    $player->getUsername() . GlenmoreTranslation::TRY_SELECT_LEADER_NOT_ABLE);
+                return new Response($e->getMessage(), Response::HTTP_FORBIDDEN);
             }
         }
         $this->logService->sendPlayerLog($game, $player,
-            $player->getUsername() . " a selectionné un chef de village");
-        return new Response('a leader has been selected', Response::HTTP_OK);
+            $player->getUsername() . GlenmoreTranslation::LEADER_SELECTED);
+        return new Response(GlenmoreTranslation::RESPONSE_LEADER_SELECTED, Response::HTTP_OK);
     }
 
     #[Route('game/glenmore/{idGame}/select/{idTile}/resource/acquisition/{resource}',
@@ -458,41 +534,56 @@ class GlenmoreController extends AbstractController
         string $resource
     )  : Response
     {
-        if ($game->isPaused() || !$game->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(
+                GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE,
+                Response::HTTP_FORBIDDEN
+            );
+        }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
-        $production_resource = $this->resourceGLMRepository->findOneBy(["type" => GlenmoreParameters::$PRODUCTION_RESOURCE,
-                                                                        "color" => $resource]);
+        $production_resource = $this->resourceGLMRepository->findOneBy(
+            [
+                "type" => GlenmoreParameters::$PRODUCTION_RESOURCE,
+                "color" => $resource
+            ]);
         if($tile->getTile()->getName() === GlenmoreParameters::$CARD_LOCH_LOCHY) {
             try {
                 $this->cardGLMService->selectResourceForLochLochy($player, $production_resource);
-            } catch (\Exception) {
-                $this->publishNotification($game, GlenmoreParameters::$NOTIFICATION_DURATION, "Attention !",
-                    "Tu ne peux pas sélectionner plus de ressources !", "alert",
-                    "red", $player->getUsername());
+            } catch (Exception) {
+                $this->publishNotification($game, GlenmoreParameters::$NOTIFICATION_DURATION,
+                    GlenmoreTranslation::WARNING,
+                    GlenmoreTranslation::CANNOT_SELECT_MORE_RESOURCES,
+                    GameParameters::ALERT_NOTIFICATION_TYPE,
+                    GameParameters::NOTIFICATION_COLOR_RED,
+                    $player->getUsername());
                 $this->logService->sendPlayerLog($game, $player,
-                    $player->getUsername() . " a essayé de choisir une ressource mais n'a pas pu");
-                return new Response('can not select more resource', Response::HTTP_FORBIDDEN);
+                    $player->getUsername() . GlenmoreTranslation::TRY_SELECT_RESOURCE_NOT_ABLE);
+                return new Response(GlenmoreTranslation::RESPONSE_CANNOT_SELECT_MORE_RESOURCE,
+                    Response::HTTP_FORBIDDEN);
             }
         } else if ($tile->getTile()->getName() === GlenmoreParameters::$CARD_IONA_ABBEY) {
             try {
                 $this->tileGLMService->selectResourceForIonaAbbey($player, $production_resource);
-            } catch (\Exception) {
-                $this->publishNotification($game, GlenmoreParameters::$NOTIFICATION_DURATION, "Attention !",
-                    "Tu ne peux pas sélectionner plus de ressources !", "alert",
-                    "red", $player->getUsername());
+            } catch (Exception) {
+                $this->publishNotification($game, GlenmoreParameters::$NOTIFICATION_DURATION,
+                    GlenmoreTranslation::WARNING,
+                    GlenmoreTranslation::CANNOT_SELECT_MORE_RESOURCES,
+                    GameParameters::ALERT_NOTIFICATION_TYPE,
+                    GameParameters::NOTIFICATION_COLOR_RED,
+                    $player->getUsername());
                 $this->logService->sendPlayerLog($game, $player,
-                    $player->getUsername() . " a essayé de choisir une ressource mais n'a pas pu");
-                return new Response('can not select more resource', Response::HTTP_FORBIDDEN);
+                    $player->getUsername() . GlenmoreTranslation::TRY_SELECT_RESOURCE_NOT_ABLE);
+                return new Response(GlenmoreTranslation::RESPONSE_CANNOT_SELECT_MORE_RESOURCE,
+                    Response::HTTP_FORBIDDEN);
             }
-            $this->publishPersonalBoardSpectator($game, []);
+            $this->publishPersonalBoardSpectator($game);
         }
         $this->logService->sendPlayerLog($game, $player,
-            $player->getUsername() . " a choisi la ressource " . $resource);
-        return new Response($player->getUsername()." selected a resource" ,Response::HTTP_OK);
+            $player->getUsername() . GlenmoreTranslation::RESOURCE_SELECTED . $resource);
+        return new Response(GlenmoreTranslation::RESPONSE_RESOURCE_SELECTED ,Response::HTTP_OK);
     }
 
     #[Route('game/glenmore/{idGame}/remove/{idTile}/villager/{idPlayerTileResource}',
@@ -503,37 +594,49 @@ class GlenmoreController extends AbstractController
         #[MapEntity(id: 'idTile')] PlayerTileGLM $tile
     )  : Response
     {
-        if ($game->isPaused() || !$game->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(
+                GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE,
+                Response::HTTP_FORBIDDEN
+            );
+        }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         if ($this->service->getActivePlayer($game) !== $player) {
             $this->logService->sendPlayerLog($game, $player,
-                $player->getUsername() . " a essayé de sortir un villageois hors de son tour");
-            return new Response("Not player's turn", Response::HTTP_FORBIDDEN);
+                $player->getUsername()
+                . GlenmoreTranslation::TRY_GET_OUT_VILLAGER_NOT_PLAYER_ROUND);
+            return new Response(GameTranslation::NOT_PLAYER_TURN, Response::HTTP_FORBIDDEN);
         }
         try {
             $this->tileGLMService->removeVillager($tile);
         } catch (Exception $e) {
-            $this->publishNotification($game, GlenmoreParameters::$NOTIFICATION_DURATION, "Attention !",
-                "Tu ne peux pas enlever ton dernier villageois !", "alert",
-                "red", $player->getUsername());
+            $this->publishNotification($game, GlenmoreParameters::$NOTIFICATION_DURATION,
+                GlenmoreTranslation::WARNING,
+                GlenmoreTranslation::CANNOT_GET_OUT_LAST_VILLAGER,
+                GameParameters::ALERT_NOTIFICATION_TYPE,
+                GameParameters::NOTIFICATION_COLOR_RED,
+                $player->getUsername());
             $this->logService->sendPlayerLog($game, $player,
-                $player->getUsername() . " a essayé de sortir un villageois mais n'a pas pu");
-            return new Response('Invalid move' . $e->getMessage(), Response::HTTP_FORBIDDEN);
+                $player->getUsername() . GlenmoreTranslation::TRY_GET_OUT_VILLAGER_NOT_ABLE);
+            return new Response(GlenmoreTranslation::RESPONSE_INVALID_MOVE . $e->getMessage(),
+                Response::HTTP_FORBIDDEN);
         }
-        $this->publishNotification($game, GlenmoreParameters::$NOTIFICATION_DURATION, "Chef sélectionné !",
-            "Un nouveau chef fait parti de ton village !", "validation", "green",
+        $this->publishNotification($game, GlenmoreParameters::$NOTIFICATION_DURATION,
+            GlenmoreTranslation::VALIDATE_LEADER,
+            GlenmoreTranslation::LEADER_DESCRIPTION,
+            GameParameters::VALIDATION_NOTIFICATION_TYPE,
+            GameParameters::NOTIFICATION_COLOR_GREEN,
             $player->getUsername());
         $this->publishPersonalBoard($player, []);
-        $this->publishPersonalBoardSpectator($game, []);
+        $this->publishPersonalBoardSpectator($game);
         $this->publishRanking($game);
         $this->logService->sendPlayerLog($game, $player,
-            $player->getUsername() . " a sorti un villageois de son village");
+            $player->getUsername() . GlenmoreTranslation::GET_OUT_VILLAGER);
 
-        return new Response('villager has been removed', Response::HTTP_OK);
+        return new Response(GlenmoreTranslation::RESPONSE_VILLAGER_REMOVED, Response::HTTP_OK);
     }
 
     #[Route('game/glenmore/{idGame}/activate/{idTile}', name: 'app_game_glenmore_activate_tile')]
@@ -542,31 +645,40 @@ class GlenmoreController extends AbstractController
         #[MapEntity(id: 'idTile')] PlayerTileGLM $tile
     )  : Response
     {
-        if ($game->isPaused() || !$game->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(
+                GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE,
+                Response::HTTP_FORBIDDEN
+            );
+        }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         $this->tileGLMService->chooseTileToActivate($tile);
         if ($this->service->getActivePlayer($game) !== $player) {
             $this->logService->sendPlayerLog($game, $player,
-                $player->getUsername() . " a essayé d'activer une tuile en dehors de son tour");
-            return new Response("Not player's turn", Response::HTTP_FORBIDDEN);
+                $player->getUsername() . GlenmoreTranslation::TRY_ACTIVATE_TILE_NOT_PLAYER_ROUND);
+            return new Response(GameTranslation::NOT_PLAYER_TURN, Response::HTTP_FORBIDDEN);
         }
         if(!$this->tileGLMService->hasActivationCost($tile)) {
             $player->setActivatedResourceSelection(false);
             try {
                 $activableTiles = $this->tileGLMService->getActivableTiles($player->getPersonalBoard()->getPlayerTiles()->last());
                 $this->tileGLMService->activateBonus($tile, $player, $activableTiles);
-            } catch (\Exception $e) {
-                $this->publishNotification($game, GlenmoreParameters::$NOTIFICATION_DURATION, "Attention !",
-                    "Tu ne peux pas activer cette tuile !", "alert",
-                    "red", $player->getUsername());
+            } catch (Exception $e) {
+                $this->publishNotification($game, GlenmoreParameters::$NOTIFICATION_DURATION,
+                    GlenmoreTranslation::WARNING,
+                    GlenmoreTranslation::CANNOT_ACTIVATE_TILE,
+                    GameParameters::ALERT_NOTIFICATION_TYPE,
+                    GameParameters::NOTIFICATION_COLOR_RED,
+                    $player->getUsername());
                 $this->logService->sendPlayerLog($game, $player,
-                    $player->getUsername() . " a essayé d'activer la tuile " . $tile->getTile()->getId()
-                . " mais n'a pas pu");
-                return new Response("can't activate this tile: ". $e->getMessage(),
+                    $player->getUsername() . GlenmoreTranslation::TRY_ACTIVATE_TILE
+                    . $tile->getTile()->getId()
+                    . GlenmoreTranslation::NOT_ABLE);
+                return new Response(GlenmoreTranslation::RESPONSE_CANNOT_ACTIVATE_TILE
+                    . $e->getMessage(),
                     Response::HTTP_FORBIDDEN);
             }
         } else {
@@ -576,15 +688,17 @@ class GlenmoreController extends AbstractController
         $this->entityManager->persist($player);
         $this->entityManager->flush();
         $this->publishPersonalBoard($player, []);
-        $this->publishPersonalBoardSpectator($game, []);
+        $this->publishPersonalBoardSpectator($game);
         $this->publishRanking($game);
         if($tile->getTile()->getName() == GlenmoreParameters::$CARD_IONA_ABBEY) {
             $this->publishCreateResource($tile);
         }
         $this->publishPlayerRoundManagement($game);
         $this->logService->sendPlayerLog($game, $player,
-            $player->getUsername() . " a activé la tuile " . $tile->getTile()->getId());
-        return new Response('tile was activated', Response::HTTP_OK);
+            $player->getUsername() . GlenmoreTranslation::ACTIVATE_TILE
+            . $tile->getTile()->getId());
+        return new Response(GlenmoreTranslation::RESPONSE_TILE_ACTIVATED,
+            Response::HTTP_OK);
     }
 
     #[Route('game/glenmore/{idGame}/validate/activation', name: 'app_game_glenmore_validate_activation_tile')]
@@ -592,36 +706,47 @@ class GlenmoreController extends AbstractController
         #[MapEntity(id: 'idGame')] GameGLM $game,
     )  : Response
     {
-        if ($game->isPaused() || !$game->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(
+                GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE,
+                Response::HTTP_FORBIDDEN
+            );
+        }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         $tile = $player->getPersonalBoard()->getActivatedTile();
         try {
             $activableTiles = $this->tileGLMService->getActivableTiles($player->getPersonalBoard()->getPlayerTiles()->last());
             $this->tileGLMService->activateBonus($tile, $player, $activableTiles);
-        } catch (\Exception $e) {
-            $this->publishNotification($game, GlenmoreParameters::$NOTIFICATION_DURATION, "Attention !",
-                "Cette tuile ne peut pas être activée !", "alert",
-                "red", $player->getUsername());
+        } catch (Exception) {
+            $this->publishNotification($game, GlenmoreParameters::$NOTIFICATION_DURATION,
+                GlenmoreTranslation::WARNING,
+                GlenmoreTranslation::CANNOT_ACTIVATE_TILE,
+                GameParameters::ALERT_NOTIFICATION_TYPE,
+                GameParameters::NOTIFICATION_COLOR_RED,
+                $player->getUsername());
             $this->logService->sendPlayerLog($game, $player,
-                $player->getUsername() . " a essayé d'activer la tuile " . $tile->getTile()->getId()
-            . " mais n'a pas pu");
-            return new Response("can't activate this tile", Response::HTTP_FORBIDDEN);
+                $player->getUsername() . GlenmoreTranslation::TRY_ACTIVATE_TILE
+                . $tile->getTile()->getId()
+                . GlenmoreTranslation::NOT_ABLE);
+            return new Response(GlenmoreTranslation::RESPONSE_CANNOT_ACTIVATE_TILE,
+                Response::HTTP_FORBIDDEN);
         }
         $player->setActivatedResourceSelection(false);
         $this->service->setPhase($player, GlenmoreParameters::$ACTIVATION_PHASE);
         $this->entityManager->persist($player);
         $this->entityManager->flush();
         $this->publishPersonalBoard($player, []);
-        $this->publishPersonalBoardSpectator($game, []);
+        $this->publishPersonalBoardSpectator($game);
         $this->publishRanking($game);
-        $this->publishPlayerRoundManagement($game, false);
+        $this->publishPlayerRoundManagement($game);
         $this->logService->sendPlayerLog($game, $player,
-            $player->getUsername() . " a activé la tuile " . $tile->getTile()->getId());
-        return new Response("tile was activated", Response::HTTP_OK);
+            $player->getUsername() . GlenmoreTranslation::ACTIVATE_TILE
+            . $tile->getTile()->getId());
+        return new Response(GlenmoreTranslation::RESPONSE_TILE_ACTIVATED,
+            Response::HTTP_OK);
     }
 
     #[Route('game/glenmore/{idGame}/end/activation', name: 'app_game_glenmore_end_activate_tile')]
@@ -629,20 +754,26 @@ class GlenmoreController extends AbstractController
         #[MapEntity(id: 'idGame')] GameGLM $game
     )  : Response
     {
-        if ($game->isPaused() || !$game->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(
+                GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE,
+                Response::HTTP_FORBIDDEN
+            );
+        }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         $this->service->setPhase($player, GlenmoreParameters::$MOVEMENT_PHASE);
         $this->publishPersonalBoard($player, []);
-        $this->publishPersonalBoardSpectator($game, []);
+        $this->publishPersonalBoardSpectator($game);
         $this->publishRanking($game);
-        $this->publishPlayerRoundManagement($game, false);
+        $this->publishPlayerRoundManagement($game);
         $this->logService->sendPlayerLog($game, $player,
-            $player->getUsername() . " a terminé sa phase d'activation");
-        return new Response($player->getUsername().' has ended activation phase', Response::HTTP_OK);
+            $player->getUsername() . GlenmoreTranslation::FINISH_ACTIVATION_PHASE);
+        return new Response(
+            $player->getUsername().GlenmoreTranslation::RESPONSE_FINISH_ACTIVATION_PHASE,
+            Response::HTTP_OK);
     }
 
     #[Route('game/glenmore/{idGame}/move/{idTile}/villager/direction/{dir}',
@@ -653,36 +784,45 @@ class GlenmoreController extends AbstractController
         int $dir
     )  : Response
     {
-        if ($game->isPaused() || !$game->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(
+                GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE,
+                Response::HTTP_FORBIDDEN
+            );
+        }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         if ($this->service->getActivePlayer($game) !== $player) {
             $this->logService->sendPlayerLog($game, $player,
-                $player->getUsername() . " a essayé de déplacer un villageois, alors que ce n'était pas son tour");
-            return new Response("Not player's turn", Response::HTTP_FORBIDDEN);
+                $player->getUsername() . GlenmoreTranslation::TRY_MOVE_VILLAGER_NOT_PLAYER_ROUND);
+            return new Response(GameTranslation::NOT_PLAYER_TURN, Response::HTTP_FORBIDDEN);
         }
         try {
             $targetedTile = $this->tileGLMService->moveVillager($tile, $dir);
         } catch (Exception $e) {
-            $this->publishNotification($game, GlenmoreParameters::$NOTIFICATION_DURATION, "Attention !",
-                "Tu ne peux pas te déplacer ici !", "alert",
-                "red", $player->getUsername());
+            $this->publishNotification($game, GlenmoreParameters::$NOTIFICATION_DURATION,
+                GlenmoreTranslation::WARNING,
+                GlenmoreTranslation::CANNOT_MOVE_HERE,
+                GameParameters::ALERT_NOTIFICATION_TYPE,
+                GameParameters::NOTIFICATION_COLOR_RED,
+                $player->getUsername());
             $this->logService->sendPlayerLog($game, $player,
-                $player->getUsername() . " a essayé de déplacer un villageois depuis la tuile "
-            . $tile->getTile()->getId() . " dans la direction " . $dir . " mais n'a pas pu");
-            return new Response('Could not move a villager from this tile to 
-                targeted one ' . $e->getMessage(), Response::HTTP_FORBIDDEN);
+                $player->getUsername() . GlenmoreTranslation::TRY_MOVE_VILLAGER
+                . $tile->getTile()->getId() . GlenmoreTranslation::IN_DIRECTION
+                . $dir . GlenmoreTranslation::NOT_ABLE);
+            return new Response(GlenmoreTranslation::RESPONSE_CANNOT_MOVE_VILLAGER
+                . $e->getMessage(), Response::HTTP_FORBIDDEN);
         }
         $this->publishMoveVillagerOnPersonnalBoard($game, $player, $tile, $targetedTile);
         $this->publishPersonalBoard($player, []);
-        $this->publishPersonalBoardSpectator($game, []);
+        $this->publishPersonalBoardSpectator($game);
         $this->logService->sendPlayerLog($game, $player,
-            $player->getUsername() . " a déplacé un villageois depuis la tuile "
-            . $tile->getTile()->getId() . " dans la direction " . $dir);
-        return new Response('the villager has been moved', Response::HTTP_OK);
+            $player->getUsername() . GlenmoreTranslation::MOVE_VILLAGER
+            . $tile->getTile()->getId() . GlenmoreTranslation::IN_DIRECTION . $dir);
+        return new Response(GlenmoreTranslation::RESPONSE_MOVE_VILLAGER,
+            Response::HTTP_OK);
     }
 
     #[Route('game/glenmore/{idGame}/validate/{idTile}/resource/acquisition',
@@ -692,11 +832,15 @@ class GlenmoreController extends AbstractController
         #[MapEntity(id: 'idTile')] PlayerTileGLM $tile
     )  : Response
     {
-        if ($game->isPaused() || !$game->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(
+                GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE,
+                Response::HTTP_FORBIDDEN
+            );
+        }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         if($tile->getTile()->getName() === GlenmoreParameters::$CARD_LOCH_LOCHY) {
             $this->cardGLMService->validateTakingOfResourcesForLochLochy($player);
@@ -705,17 +849,20 @@ class GlenmoreController extends AbstractController
                 $this->tileGLMService->validateTakingOfResourcesForIonaAbbey($player);
             } catch (Exception $e) {
                 $this->logService->sendPlayerLog($game, $player,
-                    $player->getUsername() . " n'a pas pu activer la tuile " . $tile->getTile()->getName());
-                return new Response("could not activate this" . $e->getMessage(), Response::HTTP_FORBIDDEN);
+                    $player->getUsername() . GlenmoreTranslation::TRY_ACTIVATE_TILE
+                    . $tile->getTile()->getName());
+                return new Response(GlenmoreTranslation::RESPONSE_CANNOT_ACTIVATE_TILE
+                    . $e->getMessage(), Response::HTTP_FORBIDDEN);
             }
         }
         $this->publishPersonalBoard($player, []);
-        $this->publishPersonalBoardSpectator($game, []);
+        $this->publishPersonalBoardSpectator($game);
         $this->publishRanking($game);
-        $this->publishPlayerRoundManagement($game, false);
+        $this->publishPlayerRoundManagement($game);
         $this->logService->sendPlayerLog($game, $player,
-            $player->getUsername() . " a mis fin à sa phase d'acquisition");
-        return new Response($player->getUsername().' has ended new resources acquisition phase',
+            $player->getUsername() . GlenmoreTranslation::FINISH_ACQUISITION_PHASE);
+        return new Response($player->getUsername()
+            .GlenmoreTranslation::RESPONSE_FINISH_ACQUISITION_PHASE,
             Response::HTTP_OK);
     }
 
@@ -726,18 +873,23 @@ class GlenmoreController extends AbstractController
         #[MapEntity(id: 'idTile')] PlayerTileGLM $tile
     )  : Response
     {
-        if ($game->isPaused() || !$game->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(
+                GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE,
+                Response::HTTP_FORBIDDEN
+            );
+        }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         $this->cardGLMService->clearCreatedResources($player);
         $this->publishCreateResource($tile);
-        $this->publishPlayerRoundManagement($game, true);
+        $this->publishPlayerRoundManagement($game);
         $this->logService->sendPlayerLog($game, $player,
-            $player->getUsername() . " redéposé les ressources choisies");
-        return new Response('the chosen resources have been canceled', Response::HTTP_OK);
+            $player->getUsername() . GlenmoreTranslation::CANCEL_SELECTION);
+        return new Response(GlenmoreTranslation::RESPONSE_CANCEL_SELECTION,
+            Response::HTTP_OK);
     }
 
     #[Route('game/glenmore/{idGame}/validate/resources/selection',
@@ -746,11 +898,15 @@ class GlenmoreController extends AbstractController
         #[MapEntity(id: 'idGame')] GameGLM $game
     )  : Response
     {
-        if ($game->isPaused() || !$game->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(
+                GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE,
+                Response::HTTP_FORBIDDEN
+            );
+        }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         $playerPhase = $player->getRoundPhase();
         if ($playerPhase == GlenmoreParameters::$BUYING_PHASE) {
@@ -759,8 +915,10 @@ class GlenmoreController extends AbstractController
                 $player->getPersonalBoard()->getBuyingTile()->getBoardTile()->getTile()
             )) {
                 $this->logService->sendPlayerLog($game, $player,
-                    $player->getUsername() . " n'a pas choisi les ressources demandées");
-                return new Response('player has not selected needed resources', Response::HTTP_FORBIDDEN);
+                    $player->getUsername()
+                    . GlenmoreTranslation::NOT_SELECTED_NEEDED_RESOURCES);
+                return new Response(GlenmoreTranslation::RESPONSE_NOT_SELECTED_NEEDED_RESOURCES,
+                    Response::HTTP_FORBIDDEN);
             }
 
         } else if ($playerPhase == GlenmoreParameters::$ACTIVATION_PHASE) {
@@ -772,11 +930,12 @@ class GlenmoreController extends AbstractController
                     $player,
                     $activableTiles
                 );
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->logService->sendPlayerLog($game, $player,
-                    $player->getUsername() . " n'a pas choisi les ressources demandées");
+                    $player->getUsername()
+                    . GlenmoreTranslation::NOT_SELECTED_NEEDED_RESOURCES);
                 return new Response($e->getMessage() .
-                    'player has not selected needed resources',
+                    GlenmoreTranslation::RESPONSE_NOT_SELECTED_NEEDED_RESOURCES,
                     Response::HTTP_FORBIDDEN);
             }
             $this->service->setPhase($player, GlenmoreParameters::$MOVEMENT_PHASE);
@@ -789,23 +948,26 @@ class GlenmoreController extends AbstractController
                     $player->getPersonalBoard()->getSelectedResources()->first()
                 );
                 $prod = $this->typeResources($player->getPersonalBoard()->getResourceToSell()->getColor());
-                $this->publishNotification($game, GlenmoreParameters::$NOTIFICATION_DURATION, "Vente validée !",
-                    "Tu as vendu ".$prod, "validation",
-                    "green", $player->getUsername());
+                $this->publishNotification($game, GlenmoreParameters::$NOTIFICATION_DURATION,
+                    GlenmoreTranslation::VALIDATE_SELLING,
+                    GlenmoreTranslation::SELL_DESCRIPTION . $prod,
+                    GameParameters::VALIDATION_NOTIFICATION_TYPE,
+                    GameParameters::NOTIFICATION_COLOR_GREEN,
+                    $player->getUsername());
             } catch (Exception) {
-                $message = $player->getUsername() .
-                    " a essayé de vendre la ressource " .
-                    $player->getPersonalBoard()->getResourceToSell()->getId()
-                    . " mais n'a pas pu";
+                $message = $player->getUsername() . GlenmoreTranslation::TRY_SELL_RESOURCE
+                    . $player->getPersonalBoard()->getResourceToSell()->getId()
+                    . GlenmoreTranslation::NOT_ABLE;
                 $this->logService->sendPlayerLog($game, $player, $message);
-                return new Response("can't sell this resource", Response::HTTP_FORBIDDEN);
+                return new Response(GlenmoreTranslation::RESPONSE_CANNOT_SELL_RESOURCE,
+                    Response::HTTP_FORBIDDEN);
             }
             $this->service->setPhase($player, $player->getPreviousPhase());
             $this->service->setPreviousPhase($player, null);
             $this->publishMainBoardPreview($game);
             $this->publishMainBoard($game);
             $message = $player->getUsername() .
-                " a choisi la ressource " .
+                GlenmoreTranslation::RESOURCE_SELECTED .
                 $player->getPersonalBoard()->getResourceToSell()->getId();
             $this->logService->sendPlayerLog($game, $player, $message);
         }
@@ -817,12 +979,14 @@ class GlenmoreController extends AbstractController
                 $player->getPersonalBoard(),
                 $player->getPersonalBoard()->getBuyingTile()->getBoardTile()->getTile()
             ));
-        $this->publishPersonalBoardSpectator($game, []);
+        $this->publishPersonalBoardSpectator($game);
         $this->publishRanking($game);
-        $this->publishPlayerRoundManagement($game, false);
+        $this->publishPlayerRoundManagement($game);
         $this->logService->sendPlayerLog($game, $player,
-            $player->getUsername() . " a validé sa prise de ressources");
-        return new Response('player selected resources', Response::HTTP_OK);
+            $player->getUsername()
+            . GlenmoreTranslation::VALIDATE_RESOURCES_SELECTION);
+        return new Response(GlenmoreTranslation::RESPONSE_VALIDATE_RESOURCES_SELECTION,
+            Response::HTTP_OK);
     }
 
     #[Route('game/glenmore/{idGame}/cancel/resources/selection',
@@ -831,19 +995,25 @@ class GlenmoreController extends AbstractController
         #[MapEntity(id: 'idGame')] GameGLM $game
     )  : Response
     {
-        if ($game->isPaused() || !$game->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(
+                GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE,
+                Response::HTTP_FORBIDDEN
+            );
+        }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE,
+                Response::HTTP_FORBIDDEN);
         }
         $this->tileGLMService->clearResourceSelection($player);
         $this->publishPersonalBoard($player, []);
-        $this->publishPersonalBoardSpectator($game, []);
-        $this->publishPlayerRoundManagement($game, false);
+        $this->publishPersonalBoardSpectator($game);
+        $this->publishPlayerRoundManagement($game);
         $this->logService->sendPlayerLog($game, $player,
-            $player->getUsername() . " a redéposé les ressources sélectionnées");
-        return new Response('player cancel his selection', Response::HTTP_OK);
+            $player->getUsername() . GlenmoreTranslation::CANCEL_SELECTION);
+        return new Response(GlenmoreTranslation::RESPONSE_CANCEL_SELECTION,
+            Response::HTTP_OK);
     }
 
     #[Route('game/glenmore/{idGame}/end/player/round', name: 'app_game_glenmore_end_player_round')]
@@ -851,21 +1021,27 @@ class GlenmoreController extends AbstractController
         #[MapEntity(id: 'idGame')] GameGLM $game
     )  : Response
     {
-        if ($game->isPaused() || !$game->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(
+                GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE,
+                Response::HTTP_FORBIDDEN
+            );
+        }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE,
+                Response::HTTP_FORBIDDEN);
         }
         $this->service->manageEndOfRound($game);
         $this->publishPersonalBoard($player, []);
-        $this->publishPersonalBoardSpectator($game, []);
+        $this->publishPersonalBoardSpectator($game);
         $this->publishRanking($game);
         $this->publishMainBoardPreview($game);
-        $this->publishPlayerRoundManagement($game, false);
+        $this->publishPlayerRoundManagement($game);
         $this->logService->sendPlayerLog($game, $player,
-            $player->getUsername() . " a mis fin à son tour");
-        return new Response('player ended his round', Response::HTTP_OK);
+            $player->getUsername() . GlenmoreTranslation::END_ROUND);
+        return new Response(GlenmoreTranslation::RESPONSE_END_ROUND,
+            Response::HTTP_OK);
     }
 
 
@@ -874,8 +1050,12 @@ class GlenmoreController extends AbstractController
         #[MapEntity(id: 'idGame')] GameGLM $gameGLM,
         #[MapEntity(id: 'idPlayer')] PlayerGLM $playerGLM): Response
     {
-        if ($gameGLM->isPaused() || !$gameGLM->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+        if ($gameGLM->isPaused() || !$gameGLM->isLaunched()) {
+            return new Response(
+                GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE,
+                Response::HTTP_FORBIDDEN
+            );
+        }
         $personalBoard = $playerGLM->getPersonalBoard();
         return $this->render('Game/Glenmore/MainBoard/playerPersonalBoard.html.twig', [
             'isSpectator' => true,
@@ -893,8 +1073,12 @@ class GlenmoreController extends AbstractController
     public function showMainBoard(
         #[MapEntity(id: 'idGame')] GameGLM $game): Response
     {
-        if ($game->isPaused() || !$game->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(
+                GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE,
+                Response::HTTP_FORBIDDEN
+            );
+        }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         return $this->render('Game/Glenmore/MainBoard/mainBoard.html.twig',
             [
@@ -911,11 +1095,15 @@ class GlenmoreController extends AbstractController
     public function cancelBuyingTile(
         #[MapEntity(id: 'idGame')] GameGLM $game): Response
     {
-        if ($game->isPaused() || !$game->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(
+                GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE,
+                Response::HTTP_FORBIDDEN
+            );
+        }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         $this->tileGLMService->clearTileSelection($player);
         $this->tileGLMService->clearResourceSelection($player);
@@ -924,23 +1112,29 @@ class GlenmoreController extends AbstractController
         $this->entityManager->persist($player);
         $this->entityManager->flush();
         $this->publishPersonalBoard($player, []);
-        $this->publishPersonalBoardSpectator($game, []);
+        $this->publishPersonalBoardSpectator($game);
         $this->publishMainBoardPreview($game);
-        $this->publishPlayerRoundManagement($game, false);
+        $this->publishPlayerRoundManagement($game);
         $this->logService->sendPlayerLog($game, $player,
-            $player->getUsername() . " a annulé sa prise de tuile");
-        return new Response('player cancel his tile selection', Response::HTTP_OK);
+            $player->getUsername() . GlenmoreTranslation::CANCEL_TILE_ACQUISITION);
+        return new Response(GlenmoreTranslation::RESPONSE_CANCEL_TILE_ACQUISITION,
+            Response::HTTP_OK);
     }
 
     #[Route('/game/{idGame}/glenmore/cancel/activating/tile', name: 'app_game_glenmore_cancel_activating_tile')]
     public function cancelActivatingTile(
         #[MapEntity(id: 'idGame')] GameGLM $game): Response
     {
-        if ($game->isPaused() || !$game->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(
+                GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE,
+                Response::HTTP_FORBIDDEN
+            );
+        }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE,
+                Response::HTTP_FORBIDDEN);
         }
         $this->tileGLMService->clearTileActivationSelection($player);
         $this->tileGLMService->clearResourceSelection($player);
@@ -949,12 +1143,13 @@ class GlenmoreController extends AbstractController
         $this->entityManager->persist($player);
         $this->entityManager->flush();
         $this->publishPersonalBoard($player, []);
-        $this->publishPersonalBoardSpectator($game, []);
+        $this->publishPersonalBoardSpectator($game);
         $this->publishMainBoardPreview($game);
-        $this->publishPlayerRoundManagement($game, false);
+        $this->publishPlayerRoundManagement($game);
         $this->logService->sendPlayerLog($game, $player,
-            $player->getUsername() . " a annulé l'activation de sa tuile");
-        return new Response('player cancel his tile selection', Response::HTTP_OK);
+            $player->getUsername() . GlenmoreTranslation::CANCEL_TILE_ACTIVATION);
+        return new Response(GlenmoreTranslation::RESPONSE_CANCEL_TILE_ACTIVATION,
+            Response::HTTP_OK);
     }
 
     /**
@@ -1072,30 +1267,34 @@ class GlenmoreController extends AbstractController
     }
 
     /**
-     * publishPersonalBoardSpectator: publish with mercure the personal board of the player
+     * publishPersonalBoardSpectator: publish with mercure the personal board of the players for spectators
      * @param GameGLM $game
-     * @param array $possiblePlacement
      * @return void
      */
-    private function publishPersonalBoardSpectator(GameGLM $game, array $possiblePlacement) : void
+    private function publishPersonalBoardSpectator(GameGLM $game) : void
     {
-        foreach($game->getPlayers() as $player)
-        $response = $this->render('Game/Glenmore/MainBoard/playerPersonalBoard.html.twig', [
-            'isSpectator' => $player === null,
-            'game' => $player->getGameGLM(),
-            'player' => $player,
-            'activableTiles' => $this->service->isInActivationPhase($player) ?
-                $this->tileGLMService->getActivableTiles($player->getPersonalBoard()->getPlayerTiles()->last())
-                : null,
-            'activatedResourceSelection' => $player->isActivatedResourceSelection(),
-            'personalBoardTiles' => $this->dataManagementGLMService->organizePersonalBoardRows($player, $possiblePlacement),
-            'whiskyCount' => $this->dataManagementGLMService->getWhiskyCount($player),
-        ]);
-        $this->publishService->publish(
-            $this->generateUrl('app_game_show_glm',
-                ['id' => $player->getGameGLM()->getId()]).'personalBoardSpectator'.$player->getId(),
-            $response
-        );
+        $possiblePlacement = [];
+        foreach($game->getPlayers() as $player) {
+            $response = $this->render('Game/Glenmore/MainBoard/playerPersonalBoard.html.twig', [
+                'isSpectator' => $player === null,
+                'game' => $player->getGameGLM(),
+                'player' => $player,
+                'activableTiles' => $this->service->isInActivationPhase($player) ?
+                    $this->tileGLMService->getActivableTiles($player->getPersonalBoard()->getPlayerTiles()->last())
+                    : null,
+                'activatedResourceSelection' => $player->isActivatedResourceSelection(),
+                'personalBoardTiles' => $this->dataManagementGLMService->organizePersonalBoardRows(
+                    $player,
+                    $possiblePlacement
+                ),
+                'whiskyCount' => $this->dataManagementGLMService->getWhiskyCount($player),
+            ]);
+            $this->publishService->publish(
+                $this->generateUrl('app_game_show_glm',
+                    ['id' => $player->getGameGLM()->getId()]).'personalBoardSpectator'.$player->getId(),
+                $response
+            );
+        }
     }
 
     /**
@@ -1209,18 +1408,7 @@ class GlenmoreController extends AbstractController
 
     private function typeResources(string $color): string
     {
-        switch ($color) {
-            case 'yellow':
-                return "du blé";
-            case 'white':
-                return "de la laine";
-            case 'brown':
-                return "de la viande";
-            case 'green':
-                return "de l'herbe";
-            default:
-                return "de la pierre";
-        }
+        return GlenmoreTranslation::RESOURCE_DESC[$color];
     }
 
 
