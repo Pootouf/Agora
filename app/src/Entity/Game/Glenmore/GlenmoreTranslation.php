@@ -116,4 +116,8 @@ interface GlenmoreTranslation
     const string RESPONSE_END_ROUND = "Player ended his round";
     const string RESPONSE_CANCEL_TILE_ACQUISITION = "Player cancel his tile selection";
     const string RESPONSE_CANCEL_TILE_ACTIVATION = "Player cancel his tile activation";
+
+
+    // ERROR MESSAGES
+    const string ERROR_CANNOT_PICK_MORE_RESOURCES = "Can't pick more resource for this tile";
 }
