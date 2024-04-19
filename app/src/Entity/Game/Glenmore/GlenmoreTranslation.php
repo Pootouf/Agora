@@ -76,6 +76,11 @@ interface GlenmoreTranslation
     const string END_ROUND = " a mis fin à son tour";
     const string CANCEL_TILE_ACQUISITION = " a annulé sa prise de tuile";
     const string CANCEL_TILE_ACTIVATION = " a annulé l'activation de sa tuile";
+    const string HAS_BEEN_CREATED = " a été créée";
+    const string JOIN_GAME = " a rejoint la partie ";
+    const string LEAVE_GAME = " a été retiré de la partie ";
+    const string HAS_ENDED = " a pris fin";
+    const string GAME_STARTED = " a débuté";
 
 
 
@@ -110,4 +115,8 @@ interface GlenmoreTranslation
     const string RESPONSE_END_ROUND = "Player ended his round";
     const string RESPONSE_CANCEL_TILE_ACQUISITION = "Player cancel his tile selection";
     const string RESPONSE_CANCEL_TILE_ACTIVATION = "Player cancel his tile activation";
+
+
+    // ERROR MESSAGES
+    const string ERROR_CANNOT_PICK_MORE_RESOURCES = "Can't pick more resource for this tile";
 }

@@ -3,6 +3,7 @@
 namespace App\Service\Game\SixQP;
 
 use App\Entity\Game\DTO\Game;
+use App\Entity\Game\DTO\GameTranslation;
 use App\Entity\Game\SixQP\DiscardSixQP;
 use App\Entity\Game\SixQP\GameSixQP;
 use App\Entity\Game\SixQP\PlayerSixQP;
@@ -48,7 +49,8 @@ class SixQPGameManagerService extends AbstractGameManagerService
 
         $this->entityManager->persist($game);
         $this->entityManager->flush();
-        $this->logService->sendSystemLog($game, "la partie " . $game->getId() . " a été créée");
+        $this->logService->sendSystemLog($game, GameTranslation::GAME_STRING
+            . $game->getId() . " a été créée");
         return $game->getId();
     }
 
@@ -122,7 +124,7 @@ class SixQPGameManagerService extends AbstractGameManagerService
         foreach ($game->getRowSixQPs() as $rowSixQP) {
             $this->entityManager->remove($rowSixQP);
         }
-        $this->logService->sendSystemLog($game, "la partie " . $game->getId() . " s'est terminée");
+        $this->logService->sendSystemLog($game, GameTranslation::GAME_STRING . $game->getId() . " s'est terminée");
         $this->entityManager->remove($game);
         $this->entityManager->flush();
         return SixQPGameManagerService::$SUCCESS;
@@ -147,7 +149,7 @@ class SixQPGameManagerService extends AbstractGameManagerService
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         $this->sixQPService->initializeNewRound($game);
-        $this->logService->sendSystemLog($game, "la partie " . $game->getId() . " a commencé");
+        $this->logService->sendSystemLog($game, GameTranslation::GAME_STRING . $game->getId() . " a commencé");
         return SixQPGameManagerService::$SUCCESS;
     }
 

@@ -452,7 +452,7 @@ class GlenmoreController extends AbstractController
                     $player->getUsername() . GlenmoreTranslation::TRY_SELECT_RESOURCE_NOT_ABLE);
                 return new Response($e->getMessage(), Response::HTTP_FORBIDDEN);
             }
-        } else if ($phase == GlenmoreParameters::$ACTIVATION_PHASE) {
+        } elseif ($phase == GlenmoreParameters::$ACTIVATION_PHASE) {
             try {
                 $this->tileGLMService->selectResourcesFromTileToActivate($tile, $resourceGLM->getResource());
             } catch (Exception $e) {
@@ -466,7 +466,7 @@ class GlenmoreController extends AbstractController
                     $player->getUsername() . GlenmoreTranslation::TRY_SELECT_RESOURCE_NOT_ABLE);
                 return new Response($e->getMessage(), Response::HTTP_FORBIDDEN);
             }
-        } else if ($phase == GlenmoreParameters::$SELLING_PHASE) {
+        } elseif ($phase == GlenmoreParameters::$SELLING_PHASE) {
             try {
                 $this->tileGLMService->selectResourcesFromTileToSellResource($tile, $resourceGLM->getResource());
             } catch (Exception $e) {
@@ -564,7 +564,7 @@ class GlenmoreController extends AbstractController
                 return new Response(GlenmoreTranslation::RESPONSE_CANNOT_SELECT_MORE_RESOURCE,
                     Response::HTTP_FORBIDDEN);
             }
-        } else if ($tile->getTile()->getName() === GlenmoreParameters::$CARD_IONA_ABBEY) {
+        } elseif ($tile->getTile()->getName() === GlenmoreParameters::$CARD_IONA_ABBEY) {
             try {
                 $this->tileGLMService->selectResourceForIonaAbbey($player, $production_resource);
             } catch (Exception) {
@@ -664,7 +664,8 @@ class GlenmoreController extends AbstractController
         if(!$this->tileGLMService->hasActivationCost($tile)) {
             $player->setActivatedResourceSelection(false);
             try {
-                $activableTiles = $this->tileGLMService->getActivableTiles($player->getPersonalBoard()->getPlayerTiles()->last());
+                $activableTiles = $this->tileGLMService
+                    ->getActivableTiles($player->getPersonalBoard()->getPlayerTiles()->last());
                 $this->tileGLMService->activateBonus($tile, $player, $activableTiles);
             } catch (Exception $e) {
                 $this->publishNotification($game, GlenmoreParameters::$NOTIFICATION_DURATION,
@@ -718,7 +719,8 @@ class GlenmoreController extends AbstractController
         }
         $tile = $player->getPersonalBoard()->getActivatedTile();
         try {
-            $activableTiles = $this->tileGLMService->getActivableTiles($player->getPersonalBoard()->getPlayerTiles()->last());
+            $activableTiles = $this->tileGLMService
+                ->getActivableTiles($player->getPersonalBoard()->getPlayerTiles()->last());
             $this->tileGLMService->activateBonus($tile, $player, $activableTiles);
         } catch (Exception) {
             $this->publishNotification($game, GlenmoreParameters::$NOTIFICATION_DURATION,
@@ -815,7 +817,7 @@ class GlenmoreController extends AbstractController
             return new Response(GlenmoreTranslation::RESPONSE_CANNOT_MOVE_VILLAGER
                 . $e->getMessage(), Response::HTTP_FORBIDDEN);
         }
-        $this->publishMoveVillagerOnPersonnalBoard($game, $player, $tile, $targetedTile);
+        $this->publishMoveVillagerOnPersonalBoard($game, $player, $tile, $targetedTile);
         $this->publishPersonalBoard($player, []);
         $this->publishPersonalBoardSpectator($game);
         $this->logService->sendPlayerLog($game, $player,
@@ -844,7 +846,7 @@ class GlenmoreController extends AbstractController
         }
         if($tile->getTile()->getName() === GlenmoreParameters::$CARD_LOCH_LOCHY) {
             $this->cardGLMService->validateTakingOfResourcesForLochLochy($player);
-        } else if ($tile->getTile()->getName() === GlenmoreParameters::$CARD_IONA_ABBEY) {
+        } elseif ($tile->getTile()->getName() === GlenmoreParameters::$CARD_IONA_ABBEY) {
             try {
                 $this->tileGLMService->validateTakingOfResourcesForIonaAbbey($player);
             } catch (Exception $e) {
@@ -921,7 +923,7 @@ class GlenmoreController extends AbstractController
                     Response::HTTP_FORBIDDEN);
             }
 
-        } else if ($playerPhase == GlenmoreParameters::$ACTIVATION_PHASE) {
+        } elseif ($playerPhase == GlenmoreParameters::$ACTIVATION_PHASE) {
             try {
                 $activableTiles = $this->tileGLMService
                     ->getActivableTiles($player->getPersonalBoard()->getPlayerTiles()->last());
@@ -940,7 +942,7 @@ class GlenmoreController extends AbstractController
             }
             $this->service->setPhase($player, GlenmoreParameters::$MOVEMENT_PHASE);
 
-        } else if ($playerPhase == GlenmoreParameters::$SELLING_PHASE) {
+        } elseif ($playerPhase == GlenmoreParameters::$SELLING_PHASE) {
             try {
                 $this->warehouseGLMService->sellResource(
                     $player,
@@ -1045,7 +1047,8 @@ class GlenmoreController extends AbstractController
     }
 
 
-    #[Route('game/glenmore/{idGame}/displayPersonalBoard/{idPlayer}', name: 'app_game_glenmore_display_player_personal_board')]
+    #[Route('game/glenmore/{idGame}/displayPersonalBoard/{idPlayer}',
+        name: 'app_game_glenmore_display_player_personal_board')]
     public function displayPlayerPersonalBoard(
         #[MapEntity(id: 'idGame')] GameGLM $gameGLM,
         #[MapEntity(id: 'idPlayer')] PlayerGLM $playerGLM): Response
@@ -1256,7 +1259,8 @@ class GlenmoreController extends AbstractController
                 $this->tileGLMService->getActivableTiles($player->getPersonalBoard()->getPlayerTiles()->last())
                 : null,
             'activatedResourceSelection' => $player->isActivatedResourceSelection(),
-            'personalBoardTiles' => $this->dataManagementGLMService->organizePersonalBoardRows($player, $possiblePlacement),
+            'personalBoardTiles' => $this->dataManagementGLMService
+                ->organizePersonalBoardRows($player, $possiblePlacement),
             'whiskyCount' => $this->dataManagementGLMService->getWhiskyCount($player),
         ]);
         $this->publishService->publish(
@@ -1386,10 +1390,14 @@ class GlenmoreController extends AbstractController
      * @param PlayerTileGLM $targetedTile
      * @return void
      */
-    private function publishMoveVillagerOnPersonnalBoard(GameGLM $game, PlayerGLM $player, PlayerTileGLM $originTile, PlayerTileGLM $targetedTile) : void
+    private function publishMoveVillagerOnPersonalBoard(
+        GameGLM $game, PlayerGLM $player,
+        PlayerTileGLM $originTile, PlayerTileGLM $targetedTile
+    ) : void
     {
         $this->publishService->publish(
-            $this->generateUrl('app_game_show_glm', ['id' => $game->getId()]).'animVillagerMovement'.$player->getId(),
+            $this->generateUrl('app_game_show_glm', ['id' => $game->getId()])
+            .'animVillagerMovement'.$player->getId(),
             new Response($originTile->getTile()->getId() . '_' . $targetedTile->getTile()->getId())
         );
     }
