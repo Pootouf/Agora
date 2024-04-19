@@ -6,6 +6,7 @@ use App\Entity\Game\DTO\Game;
 use App\Entity\Game\Glenmore\DrawTilesGLM;
 use App\Entity\Game\Glenmore\GameGLM;
 use App\Entity\Game\Glenmore\GlenmoreParameters;
+use App\Entity\Game\Glenmore\GlenmoreTranslation;
 use App\Entity\Game\Glenmore\MainBoardGLM;
 use App\Entity\Game\Glenmore\PawnGLM;
 use App\Entity\Game\Glenmore\PersonalBoardGLM;
@@ -21,7 +22,7 @@ class GLMGameManagerService extends AbstractGameManagerService
 {
 
     public function __construct(private EntityManagerInterface $entityManager,
-        private GLMService $GLMService,
+        private GLMService $glmService,
         private PlayerGLMRepository $playerGLMRepository,
         private LogService $logService)
     {}
@@ -63,7 +64,8 @@ class GLMGameManagerService extends AbstractGameManagerService
         $this->entityManager->persist($mainBoard);
         $this->entityManager->persist($game);
         $this->entityManager->flush();
-        $this->logService->sendSystemLog($game, "la partie " . $game->getId() . " a été créée");
+        $this->logService->sendSystemLog($game, GlenmoreTranslation::GAME_STRING
+            . $game->getId() . GlenmoreTranslation::HAS_BEEN_CREATED);
         return $game->getId();
     }
 
@@ -104,7 +106,7 @@ class GLMGameManagerService extends AbstractGameManagerService
         $this->entityManager->persist($personalBoard);
         $this->entityManager->flush();
         $this->logService->sendPlayerLog($game, $player,
-            $playerName . " a rejoint la partie " . $game->getId());
+            $playerName . GlenmoreTranslation::JOIN_GAME . $game->getId());
         return GLMGameManagerService::$SUCCESS;
     }
 
@@ -120,14 +122,14 @@ class GLMGameManagerService extends AbstractGameManagerService
         if ($game->isLaunched()) {
             return GLMGameManagerService::$ERROR_GAME_ALREADY_LAUNCHED;
         }
-        $player = $this->GLMService->getPlayerFromNameAndGame($game, $playerName);
+        $player = $this->glmService->getPlayerFromNameAndGame($game, $playerName);
         if ($player == null) {
             return GLMGameManagerService::$ERROR_PLAYER_NOT_FOUND;
         }
         $this->entityManager->remove($player);
         $this->entityManager->flush();
         $this->logService->sendSystemLog($game,
-            $playerName . " a été retiré de la partie " . $game->getId());
+            $playerName . GlenmoreTranslation::LEAVE_GAME . $game->getId());
         return GLMGameManagerService::$SUCCESS;
     }
 
@@ -151,7 +153,8 @@ class GLMGameManagerService extends AbstractGameManagerService
             $this->entityManager->remove($player);
         }
         $this->entityManager->remove($game->getMainBoard());
-        $this->logService->sendSystemLog($game, "la partie " . $game->getId() . " a pris fin");
+        $this->logService->sendSystemLog($game, GlenmoreTranslation::GAME_STRING
+            . $game->getId() . GlenmoreTranslation::HAS_ENDED);
         $this->entityManager->remove($game);
         $this->entityManager->flush();
         return GLMGameManagerService::$SUCCESS;
@@ -175,8 +178,9 @@ class GLMGameManagerService extends AbstractGameManagerService
         $game->setLaunched(true);
         $this->entityManager->persist($game);
         $this->entityManager->flush();
-        $this->GLMService->initializeNewGame($game);
-        $this->logService->sendSystemLog($game, "la partie " . $game->getId() . " a débuté");
+        $this->glmService->initializeNewGame($game);
+        $this->logService->sendSystemLog($game, GlenmoreTranslation::GAME_STRING
+            . $game->getId() . GlenmoreTranslation::GAME_STARTED);
         return GLMGameManagerService::$SUCCESS;
     }
 
