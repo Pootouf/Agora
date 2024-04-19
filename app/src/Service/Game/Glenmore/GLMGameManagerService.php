@@ -3,6 +3,7 @@
 namespace App\Service\Game\Glenmore;
 
 use App\Entity\Game\DTO\Game;
+use App\Entity\Game\DTO\GameTranslation;
 use App\Entity\Game\Glenmore\DrawTilesGLM;
 use App\Entity\Game\Glenmore\GameGLM;
 use App\Entity\Game\Glenmore\GlenmoreParameters;
@@ -64,7 +65,7 @@ class GLMGameManagerService extends AbstractGameManagerService
         $this->entityManager->persist($mainBoard);
         $this->entityManager->persist($game);
         $this->entityManager->flush();
-        $this->logService->sendSystemLog($game, GlenmoreTranslation::GAME_STRING
+        $this->logService->sendSystemLog($game, GameTranslation::GAME_STRING
             . $game->getId() . GlenmoreTranslation::HAS_BEEN_CREATED);
         return $game->getId();
     }
@@ -153,7 +154,7 @@ class GLMGameManagerService extends AbstractGameManagerService
             $this->entityManager->remove($player);
         }
         $this->entityManager->remove($game->getMainBoard());
-        $this->logService->sendSystemLog($game, GlenmoreTranslation::GAME_STRING
+        $this->logService->sendSystemLog($game, GameTranslation::GAME_STRING
             . $game->getId() . GlenmoreTranslation::HAS_ENDED);
         $this->entityManager->remove($game);
         $this->entityManager->flush();
@@ -179,7 +180,7 @@ class GLMGameManagerService extends AbstractGameManagerService
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         $this->glmService->initializeNewGame($game);
-        $this->logService->sendSystemLog($game, GlenmoreTranslation::GAME_STRING
+        $this->logService->sendSystemLog($game, GameTranslation::GAME_STRING
             . $game->getId() . GlenmoreTranslation::GAME_STARTED);
         return GLMGameManagerService::$SUCCESS;
     }

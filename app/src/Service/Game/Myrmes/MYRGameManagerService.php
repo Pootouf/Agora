@@ -3,6 +3,7 @@
 namespace App\Service\Game\Myrmes;
 
 use App\Entity\Game\DTO\Game;
+use App\Entity\Game\DTO\GameTranslation;
 use App\Entity\Game\Myrmes\GameMYR;
 use App\Entity\Game\Myrmes\MainBoardMYR;
 use App\Entity\Game\Myrmes\MyrmesParameters;
@@ -48,7 +49,7 @@ class MYRGameManagerService extends AbstractGameManagerService
         $this->entityManager->persist($game);
         $this->entityManager->persist($mainBoard);
         $this->entityManager->flush();
-        $this->logService->sendSystemLog($game, MyrmesTranslation::GAME_STRING . $game->getId() . " a été créée");
+        $this->logService->sendSystemLog($game, GameTranslation::GAME_STRING . $game->getId() . " a été créée");
         return $game->getId();
     }
 
@@ -145,7 +146,7 @@ class MYRGameManagerService extends AbstractGameManagerService
             $this->entityManager->remove($goal);
         }
         $this->entityManager->remove($game->getMainBoardMYR());
-        $this->logService->sendSystemLog($game, MyrmesTranslation::GAME_STRING . $game->getId() . " a pris fin");
+        $this->logService->sendSystemLog($game, GameTranslation::GAME_STRING . $game->getId() . " a pris fin");
         $this->entityManager->remove($game);
         $this->entityManager->flush();
         return MYRGameManagerService::$SUCCESS;
@@ -173,7 +174,7 @@ class MYRGameManagerService extends AbstractGameManagerService
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         $this->myrService->initializeNewGame($game);
-        $this->logService->sendSystemLog($game, MyrmesTranslation::GAME_STRING . $game->getId() . " a commencé");
+        $this->logService->sendSystemLog($game, GameTranslation::GAME_STRING . $game->getId() . " a commencé");
         return MYRGameManagerService::$SUCCESS;
     }
 

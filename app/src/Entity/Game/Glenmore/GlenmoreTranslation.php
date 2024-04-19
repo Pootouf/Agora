@@ -76,7 +76,6 @@ interface GlenmoreTranslation
     const string END_ROUND = " a mis fin à son tour";
     const string CANCEL_TILE_ACQUISITION = " a annulé sa prise de tuile";
     const string CANCEL_TILE_ACTIVATION = " a annulé l'activation de sa tuile";
-    const string GAME_STRING = "La partie ";
     const string HAS_BEEN_CREATED = " a été créée";
     const string JOIN_GAME = " a rejoint la partie ";
     const string LEAVE_GAME = " a été retiré de la partie ";

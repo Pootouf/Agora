@@ -13,7 +13,6 @@ interface MyrmesTranslation
 
     // LOG MESSAGES
     const string NOT_ABLE = " mais n'a pas pu";
-    const string GAME_STRING = "La partie ";
 
 
     // RESPONSE MESSAGES
