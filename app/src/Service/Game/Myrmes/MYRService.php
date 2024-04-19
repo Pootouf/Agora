@@ -203,11 +203,17 @@ class MYRService
     {
         $result = new ArrayCollection();
         $mainBoard = $game->getMainBoardMYR();
-        $fall = $this->seasonMYRRepository->findOneBy(["mainBoard" => $mainBoard, "name" => MyrmesParameters::FALL_SEASON_NAME]);
+        $fall = $this->seasonMYRRepository->findOneBy(
+            ["mainBoard" => $mainBoard, "name" => MyrmesParameters::FALL_SEASON_NAME]
+        );
         $result[$fall->getName()] = $fall->getDiceResult();
-        $spring = $this->seasonMYRRepository->findOneBy(["mainBoard" => $mainBoard, "name" => MyrmesParameters::SPRING_SEASON_NAME]);
+        $spring = $this->seasonMYRRepository->findOneBy(
+            ["mainBoard" => $mainBoard, "name" => MyrmesParameters::SPRING_SEASON_NAME]
+        );
         $result[$spring->getName()] = $spring->getDiceResult();
-        $summer = $this->seasonMYRRepository->findOneBy(["mainBoard" => $mainBoard, "name" => MyrmesParameters::SUMMER_SEASON_NAME]);
+        $summer = $this->seasonMYRRepository->findOneBy(
+            ["mainBoard" => $mainBoard, "name" => MyrmesParameters::SUMMER_SEASON_NAME]
+        );
         $result[$summer->getName()] = $summer->getDiceResult();
         return $result;
     }
@@ -738,6 +744,7 @@ class MYRService
                     return $tile->getCoordX() >= 7;
                 });
                 break;
+            default:
         }
         foreach ($tiles as $tile) {
             $game->getMainBoardMYR()->addTile($tile);
@@ -773,6 +780,7 @@ class MYRService
                     $this->entityManager->flush();
                 }
                 break;
+            default:
         }
     }
 
@@ -839,7 +847,6 @@ class MYRService
                 MyrmesParameters::GOAL_REWARD_WHEN_GOAL_ALREADY_DONE);
             $this->entityManager->persist($player);
         }
-        $gameGoals = $playerMYR->getGameGoalMYRs();
         switch ($goalMYR->getGoal()->getDifficulty()) {
             case MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE :
                 $playerMYR->setScore($playerMYR->getScore() + MyrmesParameters::GOAL_REWARD_LEVEL_ONE);
@@ -850,6 +857,7 @@ class MYRService
             case MyrmesParameters::GOAL_DIFFICULTY_LEVEL_THREE :
                 $playerMYR->setScore($playerMYR->getScore() + MyrmesParameters::GOAL_REWARD_LEVEL_THREE);
                 break;
+            default:
         }
         $goalMYR->addPrecedentsPlayer($playerMYR);
         $this->entityManager->persist($playerMYR);
@@ -915,12 +923,12 @@ class MYRService
             $this->entityManager->persist($summer);
             $this->initializeEventBonus($game);
             $this->entityManager->persist($game);
-        } else if ($actualSeason->getName() === MyrmesParameters::SUMMER_SEASON_NAME) {
+        } elseif ($actualSeason->getName() === MyrmesParameters::SUMMER_SEASON_NAME) {
             $fall->setActualSeason(true);
             $this->entityManager->persist($fall);
             $this->initializeEventBonus($game);
             $this->entityManager->persist($game);
-        } else if ($actualSeason->getName() === MyrmesParameters::FALL_SEASON_NAME) {
+        } elseif ($actualSeason->getName() === MyrmesParameters::FALL_SEASON_NAME) {
             $winter->setActualSeason(true);
             $this->entityManager->persist($winter);
             $this->entityManager->persist($game);
@@ -1008,6 +1016,7 @@ class MYRService
                 $gameGoal->setMainBoardLevelThree($mainBoard);
                 $mainBoard->addGameGoalsLevelThree($gameGoal);
                 break;
+            default:
         }
         $this->entityManager->persist($gameGoal);
         $this->entityManager->flush();
