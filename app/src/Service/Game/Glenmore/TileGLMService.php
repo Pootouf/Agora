@@ -520,6 +520,7 @@ class TileGLMService
                 } else {
                     $priceTile -= $resource->getQuantity();
                     $playerGLM->getPersonalBoard()->removeSelectedResource($resource);
+                    $this->entityManager->remove($resource);
                     foreach ($playerTile->getPlayerTileResource() as $item) {
                         if ($item->getResource() === $resource->getResource()) {
                             $item->setQuantity($item->getQuantity() - 1);
@@ -1344,6 +1345,9 @@ class TileGLMService
      */
     public function clearResourceSelection(PlayerGLM $playerGLM) : void
     {
+        foreach ($playerGLM->getPersonalBoard()->getSelectedResources() as $selectedResource) {
+            $this->entityManager->remove($selectedResource);
+        }
         $playerGLM->getPersonalBoard()->getSelectedResources()->clear();
         $this->entityManager->persist($playerGLM->getPersonalBoard());
         $this->entityManager->flush();
@@ -1806,7 +1810,8 @@ class TileGLMService
     private function removeSelectedResourcesFromTile(
         Collection $selectedResources,
         PlayerTileGLM $tileGLM
-    ): void {
+    ): void
+    {
         foreach ($selectedResources as $selectedResource) {
             $playerTile = $selectedResource->getPlayerTile();
             foreach ($playerTile->getPlayerTileResource() as $item) {
@@ -1817,8 +1822,8 @@ class TileGLMService
                 }
             }
         }
-        $this->clearResourceSelection($tileGLM->getPersonalBoard()->getPlayerGLM());
         $this->entityManager->persist($tileGLM);
+        $this->clearResourceSelection($tileGLM->getPersonalBoard()->getPlayerGLM());
         $this->entityManager->flush();
     }
 
@@ -1914,7 +1919,6 @@ class TileGLMService
             $this->entityManager->persist($selectedResource);
             $personalBoard->addSelectedResource($selectedResource);
             $this->entityManager->persist($personalBoard);
-            $this->entityManager->persist($selectedResource);
         }
 
         $this->entityManager->flush();
