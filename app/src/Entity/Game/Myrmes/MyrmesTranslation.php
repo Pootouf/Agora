@@ -4,6 +4,9 @@ namespace App\Entity\Game\Myrmes;
 
 interface MyrmesTranslation
 {
+    // ERROR MESSAGES
+    const string ERROR_CANNOT_PLACE_TILE = "Can't place this tile";
+
     // NOTIFICATION MESSAGES
 
     // LOG MESSAGES
