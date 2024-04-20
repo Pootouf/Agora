@@ -116,9 +116,8 @@ class MyrmesController extends AbstractController
             'possibleAnthillHolePlacement' => $game->getGamePhase() == MyrmesParameters::PHASE_WORKSHOP ?
                 $this->workshopMYRService->getAvailableAnthillHolesPositions($player)
                 : null,
-            'workersOnAnthillLevels' => $this->dataManagementMYRService->workerOnAnthillLevels($player->getPersonalBoardMYR())
-            /*'goalsDone' => $this->gameGoalMYRRepository->findOneBy(["goal_id" => ,
-                                                                "goalAlreadyDone" => ]),*/
+            'workersOnAnthillLevels' => $this->dataManagementMYRService->workerOnAnthillLevels(
+                $player->getPersonalBoardMYR()),
         ]);
     }
 
@@ -264,6 +263,7 @@ class MyrmesController extends AbstractController
             'goalsLevelOne' => $gameMYR->getMainBoardMYR()->getGameGoalsLevelOne(),
             'goalsLevelTwo' => $gameMYR->getMainBoardMYR()->getGameGoalsLevelTwo(),
             'goalsLevelThree' => $gameMYR->getMainBoardMYR()->getGameGoalsLevelThree(),
+            'goalsAvailable' => null,
         ]);
     }
 
@@ -272,11 +272,16 @@ class MyrmesController extends AbstractController
     public function displayObjectiveSelection(
         #[MapEntity(id: 'idGame')] GameMYR $gameMYR): Response
     {
-        return $this->render('Game/Myrmes/MainBoard/displayGoalSelection.html.twig', [
+        $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+        }
+        return $this->render('Game/Myrmes/MainBoard/displayObjectives.html.twig', [
             'game' => $gameMYR,
             'goalsLevelOne' => $gameMYR->getMainBoardMYR()->getGameGoalsLevelOne(),
             'goalsLevelTwo' => $gameMYR->getMainBoardMYR()->getGameGoalsLevelTwo(),
             'goalsLevelThree' => $gameMYR->getMainBoardMYR()->getGameGoalsLevelThree(),
+            'goalsAvailable' => $this->workshopMYRService->playerAvailableGoals($player, $gameMYR),
         ]);
     }
 
