@@ -303,47 +303,6 @@ export default class extends Controller  {
         await cleanPheromone()
     }
 
-    async toggleGoalSelection(open) {
-        const openedDisplayGoalSelection = document.getElementById("openedDisplayGoalSelection");
-        const Timing = {
-            duration: 750,
-            iterations: 1,
-        }
-        if (open) {
-            openedDisplayGoalSelection.removeAttribute("hidden");
-            const openingSliding = [
-                {transform: "translateX(60rem)"},
-                {transform: "translateX(0rem)"}
-            ]
-            openedDisplayGoalSelection.animate(openingSliding, Timing);
-        } else {
-            openedDisplayGoalSelection.animate(
-                [
-                    {transform: "translateX(0rem)"},
-                    {transform: "translateX(60rem)"},
-                ],
-                {
-                    duration: Timing.duration,
-                    fill: "forwards",
-                }
-            ).addEventListener("finish",
-                () => {
-                    openedDisplayGoalSelection.remove();
-                });
-        }
-    }
-
-    async returnMenuGoalSelection(board) {
-        // Menu sélection d'un objectif
-        if (document.getElementById('confirmGoalSelected')) {
-            document.getElementById('confirmGoalSelected').remove();
-            document.getElementById('ObjectSelectionList').classList.remove('hidden');
-
-        } else {
-            await this.toggleGoalSelection(false);
-        }
-    }
-
     async displayPheromonePlacement(board)  {
         let url = board.params.url;
         let open = board.params.open;
