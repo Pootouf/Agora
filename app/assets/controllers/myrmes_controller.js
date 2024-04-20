@@ -194,6 +194,7 @@ export default class extends Controller  {
     }
 
     async displayObjectives(objective) {
+        closeObjectivesWindow();
         let url = objective.params.url;
         document.getElementById('objectives_button').setAttribute('disabled', '');
         const response = await fetch(url);
@@ -274,15 +275,15 @@ export default class extends Controller  {
                 }
                 break;
             case 3:
-                if (document.getElementById("openedDisplayGoalSelection") == null) {
-                    const response = await fetch(url);
-                    let tree = document.getElementById("index_myrmes");
-                    let placeholder = document.createElement("div");
-                    placeholder.innerHTML = await response.text();
-                    const node = placeholder.firstElementChild;
-                    tree.appendChild(node);
-                    await this.toggleGoalSelection(true);
-                }
+                closeObjectivesWindow();
+                closeSelectedBoxWindow();
+                window.currentTileMode = 0;
+                const response = await fetch(url);
+                let tree = document.getElementById("index_myrmes");
+                let placeholder = document.createElement("div");
+                placeholder.innerHTML = await response.text();
+                const node = placeholder.firstElementChild;
+                tree.appendChild(node);
                 break;
             case 4:
                 if (window.confirm("Confirmez vous la création d'une nouvelle nourrice ?")) {
