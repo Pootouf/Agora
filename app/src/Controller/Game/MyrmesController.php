@@ -324,6 +324,7 @@ class MyrmesController extends AbstractController
         }
         $message = $player->getUsername() . " a augmenté son bonus";
         $this->logService->sendPlayerLog($game, $player, $message);
+        $this->publishPersonalBoard($game, $player);
         return new Response('Bonus upped', Response::HTTP_OK);
     }
 
@@ -351,6 +352,7 @@ class MyrmesController extends AbstractController
         }
         $message = $player->getUsername() . " a baissé son bonus";
         $this->logService->sendPlayerLog($game, $player, $message);
+        $this->publishPersonalBoard($game, $player);
         return new Response('Bonus lowered', Response::HTTP_OK);
     }
 
@@ -376,7 +378,7 @@ class MyrmesController extends AbstractController
 
         $message = $player->getUsername() . " a confirmé son choix de bonus";
         $this->logService->sendPlayerLog($game, $player, $message);
-
+        $this->publishPersonalBoard($game, $player);
         return new Response('Bonus confirmed', Response::HTTP_OK);
     }
 
