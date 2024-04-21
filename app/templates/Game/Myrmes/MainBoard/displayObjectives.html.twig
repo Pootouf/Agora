@@ -15,11 +15,19 @@
             {% for goalLevel in goalsLevel %}
                 <div class="flew flex-col m-3">
                     {% for goal in goalLevel %}
+                        {% set isDirtStoneGoal = goal.goal.name == 'resource_stone_dirt' %}
                         {% if isInSelectionMode %}
                         <button id="goalSelection_{{ goal.goal.id }}"
                                 {% if goal not in goalsAvailable %} disabled {% endif %}
                                 class="relative aspect-square rounded-lg bg-[#fb923c] enabled:hover:bg-[#ea580c] p-3
-                                       disabled:cursor-not-allowed">
+                                       disabled:cursor-not-allowed"
+                                {% if isDirtStoneGoal %}
+                                    {{ stimulus_action('myrmes', 'displayStoneDirtGoal', 'click',
+                                        {url:path('app_game_myrmes_display_stone_dirt_goal', {idGame: game.id})
+                                        })
+                                    }}
+                                {% endif %}
+                            >
                         {% endif %}
                             <img class="items-center justify-center rounded-lg shadow-lg max-h-full
                                         {% if goal in goalsAvailable %} shadow-white {% else %} shadow-black {% endif %}"

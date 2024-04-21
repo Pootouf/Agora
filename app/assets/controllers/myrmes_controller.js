@@ -206,6 +206,19 @@ export default class extends Controller  {
         window.currentTileMode = 0;
     }
 
+    async displayStoneDirtGoal(goal) {
+        closeObjectivesWindow();
+        let url = goal.params.url;
+        document.getElementById('objectives_button').setAttribute('disabled', '');
+        const response = await fetch(url);
+        let tree = document.getElementById("index_myrmes");
+        let placeholder = document.createElement("div");
+        placeholder.innerHTML = await response.text();
+        const node = placeholder.firstElementChild;
+        tree.appendChild(node);
+        window.currentTileMode = 0;
+    }
+
     async displayBoxActionsWorkerPhase(boardBox) {
         closeSelectedBoxWindow();
         let tileId = boardBox.params.tileId

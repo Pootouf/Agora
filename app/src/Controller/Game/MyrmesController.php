@@ -285,6 +285,23 @@ class MyrmesController extends AbstractController
         ]);
     }
 
+    #[Route('/game/myrmes/{idGame}/display/objectives/stone/dirt/goal',
+        name: 'app_game_myrmes_display_stone_dirt_goal')]
+    public function displayStoneDirtGoal(
+        #[MapEntity(id: 'idGame')] GameMYR $gameMYR): Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+        }
+        return $this->render('Game/Myrmes/MainBoard/displayGoalSelection.html.twig', [
+            'game' => $gameMYR,
+            'goalsLevelOne' => $gameMYR->getMainBoardMYR()->getGameGoalsLevelOne(),
+            'goalsLevelThree' => $gameMYR->getMainBoardMYR()->getGameGoalsLevelThree(),
+            'goalsAvailable' => null,
+        ]);
+    }
+
     #[Route('/game/myrmes/{id}/display/personalBoard/throwResource/{playerResourceId}/actions',
         name: 'app_game_myrmes_display_throw_resource_actions')]
     public function displayThrowResourceActions(
