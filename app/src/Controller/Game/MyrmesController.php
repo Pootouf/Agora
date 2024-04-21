@@ -4,6 +4,7 @@ namespace App\Controller\Game;
 
 use App\Entity\Game\DTO\Myrmes\BoardBoxMYR;
 use App\Entity\Game\DTO\Myrmes\BoardTileMYR;
+use App\Entity\Game\Myrmes\GameGoalMYR;
 use App\Entity\Game\Myrmes\GameMYR;
 use App\Entity\Game\Myrmes\MyrmesParameters;
 use App\Entity\Game\Myrmes\PlayerMYR;
@@ -1350,5 +1351,30 @@ class MyrmesController extends AbstractController
                 ['id' => $game->getId()]).'highlight'.$player->getId(),
             new Response($tile->getId())
         );
+    }
+
+    #[Route('/game/myrmes/{idGame}/validateGoal/{goalId}',
+        name: 'app_game_myrmes_validate_goal')]
+    public function validateGoal(
+        #[MapEntity(id: 'idGame')] GameMYR $gameMYR,
+        #[MapEntity(id: 'goalId')] GameGoalMYR $gameGoalMYR,
+    ) : Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+        }
+        $nurse = $this->service->getNursesInWorkshopFromPlayer($player)->first();
+        if ($nurse) {
+            return new Response('No nurse available in workshop', Response::HTTP_FORBIDDEN);
+        }
+
+        try {
+            $this->workshopMYRService->doGoal($player, $gameGoalMYR, $nurse);
+        }catch (Exception $e){
+            return new Response($e->getMessage(), Response::HTTP_FORBIDDEN);
+        }
+
+        return new Response('Goal validated', Response::HTTP_OK);
     }
 }
