@@ -52,6 +52,16 @@
         window.currentTileMode = 1;
     </script>
 
+    {#PERSONAL BOARD MANAGEMENT#}
+    <script>
+        {% set personalBoardPath = path('app_game_show_myr', {'id': game.id}) ~ 'personalBoard' ~ player.id %}
+        const eventSourcePersonalBoard = new EventSource("{{ mercure(personalBoardPath)|escape('js') }}");
+        eventSourcePersonalBoard.onmessage = event => {
+            const index = document.getElementById('index_myrmes');
+            closeWindow();
+            index.innerHTML += event.data;
+        }
+    </script>
 
     {# MAIN BOARD CLOSURE MANAGEMENT #}
     <script>
