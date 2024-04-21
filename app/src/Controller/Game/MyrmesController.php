@@ -577,7 +577,7 @@ class MyrmesController extends AbstractController
                 $this->service->setPhase($player, MyrmesParameters::PHASE_HARVEST);
             }
         }
-
+        $this->publishPersonalBoard($game, $player);
         return new Response("placed worker on colony", Response::HTTP_OK);
     }
 
@@ -620,7 +620,7 @@ class MyrmesController extends AbstractController
             return new Response(MyrmesTranslation::RESPONSE_ERROR_CALCULATING_MAIN_BOARD,
                 Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-
+        $this->publishPersonalBoard($game, $player);
         return $this->returnMainBoard($game, $player, $boardBoxes,
             null, false, false);
     }
