@@ -412,6 +412,7 @@ class MyrmesController extends AbstractController
 
         $message = $player->getUsername() . " a placé une nourrice sur une piste de naissance " . $position;
         $this->logService->sendPlayerLog($game, $player, $message);
+        $this->publishPersonalBoard($game, $player);
         return new Response("nurse placed on birth track " . $position, Response::HTTP_OK);
     }
 
@@ -443,7 +444,7 @@ class MyrmesController extends AbstractController
 
         $message = $player->getUsername() . " a confirmé le placement de ses nourrices";
         $this->logService->sendPlayerLog($game, $player, $message);
-
+        $this->publishPersonalBoard($game, $player);
         return new Response("nurses placement confirmed", Response::HTTP_OK);
     }
 
@@ -467,6 +468,7 @@ class MyrmesController extends AbstractController
 
         $message = $player->getUsername() . " a annulé le placement de ses nourrices";
         $this->logService->sendPlayerLog($game, $player, $message);
+        $this->publishPersonalBoard($game, $player);
         return new Response("nurses placement canceled", Response::HTTP_OK);
     }
 
