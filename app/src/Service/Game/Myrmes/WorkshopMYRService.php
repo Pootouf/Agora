@@ -60,7 +60,8 @@ class WorkshopMYRService
                 $tile = $pheromoneTile->getTile();
                 $adjacentTiles = $this->getAdjacentTiles($tile);
                 foreach ($adjacentTiles as $adjacentTile) {
-                    if ($adjacentTile != null && $this->isValidPosition($player, $adjacentTile)) {
+                    if ($adjacentTile != null && $this->isValidPosition($player, $adjacentTile)
+                        && !$result->contains($adjacentTile)) {
                         $result->add($adjacentTile);
                     }
                 }
@@ -70,7 +71,8 @@ class WorkshopMYRService
             $tile = $antHillHole->getTile();
             $adjacentTiles = $this->getAdjacentTiles($tile);
             foreach ($adjacentTiles as $adjacentTile) {
-                if ($adjacentTile != null && $this->isValidPosition($player, $adjacentTile)) {
+                if ($adjacentTile != null && $this->isValidPosition($player, $adjacentTile)
+                    && !$result->contains($adjacentTile)) {
                     $result->add($adjacentTile);
                 }
             }
@@ -620,20 +622,14 @@ class WorkshopMYRService
     private function giveDirtToPlayer(PlayerMYR $player) : void
     {
         $dirt = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::RESOURCE_TYPE_DIRT]);
-        $playerDirt = $this->playerResourceMYRRepository->findOneBy(["resource" => $dirt]);
+        $playerDirt = $this->playerResourceMYRRepository->findOneBy(
+            ["resource" => $dirt, "personalBoard" => $player->getPersonalBoardMYR()]
+        );
         if ($playerDirt != null) {
             $playerDirt->setQuantity($playerDirt->getQuantity() + 1);
             $this->entityManager->persist($playerDirt);
-        } else {
-            $playerDirt = new PlayerResourceMYR();
-            $playerDirt->setResource($dirt);
-            $playerDirt->setQuantity(1);
-            $playerDirt->setPersonalBoard($player->getPersonalBoardMYR());
-            $this->entityManager->persist($playerDirt);
-            $player->getPersonalBoardMYR()->addPlayerResourceMYR($playerDirt);
-            $this->entityManager->persist($player->getPersonalBoardMYR());
+            $this->entityManager->flush();
         }
-        $this->entityManager->flush();
     }
 
 
@@ -1448,8 +1444,8 @@ class WorkshopMYRService
      */
     private function hasPlayerAlreadyDoneSelectedGoal(PlayerMYR $player, GameGoalMYR $gameGoal) : bool
     {
-        return $gameGoal->getPrecedentsPlayers()->forAll(function (PlayerMYR $previousPlayer) use ($player) {
-           return $previousPlayer !== $player;
+        return $gameGoal->getPrecedentsPlayers()->exists(function (int $key, PlayerMYR $previousPlayer) use ($player) {
+           return $previousPlayer === $player;
         });
     }
 }
