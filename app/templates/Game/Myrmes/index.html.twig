@@ -129,12 +129,10 @@
 
     {# TILE POSITIONING MANAGEMENT #}
     <script>
-        let selectedObjectId;
-        let selectedOrientation;
-        let clickableTilesForPlacement = [];
+        window.clickableTilesForPlacement = [];
 
         function PrepareTilePositioning(id) {
-            selectedOrientation = id;
+            window.selectedOrientation = id;
             document.getElementById('selectObjectTitle').innerText = "Placement de la tuile"
 
             let divTemplate = document.getElementById('PrepareTilePositioningTemplate');
@@ -150,7 +148,7 @@
         }
 
         function selectOrientationTile(objectId, nbRotation) {
-            selectedObjectId = objectId;
+            window.selectedObjectId = objectId;
             let divTemplate = document.getElementById('ObjectOrientationListTemplate');
             let divClone = divTemplate.cloneNode(true)
             divClone.id = 'ObjectOrientationList';
