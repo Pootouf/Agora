@@ -29,10 +29,6 @@ class Message
     #[ORM\Column(length: 255)]
     private ?string $authorUsername = null;
 
-    public function __construct()
-    {
-
-    }
     public function getId(): ?int
     {
         return $this->id;

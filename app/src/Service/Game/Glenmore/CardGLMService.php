@@ -21,7 +21,7 @@ use Exception;
 class CardGLMService
 {
     public function __construct(private readonly EntityManagerInterface $entityManager,
-        private ResourceGLMRepository $resourceGLMRepository) {}
+        private readonly ResourceGLMRepository $resourceGLMRepository) {}
 
     /** applyCastle Of Mey : applies effect of card Castle Of Mey
      *
@@ -50,7 +50,6 @@ class CardGLMService
     {
         $activableTiles = new ArrayCollection();
         $owns = false;
-        $mustActivate = false;
         // checks if player owns Loch Ness
         $cards = $personalBoard->getPlayerCardGLM();
         foreach ($cards as $card) {
@@ -60,23 +59,7 @@ class CardGLMService
             }
         }
         if ($owns) {
-            // gets Loch Ness tile
-            foreach ($personalBoard->getPlayerTiles() as $playerTile) {
-                if ($playerTile->getTile()->getName() == GlenmoreParameters::$CARD_LOCH_NESS) {
-                    // if Loch Ness power was not used
-                    if(!$playerTile->isActivated()) {
-                        $mustActivate = true;
-                        break;
-                    }
-                }
-            }
-            if ($mustActivate) {
-                foreach ($personalBoard->getPlayerTiles() as $playerTile) {
-                    if(!$playerTile->isActivated() && !$playerTile->getTile()->getActivationBonus()->isEmpty()) {
-                        $activableTiles->add($playerTile);
-                    }
-                }
-            }
+            $activableTiles =  $this->getActivableTilesWithLochNess($personalBoard);
         }
         return $activableTiles;
     }
@@ -106,7 +89,7 @@ class CardGLMService
                 $this->applyArmadaleCastle($personalBoard);
                 break;
             case GlenmoreParameters::$CARD_LOCH_LOCHY:
-                return $this->applyLochLochy($playerTileGLM);
+                return $this->applyLochLochy();
             case GlenmoreParameters::$CARD_CASTLE_MOIL:
                 $this->applyCastleMoil($playerTileGLM);
                 break;
@@ -352,12 +335,10 @@ class CardGLMService
                 continue;
             }
             foreach ($tile->getPlayerTileResource() as $playerTileResource) {
-                if ($playerTileResource->getResource()->getType()
-                    == GlenmoreParameters::$PRODUCTION_RESOURCE) {
-                    if($playerTileResource->getQuantity() == 0) {
-                        $playerTileResource->setQuantity(1);
-                        $this->entityManager->persist($playerTileResource);
-                    }
+                if ($playerTileResource->getResource()->getType() == GlenmoreParameters::$PRODUCTION_RESOURCE
+                    && $playerTileResource->getQuantity() == 0) {
+                    $playerTileResource->setQuantity(1);
+                    $this->entityManager->persist($playerTileResource);
                 }
             }
         }
@@ -367,12 +348,41 @@ class CardGLMService
 
     /**
      * applyLochLochy : returns an integer to indicate to the controller to publish a Mercure notif
-     * @param PlayerTileGLM $playerTileGLM
      * @return int
      */
-    private function applyLochLochy(PlayerTileGLM $playerTileGLM) : int
+    private function applyLochLochy() : int
     {
         return -1;
+    }
+
+    /**
+     * getActivableTilesWithLochNess: apply the loch ness tile if the player owns it
+     * @param PersonalBoardGLM $personalBoard
+     * @return Collection<PlayerTileGLM>
+     */
+    private function getActivableTilesWithLochNess(
+        PersonalBoardGLM $personalBoard
+    ) : Collection
+    {
+        $activableTiles = new ArrayCollection();
+        $mustActivate = false;
+        // gets Loch Ness tile
+        foreach ($personalBoard->getPlayerTiles() as $playerTile) {
+            if ($playerTile->getTile()->getName() == GlenmoreParameters::$CARD_LOCH_NESS
+                && !$playerTile->isActivated()) {
+                // if Loch Ness power was not used
+                $mustActivate = true;
+                break;
+            }
+        }
+        if ($mustActivate) {
+            foreach ($personalBoard->getPlayerTiles() as $playerTile) {
+                if(!$playerTile->isActivated() && !$playerTile->getTile()->getActivationBonus()->isEmpty()) {
+                    $activableTiles->add($playerTile);
+                }
+            }
+        }
+        return $activableTiles;
     }
 
 }
