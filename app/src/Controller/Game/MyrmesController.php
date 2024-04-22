@@ -442,10 +442,11 @@ class MyrmesController extends AbstractController
             $this->logService->sendPlayerLog($game, $player, $message);
             return new Response('failed to confirm nurses', Response::HTTP_FORBIDDEN);
         }
-        $this->service->setPhase($player, MyrmesParameters::PHASE_WORKER);
+
         $this->publishPreview($game, $player);
         $this->publishRanking($game, $player);
         $this->service->endPlayerRound($player);
+        $this->service->setPhase($player, MyrmesParameters::PHASE_WORKER);
 
         $message = $player->getUsername() . " a confirmé le placement de ses nourrices";
         $this->logService->sendPlayerLog($game, $player, $message);
@@ -558,6 +559,9 @@ class MyrmesController extends AbstractController
         if (!$player->isTurnOfPlayer()) {
             return new Response(GameTranslation::NOT_PLAYER_TURN, Response::HTTP_FORBIDDEN);
         }
+        if ($game->getGamePhase() != MyrmesParameters::PHASE_WORKER) {
+            return new Response('Not in worker phase', Response::HTTP_FORBIDDEN);
+        }
 
         try {
             $this->workerMYRService->placeAntInAnthill($player->getPersonalBoardMYR(), $level);
@@ -605,17 +609,21 @@ class MyrmesController extends AbstractController
         if (!$player->isTurnOfPlayer()) {
             return new Response(GameTranslation::NOT_PLAYER_TURN, Response::HTTP_FORBIDDEN);
         }
+        if ($game->getGamePhase() != MyrmesParameters::PHASE_WORKER) {
+            return new Response('Not in worker phase', Response::HTTP_FORBIDDEN);
+        }
 
         $anthillHole = $this->workshopMYRService->getAnthillHoleFromTile($tile, $game);
         try {
             $this->workerMYRService->takeOutAnt($player->getPersonalBoardMYR(), $anthillHole);
-        } catch (Exception) {
+        } catch (Exception $e) {
             $message = $player->getUsername()
                 . " a essayé de sortir une ouvrière sur la tuile "
                 . $tile->getId()
                 . "  mais n'a pas pu.";
             $this->logService->sendPlayerLog($game, $player, $message);
-            return new Response("failed to place worker on garden", Response::HTTP_FORBIDDEN);
+            return new Response("failed to place worker on garden :" . $e->getMessage(),
+                Response::HTTP_FORBIDDEN);
         }
 
         $message = $player->getUsername() . " a placé une ouvrière sur sa sortie de fourmilière";
@@ -782,6 +790,9 @@ class MyrmesController extends AbstractController
         if (!$player->isTurnOfPlayer()) {
             return new Response(GameTranslation::NOT_PLAYER_TURN, Response::HTTP_FORBIDDEN);
         }
+        if ($game->getGamePhase() != MyrmesParameters::PHASE_WORKER) {
+            return new Response('Not in worker phase', Response::HTTP_FORBIDDEN);
+        }
 
         $tile = $this->workerMYRService->getTileFromCoordinates($coordX, $coordY);
         $pheromone = $this->workerMYRService->getPheromoneFromTile($game, $tile);
@@ -848,6 +859,9 @@ class MyrmesController extends AbstractController
         if (!$player->isTurnOfPlayer()) {
             return new Response(GameTranslation::NOT_PLAYER_TURN, Response::HTTP_FORBIDDEN);
         }
+        if ($game->getGamePhase() != MyrmesParameters::PHASE_WORKER) {
+            return new Response('Not in worker phase', Response::HTTP_FORBIDDEN);
+        }
 
         $ant = $player->getGardenWorkerMYRs()->first();
         if (!$ant) {
@@ -868,6 +882,41 @@ class MyrmesController extends AbstractController
         $message = $player->getUsername() . " a déplacé la fourmi ". $ant->getId() . "dans la direction " . $direction;
         $this->logService->sendPlayerLog($game, $player, $message);
         return new Response("moved ant in this direction", Response::HTTP_OK);
+    }
+
+    #[Route('/game/myrmes/{gameId}/confirm/action/workerPhase/', name: 'app_game_myrmes_confirm_action_worker_phase')]
+    public function confirmActionWorkerPhase(
+        #[MapEntity(id: 'gameId')] GameMYR $game
+    ): Response
+    {
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+        }
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('invalid player', Response::HTTP_FORBIDDEN);
+        }
+        if (!$player->isTurnOfPlayer()) {
+            return new Response('Not the turn of the player', Response::HTTP_FORBIDDEN);
+        }
+        if ($game->getGamePhase() != MyrmesParameters::PHASE_WORKER) {
+            return new Response('Not in worker phase', Response::HTTP_FORBIDDEN);
+        }
+
+        $this->workerMYRService->killPlayerGardenWorker($player);
+
+        $this->service->setNextPlayerTurn($player);
+        if ($this->service->getNumberOfFreeWorkerOfPlayer($player) <= 0) {
+            $this->service->setPhase($player, MyrmesParameters::PHASE_HARVEST);
+        }
+
+        foreach ($game->getPlayers() as $player) {
+            if ($this->service->getNumberOfFreeWorkerOfPlayer($player) <= 0) {
+                $this->service->setPhase($player, MyrmesParameters::PHASE_HARVEST);
+            }
+        }
+
+        return new Response("Action confirmed for worker phase", Response::HTTP_OK);
     }
 
     #[Route('/game/myrmes/{gameId}/harvestResource/{tileId}', name: 'app_game_myrmes_harvest_resource')]
@@ -933,6 +982,7 @@ class MyrmesController extends AbstractController
         } elseif($this->winterMYRService->canSetPhaseToWinter($game)) {
                 $this->service->setPhase($player, MyrmesParameters::PHASE_WINTER);
         } else {
+            $this->service->manageEndOfRound($game);
             $this->service->setPhase($player, MyrmesParameters::PHASE_EVENT);
         }
 
@@ -990,12 +1040,12 @@ class MyrmesController extends AbstractController
         try {
             $this->workshopMYRService->manageWorkshop($player,
                 MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA, $tileMYR);
-        } catch (Exception) {
+        } catch (Exception $e) {
             $message = $player->getUsername()
                 . " a essayé de poser un trou de fourmilière "
                 . MyrmesTranslation::NOT_ABLE;
             $this->logService->sendPlayerLog($game, $player, $message);
-            return new Response('failed to place anthill hole', Response::HTTP_FORBIDDEN);
+            return new Response('failed to place anthill hole' . $e->getMessage(), Response::HTTP_FORBIDDEN);
         }
         $message = $player->getUsername()
             . " a posé un trou de fourmilière "
@@ -1316,6 +1366,10 @@ class MyrmesController extends AbstractController
             'playerPhase' => $player->getPhase(),
             'actualSeason' => $this->service->getActualSeason($game),
             'sendingWorkerOnGarden' => $sendingWorkerOnGarden,
+            'nursesOnWorkshop' => $this->service->getNursesAtPosition(
+                $player,
+                MyrmesParameters::WORKSHOP_AREA
+            )->count(),
             'hasSelectedAnthillHolePlacement' => $hasSelectedAnthillHolePlacement
         ]);
     }
