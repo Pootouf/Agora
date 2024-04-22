@@ -1347,6 +1347,12 @@ class MyrmesController extends AbstractController
         ]);
     }
 
+    /**
+     * returnPersonalBoard: return the response with the given parameters for personal board
+     * @param GameMYR $game
+     * @param PlayerMYR $player
+     * @return Response
+     */
     private function returnPersonalBoard(GameMYR $game,PlayerMYR $player) : Response
     {
         return $this->render('Game/Myrmes/PersonalBoard/personalBoard.html.twig', [
@@ -1386,6 +1392,12 @@ class MyrmesController extends AbstractController
         ]);
     }
 
+    /**
+     * returnPreview: return the response with the given parameters for preview
+     * @param GameMYR $game
+     * @param PlayerMYR $player
+     * @return Response
+     */
     private function returnPreview(GameMYR $game, PlayerMYR $player) : Response
     {
         return $this->render('Game/Myrmes/MainBoard/preview.html.twig', [
@@ -1421,7 +1433,13 @@ class MyrmesController extends AbstractController
         ]);
     }
 
-    private function returnRanking($game, $player) : Response
+    /**
+     * returnRanking return the response with the given parameters for ranking
+     * @param GameMYR $game
+     * @param PlayerMYR $player
+     * @return Response
+     */
+    private function returnRanking(GameMYR $game, PlayerMYR $player) : Response
     {
         return $this->render('Game/Myrmes/Ranking/ranking.html.twig', [
             'player' => $player,
@@ -1468,6 +1486,12 @@ class MyrmesController extends AbstractController
         );
     }
 
+    /**
+     * publishPersonalBoard: publish personal board with mercure
+     * @param GameMYR $game
+     * @param PlayerMYR $player
+     * @return void
+     */
     private function publishPersonalBoard(GameMYR $game, PlayerMYR $player) : void
     {
         $response = $this->returnPersonalBoard($game, $player);
@@ -1478,6 +1502,12 @@ class MyrmesController extends AbstractController
         );
     }
 
+    /**
+     * publishPreview: publish preview with mercure
+     * @param GameMYR $game
+     * @param PlayerMYR $player
+     * @return void
+     */
     private function publishPreview(GameMYR $game, PlayerMYR $player ) : void
     {
         $response = $this->returnPreview($game, $player);
@@ -1487,6 +1517,12 @@ class MyrmesController extends AbstractController
             $response);
     }
 
+    /**
+     * publishRanking: publish ranking with mercure
+     * @param GameMYR $game
+     * @param PlayerMYR $player
+     * @return void
+     */
     private function publishRanking(GameMYR $game, PlayerMYR $player) : void
     {
         $response = $this->returnRanking($game, $player);
