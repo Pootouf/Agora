@@ -63,6 +63,16 @@
         }
     </script>
 
+    {#PREVIEW MANAGEMENT#}
+    <script>
+        {% set previewPath = path('app_game_show_myr', {'id': game.id}) ~ 'preview' ~ player.id %}
+        const eventSourcePreview = new EventSource("{{ mercure(previewPath)|escape('js') }}");
+        eventSourcePreview.onmessage = event => {
+            const preview = document.getElementById('preview');
+            preview.innerHTML = event.data;
+        }
+    </script>
+
     {# MAIN BOARD CLOSURE MANAGEMENT #}
     <script>
         function closeWindow() {
