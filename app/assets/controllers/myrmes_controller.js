@@ -134,6 +134,13 @@ export default class extends Controller  {
     async moveAnt(dir) {
         let direction = dir.params.dir;
         await move(direction)
+        const response = await fetch("/game/myrmes/getTile/id/coords/"
+            + antPosition.x + "/" + antPosition.y);
+        if(response.status === 200) {
+            let tileId = await response.text();
+            closeSelectedBoxWindow()
+            await displayBoardBoxActions(tileId)
+        }
     }
 
 

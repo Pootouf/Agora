@@ -831,6 +831,21 @@ class MyrmesController extends AbstractController
         }
     }
 
+    #[Route('/game/myrmes/getTile/id/coords/{coordX}/{coordY}',
+        name:'app_game_myrmes_get_tile_id_from_coords')]
+    public function getTileIdFromCoords(
+        int                                $coordX,
+        int                                $coordY
+    ): Response
+    {
+        $tile = $this->workerMYRService->getTileFromCoordinates($coordX, $coordY);
+        if($tile == null) {
+            return new Response(MyrmesTranslation::RESPONSE_INVALID_TILE,
+                Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+        return new Response($tile->getId(), Response::HTTP_OK);
+    }
+
     #[Route('/game/myrmes/{gameId}/moveAnt/direction/{direction}', name:'app_game_myrmes_move_ant')]
     public function moveAnt(
         #[MapEntity(id: 'gameId')] GameMYR $game,
