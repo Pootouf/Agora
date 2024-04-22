@@ -73,6 +73,16 @@
         }
     </script>
 
+    {#RANKING MANAGEMENT#}
+    <script>
+        {% set rankingPath = path('app_game_show_myr', {'id': game.id}) ~ 'ranking' ~ player.id %}
+        const eventSourceRanking = new EventSource("{{ mercure(rankingPath)|escape('js') }}");
+        eventSourceRanking.onmessage = event => {
+            const ranking = document.getElementById('ranking');
+            ranking.innerHTML = event.data;
+        }
+    </script>
+
     {# MAIN BOARD CLOSURE MANAGEMENT #}
     <script>
         function closeWindow() {
