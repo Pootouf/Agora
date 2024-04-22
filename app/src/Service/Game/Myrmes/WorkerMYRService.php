@@ -517,6 +517,18 @@ class WorkerMYRService
     }
 
     /**
+     * killPlayerGardenWorker: remove the garden worker of the player
+     * @param PlayerMYR $player
+     * @return void
+     */
+    public function killPlayerGardenWorker(PlayerMYR $player) : void
+    {
+        $gardenWorker = $player->getGardenWorkerMYRs()->first();
+        $this->entityManager->remove($gardenWorker);
+        $this->entityManager->flush();
+    }
+
+    /**
      * workerMove : garden worker move on main board
      * @param PlayerMYR $player
      * @param GardenWorkerMYR $gardenWorker

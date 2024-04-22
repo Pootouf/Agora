@@ -373,6 +373,7 @@ class MYRService
         $game = $actualPlayer->getGameMyr();
         $actualPlayer->setTurnOfPlayer(false);
         $this->entityManager->persist($actualPlayer);
+        $this->entityManager->flush();
 
         $isInWorkerPhase = $game->getGamePhase() == MyrmesParameters::PHASE_WORKER;
         if ($isInWorkerPhase && !$this->canPlayersStillDoWorkerPhase($game)) {
@@ -411,6 +412,7 @@ class MYRService
                 }
                 $player->setTurnOfPlayer(true);
                 $this->entityManager->persist($player);
+                break;
             }
         }
         $this->entityManager->flush();
@@ -617,7 +619,7 @@ class MYRService
         $personalBoard->setAnthillLevel(MyrmesParameters::ANTHILL_START_LEVEL);
         $player->setScore(MyrmesParameters::PLAYER_START_SCORE);
         $player->setRemainingHarvestingBonus(0);
-
+        $this->initializePlayerWorkshopActions($player);
         $this->initializeColorForPlayer($player, $color);
         $this->initializePlayerResources($player);
         $player->setPhase(MyrmesParameters::PHASE_EVENT);
@@ -625,6 +627,20 @@ class MYRService
         $this->entityManager->persist($player);
         $this->entityManager->persist($personalBoard);
         $this->entityManager->flush();
+    }
+
+    /**
+     * initializePlayerWorkshopActions: set for all area in workshop value 0
+     * @param PlayerMYR $player
+     * @return void
+     */
+    private function initializePlayerWorkshopActions(PlayerMYR $player) : void
+    {
+        $actions = $player->getWorkshopActions();
+        for($i = MyrmesParameters::WORKSHOP_GOAL_AREA; $i <= MyrmesParameters::WORKSHOP_NURSE_AREA; $i++) {
+            array_push($actions, $i, 0);
+        }
+        $player->setWorkshopActions($actions);
     }
 
     /**
@@ -1059,7 +1075,7 @@ class MYRService
     private function canPlayersStillDoWorkerPhase(GameMYR $game) : bool
     {
         return $game->getPlayers()->exists(
-            function (PlayerMYR $player) {
+            function (int $key, PlayerMYR $player) {
                 return $this->getNumberOfFreeWorkerOfPlayer($player) > 0;
             }
         );

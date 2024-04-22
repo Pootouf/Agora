@@ -301,7 +301,7 @@ function directionByAction(action) {
             return directions.EAST;
         case actions.MOVE_NORTH_EAST:
             return directions.NORTH_EAST;
-        case directions.SOUTH_EAST:
+        case actions.MOVE_SOUTH_EAST:
             return directions.SOUTH_EAST;
         default:
             return null;
