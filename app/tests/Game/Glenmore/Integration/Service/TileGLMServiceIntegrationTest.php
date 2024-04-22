@@ -1782,6 +1782,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $playerTile->addPlayerTileResource($playerTileResource);
         $this->entityManager->persist($playerTile);
         $activableTiles = new ArrayCollection([$playerTile]);
+        $this->entityManager->flush();
         //WHEN
         $this->service->activateBonus($playerTile, $player, $activableTiles);
         //THEN
@@ -1806,6 +1807,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $playerTile->addPlayerTileResource($playerTileResource);
         $this->entityManager->persist($playerTile);
         $activableTiles = new ArrayCollection([$playerTile]);
+        $this->entityManager->flush();
         //WHEN
         $this->service->activateBonus($playerTile, $player, $activableTiles);
         //THEN
@@ -1831,6 +1833,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $playerTile->addPlayerTileResource($playerTileResource);
         $this->entityManager->persist($playerTile);
         $activableTiles = new ArrayCollection([$playerTile]);
+        $this->entityManager->flush();
         //WHEN
         $this->service->activateBonus($playerTile, $player, $activableTiles);
         //THEN
@@ -1857,6 +1860,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $playerTile->addPlayerTileResource($playerTileResource);
         $this->entityManager->persist($playerTile);
         $activableTiles = new ArrayCollection([$playerTile]);
+        $this->entityManager->flush();
         //WHEN
         $this->service->activateBonus($playerTile, $player, $activableTiles);
         //THEN
@@ -1884,6 +1888,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $playerTile->addPlayerTileResource($playerTileResource);
         $this->entityManager->persist($playerTile);
         $activableTiles = new ArrayCollection([$playerTile]);
+        $this->entityManager->flush();
         //WHEN
         $this->service->activateBonus($playerTile, $player, $activableTiles);
         //THEN
@@ -1939,6 +1944,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $this->selectResource($playerTile);
         $this->selectResource($playerTile);
         $activableTiles = new ArrayCollection([$playerTile]);
+        $this->entityManager->flush();
         //WHEN
         $this->service->activateBonus($playerTile, $player, $activableTiles);
         //THEN
@@ -2019,9 +2025,9 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $this->entityManager->persist($playerTileResource);
         $playerTile->addPlayerTileResource($playerTileResource);
         $this->entityManager->persist($playerTile);
-        $this->entityManager->flush();
         $this->selectResource($playerTile, 3);
         $activableTiles = new ArrayCollection([$playerTile]);
+        $this->entityManager->flush();
         //WHEN
         $this->service->activateBonus($playerTile, $player, $activableTiles);
         //THEN

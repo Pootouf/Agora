@@ -99,6 +99,7 @@ export default class extends Controller  {
 
     async confirmWorkerPhase() {
         await rewindQueueWorkerPhase(queue)
+        await fetch(url + "/confirm/action/workerPhase/")
     }
 
     async cancelWorkerPhase() {
@@ -121,6 +122,11 @@ export default class extends Controller  {
 
     async cancelAnthillHolePlacement(placement) {
         alert("Ouvrir menu de l'atelier");
+    }
+
+    async placeAnthillHole(tile) {
+        let url = tile.params.url;
+        await fetch(url)
     }
 
     // ant movement

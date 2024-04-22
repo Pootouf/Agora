@@ -35,7 +35,10 @@ class PlayerTileGLM extends Component
     #[ORM\Column]
     private ?bool $activated = false;
 
-    #[ORM\OneToMany(targetEntity: SelectedResourceGLM::class, mappedBy: 'playerTile', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: SelectedResourceGLM::class,
+        mappedBy: 'playerTile',
+        orphanRemoval: true,
+        cascade: ["persist"])]
     private Collection $selectedResources;
 
     public function __construct()
