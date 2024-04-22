@@ -39,7 +39,7 @@
             {% endif %}
             {% set boardBox = selectedBox %}
             {% set isShifted = false %}
-            <div class="flex flex-col items-center justify-center h-auto w-full rounded-xl bg-black bg-opacity-25">
+            <div class="flex flex-col items-center relative justify-center h-[40%] py-[20%] w-full rounded-xl bg-black bg-opacity-25">
                 {% set isActionable = true %}
                 {{ include('Game/Myrmes/MainBoard/boardBox.html.twig') }}
             </div>
