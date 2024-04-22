@@ -43,32 +43,56 @@
 </svg>
 
 <script>
-    let x = {{ boardBox.coordX }};
-    let y = {{ boardBox.coordY }};
-    let id = {{ boardBox.pheromonTile.pheromonMYR.id }};
+    boardBoxCoordX = {{ boardBox.coordX }};
+    boardBoxCoordY = {{ boardBox.coordY }};
+    pheromoneId = {{ boardBox.pheromonTile.pheromonMYR.id }};
 
-    let westPheromone = document.getElementById(x + ' ' + (y - 2) + ' ' + id);
+    westPheromone = document.getElementById(boardBoxCoordX + ' '
+        + (boardBoxCoordY - 2) + ' '
+        + pheromoneId);
     if(westPheromone != null) {
-        document.getElementById(x + ' ' + (y) + ' ' + id).getElementsByClassName('west')[0].classList.add('hidden')
+        document.getElementById(boardBoxCoordX + ' '
+            + (boardBoxCoordY) + ' '
+            + pheromoneId).getElementsByClassName('west')[0].classList.add('hidden')
     }
-    let eastPheromone = document.getElementById(x + ' ' + (y + 2) + ' ' + id);
+    eastPheromone = document.getElementById(boardBoxCoordX + ' '
+        + (boardBoxCoordY + 2) + ' '
+        + pheromoneId);
     if(eastPheromone != null) {
-        document.getElementById(x + ' ' + (y) + ' ' + id).getElementsByClassName('east')[0].classList.add('hidden')
+        document.getElementById(boardBoxCoordX + ' '
+            + (boardBoxCoordY) + ' '
+            + pheromoneId).getElementsByClassName('east')[0].classList.add('hidden')
     }
-    let northWest = document.getElementById((x - 1) + ' ' + (y - 1) + ' ' + id);
+    northWest = document.getElementById((boardBoxCoordX - 1) + ' '
+        + (boardBoxCoordY - 1) + ' '
+        + pheromoneId);
     if(northWest != null) {
-        document.getElementById(x + ' ' + (y) + ' ' + id).getElementsByClassName('north-west')[0].classList.add('hidden')
+        document.getElementById(boardBoxCoordX + ' '
+            + (boardBoxCoordY) + ' '
+            + pheromoneId).getElementsByClassName('north-west')[0].classList.add('hidden')
     }
-    let northEast = document.getElementById((x - 1) + ' ' + (y + 1) + ' ' + id);
+    northEast = document.getElementById((boardBoxCoordX - 1) + ' '
+        + (boardBoxCoordY + 1) + ' '
+        + pheromoneId);
     if(northEast != null) {
-        document.getElementById(x + ' ' + (y) + ' ' + id).getElementsByClassName('north-east')[0].classList.add('hidden')
+        document.getElementById(boardBoxCoordX + ' '
+            + (boardBoxCoordY) + ' '
+            + pheromoneId).getElementsByClassName('north-east')[0].classList.add('hidden')
     }
-    let southWest = document.getElementById((x + 1) + ' ' + (y - 1) + ' ' + id);
+    southWest = document.getElementById((boardBoxCoordX + 1) + ' '
+        + (boardBoxCoordY - 1) + ' '
+        + pheromoneId);
     if(southWest != null) {
-        document.getElementById(x + ' ' + (y) + ' ' + id).getElementsByClassName('south-west')[0].classList.add('hidden')
+        document.getElementById(boardBoxCoordX + ' '
+            + (boardBoxCoordY) + ' '
+            + pheromoneId).getElementsByClassName('south-west')[0].classList.add('hidden')
     }
-    let southEast = document.getElementById((x + 1) + ' ' + (y + 1) + ' ' + id);
+    southEast = document.getElementById((boardBoxCoordX + 1) + ' '
+        + (boardBoxCoordY + 1) + ' '
+        + pheromoneId);
     if(southEast != null) {
-        document.getElementById(x + ' ' + (y) + ' ' + id).getElementsByClassName('south-east')[0].classList.add('hidden')
+        document.getElementById(boardBoxCoordX + ' '
+            + (boardBoxCoordY) + ' '
+            + pheromoneId).getElementsByClassName('south-east')[0].classList.add('hidden')
     }
 </script>

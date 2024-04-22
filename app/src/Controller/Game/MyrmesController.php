@@ -879,14 +879,14 @@ class MyrmesController extends AbstractController
     ): Response
     {
         if ($game->isPaused() || !$game->isLaunched()) {
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         if (!$player->isTurnOfPlayer()) {
-            return new Response('Not the turn of the player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::NOT_PLAYER_TURN, Response::HTTP_FORBIDDEN);
         }
         if ($game->getGamePhase() != MyrmesParameters::PHASE_WORKER) {
             return new Response('Not in worker phase', Response::HTTP_FORBIDDEN);
@@ -1205,9 +1205,9 @@ class MyrmesController extends AbstractController
         return new Response("threw resource from warehouse", Response::HTTP_OK);
     }
 
-    #[Route('/game/myrmes/{idGame}/displayPersonalObjectToPlace/{tileId}',
-        name: 'app_game_myrmes_display_personal_object_to_place')]
-    public function displayPersonalObjectToPlace(
+    #[Route('/game/myrmes/{idGame}/display/menu/pheromone/{tileId}',
+        name: 'app_game_myrmes_display_pheromone_special_tile_menu_to_place')]
+    public function displayPheromoneAndSpecialTileMenuToPlace(
         #[MapEntity(id: 'idGame')] GameMYR $game,
         #[MapEntity(id: 'tileId')] TileMYR $tileMYR
     ) : Response
@@ -1228,13 +1228,15 @@ class MyrmesController extends AbstractController
         ]);
     }
 
-    #[Route('/game/myrmes/{idGame}/displayMainBoardTilePositionPossibilities/{tileId}/{tileType}/{orientation}',
+    #[Route('/game/myrmes/{idGame}/displayMainBoardTilePositionPossibilities/{tileId}/{tileType}/{orientation}'
+        . '/{antCoordX}/{antCoordY}/{cleanedTilesString}',
         name: 'app_game_myrmes_display_mainBoard_tile_position_possibilities')]
     public function displayMainBoardTilePositionPossibilities(
         #[MapEntity(id: 'idGame')] GameMYR  $game,
         #[MapEntity(id: 'tileId')] TileMYR  $tileMYR,
         #[MapEntity(id: 'tileType')] int    $tileType,
         #[MapEntity(id: 'orientation')] int $orientation,
+        int $antCoordX, int $antCoordY, string $cleanedTilesString
     ) : Response
     {
         if ($game->isPaused() || !$game->isLaunched()) {
@@ -1248,9 +1250,13 @@ class MyrmesController extends AbstractController
         if ($tileTypeMYR == null) {
             return new Response(MyrmesTranslation::RESPONSE_INVALID_TILE_TYPE, Response::HTTP_FORBIDDEN);
         }
+        $cleanedTiles = $this->dataManagementMYRService->getListOfCoordinatesFromString($cleanedTilesString);
 
         try {
-            $positions = $this->workerMYRService->getAllAvailablePositions($player, $tileMYR, $tileTypeMYR);
+            $positions = $this->workerMYRService->getAllAvailablePositions(
+                $player, $tileMYR, $tileTypeMYR,
+                $antCoordX, $antCoordY, $cleanedTiles
+            );
         }catch (Exception $e) {
             return new Response("No positions available for this tile : " . $e->getMessage(),
                 Response::HTTP_FORBIDDEN);

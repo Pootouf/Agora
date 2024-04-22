@@ -334,12 +334,10 @@ async function rewindQueueWorkerPhase(queue) {
     }
 }
 
-async function canPlacePheromone(type, orientation, tileId) {
+async function canPlacePheromone(type, orientation) {
     const cleanedTilesString = getCleanedTilesString()
     const response = await fetch(url + "/canPlace/pheromone/" + antPosition.x
     + "/" + antPosition.y + "/" + type + "/" + orientation + "/" + cleanedTilesString);
-    if (response.status === 200 && await response.text() === "1") {
-        await rewindQueueWorkerPhase(queue)
-        await fetch(url + "/placePheromone/" + tileId + "/" + type + "/" + orientation);
-    }
+    return response.status === 200 && await response.text() === "1";
+
 }

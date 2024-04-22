@@ -104,7 +104,7 @@ class DataManagementMYRService
             if ($previousX < $tile->getCoordX()) {
                 // Fill the gaps up to y max coord
                 while ($y <= $maxy) {
-                    $currentLine->add($this->createBoardBox($game, null, $x, $y));
+                    $currentLine->add($this->createBoardBox($game, null, $x, $y - 1 + $x % 2));
                     $y+=2;
                 }
                 $y = $miny ;
@@ -114,13 +114,13 @@ class DataManagementMYRService
             }
             // Fill the gaps up to the next y coord
             while ($y < $tile->getCoordY()) {
-                $currentLine->add($this->createBoardBox($game, null, $x, $y));
+                $currentLine->add($this->createBoardBox($game, null, $x, $y - 1 + $x % 2));
                 $y+=2;
             }
             !$isInWorkerPhase ?
                 $currentLine->add($this->createBoardBox($game, $tile, $x, $y))
                 : $currentLine->add($this->createBoardBoxWorkerPhase(
-                    $game, $tile, $x, $y, $antCoordX == $x && $antCoordY == ($y - 1 + $x % 2),
+                    $game, $tile, $x, $y - 1 + $x % 2, $antCoordX == $x && $antCoordY == ($y - 1 + $x % 2),
                     $player, $shiftsCount, $cleanedTiles
                 ));
             $previousX = $tile->getCoordX();
@@ -128,7 +128,7 @@ class DataManagementMYRService
         }
         // Complete the last added line until max y
         while ($y <= $maxy) {
-            $currentLine->add($this->createBoardBox($game, null, $x, $y));
+            $currentLine->add($this->createBoardBox($game, null, $x, $y - 1 + $x % 2));
             $y+=2;
         }
         $result->add($currentLine);
