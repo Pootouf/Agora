@@ -325,6 +325,7 @@ class MyrmesController extends AbstractController
         $message = $player->getUsername() . " a augmenté son bonus";
         $this->logService->sendPlayerLog($game, $player, $message);
         $this->publishPersonalBoard($game, $player);
+        $this->publishPreview($game, $player);
         return new Response('Bonus upped', Response::HTTP_OK);
     }
 
@@ -353,6 +354,7 @@ class MyrmesController extends AbstractController
         $message = $player->getUsername() . " a baissé son bonus";
         $this->logService->sendPlayerLog($game, $player, $message);
         $this->publishPersonalBoard($game, $player);
+        $this->publishPreview($game, $player);
         return new Response('Bonus lowered', Response::HTTP_OK);
     }
 
@@ -413,6 +415,7 @@ class MyrmesController extends AbstractController
         $message = $player->getUsername() . " a placé une nourrice sur une piste de naissance " . $position;
         $this->logService->sendPlayerLog($game, $player, $message);
         $this->publishPersonalBoard($game, $player);
+        $this->publishPreview($game, $player);
         return new Response("nurse placed on birth track " . $position, Response::HTTP_OK);
     }
 
@@ -440,6 +443,7 @@ class MyrmesController extends AbstractController
             return new Response('failed to confirm nurses', Response::HTTP_FORBIDDEN);
         }
         $this->service->setPhase($player, MyrmesParameters::PHASE_WORKER);
+        $this->publishPreview($game, $player);
         $this->service->endPlayerRound($player);
 
         $message = $player->getUsername() . " a confirmé le placement de ses nourrices";
@@ -469,6 +473,7 @@ class MyrmesController extends AbstractController
         $message = $player->getUsername() . " a annulé le placement de ses nourrices";
         $this->logService->sendPlayerLog($game, $player, $message);
         $this->publishPersonalBoard($game, $player);
+        $this->publishPreview($game, $player);
         return new Response("nurses placement canceled", Response::HTTP_OK);
     }
 
