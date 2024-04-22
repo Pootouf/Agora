@@ -27,11 +27,11 @@
 
     {% if not isActionable %}
         {% if boardBox.pheromonTile != null %}
-        <div class="visible">
-            {{  include('Game/Myrmes/MainBoard/MainBoardElements/pheromoneDisplay.html.twig') }}
-            <img class="absolute rounded rounded-full size-full  "
-                 src="{{ asset('resourcesGames/Myrmes/pheromone.svg') }}" alt="pheromone">
-        </div>
+            <div class="visible">
+                {{  include('Game/Myrmes/MainBoard/MainBoardElements/pheromoneDisplay.html.twig') }}
+                <img class="absolute rounded rounded-full size-full  "
+                     src="{{ asset('resourcesGames/Myrmes/pheromone.svg') }}" alt="pheromone">
+            </div>
         {% endif %}
         {{ include('Game/Myrmes/MainBoard/elementsOnBoardBox.html.twig') }}
     {% endif %}
