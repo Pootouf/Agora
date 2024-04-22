@@ -2,6 +2,7 @@
 
 namespace App\Controller\Game;
 
+use App\Entity\Game\DTO\GameParameters;
 use App\Entity\Game\DTO\Myrmes\BoardBoxMYR;
 use App\Entity\Game\DTO\Myrmes\BoardTileMYR;
 use App\Entity\Game\Myrmes\GameMYR;
@@ -19,6 +20,7 @@ use App\Service\Game\Myrmes\WinterMYRService;
 use App\Service\Game\Myrmes\WorkerMYRService;
 use App\Service\Game\Myrmes\WorkshopMYRService;
 use App\Service\Game\PublishService;
+use App\Tests\Game\Myrmes\MyrmesTranslation;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
@@ -392,6 +394,10 @@ class MyrmesController extends AbstractController
         $this->eventMYRService->confirmBonus($player);
         $this->service->endPlayerRound($player);
         $this->service->setPhase($player, MyrmesParameters::PHASE_BIRTH);
+        $this->publishNotification($game, MyrmesParameters::NOTIFICATION_DURATION_PHASE,
+            MyrmesTranslation::WARNING,
+            MyrmesTranslation::BIRTH_PHASE, GameParameters::ALERT_NOTIFICATION_TYPE,
+            GameParameters::NOTIFICATION_COLOR_RED, $player->getUsername());
 
         $message = $player->getUsername() . " a confirmé son choix de bonus";
         $this->logService->sendPlayerLog($game, $player, $message);
@@ -1351,4 +1357,18 @@ class MyrmesController extends AbstractController
             new Response($tile->getId())
         );
     }
+
+    private function publishNotification(GameMYR $game, int $duration, string $message,
+                                         string $description, string $iconId,
+                                         string $loadingBarColor, string $targetedPlayer): void
+    {
+        $dataSent =  [$duration, $message, $description, $iconId, $loadingBarColor];
+
+        $this->publishService->publish(
+            $this->generateUrl('app_game_show_myr',
+                ['id' => $game->getId()]).'notification'.$targetedPlayer,
+            new Response(implode('_', $dataSent))
+        );
+    }
+
 }
