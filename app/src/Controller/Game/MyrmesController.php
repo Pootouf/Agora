@@ -444,6 +444,7 @@ class MyrmesController extends AbstractController
         }
         $this->service->setPhase($player, MyrmesParameters::PHASE_WORKER);
         $this->publishPreview($game, $player);
+        $this->publishRanking($game, $player);
         $this->service->endPlayerRound($player);
 
         $message = $player->getUsername() . " a confirmé le placement de ses nourrices";
@@ -568,7 +569,9 @@ class MyrmesController extends AbstractController
             $this->logService->sendPlayerLog($game, $player, $message);
             return new Response('failed to place worker on colony', Response::HTTP_FORBIDDEN);
         }
-
+        $this->publishPersonalBoard($game, $player);
+        $this->publishPreview($game, $player);
+        $this->publishRanking($game, $player);
         $this->service->setNextPlayerTurn($player);
         if ($this->service->getNumberOfFreeWorkerOfPlayer($player) <= 0) {
             $this->service->setPhase($player, MyrmesParameters::PHASE_HARVEST);
@@ -582,7 +585,6 @@ class MyrmesController extends AbstractController
                 $this->service->setPhase($player, MyrmesParameters::PHASE_HARVEST);
             }
         }
-        $this->publishPersonalBoard($game, $player);
         return new Response("placed worker on colony", Response::HTTP_OK);
     }
 
@@ -999,7 +1001,7 @@ class MyrmesController extends AbstractController
             . " a posé un trou de fourmilière "
             . " sur la tuile " . $tileMYR->getId();
         $this->logService->sendPlayerLog($game, $player, $message);
-
+        $this->publishRanking($game, $player);
         return new Response('placed an anthill hole', Response::HTTP_OK);
     }
 
@@ -1029,6 +1031,7 @@ class MyrmesController extends AbstractController
 
         $message = $player->getUsername() . " a augmenté son niveau de fourmilière";
         $this->logService->sendPlayerLog($game, $player, $message);
+        $this->publishRanking($game, $player);
         return new Response('increased anthill level', Response::HTTP_OK);
     }
 
@@ -1058,6 +1061,7 @@ class MyrmesController extends AbstractController
 
         $message = $player->getUsername() . " a crée une nourrice.";
         $this->logService->sendPlayerLog($game, $player, $message);
+        $this->publishRanking($game, $player);
         return new Response("created new nurse");
     }
 
