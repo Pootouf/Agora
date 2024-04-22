@@ -1417,6 +1417,15 @@ class MyrmesController extends AbstractController
         ]);
     }
 
+    private function returnRanking($game, $player) : Response
+    {
+        return $this->render('Game/Myrmes/Ranking/ranking.html.twig', [
+            'player' => $player,
+            'game' => $game,
+            'isSpectator' => $player == null
+        ]);
+    }
+
     /**
      * publishMainBoard: publish with mercure the main board
      * @param GameMYR $game
@@ -1471,6 +1480,15 @@ class MyrmesController extends AbstractController
         $this->publishService->publish(
             $this->generateUrl('app_game_show_myr',
                 ['id' => $game->getId()]).'preview'.$player->getId(),
+            $response);
+    }
+
+    private function publishRanking(GameMYR $game, PlayerMYR $player) : void
+    {
+        $response = $this->returnRanking($game, $player);
+        $this->publishService->publish(
+            $this->generateUrl('app_game_show_myr',
+                ['id' => $game->getId()]).'ranking'.$player->getId(),
             $response);
     }
 }
