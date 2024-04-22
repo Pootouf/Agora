@@ -1377,6 +1377,41 @@ class MyrmesController extends AbstractController
         ]);
     }
 
+    private function returnPreview(GameMYR $game, PlayerMYR $player) : Response
+    {
+        return $this->render('Game/Myrmes/MainBoard/preview.html.twig', [
+            'player' => $player,
+            'game' => $game,
+            'isPreview' => true,
+            'isAnotherPlayerBoard' => false,
+            'playerPhase' => $player->getPhase(),
+            'needToPlay' => $player == null ? false : $player->isTurnOfPlayer(),
+            'availableLarvae' => $this->service->getAvailableLarvae($player),
+            'nursesOnLarvaeBirthTrack' => $this->service->getNursesAtPosition(
+                $player,
+                MyrmesParameters::LARVAE_AREA
+            )->count(),
+            'nursesOnSoldiersBirthTrack' => $this->service->getNursesAtPosition(
+                $player,
+                MyrmesParameters::SOLDIERS_AREA
+            )->count(),
+            'nursesOnWorkersBirthTrack' => $this->service->getNursesAtPosition(
+                $player,
+                MyrmesParameters::WORKER_AREA
+            )->count(),
+            'nursesOnWorkshop' => $this->service->getNursesAtPosition(
+                $player,
+                MyrmesParameters::WORKSHOP_AREA
+            )->count(),
+            'nursesOnBaseArea' => $this->service->getNursesAtPosition(
+                $player,
+                MyrmesParameters::BASE_AREA
+            )->count(),
+            'workersOnAnthillLevels' => $this->dataManagementMYRService
+                ->workerOnAnthillLevels($player->getPersonalBoardMYR())
+        ]);
+    }
+
     /**
      * publishMainBoard: publish with mercure the main board
      * @param GameMYR $game
@@ -1415,7 +1450,7 @@ class MyrmesController extends AbstractController
         );
     }
 
-    private function publishPersonalBoard(GameMYR $game, $player) : void
+    private function publishPersonalBoard(GameMYR $game, PlayerMYR $player) : void
     {
         $response = $this->returnPersonalBoard($game, $player);
         $this->publishService->publish(
@@ -1423,5 +1458,14 @@ class MyrmesController extends AbstractController
                 ['id' => $game->getId()]).'personalBoard'.$player->getId(),
             $response
         );
+    }
+
+    private function publishPreview(GameMYR $game, PlayerMYR $player ) : void
+    {
+        $response = $this->returnPreview($game, $player);
+        $this->publishService->publish(
+            $this->generateUrl('app_game_show_myr',
+                ['id' => $game->getId()]).'preview'.$player->getId(),
+            $response);
     }
 }
