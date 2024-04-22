@@ -106,8 +106,8 @@
                 {% else %}
                     <p>Ressource présente sur la tuile : </p>
                     <img class="max-h-[5vw]"
-                         src="{{ asset('resourcesGames/Myrmes/resources/' ~ boardBox.pheromonTile.resource ~ '.svg') }}"
-                         alt="{{ boardBox.pheromonTile.resource }}">
+                         src="{{ asset('resourcesGames/Myrmes/resources/' ~ boardBox.pheromonTile.resource.description ~ '.svg') }}"
+                         alt="{{ boardBox.pheromonTile.resource.description }}">
                 {% endif %}
             {% endif %}
 
