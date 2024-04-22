@@ -3,6 +3,7 @@
 namespace App\Service\Game\Splendor;
 
 use App\Entity\Game\DTO\Game;
+use App\Entity\Game\DTO\GameTranslation;
 use App\Entity\Game\SixQP\DiscardSixQP;
 use App\Entity\Game\SixQP\GameSixQP;
 use App\Entity\Game\SixQP\PlayerSixQP;
@@ -26,7 +27,7 @@ class SPLGameManagerService extends AbstractGameManagerService
 {
 
     public function __construct(private EntityManagerInterface $entityManager,
-        private SPLService $SPLService,
+        private SPLService $splService,
         private PlayerSPLRepository $playerSPLRepository,
         private LogService $logService,
         private TokenSPLService $tokenSPLService)
@@ -55,7 +56,8 @@ class SPLGameManagerService extends AbstractGameManagerService
         $this->entityManager->persist($mainBoard);
         $this->entityManager->persist($game);
         $this->entityManager->flush();
-        $this->logService->sendSystemLog($game, "la partie " . $game->getId() . " a été créée");
+        $this->logService->sendSystemLog($game, GameTranslation::GAME_STRING
+            . $game->getId() . " a été créée");
         return $game->getId();
     }
 
@@ -105,7 +107,7 @@ class SPLGameManagerService extends AbstractGameManagerService
         if ($game->isLaunched()) {
             return SPLGameManagerService::$ERROR_GAME_ALREADY_LAUNCHED;
         }
-        $player = $this->SPLService->getPlayerFromNameAndGame($game, $playerName);
+        $player = $this->splService->getPlayerFromNameAndGame($game, $playerName);
         if ($player == null) {
             return SPLGameManagerService::$ERROR_PLAYER_NOT_FOUND;
         }
@@ -128,7 +130,7 @@ class SPLGameManagerService extends AbstractGameManagerService
         foreach ($game->getPlayers() as $player) {
             $this->entityManager->remove($player);
         }
-        $this->logService->sendSystemLog($game, "la partie " . $game->getId() . " s'est terminée");
+        $this->logService->sendSystemLog($game, GameTranslation::GAME_STRING . $game->getId() . " s'est terminée");
         $this->entityManager->remove($game);
         $this->entityManager->flush();
         return SPLGameManagerService::$SUCCESS;
@@ -152,9 +154,9 @@ class SPLGameManagerService extends AbstractGameManagerService
         $game->setLaunched(true);
         $this->entityManager->persist($game);
         $this->entityManager->flush();
-        $this->SPLService->initializeNewGame($game);
+        $this->splService->initializeNewGame($game);
         $this->tokenSPLService->initializeGameToken($game);
-        $this->logService->sendSystemLog($game, "la partie " . $game->getId() . " a débuté");
+        $this->logService->sendSystemLog($game, GameTranslation::GAME_STRING . $game->getId() . " a débuté");
         return SPLGameManagerService::$SUCCESS;
     }
 
