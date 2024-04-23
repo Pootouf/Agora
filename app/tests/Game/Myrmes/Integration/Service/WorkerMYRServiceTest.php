@@ -3469,7 +3469,8 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($tileType);
         $this->entityManager->flush();
         //WHEN
-        $result = $this->workerMYRService->getAllAvailablePositions($player, $expectedList1->first(), $tileType);
+        $result = $this->workerMYRService->getAllAvailablePositions($player, $expectedList1->first(), $tileType,
+        7, 12, []);
         //THEN
         $boardTile1 = $result->first()->first()->getTile();
         $boardTile2 = $result->first()->last()->getTile();
@@ -3507,7 +3508,8 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($tileType);
         $this->entityManager->flush();
         //WHEN
-        $result = $this->workerMYRService->getAllAvailablePositions($player, $expectedList1->first(), $tileType);
+        $result = $this->workerMYRService->getAllAvailablePositions($player, $expectedList1->first(), $tileType,
+            9, 18, []);
         //THEN
         $boardTile1 = $result->first()->first()->getTile();
         $boardTile2 = $result->first()->last()->getTile();
@@ -3532,7 +3534,8 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($tileType);
         $this->entityManager->flush();
         //WHEN
-        $result = $this->workerMYRService->getAllAvailablePositions($player, $tile, $tileType);
+        $result = $this->workerMYRService->getAllAvailablePositions($player, $tile, $tileType,
+            45, 58, []);
         //THEN
         $this->assertEmpty($result);
     }
@@ -3554,7 +3557,8 @@ class WorkerMYRServiceTest extends KernelTestCase
             $this->entityManager->persist($tileType);
             $this->entityManager->flush();
             //WHEN
-            $result = $this->workerMYRService->getAllAvailablePositions($player, $expectedList1->first(), $tileType);
+            $result = $this->workerMYRService->getAllAvailablePositions($player, $expectedList1->first(), $tileType,
+                $chosenX, $chosenY, []);
             //THEN
             $this->assertNotEmpty($result);
         }
@@ -3564,7 +3568,8 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($tileType);
         $this->entityManager->flush();
         //WHEN
-        $result = $this->workerMYRService->getAllAvailablePositions($player, $expectedList1->first(), $tileType);
+        $result = $this->workerMYRService->getAllAvailablePositions($player, $expectedList1->first(), $tileType,
+            45, 58, []);
         //THEN
         $this->assertEmpty($result);
     }
@@ -3586,7 +3591,8 @@ class WorkerMYRServiceTest extends KernelTestCase
             $this->entityManager->persist($tileType);
             $this->entityManager->flush();
             //WHEN
-            $result = $this->workerMYRService->getAllAvailablePositions($player, $expectedList1->first(), $tileType);
+            $result = $this->workerMYRService->getAllAvailablePositions($player, $expectedList1->first(), $tileType,
+                $chosenX, $chosenY, []);
             //THEN
             $this->assertNotEmpty($result);
         }
@@ -3596,7 +3602,8 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($tileType);
         $this->entityManager->flush();
         //WHEN
-        $result = $this->workerMYRService->getAllAvailablePositions($player, $expectedList1->first(), $tileType);
+        $result = $this->workerMYRService->getAllAvailablePositions($player, $expectedList1->first(), $tileType,
+            $chosenX + 1, $chosenY, []);
         //THEN
         $this->assertEmpty($result);
     }
@@ -3618,7 +3625,8 @@ class WorkerMYRServiceTest extends KernelTestCase
             $this->entityManager->persist($tileType);
             $this->entityManager->flush();
             //WHEN
-            $result = $this->workerMYRService->getAllAvailablePositions($player, $expectedList1->first(), $tileType);
+            $result = $this->workerMYRService->getAllAvailablePositions($player, $expectedList1->first(), $tileType,
+                $chosenX, $chosenY, []);
             //THEN
             $this->assertNotEmpty($result);
         }
@@ -3628,7 +3636,8 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($tileType);
         $this->entityManager->flush();
         //WHEN
-        $result = $this->workerMYRService->getAllAvailablePositions($player, $expectedList1->first(), $tileType);
+        $result = $this->workerMYRService->getAllAvailablePositions($player, $expectedList1->first(), $tileType,
+            45, 58, []);
         //THEN
         $this->assertEmpty($result);
     }
@@ -3650,7 +3659,8 @@ class WorkerMYRServiceTest extends KernelTestCase
             $this->entityManager->persist($tileType);
             $this->entityManager->flush();
             //WHEN
-            $result = $this->workerMYRService->getAllAvailablePositions($player, $expectedList1->first(), $tileType);
+            $result = $this->workerMYRService->getAllAvailablePositions($player, $expectedList1->first(), $tileType,
+                $chosenX, $chosenY, []);
             //THEN
             $this->assertNotEmpty($result);
         }
@@ -3660,7 +3670,8 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($tileType);
         $this->entityManager->flush();
         //WHEN
-        $result = $this->workerMYRService->getAllAvailablePositions($player, $expectedList1->first(), $tileType);
+        $result = $this->workerMYRService->getAllAvailablePositions($player, $expectedList1->first(), $tileType,
+            45, 58, []);
         //THEN
         $this->assertEmpty($result);
     }
@@ -3682,7 +3693,8 @@ class WorkerMYRServiceTest extends KernelTestCase
             $this->entityManager->persist($tileType);
             $this->entityManager->flush();
             //WHEN
-            $result = $this->workerMYRService->getAllAvailablePositions($player, $expectedList1->first(), $tileType);
+            $result = $this->workerMYRService->getAllAvailablePositions($player, $expectedList1->first(), $tileType,
+                $chosenX, $chosenY, []);
             //THEN
             $this->assertNotEmpty($result);
         }
@@ -3692,7 +3704,8 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($tileType);
         $this->entityManager->flush();
         //WHEN
-        $result = $this->workerMYRService->getAllAvailablePositions($player, $expectedList1->first(), $tileType);
+        $result = $this->workerMYRService->getAllAvailablePositions($player, $expectedList1->first(), $tileType,
+            45, 58, []);
         //THEN
         $this->assertEmpty($result);
     }
@@ -3714,7 +3727,8 @@ class WorkerMYRServiceTest extends KernelTestCase
             $this->entityManager->persist($tileType);
             $this->entityManager->flush();
             //WHEN
-            $result = $this->workerMYRService->getAllAvailablePositions($player, $expectedList1->first(), $tileType);
+            $result = $this->workerMYRService->getAllAvailablePositions($player, $expectedList1->first(), $tileType,
+                $chosenX, $chosenY, []);
             //THEN
             $this->assertNotEmpty($result);
         }
@@ -3724,7 +3738,8 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($tileType);
         $this->entityManager->flush();
         //WHEN
-        $result = $this->workerMYRService->getAllAvailablePositions($player, $expectedList1->first(), $tileType);
+        $result = $this->workerMYRService->getAllAvailablePositions($player, $expectedList1->first(), $tileType,
+            45, 58, []);
         //THEN
         $this->assertEmpty($result);
     }
@@ -3746,7 +3761,8 @@ class WorkerMYRServiceTest extends KernelTestCase
             $this->entityManager->persist($tileType);
             $this->entityManager->flush();
             //WHEN
-            $result = $this->workerMYRService->getAllAvailablePositions($player, $expectedList1->first(), $tileType);
+            $result = $this->workerMYRService->getAllAvailablePositions($player, $expectedList1->first(), $tileType,
+                $chosenX, $chosenY, []);
             //THEN
             $this->assertNotEmpty($result);
         }
@@ -3756,7 +3772,8 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($tileType);
         $this->entityManager->flush();
         //WHEN
-        $result = $this->workerMYRService->getAllAvailablePositions($player, $expectedList1->first(), $tileType);
+        $result = $this->workerMYRService->getAllAvailablePositions($player, $expectedList1->first(), $tileType,
+            45, 58, []);
         //THEN
         $this->assertEmpty($result);
     }
@@ -3777,7 +3794,8 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($tileType);
         $this->entityManager->flush();
         //WHEN
-        $result = $this->workerMYRService->getAllAvailablePositions($player, $expectedList1->first(), $tileType);
+        $result = $this->workerMYRService->getAllAvailablePositions($player, $expectedList1->first(), $tileType,
+            45, 58, []);
         //THEN
         $this->assertEmpty($result);
     }
@@ -3999,13 +4017,13 @@ class WorkerMYRServiceTest extends KernelTestCase
         $expected = new ArrayCollection();
         for ($i = MyrmesParameters::PHEROMONE_TYPE_ZERO; $i <= MyrmesParameters::PHEROMONE_TYPE_SIX; ++$i) {
             $remaining = MyrmesParameters::PHEROMONE_TYPE_AMOUNT[$i] ;
-            if ($remaining > 0) {
+            if ($remaining > 0 && $i == 0) {
                 $expected->add([$i, $remaining, MyrmesParameters::PHEROMONE_TYPE_ORIENTATIONS[$i]]);
             }
         }
         for ($i = MyrmesParameters::SPECIAL_TILE_TYPE_FARM; $i <= MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL; ++$i) {
             $remaining = MyrmesParameters::SPECIAL_TILE_TYPE_AMOUNT[$i];
-            if ($remaining > 0) {
+            if ($remaining > 0 && $i == 0) {
                 $expected->add([$i, $remaining, MyrmesParameters::SPECIAL_TILES_TYPE_ORIENTATIONS[$i]]);
             }
         }
@@ -4035,13 +4053,13 @@ class WorkerMYRServiceTest extends KernelTestCase
         $expected->add([MyrmesParameters::PHEROMONE_TYPE_ZERO, $remaining, MyrmesParameters::PHEROMONE_TYPE_ORIENTATIONS[0]]);
         for ($i = MyrmesParameters::PHEROMONE_TYPE_ONE; $i <= MyrmesParameters::PHEROMONE_TYPE_SIX; ++$i) {
             $remaining = MyrmesParameters::PHEROMONE_TYPE_AMOUNT[$i] ;
-            if ($remaining > 0) {
+            if ($remaining > 0 && $i == 0) {
                 $expected->add([$i, $remaining, MyrmesParameters::PHEROMONE_TYPE_ORIENTATIONS[$i]]);
             }
         }
         for ($i = MyrmesParameters::SPECIAL_TILE_TYPE_FARM; $i <= MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL; ++$i) {
             $remaining = MyrmesParameters::SPECIAL_TILE_TYPE_AMOUNT[$i];
-            if ($remaining > 0) {
+            if ($remaining > 0 && $i == 0) {
                 $expected->add([$i, $remaining, MyrmesParameters::SPECIAL_TILES_TYPE_ORIENTATIONS[$i]]);
             }
         }

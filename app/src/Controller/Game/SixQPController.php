@@ -2,13 +2,14 @@
 
 namespace App\Controller\Game;
 
+use App\Entity\Game\DTO\GameTranslation;
 use App\Entity\Game\SixQP\CardSixQP;
 use App\Entity\Game\SixQP\ChosenCardSixQP;
 use App\Entity\Game\SixQP\GameSixQP;
 use App\Entity\Game\SixQP\PlayerSixQP;
 use App\Entity\Game\SixQP\RowSixQP;
+use App\Entity\Game\SixQP\SixQPTranslation;
 use App\Repository\Game\SixQP\ChosenCardSixQPRepository;
-use App\Repository\Game\SixQP\PlayerSixQPRepository;
 use App\Service\Game\LogService;
 use App\Service\Game\MessageService;
 use App\Service\Game\SixQP\SixQPService;
@@ -18,7 +19,7 @@ use Exception;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[IsGranted('ROLE_USER')]
@@ -49,8 +50,10 @@ class SixQPController extends AbstractController
     #[Route('/game/sixqp/{id}', name: 'app_game_show_sixqp')]
     public function showGame(GameSixQP $game): Response
     {
-        if ($game->isPaused() || !$game->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE,
+                Response::HTTP_FORBIDDEN);
+        }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         $chosenCards = $this->chosenCardSixQPRepository->findBy(['game' => $game->getId()]);
         $isSpectator = false;
@@ -97,30 +100,33 @@ class SixQPController extends AbstractController
         #[MapEntity(id: 'idGame')] GameSixQP $game,
         #[MapEntity(id: 'idCard')] CardSixQP $card): Response
     {
-        if ($game->isPaused() || !$game->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE,
+                Response::HTTP_FORBIDDEN);
+        }
         /** @var PlayerSixQP $player */
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
-           return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+           return new Response(GameTranslation::INVALID_PLAYER_MESSAGE,
+               Response::HTTP_FORBIDDEN);
         }
 
         if ($this->service->doesPlayerAlreadyHasPlayed($player)) {
-            $this->logService->sendPlayerLog($game, $player,
-                $player->getUsername() . " a essayé de jouer une autre fois " . $card->getValue());
-            return new Response('Player already have played', Response::HTTP_UNAUTHORIZED);
+            return new Response(SixQPTranslation::RESPONSE_ALREADY_PLAYED,
+                Response::HTTP_UNAUTHORIZED);
         }
 
         try {
             $this->service->chooseCard($player, $card);
         } catch (Exception) {
             $this->logService->sendPlayerLog($game, $player,
-            $player->getUsername() . " n'a pas pu choisir la carte " . $card->getValue());
-            return new Response('Impossible to choose', Response::HTTP_INTERNAL_SERVER_ERROR);
+            $player->getUsername() . SixQPTranslation::CANNOT_CHOOSE_CARD . $card->getValue());
+            return new Response(SixQPTranslation::RESPONSE_CANNOT_CHOOSE_CARD,
+                Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
-        $message = $player->getUsername() . " a choisi la carte " . $card->getValue()
-            . " durant la partie " . $game->getId();
+        $message = $player->getUsername() . SixQPTranslation::CHOOSE_CARD . $card->getValue()
+            . SixQPTranslation::DURING_GAME . $game->getId();
         $this->logService->sendPlayerLog($game, $player, $message);
 
         $this->publishChosenCards($game);
@@ -129,34 +135,43 @@ class SixQPController extends AbstractController
         if ($this->service->doesAllPlayersHaveChosen($game)) {
             try {
                 $this->managePlacementOfCards($game);
-            } catch (Exception $e) {
-                return new Response('Need to choose', Response::HTTP_OK);
+            } catch (Exception) {
+                return new Response(SixQPTranslation::RESPONSE_NEED_TO_CHOOSE,
+                    Response::HTTP_OK);
             }
         }
-        return new Response('Card placed', Response::HTTP_OK);
+        return new Response(SixQPTranslation::RESPONSE_CARD_PLACED, Response::HTTP_OK);
     }
 
     #[Route('/game/{idGame}/sixqp/place/row/{idRow}', name: 'app_game_sixqp_placecardonrow')]
     public function placeCardOnRow(#[MapEntity(id: 'idGame')] GameSixQP $game,
         #[MapEntity(id: 'idRow')] RowSixQP $row) : Response{
-        if ($game->isPaused() || !$game->isLaunched())
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE,
+                Response::HTTP_FORBIDDEN);
+        }
         /** @var PlayerSixQP $player */
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE,
+                Response::HTTP_FORBIDDEN);
         }
         $chosenCard = $player->getChosenCardSixQP();
         if ($chosenCard == null) {
-            return new Response('Choose a card', Response::HTTP_UNAUTHORIZED);
+            return new Response(SixQPTranslation::RESPONSE_CHOOSE_CARD,
+                Response::HTTP_UNAUTHORIZED);
         }
         if ($this->service->getValidRowForCard($game, $chosenCard) != null) {
             $this->logService->sendPlayerLog($game, $player,
-                $player->getUsername() . " n'a pas pu placé sa carte sur la ligne " . $row->getPosition());
-            return new Response("Can't place the card here", Response::HTTP_METHOD_NOT_ALLOWED);
+                $player->getUsername() . SixQPTranslation::CANNOT_PLACE_CARD_ON_LINE
+                . $row->getPosition());
+            return new Response(SixQPTranslation::RESPONSE_CARD_INVALID_POSITION,
+                Response::HTTP_METHOD_NOT_ALLOWED);
         }
-        $message = $player->getUsername() . " a placé la carte " . $chosenCard->getCard()->getValue()
-            . " durant la partie " . $game->getId() . " sur la ligne " . $row->getPosition();
+        $message = $player->getUsername() . SixQPTranslation::PLACE_CARD
+            . $chosenCard->getCard()->getValue()
+            . SixQPTranslation::DURING_GAME . $game->getId()
+            . SixQPTranslation::ON_LINE . $row->getPosition();
         $this->logService->sendPlayerLog($game, $player, $message);
 
         $this->service->addRowToDiscardOfPlayer($player, $row);
@@ -173,10 +188,12 @@ class SixQPController extends AbstractController
 
         try {
             $this->managePlacementOfCards($game);
-        } catch (Exception $e) {
-            return new Response('Need to choose', Response::HTTP_OK);
+        } catch (Exception) {
+            return new Response(SixQPTranslation::RESPONSE_NEED_TO_CHOOSE,
+                Response::HTTP_OK);
         }
-        return new Response('Card placed', Response::HTTP_OK);
+        return new Response(SixQPTranslation::RESPONSE_CARD_PLACED,
+            Response::HTTP_OK);
     }
 
     /**
@@ -199,14 +216,14 @@ class SixQPController extends AbstractController
 
         if ($this->service->isGameEnded($game)) {
             $this->publishEndOfGame($game);
-        } else if (!$this->service->hasCardLeft($game->getPlayers())){
+        } elseif (!$this->service->hasCardLeft($game->getPlayers())){
             try {
                 $this->service->initializeNewRound($game);
                 $this->logService->sendSystemLog($game,
-                "une nouvelle manche a débuté durant la partie " . $game->getId());
-            } catch (Exception $e) {
+                SixQPTranslation::NEW_ROUND . $game->getId());
+            } catch (Exception) {
                 $this->logService->sendSystemLog($game,
-                "échec de création d'une nouvelle manche dans la partie " . $game->getId());
+                SixQPTranslation::CANNOT_CREATE_NEW_ROUND . $game->getId());
             }
             $this->publishAnimAllRowClear($game);
             foreach ($game->getPlayers() as $player) {
@@ -238,8 +255,9 @@ class SixQPController extends AbstractController
                 }
                 $this->publishMainBoard($game, $chosenCard);
                 $this->publishAnimChosenCard($game, $chosenCard);
-                $message = "Le système a placé la carte " . $chosenCard->getCard()->getValue()
-                    . " durant la partie " . $game->getId() . " sur la ligne " . $row->getPosition();
+                $message = SixQPTranslation::SYSTEM_PLACE_CARD . $chosenCard->getCard()->getValue()
+                    . SixQPTranslation::DURING_GAME . $game->getId()
+                    . SixQPTranslation::ON_LINE . $row->getPosition();
                 $this->logService->sendSystemLog($game, $message);
             }
         }
@@ -252,8 +270,9 @@ class SixQPController extends AbstractController
     {
         $winner = $this->service->getWinner($game);
         $this->logService->sendPlayerLog($game, $winner,
-            $winner->getUsername() . " a gagné la partie " . $game->getId());
-        $this->logService->sendSystemLog($game, "la partie " . $game->getId() . " s'est terminée");
+            $winner->getUsername() . SixQPTranslation::PLAYER_WIN . $game->getId());
+        $this->logService->sendSystemLog($game, SixQPTranslation::GAME_STRING
+            . $game->getId() . SixQPTranslation::GAME_ENDED);
         $this->publishService->publish(
             $this->generateUrl('app_game_show_sixqp', ['id' => $game->getId()]).'endOfGame',
             new Response($winner?->getUsername()));
@@ -328,7 +347,10 @@ class SixQPController extends AbstractController
         }
     }
 
-    private function publishMainBoard(GameSixQP $game, ?ChosenCardSixQP $chosenCardSixQP, bool $isNewRound = false): void
+    private function publishMainBoard(GameSixQP $game,
+        ?ChosenCardSixQP $chosenCardSixQP,
+        bool $isNewRound = false
+    ): void
     {
         $response =  $this->render('Game/Six_qp/MainBoard/mainBoard.html.twig',
             [

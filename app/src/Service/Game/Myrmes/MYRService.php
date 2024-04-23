@@ -203,11 +203,17 @@ class MYRService
     {
         $result = new ArrayCollection();
         $mainBoard = $game->getMainBoardMYR();
-        $fall = $this->seasonMYRRepository->findOneBy(["mainBoard" => $mainBoard, "name" => MyrmesParameters::FALL_SEASON_NAME]);
+        $fall = $this->seasonMYRRepository->findOneBy(
+            ["mainBoard" => $mainBoard, "name" => MyrmesParameters::FALL_SEASON_NAME]
+        );
         $result[$fall->getName()] = $fall->getDiceResult();
-        $spring = $this->seasonMYRRepository->findOneBy(["mainBoard" => $mainBoard, "name" => MyrmesParameters::SPRING_SEASON_NAME]);
+        $spring = $this->seasonMYRRepository->findOneBy(
+            ["mainBoard" => $mainBoard, "name" => MyrmesParameters::SPRING_SEASON_NAME]
+        );
         $result[$spring->getName()] = $spring->getDiceResult();
-        $summer = $this->seasonMYRRepository->findOneBy(["mainBoard" => $mainBoard, "name" => MyrmesParameters::SUMMER_SEASON_NAME]);
+        $summer = $this->seasonMYRRepository->findOneBy(
+            ["mainBoard" => $mainBoard, "name" => MyrmesParameters::SUMMER_SEASON_NAME]
+        );
         $result[$summer->getName()] = $summer->getDiceResult();
         return $result;
     }
@@ -367,6 +373,7 @@ class MYRService
         $game = $actualPlayer->getGameMyr();
         $actualPlayer->setTurnOfPlayer(false);
         $this->entityManager->persist($actualPlayer);
+        $this->entityManager->flush();
 
         $isInWorkerPhase = $game->getGamePhase() == MyrmesParameters::PHASE_WORKER;
         if ($isInWorkerPhase && !$this->canPlayersStillDoWorkerPhase($game)) {
@@ -405,6 +412,7 @@ class MYRService
                 }
                 $player->setTurnOfPlayer(true);
                 $this->entityManager->persist($player);
+                break;
             }
         }
         $this->entityManager->flush();
@@ -611,7 +619,7 @@ class MYRService
         $personalBoard->setAnthillLevel(MyrmesParameters::ANTHILL_START_LEVEL);
         $player->setScore(MyrmesParameters::PLAYER_START_SCORE);
         $player->setRemainingHarvestingBonus(0);
-
+        $this->initializePlayerWorkshopActions($player);
         $this->initializeColorForPlayer($player, $color);
         $this->initializePlayerResources($player);
         $player->setPhase(MyrmesParameters::PHASE_EVENT);
@@ -619,6 +627,20 @@ class MYRService
         $this->entityManager->persist($player);
         $this->entityManager->persist($personalBoard);
         $this->entityManager->flush();
+    }
+
+    /**
+     * initializePlayerWorkshopActions: set for all area in workshop value 0
+     * @param PlayerMYR $player
+     * @return void
+     */
+    private function initializePlayerWorkshopActions(PlayerMYR $player) : void
+    {
+        $actions = $player->getWorkshopActions();
+        for($i = MyrmesParameters::WORKSHOP_GOAL_AREA; $i <= MyrmesParameters::WORKSHOP_NURSE_AREA; $i++) {
+            array_push($actions, $i, 0);
+        }
+        $player->setWorkshopActions($actions);
     }
 
     /**
@@ -738,6 +760,7 @@ class MYRService
                     return $tile->getCoordX() >= 7;
                 });
                 break;
+            default:
         }
         foreach ($tiles as $tile) {
             $game->getMainBoardMYR()->addTile($tile);
@@ -773,6 +796,7 @@ class MYRService
                     $this->entityManager->flush();
                 }
                 break;
+            default:
         }
     }
 
@@ -839,7 +863,6 @@ class MYRService
                 MyrmesParameters::GOAL_REWARD_WHEN_GOAL_ALREADY_DONE);
             $this->entityManager->persist($player);
         }
-        $gameGoals = $playerMYR->getGameGoalMYRs();
         switch ($goalMYR->getGoal()->getDifficulty()) {
             case MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE :
                 $playerMYR->setScore($playerMYR->getScore() + MyrmesParameters::GOAL_REWARD_LEVEL_ONE);
@@ -850,6 +873,7 @@ class MYRService
             case MyrmesParameters::GOAL_DIFFICULTY_LEVEL_THREE :
                 $playerMYR->setScore($playerMYR->getScore() + MyrmesParameters::GOAL_REWARD_LEVEL_THREE);
                 break;
+            default:
         }
         $goalMYR->addPrecedentsPlayer($playerMYR);
         $this->entityManager->persist($playerMYR);
@@ -915,12 +939,12 @@ class MYRService
             $this->entityManager->persist($summer);
             $this->initializeEventBonus($game);
             $this->entityManager->persist($game);
-        } else if ($actualSeason->getName() === MyrmesParameters::SUMMER_SEASON_NAME) {
+        } elseif ($actualSeason->getName() === MyrmesParameters::SUMMER_SEASON_NAME) {
             $fall->setActualSeason(true);
             $this->entityManager->persist($fall);
             $this->initializeEventBonus($game);
             $this->entityManager->persist($game);
-        } else if ($actualSeason->getName() === MyrmesParameters::FALL_SEASON_NAME) {
+        } elseif ($actualSeason->getName() === MyrmesParameters::FALL_SEASON_NAME) {
             $winter->setActualSeason(true);
             $this->entityManager->persist($winter);
             $this->entityManager->persist($game);
@@ -1008,6 +1032,7 @@ class MYRService
                 $gameGoal->setMainBoardLevelThree($mainBoard);
                 $mainBoard->addGameGoalsLevelThree($gameGoal);
                 break;
+            default:
         }
         $this->entityManager->persist($gameGoal);
         $this->entityManager->flush();
@@ -1050,7 +1075,7 @@ class MYRService
     private function canPlayersStillDoWorkerPhase(GameMYR $game) : bool
     {
         return $game->getPlayers()->exists(
-            function (PlayerMYR $player) {
+            function (int $key, PlayerMYR $player) {
                 return $this->getNumberOfFreeWorkerOfPlayer($player) > 0;
             }
         );

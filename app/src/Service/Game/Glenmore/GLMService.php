@@ -3,11 +3,7 @@
 namespace App\Service\Game\Glenmore;
 
 use App\Entity\Game\Glenmore\PersonalBoardGLM;
-use App\Entity\Game\Glenmore\TileGLM;
 use App\Repository\Game\Glenmore\BoardTileGLMRepository;
-use App\Repository\Game\Glenmore\PlayerTileGLMRepository;
-use App\Repository\Game\Glenmore\PlayerTileResourceGLMRepository;
-use App\Service\Game\Glenmore\CardGLMService;
 use App\Entity\Game\Glenmore\BoardTileGLM;
 use App\Entity\Game\Glenmore\DrawTilesGLM;
 use App\Entity\Game\Glenmore\GameGLM;
@@ -28,7 +24,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
-use Psr\Log\LoggerInterface;
 
 class GLMService
 {
@@ -97,7 +92,7 @@ class GLMService
                 $maxPoint = $player->getScore();
                 $winners->clear();
                 $winners->add($player);
-            } else if ($player->getScore() == $maxPoint) {
+            } elseif ($player->getScore() == $maxPoint) {
                 $winners->add($player);
             }
         }
@@ -107,21 +102,12 @@ class GLMService
         $nbResource = 0;
         $result = new ArrayCollection();
         foreach ($winners as $player) {
-            $personalBoard = $player->getPersonalBoard();
-            $playerTiles = $personalBoard->getPlayerTiles();
-            $playerResources = 0;
-            foreach ($playerTiles as $playerTile) {
-                foreach ($playerTile->getPlayerTileResource() as $resource) {
-                    if ($resource->getResource()->getType() === GlenmoreParameters::$PRODUCTION_RESOURCE) {
-                        $playerResources += $resource->getQuantity();
-                    }
-                }
-            }
+            $playerResources = $this->getNumberOfPlayerResources($player);
             if ($playerResources > $nbResource) {
                 $result->clear();
                 $result->add($player);
                 $nbResource = $playerResources;
-            } else if ($playerResources == $nbResource) {
+            } elseif ($playerResources == $nbResource) {
                 $result->add($player);
             }
         }
@@ -219,7 +205,6 @@ class GLMService
             }
         }
         if ($this->isGameEnded($gameGLM)) {
-            // TODO RETURN CODE TO PUBLISH WINNERS
             $winners = $this->getWinner($gameGLM);
             $message = "";
             foreach ($winners as $winner) {
@@ -227,8 +212,6 @@ class GLMService
             }
             $message .= " ont gagné la partie " . $gameGLM->getId();
             $this->logService->sendSystemLog($gameGLM, $message);
-        } else {
-            // TODO RETURN CODE TO PUBLISH
         }
         if ($newPlayer->isBot()) {
             $this->manageBotAction($newPlayer);
@@ -261,6 +244,14 @@ class GLMService
 
     }
 
+    /**
+     * endRoundOfPlayer: end the round of the player
+     * @param GameGLM $gameGLM
+     * @param PlayerGLM $playerGLM
+     * @param int $startPosition
+     * @return void
+     * @throws Exception
+     */
     public function endRoundOfPlayer(GameGLM $gameGLM, PlayerGLM $playerGLM, int $startPosition): void
     {
         $players = $gameGLM->getPlayers();
@@ -637,9 +628,12 @@ class GLMService
         $warehouseLine->setWarehouseGLM($warehouse);
         $warehouseLine->setResource($resource);
         $warehouseLine->setCoinNumber($coinNumber);
-        $quantity = $coinNumber == GlenmoreParameters::$COIN_NEEDED_FOR_RESOURCE_ONE ? 1 :
-            ($coinNumber == GlenmoreParameters::$COIN_NEEDED_FOR_RESOURCE_TWO ? 2 :
-                ($coinNumber == GlenmoreParameters::$COIN_NEEDED_FOR_RESOURCE_THREE ? 3 : 0));
+        $quantity = match ($coinNumber) {
+            GlenmoreParameters::$COIN_NEEDED_FOR_RESOURCE_ONE => 1,
+            GlenmoreParameters::$COIN_NEEDED_FOR_RESOURCE_TWO => 2,
+            GlenmoreParameters::$COIN_NEEDED_FOR_RESOURCE_THREE => 3,
+            default => 0,
+        };
         $warehouseLine->setQuantity($quantity);
         $this->entityManager->persist($warehouseLine);
     }
@@ -705,7 +699,10 @@ class GLMService
      * @param array $tilesLevelOne
      * @return void
      */
-    private function initializeNewTile(GameGLM $game, int $position, array &$tilesLevelZero, array &$tilesLevelOne) : void
+    private function initializeNewTile(
+        GameGLM $game, int $position,
+        array &$tilesLevelZero, array &$tilesLevelOne
+    ) : void
     {
         $tile = new BoardTileGLM();
         $gameTile = null;
@@ -821,10 +818,10 @@ class GLMService
                                      DrawTilesGLM $drawLevelTwo,
                                      DrawTilesGLM $drawLevelThree) : void
     {
-        foreach ($tilesLevelZero as $tile) $drawLevelZero->addTile($tile);
-        foreach ($tilesLevelOne as $tile) $drawLevelOne->addTile($tile);
-        foreach ($tilesLevelTwo as $tile) $drawLevelTwo->addTile($tile);
-        foreach ($tilesLevelThree as $tile) $drawLevelThree->addTile($tile);
+        foreach ($tilesLevelZero as $tile) {$drawLevelZero->addTile($tile);}
+        foreach ($tilesLevelOne as $tile) {$drawLevelOne->addTile($tile);}
+        foreach ($tilesLevelTwo as $tile) {$drawLevelTwo->addTile($tile);}
+        foreach ($tilesLevelThree as $tile) {$drawLevelThree->addTile($tile);}
         $this->entityManager->persist($drawLevelZero);
         $this->entityManager->persist($drawLevelOne);
         $this->entityManager->persist($drawLevelTwo);
@@ -840,17 +837,11 @@ class GLMService
     private function manageBotAction(PlayerGLM $bot): void
     {
         $randomValue = rand(1, 6);
-        $finalValue = 0;
-        switch ($randomValue) {
-            case 1 :
-            case 2 :
-            case 3 : $finalValue = 1;
-            break;
-            case 4 :
-            case 5 : $finalValue = 2;
-            break;
-            case 6 : $finalValue = 3;
-        }
+        $finalValue = match ($randomValue) {
+            1, 2, 3 => 1,
+            4, 5 => 2,
+            default => 3,
+        };
 
         $position = $bot->getPawn()->getPosition();
         $bot->getPawn()->setPosition($bot->getPawn()->getPosition() + $finalValue);
@@ -870,7 +861,7 @@ class GLMService
         $this->entityManager->persist($bot->getPawn());
         $tile = $this->boardTileGLMRepository->findOneBy([
             'mainBoardGLM' => $bot->getGameGLM()->getMainBoard()->getId(),
-            'position' => $bot->getPawn()->getPosition()
+            'position' => $bot->getPawn()->getPosition(),
         ]);
         $this->entityManager->remove($tile);
         $bot->getGameGLM()->getMainBoard()->setLastPosition($position);
@@ -878,4 +869,24 @@ class GLMService
         $this->entityManager->flush();
 
     }
+
+    /**
+     * getNumberOfPlayerResources: return the number of resources of the player
+     * @param PlayerGLM $player
+     * @return int
+     */
+    private function getNumberOfPlayerResources(PlayerGLM $player): int
+    {
+        $playerTiles = $player->getPersonalBoard()->getPlayerTiles();
+        $playerResources = 0;
+        foreach ($playerTiles as $playerTile) {
+            foreach ($playerTile->getPlayerTileResource() as $resource) {
+                if ($resource->getResource()->getType() === GlenmoreParameters::$PRODUCTION_RESOURCE) {
+                    $playerResources += $resource->getQuantity();
+                }
+            }
+        }
+        return $playerResources;
+    }
+
 }
