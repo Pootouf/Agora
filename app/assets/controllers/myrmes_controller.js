@@ -129,6 +129,11 @@ export default class extends Controller  {
         await fetch(url)
     }
 
+    async sacrificeLarvae(larvae) {
+        let url = larvae.params.url;
+        await fetch(url);
+    }
+
     // ant movement
 
     async moveAnt(dir) {

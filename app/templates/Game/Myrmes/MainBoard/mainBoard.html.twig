@@ -60,7 +60,18 @@ This section displays the main board that every player and spectator can see
             {% if game.gamePhase != PHASE_WINTER and not isSpectator %}
                 <button type="button"
                         class="disabled:opacity-50 disabled:cursor-not-allowed"
-                        {% if availableLarvae < 3 %}disabled{% endif %}>
+                        {% if availableLarvae < 3 %}
+                            disabled
+                        {% else %}
+                            {{ stimulus_action('myrmes', 'sacrificeLarvae', 'click',
+                                {url: path('app_game_myrmes_sacrifice_larvae',
+                                    {
+                                        gameId: game.id
+                                    })
+                                })
+                            }}
+                        {% endif %}
+                        >
                     <img class="w-[10vw]"
                          src="{{ asset('resourcesGames/Myrmes/sacrificeLarvaeButton.svg') }}"
                          alt="sacrifice three larvae to get one food">
