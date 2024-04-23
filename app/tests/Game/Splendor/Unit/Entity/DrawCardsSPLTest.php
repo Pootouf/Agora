@@ -26,7 +26,7 @@ class DrawCardsSPLTest extends TestCase
     public function testSetLevel(): void
     {
         //GIVEN
-        $level = SplendorParameters::$DRAW_CARD_LEVEL_THREE;
+        $level = SplendorParameters::DRAW_CARD_LEVEL_THREE;
         //WHEN
         $this->drawCardsSPL->setLevel($level);
         //THEN

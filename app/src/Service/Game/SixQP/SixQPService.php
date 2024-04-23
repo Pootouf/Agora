@@ -54,12 +54,12 @@ class SixQPService
      */
     public function initializeNewRound(GameSixQP $gameSixQP): void
     {
-        if (count($gameSixQP->getRowSixQPs()) != SixQPParameters::$NUMBER_OF_ROWS_BY_GAME) {
+        if (count($gameSixQP->getRowSixQPs()) != SixQPParameters::NUMBER_OF_ROWS_BY_GAME) {
             throw new Exception('Invalid number of rows');
         }
         $numberOfPlayers = count($gameSixQP->getPlayers());
-        if ($numberOfPlayers > SixQPParameters::$MAX_NUMBER_OF_PLAYER ||
-                $numberOfPlayers < SixQPParameters::$MIN_NUMBER_OF_PLAYER) {
+        if ($numberOfPlayers > SixQPParameters::MAX_NUMBER_OF_PLAYER ||
+                $numberOfPlayers < SixQPParameters::MIN_NUMBER_OF_PLAYER) {
             throw new Exception('Invalid number of players');
         }
 
@@ -74,7 +74,7 @@ class SixQPService
         }
         foreach ($players as $player) {
             $player->clearCards();
-            for ($i = 0; $i < SixQPParameters::$NUMBER_OF_CARDS_BY_PLAYER; $i++) {
+            for ($i = 0; $i < SixQPParameters::NUMBER_OF_CARDS_BY_PLAYER; $i++) {
                 $player->addCard($cards[$cardIndex++]);
             }
             $this->entityManager->persist($player);
@@ -119,7 +119,7 @@ class SixQPService
         $player = $chosenCardSixQP->getPlayer();
 
         $returnValue = 0;
-        if ($row->getCards()->count() == SixQPParameters::$MAX_CARD_COUNT_IN_LINE) {
+        if ($row->getCards()->count() == SixQPParameters::MAX_CARD_COUNT_IN_LINE) {
             $this->addRowToDiscardOfPlayer($player, $row);
             $returnValue = -1;
         }
@@ -140,8 +140,8 @@ class SixQPService
     public function getRanking(GameSixQP $gameSixQP): array
     {
         $numberOfPlayers = count($gameSixQP->getPlayers());
-        if ($numberOfPlayers > SixQPParameters::$MAX_NUMBER_OF_PLAYER ||
-                $numberOfPlayers < SixQPParameters::$MIN_NUMBER_OF_PLAYER)
+        if ($numberOfPlayers > SixQPParameters::MAX_NUMBER_OF_PLAYER ||
+                $numberOfPlayers < SixQPParameters::MIN_NUMBER_OF_PLAYER)
         {
             throw new Exception('Invalid number of players');
         }
@@ -361,7 +361,7 @@ class SixQPService
     private function hasPlayerLost(Collection $players): bool
     {
         foreach($players as $player) {
-            if ($player->getScore() >= SixQPParameters::$MAX_POINTS) {
+            if ($player->getScore() >= SixQPParameters::MAX_POINTS) {
                 return true;
             }
         }

@@ -216,7 +216,7 @@ class SplendorGameManagerServiceIntegrationTest extends KernelTestCase
         $game->setGameName(AbstractGameManagerService::$SPL_LABEL);
         $mainBoard = new MainBoardSPL();
         $game->setMainBoard($mainBoard);
-        for ($i = 1; $i <= SplendorParameters::$NUMBER_OF_ROWS_BY_GAME; $i++) {
+        for ($i = 1; $i <= SplendorParameters::NUMBER_OF_ROWS_BY_GAME; $i++) {
             $row = new RowSPL();
             $row->setLevel($i);
             $mainBoard->addRowsSPL($row);

@@ -62,13 +62,13 @@ class SplendorController extends AbstractController
             'playerReservedCards' => $this->splService->getReservedCards($player),
             'playerTokens' => $player->getPersonalBoard()->getTokens(),
             'drawCardsLevelOneCount' => $this->splService
-                    ->getDrawCardsByLevel(SplendorParameters::$DRAW_CARD_LEVEL_ONE, $game)
+                    ->getDrawCardsByLevel(SplendorParameters::DRAW_CARD_LEVEL_ONE, $game)
                     ->count(),
             'drawCardsLevelTwoCount' => $this->splService
-                    ->getDrawCardsByLevel(SplendorParameters::$DRAW_CARD_LEVEL_TWO, $game)
+                    ->getDrawCardsByLevel(SplendorParameters::DRAW_CARD_LEVEL_TWO, $game)
                     ->count(),
             'drawCardsLevelThreeCount' => $this->splService
-                    ->getDrawCardsByLevel(SplendorParameters::$DRAW_CARD_LEVEL_THREE, $game)
+                    ->getDrawCardsByLevel(SplendorParameters::DRAW_CARD_LEVEL_THREE, $game)
                     ->count(),
             'whiteTokensPile' => $this->tokenSPLService
                     ->getWhiteTokensFromCollection($mainBoardTokens),
@@ -371,14 +371,14 @@ class SplendorController extends AbstractController
              foreach ($gameSPL->getPlayers() as $playerNotif) {
                  $this->publishToken($gameSPL, $playerNotif);
                  if ($playerNotif->getUsername() == $newActivePlayer->getUsername()) {
-                     $this->publishNotification($gameSPL, SplendorParameters::$NOTIFICATION_DURATION_10,
+                     $this->publishNotification($gameSPL, SplendorParameters::NOTIFICATION_DURATION_10,
                          SplendorTranslation::MESSAGE_TITLE_ROUND_START,
                          SplendorTranslation::MESSAGE_DESCRIPTION_ROUND_START,
                          GameParameters::RINGING_NOTIFICATION_TYPE,
                          GameParameters::NOTIFICATION_COLOR_BLUE,
                          $playerNotif->getUsername());
                  } else {
-                     $this->publishNotification($gameSPL, SplendorParameters::$NOTIFICATION_DURATION_5,
+                     $this->publishNotification($gameSPL, SplendorParameters::NOTIFICATION_DURATION_5,
                          SplendorTranslation::MESSAGE_TITLE_OTHER_PLAYER_ROUND_START,
                          SplendorTranslation::MESSAGE_DESCRIPTION_OTHER_PLAYER_ROUND_START
                          . $newActivePlayer->getUsername(),
@@ -387,7 +387,7 @@ class SplendorController extends AbstractController
                          $playerNotif->getUsername());
                  }
              }
-             $this->publishNotification($gameSPL, SplendorParameters::$NOTIFICATION_DURATION_5,
+             $this->publishNotification($gameSPL, SplendorParameters::NOTIFICATION_DURATION_5,
                  SplendorTranslation::MESSAGE_TITLE_OTHER_PLAYER_ROUND_START,
                  SplendorTranslation::MESSAGE_DESCRIPTION_OTHER_PLAYER_ROUND_START
                  . $newActivePlayer->getUsername(),
@@ -460,13 +460,13 @@ class SplendorController extends AbstractController
         $response = $this->render('Game/Splendor/MainBoard/developmentCardsBoard.html.twig', [
             'rows' => $this->splService->getRowsFromGame($game),
             'drawCardsLevelOneCount' => $this->splService
-                ->getDrawCardsByLevel(SplendorParameters::$DRAW_CARD_LEVEL_ONE, $game)
+                ->getDrawCardsByLevel(SplendorParameters::DRAW_CARD_LEVEL_ONE, $game)
                 ->count(),
             'drawCardsLevelTwoCount' => $this->splService
-                ->getDrawCardsByLevel(SplendorParameters::$DRAW_CARD_LEVEL_TWO, $game)
+                ->getDrawCardsByLevel(SplendorParameters::DRAW_CARD_LEVEL_TWO, $game)
                 ->count(),
             'drawCardsLevelThreeCount' => $this->splService
-                ->getDrawCardsByLevel(SplendorParameters::$DRAW_CARD_LEVEL_THREE, $game)
+                ->getDrawCardsByLevel(SplendorParameters::DRAW_CARD_LEVEL_THREE, $game)
                 ->count(),
             'isSpectator' => $isSpectator,
             'needToPlay' => $needToPlay,
@@ -702,14 +702,14 @@ class SplendorController extends AbstractController
         $game = $playerWithNobleTile->getGameSPL();
         foreach ($game->getPlayers() as $playerInGame) {
             if ($playerInGame->getUsername() == $playerWithNobleTile->getUsername()) {
-                $this->publishNotification($game, SplendorParameters::$NOTIFICATION_DURATION_10,
+                $this->publishNotification($game, SplendorParameters::NOTIFICATION_DURATION_10,
                     SplendorTranslation::MESSAGE_TITLE_NOBLE_VISIT,
                     "",
                     GameParameters::RINGING_NOTIFICATION_TYPE,
                     GameParameters::NOTIFICATION_COLOR_YELLOW,
                     $playerInGame->getUsername());
             } else {
-                $this->publishNotification($game, SplendorParameters::$NOTIFICATION_DURATION_5,
+                $this->publishNotification($game, SplendorParameters::NOTIFICATION_DURATION_5,
                     $playerWithNobleTile->getUsername()
                     . SplendorTranslation::MESSAGE_TITLE_OTHER_PLAYER_NOBLE_VISIT,
                     "",
@@ -728,7 +728,7 @@ class SplendorController extends AbstractController
      */
     private function notifyActionValidated(GameSPL $game, PlayerSPL $player) : void
     {
-        $this->publishNotification($game, SplendorParameters::$NOTIFICATION_DURATION_5,
+        $this->publishNotification($game, SplendorParameters::NOTIFICATION_DURATION_5,
             SplendorTranslation::MESSAGE_TITLE_ACTION_VALIDATED,
             "",
             GameParameters::VALIDATION_NOTIFICATION_TYPE,

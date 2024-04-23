@@ -1,11 +1,11 @@
 .hex {
     float: left;
-    margin-bottom: -1.1vw;
+    margin-bottom: -0.875vw;
     width: 3.5vw;
 }
 .hex .top {
     width: 0;
-    border-bottom: 1vw solid;
+    border-bottom: 0.875vw solid;
     border-bottom-color: inherit;
     border-left: 1.75vw solid transparent;
     border-right: 1.75vw solid transparent;
@@ -17,7 +17,7 @@
 }
 .hex .bottom {
     width: 0;
-    border-top: 1vw solid;
+    border-top: 0.875vw solid;
     border-top-color: inherit;
     border-left: 1.75vw solid transparent;
     border-right: 1.75vw solid transparent;

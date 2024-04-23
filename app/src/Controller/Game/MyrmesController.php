@@ -324,6 +324,8 @@ class MyrmesController extends AbstractController
         }
         $message = $player->getUsername() . " a augmenté son bonus";
         $this->logService->sendPlayerLog($game, $player, $message);
+        $this->publishPersonalBoard($game, $player);
+        $this->publishPreview($game, $player);
         return new Response('Bonus upped', Response::HTTP_OK);
     }
 
@@ -351,6 +353,8 @@ class MyrmesController extends AbstractController
         }
         $message = $player->getUsername() . " a baissé son bonus";
         $this->logService->sendPlayerLog($game, $player, $message);
+        $this->publishPersonalBoard($game, $player);
+        $this->publishPreview($game, $player);
         return new Response('Bonus lowered', Response::HTTP_OK);
     }
 
@@ -376,7 +380,7 @@ class MyrmesController extends AbstractController
 
         $message = $player->getUsername() . " a confirmé son choix de bonus";
         $this->logService->sendPlayerLog($game, $player, $message);
-
+        $this->publishPersonalBoard($game, $player);
         return new Response('Bonus confirmed', Response::HTTP_OK);
     }
 
@@ -410,6 +414,8 @@ class MyrmesController extends AbstractController
 
         $message = $player->getUsername() . " a placé une nourrice sur une piste de naissance " . $position;
         $this->logService->sendPlayerLog($game, $player, $message);
+        $this->publishPersonalBoard($game, $player);
+        $this->publishPreview($game, $player);
         return new Response("nurse placed on birth track " . $position, Response::HTTP_OK);
     }
 
@@ -437,12 +443,14 @@ class MyrmesController extends AbstractController
             return new Response('failed to confirm nurses', Response::HTTP_FORBIDDEN);
         }
 
+        $this->publishPreview($game, $player);
+        $this->publishRanking($game, $player);
         $this->service->endPlayerRound($player);
         $this->service->setPhase($player, MyrmesParameters::PHASE_WORKER);
 
         $message = $player->getUsername() . " a confirmé le placement de ses nourrices";
         $this->logService->sendPlayerLog($game, $player, $message);
-
+        $this->publishPersonalBoard($game, $player);
         return new Response("nurses placement confirmed", Response::HTTP_OK);
     }
 
@@ -466,6 +474,8 @@ class MyrmesController extends AbstractController
 
         $message = $player->getUsername() . " a annulé le placement de ses nourrices";
         $this->logService->sendPlayerLog($game, $player, $message);
+        $this->publishPersonalBoard($game, $player);
+        $this->publishPreview($game, $player);
         return new Response("nurses placement canceled", Response::HTTP_OK);
     }
 
@@ -563,7 +573,9 @@ class MyrmesController extends AbstractController
             $this->logService->sendPlayerLog($game, $player, $message);
             return new Response('failed to place worker on colony', Response::HTTP_FORBIDDEN);
         }
-
+        $this->publishPersonalBoard($game, $player);
+        $this->publishPreview($game, $player);
+        $this->publishRanking($game, $player);
         $this->service->setNextPlayerTurn($player);
         if ($this->service->getNumberOfFreeWorkerOfPlayer($player) <= 0) {
             $this->service->setPhase($player, MyrmesParameters::PHASE_HARVEST);
@@ -577,7 +589,6 @@ class MyrmesController extends AbstractController
                 $this->service->setPhase($player, MyrmesParameters::PHASE_HARVEST);
             }
         }
-
         return new Response("placed worker on colony", Response::HTTP_OK);
     }
 
@@ -624,7 +635,7 @@ class MyrmesController extends AbstractController
             return new Response(MyrmesTranslation::RESPONSE_ERROR_CALCULATING_MAIN_BOARD,
                 Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-
+        $this->publishPersonalBoard($game, $player);
         return $this->returnMainBoard($game, $player, $boardBoxes,
             null, false, false);
     }
@@ -831,6 +842,21 @@ class MyrmesController extends AbstractController
         }
     }
 
+    #[Route('/game/myrmes/getTile/id/coords/{coordX}/{coordY}',
+        name:'app_game_myrmes_get_tile_id_from_coords')]
+    public function getTileIdFromCoords(
+        int                                $coordX,
+        int                                $coordY
+    ): Response
+    {
+        $tile = $this->workerMYRService->getTileFromCoordinates($coordX, $coordY);
+        if($tile == null) {
+            return new Response(MyrmesTranslation::RESPONSE_INVALID_TILE,
+                Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+        return new Response($tile->getId(), Response::HTTP_OK);
+    }
+
     #[Route('/game/myrmes/{gameId}/moveAnt/direction/{direction}', name:'app_game_myrmes_move_ant')]
     public function moveAnt(
         #[MapEntity(id: 'gameId')] GameMYR $game,
@@ -879,14 +905,14 @@ class MyrmesController extends AbstractController
     ): Response
     {
         if ($game->isPaused() || !$game->isLaunched()) {
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         if (!$player->isTurnOfPlayer()) {
-            return new Response('Not the turn of the player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::NOT_PLAYER_TURN, Response::HTTP_FORBIDDEN);
         }
         if ($game->getGamePhase() != MyrmesParameters::PHASE_WORKER) {
             return new Response('Not in worker phase', Response::HTTP_FORBIDDEN);
@@ -1040,7 +1066,7 @@ class MyrmesController extends AbstractController
             . " a posé un trou de fourmilière "
             . " sur la tuile " . $tileMYR->getId();
         $this->logService->sendPlayerLog($game, $player, $message);
-
+        $this->publishRanking($game, $player);
         return new Response('placed an anthill hole', Response::HTTP_OK);
     }
 
@@ -1070,6 +1096,7 @@ class MyrmesController extends AbstractController
 
         $message = $player->getUsername() . " a augmenté son niveau de fourmilière";
         $this->logService->sendPlayerLog($game, $player, $message);
+        $this->publishRanking($game, $player);
         return new Response('increased anthill level', Response::HTTP_OK);
     }
 
@@ -1099,6 +1126,7 @@ class MyrmesController extends AbstractController
 
         $message = $player->getUsername() . " a crée une nourrice.";
         $this->logService->sendPlayerLog($game, $player, $message);
+        $this->publishRanking($game, $player);
         return new Response("created new nurse");
     }
 
@@ -1205,9 +1233,9 @@ class MyrmesController extends AbstractController
         return new Response("threw resource from warehouse", Response::HTTP_OK);
     }
 
-    #[Route('/game/myrmes/{idGame}/displayPersonalObjectToPlace/{tileId}',
-        name: 'app_game_myrmes_display_personal_object_to_place')]
-    public function displayPersonalObjectToPlace(
+    #[Route('/game/myrmes/{idGame}/display/menu/pheromone/{tileId}',
+        name: 'app_game_myrmes_display_pheromone_special_tile_menu_to_place')]
+    public function displayPheromoneAndSpecialTileMenuToPlace(
         #[MapEntity(id: 'idGame')] GameMYR $game,
         #[MapEntity(id: 'tileId')] TileMYR $tileMYR
     ) : Response
@@ -1228,13 +1256,15 @@ class MyrmesController extends AbstractController
         ]);
     }
 
-    #[Route('/game/myrmes/{idGame}/displayMainBoardTilePositionPossibilities/{tileId}/{tileType}/{orientation}',
+    #[Route('/game/myrmes/{idGame}/displayMainBoardTilePositionPossibilities/{tileId}/{tileType}/{orientation}'
+        . '/{antCoordX}/{antCoordY}/{cleanedTilesString}',
         name: 'app_game_myrmes_display_mainBoard_tile_position_possibilities')]
     public function displayMainBoardTilePositionPossibilities(
         #[MapEntity(id: 'idGame')] GameMYR  $game,
         #[MapEntity(id: 'tileId')] TileMYR  $tileMYR,
         #[MapEntity(id: 'tileType')] int    $tileType,
         #[MapEntity(id: 'orientation')] int $orientation,
+        int $antCoordX, int $antCoordY, string $cleanedTilesString
     ) : Response
     {
         if ($game->isPaused() || !$game->isLaunched()) {
@@ -1248,9 +1278,13 @@ class MyrmesController extends AbstractController
         if ($tileTypeMYR == null) {
             return new Response(MyrmesTranslation::RESPONSE_INVALID_TILE_TYPE, Response::HTTP_FORBIDDEN);
         }
+        $cleanedTiles = $this->dataManagementMYRService->getListOfCoordinatesFromString($cleanedTilesString);
 
         try {
-            $positions = $this->workerMYRService->getAllAvailablePositions($player, $tileMYR, $tileTypeMYR);
+            $positions = $this->workerMYRService->getAllAvailablePositions(
+                $player, $tileMYR, $tileTypeMYR,
+                $antCoordX, $antCoordY, $cleanedTiles
+            );
         }catch (Exception $e) {
             return new Response("No positions available for this tile : " . $e->getMessage(),
                 Response::HTTP_FORBIDDEN);
@@ -1389,6 +1423,107 @@ class MyrmesController extends AbstractController
     }
 
     /**
+     * returnPersonalBoard: return the response with the given parameters for personal board
+     * @param GameMYR $game
+     * @param PlayerMYR $player
+     * @return Response
+     */
+    private function returnPersonalBoard(GameMYR $game,PlayerMYR $player) : Response
+    {
+        return $this->render('Game/Myrmes/PersonalBoard/personalBoard.html.twig', [
+            'game' => $game,
+            'player' => $player,
+            'preys' => $player->getPreyMYRs(),
+            'isPreview' => false,
+            'isSpectator' => $player == null,
+            'needToPlay' => $player->isTurnOfPlayer(),
+            'isAnotherPlayerBoard' => false,
+            'playerPhase' => $player->getPhase(),
+            'availableLarvae' => $this->service->getAvailableLarvae($player),
+            'nursesOnLarvaeBirthTrack' => $this->service->getNursesAtPosition(
+                $player,
+                MyrmesParameters::LARVAE_AREA
+            )->count(),
+            'nursesOnSoldiersBirthTrack' => $this->service->getNursesAtPosition(
+                $player,
+                MyrmesParameters::SOLDIERS_AREA
+            )->count(),
+            'nursesOnWorkersBirthTrack' => $this->service->getNursesAtPosition(
+                $player,
+                MyrmesParameters::WORKER_AREA
+            )->count(),
+            'nursesOnWorkshop' => $this->service->getNursesAtPosition(
+                $player,
+                MyrmesParameters::WORKSHOP_AREA
+            )->count(),
+            'nursesOnBaseArea' => $this->service->getNursesAtPosition(
+                $player,
+                MyrmesParameters::BASE_AREA
+            )->count(),
+            'mustThrowResources' => $this->service->isInPhase($player, MyrmesParameters::PHASE_WINTER)
+                && $this->winterMYRService->mustDropResourcesForWinter($player),
+            'workersOnAnthillLevels' => $this->dataManagementMYRService
+                ->workerOnAnthillLevels($player->getPersonalBoardMYR())
+        ]);
+    }
+
+    /**
+     * returnPreview: return the response with the given parameters for preview
+     * @param GameMYR $game
+     * @param PlayerMYR $player
+     * @return Response
+     */
+    private function returnPreview(GameMYR $game, PlayerMYR $player) : Response
+    {
+        return $this->render('Game/Myrmes/MainBoard/preview.html.twig', [
+            'player' => $player,
+            'game' => $game,
+            'isPreview' => true,
+            'isAnotherPlayerBoard' => false,
+            'playerPhase' => $player->getPhase(),
+            'needToPlay' => $player == null ? false : $player->isTurnOfPlayer(),
+            'availableLarvae' => $this->service->getAvailableLarvae($player),
+            'nursesOnLarvaeBirthTrack' => $this->service->getNursesAtPosition(
+                $player,
+                MyrmesParameters::LARVAE_AREA
+            )->count(),
+            'nursesOnSoldiersBirthTrack' => $this->service->getNursesAtPosition(
+                $player,
+                MyrmesParameters::SOLDIERS_AREA
+            )->count(),
+            'nursesOnWorkersBirthTrack' => $this->service->getNursesAtPosition(
+                $player,
+                MyrmesParameters::WORKER_AREA
+            )->count(),
+            'nursesOnWorkshop' => $this->service->getNursesAtPosition(
+                $player,
+                MyrmesParameters::WORKSHOP_AREA
+            )->count(),
+            'nursesOnBaseArea' => $this->service->getNursesAtPosition(
+                $player,
+                MyrmesParameters::BASE_AREA
+            )->count(),
+            'workersOnAnthillLevels' => $this->dataManagementMYRService
+                ->workerOnAnthillLevels($player->getPersonalBoardMYR())
+        ]);
+    }
+
+    /**
+     * returnRanking return the response with the given parameters for ranking
+     * @param GameMYR $game
+     * @param PlayerMYR $player
+     * @return Response
+     */
+    private function returnRanking(GameMYR $game, PlayerMYR $player) : Response
+    {
+        return $this->render('Game/Myrmes/Ranking/ranking.html.twig', [
+            'player' => $player,
+            'game' => $game,
+            'isSpectator' => $player == null
+        ]);
+    }
+
+    /**
      * publishMainBoard: publish with mercure the main board
      * @param GameMYR $game
      * @param BoardBoxMYR $selectedBox
@@ -1424,5 +1559,51 @@ class MyrmesController extends AbstractController
                 ['id' => $game->getId()]).'highlight'.$player->getId(),
             new Response($tile->getId())
         );
+    }
+
+    /**
+     * publishPersonalBoard: publish personal board with mercure
+     * @param GameMYR $game
+     * @param PlayerMYR $player
+     * @return void
+     */
+    private function publishPersonalBoard(GameMYR $game, PlayerMYR $player) : void
+    {
+        $response = $this->returnPersonalBoard($game, $player);
+        $this->publishService->publish(
+            $this->generateUrl('app_game_show_myr',
+                ['id' => $game->getId()]).'personalBoard'.$player->getId(),
+            $response
+        );
+    }
+
+    /**
+     * publishPreview: publish preview with mercure
+     * @param GameMYR $game
+     * @param PlayerMYR $player
+     * @return void
+     */
+    private function publishPreview(GameMYR $game, PlayerMYR $player ) : void
+    {
+        $response = $this->returnPreview($game, $player);
+        $this->publishService->publish(
+            $this->generateUrl('app_game_show_myr',
+                ['id' => $game->getId()]).'preview'.$player->getId(),
+            $response);
+    }
+
+    /**
+     * publishRanking: publish ranking with mercure
+     * @param GameMYR $game
+     * @param PlayerMYR $player
+     * @return void
+     */
+    private function publishRanking(GameMYR $game, PlayerMYR $player) : void
+    {
+        $response = $this->returnRanking($game, $player);
+        $this->publishService->publish(
+            $this->generateUrl('app_game_show_myr',
+                ['id' => $game->getId()]).'ranking'.$player->getId(),
+            $response);
     }
 }
