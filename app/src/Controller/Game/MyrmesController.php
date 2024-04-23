@@ -452,7 +452,14 @@ class MyrmesController extends AbstractController
         $this->logService->sendPlayerLog($game, $player, $message);
         $this->publishPersonalBoard($game, $player);
         $boardBoxes = $this->dataManagementMYRService->organizeMainBoardRows($game);
-        $this->publishMainBoard($game, $boardBoxes, false, false);
+        if ($game->getGamePhase() == MyrmesParameters::PHASE_WORKER) {
+            foreach ($game->getPlayers() as $p) {
+                $this->publishMainBoard($game, $p, $boardBoxes, false, false);
+            }
+        } else {
+            $this->publishMainBoard($game, $player, $boardBoxes, false, false);
+        }
+
         return new Response("nurses placement confirmed", Response::HTTP_OK);
     }
 
@@ -1389,7 +1396,7 @@ class MyrmesController extends AbstractController
         $this->publishPreview($game, $player);
         $this->publishRanking($game, $player);
         $boardBoxes = $this->dataManagementMYRService->organizeMainBoardRows($game);
-        $this->publishMainBoard($game, $boardBoxes, false, false);
+        $this->publishMainBoard($game, $player, $boardBoxes, false, false);
         return new Response('larvae successfully sacrificed', Response::HTTP_OK);
     }
 
@@ -1563,10 +1570,9 @@ class MyrmesController extends AbstractController
      * @param bool $hasSelectedAnthillHolePlacement
      * @return void
      */
-    private function publishMainBoard(GameMYR $game, Collection $boardBoxes,
+    private function publishMainBoard(GameMYR $game, PlayerMYR $player, Collection $boardBoxes,
                                       bool $sendingWorkerOnGarden, bool $hasSelectedAnthillHolePlacement ) : void
     {
-        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         $response = $this->returnMainBoard(
             $game, $player, $boardBoxes, null, $sendingWorkerOnGarden, $hasSelectedAnthillHolePlacement
         );
