@@ -451,6 +451,8 @@ class MyrmesController extends AbstractController
         $message = $player->getUsername() . " a confirmé le placement de ses nourrices";
         $this->logService->sendPlayerLog($game, $player, $message);
         $this->publishPersonalBoard($game, $player);
+        $boardBoxes = $this->dataManagementMYRService->organizeMainBoardRows($game);
+        $this->publishMainBoard($game, $boardBoxes, false, false);
         return new Response("nurses placement confirmed", Response::HTTP_OK);
     }
 
@@ -1386,6 +1388,8 @@ class MyrmesController extends AbstractController
         $this->logService->sendPlayerLog($game, $player, $message);
         $this->publishPreview($game, $player);
         $this->publishRanking($game, $player);
+        $boardBoxes = $this->dataManagementMYRService->organizeMainBoardRows($game);
+        $this->publishMainBoard($game, $boardBoxes, false, false);
         return new Response('larvae successfully sacrificed', Response::HTTP_OK);
     }
 
@@ -1417,7 +1421,8 @@ class MyrmesController extends AbstractController
                 $player,
                 MyrmesParameters::WORKSHOP_AREA
             )->count(),
-            'hasSelectedAnthillHolePlacement' => $hasSelectedAnthillHolePlacement
+            'hasSelectedAnthillHolePlacement' => $hasSelectedAnthillHolePlacement,
+            'availableLarvae' => $this->service->getAvailableLarvae($player)
         ]);
     }
 
@@ -1558,15 +1563,15 @@ class MyrmesController extends AbstractController
      * @param bool $hasSelectedAnthillHolePlacement
      * @return void
      */
-    private function publishMainBoard(GameMYR $game, BoardBoxMYR $selectedBox, Collection $boardBoxes,
+    private function publishMainBoard(GameMYR $game, Collection $boardBoxes,
                                       bool $sendingWorkerOnGarden, bool $hasSelectedAnthillHolePlacement ) : void
     {
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         $response = $this->returnMainBoard(
-            $game, $player, $boardBoxes, $selectedBox, $sendingWorkerOnGarden, $hasSelectedAnthillHolePlacement
+            $game, $player, $boardBoxes, null, $sendingWorkerOnGarden, $hasSelectedAnthillHolePlacement
         );
         $this->publishService->publish(
-            $this->generateUrl('app_game_show_glm',
+            $this->generateUrl('app_game_show_myr',
                 ['id' => $game->getId()]).'mainBoard'.$player->getId(),
             $response
         );
