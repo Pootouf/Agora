@@ -2,7 +2,9 @@
 
 namespace App\Tests\Game\Myrmes\Integration\Service;
 
+use App\Entity\Game\DTO\Game;
 use App\Entity\Game\Myrmes\AnthillHoleMYR;
+use App\Entity\Game\Myrmes\GameGoalMYR;
 use App\Entity\Game\Myrmes\GameMYR;
 use App\Entity\Game\Myrmes\MainBoardMYR;
 use App\Entity\Game\Myrmes\MyrmesParameters;
@@ -17,6 +19,7 @@ use App\Entity\Game\Myrmes\ResourceMYR;
 use App\Entity\Game\Myrmes\SeasonMYR;
 use App\Entity\Game\Myrmes\TileMYR;
 use App\Entity\Game\Myrmes\TileTypeMYR;
+use App\Repository\Game\Myrmes\GoalMYRRepository;
 use App\Repository\Game\Myrmes\PlayerResourceMYRRepository;
 use App\Repository\Game\Myrmes\ResourceMYRRepository;
 use App\Repository\Game\Myrmes\TileMYRRepository;
@@ -41,6 +44,8 @@ class WorkshopMYRServiceTest extends KernelTestCase
 
     private ResourceMYRRepository $resourceMYRRepository;
 
+    private GoalMYRRepository $goalMYRRepository;
+
     protected function setUp() : void
     {
         $this->entityManager = static::getContainer()->get(EntityManagerInterface::class);
@@ -49,6 +54,7 @@ class WorkshopMYRServiceTest extends KernelTestCase
         $this->tileTypeMYRRepository = static::getContainer()->get(TileTypeMYRRepository::class);
         $this->playerResourceMYRRepository = static::getContainer()->get(PlayerResourceMYRRepository::class);
         $this->resourceMYRRepository = static::getContainer()->get(ResourceMYRRepository::class);
+        $this->goalMYRRepository = static::getContainer()->get(GoalMYRRepository::class);
     }
 
     public function testManageWorkshopShouldFailBecauseNotGoodPhase() : void
@@ -362,7 +368,9 @@ class WorkshopMYRServiceTest extends KernelTestCase
         $pheromone->addPheromonTile($pheromoneTile);
         $dirtResource = $this->resourceMYRRepository->findOneBy(
             ["description" => MyrmesParameters::RESOURCE_TYPE_DIRT]);
-        $playerDirtResource = new PlayerResourceMYR();
+        $playerDirtResource = $this->playerResourceMYRRepository->findOneBy(
+            ["resource" => $dirtResource, "personalBoard" => $player->getPersonalBoardMYR()]
+        );
         $playerDirtResource->setResource($dirtResource);
         $playerDirtResource->setQuantity(1);
         $playerDirtResource->setPersonalBoard($player->getPersonalBoardMYR());
@@ -411,6 +419,14 @@ class WorkshopMYRServiceTest extends KernelTestCase
         //GIVEN
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
+        $anthillHole = new AnthillHoleMYR();
+        $tileHole = $this->tileMYRRepository->findOneBy(["coord_X" => 9, "coord_Y" => 10]);
+        $anthillHole->setTile($tileHole);
+        $anthillHole->setPlayer($player);
+        $anthillHole->setMainBoardMYR($game->getMainBoardMYR());
+        $this->entityManager->persist($anthillHole);
+        $player->addAnthillHoleMYR($anthillHole);
+
         $tilePheromone1 = $this->tileMYRRepository->findOneBy(["coord_X" => 6, "coord_Y" => 15]);
         $tilePheromone2 = $this->tileMYRRepository->findOneBy(["coord_X" => 7, "coord_Y" => 16]);
         $tileType = $this->tileTypeMYRRepository->findOneBy(
@@ -445,7 +461,31 @@ class WorkshopMYRServiceTest extends KernelTestCase
         $prey->setMainBoardMYR($game->getMainBoardMYR());
         $this->entityManager->persist($player);
         $this->entityManager->persist($prey);
-        $tile = $this->tileMYRRepository->findOneBy(["coord_X" => 7, "coord_Y" => 18]);
+        $tile = $this->tileMYRRepository->findOneBy(["coord_X" => 8, "coord_Y" => 9]);
+        $prey = new PreyMYR();
+        $prey->setTile($tile);
+        $prey->setType(MyrmesParameters::LADYBUG_TYPE);
+        $prey->setPlayer($player);
+        $prey->setMainBoardMYR($game->getMainBoardMYR());
+        $this->entityManager->persist($player);
+        $this->entityManager->persist($prey);
+        $tile = $this->tileMYRRepository->findOneBy(["coord_X" => 9, "coord_Y" => 12]);
+        $prey = new PreyMYR();
+        $prey->setTile($tile);
+        $prey->setType(MyrmesParameters::LADYBUG_TYPE);
+        $prey->setPlayer($player);
+        $prey->setMainBoardMYR($game->getMainBoardMYR());
+        $this->entityManager->persist($player);
+        $this->entityManager->persist($prey);
+        $tile = $this->tileMYRRepository->findOneBy(["coord_X" => 8, "coord_Y" => 15]);
+        $prey = new PreyMYR();
+        $prey->setTile($tile);
+        $prey->setType(MyrmesParameters::LADYBUG_TYPE);
+        $prey->setPlayer($player);
+        $prey->setMainBoardMYR($game->getMainBoardMYR());
+        $this->entityManager->persist($player);
+        $this->entityManager->persist($prey);
+        $tile = $this->tileMYRRepository->findOneBy(["coord_X" => 10, "coord_Y" => 9]);
         $prey = new PreyMYR();
         $prey->setTile($tile);
         $prey->setType(MyrmesParameters::LADYBUG_TYPE);
@@ -461,10 +501,81 @@ class WorkshopMYRServiceTest extends KernelTestCase
         $expectedTiles->add($tile);
         $tile = $this->tileMYRRepository->findOneBy(["coord_X" => 7, "coord_Y" => 14]);
         $expectedTiles->add($tile);
+        $tile = $this->tileMYRRepository->findOneBy(["coord_X" => 8, "coord_Y" => 11]);
+        $expectedTiles->add($tile);
         //WHEN
         $result = $this->workshopMYRService->getAvailableAnthillHolesPositions($player);
         //THEN
         $this->assertSame($expectedTiles->count(), $result->count());
+    }
+
+    public function testCanPlayerDoGoalShouldBeFalseBecauseGoalAlreadyDone() : void
+    {
+        //GIVEN
+        $game = $this->createGame(5);
+        $player = $game->getPlayers()->first();
+        $gameGoal = $this->createGameGoal($game, 1, 1);
+        $gameGoal->addPrecedentsPlayer($player);
+        $player->addGameGoalMYR($gameGoal);
+        $this->entityManager->persist($player);
+        $this->entityManager->persist($gameGoal);
+        $this->entityManager->flush();
+        //WHEN
+        $result = $this->workshopMYRService->canPlayerDoGoal($player, $gameGoal);
+        //THEN
+        $this->assertFalse($result);
+    }
+
+    public function testCanPlayerDoGoalShouldBeFalseBecauseGoalLevelTwoTooHigh() : void
+    {
+        //GIVEN
+        $game = $this->createGame(5);
+        $player = $game->getPlayers()->first();
+        $gameGoal = $this->createGameGoal($game, 3, 2);
+        $this->entityManager->flush();
+        //WHEN
+        $result = $this->workshopMYRService->canPlayerDoGoal($player, $gameGoal);
+        //THEN
+        $this->assertFalse($result);
+    }
+
+    public function testCanPlayerDoGoalShouldNotFailForGameLevelTwo() : void
+    {
+        //GIVEN
+        $game = $this->createGame(5);
+        $player = $game->getPlayers()->first();
+        $oldGoal = $this->createGameGoal($game, 1, 1);
+        $gameGoal = $this->createGameGoal($game, 3, 2);
+        $oldGoal->addPrecedentsPlayer($player);
+        $player->addGameGoalMYR($oldGoal);
+        $this->entityManager->persist($player);
+        $this->entityManager->persist($oldGoal);
+        $this->entityManager->flush();
+        //WHEN
+        $this->workshopMYRService->canPlayerDoGoal($player, $gameGoal);
+        //THEN
+        $this->expectNotToPerformAssertions();
+    }
+
+    private function createGameGoal(GameMYR $game, int $goalId, int $level) : GameGoalMYR
+    {
+        $mainBoard = $game->getMainBoardMYR();
+        $gameGoal = new GameGoalMYR();
+        $goal = $this->goalMYRRepository->findOneBy(["id" => $goalId]);
+        $gameGoal->setGoal($goal);
+        if ($level == 1) {
+            $gameGoal->setMainBoardLevelOne($game->getMainBoardMYR());
+            $mainBoard->addGameGoalsLevelOne($gameGoal);
+        } else if ($level == 2) {
+            $gameGoal->setMainBoardLevelTwo($game->getMainBoardMYR());
+            $mainBoard->addGameGoalsLevelTwo($gameGoal);
+        } else {
+            $gameGoal->setMainBoardLevelThree($game->getMainBoardMYR());
+            $mainBoard->addGameGoalsLevelThree($gameGoal);
+        }
+        $this->entityManager->persist($gameGoal);
+        $this->entityManager->persist($mainBoard);
+        return $gameGoal;
     }
 
     private function createGame(int $numberOfPlayers) : GameMYR
@@ -515,6 +626,15 @@ class WorkshopMYRServiceTest extends KernelTestCase
             $player->setWorkshopActions($playerActions);
             $this->entityManager->persist($player);
             $this->entityManager->persist($personalBoard);
+            foreach ($this->resourceMYRRepository->findAll() as $resource) {
+                $playerResource = new PlayerResourceMYR();
+                $playerResource->setResource($resource);
+                $playerResource->setQuantity(0);
+                $player->getPersonalBoardMYR()
+                       ->addPlayerResourceMYR($playerResource);
+                $this->entityManager->persist($playerResource);
+                $this->entityManager->persist($player->getPersonalBoardMYR());
+            }
             $this->entityManager->flush();
         }
         $this->entityManager->flush();

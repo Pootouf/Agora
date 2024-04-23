@@ -10,7 +10,10 @@ use App\Entity\Game\Myrmes\MyrmesParameters;
 use App\Entity\Game\Myrmes\NurseMYR;
 use App\Entity\Game\Myrmes\PersonalBoardMYR;
 use App\Entity\Game\Myrmes\PlayerMYR;
+use App\Entity\Game\Myrmes\PlayerResourceMYR;
 use App\Entity\Game\Myrmes\SeasonMYR;
+use App\Repository\Game\Myrmes\PlayerResourceMYRRepository;
+use App\Repository\Game\Myrmes\ResourceMYRRepository;
 use App\Service\Game\Myrmes\MYRService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Exception;
@@ -22,11 +25,16 @@ class MYRServiceTest extends KernelTestCase
 
     private EntityManagerInterface $entityManager;
     private MYRService $MYRService;
+    private ResourceMYRRepository $resourceMYRRepository;
+
+    private PlayerResourceMYRRepository $playerResourceMYRRepository;
 
     protected function setUp() : void
     {
         $this->entityManager = static::getContainer()->get(EntityManagerInterface::class);
         $this->MYRService = static::getContainer()->get(MYRService::class);
+        $this->resourceMYRRepository = static::getContainer()->get(ResourceMYRRepository::class);
+        $this->playerResourceMYRRepository = static::getContainer()->get(PlayerResourceMYRRepository::class);
     }
 
     public function testActivateGoalWhenGoalIsLevelOne() : void
@@ -291,6 +299,52 @@ class MYRServiceTest extends KernelTestCase
         }
     }
 
+    public function testExchangeLarvaeForFoodWhenNotEnoughLarvae() : void
+    {
+        //GIVEN
+        $game = $this->createGame(4);
+        $player = $game->getPlayers()->first();
+        $personalBoard = $player->getPersonalBoardMYR();
+        $personalBoard->setLarvaCount(2);
+        $this->entityManager->persist($personalBoard);
+        $this->entityManager->flush();
+        $expectedLarvaeNb = 2;
+        $expectedFood = 0;
+        $food = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::RESOURCE_TYPE_GRASS]);
+        //WHEN
+        $this->MYRService->exchangeLarvaeForFood($player);
+        //THEN
+        $larvaCount = $personalBoard->getLarvaCount();
+        $playerFood = $this->playerResourceMYRRepository->findOneBy(
+            ["personalBoard" => $personalBoard, "resource" => $food]
+        );
+        $this->assertSame($expectedFood, $playerFood->getQuantity());
+        $this->assertSame($expectedLarvaeNb, $larvaCount);
+    }
+
+    public function testExchangeLarvaeForFoodWhenEnoughLarvae() : void
+    {
+        //GIVEN
+        $game = $this->createGame(4);
+        $player = $game->getPlayers()->first();
+        $personalBoard = $player->getPersonalBoardMYR();
+        $personalBoard->setLarvaCount(7);
+        $this->entityManager->persist($personalBoard);
+        $this->entityManager->flush();
+        $expectedLarvaeNb = 4;
+        $expectedFood = 1;
+        $food = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::RESOURCE_TYPE_GRASS]);
+        //WHEN
+        $this->MYRService->exchangeLarvaeForFood($player);
+        //THEN
+        $larvaCount = $personalBoard->getLarvaCount();
+        $playerFood = $this->playerResourceMYRRepository->findOneBy(
+            ["personalBoard" => $personalBoard, "resource" => $food]
+        );
+        $this->assertSame($expectedFood, $playerFood->getQuantity());
+        $this->assertSame($expectedLarvaeNb, $larvaCount);
+    }
+
     private function createGame(int $numberOfPlayers) : GameMYR
     {
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);
@@ -346,6 +400,15 @@ class MYRServiceTest extends KernelTestCase
             $player->setWorkshopActions($playerActions);
             $entityManager->persist($player);
             $entityManager->persist($personalBoard);
+            foreach ($this->resourceMYRRepository->findAll() as $resource) {
+                $playerResource = new PlayerResourceMYR();
+                $playerResource->setResource($resource);
+                $playerResource->setQuantity(0);
+                $player->getPersonalBoardMYR()
+                       ->addPlayerResourceMYR($playerResource);
+                $this->entityManager->persist($playerResource);
+                $this->entityManager->persist($player->getPersonalBoardMYR());
+            }
             $entityManager->flush();
         }
         $entityManager->flush();

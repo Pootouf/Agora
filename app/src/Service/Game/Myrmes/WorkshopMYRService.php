@@ -60,7 +60,8 @@ class WorkshopMYRService
                 $tile = $pheromoneTile->getTile();
                 $adjacentTiles = $this->getAdjacentTiles($tile);
                 foreach ($adjacentTiles as $adjacentTile) {
-                    if ($adjacentTile != null && $this->isValidPosition($player, $adjacentTile)) {
+                    if ($adjacentTile != null && $this->isValidPosition($player, $adjacentTile)
+                        && !$result->contains($adjacentTile)) {
                         $result->add($adjacentTile);
                     }
                 }
@@ -70,7 +71,8 @@ class WorkshopMYRService
             $tile = $antHillHole->getTile();
             $adjacentTiles = $this->getAdjacentTiles($tile);
             foreach ($adjacentTiles as $adjacentTile) {
-                if ($adjacentTile != null && $this->isValidPosition($player, $adjacentTile)) {
+                if ($adjacentTile != null && $this->isValidPosition($player, $adjacentTile)
+                    && !$result->contains($adjacentTile)) {
                     $result->add($adjacentTile);
                 }
             }
@@ -620,20 +622,14 @@ class WorkshopMYRService
     private function giveDirtToPlayer(PlayerMYR $player) : void
     {
         $dirt = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::RESOURCE_TYPE_DIRT]);
-        $playerDirt = $this->playerResourceMYRRepository->findOneBy(["resource" => $dirt]);
+        $playerDirt = $this->playerResourceMYRRepository->findOneBy(
+            ["resource" => $dirt, "personalBoard" => $player->getPersonalBoardMYR()]
+        );
         if ($playerDirt != null) {
             $playerDirt->setQuantity($playerDirt->getQuantity() + 1);
             $this->entityManager->persist($playerDirt);
-        } else {
-            $playerDirt = new PlayerResourceMYR();
-            $playerDirt->setResource($dirt);
-            $playerDirt->setQuantity(1);
-            $playerDirt->setPersonalBoard($player->getPersonalBoardMYR());
-            $this->entityManager->persist($playerDirt);
-            $player->getPersonalBoardMYR()->addPlayerResourceMYR($playerDirt);
-            $this->entityManager->persist($player->getPersonalBoardMYR());
+            $this->entityManager->flush();
         }
-        $this->entityManager->flush();
     }
 
 
@@ -838,24 +834,12 @@ class WorkshopMYRService
      */
     private function getPlayerResourcesFromSelectedType(PlayerMYR $player, string $selectedType) : ?PlayerResourceMYR
     {
-        //echo $player->getPersonalBoardMYR()->getPlayerResourceMYRs()->count();
-        /*foreach ($player->getPersonalBoardMYR()->getPlayerResourceMYRs() as $pResource) {
-            $resourceMYR = $pResource->getResource();
-            //echo $resourceMYR->getDescription();
-            //echo $pResource->getQuantity();
-        }*/
-        $personalBoard = $player->getPersonalBoardMYR();
-        $playerResources = $personalBoard->getPlayerResourceMYRs();
-        foreach ($playerResources as $pResource) {
-            $resourceMYR = $pResource->getResource();
-            //echo $resourceMYR->getDescription();
-            if ($resourceMYR->getDescription() == $selectedType)
-            {
-                return $pResource;
-            }
-        }
-
-        return null;
+        return $player->getPersonalBoardMYR()->getPlayerResourceMYRs()
+            ->filter(
+                function (PlayerResourceMYR $resourceMYR) use ($selectedType) {
+                    return $resourceMYR->getResource()->getDescription() == $selectedType;
+                }
+            )->first();
     }
 
     /**
@@ -1467,13 +1451,8 @@ class WorkshopMYRService
      */
     private function hasPlayerAlreadyDoneSelectedGoal(PlayerMYR $player, GameGoalMYR $gameGoal) : bool
     {
-        foreach ($gameGoal->getPrecedentsPlayers() as $previousPlayer)
-        {
-            if ($previousPlayer === $player) {
-                return true;
-            }
-        }
-
-        return false;
+        return $gameGoal->getPrecedentsPlayers()->exists(function (int $key, PlayerMYR $previousPlayer) use ($player) {
+           return $previousPlayer === $player;
+        });
     }
 }
