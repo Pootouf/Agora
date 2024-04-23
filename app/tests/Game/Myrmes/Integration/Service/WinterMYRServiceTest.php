@@ -8,6 +8,7 @@ use App\Entity\Game\Myrmes\MyrmesParameters;
 use App\Entity\Game\Myrmes\NurseMYR;
 use App\Entity\Game\Myrmes\PersonalBoardMYR;
 use App\Entity\Game\Myrmes\PlayerMYR;
+use App\Entity\Game\Myrmes\PlayerResourceMYR;
 use App\Entity\Game\Myrmes\SeasonMYR;
 use App\Repository\Game\Myrmes\PlayerResourceMYRRepository;
 use App\Repository\Game\Myrmes\ResourceMYRRepository;
@@ -20,11 +21,13 @@ class WinterMYRServiceTest extends KernelTestCase
 {
     private EntityManagerInterface $entityManager;
     private WinterMYRService $winterMYRService;
+    private ResourceMYRRepository $resourceMYRRepository;
 
     protected function setUp() : void
     {
         $this->entityManager = static::getContainer()->get(EntityManagerInterface::class);
         $this->winterMYRService = static::getContainer()->get(WinterMYRService::class);
+        $this->resourceMYRRepository = static::getContainer()->get(ResourceMYRRepository::class);
     }
 
     public function testRetrievePointsDuringYearOneAndNoWarriors() : void
@@ -39,6 +42,31 @@ class WinterMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($player);
         $this->entityManager->flush();
         $expectedScore = 13;
+        $expectedFood = 0;
+        //WHEN
+        $this->winterMYRService->retrievePoints($player);
+        //THEN
+        $food = $resourceMYRRepository->findOneBy(["description" => MyrmesParameters::RESOURCE_TYPE_GRASS]);
+        $playerFood = $playerResourceMYRRepository->findOneBy(["resource" => $food]);
+        $playerFood = $playerFood != null ? $playerFood->getQuantity() : 0;
+        $this->assertSame($expectedFood, $playerFood);
+        $this->assertSame($expectedScore, $player->getScore());
+    }
+
+    public function testRetrievePointsDuringYearOneAndNoWarriorsBut4Larvae() : void
+    {
+        //GIVEN
+        $resourceMYRRepository = static::getContainer()->get(ResourceMYRRepository::class);
+        $playerResourceMYRRepository = static::getContainer()->get(PlayerResourceMYRRepository::class);
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $initialScore = 25;
+        $player->getPersonalBoardMYR()->setLarvaCount(4);
+        $this->entityManager->persist($player->getPersonalBoardMYR());
+        $player->setScore($initialScore);
+        $this->entityManager->persist($player);
+        $this->entityManager->flush();
+        $expectedScore = 16;
         $expectedFood = 0;
         //WHEN
         $this->winterMYRService->retrievePoints($player);
@@ -191,6 +219,15 @@ class WinterMYRServiceTest extends KernelTestCase
             }
             $entityManager->persist($player);
             $entityManager->persist($personalBoard);
+            foreach ($this->resourceMYRRepository->findAll() as $resource) {
+                $playerResource = new PlayerResourceMYR();
+                $playerResource->setResource($resource);
+                $playerResource->setQuantity(0);
+                $player->getPersonalBoardMYR()
+                       ->addPlayerResourceMYR($playerResource);
+                $this->entityManager->persist($playerResource);
+                $this->entityManager->persist($player->getPersonalBoardMYR());
+            }
             $entityManager->flush();
         }
         $entityManager->flush();
