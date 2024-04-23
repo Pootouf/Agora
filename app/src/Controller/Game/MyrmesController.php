@@ -1363,6 +1363,32 @@ class MyrmesController extends AbstractController
         return new Response('Pheromone positioned', Response::HTTP_OK);
     }
 
+    #[Route('/game/myrmes/{gameId}/sacrifice/larvae', name: 'app_game_myrmes_sacrifice_larvae')]
+    public function sacrificeLarvae(
+        #[MapEntity(id: 'gameId')] GameMYR $game
+    ) : Response
+    {
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
+        try {
+            $this->service->exchangeLarvaeForFood($player);
+        } catch (Exception) {
+            $message = $player->getUsername() . " a essayé de sacrifier 3 larves mais n'a pas pû.";
+            $this->logService->sendPlayerLog($game, $player, $message);
+            return new Response("can't sacrifice larvae", Response::HTTP_FORBIDDEN);
+        }
+        $message = $player->getUsername() . " a réussi a sacrifier 3 de ses larves.";
+        $this->logService->sendPlayerLog($game, $player, $message);
+        $this->publishPreview($game, $player);
+        $this->publishRanking($game, $player);
+        return new Response('larvae successfully sacrificed', Response::HTTP_OK);
+    }
+
     /**
      * returnMainBoard : return the response with the given parameters for main board
      * @param GameMYR $game
