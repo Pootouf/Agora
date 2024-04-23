@@ -38,7 +38,7 @@ class DataManagementGLMService
         foreach ($tiles as $tile) {
             $resources = $tile->getPlayerTileResource();
             foreach($resources as $resource) {
-                if($resource->getResource()->getType() == GlenmoreParameters::$WHISKY_RESOURCE) {
+                if($resource->getResource()->getType() == GlenmoreParameters::WHISKY_RESOURCE) {
                     $whiskyCount += $resource->getQuantity();
                 }
             }
@@ -78,7 +78,7 @@ class DataManagementGLMService
         $pawns = $game->getMainBoard()->getPawns();
         $boardBoxes = new ArrayCollection();
 
-        for($i = 0; $i < GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD; $i++) {
+        for($i = 0; $i < GlenmoreParameters::NUMBER_OF_BOXES_ON_BOARD; $i++) {
             $isEmptyBox = $this->addTile($tiles, $i, $boardBoxes)
                 && $this->addPawn($pawns, $i, $boardBoxes);
             if($isEmptyBox) {

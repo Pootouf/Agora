@@ -838,17 +838,17 @@ class WorkshopMYRService
      */
     private function getPlayerResourcesFromSelectedType(PlayerMYR $player, string $selectedType) : ?PlayerResourceMYR
     {
-        echo $player->getPersonalBoardMYR()->getPlayerResourceMYRs()->count();
-        foreach ($player->getPersonalBoardMYR()->getPlayerResourceMYRs() as $pResource) {
+        //echo $player->getPersonalBoardMYR()->getPlayerResourceMYRs()->count();
+        /*foreach ($player->getPersonalBoardMYR()->getPlayerResourceMYRs() as $pResource) {
             $resourceMYR = $pResource->getResource();
-            echo $resourceMYR->getDescription();
-            echo $pResource->getQuantity();
-        }
+            //echo $resourceMYR->getDescription();
+            //echo $pResource->getQuantity();
+        }*/
         $personalBoard = $player->getPersonalBoardMYR();
         $playerResources = $personalBoard->getPlayerResourceMYRs();
         foreach ($playerResources as $pResource) {
             $resourceMYR = $pResource->getResource();
-            echo $resourceMYR->getDescription();
+            //echo $resourceMYR->getDescription();
             if ($resourceMYR->getDescription() == $selectedType)
             {
                 return $pResource;

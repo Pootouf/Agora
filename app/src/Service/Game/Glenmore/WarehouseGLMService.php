@@ -19,14 +19,15 @@ use Psr\Log\LoggerInterface;
 class WarehouseGLMService
 {
 
-    public function __construct(private EntityManagerInterface $entityManager,
-                                private TileGLMService $tileGLMService){}
+    public function __construct(private readonly EntityManagerInterface $entityManager,
+                                private readonly TileGLMService         $tileGLMService){}
 
 
     /**
      * sellResource : A player sells one resource when conditions are verified
      * @param PlayerGLM $player
      * @param ResourceGLM $resource
+     * @param SelectedResourceGLM $selectedResourceGLM
      * @return void
      * @throws Exception
      */
@@ -48,8 +49,8 @@ class WarehouseGLMService
             throw new Exception("Unable to sell the resource, there is no such resource in warehouse");
         }
 
-        $money = GlenmoreParameters::$MONEY_FROM_QUANTITY[$warehouseLine->getQuantity() - 1];
-        if ($money == GlenmoreParameters::$MIN_TRADE)
+        $money = GlenmoreParameters::MONEY_FROM_QUANTITY[$warehouseLine->getQuantity() - 1];
+        if ($money == GlenmoreParameters::MIN_TRADE)
         {
             throw new Exception("Unable to sell the resource, there is no place to sell");
         }
@@ -95,12 +96,12 @@ class WarehouseGLMService
         if ($warehouseLine == null) {
             throw new Exception("Unable to buy the resource, not a valid type");
         }
-        if ($warehouseLine->getQuantity() >= GlenmoreParameters::$MAX_TRADE) {
+        if ($warehouseLine->getQuantity() >= GlenmoreParameters::MAX_TRADE) {
             throw new Exception('No resource to buy');
         }
 
         $moneyOfPlayer = $player->getPersonalBoard()->getMoney();
-        $moneyNeeded = GlenmoreParameters::$MONEY_FROM_QUANTITY[$warehouseLine->getQuantity()];
+        $moneyNeeded = GlenmoreParameters::MONEY_FROM_QUANTITY[$warehouseLine->getQuantity()];
         if ($moneyOfPlayer < $moneyNeeded) {
             throw new Exception('Not enough money to buy resource');
         }
@@ -113,7 +114,7 @@ class WarehouseGLMService
         $playerResources = $this->tileGLMService->getPlayerProductionResources($player);
         $found = false;
         if ($buyingTile != null) {
-            if ($buyingTile->getBoardTile()->getTile()->getName() === GlenmoreParameters::$CARD_LOCH_OICH) {
+            if ($buyingTile->getBoardTile()->getTile()->getName() === GlenmoreParameters::CARD_LOCH_OICH) {
                 if ($player->getPersonalBoard()->getSelectedResources()->contains($resource)) {
                     throw new Exception("player does not need to buy this resource for Loch Oich");
                 }
@@ -172,7 +173,6 @@ class WarehouseGLMService
     private function getWarehouseLineOfResource(WarehouseGLM $warehouse
         , ResourceGLM $resource) : ?WarehouseLineGLM
     {
-        $money = GlenmoreParameters::$MIN_TRADE;
         $warehouseLine = $warehouse->getWarehouseLine();
         foreach ($warehouseLine as $w)
         {

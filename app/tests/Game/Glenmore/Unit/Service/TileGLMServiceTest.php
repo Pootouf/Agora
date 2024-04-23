@@ -76,12 +76,12 @@ class TileGLMServiceTest extends TestCase
         $firstPlayer = $game->getPlayers()->first();
         $personalBoard = $firstPlayer->getPersonalBoard();
         $tile = new TileGLM();
-        $tile->setName(GlenmoreParameters::$TILE_NAME_FOREST);
-        $tile->setType(GlenmoreParameters::$TILE_TYPE_GREEN);
+        $tile->setName(GlenmoreParameters::TILE_NAME_FOREST);
+        $tile->setType(GlenmoreParameters::TILE_TYPE_GREEN);
         $buyBonus = new TileBuyBonusGLM();
         $resource = new ResourceGLM();
-        $resource->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
-        $resource->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $resource->setType(GlenmoreParameters::PRODUCTION_RESOURCE);
+        $resource->setColor(GlenmoreParameters::COLOR_GREEN);
         $buyBonus->setResource($resource);
         $buyBonus->setAmount(1);
         $tile->addBuyBonus($buyBonus);
@@ -90,8 +90,8 @@ class TileGLMServiceTest extends TestCase
         $playerTile->setPersonalBoard($personalBoard);
         $personalBoard->addPlayerTile($playerTile);
         $expectedAmount = 1;
-        $expectedType = GlenmoreParameters::$PRODUCTION_RESOURCE;
-        $expectedColor = GlenmoreParameters::$COLOR_GREEN;
+        $expectedType = GlenmoreParameters::PRODUCTION_RESOURCE;
+        $expectedColor = GlenmoreParameters::COLOR_GREEN;
         //WHEN
         $this->tileGLMService->giveBuyBonus($playerTile);
         //THEN
@@ -120,8 +120,8 @@ class TileGLMServiceTest extends TestCase
         $firstPlayer = $game->getPlayers()->first();
         $personalBoard = $firstPlayer->getPersonalBoard();
         $tile = new TileGLM();
-        $tile->setName(GlenmoreParameters::$TILE_NAME_FOREST);
-        $tile->setType(GlenmoreParameters::$TILE_TYPE_GREEN);
+        $tile->setName(GlenmoreParameters::TILE_NAME_FOREST);
+        $tile->setType(GlenmoreParameters::TILE_TYPE_GREEN);
         $playerTile = new PlayerTileGLM();
         $playerTile->setTile($tile);
         $playerTile->setPersonalBoard($personalBoard);
@@ -155,12 +155,12 @@ class TileGLMServiceTest extends TestCase
         $firstPlayer = $game->getPlayers()->first();
         $personalBoard = $firstPlayer->getPersonalBoard();
         $tile = new TileGLM();
-        $tile->setName(GlenmoreParameters::$CARD_CAWDOR_CASTLE);
-        $tile->setType(GlenmoreParameters::$TILE_TYPE_CASTLE);
+        $tile->setName(GlenmoreParameters::CARD_CAWDOR_CASTLE);
+        $tile->setType(GlenmoreParameters::TILE_TYPE_CASTLE);
         $buyBonus = new TileBuyBonusGLM();
         $resource = new ResourceGLM();
-        $resource->setType(GlenmoreParameters::$VILLAGER_RESOURCE);
-        $resource->setColor(GlenmoreParameters::$COLOR_BLACK);
+        $resource->setType(GlenmoreParameters::VILLAGER_RESOURCE);
+        $resource->setColor(GlenmoreParameters::COLOR_BLACK);
         $buyBonus->setResource($resource);
         $buyBonus->setAmount(1);
         $tile->addBuyBonus($buyBonus);
@@ -169,12 +169,12 @@ class TileGLMServiceTest extends TestCase
         $playerTile->setPersonalBoard($personalBoard);
         $personalBoard->addPlayerTile($playerTile);
         $card = new CardGLM();
-        $card->setName(GlenmoreParameters::$CARD_CAWDOR_CASTLE);
+        $card->setName(GlenmoreParameters::CARD_CAWDOR_CASTLE);
         $card->setValue(0);
         $cardBonus = new TileBuyBonusGLM();
         $resource = new ResourceGLM();
-        $resource->setType(GlenmoreParameters::$HAT_RESOURCE);
-        $resource->setColor(GlenmoreParameters::$COLOR_BROWN);
+        $resource->setType(GlenmoreParameters::HAT_RESOURCE);
+        $resource->setColor(GlenmoreParameters::COLOR_BROWN);
         $cardBonus->setResource($resource);
         $cardBonus->setAmount(3);
         $card->setBonus($cardBonus);
@@ -183,8 +183,8 @@ class TileGLMServiceTest extends TestCase
         $personalBoard->addPlayerCardGLM($playerCard);
         $expectedAmountVillager = 1;
         $expectedAmountHat = 3;
-        $expectedTypeVillager = GlenmoreParameters::$VILLAGER_RESOURCE;
-        $expectedTypeHat = GlenmoreParameters::$HAT_RESOURCE;
+        $expectedTypeVillager = GlenmoreParameters::VILLAGER_RESOURCE;
+        $expectedTypeHat = GlenmoreParameters::HAT_RESOURCE;
         //WHEN
         $this->tileGLMService->giveBuyBonus($playerTile);
         //THEN
@@ -241,12 +241,12 @@ class TileGLMServiceTest extends TestCase
         $lastPosition = $mainBoard->getLastPosition();
         $lastPosition -= 1;
         if ($lastPosition < 0) {
-            $lastPosition += GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD;
+            $lastPosition += GlenmoreParameters::NUMBER_OF_BOXES_ON_BOARD;
         }
         // WHEN
 
         $this->tileGLMService->placeNewTile($secondPlayer,
-            $mainBoard->getDrawTiles()->get(GlenmoreParameters::$TILE_LEVEL_ONE));
+            $mainBoard->getDrawTiles()->get(GlenmoreParameters::TILE_LEVEL_ONE));
 
         // THEN
 
@@ -300,7 +300,7 @@ class TileGLMServiceTest extends TestCase
         $boardTiles = $mainBoard->getBoardTiles();
 
         $level = 2;
-        for ($i = $nbOfPlayers; $i < GlenmoreParameters::$NUMBER_OF_TILES_ON_BOARD; ++$i)
+        for ($i = $nbOfPlayers; $i < GlenmoreParameters::NUMBER_OF_TILES_ON_BOARD; ++$i)
         {
             $drawTiles = $mainBoard->getDrawTiles();
             $draw = $drawTiles->get($level);
@@ -716,7 +716,7 @@ class TileGLMServiceTest extends TestCase
             $playerTile = new PlayerTileGLM();
             $playerTile->setTile($tile);
             $resource = new ResourceGLM();
-            $resource->setType(GlenmoreParameters::$MOVEMENT_RESOURCE);
+            $resource->setType(GlenmoreParameters::MOVEMENT_RESOURCE);
             $playerTileResource = new PlayerTileResourceGLM();
             $playerTileResource->setResource($resource);
             $playerTileResource->setPlayerTileGLM($playerTile);
@@ -742,7 +742,7 @@ class TileGLMServiceTest extends TestCase
             $playerTile = new PlayerTileGLM();
             $playerTile->setTile($tile);
             $resource = new ResourceGLM();
-            $resource->setType(GlenmoreParameters::$MOVEMENT_RESOURCE);
+            $resource->setType(GlenmoreParameters::MOVEMENT_RESOURCE);
             $playerTileResource = new PlayerTileResourceGLM();
             $playerTileResource->setResource($resource);
             $playerTileResource->setPlayerTileGLM($playerTile);
@@ -768,14 +768,14 @@ class TileGLMServiceTest extends TestCase
             $playerTile = new PlayerTileGLM();
             $playerTile->setTile($tile);
             $resource = new ResourceGLM();
-            $resource->setType(GlenmoreParameters::$MOVEMENT_RESOURCE);
+            $resource->setType(GlenmoreParameters::MOVEMENT_RESOURCE);
             $playerTileResource = new PlayerTileResourceGLM();
             $playerTileResource->setResource($resource);
             $playerTileResource->setPlayerTileGLM($playerTile);
             $playerTileResource->setQuantity($i);
             $playerTile->addPlayerTileResource($playerTileResource);
             $resource = new ResourceGLM();
-            $resource->setType(GlenmoreParameters::$WHISKY_RESOURCE);
+            $resource->setType(GlenmoreParameters::WHISKY_RESOURCE);
             $playerTileResource = new PlayerTileResourceGLM();
             $playerTileResource->setResource($resource);
             $playerTileResource->setPlayerTileGLM($playerTile);
@@ -805,14 +805,14 @@ class TileGLMServiceTest extends TestCase
             $playerTile = new PlayerTileGLM();
             $playerTile->setTile($tile);
             $resource = new ResourceGLM();
-            $resource->setType(GlenmoreParameters::$MOVEMENT_RESOURCE);
+            $resource->setType(GlenmoreParameters::MOVEMENT_RESOURCE);
             $playerTileResource = new PlayerTileResourceGLM();
             $playerTileResource->setResource($resource);
             $playerTileResource->setPlayerTileGLM($playerTile);
             $playerTileResource->setQuantity($i);
             $playerTile->addPlayerTileResource($playerTileResource);
             $resource = new ResourceGLM();
-            $resource->setType(GlenmoreParameters::$WHISKY_RESOURCE);
+            $resource->setType(GlenmoreParameters::WHISKY_RESOURCE);
             $playerTileResource = new PlayerTileResourceGLM();
             $playerTileResource->setResource($resource);
             $playerTileResource->setPlayerTileGLM($playerTile);
@@ -842,8 +842,8 @@ class TileGLMServiceTest extends TestCase
         $playerTile->setTile($tile);
         $activationPrice = new TileActivationCostGLM();
         $resourcePrice = new ResourceGLM();
-        $resourcePrice->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
-        $resourcePrice->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $resourcePrice->setType(GlenmoreParameters::PRODUCTION_RESOURCE);
+        $resourcePrice->setColor(GlenmoreParameters::COLOR_GREEN);
         $activationPrice->setResource($resourcePrice);
         $activationPrice->setPrice(2);
         $tile->addActivationPrice($activationPrice);
@@ -864,14 +864,14 @@ class TileGLMServiceTest extends TestCase
         $playerTile->setTile($tile);
         $activationPrice = new TileActivationCostGLM();
         $resourcePrice = new ResourceGLM();
-        $resourcePrice->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
-        $resourcePrice->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $resourcePrice->setType(GlenmoreParameters::PRODUCTION_RESOURCE);
+        $resourcePrice->setColor(GlenmoreParameters::COLOR_GREEN);
         $activationPrice->setResource($resourcePrice);
         $activationPrice->setPrice(2);
         $tile->addActivationPrice($activationPrice);
         $playerResource = new ResourceGLM();
-        $playerResource->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
-        $playerResource->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $playerResource->setType(GlenmoreParameters::PRODUCTION_RESOURCE);
+        $playerResource->setColor(GlenmoreParameters::COLOR_GREEN);
         $selectedResource = new SelectedResourceGLM();
         $selectedResource->setResource($playerResource);
         $selectedResource->setQuantity(1);
@@ -893,14 +893,14 @@ class TileGLMServiceTest extends TestCase
         $playerTile->setTile($tile);
         $activationPrice = new TileActivationCostGLM();
         $resourcePrice = new ResourceGLM();
-        $resourcePrice->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
-        $resourcePrice->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $resourcePrice->setType(GlenmoreParameters::PRODUCTION_RESOURCE);
+        $resourcePrice->setColor(GlenmoreParameters::COLOR_GREEN);
         $activationPrice->setResource($resourcePrice);
         $activationPrice->setPrice(2);
         $tile->addActivationPrice($activationPrice);
         $playerResource = new ResourceGLM();
-        $playerResource->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
-        $playerResource->setColor(GlenmoreParameters::$COLOR_BROWN);
+        $playerResource->setType(GlenmoreParameters::PRODUCTION_RESOURCE);
+        $playerResource->setColor(GlenmoreParameters::COLOR_BROWN);
         $selectedResource = new SelectedResourceGLM();
         $selectedResource->setResource($playerResource);
         $selectedResource->setQuantity(3);
@@ -920,22 +920,22 @@ class TileGLMServiceTest extends TestCase
         $tile = new TileGLM();
         $playerTile = new PlayerTileGLM();
         $resource = new ResourceGLM();
-        $resource->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
+        $resource->setType(GlenmoreParameters::PRODUCTION_RESOURCE);
         $playerTileResource = new PlayerTileResourceGLM();
         $playerTileResource->setResource($resource);
-        $playerTileResource->setQuantity(GlenmoreParameters::$MAX_RESOURCES_PER_TILE + 1);
+        $playerTileResource->setQuantity(GlenmoreParameters::MAX_RESOURCES_PER_TILE + 1);
         $playerTile->addPlayerTileResource($playerTileResource);
         $playerTile->setTile($tile);
         $activationPrice = new TileActivationCostGLM();
         $resourcePrice = new ResourceGLM();
-        $resourcePrice->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
-        $resourcePrice->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $resourcePrice->setType(GlenmoreParameters::PRODUCTION_RESOURCE);
+        $resourcePrice->setColor(GlenmoreParameters::COLOR_GREEN);
         $activationPrice->setResource($resourcePrice);
         $activationPrice->setPrice(2);
         $tile->addActivationPrice($activationPrice);
         $playerResource = new ResourceGLM();
-        $playerResource->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
-        $playerResource->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $playerResource->setType(GlenmoreParameters::PRODUCTION_RESOURCE);
+        $playerResource->setColor(GlenmoreParameters::COLOR_GREEN);
         $selectedResource = new SelectedResourceGLM();
         $selectedResource->setResource($playerResource);
         $selectedResource->setQuantity(3);
@@ -953,19 +953,19 @@ class TileGLMServiceTest extends TestCase
         $game = $this->createGame(2);
         $firstPlayer = $game->getPlayers()->first();
         $tile = new TileGLM();
-        $tile->setType(GlenmoreParameters::$TILE_TYPE_GREEN);
+        $tile->setType(GlenmoreParameters::TILE_TYPE_GREEN);
         $tileBonus = new TileActivationBonusGLM();
         $bonusResource = new ResourceGLM();
-        $bonusResource->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
-        $bonusResource->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $bonusResource->setType(GlenmoreParameters::PRODUCTION_RESOURCE);
+        $bonusResource->setColor(GlenmoreParameters::COLOR_GREEN);
         $tileBonus->setResource($bonusResource);
         $tileBonus->setAmount(1);
         $tile->addActivationBonus($tileBonus);
         $playerTile = new PlayerTileGLM();
         $playerTile->setTile($tile);
         $playerResource = new ResourceGLM();
-        $playerResource->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
-        $playerResource->setColor(GlenmoreParameters::$COLOR_BROWN);
+        $playerResource->setType(GlenmoreParameters::PRODUCTION_RESOURCE);
+        $playerResource->setColor(GlenmoreParameters::COLOR_BROWN);
         $selectedResource = new SelectedResourceGLM();
         $selectedResource->setResource($playerResource);
         $selectedResource->setQuantity(3);
@@ -990,26 +990,26 @@ class TileGLMServiceTest extends TestCase
         $game = $this->createGame(2);
         $firstPlayer = $game->getPlayers()->first();
         $tile = new TileGLM();
-        $tile->setType(GlenmoreParameters::$TILE_TYPE_GREEN);
+        $tile->setType(GlenmoreParameters::TILE_TYPE_GREEN);
         $activationPrice = new TileActivationCostGLM();
         $resourcePrice = new ResourceGLM();
-        $resourcePrice->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
-        $resourcePrice->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $resourcePrice->setType(GlenmoreParameters::PRODUCTION_RESOURCE);
+        $resourcePrice->setColor(GlenmoreParameters::COLOR_GREEN);
         $activationPrice->setResource($resourcePrice);
         $activationPrice->setPrice(2);
         $tile->addActivationPrice($activationPrice);
         $tileBonus = new TileActivationBonusGLM();
         $bonusResource = new ResourceGLM();
-        $bonusResource->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
-        $bonusResource->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $bonusResource->setType(GlenmoreParameters::PRODUCTION_RESOURCE);
+        $bonusResource->setColor(GlenmoreParameters::COLOR_GREEN);
         $tileBonus->setResource($bonusResource);
         $tileBonus->setAmount(1);
         $tile->addActivationBonus($tileBonus);
         $playerTile = new PlayerTileGLM();
         $playerTile->setTile($tile);
         $playerResource = new ResourceGLM();
-        $playerResource->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
-        $playerResource->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $playerResource->setType(GlenmoreParameters::PRODUCTION_RESOURCE);
+        $playerResource->setColor(GlenmoreParameters::COLOR_GREEN);
         $selectedResource = new SelectedResourceGLM();
         $selectedResource->setResource($playerResource);
         $selectedResource->setQuantity(3);
@@ -1037,26 +1037,26 @@ class TileGLMServiceTest extends TestCase
         $game = $this->createGame(2);
         $firstPlayer = $game->getPlayers()->first();
         $tile = new TileGLM();
-        $tile->setType(GlenmoreParameters::$TILE_TYPE_BROWN);
+        $tile->setType(GlenmoreParameters::TILE_TYPE_BROWN);
         $activationPrice = new TileActivationCostGLM();
         $resourcePrice = new ResourceGLM();
-        $resourcePrice->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
-        $resourcePrice->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $resourcePrice->setType(GlenmoreParameters::PRODUCTION_RESOURCE);
+        $resourcePrice->setColor(GlenmoreParameters::COLOR_GREEN);
         $activationPrice->setResource($resourcePrice);
         $activationPrice->setPrice(2);
         $tile->addActivationPrice($activationPrice);
         $tileBonus = new TileActivationBonusGLM();
         $bonusResource = new ResourceGLM();
-        $bonusResource->setType(GlenmoreParameters::$POINT_RESOURCE);
-        $bonusResource->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $bonusResource->setType(GlenmoreParameters::POINT_RESOURCE);
+        $bonusResource->setColor(GlenmoreParameters::COLOR_GREEN);
         $tileBonus->setResource($bonusResource);
         $tileBonus->setAmount($pointsToGive);
         $tile->addActivationBonus($tileBonus);
         $playerTile = new PlayerTileGLM();
         $playerTile->setTile($tile);
         $playerResource = new ResourceGLM();
-        $playerResource->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
-        $playerResource->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $playerResource->setType(GlenmoreParameters::PRODUCTION_RESOURCE);
+        $playerResource->setColor(GlenmoreParameters::COLOR_GREEN);
         $selectedResource = new SelectedResourceGLM();
         $selectedResource->setResource($playerResource);
         $selectedResource->setQuantity(3);
@@ -1080,47 +1080,47 @@ class TileGLMServiceTest extends TestCase
         $game = $this->createGame(2);
         $firstPlayer = $game->getPlayers()->first();
         $tile = new TileGLM();
-        $tile->setType(GlenmoreParameters::$TILE_TYPE_BROWN);
+        $tile->setType(GlenmoreParameters::TILE_TYPE_BROWN);
         $activationPrice1 = new TileActivationCostGLM();
         $resourcePrice1 = new ResourceGLM();
-        $resourcePrice1->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
-        $resourcePrice1->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $resourcePrice1->setType(GlenmoreParameters::PRODUCTION_RESOURCE);
+        $resourcePrice1->setColor(GlenmoreParameters::COLOR_GREEN);
         $activationPrice1->setResource($resourcePrice1);
         $activationPrice1->setPrice(0);
         $tile->addActivationPrice($activationPrice1);
         $activationPrice2 = new TileActivationCostGLM();
         $resourcePrice2 = new ResourceGLM();
-        $resourcePrice2->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
-        $resourcePrice2->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $resourcePrice2->setType(GlenmoreParameters::PRODUCTION_RESOURCE);
+        $resourcePrice2->setColor(GlenmoreParameters::COLOR_GREEN);
         $activationPrice2->setResource($resourcePrice2);
         $activationPrice2->setPrice(0);
         $tile->addActivationPrice($activationPrice2);
         $tileBonus = new TileActivationBonusGLM();
         $bonusResource = new ResourceGLM();
-        $bonusResource->setType(GlenmoreParameters::$POINT_RESOURCE);
-        $bonusResource->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $bonusResource->setType(GlenmoreParameters::POINT_RESOURCE);
+        $bonusResource->setColor(GlenmoreParameters::COLOR_GREEN);
         $tileBonus->setResource($bonusResource);
         $tileBonus->setAmount($pointsToGive1);
         $tile->addActivationBonus($tileBonus);
         $tileBonus2 = new TileActivationBonusGLM();
         $bonusResource2 = new ResourceGLM();
-        $bonusResource2->setType(GlenmoreParameters::$POINT_RESOURCE);
-        $bonusResource2->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $bonusResource2->setType(GlenmoreParameters::POINT_RESOURCE);
+        $bonusResource2->setColor(GlenmoreParameters::COLOR_GREEN);
         $tileBonus2->setResource($bonusResource2);
         $tileBonus2->setAmount($pointsToGive2);
         $tile->addActivationBonus($tileBonus2);
         $playerTile = new PlayerTileGLM();
         $playerTile->setTile($tile);
         $playerResource = new ResourceGLM();
-        $playerResource->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
-        $playerResource->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $playerResource->setType(GlenmoreParameters::PRODUCTION_RESOURCE);
+        $playerResource->setColor(GlenmoreParameters::COLOR_GREEN);
         $selectedResource = new SelectedResourceGLM();
         $selectedResource->setResource($playerResource);
         $selectedResource->setQuantity(1);
         $firstPlayer->getPersonalBoard()->addSelectedResource($selectedResource);
         $playerResource2 = new ResourceGLM();
-        $playerResource2->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
-        $playerResource2->setColor(GlenmoreParameters::$COLOR_BROWN);
+        $playerResource2->setType(GlenmoreParameters::PRODUCTION_RESOURCE);
+        $playerResource2->setColor(GlenmoreParameters::COLOR_BROWN);
         $selectedResource2 = new SelectedResourceGLM();
         $selectedResource2->setResource($playerResource2);
         $selectedResource2->setQuantity(1);
@@ -1141,7 +1141,7 @@ class TileGLMServiceTest extends TestCase
         $mainBoard = new MainBoardGLM();
         $mainBoard->setGameGLM($game);
 
-        for ($i = GlenmoreParameters::$TILE_LEVEL_ZERO; $i <= GlenmoreParameters::$TILE_LEVEL_THREE; ++$i) {
+        for ($i = GlenmoreParameters::TILE_LEVEL_ZERO; $i <= GlenmoreParameters::TILE_LEVEL_THREE; ++$i) {
             $draw = new DrawTilesGLM();
             $draw->setLevel($i);
             $draw->setMainBoardGLM($mainBoard);
@@ -1149,32 +1149,32 @@ class TileGLMServiceTest extends TestCase
                 $tile = new TileGLM();
                 $tile->setLevel($j);
                 if ($j % 5 == 0) {
-                    $tile->setType(GlenmoreParameters::$TILE_TYPE_GREEN);
-                    $tile->setName(GlenmoreParameters::$TILE_NAME_FOREST);
+                    $tile->setType(GlenmoreParameters::TILE_TYPE_GREEN);
+                    $tile->setName(GlenmoreParameters::TILE_NAME_FOREST);
                 } else if ($j % 5 == 1) {
-                    $tile->setType(GlenmoreParameters::$TILE_TYPE_YELLOW);
-                    $tile->setName(GlenmoreParameters::$TILE_NAME_FIELD);
+                    $tile->setType(GlenmoreParameters::TILE_TYPE_YELLOW);
+                    $tile->setName(GlenmoreParameters::TILE_NAME_FIELD);
                 } else if ($j % 5 == 2) {
-                    $tile->setType(GlenmoreParameters::$TILE_TYPE_BROWN);
-                    $tile->setName(GlenmoreParameters::$TILE_NAME_CATTLE);
+                    $tile->setType(GlenmoreParameters::TILE_TYPE_BROWN);
+                    $tile->setName(GlenmoreParameters::TILE_NAME_CATTLE);
                 } else if ($j % 5 == 3) {
-                    $tile->setType(GlenmoreParameters::$TILE_TYPE_GREEN);
-                    $tile->setName(GlenmoreParameters::$TILE_NAME_PASTURE);
+                    $tile->setType(GlenmoreParameters::TILE_TYPE_GREEN);
+                    $tile->setName(GlenmoreParameters::TILE_NAME_PASTURE);
                 } else if ($j % 5 == 4) {
-                    $tile->setType(GlenmoreParameters::$TILE_TYPE_VILLAGE);
-                    $tile->setName(GlenmoreParameters::$TILE_NAME_VILLAGE);
+                    $tile->setType(GlenmoreParameters::TILE_TYPE_VILLAGE);
+                    $tile->setName(GlenmoreParameters::TILE_NAME_VILLAGE);
                 }
                 $draw->addTile($tile);
             }
             $mainBoard->addDrawTile($draw);
             $warehouse = new WarehouseGLM();
-            $array = [GlenmoreParameters::$COLOR_BROWN, GlenmoreParameters::$COLOR_GREEN, GlenmoreParameters::$COLOR_WHITE,
-                GlenmoreParameters::$COLOR_YELLOW, GlenmoreParameters::$COLOR_GREY];
+            $array = [GlenmoreParameters::COLOR_BROWN, GlenmoreParameters::COLOR_GREEN, GlenmoreParameters::COLOR_WHITE,
+                GlenmoreParameters::COLOR_YELLOW, GlenmoreParameters::COLOR_GREY];
             for ($j = 0; $j < 5; ++$j) {
                 $warehouseLine = new WarehouseLineGLM();
                 $resource = new ResourceGLM();
                 $resource->setColor($array[$j]);
-                $resource->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
+                $resource->setType(GlenmoreParameters::PRODUCTION_RESOURCE);
                 $warehouseLine->setResource($resource);
                 $warehouseLine->setQuantity(0);
                 $warehouse->addWarehouseLine($warehouseLine);
@@ -1191,16 +1191,16 @@ class TileGLMServiceTest extends TestCase
             $player->setPersonalBoard($personalBoard);
             $personalBoard->setPlayerGLM($player);
             $personalBoard->setLeaderCount(0);
-            $personalBoard->setMoney(GlenmoreParameters::$START_MONEY);
+            $personalBoard->setMoney(GlenmoreParameters::START_MONEY);
             $pawn = new PawnGLM();
-            $pawn->setColor(GlenmoreParameters::$COLOR_FROM_POSITION[$i]);
+            $pawn->setColor(GlenmoreParameters::COLOR_FROM_POSITION[$i]);
             $pawn->setPosition($i);
             $pawn->setMainBoardGLM($mainBoard);
             $player->setPawn($pawn);
             $playerTile = new PlayerTileGLM();
             $startTile = new TileGLM();
-            $startTile->setName(GlenmoreParameters::$TILE_NAME_START_VILLAGE);
-            $startTile->setType(GlenmoreParameters::$TILE_TYPE_VILLAGE);
+            $startTile->setName(GlenmoreParameters::TILE_NAME_START_VILLAGE);
+            $startTile->setType(GlenmoreParameters::TILE_TYPE_VILLAGE);
             $startTile->setContainingRiver(true);
             $startTile->setContainingRoad(true);
             $playerTile->setTile($startTile);
@@ -1211,17 +1211,17 @@ class TileGLMServiceTest extends TestCase
             $playerTileResource->setPlayerTileGLM($playerTile);
             $playerTileResource->setPlayer($player);
             $villager = new ResourceGLM();
-            $villager->setType(GlenmoreParameters::$VILLAGER_RESOURCE);
+            $villager->setType(GlenmoreParameters::VILLAGER_RESOURCE);
             $playerTileResource->setResource($villager);
             $playerTileResource->setQuantity(1);
             $playerTile->addPlayerTileResource($playerTileResource);
             $personalBoard->addPlayerTile($playerTile);
         }
 
-        for ($i = $nbOfPlayers; $i < GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD; ++$i) {
+        for ($i = $nbOfPlayers; $i < GlenmoreParameters::NUMBER_OF_BOXES_ON_BOARD; ++$i) {
             $drawTiles = $mainBoard->getDrawTiles();
             $level = 0;
-            for ($j = GlenmoreParameters::$TILE_LEVEL_ZERO; $j <= GlenmoreParameters::$TILE_LEVEL_THREE; ++$j) {
+            for ($j = GlenmoreParameters::TILE_LEVEL_ZERO; $j <= GlenmoreParameters::TILE_LEVEL_THREE; ++$j) {
                 if ($drawTiles->get($j)->getTiles()->isEmpty()) {
                     ++$level;
                 } else {

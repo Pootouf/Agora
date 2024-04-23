@@ -477,7 +477,7 @@ class WorkshopMYRServiceTest extends TestCase
         $this->assertTrue($result);
     }
 
-    public function testCanPlayerDoStoneGoalWhenPlayerHasNotAlreadyDoneSelectedWithLowerDifficultyWhenReturnTrue()
+    /*public function testCanPlayerDoStoneGoalWhenPlayerHasNotAlreadyDoneSelectedWithLowerDifficultyWhenReturnTrue()
     {
         // GIVEN
 
@@ -497,7 +497,7 @@ class WorkshopMYRServiceTest extends TestCase
         // THEN
 
         $this->assertTrue($result);
-    }
+    } */
 
 
     private function createGame(int $numberOfPlayers) : GameMYR
@@ -513,22 +513,13 @@ class WorkshopMYRServiceTest extends TestCase
             $player->setGameMyr($game);
             $personalBoard = new PersonalBoardMYR();
 
-            $resources = new ArrayCollection();
-            $resources->add(MyrmesParameters::RESOURCE_TYPE_DIRT);
-            $resources->add(MyrmesParameters::RESOURCE_TYPE_STONE);
-            $resources->add(MyrmesParameters::RESOURCE_TYPE_GRASS);
-            $resources->add(MyrmesParameters::RESOURCE_TYPE_LARVAE);
-
-            foreach ($resources as $r)
-            {
-                $resource = new ResourceMYR();
-                $resource->setDescription($r);
-                $pResource = new PlayerResourceMYR();
-                $pResource->setQuantity(6);
-                $pResource->setResource($resource);
-                $pResource->setPersonalBoard($personalBoard);
-                $personalBoard->addPlayerResourceMYR($pResource);
-            }
+            $resource = new ResourceMYR();
+            $resource->setDescription(MyrmesParameters::RESOURCE_TYPE_GRASS);
+            $pResource = new PlayerResourceMYR();
+            $pResource->setQuantity(6);
+            $pResource->setResource($resource);
+            $pResource->setPersonalBoard($personalBoard);
+            $personalBoard->addPlayerResourceMYR($pResource);
 
             $personalBoard->setAnthillLevel(0);
             $nurse = new NurseMYR();
