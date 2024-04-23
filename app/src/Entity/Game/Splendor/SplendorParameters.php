@@ -2,58 +2,64 @@
 
 namespace App\Entity\Game\Splendor;
 
-class SplendorParameters
+interface SplendorParameters
 {
     // SPLENDOR GAME PARAMETERS
-    public static int $MIN_NUMBER_OF_PLAYER = 2;
-    public static int $MAX_NUMBER_OF_PLAYER = 4;
-    public static int $MAX_PRESTIGE_POINTS = 15;
+
+    const int MIN_NUMBER_OF_PLAYER = 2;
+    const int MAX_NUMBER_OF_PLAYER = 4;
+    const int MAX_PRESTIGE_POINTS = 15;
+
     //The minimum available tokens is 4 at the beginning of the players's round, but 3 when taking the second same color
     // token.
-    public static int $MIN_AVAILABLE_TOKENS = 3;
+    const int MIN_AVAILABLE_TOKENS = 3;
+    const int TOKENS_NUMBER_4_PLAYERS = 7;
+    const int TOKENS_NUMBER_3_PLAYERS = 5;
+    const int TOKENS_NUMBER_2_PLAYERS = 4;
 
-    public static int $TOKENS_NUMBER_4_PLAYERS = 7;
+    // DRAW CARDS PARAMETERS
 
-    public static int $TOKENS_NUMBER_3_PLAYERS = 5;
+    const int DRAW_CARD_LEVEL_ONE = 0;
+    const int DRAW_CARD_LEVEL_TWO = 1;
+    const int DRAW_CARD_LEVEL_THREE = 2;
 
-    public static int $TOKENS_NUMBER_2_PLAYERS = 4;
+    // DEVELOPMENT CARDS LEVEL
 
-    //DRAW CARDS PARAMETERS
-    public static int $DRAW_CARD_LEVEL_ONE = 0;
-    public static int $DRAW_CARD_LEVEL_TWO = 1;
-    public static int $DRAW_CARD_LEVEL_THREE = 2;
-
-    //DEVELOPMENT CARDS LEVEL
-    public static int $DEVELOPMENT_CARD_LEVEL_ONE = 1;
-    public static int $DEVELOPMENT_CARD_LEVEL_TWO = 2;
-    public static int $DEVELOPMENT_CARD_LEVEL_THREE = 3;
+    const int DEVELOPMENT_CARD_LEVEL_ONE = 1;
+    const int DEVELOPMENT_CARD_LEVEL_TWO = 2;
+    const int DEVELOPMENT_CARD_LEVEL_THREE = 3;
 
     //MAIN BOARD PARAMETERS
-    public static int $NUMBER_OF_ROWS_BY_GAME = 3;
+
+    const int NUMBER_OF_ROWS_BY_GAME = 3;
 
     //PERSONAL BOARD PARAMETERS
-    public static int $PLAYER_MAX_TOKEN = 10;
-    public static int $MAX_COUNT_RESERVED_CARDS = 3;
+
+    const int PLAYER_MAX_TOKEN = 10;
+    const int MAX_COUNT_RESERVED_CARDS = 3;
 
     //TOKENS' COLOR
-    public static string $COLOR_BLUE = 'blue';
-    public static string $COLOR_RED = 'red';
-    public static string $COLOR_YELLOW = 'yellow';
-    public static string $COLOR_GREEN = 'green';
-    public static string $COLOR_WHITE = 'white';
-    public static string $COLOR_BLACK = 'black';
-    public static string $LABEL_JOKER = "yellow";
+
+    const string COLOR_BLUE = 'blue';
+    const string COLOR_RED = 'red';
+    const string COLOR_YELLOW = 'yellow';
+    const string COLOR_GREEN = 'green';
+    const string COLOR_WHITE = 'white';
+    const string COLOR_BLACK = 'black';
+    const string LABEL_JOKER = "yellow";
 
     //SERVICE UTILITIES
-    public static int $COMES_OF_THE_DISCARDS = 1;
-    public static int $COMES_OF_THE_ROWS = 2;
+
+    const int COMES_OF_THE_DISCARDS = 1;
+    const int COMES_OF_THE_ROWS = 2;
 
     // POINTS PRESTIGE GIVEN BY NOBLE TILES
 
-    public static int $POINT_PRESTIGE_BY_NOBLE_TILE = 3;
+    const int POINT_PRESTIGE_BY_NOBLE_TILE = 3;
 
     //NOTIFICATIONS
-    public static int $NOTIFICATION_DURATION_5 = 5;
-    public static int $NOTIFICATION_DURATION_10 = 10;
+
+    const int NOTIFICATION_DURATION_5 = 5;
+    const int NOTIFICATION_DURATION_10 = 10;
 
 }

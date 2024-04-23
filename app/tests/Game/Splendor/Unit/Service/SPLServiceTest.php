@@ -199,7 +199,7 @@ class SPLServiceTest extends TestCase
         $player2 = $game->getPlayers()->last();
         $player2->setTurnOfPlayer(true);
         $nobleTile = new NobleTileSPL();
-        $nobleTile->setPrestigePoints(SplendorParameters::$MAX_PRESTIGE_POINTS - 1);
+        $nobleTile->setPrestigePoints(SplendorParameters::MAX_PRESTIGE_POINTS - 1);
         $player2->getPersonalBoard()->addNobleTile($nobleTile);
         //WHEN
         $result = $this->SPLService->isGameEnded($game);
@@ -214,7 +214,7 @@ class SPLServiceTest extends TestCase
         $player2 = $game->getPlayers()->last();
         $player2->setTurnOfPlayer(true);
         $nobleTile = new NobleTileSPL();
-        $nobleTile->setPrestigePoints(SplendorParameters::$MAX_PRESTIGE_POINTS);
+        $nobleTile->setPrestigePoints(SplendorParameters::MAX_PRESTIGE_POINTS);
         $player2->getPersonalBoard()->addNobleTile($nobleTile);
         $this->SPLService->calculatePrestigePoints($player2);
         //WHEN
@@ -230,7 +230,7 @@ class SPLServiceTest extends TestCase
         $player = $game->getPlayers()->first();
         $player->setTurnOfPlayer(true);
         $nobleTile = new NobleTileSPL();
-        $nobleTile->setPrestigePoints(SplendorParameters::$MAX_PRESTIGE_POINTS);
+        $nobleTile->setPrestigePoints(SplendorParameters::MAX_PRESTIGE_POINTS);
         $player->getPersonalBoard()->addNobleTile($nobleTile);
         //WHEN
         $result = $this->SPLService->isGameEnded($game);
@@ -305,7 +305,7 @@ class SPLServiceTest extends TestCase
     {
         // GIVEN
 
-        $game = $this->createGame(SplendorParameters::$MIN_NUMBER_OF_PLAYER);
+        $game = $this->createGame(SplendorParameters::MIN_NUMBER_OF_PLAYER);
         $player = $game->getPlayers()->first();
         $lastPoints = $player->getScore();
 
@@ -327,7 +327,7 @@ class SPLServiceTest extends TestCase
     {
         // GIVEN
 
-        $game = $this->createGame(SplendorParameters::$MIN_NUMBER_OF_PLAYER);
+        $game = $this->createGame(SplendorParameters::MIN_NUMBER_OF_PLAYER);
         $player = $game->getPlayers()->first();
         $lastPoints = $player->getScore();
 
@@ -351,17 +351,17 @@ class SPLServiceTest extends TestCase
     {
         // GIVEN
 
-        $game = $this->createGame(SplendorParameters::$MIN_NUMBER_OF_PLAYER);
+        $game = $this->createGame(SplendorParameters::MIN_NUMBER_OF_PLAYER);
         $mainBoard = $game->getMainBoard();
         $player = $game->getPlayers()->first();
         $personal = $player->getPersonalBoard();
         $lastPoints = $player->getScore();
 
         $price = 3;
-        $noble = $this->createNobleTile(array(SplendorParameters::$COLOR_BLUE => $price));
+        $noble = $this->createNobleTile(array(SplendorParameters::COLOR_BLUE => $price));
         $mainBoard->addNobleTile($noble);
 
-        $color = SplendorParameters::$COLOR_BLUE;
+        $color = SplendorParameters::COLOR_BLUE;
         for ($i = 0; $i < $price; $i++) {
             $row = $mainBoard->getRowsSPL()->first();
             $card = $row->getDevelopmentCards()->first();
@@ -379,7 +379,7 @@ class SPLServiceTest extends TestCase
         $this->assertNotSame(-1, $addingNoble);
         $this->assertNotNull($addingNoble);
         $this->assertSame($player->getScore(),
-            $lastPoints + SplendorParameters::$POINT_PRESTIGE_BY_NOBLE_TILE);
+            $lastPoints + SplendorParameters::POINT_PRESTIGE_BY_NOBLE_TILE);
     }
 
     public function testBuyCardWhenNotEnoughMoney()
@@ -389,7 +389,7 @@ class SPLServiceTest extends TestCase
         $player = $game->getPlayers()->first();
         $player->setTurnOfPlayer(true);
         $cardCost = new CardCostSPL();
-        $cardCost->setColor(SplendorParameters::$COLOR_RED);
+        $cardCost->setColor(SplendorParameters::COLOR_RED);
         $cardCost->setPrice(1);
         $array = new ArrayCollection();
         $array->add($cardCost);
@@ -406,10 +406,10 @@ class SPLServiceTest extends TestCase
         $player = $game->getPlayers()->first();
         $player->setTurnOfPlayer(true);
         $token = new TokenSPL();
-        $token->setColor(SplendorParameters::$COLOR_RED);
+        $token->setColor(SplendorParameters::COLOR_RED);
         $player->getPersonalBoard()->addToken($token);
         $cardCost = new CardCostSPL();
-        $cardCost->setColor(SplendorParameters::$COLOR_RED);
+        $cardCost->setColor(SplendorParameters::COLOR_RED);
         $cardCost->setPrice(1);
         $array = new ArrayCollection();
         $array->add($cardCost);
@@ -428,10 +428,10 @@ class SPLServiceTest extends TestCase
         $player = $game->getPlayers()->first();
         $player->setTurnOfPlayer(true);
         $token = new TokenSPL();
-        $token->setColor(SplendorParameters::$COLOR_YELLOW);
+        $token->setColor(SplendorParameters::COLOR_YELLOW);
         $player->getPersonalBoard()->addToken($token);
         $cardCost = new CardCostSPL();
-        $cardCost->setColor(SplendorParameters::$COLOR_RED);
+        $cardCost->setColor(SplendorParameters::COLOR_RED);
         $cardCost->setPrice(1);
         $array = new ArrayCollection();
         $array->add($cardCost);
@@ -450,14 +450,14 @@ class SPLServiceTest extends TestCase
         $player = $game->getPlayers()->first();
         $player->setTurnOfPlayer(true);
         $token = new TokenSPL();
-        $token->setColor(SplendorParameters::$COLOR_RED);
+        $token->setColor(SplendorParameters::COLOR_RED);
         $player->getPersonalBoard()->addToken($token);
         $playerDevCard = new DevelopmentCardsSPL();
-        $playerDevCard->setColor(SplendorParameters::$COLOR_RED);
+        $playerDevCard->setColor(SplendorParameters::COLOR_RED);
         $playerCard = new PlayerCardSPL($player, $playerDevCard, false);
         $player->getPersonalBoard()->addPlayerCard($playerCard);
         $cardCost = new CardCostSPL();
-        $cardCost->setColor(SplendorParameters::$COLOR_RED);
+        $cardCost->setColor(SplendorParameters::COLOR_RED);
         $cardCost->setPrice(1);
         $array = new ArrayCollection();
         $array->add($cardCost);
@@ -476,14 +476,14 @@ class SPLServiceTest extends TestCase
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
         for ($i = 0; $i < 3; $i++) {
-            $playerCard = $this->createPlayerCard($player, SplendorParameters::$COLOR_RED);
+            $playerCard = $this->createPlayerCard($player, SplendorParameters::COLOR_RED);
             $player->getPersonalBoard()->addPlayerCard($playerCard);
-            $playerCard = $this->createPlayerCard($player, SplendorParameters::$COLOR_BLUE);
+            $playerCard = $this->createPlayerCard($player, SplendorParameters::COLOR_BLUE);
             $player->getPersonalBoard()->addPlayerCard($playerCard);
         }
         $nobleTile = $this->createNobleTile([
-            SplendorParameters::$COLOR_RED => 3,
-            SplendorParameters::$COLOR_BLUE => 3,
+            SplendorParameters::COLOR_RED => 3,
+            SplendorParameters::COLOR_BLUE => 3,
         ]);
         $game->getMainBoard()->addNobleTile($nobleTile);
         //WHEN
@@ -499,14 +499,14 @@ class SPLServiceTest extends TestCase
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
         for ($i = 0; $i < 3; $i++) {
-            $playerCard = $this->createPlayerCard($player, SplendorParameters::$COLOR_RED);
+            $playerCard = $this->createPlayerCard($player, SplendorParameters::COLOR_RED);
             $player->getPersonalBoard()->addPlayerCard($playerCard);
-            $playerCard = $this->createPlayerCard($player, SplendorParameters::$COLOR_BLUE);
+            $playerCard = $this->createPlayerCard($player, SplendorParameters::COLOR_BLUE);
             $player->getPersonalBoard()->addPlayerCard($playerCard);
         }
         $nobleTile = $this->createNobleTile([
-            SplendorParameters::$COLOR_RED => 3,
-            SplendorParameters::$COLOR_BLUE => 4,
+            SplendorParameters::COLOR_RED => 3,
+            SplendorParameters::COLOR_BLUE => 4,
         ]);
         $game->getMainBoard()->addNobleTile($nobleTile);
         $expectedNumberOfNobleTile = 0;
@@ -519,19 +519,19 @@ class SPLServiceTest extends TestCase
     public function testReserveCardFromMainBoardWhenIsAccessibleFromDiscardWithoutToken() : void
     {
         // GIVEN
-        $game = $this->createGame(SplendorParameters::$MIN_NUMBER_OF_PLAYER);
+        $game = $this->createGame(SplendorParameters::MIN_NUMBER_OF_PLAYER);
         $player = $game->getPlayers()->first();
         $personal = $player->getPersonalBoard();
 
         while ($personal->getTokens()->count() !=
-            SplendorParameters::$PLAYER_MAX_TOKEN)
+            SplendorParameters::PLAYER_MAX_TOKEN)
         {
             $token = new TokenSPL();
             $token->setColor("red");
             $player->getPersonalBoard()->addToken($token);
         }
 
-        $level = SplendorParameters::$DEVELOPMENT_CARD_LEVEL_ONE;
+        $level = SplendorParameters::DEVELOPMENT_CARD_LEVEL_ONE;
         $discard = $game->getMainBoard()->getDrawCards()->get($level);
         $card = $discard->getDevelopmentCards()->last();
 
@@ -546,17 +546,17 @@ class SPLServiceTest extends TestCase
             ->getDevelopmentCards());
         $this->assertSame(0,
             $this->SPLService->getNumberOfTokenAtColor($personal->getTokens(),
-                SplendorParameters::$LABEL_JOKER));
+                SplendorParameters::LABEL_JOKER));
     }
 
     public function testReserveCardFromMainBoardWhenIsAccessibleFromDiscardWithToken() : void
     {
         // GIVEN
-        $game = $this->createGame(SplendorParameters::$MIN_NUMBER_OF_PLAYER);
+        $game = $this->createGame(SplendorParameters::MIN_NUMBER_OF_PLAYER);
         $player = $game->getPlayers()->first();
         $personal = $player->getPersonalBoard();
 
-        $level = SplendorParameters::$DEVELOPMENT_CARD_LEVEL_ONE;
+        $level = SplendorParameters::DEVELOPMENT_CARD_LEVEL_ONE;
         $discard = $game->getMainBoard()->getDrawCards()->get($level);
         $card = $discard->getDevelopmentCards()->last();
 
@@ -571,17 +571,17 @@ class SPLServiceTest extends TestCase
             ->getDevelopmentCards());
         $this->assertSame(1,
             $this->SPLService->getNumberOfTokenAtColor($personal->getTokens(),
-                SplendorParameters::$LABEL_JOKER));
+                SplendorParameters::LABEL_JOKER));
     }
 
     public function testReserveCardFromMainBoardWhenIsAccessibleFromRowWithToken() : void
     {
         // GIVEN
-        $game = $this->createGame(SplendorParameters::$MIN_NUMBER_OF_PLAYER);
+        $game = $this->createGame(SplendorParameters::MIN_NUMBER_OF_PLAYER);
         $player = $game->getPlayers()->first();
         $personal = $player->getPersonalBoard();
 
-        $level = SplendorParameters::$DEVELOPMENT_CARD_LEVEL_ONE;
+        $level = SplendorParameters::DEVELOPMENT_CARD_LEVEL_ONE;
         $row = $game->getMainBoard()->getRowsSPL()->get($level);
         $card = $row->getDevelopmentCards()->first();
 
@@ -593,26 +593,26 @@ class SPLServiceTest extends TestCase
         $this->assertNotContains($card, $game->getMainBoard()->getRowsSPL()->get($level)->getDevelopmentCards());
         $this->assertSame(1,
             $this->SPLService->getNumberOfTokenAtColor($personal->getTokens(),
-                SplendorParameters::$LABEL_JOKER));
+                SplendorParameters::LABEL_JOKER));
     }
 
     public function testReserveCardFromMainBoardWhenIsAccessibleFromRowWithoutToken() : void
     {
 
         // GIVEN
-        $game = $this->createGame(SplendorParameters::$MIN_NUMBER_OF_PLAYER);
+        $game = $this->createGame(SplendorParameters::MIN_NUMBER_OF_PLAYER);
         $player = $game->getPlayers()->first();
         $personal = $player->getPersonalBoard();
 
         while ($personal->getTokens()->count() !=
-            SplendorParameters::$PLAYER_MAX_TOKEN)
+            SplendorParameters::PLAYER_MAX_TOKEN)
         {
             $token = new TokenSPL();
             $token->setColor("red");
             $player->getPersonalBoard()->addToken($token);
         }
 
-        $level = SplendorParameters::$DEVELOPMENT_CARD_LEVEL_ONE;
+        $level = SplendorParameters::DEVELOPMENT_CARD_LEVEL_ONE;
         $row = $game->getMainBoard()->getRowsSPL()->get($level);
         $card = $row->getDevelopmentCards()->first();
 
@@ -625,18 +625,18 @@ class SPLServiceTest extends TestCase
         $this->assertNotContains($card, $game->getMainBoard()->getRowsSPL()->get($level)->getDevelopmentCards());
         $this->assertSame(0,
             $this->SPLService->getNumberOfTokenAtColor($personal->getTokens(),
-                SplendorParameters::$LABEL_JOKER));
+                SplendorParameters::LABEL_JOKER));
     }
 
     public function testReserveCardIsNotAccessibleAndTokensIsFull() : void
     {
         // GIVEN
-        $game = $this->createGame(SplendorParameters::$MIN_NUMBER_OF_PLAYER);
+        $game = $this->createGame(SplendorParameters::MIN_NUMBER_OF_PLAYER);
         $player = $game->getPlayers()->first();
         $personal = $player->getPersonalBoard();
 
         while ($personal->getTokens()->count() !=
-            SplendorParameters::$PLAYER_MAX_TOKEN)
+            SplendorParameters::PLAYER_MAX_TOKEN)
         {
             $token = new TokenSPL();
             $token->setColor("red");
@@ -644,7 +644,7 @@ class SPLServiceTest extends TestCase
         }
 
         $card = new DevelopmentCardsSPL();
-        $card->setLevel(SplendorParameters::$DEVELOPMENT_CARD_LEVEL_ONE);
+        $card->setLevel(SplendorParameters::DEVELOPMENT_CARD_LEVEL_ONE);
 
         // WHEN et THEN
 
@@ -657,12 +657,12 @@ class SPLServiceTest extends TestCase
         //GIVEN
         $numberOfPlayers = 2;
         $game = $this->createGame($numberOfPlayers);
-        $drawLevelOne = $game->getMainBoard()->getDrawCards()->get(SplendorParameters::$DRAW_CARD_LEVEL_ONE);
+        $drawLevelOne = $game->getMainBoard()->getDrawCards()->get(SplendorParameters::DRAW_CARD_LEVEL_ONE);
         $card = new DevelopmentCardsSPL();
-        $card->setLevel(SplendorParameters::$DEVELOPMENT_CARD_LEVEL_ONE);
+        $card->setLevel(SplendorParameters::DEVELOPMENT_CARD_LEVEL_ONE);
         $drawLevelOne->addDevelopmentCard($card);
         //WHEN
-        $result = $this->SPLService->getDrawCardsByLevel(SplendorParameters::$DRAW_CARD_LEVEL_ONE, $game);
+        $result = $this->SPLService->getDrawCardsByLevel(SplendorParameters::DRAW_CARD_LEVEL_ONE, $game);
         //THEN
         $this->assertSame($card->getId(), $result->first()->getId());
     }
@@ -674,10 +674,10 @@ class SPLServiceTest extends TestCase
         $game = $this->createGame($numberOfPlayers);
         $player = $game->getPlayers()->first();
         $token = new TokenSPL();
-        $token->setColor(SplendorParameters::$COLOR_RED);
+        $token->setColor(SplendorParameters::COLOR_RED);
         $player->getPersonalBoard()->addToken($token);
         $cardCost = new CardCostSPL();
-        $cardCost->setColor(SplendorParameters::$COLOR_RED);
+        $cardCost->setColor(SplendorParameters::COLOR_RED);
         $cardCost->setPrice(1);
         $array = new ArrayCollection();
         $array->add($cardCost);
@@ -699,10 +699,10 @@ class SPLServiceTest extends TestCase
         $game = $this->createGame($numberOfPlayers);
         $player = $game->getPlayers()->first();
         $token = new TokenSPL();
-        $token->setColor(SplendorParameters::$COLOR_BLUE);
+        $token->setColor(SplendorParameters::COLOR_BLUE);
         $player->getPersonalBoard()->addToken($token);
         $cardCost = new CardCostSPL();
-        $cardCost->setColor(SplendorParameters::$COLOR_RED);
+        $cardCost->setColor(SplendorParameters::COLOR_RED);
         $cardCost->setPrice(1);
         $array = new ArrayCollection();
         $array->add($cardCost);
@@ -724,13 +724,13 @@ class SPLServiceTest extends TestCase
         $game = $this->createGame($numberOfPlayers);
         $player = $game->getPlayers()->first();
         $token = new TokenSPL();
-        $token->setColor(SplendorParameters::$COLOR_BLUE);
+        $token->setColor(SplendorParameters::COLOR_BLUE);
         $player->getPersonalBoard()->addToken($token);
         $cardCost = new CardCostSPL();
-        $cardCost->setColor(SplendorParameters::$COLOR_RED);
+        $cardCost->setColor(SplendorParameters::COLOR_RED);
         $cardCost->setPrice(1);
         $cardCost2 = new CardCostSPL();
-        $cardCost2->setColor(SplendorParameters::$COLOR_BLUE);
+        $cardCost2->setColor(SplendorParameters::COLOR_BLUE);
         $cardCost2->setPrice(1);
         $array = new ArrayCollection();
         $array->add($cardCost);
@@ -756,10 +756,10 @@ class SPLServiceTest extends TestCase
         $game = $this->createGame($numberOfPlayers);
         $player = $game->getPlayers()->first();
         $token = new TokenSPL();
-        $token->setColor(SplendorParameters::$COLOR_RED);
+        $token->setColor(SplendorParameters::COLOR_RED);
         $player->getPersonalBoard()->addToken($token);
         $cardCost = new CardCostSPL();
-        $cardCost->setColor(SplendorParameters::$COLOR_RED);
+        $cardCost->setColor(SplendorParameters::COLOR_RED);
         $cardCost->setPrice(1);
         $array = new ArrayCollection();
         $array->add($cardCost);
@@ -784,10 +784,10 @@ class SPLServiceTest extends TestCase
         $game = $this->createGame($numberOfPlayers);
         $player = $game->getPlayers()->first();
         $token = new TokenSPL();
-        $token->setColor(SplendorParameters::$COLOR_BLUE);
+        $token->setColor(SplendorParameters::COLOR_BLUE);
         $player->getPersonalBoard()->addToken($token);
         $cardCost = new CardCostSPL();
-        $cardCost->setColor(SplendorParameters::$COLOR_RED);
+        $cardCost->setColor(SplendorParameters::COLOR_RED);
         $cardCost->setPrice(1);
         $array = new ArrayCollection();
         $array->add($cardCost);
@@ -812,13 +812,13 @@ class SPLServiceTest extends TestCase
         $game = $this->createGame($numberOfPlayers);
         $player = $game->getPlayers()->first();
         $token = new TokenSPL();
-        $token->setColor(SplendorParameters::$COLOR_BLUE);
+        $token->setColor(SplendorParameters::COLOR_BLUE);
         $player->getPersonalBoard()->addToken($token);
         $cardCost = new CardCostSPL();
-        $cardCost->setColor(SplendorParameters::$COLOR_RED);
+        $cardCost->setColor(SplendorParameters::COLOR_RED);
         $cardCost->setPrice(1);
         $cardCost2 = new CardCostSPL();
-        $cardCost2->setColor(SplendorParameters::$COLOR_BLUE);
+        $cardCost2->setColor(SplendorParameters::COLOR_BLUE);
         $cardCost2->setPrice(1);
         $array = new ArrayCollection();
         $array->add($cardCost);
@@ -864,7 +864,7 @@ class SPLServiceTest extends TestCase
             $cardsCost->add($cardCost);
         }
         $nobleTile->method('getCardsCost')->willReturn($cardsCost);
-        $nobleTile->method('getPrestigePoints')->willReturn(SplendorParameters::$POINT_PRESTIGE_BY_NOBLE_TILE);
+        $nobleTile->method('getPrestigePoints')->willReturn(SplendorParameters::POINT_PRESTIGE_BY_NOBLE_TILE);
         $nobleTile->method('getId')->willReturn(0);
         return $nobleTile;
     }
@@ -883,7 +883,7 @@ class SPLServiceTest extends TestCase
 
         // insert discards and rows
 
-        for ($i = 0; $i <= SplendorParameters::$DRAW_CARD_LEVEL_THREE; $i++) {
+        for ($i = 0; $i <= SplendorParameters::DRAW_CARD_LEVEL_THREE; $i++) {
             $discard = new DrawCardsSPL();
             $discard->setLevel($i);
             for ($c = 0; $c < 10; $c++) {
@@ -894,7 +894,7 @@ class SPLServiceTest extends TestCase
             $mainBoard->addDrawCard($discard);
         }
 
-        for ($i = 0; $i <= SplendorParameters::$DRAW_CARD_LEVEL_THREE; $i++) {
+        for ($i = 0; $i <= SplendorParameters::DRAW_CARD_LEVEL_THREE; $i++) {
             $row = new RowSPL();
             $row->setLevel($i);
             for ($c = 0; $c < 4; $c++) {
@@ -906,7 +906,7 @@ class SPLServiceTest extends TestCase
         }
 
         $joker = new TokenSPL();
-        $joker->setColor(SplendorParameters::$LABEL_JOKER);
+        $joker->setColor(SplendorParameters::LABEL_JOKER);
         $mainBoard->addToken($joker);
 
         $game->setMainBoard($mainBoard);
