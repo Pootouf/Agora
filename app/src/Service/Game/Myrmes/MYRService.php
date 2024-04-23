@@ -466,6 +466,29 @@ class MYRService
     }
 
     /**
+     * exchangeLarvaeForFood : player can exchange 3 larvae for 1 food resource
+     * @param PlayerMYR $player
+     * @return void
+     */
+    public function exchangeLarvaeForFood(PlayerMYR $player) : void
+    {
+        $larvaeAvailable = $this->getAvailableLarvae($player);
+        $personalBoard = $player->getPersonalBoardMYR();
+        if ($larvaeAvailable >= 3) {
+            $larvaCount = $personalBoard->getLarvaCount();
+            $personalBoard->setLarvaCount($larvaCount - 3);
+            $food = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::RESOURCE_TYPE_GRASS]);
+            $playerFood = $this->playerResourceMYRRepository->findOneBy(
+                ["resource" => $food, "personalBoard" => $personalBoard]
+            );
+            $playerFood->setQuantity($playerFood->getQuantity() + 1);
+            $this->entityManager->persist($playerFood);
+            $this->entityManager->persist($personalBoard);
+            $this->entityManager->flush();
+        }
+    }
+
+    /**
      * initializeNewSeason: initialize in the DB a new season with the selected name
      * @param GameMYR $game
      * @param string $seasonName
