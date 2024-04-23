@@ -102,22 +102,26 @@ class WinterMYRService
         $currentYear = $game->getMainBoardMYR()->getYearNum();
         $amountToSpend = $this->getAmountToSpend($player, $currentYear);
         $food = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::RESOURCE_TYPE_GRASS]);
-        $playerFood = $this->playerResourceMYRRepository->findOneBy(["resource" => $food]);
-        if ($playerFood == null) {
-            $foodStock = 0;
-        } else {
-            $foodStock = $playerFood->getQuantity();
-        }
+        $playerFood = $this->playerResourceMYRRepository->findOneBy(
+            ["resource" => $food, "personalBoard" => $player->getPersonalBoardMYR()]
+        );
+        $foodStock = $playerFood->getQuantity();
         $remaining = $amountToSpend - $foodStock;
-        if ($playerFood != null) {
-            if ($remaining > 0) {
-                $playerFood->setQuantity(0);
-            } else {
-                $playerFood->setQuantity($foodStock - $amountToSpend);
-            }
-            $this->entityManager->persist($playerFood);
+        $remainingFoodQuantity = $foodStock - $amountToSpend;
+        if ($remainingFoodQuantity < 0) {
+            $remainingFoodQuantity = 0;
         }
+        $playerFood->setQuantity($remainingFoodQuantity);
+        $this->entityManager->persist($playerFood);
+
         for ($i = 0; $i < $remaining; ++$i) {
+            $availableLarvae = $this->MYRService->getAvailableLarvae($player);
+            if ($availableLarvae >= 3) {
+                $larvaCount = $player->getPersonalBoardMYR()->getLarvaCount();
+                $player->getPersonalBoardMYR()->setLarvaCount($larvaCount - 3);
+                $this->entityManager->persist($player->getPersonalBoardMYR());
+                continue;
+            }
             $player->setScore($player->getScore() - 3);
         }
         if ($player->getScore() < 0) {
