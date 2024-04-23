@@ -144,7 +144,7 @@ class WorkshopMYRServiceTest extends TestCase
 
         $player = $game->getPlayers()->first();
         $personalBoard = $player->getPersonalBoardMYR();
-        $personalBoard->setAnthillLevel(1);
+        $personalBoard->setAnthillLevel(3);
 
         $array = new ArrayCollection();
         $nurse = $personalBoard->getNurses()->first();
@@ -437,15 +437,16 @@ class WorkshopMYRServiceTest extends TestCase
         $this->assertNull($result);
     }
 
-    /*public function testCanPlayerDoGoalWhenPlayerHasNotAlreadyDoneSelectedGoalWhenReturnFalse()
+    public function testCanPlayerDoGoalWhenPlayerHasAlreadyDoneSelectedGoalWhenReturnFalse()
     {
         // GIVEN
 
         $game = $this->createGame(3);
         $gameGoal = $game->getMainBoardMYR()->getGameGoalsLevelOne()->first();
+        $gameGoal->getGoal()->setName(MyrmesParameters::GOAL_RESOURCE_FOOD_NAME);
+        $gameGoal->getGoal()->setDifficulty(MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE);
 
         $player = $game->getPlayers()->first();
-        $gameGoal->addPrecedentsPlayer($player);
 
         // WHEN
 
@@ -454,7 +455,50 @@ class WorkshopMYRServiceTest extends TestCase
         // THEN
 
         $this->assertFalse($result);
-    }*/
+    }
+
+    public function testCanPlayerDoFoodGoalWhenPlayerHasNotAlreadyDoneSelectedWithLowerDifficultyWhenReturnTrue()
+    {
+        // GIVEN
+
+        $game = $this->createGame(3);
+        $gameGoal = $game->getMainBoardMYR()->getGameGoalsLevelOne()->first();
+        $gameGoal->getGoal()->setName(MyrmesParameters::GOAL_RESOURCE_FOOD_NAME);
+        $gameGoal->getGoal()->setDifficulty(MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE);
+
+        $player = $game->getPlayers()->last();
+
+        // WHEN
+
+        $result = $this->workshopMYRService->canPlayerDoGoal($player, $gameGoal);
+
+        // THEN
+
+        $this->assertTrue($result);
+    }
+
+    /*public function testCanPlayerDoStoneGoalWhenPlayerHasNotAlreadyDoneSelectedWithLowerDifficultyWhenReturnTrue()
+    {
+        // GIVEN
+
+        $game = $this->createGame(3);
+        $game->setGamePhase(MyrmesParameters::PHASE_WORKSHOP);
+
+        $gameGoal = $game->getMainBoardMYR()->getGameGoalsLevelOne()->first();
+        $gameGoal->getGoal()->setName(MyrmesParameters::GOAL_RESOURCE_STONE_NAME);
+        $gameGoal->getGoal()->setDifficulty(MyrmesParameters::GOAL_DIFFICULTY_LEVEL_TWO);
+
+        $player = $game->getPlayers()->last();
+
+        // WHEN
+
+        $result = $this->workshopMYRService->canPlayerDoGoal($player, $gameGoal);
+
+        // THEN
+
+        $this->assertTrue($result);
+    } */
+
 
     private function createGame(int $numberOfPlayers) : GameMYR
     {
@@ -468,13 +512,15 @@ class WorkshopMYRServiceTest extends TestCase
             $game->addPlayer($player);
             $player->setGameMyr($game);
             $personalBoard = new PersonalBoardMYR();
+
             $resource = new ResourceMYR();
             $resource->setDescription(MyrmesParameters::RESOURCE_TYPE_GRASS);
-            $playerFood = new PlayerResourceMYR();
-            $playerFood->setQuantity(4);
-            $playerFood->setResource($resource);
-            $playerFood->setPersonalBoard($personalBoard);
-            $personalBoard->addPlayerResourceMYR($playerFood);
+            $pResource = new PlayerResourceMYR();
+            $pResource->setQuantity(6);
+            $pResource->setResource($resource);
+            $pResource->setPersonalBoard($personalBoard);
+            $personalBoard->addPlayerResourceMYR($pResource);
+
             $personalBoard->setAnthillLevel(0);
             $nurse = new NurseMYR();
             $nurse->setArea(MyrmesParameters::WORKSHOP_AREA);
@@ -496,9 +542,9 @@ class WorkshopMYRServiceTest extends TestCase
 
         $gameGoal = new GameGoalMYR();
         $goal = new GoalMYR();
-        $goal->setDifficulty(1);
         $goal->setName("goal");
         $gameGoal->setGoal($goal);
+        $gameGoal->addPrecedentsPlayer($game->getPlayers()->first());
 
         $mainBoard->addGameGoalsLevelOne($gameGoal);
 

@@ -42,22 +42,22 @@ class GLMGameManagerService extends AbstractGameManagerService
         $mainBoard->setWarehouse($warehouse);
 
         $drawTileZero = new DrawTilesGLM();
-        $drawTileZero->setLevel(GlenmoreParameters::$TILE_LEVEL_ZERO);
+        $drawTileZero->setLevel(GlenmoreParameters::TILE_LEVEL_ZERO);
         $mainBoard->addDrawTile($drawTileZero);
         $this->entityManager->persist($drawTileZero);
 
         $drawTileOne = new DrawTilesGLM();
-        $drawTileOne->setLevel(GlenmoreParameters::$TILE_LEVEL_ONE);
+        $drawTileOne->setLevel(GlenmoreParameters::TILE_LEVEL_ONE);
         $mainBoard->addDrawTile($drawTileOne);
         $this->entityManager->persist($drawTileOne);
 
         $drawTileTwo = new DrawTilesGLM();
-        $drawTileTwo->setLevel(GlenmoreParameters::$TILE_LEVEL_TWO);
+        $drawTileTwo->setLevel(GlenmoreParameters::TILE_LEVEL_TWO);
         $mainBoard->addDrawTile($drawTileTwo);
         $this->entityManager->persist($drawTileTwo);
 
         $drawTileThree = new DrawTilesGLM();
-        $drawTileThree->setLevel(GlenmoreParameters::$TILE_LEVEL_THREE);
+        $drawTileThree->setLevel(GlenmoreParameters::TILE_LEVEL_THREE);
         $mainBoard->addDrawTile($drawTileThree);
         $this->entityManager->persist($drawTileThree);
 
@@ -82,7 +82,7 @@ class GLMGameManagerService extends AbstractGameManagerService
         if($game->isLaunched()) {
             return GLMGameManagerService::$ERROR_GAME_ALREADY_LAUNCHED;
         }
-        if (count($game->getPlayers()) >= GlenmoreParameters::$MAX_NUMBER_OF_PLAYER) {
+        if (count($game->getPlayers()) >= GlenmoreParameters::MAX_NUMBER_OF_PLAYER) {
             return GLMGameManagerService::$ERROR_INVALID_NUMBER_OF_PLAYER;
         }
         if ($this->playerGLMRepository->findOneBy(
@@ -93,10 +93,10 @@ class GLMGameManagerService extends AbstractGameManagerService
         $player->setScore(0);
         $pawn = new PawnGLM();
         $pawn->setPosition(0);
-        $pawn->setColor(GlenmoreParameters::$COLOR_FROM_POSITION[$game->getPlayers()->count()]);
+        $pawn->setColor(GlenmoreParameters::COLOR_FROM_POSITION[$game->getPlayers()->count()]);
         $pawn->setMainBoardGLM($game->getMainBoard());
         $player->setPawn($pawn);
-        $player->setRoundPhase(GlenmoreParameters::$STABLE_PHASE);
+        $player->setRoundPhase(GlenmoreParameters::STABLE_PHASE);
         $personalBoard = new PersonalBoardGLM();
         $personalBoard->setLeaderCount(0);
         $personalBoard->setMoney(0);
@@ -172,8 +172,8 @@ class GLMGameManagerService extends AbstractGameManagerService
             return GLMGameManagerService::$ERROR_INVALID_GAME;
         }
         $numberOfPlayers = count($game->getPlayers());
-        if ($numberOfPlayers > GlenmoreParameters::$MAX_NUMBER_OF_PLAYER
-            || $numberOfPlayers < GlenmoreParameters::$MIN_NUMBER_OF_PLAYER) {
+        if ($numberOfPlayers > GlenmoreParameters::MAX_NUMBER_OF_PLAYER
+            || $numberOfPlayers < GlenmoreParameters::MIN_NUMBER_OF_PLAYER) {
             return GLMGameManagerService::$ERROR_INVALID_NUMBER_OF_PLAYER;
         }
         $game->setLaunched(true);

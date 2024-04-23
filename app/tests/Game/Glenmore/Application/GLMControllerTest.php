@@ -94,7 +94,7 @@ class GLMControllerTest extends WebTestCase
         $gameId = $this->initializeGameWithFivePlayers();
         $game = $this->gameGLMRepository->findOneById($gameId);
         $player = $this->GLMService->getPlayerFromNameAndGame($game, "test0");
-        $player->setRoundPhase(GlenmoreParameters::$ACTIVATION_PHASE);
+        $player->setRoundPhase(GlenmoreParameters::ACTIVATION_PHASE);
         $this->entityManager->persist($player);
         $this->entityManager->flush();
         $newUrl = "/game/glenmore/" . $gameId;
@@ -442,7 +442,7 @@ class GLMControllerTest extends WebTestCase
         $game = $this->gameGLMRepository->findOneById($gameId);
         $player = $this->GLMService->getPlayerFromNameAndGame($game, "test0");
         $player->getPersonalBoard()->setPlayerGLM($player);
-        $resource = $this->resourceGLMRepository->findOneBy(["color" => GlenmoreParameters::$COLOR_GREEN]);
+        $resource = $this->resourceGLMRepository->findOneBy(["color" => GlenmoreParameters::COLOR_GREEN]);
         /** @var PlayerTileGLM $village */
         $village = $this->playerTileGLMRepository->findOneBy(["personalBoard" => $player->getPersonalBoard()]);
         $playerTileResource = new PlayerTileResourceGLM();
@@ -546,7 +546,7 @@ class GLMControllerTest extends WebTestCase
         $newUrl = "/game/glenmore/" . $gameId . "/select/leader";
         /** @var PlayerGLM $player */
         $player = $this->GLMService->getPlayerFromNameAndGame($game, "test0");
-        $player->setRoundPhase(GlenmoreParameters::$BUYING_PHASE);
+        $player->setRoundPhase(GlenmoreParameters::BUYING_PHASE);
         $player->getPersonalBoard()->setPlayerGLM($player);
         $this->entityManager->persist($player->getPersonalBoard());
         $this->entityManager->persist($player);
@@ -583,7 +583,7 @@ class GLMControllerTest extends WebTestCase
         $newUrl = "/game/glenmore/" . $gameId . "/select/leader";
         /** @var PlayerGLM $player */
         $player = $this->GLMService->getPlayerFromNameAndGame($game, "test0");
-        $player->setRoundPhase(GlenmoreParameters::$BUYING_PHASE);
+        $player->setRoundPhase(GlenmoreParameters::BUYING_PHASE);
         $player->getPersonalBoard()->setPlayerGLM($player);
         $this->entityManager->persist($player->getPersonalBoard());
         $this->entityManager->persist($player);
@@ -619,7 +619,7 @@ class GLMControllerTest extends WebTestCase
         $gameId = $this->initializeGameWithFivePlayers();
         $game = $this->gameGLMRepository->findOneById($gameId);
         $player = $this->GLMService->getPlayerFromNameAndGame($game, "test0");
-        $villagerResource = $this->resourceGLMRepository->findOneBy(["type" => GlenmoreParameters::$VILLAGER_RESOURCE]);
+        $villagerResource = $this->resourceGLMRepository->findOneBy(["type" => GlenmoreParameters::VILLAGER_RESOURCE]);
         /** @var PlayerTileGLM $village */
         $village = $this->playerTileGLMRepository->findOneBy(["personalBoard" => $player->getPersonalBoard()]);
         $villager = $this->playerTileResourceGLMRepository->findOneBy(
@@ -641,7 +641,7 @@ class GLMControllerTest extends WebTestCase
         $gameId = $this->initializeGameWithFivePlayers();
         $game = $this->gameGLMRepository->findOneById($gameId);
         $player = $this->GLMService->getPlayerFromNameAndGame($game, "test0");
-        $villagerResource = $this->resourceGLMRepository->findOneBy(["type" => GlenmoreParameters::$VILLAGER_RESOURCE]);
+        $villagerResource = $this->resourceGLMRepository->findOneBy(["type" => GlenmoreParameters::VILLAGER_RESOURCE]);
         /** @var PlayerTileGLM $village */
         $village = $this->playerTileGLMRepository->findOneBy(["personalBoard" => $player->getPersonalBoard()]);
         $villager = $this->playerTileResourceGLMRepository->findOneBy(
@@ -666,7 +666,7 @@ class GLMControllerTest extends WebTestCase
         $player->getPersonalBoard()->setPlayerGLM($player);
         $this->entityManager->persist($player->getPersonalBoard());
         $this->entityManager->flush();
-        $villagerResource = $this->resourceGLMRepository->findOneBy(["type" => GlenmoreParameters::$VILLAGER_RESOURCE]);
+        $villagerResource = $this->resourceGLMRepository->findOneBy(["type" => GlenmoreParameters::VILLAGER_RESOURCE]);
         /** @var PlayerTileGLM $village */
         $village = $this->playerTileGLMRepository->findOneBy(["personalBoard" => $player->getPersonalBoard()]);
         $villager = $this->playerTileResourceGLMRepository->findOneBy(
@@ -690,7 +690,7 @@ class GLMControllerTest extends WebTestCase
         $player = $this->GLMService->getPlayerFromNameAndGame($game, "test0");
         $player->getPersonalBoard()->setPlayerGLM($player);
         $this->entityManager->persist($player->getPersonalBoard());
-        $villagerResource = $this->resourceGLMRepository->findOneBy(["type" => GlenmoreParameters::$VILLAGER_RESOURCE]);
+        $villagerResource = $this->resourceGLMRepository->findOneBy(["type" => GlenmoreParameters::VILLAGER_RESOURCE]);
         /** @var PlayerTileGLM $village */
         $village = $this->playerTileGLMRepository->findOneBy(["personalBoard" => $player->getPersonalBoard()]);
         /** @var PlayerTileResourceGLM $villager */
@@ -699,7 +699,7 @@ class GLMControllerTest extends WebTestCase
         );
         $villager->setQuantity(2);
         $this->entityManager->persist($villager);
-        $movementResource = $this->resourceGLMRepository->findOneBy(["type" => GlenmoreParameters::$MOVEMENT_RESOURCE]);
+        $movementResource = $this->resourceGLMRepository->findOneBy(["type" => GlenmoreParameters::MOVEMENT_RESOURCE]);
         $playerTileResource = new PlayerTileResourceGLM();
         $playerTileResource->setResource($movementResource);
         $playerTileResource->setPlayer($player);
@@ -790,7 +790,7 @@ class GLMControllerTest extends WebTestCase
         $gameId = $this->initializeGameWithFivePlayers();
         $game = $this->gameGLMRepository->findOneBy(["id" => $gameId]);
         $player = $this->GLMService->getPlayerFromNameAndGame($game, "test0");
-        $player->setRoundPhase(GlenmoreParameters::$ACTIVATION_PHASE);
+        $player->setRoundPhase(GlenmoreParameters::ACTIVATION_PHASE);
         $this->entityManager->persist($player);
         $this->entityManager->flush();
         $newUrl = "/game/glenmore/" . $gameId . "/displayPersonalBoard/" . $player->getId();

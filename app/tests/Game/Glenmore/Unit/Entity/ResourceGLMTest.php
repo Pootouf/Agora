@@ -24,7 +24,7 @@ class ResourceGLMTest extends TestCase
     {
         // GIVEN
 
-        $type = GlenmoreParameters::$HAT_RESOURCE;
+        $type = GlenmoreParameters::HAT_RESOURCE;
 
         // WHEN
 
@@ -39,7 +39,7 @@ class ResourceGLMTest extends TestCase
     {
         // GIVEN
 
-        $color = GlenmoreParameters::$COLOR_RED;
+        $color = GlenmoreParameters::COLOR_RED;
 
         // WHEN
 

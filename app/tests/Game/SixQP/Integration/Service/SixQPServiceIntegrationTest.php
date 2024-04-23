@@ -33,7 +33,7 @@ class SixQPServiceIntegrationTest extends KernelTestCase
 
         foreach ($players as $player) {
             $this->assertNotNull($player->getCards());
-            $this->assertSame(SixQPParameters::$NUMBER_OF_CARDS_BY_PLAYER, count($player->getCards()));
+            $this->assertSame(SixQPParameters::NUMBER_OF_CARDS_BY_PLAYER, count($player->getCards()));
             $this->assertSame(count($game->getPlayers()), count($players));
         }
         foreach ($rows as $row) {
@@ -431,7 +431,7 @@ class SixQPServiceIntegrationTest extends KernelTestCase
         $entityManager->persist($discard);
         $entityManager->persist($discard2);
         $entityManager->flush();
-        $player->addScore(SixQPParameters::$MAX_POINTS - 1);
+        $player->addScore(SixQPParameters::MAX_POINTS - 1);
         $entityManager->persist($game);
         $entityManager->persist($player);
         //WHEN
@@ -457,7 +457,7 @@ class SixQPServiceIntegrationTest extends KernelTestCase
         $entityManager->persist($discard);
         $entityManager->persist($discard2);
         $entityManager->flush();
-        $player->addScore(SixQPParameters::$MAX_POINTS);
+        $player->addScore(SixQPParameters::MAX_POINTS);
         $entityManager->persist($game);
         $entityManager->persist($player);
         //WHEN
@@ -552,7 +552,7 @@ class SixQPServiceIntegrationTest extends KernelTestCase
         $player2->addScore(10);
         $discard3 = new DiscardSixQP($player3, $game);
         $player3->setDiscardSixQP($discard3);
-        $player3->addScore(SixQPParameters::$MAX_POINTS);
+        $player3->addScore(SixQPParameters::MAX_POINTS);
         $entityManager->persist($discard1);
         $entityManager->persist($discard2);
         $entityManager->persist($discard3);
@@ -584,7 +584,7 @@ class SixQPServiceIntegrationTest extends KernelTestCase
         $player2->addScore(10);
         $discard3 = new DiscardSixQP($player3, $game);
         $player3->setDiscardSixQP($discard3);
-        $player3->addScore(SixQPParameters::$MAX_POINTS);
+        $player3->addScore(SixQPParameters::MAX_POINTS);
         $entityManager->persist($discard1);
         $entityManager->persist($discard2);
         $entityManager->persist($discard3);
