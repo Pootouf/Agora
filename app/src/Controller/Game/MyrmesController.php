@@ -286,23 +286,6 @@ class MyrmesController extends AbstractController
         ]);
     }
 
-    #[Route('/game/myrmes/{idGame}/display/objectives/stone/dirt/goal',
-        name: 'app_game_myrmes_display_stone_dirt_goal')]
-    public function displayStoneDirtGoal(
-        #[MapEntity(id: 'idGame')] GameMYR $gameMYR): Response
-    {
-        $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
-        if ($player == null) {
-            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
-        }
-        return $this->render('Game/Myrmes/MainBoard/displayGoalSelection.html.twig', [
-            'game' => $gameMYR,
-            'goalsLevelOne' => $gameMYR->getMainBoardMYR()->getGameGoalsLevelOne(),
-            'goalsLevelThree' => $gameMYR->getMainBoardMYR()->getGameGoalsLevelThree(),
-            'goalsAvailable' => null,
-        ]);
-    }
-
     #[Route('/game/myrmes/{id}/display/personalBoard/throwResource/{playerResourceId}/actions',
         name: 'app_game_myrmes_display_throw_resource_actions')]
     public function displayThrowResourceActions(
@@ -1351,6 +1334,36 @@ class MyrmesController extends AbstractController
                 ['id' => $game->getId()]).'highlight'.$player->getId(),
             new Response($tile->getId())
         );
+    }
+
+    #[Route('/game/myrmes/{idGame}/displayStoneDirtGoal/{goalId}',
+        name: 'app_game_myrmes_display_stone_dirt_goal')]
+    public function displayStoneDirtGoal(
+        #[MapEntity(id: 'idGame')] GameMYR $gameMYR,
+        #[MapEntity(id: 'goalId')] GameGoalMYR $gameGoalMYR
+    ): Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+        }
+
+        $quantityNeeded =
+            MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE == $gameGoalMYR->getGoal()->getDifficulty() ?
+            MyrmesParameters::GOAL_NEEDED_RESOURCES_STONE_OR_DIRT_LEVEL_ONE :
+            MyrmesParameters::GOAL_NEEDED_RESOURCES_STONE_OR_DIRT_LEVEL_THREE;
+
+        return $this->render('Game/Myrmes/MainBoard/InteractiveGoals/stoneOrDirtGoal.html.twig', [
+            'game' => $gameMYR,
+            'goal' => $gameGoalMYR,
+            'stoneQuantity' => $this->workshopMYRService->getPlayerResourcesFromSelectedType(
+                $player, MyrmesParameters::RESOURCE_TYPE_STONE
+            )->getQuantity(),
+            'dirtQuantity' => $this->workshopMYRService->getPlayerResourcesFromSelectedType(
+                $player, MyrmesParameters::RESOURCE_TYPE_DIRT
+            )->getQuantity(),
+            'totalQuantityNeeded' => $quantityNeeded
+        ]);
     }
 
     #[Route('/game/myrmes/{idGame}/validateGoal/{goalId}',
