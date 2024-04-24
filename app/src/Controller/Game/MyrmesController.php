@@ -12,6 +12,7 @@ use App\Entity\Game\Myrmes\PlayerMYR;
 use App\Entity\Game\Myrmes\PlayerResourceMYR;
 use App\Entity\Game\Myrmes\TileMYR;
 use App\Service\Game\LogService;
+use App\Service\Game\MessageService;
 use App\Service\Game\Myrmes\BirthMYRService;
 use App\Service\Game\Myrmes\EventMYRService;
 use App\Service\Game\Myrmes\DataManagementMYRService;
@@ -42,7 +43,8 @@ class MyrmesController extends AbstractController
                                 private readonly WorkerMYRService $workerMYRService,
                                 private readonly HarvestMYRService $harvestMYRService,
                                 private readonly WorkshopMYRService $workshopMYRService,
-                                private readonly WinterMYRService $winterMYRService) {}
+                                private readonly WinterMYRService $winterMYRService,
+                                private readonly MessageService $messageService) {}
 
 
     #[Route('/game/myrmes/{id}', name: 'app_game_show_myr')]
@@ -60,9 +62,12 @@ class MyrmesController extends AbstractController
                 Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
+        $messages = $this->messageService->receiveMessage($game->getId());
+
         return $this->render('/Game/Myrmes/index.html.twig', [
             'player' => $player,
             'game' => $game,
+            'messages' => $messages,
             'goalsLevelOne' => $game->getMainBoardMYR()->getGameGoalsLevelOne(),
             'goalsLevelTwo' => $game->getMainBoardMYR()->getGameGoalsLevelTwo(),
             'goalsLevelThree' => $game->getMainBoardMYR()->getGameGoalsLevelThree(),
