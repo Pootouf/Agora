@@ -1058,15 +1058,4 @@ class MYRService
         );
     }
 
-    /**
-     * getPheromonesFromListOfIds: return a Collection of Entity PheromonMYR retrieved from an array of ids
-     *
-     * @param string[] $pheromoneIds
-     * @return Collection
-     */
-    public function getPheromonesFromListOfIds(array $pheromoneIds): Collection
-    {
-        return $this->pheromoneMyrRepository->findBy(['id' => $pheromoneIds]);
-    }
-
 }

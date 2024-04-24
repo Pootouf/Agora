@@ -1777,4 +1777,19 @@ class WorkerMYRService
         }
         return $tiles;
     }
+
+    /**
+     * getPheromonesFromListOfIds: return a Collection of Entity PheromonMYR retrieved from an array of ids
+     *
+     * @param string[] $pheromoneIds
+     * @return array
+     */
+    public function getPheromonesFromListOfIds(array $pheromoneIds): array
+    {
+        /*foreach ($pheromoneIds as $pheromoneId) {
+
+        }*/
+        return $this->pheromonMYRRepository->findBy(['id' => $pheromoneIds]);
+    }
+
 }

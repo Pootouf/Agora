@@ -1448,7 +1448,7 @@ class MyrmesController extends AbstractController
         }
 
         try {
-            $pheromones = $this->service->getPheromonesFromListOfIds($pheromoneIds);
+            $pheromones = $this->workerMYRService->getPheromonesFromListOfIds($pheromoneIds);
             $this->workshopMYRService->doPheromoneGoal($player, $gameGoalMYR, $nurse, $pheromones);
         }catch (Exception $e){
             return new Response($e->getMessage(), Response::HTTP_FORBIDDEN);
@@ -1475,7 +1475,7 @@ class MyrmesController extends AbstractController
         }
 
         $specialTileIds = explode('_', $specialTileIds);
-        $specialTiles = $this->service->getPheromonesFromListOfIds($specialTileIds);
+        $specialTiles = $this->workerMYRService->getPheromonesFromListOfIds($specialTileIds);
         try {
             $this->workshopMYRService->doSpecialTileGoal($player, $gameGoalMYR, $nurse, $specialTiles);
         }catch (Exception $e){
