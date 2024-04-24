@@ -870,7 +870,7 @@ class WorkshopMYRService
      * @param PlayerMYR $player
      * @return Collection<PheromonMYR>
      */
-    private function getSpecialTilesOfPlayer(PlayerMYR $player) : Collection
+    public function getSpecialTilesOfPlayer(PlayerMYR $player) : Collection
     {
         return $player->getPheromonMYRs()->filter(
             function (PheromonMYR $pheromone) {
