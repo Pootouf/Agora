@@ -191,7 +191,7 @@ class GlenmoreController extends AbstractController
         try {
             $this->warehouseGLMService->buyResourceFromWarehouse($player, $line->getResource());
         } catch (Exception) {
-            $this->publishNotification($game, GlenmoreParameters::$NOTIFICATION_DURATION,
+            $this->publishNotification($game, GlenmoreParameters::NOTIFICATION_DURATION,
                 GlenmoreTranslation::WARNING,
                 GlenmoreTranslation::CANNOT_BUY_RESOURCE, GameParameters::ALERT_NOTIFICATION_TYPE,
                 GameParameters::NOTIFICATION_COLOR_RED, $player->getUsername());
@@ -203,7 +203,7 @@ class GlenmoreController extends AbstractController
             return new Response(GlenmoreTranslation::RESPONSE_CANNOT_AFFORD_RESOURCE, Response::HTTP_FORBIDDEN);
         }
         $prod = $this->typeResources($line->getResource()->getColor());
-        $this->publishNotification($game, GlenmoreParameters::$NOTIFICATION_DURATION,
+        $this->publishNotification($game, GlenmoreParameters::NOTIFICATION_DURATION,
             GlenmoreTranslation::VALIDATE_BUY,
             GlenmoreTranslation::BUY_DESCRIPTION.$prod,
             GameParameters::VALIDATION_NOTIFICATION_TYPE,
@@ -249,7 +249,7 @@ class GlenmoreController extends AbstractController
         }
         $player->getPersonalBoard()->setResourceToSell($line->getResource());
         $this->service->setPreviousPhase($player, $player->getRoundPhase());
-        $this->service->setPhase($player, GlenmoreParameters::$SELLING_PHASE);
+        $this->service->setPhase($player, GlenmoreParameters::SELLING_PHASE);
         $player->setActivatedResourceSelection(true);
         $this->entityManager->persist($player);
         $this->entityManager->persist($player->getPersonalBoard());
@@ -285,7 +285,7 @@ class GlenmoreController extends AbstractController
         try {
             $possiblePlacement = $this->tileGLMService->assignTileToPlayer($tile, $player);
         } catch (Exception $e) {
-            $this->publishNotification($game, GlenmoreParameters::$NOTIFICATION_DURATION,
+            $this->publishNotification($game, GlenmoreParameters::NOTIFICATION_DURATION,
                 GlenmoreTranslation::WARNING,
                 GlenmoreTranslation::CANNOT_BUY_OR_PLACE_TILE,
                 GameParameters::ALERT_NOTIFICATION_TYPE,
@@ -300,9 +300,9 @@ class GlenmoreController extends AbstractController
         }
         if($this->tileGLMService->hasBuyCost($tile)) {
             $player->setActivatedResourceSelection(true);
-            $player->setRoundPhase(GlenmoreParameters::$BUYING_PHASE);
+            $player->setRoundPhase(GlenmoreParameters::BUYING_PHASE);
         } else {
-            $player->setRoundPhase(GlenmoreParameters::$ACTIVATION_PHASE);
+            $player->setRoundPhase(GlenmoreParameters::ACTIVATION_PHASE);
             $player->setActivatedResourceSelection(false);
         }
         $this->entityManager->persist($player);
@@ -356,7 +356,7 @@ class GlenmoreController extends AbstractController
             return new Response(GlenmoreTranslation::RESPONSE_NOT_ABLE_TO_PLACE_TILE . $e,
                 Response::HTTP_FORBIDDEN);
         }
-        $this->service->setPhase($player, GlenmoreParameters::$ACTIVATION_PHASE);
+        $this->service->setPhase($player, GlenmoreParameters::ACTIVATION_PHASE);
         $player->setActivatedResourceSelection(false);
         $playerTile = $player->getPersonalBoard()->getPlayerTiles()->last();
 
@@ -367,7 +367,7 @@ class GlenmoreController extends AbstractController
             $this->publishPersonalBoard($player, []);
             $this->publishPersonalBoardSpectator($game);
         }
-        $this->publishNotification($game, GlenmoreParameters::$NOTIFICATION_DURATION,
+        $this->publishNotification($game, GlenmoreParameters::NOTIFICATION_DURATION,
             GlenmoreTranslation::VALIDATE_ACTION,
             GlenmoreTranslation::TILE_PLACED_DESCRIPTION,
             GameParameters::VALIDATION_NOTIFICATION_TYPE,
@@ -438,11 +438,11 @@ class GlenmoreController extends AbstractController
             return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         $phase = $player->getRoundPhase();
-        if ($phase == GlenmoreParameters::$BUYING_PHASE) {
+        if ($phase == GlenmoreParameters::BUYING_PHASE) {
             try {
                 $this->tileGLMService->selectResourcesFromTileToBuy($tile, $resourceGLM->getResource());
             } catch (Exception $e) {
-                $this->publishNotification($game, GlenmoreParameters::$NOTIFICATION_DURATION,
+                $this->publishNotification($game, GlenmoreParameters::NOTIFICATION_DURATION,
                     GlenmoreTranslation::WARNING,
                     GlenmoreTranslation::WRONG_RESOURCE_SELECTED_TO_BUY,
                     GameParameters::ALERT_NOTIFICATION_TYPE,
@@ -452,11 +452,11 @@ class GlenmoreController extends AbstractController
                     $player->getUsername() . GlenmoreTranslation::TRY_SELECT_RESOURCE_NOT_ABLE);
                 return new Response($e->getMessage(), Response::HTTP_FORBIDDEN);
             }
-        } else if ($phase == GlenmoreParameters::$ACTIVATION_PHASE) {
+        } elseif ($phase == GlenmoreParameters::ACTIVATION_PHASE) {
             try {
                 $this->tileGLMService->selectResourcesFromTileToActivate($tile, $resourceGLM->getResource());
             } catch (Exception $e) {
-                $this->publishNotification($game, GlenmoreParameters::$NOTIFICATION_DURATION,
+                $this->publishNotification($game, GlenmoreParameters::NOTIFICATION_DURATION,
                     GlenmoreTranslation::WARNING,
                     GlenmoreTranslation::WRONG_RESOURCE_SELECTED_TO_ACTIVATE,
                     GameParameters::ALERT_NOTIFICATION_TYPE,
@@ -466,11 +466,11 @@ class GlenmoreController extends AbstractController
                     $player->getUsername() . GlenmoreTranslation::TRY_SELECT_RESOURCE_NOT_ABLE);
                 return new Response($e->getMessage(), Response::HTTP_FORBIDDEN);
             }
-        } else if ($phase == GlenmoreParameters::$SELLING_PHASE) {
+        } elseif ($phase == GlenmoreParameters::SELLING_PHASE) {
             try {
                 $this->tileGLMService->selectResourcesFromTileToSellResource($tile, $resourceGLM->getResource());
             } catch (Exception $e) {
-                $this->publishNotification($game, GlenmoreParameters::$NOTIFICATION_DURATION,
+                $this->publishNotification($game, GlenmoreParameters::NOTIFICATION_DURATION,
                     GlenmoreTranslation::WARNING,
                     GlenmoreTranslation::WRONG_RESOURCE_SELECTED_TO_SELL,
                     GameParameters::ALERT_NOTIFICATION_TYPE,
@@ -481,7 +481,7 @@ class GlenmoreController extends AbstractController
                 return new Response($e->getMessage(), Response::HTTP_FORBIDDEN);
             }
         }
-        $this->publishNotification($game, GlenmoreParameters::$NOTIFICATION_DURATION,
+        $this->publishNotification($game, GlenmoreParameters::NOTIFICATION_DURATION,
             GlenmoreTranslation::VALIDATE_RESOURCE_SELECTION,
             GlenmoreTranslation::RESOURCE_SELECTION_DESCRIPTION,
             GameParameters::VALIDATION_NOTIFICATION_TYPE,
@@ -512,7 +512,7 @@ class GlenmoreController extends AbstractController
             return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         $phase = $player->getRoundPhase();
-        if ($phase == GlenmoreParameters::$BUYING_PHASE) {
+        if ($phase == GlenmoreParameters::BUYING_PHASE) {
             try {
                 $this->tileGLMService->selectLeader($player);
             } catch (Exception $e) {
@@ -546,14 +546,14 @@ class GlenmoreController extends AbstractController
         }
         $production_resource = $this->resourceGLMRepository->findOneBy(
             [
-                "type" => GlenmoreParameters::$PRODUCTION_RESOURCE,
+                "type" => GlenmoreParameters::PRODUCTION_RESOURCE,
                 "color" => $resource
             ]);
-        if($tile->getTile()->getName() === GlenmoreParameters::$CARD_LOCH_LOCHY) {
+        if($tile->getTile()->getName() === GlenmoreParameters::CARD_LOCH_LOCHY) {
             try {
                 $this->cardGLMService->selectResourceForLochLochy($player, $production_resource);
             } catch (Exception) {
-                $this->publishNotification($game, GlenmoreParameters::$NOTIFICATION_DURATION,
+                $this->publishNotification($game, GlenmoreParameters::NOTIFICATION_DURATION,
                     GlenmoreTranslation::WARNING,
                     GlenmoreTranslation::CANNOT_SELECT_MORE_RESOURCES,
                     GameParameters::ALERT_NOTIFICATION_TYPE,
@@ -564,11 +564,11 @@ class GlenmoreController extends AbstractController
                 return new Response(GlenmoreTranslation::RESPONSE_CANNOT_SELECT_MORE_RESOURCE,
                     Response::HTTP_FORBIDDEN);
             }
-        } else if ($tile->getTile()->getName() === GlenmoreParameters::$CARD_IONA_ABBEY) {
+        } elseif ($tile->getTile()->getName() === GlenmoreParameters::CARD_IONA_ABBEY) {
             try {
                 $this->tileGLMService->selectResourceForIonaAbbey($player, $production_resource);
             } catch (Exception) {
-                $this->publishNotification($game, GlenmoreParameters::$NOTIFICATION_DURATION,
+                $this->publishNotification($game, GlenmoreParameters::NOTIFICATION_DURATION,
                     GlenmoreTranslation::WARNING,
                     GlenmoreTranslation::CANNOT_SELECT_MORE_RESOURCES,
                     GameParameters::ALERT_NOTIFICATION_TYPE,
@@ -613,7 +613,7 @@ class GlenmoreController extends AbstractController
         try {
             $this->tileGLMService->removeVillager($tile);
         } catch (Exception $e) {
-            $this->publishNotification($game, GlenmoreParameters::$NOTIFICATION_DURATION,
+            $this->publishNotification($game, GlenmoreParameters::NOTIFICATION_DURATION,
                 GlenmoreTranslation::WARNING,
                 GlenmoreTranslation::CANNOT_GET_OUT_LAST_VILLAGER,
                 GameParameters::ALERT_NOTIFICATION_TYPE,
@@ -624,7 +624,7 @@ class GlenmoreController extends AbstractController
             return new Response(GlenmoreTranslation::RESPONSE_INVALID_MOVE . $e->getMessage(),
                 Response::HTTP_FORBIDDEN);
         }
-        $this->publishNotification($game, GlenmoreParameters::$NOTIFICATION_DURATION,
+        $this->publishNotification($game, GlenmoreParameters::NOTIFICATION_DURATION,
             GlenmoreTranslation::VALIDATE_LEADER,
             GlenmoreTranslation::LEADER_DESCRIPTION,
             GameParameters::VALIDATION_NOTIFICATION_TYPE,
@@ -664,10 +664,11 @@ class GlenmoreController extends AbstractController
         if(!$this->tileGLMService->hasActivationCost($tile)) {
             $player->setActivatedResourceSelection(false);
             try {
-                $activableTiles = $this->tileGLMService->getActivableTiles($player->getPersonalBoard()->getPlayerTiles()->last());
+                $activableTiles = $this->tileGLMService
+                    ->getActivableTiles($player->getPersonalBoard()->getPlayerTiles()->last());
                 $this->tileGLMService->activateBonus($tile, $player, $activableTiles);
             } catch (Exception $e) {
-                $this->publishNotification($game, GlenmoreParameters::$NOTIFICATION_DURATION,
+                $this->publishNotification($game, GlenmoreParameters::NOTIFICATION_DURATION,
                     GlenmoreTranslation::WARNING,
                     GlenmoreTranslation::CANNOT_ACTIVATE_TILE,
                     GameParameters::ALERT_NOTIFICATION_TYPE,
@@ -682,7 +683,7 @@ class GlenmoreController extends AbstractController
                     Response::HTTP_FORBIDDEN);
             }
         } else {
-            $this->service->setPhase($player, GlenmoreParameters::$ACTIVATION_PHASE);
+            $this->service->setPhase($player, GlenmoreParameters::ACTIVATION_PHASE);
             $player->setActivatedResourceSelection(true);
         }
         $this->entityManager->persist($player);
@@ -690,7 +691,7 @@ class GlenmoreController extends AbstractController
         $this->publishPersonalBoard($player, []);
         $this->publishPersonalBoardSpectator($game);
         $this->publishRanking($game);
-        if($tile->getTile()->getName() == GlenmoreParameters::$CARD_IONA_ABBEY) {
+        if($tile->getTile()->getName() == GlenmoreParameters::CARD_IONA_ABBEY) {
             $this->publishCreateResource($tile);
         }
         $this->publishPlayerRoundManagement($game);
@@ -718,10 +719,11 @@ class GlenmoreController extends AbstractController
         }
         $tile = $player->getPersonalBoard()->getActivatedTile();
         try {
-            $activableTiles = $this->tileGLMService->getActivableTiles($player->getPersonalBoard()->getPlayerTiles()->last());
+            $activableTiles = $this->tileGLMService
+                ->getActivableTiles($player->getPersonalBoard()->getPlayerTiles()->last());
             $this->tileGLMService->activateBonus($tile, $player, $activableTiles);
         } catch (Exception) {
-            $this->publishNotification($game, GlenmoreParameters::$NOTIFICATION_DURATION,
+            $this->publishNotification($game, GlenmoreParameters::NOTIFICATION_DURATION,
                 GlenmoreTranslation::WARNING,
                 GlenmoreTranslation::CANNOT_ACTIVATE_TILE,
                 GameParameters::ALERT_NOTIFICATION_TYPE,
@@ -735,7 +737,7 @@ class GlenmoreController extends AbstractController
                 Response::HTTP_FORBIDDEN);
         }
         $player->setActivatedResourceSelection(false);
-        $this->service->setPhase($player, GlenmoreParameters::$ACTIVATION_PHASE);
+        $this->service->setPhase($player, GlenmoreParameters::ACTIVATION_PHASE);
         $this->entityManager->persist($player);
         $this->entityManager->flush();
         $this->publishPersonalBoard($player, []);
@@ -764,7 +766,7 @@ class GlenmoreController extends AbstractController
         if ($player == null) {
             return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
-        $this->service->setPhase($player, GlenmoreParameters::$MOVEMENT_PHASE);
+        $this->service->setPhase($player, GlenmoreParameters::MOVEMENT_PHASE);
         $this->publishPersonalBoard($player, []);
         $this->publishPersonalBoardSpectator($game);
         $this->publishRanking($game);
@@ -802,7 +804,7 @@ class GlenmoreController extends AbstractController
         try {
             $targetedTile = $this->tileGLMService->moveVillager($tile, $dir);
         } catch (Exception $e) {
-            $this->publishNotification($game, GlenmoreParameters::$NOTIFICATION_DURATION,
+            $this->publishNotification($game, GlenmoreParameters::NOTIFICATION_DURATION,
                 GlenmoreTranslation::WARNING,
                 GlenmoreTranslation::CANNOT_MOVE_HERE,
                 GameParameters::ALERT_NOTIFICATION_TYPE,
@@ -815,7 +817,7 @@ class GlenmoreController extends AbstractController
             return new Response(GlenmoreTranslation::RESPONSE_CANNOT_MOVE_VILLAGER
                 . $e->getMessage(), Response::HTTP_FORBIDDEN);
         }
-        $this->publishMoveVillagerOnPersonnalBoard($game, $player, $tile, $targetedTile);
+        $this->publishMoveVillagerOnPersonalBoard($game, $player, $tile, $targetedTile);
         $this->publishPersonalBoard($player, []);
         $this->publishPersonalBoardSpectator($game);
         $this->logService->sendPlayerLog($game, $player,
@@ -842,9 +844,9 @@ class GlenmoreController extends AbstractController
         if ($player == null) {
             return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
-        if($tile->getTile()->getName() === GlenmoreParameters::$CARD_LOCH_LOCHY) {
+        if($tile->getTile()->getName() === GlenmoreParameters::CARD_LOCH_LOCHY) {
             $this->cardGLMService->validateTakingOfResourcesForLochLochy($player);
-        } else if ($tile->getTile()->getName() === GlenmoreParameters::$CARD_IONA_ABBEY) {
+        } elseif ($tile->getTile()->getName() === GlenmoreParameters::CARD_IONA_ABBEY) {
             try {
                 $this->tileGLMService->validateTakingOfResourcesForIonaAbbey($player);
             } catch (Exception $e) {
@@ -909,7 +911,7 @@ class GlenmoreController extends AbstractController
             return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         $playerPhase = $player->getRoundPhase();
-        if ($playerPhase == GlenmoreParameters::$BUYING_PHASE) {
+        if ($playerPhase == GlenmoreParameters::BUYING_PHASE) {
             if(!$this->tileGLMService->canBuyTileWithSelectedResources(
                 $player,
                 $player->getPersonalBoard()->getBuyingTile()->getBoardTile()->getTile()
@@ -921,7 +923,7 @@ class GlenmoreController extends AbstractController
                     Response::HTTP_FORBIDDEN);
             }
 
-        } else if ($playerPhase == GlenmoreParameters::$ACTIVATION_PHASE) {
+        } elseif ($playerPhase == GlenmoreParameters::ACTIVATION_PHASE) {
             try {
                 $activableTiles = $this->tileGLMService
                     ->getActivableTiles($player->getPersonalBoard()->getPlayerTiles()->last());
@@ -938,9 +940,9 @@ class GlenmoreController extends AbstractController
                     GlenmoreTranslation::RESPONSE_NOT_SELECTED_NEEDED_RESOURCES,
                     Response::HTTP_FORBIDDEN);
             }
-            $this->service->setPhase($player, GlenmoreParameters::$MOVEMENT_PHASE);
+            $this->service->setPhase($player, GlenmoreParameters::MOVEMENT_PHASE);
 
-        } else if ($playerPhase == GlenmoreParameters::$SELLING_PHASE) {
+        } elseif ($playerPhase == GlenmoreParameters::SELLING_PHASE) {
             try {
                 $this->warehouseGLMService->sellResource(
                     $player,
@@ -948,7 +950,7 @@ class GlenmoreController extends AbstractController
                     $player->getPersonalBoard()->getSelectedResources()->first()
                 );
                 $prod = $this->typeResources($player->getPersonalBoard()->getResourceToSell()->getColor());
-                $this->publishNotification($game, GlenmoreParameters::$NOTIFICATION_DURATION,
+                $this->publishNotification($game, GlenmoreParameters::NOTIFICATION_DURATION,
                     GlenmoreTranslation::VALIDATE_SELLING,
                     GlenmoreTranslation::SELL_DESCRIPTION . $prod,
                     GameParameters::VALIDATION_NOTIFICATION_TYPE,
@@ -1045,7 +1047,8 @@ class GlenmoreController extends AbstractController
     }
 
 
-    #[Route('game/glenmore/{idGame}/displayPersonalBoard/{idPlayer}', name: 'app_game_glenmore_display_player_personal_board')]
+    #[Route('game/glenmore/{idGame}/displayPersonalBoard/{idPlayer}',
+        name: 'app_game_glenmore_display_player_personal_board')]
     public function displayPlayerPersonalBoard(
         #[MapEntity(id: 'idGame')] GameGLM $gameGLM,
         #[MapEntity(id: 'idPlayer')] PlayerGLM $playerGLM): Response
@@ -1107,7 +1110,7 @@ class GlenmoreController extends AbstractController
         }
         $this->tileGLMService->clearTileSelection($player);
         $this->tileGLMService->clearResourceSelection($player);
-        $this->service->setPhase($player, GlenmoreParameters::$BUYING_PHASE);
+        $this->service->setPhase($player, GlenmoreParameters::BUYING_PHASE);
         $player->setActivatedResourceSelection(false);
         $this->entityManager->persist($player);
         $this->entityManager->flush();
@@ -1138,7 +1141,7 @@ class GlenmoreController extends AbstractController
         }
         $this->tileGLMService->clearTileActivationSelection($player);
         $this->tileGLMService->clearResourceSelection($player);
-        $this->service->setPhase($player, GlenmoreParameters::$ACTIVATION_PHASE);
+        $this->service->setPhase($player, GlenmoreParameters::ACTIVATION_PHASE);
         $player->setActivatedResourceSelection(false);
         $this->entityManager->persist($player);
         $this->entityManager->flush();
@@ -1161,7 +1164,7 @@ class GlenmoreController extends AbstractController
     {
         $player = $playerTileGLM->getPersonalBoard()->getPlayerGLM();
         $game = $player->getGameGLM();
-        $activatedActivationPhase = $playerTileGLM->getTile()->getName() == GlenmoreParameters::$CARD_IONA_ABBEY;
+        $activatedActivationPhase = $playerTileGLM->getTile()->getName() == GlenmoreParameters::CARD_IONA_ABBEY;
         $response = $this->render('Game/Glenmore/PersonalBoard/selectTile.html.twig',
         [
             'player' => $player,
@@ -1256,7 +1259,8 @@ class GlenmoreController extends AbstractController
                 $this->tileGLMService->getActivableTiles($player->getPersonalBoard()->getPlayerTiles()->last())
                 : null,
             'activatedResourceSelection' => $player->isActivatedResourceSelection(),
-            'personalBoardTiles' => $this->dataManagementGLMService->organizePersonalBoardRows($player, $possiblePlacement),
+            'personalBoardTiles' => $this->dataManagementGLMService
+                ->organizePersonalBoardRows($player, $possiblePlacement),
             'whiskyCount' => $this->dataManagementGLMService->getWhiskyCount($player),
         ]);
         $this->publishService->publish(
@@ -1386,10 +1390,14 @@ class GlenmoreController extends AbstractController
      * @param PlayerTileGLM $targetedTile
      * @return void
      */
-    private function publishMoveVillagerOnPersonnalBoard(GameGLM $game, PlayerGLM $player, PlayerTileGLM $originTile, PlayerTileGLM $targetedTile) : void
+    private function publishMoveVillagerOnPersonalBoard(
+        GameGLM $game, PlayerGLM $player,
+        PlayerTileGLM $originTile, PlayerTileGLM $targetedTile
+    ) : void
     {
         $this->publishService->publish(
-            $this->generateUrl('app_game_show_glm', ['id' => $game->getId()]).'animVillagerMovement'.$player->getId(),
+            $this->generateUrl('app_game_show_glm', ['id' => $game->getId()])
+            .'animVillagerMovement'.$player->getId(),
             new Response($originTile->getTile()->getId() . '_' . $targetedTile->getTile()->getId())
         );
     }

@@ -7,6 +7,7 @@ use App\Entity\Game\Myrmes\GameGoalMYR;
 use App\Entity\Game\Myrmes\GameMYR;
 use App\Entity\Game\Myrmes\GoalMYR;
 use App\Entity\Game\Myrmes\MyrmesParameters;
+use App\Entity\Game\Myrmes\MyrmesTranslation;
 use App\Entity\Game\Myrmes\NurseMYR;
 use App\Entity\Game\Myrmes\PheromonMYR;
 use App\Entity\Game\Myrmes\PheromonTileMYR;
@@ -31,7 +32,7 @@ class WorkshopMYRService
 {
 
     public function __construct(private readonly EntityManagerInterface $entityManager,
-                                private readonly MYRService $MYRService,
+                                private readonly MYRService $myrService,
                                 private readonly PheromonTileMYRRepository $pheromoneTileMYRRepository,
                                 private readonly PreyMYRRepository $preyMYRRepository,
                                 private readonly TileMYRRepository $tileMYRRepository,
@@ -51,6 +52,7 @@ class WorkshopMYRService
     public function getAvailableAnthillHolesPositions(PlayerMYR $player) : ArrayCollection
     {
         $pheromones = $player->getPheromonMYRs();
+        $antHillHoles = $player->getAnthillHoleMYRs();
         $result = new ArrayCollection();
         foreach ($pheromones as $pheromone) {
             $pheromoneTiles = $pheromone->getPheromonTiles();
@@ -58,9 +60,20 @@ class WorkshopMYRService
                 $tile = $pheromoneTile->getTile();
                 $adjacentTiles = $this->getAdjacentTiles($tile);
                 foreach ($adjacentTiles as $adjacentTile) {
-                    if ($adjacentTile != null && $this->isValidPosition($player, $adjacentTile)) {
+                    if ($adjacentTile != null && $this->isValidPosition($player, $adjacentTile)
+                        && !$result->contains($adjacentTile)) {
                         $result->add($adjacentTile);
                     }
+                }
+            }
+        }
+        foreach ($antHillHoles as $antHillHole) {
+            $tile = $antHillHole->getTile();
+            $adjacentTiles = $this->getAdjacentTiles($tile);
+            foreach ($adjacentTiles as $adjacentTile) {
+                if ($adjacentTile != null && $this->isValidPosition($player, $adjacentTile)
+                    && !$result->contains($adjacentTile)) {
+                    $result->add($adjacentTile);
                 }
             }
         }
@@ -86,7 +99,7 @@ class WorkshopMYRService
      * canPlayerDoGoal: return true if the player can do the selected goal.
      *                  If the pheromone goal is selected, always true
      * @param PlayerMYR $player
-     * @param GameGoalMYR $goal
+     * @param GameGoalMYR $gameGoal
      * @return bool
      * @throws Exception
      */
@@ -107,7 +120,8 @@ class WorkshopMYRService
         return match ($goalName) {
             MyrmesParameters::GOAL_RESOURCE_FOOD_NAME => $this->canPlayerDoFoodGoal($player, $goalDifficulty),
             MyrmesParameters::GOAL_RESOURCE_STONE_NAME => $this->canPlayerDoStoneGoal($player, $goalDifficulty),
-            MyrmesParameters::GOAL_RESOURCE_STONE_OR_DIRT_NAME => $this->canPlayerDoStoneOrDirtGoal($player, $goalDifficulty),
+            MyrmesParameters::GOAL_RESOURCE_STONE_OR_DIRT_NAME =>
+                $this->canPlayerDoStoneOrDirtGoal($player, $goalDifficulty),
             MyrmesParameters::GOAL_LARVAE_NAME => $this->canPlayerDoLarvaeGoal($player, $goalDifficulty),
             MyrmesParameters::GOAL_PREY_NAME => $this->canPlayerDoPreyGoal($player, $goalDifficulty),
             MyrmesParameters::GOAL_SOLDIER_NAME => $this->canPlayerDoSoldierGoal($player, $goalDifficulty),
@@ -144,23 +158,26 @@ class WorkshopMYRService
         }
 
         if (!$this->doesPlayerHaveDoneGoalWithLowerDifficulty($player, $goal)) {
-            throw new Exception("The player can't do this goal, he must do " .
-                "a goal with a lower difficulty before");
+            throw new Exception(MyrmesTranslation::ERROR_CANNOT_DO_GOAL_LOWER_DIFFICULTY_NEEDED);
         }
 
         match ($goalName) {
             MyrmesParameters::GOAL_RESOURCE_FOOD_NAME => $this->retrieveResourcesToDoFoodGoal($player, $goalDifficulty),
-            MyrmesParameters::GOAL_RESOURCE_STONE_NAME => $this->retrieveResourcesToDoStoneGoal($player, $goalDifficulty),
-            MyrmesParameters::GOAL_RESOURCE_STONE_OR_DIRT_NAME => throw new Exception("Call method 
+            MyrmesParameters::GOAL_RESOURCE_STONE_NAME => $this->retrieveResourcesToDoStoneGoal(
+                $player, $goalDifficulty
+            ),
+            MyrmesParameters::GOAL_RESOURCE_STONE_OR_DIRT_NAME => throw new Exception("Call method
                                                                  doStoneOrDirtGoal to do this Goal"),
             MyrmesParameters::GOAL_LARVAE_NAME => $this->retrieveResourcesToDoLarvaeGoal($player, $goalDifficulty),
             MyrmesParameters::GOAL_PREY_NAME => $this->retrieveResourcesToDoPreyGoal($player, $goalDifficulty),
             MyrmesParameters::GOAL_SOLDIER_NAME => $this->retrieveResourcesToDoSoldierGoal($player, $goalDifficulty),
             MyrmesParameters::GOAL_NURSES_NAME => $this->retrieveResourcesToDoNursesGoal($player, $goalDifficulty),
-            MyrmesParameters::GOAL_ANTHILL_LEVEL_NAME => $this->retrieveResourcesToDoAnthillLevelGoal($player, $goalDifficulty),
-            MyrmesParameters::GOAL_SPECIAL_TILE_NAME => throw new Exception("Call method 
+            MyrmesParameters::GOAL_ANTHILL_LEVEL_NAME => $this->retrieveResourcesToDoAnthillLevelGoal(
+                $player, $goalDifficulty
+            ),
+            MyrmesParameters::GOAL_SPECIAL_TILE_NAME => throw new Exception("Call method
                                                                     doSpecialTileGoal to do this Goal"),
-            MyrmesParameters::GOAL_PHEROMONE_NAME => throw new Exception("Call method 
+            MyrmesParameters::GOAL_PHEROMONE_NAME => throw new Exception("Call method
                                                                     doPheromoneGoal to do this Goal"),
             default => throw new Exception("Goal does not exist"),
         };
@@ -186,8 +203,7 @@ class WorkshopMYRService
     {
         $goal = $gameGoal->getGoal();
         if (!$this->doesPlayerHaveDoneGoalWithLowerDifficulty($player, $goal)) {
-            throw new Exception("The player can't do this goal, he must do " .
-                "a goal with a lower difficulty before");
+            throw new Exception(MyrmesTranslation::ERROR_CANNOT_DO_GOAL_LOWER_DIFFICULTY_NEEDED);
         }
         $this->retrieveResourceToDoStoneOrDirtGoal($player, $goal, $stoneQuantity, $dirtQuantity);
         $this->setNurseUsedInGoal($nurse);
@@ -265,7 +281,7 @@ class WorkshopMYRService
         if (!$this->canChooseThisBonus($player, $workshop)) {
             throw new Exception("player can not choose this bonus");
         }
-        $nurses = $this->MYRService->getNursesAtPosition($player, $workshop);
+        $nurses = $this->myrService->getNursesAtPosition($player, $workshop);
         $nursesCount = $nurses->count()
         ;
         if ($nursesCount != 1) {
@@ -286,6 +302,7 @@ class WorkshopMYRService
                 break;
             case MyrmesParameters::WORKSHOP_GOAL_AREA:
                 break;
+            default:
         }
         $player->getWorkshopActions()[$workshop] = 1;
         $this->entityManager->flush();
@@ -336,7 +353,7 @@ class WorkshopMYRService
             return false;
         }
 
-        return $this->MYRService->getNursesAtPosition($player, $workshopArea)->count() > 0;
+        return $this->myrService->getNursesAtPosition($player, $workshopArea)->count() > 0;
     }
 
     /**
@@ -377,6 +394,8 @@ class WorkshopMYRService
         $adjacentTiles = $this->getAdjacentTiles($tile);
         /** @var Array<PheromonMYR> $playerPheromones */
         $playerPheromones = $this->pheromonMYRRepository->findBy(["player" => $player]);
+        /** @var Array<AnthillHoleMYR> $playerAnthillHoles */
+        $playerAnthillHoles = $this->anthillHoleMYRRepository->findBy(["player" => $player]);
         foreach ($adjacentTiles as $adjacentTile) {
             foreach ($playerPheromones as $playerPheromone) {
                 foreach ($playerPheromone->getPheromonTiles() as $pheromoneTile) {
@@ -385,7 +404,13 @@ class WorkshopMYRService
                     }
                 }
             }
+            foreach ($playerAnthillHoles as $playerAnthillHole) {
+                if ($playerAnthillHole->getTile() === $adjacentTile) {
+                    return true;
+                }
+            }
         }
+
         return false;
     }
 
@@ -440,7 +465,7 @@ class WorkshopMYRService
             $player->addAnthillHoleMYR($anthillHole);
             $this->giveDirtToPlayer($player);
             $this->entityManager->persist($player);
-            $this->MYRService->manageNursesAfterBonusGive(
+            $this->myrService->manageNursesAfterBonusGive(
                 $player, 1, MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA
             );
         }
@@ -542,7 +567,7 @@ class WorkshopMYRService
 
             $level = $personalBoard->getAnthillLevel();
             $personalBoard->setAnthillLevel($level + 1);
-            $this->MYRService->manageNursesAfterBonusGive(
+            $this->myrService->manageNursesAfterBonusGive(
                 $player, 1, MyrmesParameters::WORKSHOP_LEVEL_AREA
             );
         }
@@ -607,7 +632,7 @@ class WorkshopMYRService
         $this->entityManager->persist($nurse);
         $this->entityManager->persist($pBoard);
 
-        $this->MYRService->manageNursesAfterBonusGive(
+        $this->myrService->manageNursesAfterBonusGive(
             $player, $nursesCount, MyrmesParameters::WORKSHOP_NURSE_AREA
         );
     }
@@ -620,20 +645,14 @@ class WorkshopMYRService
     private function giveDirtToPlayer(PlayerMYR $player) : void
     {
         $dirt = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::RESOURCE_TYPE_DIRT]);
-        $playerDirt = $this->playerResourceMYRRepository->findOneBy(["resource" => $dirt]);
+        $playerDirt = $this->playerResourceMYRRepository->findOneBy(
+            ["resource" => $dirt, "personalBoard" => $player->getPersonalBoardMYR()]
+        );
         if ($playerDirt != null) {
             $playerDirt->setQuantity($playerDirt->getQuantity() + 1);
             $this->entityManager->persist($playerDirt);
-        } else {
-            $playerDirt = new PlayerResourceMYR();
-            $playerDirt->setResource($dirt);
-            $playerDirt->setQuantity(1);
-            $playerDirt->setPersonalBoard($player->getPersonalBoardMYR());
-            $this->entityManager->persist($playerDirt);
-            $player->getPersonalBoardMYR()->addPlayerResourceMYR($playerDirt);
-            $this->entityManager->persist($player->getPersonalBoardMYR());
+            $this->entityManager->flush();
         }
-        $this->entityManager->flush();
     }
 
 
@@ -716,7 +735,7 @@ class WorkshopMYRService
         return match ($goalDifficulty) {
             MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE =>
                 $player->getPersonalBoardMYR()->getLarvaCount() >=
-                MyrmesParameters::GOAL_NEEDED_RESOURCES_LARVAE_LEVEL_TWO,
+                MyrmesParameters::GOAL_NEEDED_RESOURCES_LARVAE_LEVEL_ONE,
             MyrmesParameters::GOAL_DIFFICULTY_LEVEL_TWO =>
                 $player->getPersonalBoardMYR()->getLarvaCount() >=
                 MyrmesParameters::GOAL_NEEDED_RESOURCES_LARVAE_LEVEL_TWO,
@@ -834,9 +853,9 @@ class WorkshopMYRService
      * getNumberOfResourcesFromSelectedType: return the number of resources of the player from the selected type
      * @param PlayerMYR $player
      * @param string $selectedType
-     * @return PlayerResourceMYR
+     * @return PlayerResourceMYR|null
      */
-    public function getPlayerResourcesFromSelectedType(PlayerMYR $player, string $selectedType) : PlayerResourceMYR
+    public function getPlayerResourcesFromSelectedType(PlayerMYR $player, string $selectedType) : ?PlayerResourceMYR
     {
         return $player->getPersonalBoardMYR()->getPlayerResourceMYRs()
             ->filter(
@@ -1122,22 +1141,27 @@ class WorkshopMYRService
      * @return void
      * @throws Exception
      */
-    private function retrieveResourceToDoSpecialTileGoal(PlayerMYR $player, GoalMYR $goal, Collection $specialTiles): void
+    private function retrieveResourceToDoSpecialTileGoal(
+        PlayerMYR $player, GoalMYR $goal, Collection $specialTiles
+    ): void
     {
         if (!$this->canPlayerDoSpecialTileGoal($player, $goal->getDifficulty())) {
             throw new Exception('Player cannot do special tiles goal');
         }
         switch($goal->getDifficulty()) {
             case MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE :
-                if ($specialTiles->count() != MyrmesParameters::GOAL_NEEDED_RESOURCES_REMOVED_SPECIAL_TILE_LEVEL_ONE)  {
+                if ($specialTiles->count()
+                    != MyrmesParameters::GOAL_NEEDED_RESOURCES_REMOVED_SPECIAL_TILE_LEVEL_ONE)  {
                     throw new Exception("Invalid number of special tiles to do goal");
                 }
                 break;
             case MyrmesParameters::GOAL_DIFFICULTY_LEVEL_TWO :
-                if ($specialTiles->count() != MyrmesParameters::GOAL_NEEDED_RESOURCES_REMOVED_SPECIAL_TILE_LEVEL_TWO)  {
+                if ($specialTiles->count()
+                    != MyrmesParameters::GOAL_NEEDED_RESOURCES_REMOVED_SPECIAL_TILE_LEVEL_TWO)  {
                     throw new Exception("Invalid number of special tiles to do goal");
                 }
                 break;
+            default:
         }
         foreach ($specialTiles as $tile) {
             $tile->setPlayer(null);
@@ -1237,18 +1261,23 @@ class WorkshopMYRService
             if (!$gameGoal->getGoalAlreadyDone()->contains($previousPlayer)) {
                 $previousPlayer->setScore(
                     $previousPlayer->getScore()
-                    + MyrmesParameters::SCORE_INCREASE_GOAL_ALREADY_DONE[$game->getPlayers()->count()]
+                    + MyrmesParameters::SCORE_INCREASE_GOAL_ALREADY_DONE[
+                        $game->getPlayers()->count()
+                    ]
                 );
                 $this->entityManager->persist($previousPlayer);
             }
         }
         match ($gameGoal->getGoal()->getDifficulty()) {
             MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE =>
-                $player->setScore($player->getScore() + MyrmesParameters::SCORE_INCREASE_GOAL_DIFFICULTY_ONE),
+                $player->setScore($player->getScore()
+                    + MyrmesParameters::SCORE_INCREASE_GOAL_DIFFICULTY_ONE),
             MyrmesParameters::GOAL_DIFFICULTY_LEVEL_TWO =>
-                $player->setScore($player->getScore() + MyrmesParameters::SCORE_INCREASE_GOAL_DIFFICULTY_TWO),
+                $player->setScore($player->getScore()
+                    + MyrmesParameters::SCORE_INCREASE_GOAL_DIFFICULTY_TWO),
             MyrmesParameters::GOAL_DIFFICULTY_LEVEL_THREE =>
-                $player->setScore($player->getScore() + MyrmesParameters::SCORE_INCREASE_GOAL_DIFFICULTY_THREE),
+                $player->setScore($player->getScore()
+                    + MyrmesParameters::SCORE_INCREASE_GOAL_DIFFICULTY_THREE),
         };
         $this->entityManager->persist($player);
 
@@ -1410,7 +1439,7 @@ class WorkshopMYRService
      * @param mixed $object
      * @return void
      */
-    private function addInCollectionOnlyIfDistinct(Collection $collection, mixed $object)
+    private function addInCollectionOnlyIfDistinct(Collection $collection, mixed $object): void
     {
         if ($object !== null && !$collection->contains($object)) {
             $collection->add($object);

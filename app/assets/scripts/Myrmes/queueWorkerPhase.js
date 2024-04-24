@@ -301,7 +301,7 @@ function directionByAction(action) {
             return directions.EAST;
         case actions.MOVE_NORTH_EAST:
             return directions.NORTH_EAST;
-        case directions.SOUTH_EAST:
+        case actions.MOVE_SOUTH_EAST:
             return directions.SOUTH_EAST;
         default:
             return null;
@@ -334,12 +334,10 @@ async function rewindQueueWorkerPhase(queue) {
     }
 }
 
-async function canPlacePheromone(type, orientation, tileId) {
+async function canPlacePheromone(type, orientation) {
     const cleanedTilesString = getCleanedTilesString()
     const response = await fetch(url + "/canPlace/pheromone/" + antPosition.x
     + "/" + antPosition.y + "/" + type + "/" + orientation + "/" + cleanedTilesString);
-    if (response.status === 200 && await response.text() === "1") {
-        await rewindQueueWorkerPhase(queue)
-        await fetch(url + "/placePheromone/" + tileId + "/" + type + "/" + orientation);
-    }
+    return response.status === 200 && await response.text() === "1";
+
 }

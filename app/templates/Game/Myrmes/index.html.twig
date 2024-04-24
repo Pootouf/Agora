@@ -38,20 +38,75 @@
             {% block nav %}
                 {{ include('/Game/Utils/navigation.html.twig') }}
             {% endblock %}
+            {% block chat %}
+                {{ include('/Game/Utils/chat.html.twig') }}
+            {% endblock %}
+            {% block notification %}
+                <div id="notificationsContainer"
+                     class="absolute space-y-2 landscape:sm:w-[27%] portrait:w-[30%] landscape:lg:w-[20%]
+					 		top-0 right-0 z-[60]">
+                </div>
+                {{ include('/Game/Utils/notification.html.twig') }}
+            {% endblock %}
         </div>
     </div>
 
+    <script type="text/javascript" src="{{ asset('resourcesGames/utils/ingameNotification.js') }}"></script>
     <script type="text/javascript" src="{{ asset('scripts/GameFactory/queue.js') }}"></script>
     <script type="text/javascript" src="{{ asset('scripts/Myrmes/queueWorkerPhase.js') }}"></script>
 
     <script>
-        {#{% if needToPlay %}
-        alert("A toi de jouer ! ");
-        {% endif %}#}
+        document.addEventListener('DOMContentLoaded', () => {
+            {% if needToPlay %}
+            new GameNotification(10, 'C\'est votre tour !', 'Jouez votre meilleur coup !', 'ringing', 'yellow');
+            {% else %}
+            new GameNotification(5, 'C\'est au tour d\'un autre joueur !', '', 'info', 'green');
+            {% endif %}
+        })
 
         window.currentTileMode = 1;
     </script>
 
+    {#PERSONAL BOARD MANAGEMENT#}
+    <script>
+        {% set personalBoardPath = path('app_game_show_myr', {'id': game.id}) ~ 'personalBoard' ~ player.id %}
+        const eventSourcePersonalBoard = new EventSource("{{ mercure(personalBoardPath)|escape('js') }}");
+        eventSourcePersonalBoard.onmessage = event => {
+            const index = document.getElementById('index_myrmes');
+            closeWindow();
+            index.innerHTML += event.data;
+        }
+    </script>
+
+    {#PREVIEW MANAGEMENT#}
+    <script>
+        {% set previewPath = path('app_game_show_myr', {'id': game.id}) ~ 'preview' ~ player.id %}
+        const eventSourcePreview = new EventSource("{{ mercure(previewPath)|escape('js') }}");
+        eventSourcePreview.onmessage = event => {
+            const preview = document.getElementById('preview');
+            preview.innerHTML = event.data;
+        }
+    </script>
+
+    {#RANKING MANAGEMENT#}
+    <script>
+        {% set rankingPath = path('app_game_show_myr', {'id': game.id}) ~ 'ranking' ~ player.id %}
+        const eventSourceRanking = new EventSource("{{ mercure(rankingPath)|escape('js') }}");
+        eventSourceRanking.onmessage = event => {
+            const ranking = document.getElementById('ranking');
+            ranking.innerHTML = event.data;
+        }
+    </script>
+
+    {#MAIN BOARD MANAGEMENT#}
+    <script>
+        {% set mainBoardPath = path('app_game_show_myr', {'id': game.id}) ~ 'mainBoard' ~ player.id %}
+        const eventSourceMainBoard = new EventSource("{{ mercure(mainBoardPath)|escape('js') }}");
+        eventSourceMainBoard.onmessage = event => {
+            const mainBoard = document.getElementById('mainBoard');
+            mainBoard.innerHTML = event.data;
+        }
+    </script>
 
     {# MAIN BOARD CLOSURE MANAGEMENT #}
     <script>
@@ -99,12 +154,10 @@
 
     {# TILE POSITIONING MANAGEMENT #}
     <script>
-        let selectedObjectId;
-        let selectedOrientation;
-        let clickableTilesForPlacement = [];
+        window.clickableTilesForPlacement = [];
 
         function PrepareTilePositioning(id) {
-            selectedOrientation = id;
+            window.selectedOrientation = id;
             document.getElementById('selectObjectTitle').innerText = "Placement de la tuile"
 
             let divTemplate = document.getElementById('PrepareTilePositioningTemplate');
@@ -120,7 +173,7 @@
         }
 
         function selectOrientationTile(objectId, nbRotation) {
-            selectedObjectId = objectId;
+            window.selectedObjectId = objectId;
             let divTemplate = document.getElementById('ObjectOrientationListTemplate');
             let divClone = divTemplate.cloneNode(true)
             divClone.id = 'ObjectOrientationList';
@@ -165,10 +218,15 @@
         function updateOtherRange(range) {
             const stoneRange = document.getElementById("stone-range");
             const dirtRange = document.getElementById("dirt-range");
+            const stoneQuantitySelected = document.getElementById("stoneQuantitySelected");
+            const dirtQuantitySelected = document.getElementById("dirtQuantitySelected");
             const otherRange = range === stoneRange ? dirtRange : stoneRange;
             const totalQuantityNeeded = range.parentNode.dataset.totalQuantityNeeded;
 
             otherRange.value = totalQuantityNeeded - parseInt(range.value);
+
+            stoneQuantitySelected.textContent = stoneRange.value;
+            dirtQuantitySelected.textContent = dirtRange.value;
         }
 
     </script>

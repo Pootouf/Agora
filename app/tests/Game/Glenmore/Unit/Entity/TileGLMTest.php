@@ -227,7 +227,7 @@ class TileGLMTest extends TestCase
     {
         // GIVEN
 
-        $name = GlenmoreParameters::$TILE_NAME_DISTILLERY;
+        $name = GlenmoreParameters::TILE_NAME_DISTILLERY;
 
         // WHEN
 
@@ -264,7 +264,7 @@ class TileGLMTest extends TestCase
     {
         // GIVEN
 
-        $level = GlenmoreParameters::$TILE_LEVEL_THREE;
+        $level = GlenmoreParameters::TILE_LEVEL_THREE;
 
         // WHEN
 

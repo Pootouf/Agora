@@ -14,7 +14,7 @@ use Exception;
 class BirthMYRService
 {
     public function __construct(private readonly EntityManagerInterface $entityManager,
-                                private readonly MYRService $MYRService)
+                                private readonly MYRService $myrService)
     {}
 
     /**
@@ -36,7 +36,7 @@ class BirthMYRService
             throw new Exception("Don't have nurses");
         }
 
-        $nursesAlreadyOnArea = $this->MYRService
+        $nursesAlreadyOnArea = $this->myrService
             ->getNursesAtPosition($player, $area)->count();
         $howMuchNurseCanIPut = $this->howMuchNurseCanPlaceInArea(
             $area, $nursesAlreadyOnArea
@@ -110,7 +110,7 @@ class BirthMYRService
              $i += 1
         )
         {
-            $nurses = $this->MYRService->getNursesAtPosition($player ,$i);
+            $nurses = $this->myrService->getNursesAtPosition($player ,$i);
             $nursesCount = $nurses->count();
             switch ($i) {
                 case MyrmesParameters::LARVAE_AREA:
@@ -122,6 +122,7 @@ class BirthMYRService
                 case MyrmesParameters::WORKER_AREA:
                     $this->manageWorker($player, $nursesCount);
                     break;
+                default:
             }
         }
         $this->giveBonusesFromEvent($player);
@@ -213,6 +214,7 @@ class BirthMYRService
             case MyrmesParameters::WORKER_AREA:
                 $array = MyrmesParameters::NUMBER_NURSE_IN_WORKER_AREA;
                 break;
+            default:
         }
         return $array;
     }
@@ -241,7 +243,7 @@ class BirthMYRService
         $this->entityManager->persist($personalBoard);
 
 
-        $this->MYRService->manageNursesAfterBonusGive(
+        $this->myrService->manageNursesAfterBonusGive(
             $player,
             $nursesCount,
             MyrmesParameters::LARVAE_AREA
@@ -275,7 +277,7 @@ class BirthMYRService
 
         $this->entityManager->persist($personalBoard);
 
-        $this->MYRService->manageNursesAfterBonusGive(
+        $this->myrService->manageNursesAfterBonusGive(
                 $player,
                 $nursesCount,
                 MyrmesParameters::SOLDIERS_AREA
@@ -306,14 +308,14 @@ class BirthMYRService
         for ($count = 0; $count < $winWorker; $count++)
         {
             $worker = new AnthillWorkerMYR();
-            $worker->setWorkFloor(-1); // TODO use parameters
+            $worker->setWorkFloor(MyrmesParameters::NO_WORKFLOOR);
             $personalBoard->addAnthillWorker($worker);
             $this->entityManager->persist($worker);
         }
 
         $this->entityManager->persist($personalBoard);
 
-        $this->MYRService->manageNursesAfterBonusGive(
+        $this->myrService->manageNursesAfterBonusGive(
             $player,
             $nursesCount,
             MyrmesParameters::WORKER_AREA

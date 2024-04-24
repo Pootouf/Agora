@@ -137,4 +137,16 @@
             </div>
         </div>
     {% endif %}
+
+{% else %}
+    {% if boardBox.pheromonTile != null and boardBox.pheromonTile.resource != null %}
+        <div class="visible flex items-center justify-center size-[3.5vw] pt-[0.2vw] {{ isAbsolute }}">
+            <div class="flex items-center rounded-full justify-center bg-black bg-opacity-25">
+                <img class="max-h-[2vw]"
+                     src="{{ asset('resourcesGames/Myrmes/resources/' ~
+                         boardBox.pheromonTile.resource.description ~ '.svg') }}"
+                     alt="{{boardBox.pheromonTile.resource.description}}">
+            </div>
+        </div>
+    {% endif %}
 {% endif %}

@@ -117,7 +117,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
     {
         //GIVEN
         $game = $this->createGame(2);
-        $tile = $this->tileGLMRepository->findOneBy(["name" => GlenmoreParameters::$CARD_LOCH_OICH]);
+        $tile = $this->tileGLMRepository->findOneBy(["name" => GlenmoreParameters::CARD_LOCH_OICH]);
         $boardTile = new BoardTileGLM();
         $boardTile->setTile($tile);
         $boardTile->setPosition(0)
@@ -135,7 +135,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         //GIVEN
         $game = $this->createGame(2);
         /** @var TileGLM $tile */
-        $tile = $this->tileGLMRepository->findOneBy(["name" => GlenmoreParameters::$TILE_NAME_TAVERN]);
+        $tile = $this->tileGLMRepository->findOneBy(["name" => GlenmoreParameters::TILE_NAME_TAVERN]);
         $boardTile = new BoardTileGLM();
         $boardTile->setTile($tile);
         $boardTile->setPosition(0)
@@ -169,7 +169,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
     {
         //GIVEN
         $game = $this->createGame(2);
-        $tile = $this->tileGLMRepository->findOneBy(["name" => GlenmoreParameters::$CARD_IONA_ABBEY]);
+        $tile = $this->tileGLMRepository->findOneBy(["name" => GlenmoreParameters::CARD_IONA_ABBEY]);
         $boardTile = new BoardTileGLM();
         $boardTile->setTile($tile);
         $boardTile->setPosition(0)
@@ -204,7 +204,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $entityManager->persist($personalBoard);
         $entityManager->flush();
         $expectedAmount = 1;
-        $expectedType = GlenmoreParameters::$WHISKY_RESOURCE;
+        $expectedType = GlenmoreParameters::WHISKY_RESOURCE;
         //WHEN
         $tileGLMService->giveBuyBonus($playerTile);
         //THEN
@@ -286,8 +286,8 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $entityManager->flush();
         $expectedAmountVillager = 1;
         $expectedAmountHat = 3;
-        $expectedTypeVillager = GlenmoreParameters::$VILLAGER_RESOURCE;
-        $expectedTypeHat = GlenmoreParameters::$HAT_RESOURCE;
+        $expectedTypeVillager = GlenmoreParameters::VILLAGER_RESOURCE;
+        $expectedTypeHat = GlenmoreParameters::HAT_RESOURCE;
         //WHEN
         $tileGLMService->giveBuyBonus($playerTile);
         //THEN
@@ -343,8 +343,8 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $entityManager->flush();
         $expectedAmountVillager = 2;
         $expectedAmountHat = 1;
-        $expectedTypeVillager = GlenmoreParameters::$VILLAGER_RESOURCE;
-        $expectedTypeHat = GlenmoreParameters::$HAT_RESOURCE;
+        $expectedTypeVillager = GlenmoreParameters::VILLAGER_RESOURCE;
+        $expectedTypeHat = GlenmoreParameters::HAT_RESOURCE;
         //WHEN
         $tileGLMService->giveBuyBonus($playerTile);
         //THEN
@@ -691,7 +691,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $game = $this->createGame(2);
         $firstPlayer = $game->getPlayers()->first();
         $startVillage = $firstPlayer->getPersonalBoard()->getPlayerTiles()->first();
-        $tile = $tileGLMRepository->findOneBy(["name" => GlenmoreParameters::$CARD_LOCH_OICH]);
+        $tile = $tileGLMRepository->findOneBy(["name" => GlenmoreParameters::CARD_LOCH_OICH]);
         $oich = new PlayerTileGLM();
         $oich->setTile($tile);
         $oich->setActivated(false);
@@ -699,7 +699,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $oich->setCoordY(0);
         $oich->setPersonalBoard($firstPlayer->getPersonalBoard());
         $entityManager->persist($oich);
-        $card = $this->cardGLMRepository->findOneBy(["name" => GlenmoreParameters::$CARD_LOCH_OICH]);
+        $card = $this->cardGLMRepository->findOneBy(["name" => GlenmoreParameters::CARD_LOCH_OICH]);
         $card = new PlayerCardGLM($firstPlayer->getPersonalBoard(), $card);
         $this->entityManager->persist($card);
         $firstPlayer->getPersonalBoard()->addPlayerCardGLM($card);
@@ -741,8 +741,8 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $tileGLMRepository = static::getContainer()->get(TileGLMRepository::class);
         $game = $this->createGame(2);
         $firstPlayer = $game->getPlayers()->first();
-        $tile = $tileGLMRepository->findOneBy(["name" => GlenmoreParameters::$CARD_LOCH_OICH]);
-        $card = $this->cardGLMRepository->findOneBy(["name" => GlenmoreParameters::$CARD_LOCH_OICH]);
+        $tile = $tileGLMRepository->findOneBy(["name" => GlenmoreParameters::CARD_LOCH_OICH]);
+        $card = $this->cardGLMRepository->findOneBy(["name" => GlenmoreParameters::CARD_LOCH_OICH]);
         $card = new PlayerCardGLM($firstPlayer->getPersonalBoard(), $card);
         $this->entityManager->persist($card);
         $firstPlayer->getPersonalBoard()->addPlayerCardGLM($card);
@@ -960,19 +960,19 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $tile = new TileGLM();
         $playerTile = new PlayerTileGLM();
         $playerTile->setTile($tile);
-        $tile->setType(GlenmoreParameters::$TILE_TYPE_GREEN);
+        $tile->setType(GlenmoreParameters::TILE_TYPE_GREEN);
         $tile->setName("TEST");
         $tile->setContainingRoad(false);
         $tile->setContainingRiver(false);
-        $tile->setLevel(GlenmoreParameters::$TILE_LEVEL_ONE);
+        $tile->setLevel(GlenmoreParameters::TILE_LEVEL_ONE);
         $playerTile->setCoordY(0);
         $playerTile->setCoordX(0);
         $playerTile->setActivated(false);
         $playerTile->setPersonalBoard($firstPlayer->getPersonalBoard());
         $entityManager->persist($playerTile);
         $resourcePrice = new ResourceGLM();
-        $resourcePrice->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
-        $resourcePrice->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $resourcePrice->setType(GlenmoreParameters::PRODUCTION_RESOURCE);
+        $resourcePrice->setColor(GlenmoreParameters::COLOR_GREEN);
         $entityManager->persist($resourcePrice);
         $activationPrice = new TileActivationCostGLM();
         $activationPrice->setResource($resourcePrice);
@@ -998,25 +998,25 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $tile = new TileGLM();
         $playerTile = new PlayerTileGLM();
         $playerTile->setTile($tile);
-        $tile->setType(GlenmoreParameters::$TILE_TYPE_GREEN);
+        $tile->setType(GlenmoreParameters::TILE_TYPE_GREEN);
         $tile->setName("TEST2");
         $tile->setContainingRoad(false);
         $tile->setContainingRiver(false);
-        $tile->setLevel(GlenmoreParameters::$TILE_LEVEL_TWO);
+        $tile->setLevel(GlenmoreParameters::TILE_LEVEL_TWO);
         $playerTile->setCoordY(0);
         $playerTile->setCoordX(1);
         $playerTile->setActivated(false);
         $playerTile->setPersonalBoard($firstPlayer->getPersonalBoard());
         $resourcePrice = new ResourceGLM();
-        $resourcePrice->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
-        $resourcePrice->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $resourcePrice->setType(GlenmoreParameters::PRODUCTION_RESOURCE);
+        $resourcePrice->setColor(GlenmoreParameters::COLOR_GREEN);
         $activationPrice = new TileActivationCostGLM();
         $activationPrice->setResource($resourcePrice);
         $activationPrice->setPrice(2);
         $tile->addActivationPrice($activationPrice);
         $playerResource = new ResourceGLM();
-        $playerResource->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
-        $playerResource->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $playerResource->setType(GlenmoreParameters::PRODUCTION_RESOURCE);
+        $playerResource->setColor(GlenmoreParameters::COLOR_GREEN);
         $selectedResource = new SelectedResourceGLM();
         $selectedResource->setResource($playerResource);
         $selectedResource->setQuantity(1);
@@ -1047,25 +1047,25 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $tile = new TileGLM();
         $playerTile = new PlayerTileGLM();
         $playerTile->setTile($tile);
-        $tile->setType(GlenmoreParameters::$TILE_TYPE_GREEN);
+        $tile->setType(GlenmoreParameters::TILE_TYPE_GREEN);
         $tile->setName("TEST2");
         $tile->setContainingRoad(false);
         $tile->setContainingRiver(false);
-        $tile->setLevel(GlenmoreParameters::$TILE_LEVEL_TWO);
+        $tile->setLevel(GlenmoreParameters::TILE_LEVEL_TWO);
         $playerTile->setCoordY(0);
         $playerTile->setCoordX(1);
         $playerTile->setActivated(false);
         $playerTile->setPersonalBoard($firstPlayer->getPersonalBoard());
         $resourcePrice = new ResourceGLM();
-        $resourcePrice->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
-        $resourcePrice->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $resourcePrice->setType(GlenmoreParameters::PRODUCTION_RESOURCE);
+        $resourcePrice->setColor(GlenmoreParameters::COLOR_GREEN);
         $activationPrice = new TileActivationCostGLM();
         $activationPrice->setResource($resourcePrice);
         $activationPrice->setPrice(2);
         $tile->addActivationPrice($activationPrice);
         $playerResource = new ResourceGLM();
-        $playerResource->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
-        $playerResource->setColor(GlenmoreParameters::$COLOR_BROWN);
+        $playerResource->setType(GlenmoreParameters::PRODUCTION_RESOURCE);
+        $playerResource->setColor(GlenmoreParameters::COLOR_BROWN);
         $selectedResource = new SelectedResourceGLM();
         $selectedResource->setResource($playerResource);
         $selectedResource->setQuantity(2);
@@ -1096,37 +1096,37 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $tile = new TileGLM();
         $playerTile = new PlayerTileGLM();
         $resource = new ResourceGLM();
-        $resource->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
-        $resource->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $resource->setType(GlenmoreParameters::PRODUCTION_RESOURCE);
+        $resource->setColor(GlenmoreParameters::COLOR_GREEN);
         $entityManager->persist($resource);
         $playerTileResource = new PlayerTileResourceGLM();
         $playerTileResource->setResource($resource);
         $playerTileResource->setPlayer($firstPlayer);
         $playerTileResource->setPlayerTileGLM($playerTile);
-        $playerTileResource->setQuantity(GlenmoreParameters::$MAX_RESOURCES_PER_TILE);
+        $playerTileResource->setQuantity(GlenmoreParameters::MAX_RESOURCES_PER_TILE);
         $entityManager->persist($playerTileResource);
         $playerTile->addPlayerTileResource($playerTileResource);
 
         $playerTile->setTile($tile);
-        $tile->setType(GlenmoreParameters::$TILE_TYPE_GREEN);
+        $tile->setType(GlenmoreParameters::TILE_TYPE_GREEN);
         $tile->setName("TEST2");
         $tile->setContainingRoad(false);
         $tile->setContainingRiver(false);
-        $tile->setLevel(GlenmoreParameters::$TILE_LEVEL_TWO);
+        $tile->setLevel(GlenmoreParameters::TILE_LEVEL_TWO);
         $playerTile->setCoordY(0);
         $playerTile->setCoordX(1);
         $playerTile->setActivated(false);
         $playerTile->setPersonalBoard($firstPlayer->getPersonalBoard());
         $resourcePrice = new ResourceGLM();
-        $resourcePrice->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
-        $resourcePrice->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $resourcePrice->setType(GlenmoreParameters::PRODUCTION_RESOURCE);
+        $resourcePrice->setColor(GlenmoreParameters::COLOR_GREEN);
         $activationPrice = new TileActivationCostGLM();
         $activationPrice->setResource($resourcePrice);
         $activationPrice->setPrice(2);
         $tile->addActivationPrice($activationPrice);
         $playerResource = new ResourceGLM();
-        $playerResource->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
-        $playerResource->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $playerResource->setType(GlenmoreParameters::PRODUCTION_RESOURCE);
+        $playerResource->setColor(GlenmoreParameters::COLOR_GREEN);
         $selectedResource = new SelectedResourceGLM();
         $selectedResource->setResource($playerResource);
         $selectedResource->setQuantity(1);
@@ -1155,11 +1155,11 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $game = $this->createGame(2);
         $firstPlayer = $game->getPlayers()->first();
         $tile = new TileGLM();
-        $tile->setType(GlenmoreParameters::$TILE_TYPE_GREEN);
+        $tile->setType(GlenmoreParameters::TILE_TYPE_GREEN);
         $tileBonus = new TileActivationBonusGLM();
         $bonusResource = new ResourceGLM();
-        $bonusResource->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
-        $bonusResource->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $bonusResource->setType(GlenmoreParameters::PRODUCTION_RESOURCE);
+        $bonusResource->setColor(GlenmoreParameters::COLOR_GREEN);
         $entityManager->persist($bonusResource);
         $tileBonus->setResource($bonusResource);
         $tileBonus->setAmount(1);
@@ -1171,7 +1171,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $tile->setName("TEST");
         $tile->setContainingRoad(false);
         $tile->setContainingRiver(false);
-        $tile->setLevel(GlenmoreParameters::$TILE_LEVEL_ONE);
+        $tile->setLevel(GlenmoreParameters::TILE_LEVEL_ONE);
         $entityManager->persist($tile);
         $playerTile->setCoordY(0);
         $playerTile->setCoordX(1);
@@ -1201,19 +1201,19 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $game = $this->createGame(2);
         $firstPlayer = $game->getPlayers()->first();
         $tile = new TileGLM();
-        $tile->setType(GlenmoreParameters::$TILE_TYPE_GREEN);
+        $tile->setType(GlenmoreParameters::TILE_TYPE_GREEN);
         $tileBonus = new TileActivationBonusGLM();
         $bonusResource = new ResourceGLM();
-        $bonusResource->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
-        $bonusResource->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $bonusResource->setType(GlenmoreParameters::PRODUCTION_RESOURCE);
+        $bonusResource->setColor(GlenmoreParameters::COLOR_GREEN);
         $entityManager->persist($bonusResource);
         $tileBonus->setResource($bonusResource);
         $tileBonus->setAmount(1);
         $entityManager->persist($tileBonus);
         $tile->addActivationBonus($tileBonus);
         $resourcePrice = new ResourceGLM();
-        $resourcePrice->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
-        $resourcePrice->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $resourcePrice->setType(GlenmoreParameters::PRODUCTION_RESOURCE);
+        $resourcePrice->setColor(GlenmoreParameters::COLOR_GREEN);
         $entityManager->persist($resourcePrice);
         $activationPrice = new TileActivationCostGLM();
         $activationPrice->setResource($resourcePrice);
@@ -1225,11 +1225,11 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $tile->setName("TEST");
         $tile->setContainingRoad(false);
         $tile->setContainingRiver(false);
-        $tile->setLevel(GlenmoreParameters::$TILE_LEVEL_ONE);
+        $tile->setLevel(GlenmoreParameters::TILE_LEVEL_ONE);
         $entityManager->persist($tile);
         $playerResource = new ResourceGLM();
-        $playerResource->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
-        $playerResource->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $playerResource->setType(GlenmoreParameters::PRODUCTION_RESOURCE);
+        $playerResource->setColor(GlenmoreParameters::COLOR_GREEN);
         $entityManager->persist($playerResource);
         $selectedResource = new SelectedResourceGLM();
         $selectedResource->setResource($playerResource);
@@ -1268,19 +1268,19 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $game = $this->createGame(2);
         $firstPlayer = $game->getPlayers()->first();
         $tile = new TileGLM();
-        $tile->setType(GlenmoreParameters::$TILE_TYPE_BROWN);
+        $tile->setType(GlenmoreParameters::TILE_TYPE_BROWN);
         $tileBonus = new TileActivationBonusGLM();
         $bonusResource = new ResourceGLM();
-        $bonusResource->setType(GlenmoreParameters::$POINT_RESOURCE);
-        $bonusResource->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $bonusResource->setType(GlenmoreParameters::POINT_RESOURCE);
+        $bonusResource->setColor(GlenmoreParameters::COLOR_GREEN);
         $entityManager->persist($bonusResource);
         $tileBonus->setResource($bonusResource);
         $tileBonus->setAmount($pointsToGive);
         $entityManager->persist($tileBonus);
         $tile->addActivationBonus($tileBonus);
         $resourcePrice = new ResourceGLM();
-        $resourcePrice->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
-        $resourcePrice->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $resourcePrice->setType(GlenmoreParameters::PRODUCTION_RESOURCE);
+        $resourcePrice->setColor(GlenmoreParameters::COLOR_GREEN);
         $entityManager->persist($resourcePrice);
         $activationPrice = new TileActivationCostGLM();
         $activationPrice->setResource($resourcePrice);
@@ -1292,11 +1292,11 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $tile->setName("TEST");
         $tile->setContainingRoad(false);
         $tile->setContainingRiver(false);
-        $tile->setLevel(GlenmoreParameters::$TILE_LEVEL_ONE);
+        $tile->setLevel(GlenmoreParameters::TILE_LEVEL_ONE);
         $entityManager->persist($tile);
         $playerResource = new ResourceGLM();
-        $playerResource->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
-        $playerResource->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $playerResource->setType(GlenmoreParameters::PRODUCTION_RESOURCE);
+        $playerResource->setColor(GlenmoreParameters::COLOR_GREEN);
         $entityManager->persist($playerResource);
         $selectedResource = new SelectedResourceGLM();
         $selectedResource->setResource($playerResource);
@@ -1331,11 +1331,11 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $game = $this->createGame(2);
         $firstPlayer = $game->getPlayers()->first();
         $tile = new TileGLM();
-        $tile->setType(GlenmoreParameters::$TILE_TYPE_BROWN);
+        $tile->setType(GlenmoreParameters::TILE_TYPE_BROWN);
         $tileBonus = new TileActivationBonusGLM();
         $bonusResource = new ResourceGLM();
-        $bonusResource->setType(GlenmoreParameters::$POINT_RESOURCE);
-        $bonusResource->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $bonusResource->setType(GlenmoreParameters::POINT_RESOURCE);
+        $bonusResource->setColor(GlenmoreParameters::COLOR_GREEN);
         $entityManager->persist($bonusResource);
         $tileBonus->setResource($bonusResource);
         $tileBonus->setAmount($pointsToGive);
@@ -1343,16 +1343,16 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $tile->addActivationBonus($tileBonus);
         $tileBonus2 = new TileActivationBonusGLM();
         $bonusResource2 = new ResourceGLM();
-        $bonusResource2->setType(GlenmoreParameters::$POINT_RESOURCE);
-        $bonusResource2->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $bonusResource2->setType(GlenmoreParameters::POINT_RESOURCE);
+        $bonusResource2->setColor(GlenmoreParameters::COLOR_GREEN);
         $entityManager->persist($bonusResource2);
         $tileBonus2->setResource($bonusResource2);
         $tileBonus2->setAmount($pointsToGive2);
         $entityManager->persist($tileBonus2);
         $tile->addActivationBonus($tileBonus2);
         $resourcePrice = new ResourceGLM();
-        $resourcePrice->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
-        $resourcePrice->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $resourcePrice->setType(GlenmoreParameters::PRODUCTION_RESOURCE);
+        $resourcePrice->setColor(GlenmoreParameters::COLOR_GREEN);
         $entityManager->persist($resourcePrice);
         $activationPrice = new TileActivationCostGLM();
         $activationPrice->setResource($resourcePrice);
@@ -1360,8 +1360,8 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $entityManager->persist($activationPrice);
         $tile->addActivationPrice($activationPrice);
         $resourcePrice2 = new ResourceGLM();
-        $resourcePrice2->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
-        $resourcePrice2->setColor(GlenmoreParameters::$COLOR_BROWN);
+        $resourcePrice2->setType(GlenmoreParameters::PRODUCTION_RESOURCE);
+        $resourcePrice2->setColor(GlenmoreParameters::COLOR_BROWN);
         $entityManager->persist($resourcePrice2);
         $activationPrice2 = new TileActivationCostGLM();
         $activationPrice2->setResource($resourcePrice2);
@@ -1373,14 +1373,14 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $tile->setName("TEST");
         $tile->setContainingRoad(false);
         $tile->setContainingRiver(false);
-        $tile->setLevel(GlenmoreParameters::$TILE_LEVEL_ONE);
+        $tile->setLevel(GlenmoreParameters::TILE_LEVEL_ONE);
         $entityManager->persist($tile);
         $playerResource = new ResourceGLM();
-        $playerResource->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
-        $playerResource->setColor(GlenmoreParameters::$COLOR_GREEN);
+        $playerResource->setType(GlenmoreParameters::PRODUCTION_RESOURCE);
+        $playerResource->setColor(GlenmoreParameters::COLOR_GREEN);
         $playerResource2 = new ResourceGLM();
-        $playerResource2->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
-        $playerResource2->setColor(GlenmoreParameters::$COLOR_BROWN);
+        $playerResource2->setType(GlenmoreParameters::PRODUCTION_RESOURCE);
+        $playerResource2->setColor(GlenmoreParameters::COLOR_BROWN);
         $entityManager->persist($playerResource2);
         $entityManager->persist($playerResource);
         $selectedResource = new SelectedResourceGLM();
@@ -1417,7 +1417,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         //GIVEN
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
-        $tile = $this->tileGLMRepository->findOneBy(["name" => GlenmoreParameters::$CARD_IONA_ABBEY]);
+        $tile = $this->tileGLMRepository->findOneBy(["name" => GlenmoreParameters::CARD_IONA_ABBEY]);
         //WHEN
         $result = $this->service->canBuyTile($tile, $player);
         //THEN
@@ -1432,7 +1432,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $player->getPersonalBoard()->setMoney(5);
         $this->entityManager->persist($player->getPersonalBoard());
         $this->entityManager->flush();
-        $tile = $this->tileGLMRepository->findOneBy(["name" => GlenmoreParameters::$CARD_IONA_ABBEY]);
+        $tile = $this->tileGLMRepository->findOneBy(["name" => GlenmoreParameters::CARD_IONA_ABBEY]);
         //WHEN
         $result = $this->service->canBuyTile($tile, $player);
         //THEN
@@ -1444,14 +1444,14 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         //GIVEN
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
-        $resource = $this->resourceGLMRepository->findOneBy(["color" => GlenmoreParameters::$COLOR_WHITE]);
+        $resource = $this->resourceGLMRepository->findOneBy(["color" => GlenmoreParameters::COLOR_WHITE]);
         $line = $this->warehouseLineGLMRepository->findOneBy(
             ["warehouseGLM" => $game->getMainBoard()->getWarehouse(), "resource" => $resource]
         );
         $line->setQuantity(3);
         $this->entityManager->persist($line);
         $this->entityManager->flush();
-        $tile = $this->tileGLMRepository->findOneBy(["name" => GlenmoreParameters::$CARD_IONA_ABBEY]);
+        $tile = $this->tileGLMRepository->findOneBy(["name" => GlenmoreParameters::CARD_IONA_ABBEY]);
         //WHEN
         $result = $this->service->canBuyTile($tile, $player);
         //THEN
@@ -1463,7 +1463,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         //GIVEN
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
-        $tile = $this->tileGLMRepository->findOneBy(["name" => GlenmoreParameters::$CARD_LOCH_OICH]);
+        $tile = $this->tileGLMRepository->findOneBy(["name" => GlenmoreParameters::CARD_LOCH_OICH]);
         //WHEN
         $result = $this->service->canBuyLochOich($tile, $player);
         //THEN
@@ -1486,7 +1486,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $playerTile->addPlayerTileResource($playerTileResource);
         $this->entityManager->persist($playerTile);
         $this->entityManager->flush();
-        $tile = $this->tileGLMRepository->findOneBy(["name" => GlenmoreParameters::$CARD_LOCH_OICH]);
+        $tile = $this->tileGLMRepository->findOneBy(["name" => GlenmoreParameters::CARD_LOCH_OICH]);
         //WHEN
         $result = $this->service->canBuyLochOich($tile, $player);
         //THEN
@@ -1509,7 +1509,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $playerTile->addPlayerTileResource($playerTileResource);
         $this->entityManager->persist($playerTile);
         $this->entityManager->flush();
-        $tile = $this->tileGLMRepository->findOneBy(["name" => GlenmoreParameters::$CARD_LOCH_OICH]);
+        $tile = $this->tileGLMRepository->findOneBy(["name" => GlenmoreParameters::CARD_LOCH_OICH]);
         //WHEN
         $result = $this->service->canBuyLochOich($tile, $player);
         //THEN
@@ -1525,7 +1525,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $player->getPersonalBoard()->setMoney(0);
         $this->entityManager->persist($player->getPersonalBoard());
         $this->entityManager->flush();
-        $tile = $this->tileGLMRepository->findOneBy(["name" => GlenmoreParameters::$CARD_LOCH_OICH]);
+        $tile = $this->tileGLMRepository->findOneBy(["name" => GlenmoreParameters::CARD_LOCH_OICH]);
         //WHEN
         $result = $this->service->canBuyLochOich($tile, $player);
         //THEN
@@ -1537,7 +1537,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         //GIVEN
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
-        $resource = $this->resourceGLMRepository->findOneBy(["color" => GlenmoreParameters::$COLOR_WHITE]);
+        $resource = $this->resourceGLMRepository->findOneBy(["color" => GlenmoreParameters::COLOR_WHITE]);
         $playerTile = $player->getPersonalBoard()->getPlayerTiles()->first();
         $playerTileResource = new PlayerTileResourceGLM();
         $playerTileResource->setPlayer($player);
@@ -1552,7 +1552,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
             $this->entityManager->persist($line);
         }
         $this->entityManager->flush();
-        $tile = $this->tileGLMRepository->findOneBy(["name" => GlenmoreParameters::$CARD_LOCH_OICH]);
+        $tile = $this->tileGLMRepository->findOneBy(["name" => GlenmoreParameters::CARD_LOCH_OICH]);
         //WHEN
         $result = $this->service->canBuyLochOich($tile, $player);
         //THEN
@@ -1564,7 +1564,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         //GIVEN
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
-        $resource = $this->resourceGLMRepository->findOneBy(["color" => GlenmoreParameters::$COLOR_WHITE]);
+        $resource = $this->resourceGLMRepository->findOneBy(["color" => GlenmoreParameters::COLOR_WHITE]);
         $playerTile = $player->getPersonalBoard()->getPlayerTiles()->first();
         $playerTileResource = new PlayerTileResourceGLM();
         $playerTileResource->setPlayer($player);
@@ -1574,7 +1574,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $this->entityManager->persist($playerTileResource);
         $playerTile->addPlayerTileResource($playerTileResource);
         $this->entityManager->persist($playerTile);
-        $resource = $this->resourceGLMRepository->findOneBy(["color" => GlenmoreParameters::$COLOR_BROWN]);
+        $resource = $this->resourceGLMRepository->findOneBy(["color" => GlenmoreParameters::COLOR_BROWN]);
         $playerTile = $player->getPersonalBoard()->getPlayerTiles()->first();
         $playerTileResource = new PlayerTileResourceGLM();
         $playerTileResource->setPlayer($player);
@@ -1585,7 +1585,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $playerTile->addPlayerTileResource($playerTileResource);
         $this->entityManager->persist($playerTile);
         $this->entityManager->flush();
-        $tile = $this->tileGLMRepository->findOneBy(["name" => GlenmoreParameters::$CARD_LOCH_OICH]);
+        $tile = $this->tileGLMRepository->findOneBy(["name" => GlenmoreParameters::CARD_LOCH_OICH]);
         //WHEN
         $result = $this->service->canBuyLochOich($tile, $player);
         //THEN
@@ -1597,7 +1597,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         //GIVEN
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
-        $resource = $this->resourceGLMRepository->findOneBy(["color" => GlenmoreParameters::$COLOR_WHITE]);
+        $resource = $this->resourceGLMRepository->findOneBy(["color" => GlenmoreParameters::COLOR_WHITE]);
         $playerTile = $player->getPersonalBoard()->getPlayerTiles()->first();
         $playerTileResource = new PlayerTileResourceGLM();
         $playerTileResource->setPlayer($player);
@@ -1617,7 +1617,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $playerTile->addPlayerTileResource($playerTileResource);
         $this->entityManager->persist($playerTile);
         $this->entityManager->flush();
-        $tile = $this->tileGLMRepository->findOneBy(["name" => GlenmoreParameters::$CARD_LOCH_OICH]);
+        $tile = $this->tileGLMRepository->findOneBy(["name" => GlenmoreParameters::CARD_LOCH_OICH]);
         //WHEN
         $result = $this->service->canBuyLochOich($tile, $player);
         //THEN
@@ -1628,7 +1628,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
     {
         //GIVEN
         $game = $this->createGame(1);
-        $lochOich = $this->tileGLMRepository->findOneBy(["name" => GlenmoreParameters::$CARD_LOCH_OICH]);
+        $lochOich = $this->tileGLMRepository->findOneBy(["name" => GlenmoreParameters::CARD_LOCH_OICH]);
         $player = $game->getPlayers()->first();
         for ($i = 1; $i <= 2; ++$i) {
             $resource = $this->resourceGLMRepository->findOneBy(["id" => $i]);
@@ -1652,7 +1652,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
     {
         //GIVEN
         $game = $this->createGame(1);
-        $lochOich = $this->tileGLMRepository->findOneBy(["name" => GlenmoreParameters::$CARD_LOCH_OICH]);
+        $lochOich = $this->tileGLMRepository->findOneBy(["name" => GlenmoreParameters::CARD_LOCH_OICH]);
         $player = $game->getPlayers()->first();
         $resource = $this->resourceGLMRepository->findOneBy(["id" => 1]);
         $selectedResource = new SelectedResourceGLM();
@@ -1674,7 +1674,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
     {
         //GIVEN
         $game = $this->createGame(1);
-        $tile = $this->tileGLMRepository->findOneBy(["name" => GlenmoreParameters::$CARD_IONA_ABBEY]);
+        $tile = $this->tileGLMRepository->findOneBy(["name" => GlenmoreParameters::CARD_IONA_ABBEY]);
         $player = $game->getPlayers()->first();
         //WHEN
         $result = $this->service->canBuyTileWithSelectedResources($player, $tile);
@@ -1731,7 +1731,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         //GIVEN
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
-        $playerTile = $this->givePlayerTile($player, GlenmoreParameters::$CARD_IONA_ABBEY);
+        $playerTile = $this->givePlayerTile($player, GlenmoreParameters::CARD_IONA_ABBEY);
         $activableTiles = new ArrayCollection([$playerTile]);
         //WHEN
         $this->service->activateBonus($playerTile, $player, $activableTiles);
@@ -1744,7 +1744,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         //GIVEN
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
-        $playerTile = $this->givePlayerTile($player, GlenmoreParameters::$CARD_LOCH_NESS);
+        $playerTile = $this->givePlayerTile($player, GlenmoreParameters::CARD_LOCH_NESS);
         $activableTiles = new ArrayCollection([$playerTile]);
         //WHEN
         $this->service->activateBonus($playerTile, $player, $activableTiles);
@@ -1757,7 +1757,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         //GIVEN
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
-        $playerTile = $this->givePlayerTile($player, GlenmoreParameters::$TILE_NAME_FAIR);
+        $playerTile = $this->givePlayerTile($player, GlenmoreParameters::TILE_NAME_FAIR);
         $activableTiles = new ArrayCollection([$playerTile]);
         //THEN
         $this->expectException(\Exception::class);
@@ -1770,7 +1770,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         //GIVEN
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
-        $playerTile = $this->givePlayerTile($player, GlenmoreParameters::$TILE_NAME_FAIR);
+        $playerTile = $this->givePlayerTile($player, GlenmoreParameters::TILE_NAME_FAIR);
         $this->selectResource($playerTile);
         $resource = $this->resourceGLMRepository->findOneBy(["id" => 1]);
         $playerTileResource = new PlayerTileResourceGLM();
@@ -1782,6 +1782,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $playerTile->addPlayerTileResource($playerTileResource);
         $this->entityManager->persist($playerTile);
         $activableTiles = new ArrayCollection([$playerTile]);
+        $this->entityManager->flush();
         //WHEN
         $this->service->activateBonus($playerTile, $player, $activableTiles);
         //THEN
@@ -1793,7 +1794,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         //GIVEN
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
-        $playerTile = $this->givePlayerTile($player, GlenmoreParameters::$TILE_NAME_FAIR);
+        $playerTile = $this->givePlayerTile($player, GlenmoreParameters::TILE_NAME_FAIR);
         $this->selectResource($playerTile);
         $this->selectResource($playerTile);
         $resource = $this->resourceGLMRepository->findOneBy(["id" => 1]);
@@ -1806,6 +1807,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $playerTile->addPlayerTileResource($playerTileResource);
         $this->entityManager->persist($playerTile);
         $activableTiles = new ArrayCollection([$playerTile]);
+        $this->entityManager->flush();
         //WHEN
         $this->service->activateBonus($playerTile, $player, $activableTiles);
         //THEN
@@ -1817,7 +1819,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         //GIVEN
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
-        $playerTile = $this->givePlayerTile($player, GlenmoreParameters::$TILE_NAME_FAIR);
+        $playerTile = $this->givePlayerTile($player, GlenmoreParameters::TILE_NAME_FAIR);
         $this->selectResource($playerTile);
         $this->selectResource($playerTile);
         $this->selectResource($playerTile);
@@ -1831,6 +1833,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $playerTile->addPlayerTileResource($playerTileResource);
         $this->entityManager->persist($playerTile);
         $activableTiles = new ArrayCollection([$playerTile]);
+        $this->entityManager->flush();
         //WHEN
         $this->service->activateBonus($playerTile, $player, $activableTiles);
         //THEN
@@ -1842,7 +1845,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         //GIVEN
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
-        $playerTile = $this->givePlayerTile($player, GlenmoreParameters::$TILE_NAME_FAIR);
+        $playerTile = $this->givePlayerTile($player, GlenmoreParameters::TILE_NAME_FAIR);
         $this->selectResource($playerTile);
         $this->selectResource($playerTile);
         $this->selectResource($playerTile);
@@ -1857,6 +1860,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $playerTile->addPlayerTileResource($playerTileResource);
         $this->entityManager->persist($playerTile);
         $activableTiles = new ArrayCollection([$playerTile]);
+        $this->entityManager->flush();
         //WHEN
         $this->service->activateBonus($playerTile, $player, $activableTiles);
         //THEN
@@ -1868,7 +1872,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         //GIVEN
         $game = $this->createGame(3);
         $player = $game->getPlayers()->first();
-        $playerTile = $this->givePlayerTile($player, GlenmoreParameters::$TILE_NAME_FAIR);
+        $playerTile = $this->givePlayerTile($player, GlenmoreParameters::TILE_NAME_FAIR);
         $this->selectResource($playerTile);
         $this->selectResource($playerTile);
         $this->selectResource($playerTile);
@@ -1884,6 +1888,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $playerTile->addPlayerTileResource($playerTileResource);
         $this->entityManager->persist($playerTile);
         $activableTiles = new ArrayCollection([$playerTile]);
+        $this->entityManager->flush();
         //WHEN
         $this->service->activateBonus($playerTile, $player, $activableTiles);
         //THEN
@@ -1894,7 +1899,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         //GIVEN
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
-        $playerTile = $this->givePlayerTile($player, GlenmoreParameters::$TILE_NAME_GROCER);
+        $playerTile = $this->givePlayerTile($player, GlenmoreParameters::TILE_NAME_GROCER);
         $this->selectResource($playerTile);
         $activableTiles = new ArrayCollection([$playerTile]);
         //THEN
@@ -1908,7 +1913,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         //GIVEN
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
-        $playerTile = $this->givePlayerTile($player, GlenmoreParameters::$TILE_NAME_GROCER);
+        $playerTile = $this->givePlayerTile($player, GlenmoreParameters::TILE_NAME_GROCER);
         $this->selectResource($playerTile);
         $this->selectResource($playerTile);
         $this->selectResource($playerTile);
@@ -1934,11 +1939,12 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         //GIVEN
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
-        $playerTile = $this->givePlayerTile($player, GlenmoreParameters::$TILE_NAME_BRIDGE);
+        $playerTile = $this->givePlayerTile($player, GlenmoreParameters::TILE_NAME_BRIDGE);
         $this->selectResource($playerTile);
         $this->selectResource($playerTile);
         $this->selectResource($playerTile);
         $activableTiles = new ArrayCollection([$playerTile]);
+        $this->entityManager->flush();
         //WHEN
         $this->service->activateBonus($playerTile, $player, $activableTiles);
         //THEN
@@ -1950,8 +1956,8 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         //GIVEN
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
-        $playerTile = $this->givePlayerTile($player, GlenmoreParameters::$TILE_NAME_CATTLE);
-        $resource = $this->resourceGLMRepository->findOneBy(["color" => GlenmoreParameters::$COLOR_BROWN]);
+        $playerTile = $this->givePlayerTile($player, GlenmoreParameters::TILE_NAME_CATTLE);
+        $resource = $this->resourceGLMRepository->findOneBy(["color" => GlenmoreParameters::COLOR_BROWN]);
         $playerTileResource = new PlayerTileResourceGLM();
         $playerTileResource->setResource($resource);
         $playerTileResource->setQuantity(3);
@@ -1973,8 +1979,8 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         //GIVEN
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
-        $playerTile = $this->givePlayerTile($player, GlenmoreParameters::$TILE_NAME_CATTLE);
-        $resource = $this->resourceGLMRepository->findOneBy(["color" => GlenmoreParameters::$COLOR_BROWN]);
+        $playerTile = $this->givePlayerTile($player, GlenmoreParameters::TILE_NAME_CATTLE);
+        $resource = $this->resourceGLMRepository->findOneBy(["color" => GlenmoreParameters::COLOR_BROWN]);
         $playerTileResource = new PlayerTileResourceGLM();
         $playerTileResource->setResource($resource);
         $playerTileResource->setQuantity(1);
@@ -1996,7 +2002,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         //GIVEN
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
-        $playerTile = $this->givePlayerTile($player, GlenmoreParameters::$TILE_NAME_CATTLE);
+        $playerTile = $this->givePlayerTile($player, GlenmoreParameters::TILE_NAME_CATTLE);
         $activableTiles = new ArrayCollection([$playerTile]);
         //WHEN
         $this->service->activateBonus($playerTile, $player, $activableTiles);
@@ -2009,8 +2015,8 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         //GIVEN
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
-        $playerTile = $this->givePlayerTile($player, GlenmoreParameters::$TILE_NAME_BUTCHER);
-        $resource = $this->resourceGLMRepository->findOneBy(["color" => GlenmoreParameters::$COLOR_WHITE]);
+        $playerTile = $this->givePlayerTile($player, GlenmoreParameters::TILE_NAME_BUTCHER);
+        $resource = $this->resourceGLMRepository->findOneBy(["color" => GlenmoreParameters::COLOR_WHITE]);
         $playerTileResource = new PlayerTileResourceGLM();
         $playerTileResource->setResource($resource);
         $playerTileResource->setQuantity(1);
@@ -2019,9 +2025,9 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $this->entityManager->persist($playerTileResource);
         $playerTile->addPlayerTileResource($playerTileResource);
         $this->entityManager->persist($playerTile);
-        $this->entityManager->flush();
         $this->selectResource($playerTile, 3);
         $activableTiles = new ArrayCollection([$playerTile]);
+        $this->entityManager->flush();
         //WHEN
         $this->service->activateBonus($playerTile, $player, $activableTiles);
         //THEN
@@ -2033,8 +2039,8 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         //GIVEN
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
-        $playerTile = $this->givePlayerTile($player, GlenmoreParameters::$TILE_NAME_DISTILLERY);
-        $resource = $this->resourceGLMRepository->findOneBy(["color" => GlenmoreParameters::$COLOR_YELLOW]);
+        $playerTile = $this->givePlayerTile($player, GlenmoreParameters::TILE_NAME_DISTILLERY);
+        $resource = $this->resourceGLMRepository->findOneBy(["color" => GlenmoreParameters::COLOR_YELLOW]);
         $playerTileResource = new PlayerTileResourceGLM();
         $playerTileResource->setResource($resource);
         $playerTileResource->setQuantity(1);
@@ -2058,7 +2064,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         //GIVEN
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
-        $playerTile = $this->givePlayerTile($player, GlenmoreParameters::$TILE_NAME_FAIR);
+        $playerTile = $this->givePlayerTile($player, GlenmoreParameters::TILE_NAME_FAIR);
         $this->selectResource($playerTile);
         $activableTiles = new ArrayCollection([]);
         //THEN
@@ -2112,12 +2118,12 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $game->setGameName(AbstractGameManagerService::$GLM_LABEL);
         $mainBoard = new MainBoardGLM();
         $mainBoard->setGameGLM($game);
-        $tilesLevelZero = $tileGLMRepository->findBy(['level' => GlenmoreParameters::$TILE_LEVEL_ZERO]);
-        $tilesLevelOne = $tileGLMRepository->findBy(['level' => GlenmoreParameters::$TILE_LEVEL_ONE]);
-        $tilesLevelTwo = $tileGLMRepository->findBy(['level' => GlenmoreParameters::$TILE_LEVEL_TWO]);
-        $tilesLevelThree = $tileGLMRepository->findBy(['level' => GlenmoreParameters::$TILE_LEVEL_THREE]);
+        $tilesLevelZero = $tileGLMRepository->findBy(['level' => GlenmoreParameters::TILE_LEVEL_ZERO]);
+        $tilesLevelOne = $tileGLMRepository->findBy(['level' => GlenmoreParameters::TILE_LEVEL_ONE]);
+        $tilesLevelTwo = $tileGLMRepository->findBy(['level' => GlenmoreParameters::TILE_LEVEL_TWO]);
+        $tilesLevelThree = $tileGLMRepository->findBy(['level' => GlenmoreParameters::TILE_LEVEL_THREE]);
         $drawArray = [$tilesLevelZero, $tilesLevelOne, $tilesLevelTwo, $tilesLevelThree];
-        for ($i = GlenmoreParameters::$TILE_LEVEL_ZERO; $i <= GlenmoreParameters::$TILE_LEVEL_THREE; ++$i) {
+        for ($i = GlenmoreParameters::TILE_LEVEL_ZERO; $i <= GlenmoreParameters::TILE_LEVEL_THREE; ++$i) {
             $draw = new DrawTilesGLM();
             $draw->setLevel($i);
             $draw->setMainBoardGLM($mainBoard);
@@ -2134,22 +2140,22 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
 
 
             $green_cube = $resourceGLMRepository->findOneBy(
-                ['type' => GlenmoreParameters::$PRODUCTION_RESOURCE, 'color' => GlenmoreParameters::$COLOR_GREEN]
+                ['type' => GlenmoreParameters::PRODUCTION_RESOURCE, 'color' => GlenmoreParameters::COLOR_GREEN]
             );
             $yellow_cube = $resourceGLMRepository->findOneBy(
-                ['type' => GlenmoreParameters::$PRODUCTION_RESOURCE, 'color' => GlenmoreParameters::$COLOR_YELLOW]
+                ['type' => GlenmoreParameters::PRODUCTION_RESOURCE, 'color' => GlenmoreParameters::COLOR_YELLOW]
             );
             $brown_cube = $resourceGLMRepository->findOneBy(
-                ['type' => GlenmoreParameters::$PRODUCTION_RESOURCE, 'color' => GlenmoreParameters::$COLOR_BROWN]
+                ['type' => GlenmoreParameters::PRODUCTION_RESOURCE, 'color' => GlenmoreParameters::COLOR_BROWN]
             );
             $white_cube = $resourceGLMRepository->findOneBy(
-                ['type' => GlenmoreParameters::$PRODUCTION_RESOURCE, 'color' => GlenmoreParameters::$COLOR_WHITE]
+                ['type' => GlenmoreParameters::PRODUCTION_RESOURCE, 'color' => GlenmoreParameters::COLOR_WHITE]
             );
             $grey_cube = $resourceGLMRepository->findOneBy(
-                ['type' => GlenmoreParameters::$PRODUCTION_RESOURCE, 'color' => GlenmoreParameters::$COLOR_GREY]
+                ['type' => GlenmoreParameters::PRODUCTION_RESOURCE, 'color' => GlenmoreParameters::COLOR_GREY]
             );
             $numberOfCoin = 0;
-            if ($game->getPlayers()->count() != GlenmoreParameters::$MAX_NUMBER_OF_PLAYER - 1) {
+            if ($game->getPlayers()->count() != GlenmoreParameters::MAX_NUMBER_OF_PLAYER - 1) {
                 $numberOfCoin = 1;
             }
             $warehouse = $game->getMainBoard()->getWarehouse();
@@ -2163,10 +2169,10 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
             $entityManager->persist($mainBoard);
         }
 
-        for ($i = $nbOfPlayers; $i < GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD; ++$i) {
+        for ($i = $nbOfPlayers; $i < GlenmoreParameters::NUMBER_OF_BOXES_ON_BOARD; ++$i) {
             $drawTiles = $mainBoard->getDrawTiles();
             $level = 0;
-            for ($j = GlenmoreParameters::$TILE_LEVEL_ZERO; $j <= GlenmoreParameters::$TILE_LEVEL_THREE; ++$j) {
+            for ($j = GlenmoreParameters::TILE_LEVEL_ZERO; $j <= GlenmoreParameters::TILE_LEVEL_THREE; ++$j) {
                 if ($drawTiles->get($j)->getTiles()->isEmpty()) {
                     ++$level;
                 } else {
@@ -2197,16 +2203,16 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
             $player->setPersonalBoard($personalBoard);
             $personalBoard->setPlayerGLM($player);
             $personalBoard->setLeaderCount(0);
-            $personalBoard->setMoney(GlenmoreParameters::$START_MONEY);
+            $personalBoard->setMoney(GlenmoreParameters::START_MONEY);
             $pawn = new PawnGLM();
-            $pawn->setColor(GlenmoreParameters::$COLOR_FROM_POSITION[$i]);
+            $pawn->setColor(GlenmoreParameters::COLOR_FROM_POSITION[$i]);
             $pawn->setPosition($i);
             $pawn->setMainBoardGLM($mainBoard);
             $player->setPawn($pawn);
             $entityManager->persist($pawn);
             $entityManager->persist($player);
-            $startVillages = $tileGLMRepository->findBy(['name' => GlenmoreParameters::$TILE_NAME_START_VILLAGE]);
-            $villager = $resourceGLMRepository->findOneBy(['type' => GlenmoreParameters::$VILLAGER_RESOURCE]);
+            $startVillages = $tileGLMRepository->findBy(['name' => GlenmoreParameters::TILE_NAME_START_VILLAGE]);
+            $villager = $resourceGLMRepository->findOneBy(['type' => GlenmoreParameters::VILLAGER_RESOURCE]);
             $playerTile = new PlayerTileGLM();
             $playerTile->setActivated(false);
             $playerTile->setCoordX(0);
@@ -2241,9 +2247,9 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $warehouseLine->setWarehouseGLM($warehouse);
         $warehouseLine->setResource($resource);
         $warehouseLine->setCoinNumber($coinNumber);
-        $quantity = $coinNumber == GlenmoreParameters::$COIN_NEEDED_FOR_RESOURCE_ONE ? 1 :
-            ($coinNumber == GlenmoreParameters::$COIN_NEEDED_FOR_RESOURCE_TWO ? 2 :
-                ($coinNumber == GlenmoreParameters::$COIN_NEEDED_FOR_RESOURCE_THREE ? 3 : 0));
+        $quantity = $coinNumber == GlenmoreParameters::COIN_NEEDED_FOR_RESOURCE_ONE ? 1 :
+            ($coinNumber == GlenmoreParameters::COIN_NEEDED_FOR_RESOURCE_TWO ? 2 :
+                ($coinNumber == GlenmoreParameters::COIN_NEEDED_FOR_RESOURCE_THREE ? 3 : 0));
         $warehouseLine->setQuantity($quantity);
         $this->entityManager->persist($warehouseLine);
         $warehouse->addWarehouseLine($warehouseLine);
