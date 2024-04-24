@@ -1693,7 +1693,7 @@ class MyrmesController extends AbstractController
     {
         $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
 
         $quantityNeeded =
@@ -1725,8 +1725,8 @@ class MyrmesController extends AbstractController
         if ($player == null) {
             return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
-        $nurse = $this->service->getNursesInWorkshopFromPlayer($player)->first();
-        if ($nurse) {
+        $nurse = $this->service->getNursesAtPosition($player, MyrmesParameters::WORKSHOP_AREA)->first();
+        if (!$nurse) {
             return new Response('No nurse available in workshop', Response::HTTP_FORBIDDEN);
         }
 
@@ -1752,8 +1752,8 @@ class MyrmesController extends AbstractController
         if ($player == null) {
             return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
-        $nurse = $this->service->getNursesInWorkshopFromPlayer($player)->first();
-        if ($nurse) {
+        $nurse = $this->service->getNursesAtPosition($player, MyrmesParameters::WORKSHOP_AREA)->first();
+        if (!$nurse) {
             return new Response('No nurse available in workshop', Response::HTTP_FORBIDDEN);
         }
 
@@ -1778,8 +1778,8 @@ class MyrmesController extends AbstractController
         if ($player == null) {
             return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
-        $nurse = $this->service->getNursesInWorkshopFromPlayer($player)->first();
-        if ($nurse) {
+        $nurse = $this->service->getNursesAtPosition($player, MyrmesParameters::WORKSHOP_AREA)->first();
+        if (!$nurse) {
             return new Response('No nurse available in workshop', Response::HTTP_FORBIDDEN);
         }
         $pheromoneIds = explode('_', $pheromoneIds);
@@ -1809,8 +1809,8 @@ class MyrmesController extends AbstractController
         if ($player == null) {
             return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
-        $nurse = $this->service->getNursesInWorkshopFromPlayer($player)->first();
-        if ($nurse) {
+        $nurse = $this->service->getNursesAtPosition($player, MyrmesParameters::WORKSHOP_AREA)->first();
+        if (!$nurse) {
             return new Response('No nurse available in workshop', Response::HTTP_FORBIDDEN);
         }
 

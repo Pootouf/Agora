@@ -218,10 +218,15 @@
         function updateOtherRange(range) {
             const stoneRange = document.getElementById("stone-range");
             const dirtRange = document.getElementById("dirt-range");
+            const stoneQuantitySelected = document.getElementById("stoneQuantitySelected");
+            const dirtQuantitySelected = document.getElementById("dirtQuantitySelected");
             const otherRange = range === stoneRange ? dirtRange : stoneRange;
             const totalQuantityNeeded = range.parentNode.dataset.totalQuantityNeeded;
 
             otherRange.value = totalQuantityNeeded - parseInt(range.value);
+
+            stoneQuantitySelected.textContent = stoneRange.value;
+            dirtQuantitySelected.textContent = dirtRange.value;
         }
 
     </script>
