@@ -161,6 +161,14 @@ interface MyrmesParameters
 
     // Pheromone Type
 
+    const array PHEROMONE_TYPES = [MyrmesParameters::PHEROMONE_TYPE_ZERO,
+        MyrmesParameters::PHEROMONE_TYPE_ONE,
+        MyrmesParameters::PHEROMONE_TYPE_TWO,
+        MyrmesParameters::PHEROMONE_TYPE_THREE,
+        MyrmesParameters::PHEROMONE_TYPE_FOUR,
+        MyrmesParameters::PHEROMONE_TYPE_FIVE,
+        MyrmesParameters::PHEROMONE_TYPE_SIX];
+
     const int PHEROMONE_TYPE_ZERO = 0;
     const int PHEROMONE_TYPE_ONE = 1;
     const int PHEROMONE_TYPE_TWO = 2;
