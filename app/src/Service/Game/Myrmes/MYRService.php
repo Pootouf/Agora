@@ -18,6 +18,7 @@ use App\Repository\Game\Myrmes\GoalMYRRepository;
 use App\Repository\Game\Myrmes\NurseMYRRepository;
 use App\Entity\Game\Myrmes\TileMYR;
 use App\Entity\Game\Myrmes\TileTypeMYR;
+use App\Repository\Game\Myrmes\PheromonMYRRepository;
 use App\Repository\Game\Myrmes\PlayerMYRRepository;
 use App\Repository\Game\Myrmes\ResourceMYRRepository;
 use App\Repository\Game\Myrmes\PlayerResourceMYRRepository;
@@ -40,7 +41,8 @@ class MYRService
                 private readonly SeasonMYRRepository $seasonMYRRepository,
                 private readonly GoalMYRRepository $goalMYRRepository,
                 private readonly ResourceMYRRepository $resourceMYRRepository,
-                private readonly PlayerResourceMYRRepository $playerResourceMYRRepository)
+                private readonly PlayerResourceMYRRepository $playerResourceMYRRepository,
+                private readonly PheromonMYRRepository $pheromoneMyrRepository,)
     {
 
     }
@@ -1079,6 +1081,17 @@ class MYRService
                 return $this->getNumberOfFreeWorkerOfPlayer($player) > 0;
             }
         );
+    }
+
+    /**
+     * getPheromonesFromListOfIds: return a Collection of Entity PheromonMYR retrieved from an array of ids
+     *
+     * @param string[] $pheromoneIds
+     * @return Collection
+     */
+    public function getPheromonesFromListOfIds(array $pheromoneIds): Collection
+    {
+        return $this->pheromoneMyrRepository->findBy(['id' => $pheromoneIds]);
     }
 
 }

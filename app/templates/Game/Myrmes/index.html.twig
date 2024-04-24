@@ -198,7 +198,20 @@
             document.getElementById('ObjectSelectionList').classList.add('hidden')
         }
 
-        {# GOAL SELECTION MANAGEMENT #}
+        {# INTERACTIVE GOALS MANAGEMENT #}
+
+        /**
+         * updateOtherRange: used only for the stone or dirt goal to update the value of the other range input
+         * @param range
+         */
+        function updateOtherRange(range) {
+            const stoneRange = document.getElementById("stone-range");
+            const dirtRange = document.getElementById("dirt-range");
+            const otherRange = range === stoneRange ? dirtRange : stoneRange;
+            const totalQuantityNeeded = range.parentNode.dataset.totalQuantityNeeded;
+
+            otherRange.value = totalQuantityNeeded - parseInt(range.value);
+        }
 
     </script>
 

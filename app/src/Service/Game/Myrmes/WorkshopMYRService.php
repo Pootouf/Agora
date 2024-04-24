@@ -859,7 +859,7 @@ class WorkshopMYRService
      * @param string $selectedType
      * @return PlayerResourceMYR
      */
-    private function getPlayerResourcesFromSelectedType(PlayerMYR $player, string $selectedType) : PlayerResourceMYR
+    public function getPlayerResourcesFromSelectedType(PlayerMYR $player, string $selectedType) : PlayerResourceMYR
     {
         return $player->getPersonalBoardMYR()->getPlayerResourceMYRs()
             ->filter(

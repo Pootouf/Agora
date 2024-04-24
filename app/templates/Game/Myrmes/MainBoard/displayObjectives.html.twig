@@ -7,9 +7,37 @@
 {% set goalsLevel =
     [goalsLevelOne, goalsLevelTwo, goalsLevelThree]
 %}
+{% if isInSelectionMode %}
+    {% set GOAL_RESSOURCE_STONE_OR_DIRT_NAME =
+        constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::GOAL_RESOURCE_STONE_OR_DIRT_NAME') %}
+    {% set GOAL_DIFFICULTY_LEVEL_ONE =
+        constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE') %}
+    {% set GOAL_DIFFICULTY_LEVEL_THREE =
+        constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::GOAL_DIFFICULTY_LEVEL_THREE') %}
+    {% set stoneAndDirtQuantity = stoneOrDirtGoal.dirt + stoneOrDirtGoal.stone %}
+
+    {% set interactivegoalsRoute = {
+        (GOAL_RESSOURCE_STONE_OR_DIRT_NAME): {
+            (GOAL_DIFFICULTY_LEVEL_ONE):
+                constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::GOAL_NEEDED_RESOURCES_STONE_OR_DIRT_LEVEL_ONE'),
+            (GOAL_DIFFICULTY_LEVEL_THREE):
+                constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::GOAL_NEEDED_RESOURCES_STONE_OR_DIRT_LEVEL_THREE'),
+            'function': 'displayStoneDirtGoal',
+            'route': 'app_game_myrmes_display_stone_dirt_goal'
+        },
+        (constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::GOAL_PHEROMONE_NAME')): {
+            'function': 'displayPheromoneGoal',
+            'route': 'app_game_myrmes_display_pheromone_goal'
+        },
+        (constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::GOAL_SPECIAL_TILE_NAME')): {
+            'function': 'displaySpecialTileGoal',
+            'route': 'app_game_myrmes_display_special_tile_goal'
+        }
+    } %}
+{% endif %}
 <div id="objectives"
      class="absolute top-0 right-0 w-[28%] h-full flex z-50 bg-black bg-opacity-75 items-center justify-center text-white">
-    <div class="absolute bg-orange-500 p-5 w-full h-[60%] rounded-lg flex items-center justify-center flex-col">
+    <div id="objectives_home" class="absolute bg-orange-500 p-5 w-full h-[60%] rounded-lg flex items-center justify-center flex-col">
         {% if isInSelectionMode %}
             <p id="selectGoalTitle" class="flex-grow content-center md:text-xl lg:text-3xl text-center font-bold text-white">
                 Sélection d'un objectif
@@ -19,17 +47,51 @@
             {% for goalLevel in goalsLevel %}
                 <div class="flew flex-col lg:m-3 md:m-1">
                     {% for goal in goalLevel %}
-                        {% set isDirtStoneGoal = goal.goal.name == 'resource_stone_dirt' %}
                         {% if isInSelectionMode %}
-                        <button id="goalSelection_{{ goal.goal.id }}"
-                                {% if goal not in goalsAvailable %} disabled {% endif %}
+                            <button id="goalSelection_{{ goal.goal.id }}"
                                 class="relative aspect-square rounded-lg bg-[#fb923c] enabled:hover:bg-[#ea580c] lg:p-3
                                        md:p-2 disabled:cursor-not-allowed"
-                                {% if isDirtStoneGoal %}
-                                    {{ stimulus_action('myrmes', 'displayStoneDirtGoal', 'click',
-                                        {url:path('app_game_myrmes_display_stone_dirt_goal', {idGame: game.id})
-                                        })
-                                    }}
+                                {% if goal in goalsAvailable %}
+                                    {# If the objective requires interaction with the player #}
+                                    {% if interactivegoalsRoute[goal.goal.name] is defined %}
+                                        {# For the goal StoneAndDirt, if the player have exactly or
+                                        less dirt and stone resources needed, the goal can be validated
+                                        without any other interaction with the player  #}
+                                        {% if goal.goal.name == GOAL_RESSOURCE_STONE_OR_DIRT_NAME and
+                                            stoneAndDirtQuantity <= interactivegoalsRoute[goal.goal.name][goal.goal.difficulty] %}
+                                            {{ stimulus_action('myrmes', 'validateGoal', 'click',
+                                                {url:path('app_game_myrmes_validate_stone_or_dirt_goal',
+                                                    {
+                                                        idGame: game.id,
+                                                        goalId: goal.id,
+                                                        stoneQuantity: stoneOrDirtGoal.stone,
+                                                        dirtQuantity: stoneOrDirtGoal.dirt,
+                                                    })
+                                                })
+                                            }}
+                                        {% else %}
+                                            {{ stimulus_action('myrmes', interactivegoalsRoute[goal.goal.name].function,
+                                                'click',
+                                                {url:path(interactivegoalsRoute[goal.goal.name].route,
+                                                    {
+                                                        idGame: game.id,
+                                                        goalId: goal.id,
+                                                    })
+                                                })
+                                            }}
+                                        {% endif %}
+                                    {% else %}
+                                        {{ stimulus_action('myrmes', 'validateGoal', 'click',
+                                            {url:path('app_game_myrmes_validate_goal',
+                                                {
+                                                    idGame: game.id,
+                                                    goalId: goal.id
+                                                })
+                                            })
+                                        }}
+                                    {% endif %}
+                                {% else %}
+                                    disabled
                                 {% endif %}
                             >
                         {% endif %}
