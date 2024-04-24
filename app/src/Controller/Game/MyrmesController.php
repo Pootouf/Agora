@@ -1696,6 +1696,14 @@ class MyrmesController extends AbstractController
             return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
 
+        try {
+            if (!$this->workshopMYRService->canPlayerDoGoal($player, $gameGoalMYR)) {
+                throw new Exception("Goal can't be done");
+            }
+        } catch (Exception $e) {
+            return new Response($e->getMessage(), Response::HTTP_FORBIDDEN);
+        }
+
         $quantityNeeded =
             MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE == $gameGoalMYR->getGoal()->getDifficulty() ?
             MyrmesParameters::GOAL_NEEDED_RESOURCES_STONE_OR_DIRT_LEVEL_ONE :
@@ -1711,6 +1719,96 @@ class MyrmesController extends AbstractController
                 $player, MyrmesParameters::RESOURCE_TYPE_DIRT
             )->getQuantity(),
             'totalQuantityNeeded' => $quantityNeeded
+        ]);
+    }
+
+    #[Route('/game/myrmes/{idGame}/displayPheromoneGoal/{goalId}',
+        name: 'app_game_myrmes_display_pheromone_goal')]
+    public function displayPheromoneGoal(
+        #[MapEntity(id: 'idGame')] GameMYR $gameMYR,
+        #[MapEntity(id: 'goalId')] GameGoalMYR $gameGoalMYR
+    ): Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+        }
+
+        try {
+            if (!$this->workshopMYRService->canPlayerDoGoal($player, $gameGoalMYR)) {
+                throw new Exception("Goal can't be done");
+            } else {
+                $neededResources = match ($gameGoalMYR->getGoal()->getDifficulty()) {
+                    MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE =>
+                    MyrmesParameters::GOAL_NEEDED_RESOURCES_NEEDED_PHEROMONE_LEVEL_ONE,
+                    MyrmesParameters::GOAL_DIFFICULTY_LEVEL_THREE =>
+                    MyrmesParameters::GOAL_NEEDED_RESOURCES_NEEDED_PHEROMONE_LEVEL_THREE,
+                    default => throw new Exception("Goal difficulty invalid for pheromone goal"),
+                };
+            }
+        } catch (Exception $e) {
+            return new Response($e->getMessage(), Response::HTTP_FORBIDDEN);
+        }
+
+        $pheromones = $this->workerMYRService->getPlayerPheromones($player)->map(function($pheromone) {
+            $pheromoneId = $pheromone->getId();
+            $tileIds = $pheromone->getPheromonTiles()->map(function($tile) {
+                return $tile->getTile()->getId();
+            })->toArray();
+            return $pheromoneId . '__' . implode('_', $tileIds);
+        });
+
+
+
+        return $this->render('Game/Myrmes/MainBoard/InteractiveGoals/pheromoneGoal.html.twig', [
+            'game' => $gameMYR,
+            'goal' => $gameGoalMYR,
+            'tilesOwned' => implode('___', $pheromones->toArray()),
+            'neededResources' => $neededResources
+        ]);
+    }
+
+    #[Route('/game/myrmes/{idGame}/displaySpecialTileGoal/{goalId}',
+        name: 'app_game_myrmes_display_special_tile_goal')]
+    public function displaySpecialTileGoal(
+        #[MapEntity(id: 'idGame')] GameMYR $gameMYR,
+        #[MapEntity(id: 'goalId')] GameGoalMYR $gameGoalMYR
+    ): Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+        }
+
+        try {
+            if (!$this->workshopMYRService->canPlayerDoGoal($player, $gameGoalMYR)) {
+                throw new Exception("Goal can't be done");
+            } else {
+                $neededResources = match ($gameGoalMYR->getGoal()->getDifficulty()) {
+                    MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE =>
+                    MyrmesParameters::GOAL_NEEDED_RESOURCES_REMOVED_SPECIAL_TILE_LEVEL_ONE,
+                    MyrmesParameters::GOAL_DIFFICULTY_LEVEL_TWO =>
+                    MyrmesParameters::GOAL_NEEDED_RESOURCES_REMOVED_SPECIAL_TILE_LEVEL_TWO,
+                    default => throw new Exception("Goal difficulty invalid for specialTile goal"),
+                };
+            }
+        } catch (Exception $e) {
+            return new Response($e->getMessage(), Response::HTTP_FORBIDDEN);
+        }
+
+        $specialTiles = $this->workshopMYRService->getSpecialTilesOfPlayer($player)->map(function($specialTile) {
+            $pheromoneId = $specialTile->getId();
+            $tileIds = $specialTile->getPheromonTiles()->map(function($tile) {
+                return $tile->getTile()->getId();
+            })->toArray();
+            return $pheromoneId . '__' . implode('_', $tileIds);
+        });
+
+        return $this->render('Game/Myrmes/MainBoard/InteractiveGoals/pheromoneGoal.html.twig', [
+            'game' => $gameMYR,
+            'goal' => $gameGoalMYR,
+            'tilesOwned' => implode('___', $specialTiles->toArray()),
+            'neededResources' => $neededResources
         ]);
     }
 
