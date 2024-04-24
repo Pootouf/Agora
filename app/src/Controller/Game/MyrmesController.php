@@ -1660,7 +1660,7 @@ class MyrmesController extends AbstractController
     {
         $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         $nurse = $this->service->getNursesInWorkshopFromPlayer($player)->first();
         if ($nurse) {
@@ -1687,7 +1687,7 @@ class MyrmesController extends AbstractController
     {
         $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         $nurse = $this->service->getNursesInWorkshopFromPlayer($player)->first();
         if ($nurse) {
@@ -1713,7 +1713,7 @@ class MyrmesController extends AbstractController
     {
         $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         $nurse = $this->service->getNursesInWorkshopFromPlayer($player)->first();
         if ($nurse) {
@@ -1744,7 +1744,7 @@ class MyrmesController extends AbstractController
     {
         $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         $nurse = $this->service->getNursesInWorkshopFromPlayer($player)->first();
         if ($nurse) {
