@@ -56,7 +56,7 @@ class CardGLMServiceIntegrationTest extends KernelTestCase
         //GIVEN
         $game = $this->createGame(4);
         $player = $game->getPlayers()->first();
-        $this->addCardAndTile($game, false, GlenmoreParameters::$CARD_LOCH_NESS);
+        $this->addCardAndTile($game, false, GlenmoreParameters::CARD_LOCH_NESS);
         $expectedSize = 1;
         //WHEN
         $result = $this->cardGLMService->applyLochNess($player->getPersonalBoard());
@@ -69,7 +69,7 @@ class CardGLMServiceIntegrationTest extends KernelTestCase
         //GIVEN
         $game = $this->createGame(4);
         $player = $game->getPlayers()->first();
-        $this->addCardAndTile($game, false, GlenmoreParameters::$CARD_LOCH_NESS);
+        $this->addCardAndTile($game, false, GlenmoreParameters::CARD_LOCH_NESS);
         $expectedSize = 1;
         for ($i = 1; $i <= 10; ++$i) {
             /** @var TileGLM $tile */
@@ -103,7 +103,7 @@ class CardGLMServiceIntegrationTest extends KernelTestCase
         //GIVEN
         $game = $this->createGame(4);
         $player = $game->getPlayers()->first();
-        $this->addCardAndTile($game, true, GlenmoreParameters::$CARD_LOCH_NESS);
+        $this->addCardAndTile($game, true, GlenmoreParameters::CARD_LOCH_NESS);
         //WHEN
         $result = $this->cardGLMService->applyLochNess($player->getPersonalBoard());
         //THEN
@@ -132,12 +132,12 @@ class CardGLMServiceIntegrationTest extends KernelTestCase
 
     public function testApplyCastleMoil() : void
     {
-        $this->whiskyCardTests(GlenmoreParameters::$CARD_CASTLE_MOIL, 1);
+        $this->whiskyCardTests(GlenmoreParameters::CARD_CASTLE_MOIL, 1);
     }
 
     public function testApplyDonanCastle() : void
     {
-        $this->whiskyCardTests(GlenmoreParameters::$CARD_DONAN_CASTLE, 2);
+        $this->whiskyCardTests(GlenmoreParameters::CARD_DONAN_CASTLE, 2);
     }
 
     public function testApplyArmadaleCastle() : void
@@ -145,7 +145,7 @@ class CardGLMServiceIntegrationTest extends KernelTestCase
         //GIVEN
         $game = $this->createGame(5);
         $player = $game->getPlayers()->first();
-        $this->addCardAndTile($game, false, GlenmoreParameters::$CARD_ARMADALE_CASTLE);
+        $this->addCardAndTile($game, false, GlenmoreParameters::CARD_ARMADALE_CASTLE);
         $expectedResult = $player->getPersonalBoard()->getMoney() + 3;
         //WHEN
         $this->cardGLMService->buyCardManagement($player->getPersonalBoard()->getPlayerTiles()->last());
@@ -158,7 +158,7 @@ class CardGLMServiceIntegrationTest extends KernelTestCase
         //GIVEN
         $game = $this->createGame(5);
         $player = $game->getPlayers()->first();
-        $this->addCardAndTile($game, false, GlenmoreParameters::$CARD_LOCH_LOCHY);
+        $this->addCardAndTile($game, false, GlenmoreParameters::CARD_LOCH_LOCHY);
         $expectedResult = -1;
         //WHEN
         $result = $this->cardGLMService->buyCardManagement($player->getPersonalBoard()->getPlayerTiles()->last());
@@ -277,7 +277,7 @@ class CardGLMServiceIntegrationTest extends KernelTestCase
         //GIVEN
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
-        $this->addCardAndTile($game, false, GlenmoreParameters::$CARD_LOCH_LOCHY);
+        $this->addCardAndTile($game, false, GlenmoreParameters::CARD_LOCH_LOCHY);
         for ($i = 1; $i <= 2; ++$i) {
             $resource = $this->resourceGLMRepository->findOneBy(["id" => $i]);
             $createdResource = new CreatedResourceGLM();
@@ -304,7 +304,7 @@ class CardGLMServiceIntegrationTest extends KernelTestCase
         //GIVEN
         $game = $this->createGame(4);
         $player = $game->getPlayers()->first();
-        $this->addCardAndTile($game, false, GlenmoreParameters::$CARD_LOCH_SHIEL);
+        $this->addCardAndTile($game, false, GlenmoreParameters::CARD_LOCH_SHIEL);
         $expectedNb = 0;
         //WHEN
         $this->cardGLMService->buyCardManagement($player->getPersonalBoard()->getPlayerTiles()->last());
@@ -318,7 +318,7 @@ class CardGLMServiceIntegrationTest extends KernelTestCase
         //GIVEN
         $game = $this->createGame(4);
         $player = $game->getPlayers()->first();
-        $this->addCardAndTile($game, false, GlenmoreParameters::$CARD_LOCH_SHIEL);
+        $this->addCardAndTile($game, false, GlenmoreParameters::CARD_LOCH_SHIEL);
         $tile = $player->getPersonalBoard()->getPlayerTiles()->last();
         $resource = $this->resourceGLMRepository->findOneBy(["id" => 1]);
         $playerTileResource = new PlayerTileResourceGLM();
@@ -345,7 +345,7 @@ class CardGLMServiceIntegrationTest extends KernelTestCase
         //GIVEN
         $game = $this->createGame(4);
         $player = $game->getPlayers()->first();
-        $this->addCardAndTile($game, false, GlenmoreParameters::$CARD_LOCH_SHIEL);
+        $this->addCardAndTile($game, false, GlenmoreParameters::CARD_LOCH_SHIEL);
         $tile = $player->getPersonalBoard()->getPlayerTiles()->last();
         $resource = $this->resourceGLMRepository->findOneBy(["id" => 1]);
         $playerTileResource = new PlayerTileResourceGLM();
@@ -372,9 +372,9 @@ class CardGLMServiceIntegrationTest extends KernelTestCase
         //GIVEN
         $game = $this->createGame(4);
         $player = $game->getPlayers()->first();
-        $this->addCardAndTile($game, false, GlenmoreParameters::$CARD_LOCH_SHIEL);
+        $this->addCardAndTile($game, false, GlenmoreParameters::CARD_LOCH_SHIEL);
         $lochShiel = $player->getPersonalBoard()->getPlayerTiles()->last();
-        $this->addCardAndTile($game, false, GlenmoreParameters::$CARD_LOCH_LOCHY);
+        $this->addCardAndTile($game, false, GlenmoreParameters::CARD_LOCH_LOCHY);
         $lochLochy = $player->getPersonalBoard()->getPlayerTiles()->last();
         $resource = $this->resourceGLMRepository->findOneBy(["id" => 1]);
         $playerTileResource = new PlayerTileResourceGLM();
@@ -401,8 +401,8 @@ class CardGLMServiceIntegrationTest extends KernelTestCase
         //GIVEN
         $game = $this->createGame(4);
         $player = $game->getPlayers()->first();
-        $this->addCardAndTile($game, false, GlenmoreParameters::$CARD_IONA_ABBEY);
-        $expectedPoints = $this->giveExpectedPoints($player, 2, GlenmoreParameters::$TILE_TYPE_YELLOW);
+        $this->addCardAndTile($game, false, GlenmoreParameters::CARD_IONA_ABBEY);
+        $expectedPoints = $this->giveExpectedPoints($player, 2, GlenmoreParameters::TILE_TYPE_YELLOW);
         $this->entityManager->flush();
         //WHEN
         $this->cardGLMService->applyIonaAbbey($game);
@@ -415,8 +415,8 @@ class CardGLMServiceIntegrationTest extends KernelTestCase
         //GIVEN
         $game = $this->createGame(4);
         $player = $game->getPlayers()->first();
-        $this->addCardAndTile($game, false, GlenmoreParameters::$CARD_LOCH_MORAR);
-        $expectedPoints = $this->giveExpectedPoints($player, 2, GlenmoreParameters::$TILE_TYPE_GREEN) - 2;
+        $this->addCardAndTile($game, false, GlenmoreParameters::CARD_LOCH_MORAR);
+        $expectedPoints = $this->giveExpectedPoints($player, 2, GlenmoreParameters::TILE_TYPE_GREEN) - 2;
         $this->entityManager->flush();
         //WHEN
         $this->cardGLMService->applyLochMorar($game);
@@ -429,8 +429,8 @@ class CardGLMServiceIntegrationTest extends KernelTestCase
         //GIVEN
         $game = $this->createGame(4);
         $player = $game->getPlayers()->first();
-        $this->addCardAndTile($game, false, GlenmoreParameters::$CARD_DUART_CASTLE);
-        $expectedPoints = $this->giveExpectedPoints($player, 3, GlenmoreParameters::$TILE_TYPE_VILLAGE);
+        $this->addCardAndTile($game, false, GlenmoreParameters::CARD_DUART_CASTLE);
+        $expectedPoints = $this->giveExpectedPoints($player, 3, GlenmoreParameters::TILE_TYPE_VILLAGE);
         $this->entityManager->flush();
         //WHEN
         $this->cardGLMService->applyDuartCastle($game);
@@ -464,7 +464,7 @@ class CardGLMServiceIntegrationTest extends KernelTestCase
     {
         $result = 0;
         foreach ($player->getPlayerTileResourceGLMs() as $playerTileResourceGLM) {
-            if ($playerTileResourceGLM->getResource()->getType() === GlenmoreParameters::$PRODUCTION_RESOURCE) {
+            if ($playerTileResourceGLM->getResource()->getType() === GlenmoreParameters::PRODUCTION_RESOURCE) {
                 $result += $playerTileResourceGLM->getQuantity();
             }
         }
@@ -519,12 +519,12 @@ class CardGLMServiceIntegrationTest extends KernelTestCase
         $game->setGameName(AbstractGameManagerService::$GLM_LABEL);
         $mainBoard = new MainBoardGLM();
         $mainBoard->setGameGLM($game);
-        $tilesLevelZero = $this->tileGLMRepository->findBy(['level' => GlenmoreParameters::$TILE_LEVEL_ZERO]);
-        $tilesLevelOne = $this->tileGLMRepository->findBy(['level' => GlenmoreParameters::$TILE_LEVEL_ONE]);
-        $tilesLevelTwo = $this->tileGLMRepository->findBy(['level' => GlenmoreParameters::$TILE_LEVEL_TWO]);
-        $tilesLevelThree = $this->tileGLMRepository->findBy(['level' => GlenmoreParameters::$TILE_LEVEL_THREE]);
+        $tilesLevelZero = $this->tileGLMRepository->findBy(['level' => GlenmoreParameters::TILE_LEVEL_ZERO]);
+        $tilesLevelOne = $this->tileGLMRepository->findBy(['level' => GlenmoreParameters::TILE_LEVEL_ONE]);
+        $tilesLevelTwo = $this->tileGLMRepository->findBy(['level' => GlenmoreParameters::TILE_LEVEL_TWO]);
+        $tilesLevelThree = $this->tileGLMRepository->findBy(['level' => GlenmoreParameters::TILE_LEVEL_THREE]);
         $drawArray = [$tilesLevelZero, $tilesLevelOne, $tilesLevelTwo, $tilesLevelThree];
-        for ($i = GlenmoreParameters::$TILE_LEVEL_ZERO; $i <= GlenmoreParameters::$TILE_LEVEL_THREE; ++$i) {
+        for ($i = GlenmoreParameters::TILE_LEVEL_ZERO; $i <= GlenmoreParameters::TILE_LEVEL_THREE; ++$i) {
             $draw = new DrawTilesGLM();
             $draw->setLevel($i);
             $draw->setMainBoardGLM($mainBoard);
@@ -552,16 +552,16 @@ class CardGLMServiceIntegrationTest extends KernelTestCase
             $player->setPersonalBoard($personalBoard);
             $personalBoard->setPlayerGLM($player);
             $personalBoard->setLeaderCount(0);
-            $personalBoard->setMoney(GlenmoreParameters::$START_MONEY);
+            $personalBoard->setMoney(GlenmoreParameters::START_MONEY);
             $pawn = new PawnGLM();
-            $pawn->setColor(GlenmoreParameters::$COLOR_FROM_POSITION[$i]);
+            $pawn->setColor(GlenmoreParameters::COLOR_FROM_POSITION[$i]);
             $pawn->setPosition($i);
             $pawn->setMainBoardGLM($mainBoard);
             $player->setPawn($pawn);
             $this->entityManager->persist($pawn);
             $this->entityManager->persist($player);
-            $startVillages = $this->tileGLMRepository->findBy(['name' => GlenmoreParameters::$TILE_NAME_START_VILLAGE]);
-            $villager = $this->resourceGLMRepository->findOneBy(['type' => GlenmoreParameters::$VILLAGER_RESOURCE]);
+            $startVillages = $this->tileGLMRepository->findBy(['name' => GlenmoreParameters::TILE_NAME_START_VILLAGE]);
+            $villager = $this->resourceGLMRepository->findOneBy(['type' => GlenmoreParameters::VILLAGER_RESOURCE]);
             $playerTile = new PlayerTileGLM();
             $playerTile->setActivated(false);
             $playerTile->setCoordX(0);
@@ -583,10 +583,10 @@ class CardGLMServiceIntegrationTest extends KernelTestCase
             $this->entityManager->flush();
         }
 
-        for ($i = $nbOfPlayers; $i < GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD; ++$i) {
+        for ($i = $nbOfPlayers; $i < GlenmoreParameters::NUMBER_OF_BOXES_ON_BOARD; ++$i) {
             $drawTiles = $mainBoard->getDrawTiles();
             $level = 0;
-            for ($j = GlenmoreParameters::$TILE_LEVEL_ZERO; $j <= GlenmoreParameters::$TILE_LEVEL_THREE; ++$j) {
+            for ($j = GlenmoreParameters::TILE_LEVEL_ZERO; $j <= GlenmoreParameters::TILE_LEVEL_THREE; ++$j) {
                 if ($drawTiles->get($j)->getTiles()->isEmpty()) {
                     ++$level;
                 } else {

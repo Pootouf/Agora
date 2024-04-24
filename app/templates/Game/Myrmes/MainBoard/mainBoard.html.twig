@@ -54,21 +54,42 @@ This section displays the main board that every player and spectator can see
             {% endif %}
             {{ include('Game/Myrmes/MainBoard/seasonsDices.html.twig') }}
         </div>
-{#        {% if game.gamePhase == PHASE_WORKSHOP and needToPlay %}#}
+        {% if game.gamePhase == PHASE_WORKSHOP and needToPlay %}
             {{ include('Game/Myrmes/MainBoard/workshop.html.twig') }}
-        {#{% endif %}#}
-        <div class="absolute bottom-0 right-0 m-3">
-            <button id="objectives_button"
-                    {{ stimulus_action('myrmes', 'displayObjectives', 'click',
-                        {url:path('app_game_myrmes_display_objectives',
-                            {idGame: game.id})
-                        })
-                    }}
-                    class="bg-[#8F901F] py-2 px-3 rounded-lg text-2xl enabled:hover:bg-[#3e3f0d]
-                           disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-                Objectifs
-            </button>
+        {% endif %}
+        <div class="inlineFlexCol absolute bottom-0 right-0 m-3 items-end gap-2">
+            {% if game.gamePhase != PHASE_WINTER and not isSpectator %}
+                <button type="button"
+                        class="disabled:opacity-50 disabled:cursor-not-allowed"
+                        {% if availableLarvae < 3 %}
+                            disabled
+                        {% else %}
+                            {{ stimulus_action('myrmes', 'sacrificeLarvae', 'click',
+                                {url: path('app_game_myrmes_sacrifice_larvae',
+                                    {
+                                        gameId: game.id
+                                    })
+                                })
+                            }}
+                        {% endif %}
+                >
+                    <img class="w-[8vw]"
+                         src="{{ asset('resourcesGames/Myrmes/sacrificeLarvaeButton.svg') }}"
+                         alt="sacrifice three larvae to get one food">
+                </button>
+            {% endif %}
+            <div class="absolute bottom-0 right-0 m-3">
+                <button id="objectives_button"
+                        {{ stimulus_action('myrmes', 'displayObjectives', 'click',
+                            {url:path('app_game_myrmes_display_objectives',
+                                {idGame: game.id})
+                            })
+                        }}
+                        class="bg-[#8F901F] py-2 px-3 rounded-lg text-2xl enabled:hover:bg-[#3e3f0d] disabled:opacity-50"
+                >
+                    Objectifs
+                </button>
+            </div>
         </div>
     </div>
 </div>

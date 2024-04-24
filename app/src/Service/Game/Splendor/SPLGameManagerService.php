@@ -43,7 +43,7 @@ class SPLGameManagerService extends AbstractGameManagerService
         $game->setGameName(AbstractGameManagerService::$SPL_LABEL);
         $mainBoard = new MainBoardSPL();
         $game->setMainBoard($mainBoard);
-        for ($i = 1; $i <= SplendorParameters::$NUMBER_OF_ROWS_BY_GAME; $i++) {
+        for ($i = 1; $i <= SplendorParameters::NUMBER_OF_ROWS_BY_GAME; $i++) {
             $row = new RowSPL();
             $row->setLevel($i);
             $mainBoard->addRowsSPL($row);
@@ -73,7 +73,7 @@ class SPLGameManagerService extends AbstractGameManagerService
         if($game->isLaunched()) {
             return SPLGameManagerService::$ERROR_GAME_ALREADY_LAUNCHED;
         }
-        if (count($game->getPlayers()) >= SplendorParameters::$MAX_NUMBER_OF_PLAYER) {
+        if (count($game->getPlayers()) >= SplendorParameters::MAX_NUMBER_OF_PLAYER) {
             return SPLGameManagerService::$ERROR_INVALID_NUMBER_OF_PLAYER;
         }
         if ($this->playerSPLRepository->findOneBy(
@@ -147,8 +147,8 @@ class SPLGameManagerService extends AbstractGameManagerService
             return SPLGameManagerService::$ERROR_INVALID_GAME;
         }
         $numberOfPlayers = count($game->getPlayers());
-        if ($numberOfPlayers > SplendorParameters::$MAX_NUMBER_OF_PLAYER
-            || $numberOfPlayers < SplendorParameters::$MIN_NUMBER_OF_PLAYER) {
+        if ($numberOfPlayers > SplendorParameters::MAX_NUMBER_OF_PLAYER
+            || $numberOfPlayers < SplendorParameters::MIN_NUMBER_OF_PLAYER) {
             return SPLGameManagerService::$ERROR_INVALID_NUMBER_OF_PLAYER;
         }
         $game->setLaunched(true);

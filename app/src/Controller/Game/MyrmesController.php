@@ -14,6 +14,7 @@ use App\Entity\Game\Myrmes\PlayerMYR;
 use App\Entity\Game\Myrmes\PlayerResourceMYR;
 use App\Entity\Game\Myrmes\TileMYR;
 use App\Service\Game\LogService;
+use App\Service\Game\MessageService;
 use App\Service\Game\Myrmes\BirthMYRService;
 use App\Service\Game\Myrmes\EventMYRService;
 use App\Service\Game\Myrmes\DataManagementMYRService;
@@ -44,7 +45,8 @@ class MyrmesController extends AbstractController
                                 private readonly WorkerMYRService $workerMYRService,
                                 private readonly HarvestMYRService $harvestMYRService,
                                 private readonly WorkshopMYRService $workshopMYRService,
-                                private readonly WinterMYRService $winterMYRService) {}
+                                private readonly WinterMYRService $winterMYRService,
+                                private readonly MessageService $messageService) {}
 
 
     #[Route('/game/myrmes/{id}', name: 'app_game_show_myr')]
@@ -62,9 +64,12 @@ class MyrmesController extends AbstractController
                 Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
+        $messages = $this->messageService->receiveMessage($game->getId());
+
         return $this->render('/Game/Myrmes/index.html.twig', [
             'player' => $player,
             'game' => $game,
+            'messages' => $messages,
             'goalsLevelOne' => $game->getMainBoardMYR()->getGameGoalsLevelOne(),
             'goalsLevelTwo' => $game->getMainBoardMYR()->getGameGoalsLevelTwo(),
             'goalsLevelThree' => $game->getMainBoardMYR()->getGameGoalsLevelThree(),
@@ -486,6 +491,15 @@ class MyrmesController extends AbstractController
         $message = $player->getUsername() . " a confirmé le placement de ses nourrices";
         $this->logService->sendPlayerLog($game, $player, $message);
         $this->publishPersonalBoard($game, $player);
+        $boardBoxes = $this->dataManagementMYRService->organizeMainBoardRows($game);
+        if ($game->getGamePhase() == MyrmesParameters::PHASE_WORKER) {
+            foreach ($game->getPlayers() as $p) {
+                $this->publishMainBoard($game, $p, $boardBoxes, false, false);
+            }
+        } else {
+            $this->publishMainBoard($game, $player, $boardBoxes, false, false);
+        }
+
         return new Response("nurses placement confirmed", Response::HTTP_OK);
     }
 
@@ -877,6 +891,21 @@ class MyrmesController extends AbstractController
         }
     }
 
+    #[Route('/game/myrmes/getTile/id/coords/{coordX}/{coordY}',
+        name:'app_game_myrmes_get_tile_id_from_coords')]
+    public function getTileIdFromCoords(
+        int                                $coordX,
+        int                                $coordY
+    ): Response
+    {
+        $tile = $this->workerMYRService->getTileFromCoordinates($coordX, $coordY);
+        if($tile == null) {
+            return new Response(MyrmesTranslation::RESPONSE_INVALID_TILE,
+                Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+        return new Response($tile->getId(), Response::HTTP_OK);
+    }
+
     #[Route('/game/myrmes/{gameId}/moveAnt/direction/{direction}', name:'app_game_myrmes_move_ant')]
     public function moveAnt(
         #[MapEntity(id: 'gameId')] GameMYR $game,
@@ -925,14 +954,14 @@ class MyrmesController extends AbstractController
     ): Response
     {
         if ($game->isPaused() || !$game->isLaunched()) {
-            return new Response("Game cannot be accessed", Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         if (!$player->isTurnOfPlayer()) {
-            return new Response('Not the turn of the player', Response::HTTP_FORBIDDEN);
+            return new Response(GameTranslation::NOT_PLAYER_TURN, Response::HTTP_FORBIDDEN);
         }
         if ($game->getGamePhase() != MyrmesParameters::PHASE_WORKER) {
             return new Response('Not in worker phase', Response::HTTP_FORBIDDEN);
@@ -1253,9 +1282,9 @@ class MyrmesController extends AbstractController
         return new Response("threw resource from warehouse", Response::HTTP_OK);
     }
 
-    #[Route('/game/myrmes/{idGame}/displayPersonalObjectToPlace/{tileId}',
-        name: 'app_game_myrmes_display_personal_object_to_place')]
-    public function displayPersonalObjectToPlace(
+    #[Route('/game/myrmes/{idGame}/display/menu/pheromone/{tileId}',
+        name: 'app_game_myrmes_display_pheromone_special_tile_menu_to_place')]
+    public function displayPheromoneAndSpecialTileMenuToPlace(
         #[MapEntity(id: 'idGame')] GameMYR $game,
         #[MapEntity(id: 'tileId')] TileMYR $tileMYR
     ) : Response
@@ -1276,13 +1305,15 @@ class MyrmesController extends AbstractController
         ]);
     }
 
-    #[Route('/game/myrmes/{idGame}/displayMainBoardTilePositionPossibilities/{tileId}/{tileType}/{orientation}',
+    #[Route('/game/myrmes/{idGame}/displayMainBoardTilePositionPossibilities/{tileId}/{tileType}/{orientation}'
+        . '/{antCoordX}/{antCoordY}/{cleanedTilesString}',
         name: 'app_game_myrmes_display_mainBoard_tile_position_possibilities')]
     public function displayMainBoardTilePositionPossibilities(
         #[MapEntity(id: 'idGame')] GameMYR  $game,
         #[MapEntity(id: 'tileId')] TileMYR  $tileMYR,
         #[MapEntity(id: 'tileType')] int    $tileType,
         #[MapEntity(id: 'orientation')] int $orientation,
+        int $antCoordX, int $antCoordY, string $cleanedTilesString
     ) : Response
     {
         if ($game->isPaused() || !$game->isLaunched()) {
@@ -1296,9 +1327,13 @@ class MyrmesController extends AbstractController
         if ($tileTypeMYR == null) {
             return new Response(MyrmesTranslation::RESPONSE_INVALID_TILE_TYPE, Response::HTTP_FORBIDDEN);
         }
+        $cleanedTiles = $this->dataManagementMYRService->getListOfCoordinatesFromString($cleanedTilesString);
 
         try {
-            $positions = $this->workerMYRService->getAllAvailablePositions($player, $tileMYR, $tileTypeMYR);
+            $positions = $this->workerMYRService->getAllAvailablePositions(
+                $player, $tileMYR, $tileTypeMYR,
+                $antCoordX, $antCoordY, $cleanedTiles
+            );
         }catch (Exception $e) {
             return new Response("No positions available for this tile : " . $e->getMessage(),
                 Response::HTTP_FORBIDDEN);
@@ -1377,6 +1412,34 @@ class MyrmesController extends AbstractController
         return new Response('Pheromone positioned', Response::HTTP_OK);
     }
 
+    #[Route('/game/myrmes/{gameId}/sacrifice/larvae', name: 'app_game_myrmes_sacrifice_larvae')]
+    public function sacrificeLarvae(
+        #[MapEntity(id: 'gameId')] GameMYR $game
+    ) : Response
+    {
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
+        try {
+            $this->service->exchangeLarvaeForFood($player);
+        } catch (Exception) {
+            $message = $player->getUsername() . " a essayé de sacrifier 3 larves mais n'a pas pû.";
+            $this->logService->sendPlayerLog($game, $player, $message);
+            return new Response("can't sacrifice larvae", Response::HTTP_FORBIDDEN);
+        }
+        $message = $player->getUsername() . " a réussi a sacrifier 3 de ses larves.";
+        $this->logService->sendPlayerLog($game, $player, $message);
+        $this->publishPreview($game, $player);
+        $this->publishRanking($game, $player);
+        $boardBoxes = $this->dataManagementMYRService->organizeMainBoardRows($game);
+        $this->publishMainBoard($game, $player, $boardBoxes, false, false);
+        return new Response('larvae successfully sacrificed', Response::HTTP_OK);
+    }
+
     /**
      * returnMainBoard : return the response with the given parameters for main board
      * @param GameMYR $game
@@ -1405,7 +1468,8 @@ class MyrmesController extends AbstractController
                 $player,
                 MyrmesParameters::WORKSHOP_AREA
             )->count(),
-            'hasSelectedAnthillHolePlacement' => $hasSelectedAnthillHolePlacement
+            'hasSelectedAnthillHolePlacement' => $hasSelectedAnthillHolePlacement,
+            'availableLarvae' => $this->service->getAvailableLarvae($player)
         ]);
     }
 
@@ -1546,15 +1610,14 @@ class MyrmesController extends AbstractController
      * @param bool $hasSelectedAnthillHolePlacement
      * @return void
      */
-    private function publishMainBoard(GameMYR $game, BoardBoxMYR $selectedBox, Collection $boardBoxes,
+    private function publishMainBoard(GameMYR $game, PlayerMYR $player, Collection $boardBoxes,
                                       bool $sendingWorkerOnGarden, bool $hasSelectedAnthillHolePlacement ) : void
     {
-        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         $response = $this->returnMainBoard(
-            $game, $player, $boardBoxes, $selectedBox, $sendingWorkerOnGarden, $hasSelectedAnthillHolePlacement
+            $game, $player, $boardBoxes, null, $sendingWorkerOnGarden, $hasSelectedAnthillHolePlacement
         );
         $this->publishService->publish(
-            $this->generateUrl('app_game_show_glm',
+            $this->generateUrl('app_game_show_myr',
                 ['id' => $game->getId()]).'mainBoard'.$player->getId(),
             $response
         );

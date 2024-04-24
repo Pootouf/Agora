@@ -60,7 +60,8 @@ class WorkshopMYRService
                 $tile = $pheromoneTile->getTile();
                 $adjacentTiles = $this->getAdjacentTiles($tile);
                 foreach ($adjacentTiles as $adjacentTile) {
-                    if ($adjacentTile != null && $this->isValidPosition($player, $adjacentTile)) {
+                    if ($adjacentTile != null && $this->isValidPosition($player, $adjacentTile)
+                        && !$result->contains($adjacentTile)) {
                         $result->add($adjacentTile);
                     }
                 }
@@ -70,7 +71,8 @@ class WorkshopMYRService
             $tile = $antHillHole->getTile();
             $adjacentTiles = $this->getAdjacentTiles($tile);
             foreach ($adjacentTiles as $adjacentTile) {
-                if ($adjacentTile != null && $this->isValidPosition($player, $adjacentTile)) {
+                if ($adjacentTile != null && $this->isValidPosition($player, $adjacentTile)
+                    && !$result->contains($adjacentTile)) {
                     $result->add($adjacentTile);
                 }
             }
@@ -643,20 +645,14 @@ class WorkshopMYRService
     private function giveDirtToPlayer(PlayerMYR $player) : void
     {
         $dirt = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::RESOURCE_TYPE_DIRT]);
-        $playerDirt = $this->playerResourceMYRRepository->findOneBy(["resource" => $dirt]);
+        $playerDirt = $this->playerResourceMYRRepository->findOneBy(
+            ["resource" => $dirt, "personalBoard" => $player->getPersonalBoardMYR()]
+        );
         if ($playerDirt != null) {
             $playerDirt->setQuantity($playerDirt->getQuantity() + 1);
             $this->entityManager->persist($playerDirt);
-        } else {
-            $playerDirt = new PlayerResourceMYR();
-            $playerDirt->setResource($dirt);
-            $playerDirt->setQuantity(1);
-            $playerDirt->setPersonalBoard($player->getPersonalBoardMYR());
-            $this->entityManager->persist($playerDirt);
-            $player->getPersonalBoardMYR()->addPlayerResourceMYR($playerDirt);
-            $this->entityManager->persist($player->getPersonalBoardMYR());
+            $this->entityManager->flush();
         }
-        $this->entityManager->flush();
     }
 
 
@@ -739,7 +735,7 @@ class WorkshopMYRService
         return match ($goalDifficulty) {
             MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE =>
                 $player->getPersonalBoardMYR()->getLarvaCount() >=
-                MyrmesParameters::GOAL_NEEDED_RESOURCES_LARVAE_LEVEL_TWO,
+                MyrmesParameters::GOAL_NEEDED_RESOURCES_LARVAE_LEVEL_ONE,
             MyrmesParameters::GOAL_DIFFICULTY_LEVEL_TWO =>
                 $player->getPersonalBoardMYR()->getLarvaCount() >=
                 MyrmesParameters::GOAL_NEEDED_RESOURCES_LARVAE_LEVEL_TWO,
@@ -857,9 +853,9 @@ class WorkshopMYRService
      * getNumberOfResourcesFromSelectedType: return the number of resources of the player from the selected type
      * @param PlayerMYR $player
      * @param string $selectedType
-     * @return PlayerResourceMYR
+     * @return PlayerResourceMYR|null
      */
-    public function getPlayerResourcesFromSelectedType(PlayerMYR $player, string $selectedType) : PlayerResourceMYR
+    private function getPlayerResourcesFromSelectedType(PlayerMYR $player, string $selectedType) : ?PlayerResourceMYR
     {
         return $player->getPersonalBoardMYR()->getPlayerResourceMYRs()
             ->filter(
@@ -1154,12 +1150,14 @@ class WorkshopMYRService
         }
         switch($goal->getDifficulty()) {
             case MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE :
-                if ($specialTiles->count() != MyrmesParameters::GOAL_NEEDED_RESOURCES_REMOVED_SPECIAL_TILE_LEVEL_ONE)  {
+                if ($specialTiles->count()
+                    != MyrmesParameters::GOAL_NEEDED_RESOURCES_REMOVED_SPECIAL_TILE_LEVEL_ONE)  {
                     throw new Exception("Invalid number of special tiles to do goal");
                 }
                 break;
             case MyrmesParameters::GOAL_DIFFICULTY_LEVEL_TWO :
-                if ($specialTiles->count() != MyrmesParameters::GOAL_NEEDED_RESOURCES_REMOVED_SPECIAL_TILE_LEVEL_TWO)  {
+                if ($specialTiles->count()
+                    != MyrmesParameters::GOAL_NEEDED_RESOURCES_REMOVED_SPECIAL_TILE_LEVEL_TWO)  {
                     throw new Exception("Invalid number of special tiles to do goal");
                 }
                 break;
@@ -1263,18 +1261,23 @@ class WorkshopMYRService
             if (!$gameGoal->getGoalAlreadyDone()->contains($previousPlayer)) {
                 $previousPlayer->setScore(
                     $previousPlayer->getScore()
-                    + MyrmesParameters::SCORE_INCREASE_GOAL_ALREADY_DONE[$game->getPlayers()->count()]
+                    + MyrmesParameters::SCORE_INCREASE_GOAL_ALREADY_DONE[
+                        $game->getPlayers()->count()
+                    ]
                 );
                 $this->entityManager->persist($previousPlayer);
             }
         }
         match ($gameGoal->getGoal()->getDifficulty()) {
             MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE =>
-                $player->setScore($player->getScore() + MyrmesParameters::SCORE_INCREASE_GOAL_DIFFICULTY_ONE),
+                $player->setScore($player->getScore()
+                    + MyrmesParameters::SCORE_INCREASE_GOAL_DIFFICULTY_ONE),
             MyrmesParameters::GOAL_DIFFICULTY_LEVEL_TWO =>
-                $player->setScore($player->getScore() + MyrmesParameters::SCORE_INCREASE_GOAL_DIFFICULTY_TWO),
+                $player->setScore($player->getScore()
+                    + MyrmesParameters::SCORE_INCREASE_GOAL_DIFFICULTY_TWO),
             MyrmesParameters::GOAL_DIFFICULTY_LEVEL_THREE =>
-                $player->setScore($player->getScore() + MyrmesParameters::SCORE_INCREASE_GOAL_DIFFICULTY_THREE),
+                $player->setScore($player->getScore()
+                    + MyrmesParameters::SCORE_INCREASE_GOAL_DIFFICULTY_THREE),
         };
         $this->entityManager->persist($player);
 

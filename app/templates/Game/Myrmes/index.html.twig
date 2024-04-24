@@ -38,6 +38,9 @@
             {% block nav %}
                 {{ include('/Game/Utils/navigation.html.twig') }}
             {% endblock %}
+            {% block chat %}
+                {{ include('/Game/Utils/chat.html.twig') }}
+            {% endblock %}
             {% block notification %}
                 <div id="notificationsContainer"
                      class="absolute space-y-2 landscape:sm:w-[27%] portrait:w-[30%] landscape:lg:w-[20%]
@@ -95,6 +98,16 @@
         }
     </script>
 
+    {#MAIN BOARD MANAGEMENT#}
+    <script>
+        {% set mainBoardPath = path('app_game_show_myr', {'id': game.id}) ~ 'mainBoard' ~ player.id %}
+        const eventSourceMainBoard = new EventSource("{{ mercure(mainBoardPath)|escape('js') }}");
+        eventSourceMainBoard.onmessage = event => {
+            const mainBoard = document.getElementById('mainBoard');
+            mainBoard.innerHTML = event.data;
+        }
+    </script>
+
     {# MAIN BOARD CLOSURE MANAGEMENT #}
     <script>
         function closeWindow() {
@@ -141,12 +154,10 @@
 
     {# TILE POSITIONING MANAGEMENT #}
     <script>
-        let selectedObjectId;
-        let selectedOrientation;
-        let clickableTilesForPlacement = [];
+        window.clickableTilesForPlacement = [];
 
         function PrepareTilePositioning(id) {
-            selectedOrientation = id;
+            window.selectedOrientation = id;
             document.getElementById('selectObjectTitle').innerText = "Placement de la tuile"
 
             let divTemplate = document.getElementById('PrepareTilePositioningTemplate');
@@ -162,7 +173,7 @@
         }
 
         function selectOrientationTile(objectId, nbRotation) {
-            selectedObjectId = objectId;
+            window.selectedObjectId = objectId;
             let divTemplate = document.getElementById('ObjectOrientationListTemplate');
             let divClone = divTemplate.cloneNode(true)
             divClone.id = 'ObjectOrientationList';
