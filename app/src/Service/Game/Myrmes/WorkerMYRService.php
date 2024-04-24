@@ -1915,11 +1915,18 @@ class WorkerMYRService
      * getPheromonesFromListOfIds: return a Collection of Entity PheromonMYR retrieved from an array of ids
      *
      * @param string[] $pheromoneIds
-     * @return array
+     * @return ArrayCollection
      */
-    public function getPheromonesFromListOfIds(array $pheromoneIds): array
+    public function getPheromonesFromListOfIds(array $pheromoneIds): ArrayCollection
     {
-        return $this->pheromonMYRRepository->findBy(['id' => $pheromoneIds]);
+        return new ArrayCollection($this->pheromonMYRRepository->findBy(['id' => $pheromoneIds]));
+    }
+
+    public function getPlayerPheromones(PlayerMYR $playerMYR): ArrayCollection
+    {
+        $pheromoneTypes = $this->tileTypeMYRRepository->findBy(['type' => MyrmesParameters::PHEROMONE_TYPES]);
+        return new ArrayCollection(
+            $this->pheromonMYRRepository->findBy(['player' => $playerMYR, 'type' => $pheromoneTypes]));
     }
 
 }
