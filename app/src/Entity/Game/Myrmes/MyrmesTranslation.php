@@ -12,6 +12,7 @@ interface MyrmesTranslation
     // NOTIFICATION MESSAGES
     const string WARNING = "Attention !";
     const string BIRTH_PHASE = "Tu es en phase d'évènement.";
+    const string IMPOSSIBLE_TO_PLACE_NURSE = "Impossible de placer une nourrice";
 
     // LOG MESSAGES
     const string NOT_ABLE = " mais n'a pas pu";

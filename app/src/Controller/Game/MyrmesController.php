@@ -415,7 +415,7 @@ class MyrmesController extends AbstractController
         $this->service->setPhase($player, MyrmesParameters::PHASE_BIRTH);
         $this->publishNotification($game, MyrmesParameters::NOTIFICATION_DURATION_PHASE,
             MyrmesTranslation::WARNING,
-            MyrmesTranslation::BIRTH_PHASE, GameParameters::ALERT_NOTIFICATION_TYPE,
+            MyrmesTranslation::IMPOSSIBLE_TO_PLACE_NURSE, GameParameters::ALERT_NOTIFICATION_TYPE,
             GameParameters::NOTIFICATION_COLOR_RED, $player->getUsername());
 
         $message = $player->getUsername() . " a confirmé son choix de bonus";
@@ -444,6 +444,10 @@ class MyrmesController extends AbstractController
         try {
             $this->birthMYRService->placeNurse($player, $position);
         } catch (Exception) {
+            $this->publishNotification($game, MyrmesParameters::NOTIFICATION_DURATION_PHASE,
+                MyrmesTranslation::WARNING,
+                MyrmesTranslation::IMPOSSIBLE_TO_PLACE_NURSE, GameParameters::ALERT_NOTIFICATION_TYPE,
+                GameParameters::NOTIFICATION_COLOR_RED, $player->getUsername());
             $message = $player->getUsername()
                 . " a essayé de placer une nourrice sur la piste de naissance "
                 . $position
