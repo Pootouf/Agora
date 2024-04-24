@@ -283,6 +283,14 @@ class MyrmesController extends AbstractController
             'goalsLevelTwo' => $gameMYR->getMainBoardMYR()->getGameGoalsLevelTwo(),
             'goalsLevelThree' => $gameMYR->getMainBoardMYR()->getGameGoalsLevelThree(),
             'goalsAvailable' => $this->workshopMYRService->playerAvailableGoals($player, $gameMYR),
+            'stoneOrDirtGoal' => [
+                'stone' => $this->workshopMYRService->getPlayerResourcesFromSelectedType(
+                    $player, MyrmesParameters::RESOURCE_TYPE_STONE
+                )->getQuantity(),
+                'dirt' => $this->workshopMYRService->getPlayerResourcesFromSelectedType(
+                    $player, MyrmesParameters::RESOURCE_TYPE_DIRT
+                )->getQuantity()
+            ]
         ]);
     }
 
