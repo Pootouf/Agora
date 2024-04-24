@@ -78,14 +78,15 @@ This section displays the main board that every player and spectator can see
                          alt="sacrifice three larvae to get one food">
                 </button>
             {% endif %}
-            <div class="absolute bottom-0 right-0 m-3">
+            <div class="">
                 <button id="objectives_button"
                         {{ stimulus_action('myrmes', 'displayObjectives', 'click',
                             {url:path('app_game_myrmes_display_objectives',
                                 {idGame: game.id})
                             })
                         }}
-                        class="bg-[#8F901F] py-2 px-3 rounded-lg text-2xl enabled:hover:bg-[#3e3f0d] disabled:opacity-50"
+                        class="bg-[#8F901F] py-2 px-3 rounded-lg text-2xl enabled:hover:bg-[#3e3f0d] disabled:opacity-50
+                                disabled:cursor-not-allowed"
                 >
                     Objectifs
                 </button>
