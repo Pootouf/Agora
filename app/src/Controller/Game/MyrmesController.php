@@ -286,23 +286,6 @@ class MyrmesController extends AbstractController
         ]);
     }
 
-    #[Route('/game/myrmes/{idGame}/display/objectives/stone/dirt/goal',
-        name: 'app_game_myrmes_display_stone_dirt_goal')]
-    public function displayStoneDirtGoal(
-        #[MapEntity(id: 'idGame')] GameMYR $gameMYR): Response
-    {
-        $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
-        if ($player == null) {
-            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
-        }
-        return $this->render('Game/Myrmes/MainBoard/displayGoalSelection.html.twig', [
-            'game' => $gameMYR,
-            'goalsLevelOne' => $gameMYR->getMainBoardMYR()->getGameGoalsLevelOne(),
-            'goalsLevelThree' => $gameMYR->getMainBoardMYR()->getGameGoalsLevelThree(),
-            'goalsAvailable' => null,
-        ]);
-    }
-
     #[Route('/game/myrmes/{id}/display/personalBoard/throwResource/{playerResourceId}/actions',
         name: 'app_game_myrmes_display_throw_resource_actions')]
     public function displayThrowResourceActions(
@@ -1353,6 +1336,37 @@ class MyrmesController extends AbstractController
         );
     }
 
+    #[Route('/game/myrmes/{idGame}/displayStoneDirtGoal/{goalId}',
+        name: 'app_game_myrmes_display_stone_dirt_goal')]
+    public function displayStoneDirtGoal(
+        #[MapEntity(id: 'idGame')] GameMYR $gameMYR,
+        #[MapEntity(id: 'goalId')] GameGoalMYR $gameGoalMYR
+    ): Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+        }
+
+        $quantityNeeded =
+            MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE == $gameGoalMYR->getGoal()->getDifficulty() ?
+            MyrmesParameters::GOAL_NEEDED_RESOURCES_STONE_OR_DIRT_LEVEL_ONE :
+            MyrmesParameters::GOAL_NEEDED_RESOURCES_STONE_OR_DIRT_LEVEL_THREE;
+
+        return $this->render('Game/Myrmes/MainBoard/InteractiveGoals/stoneOrDirtGoal.html.twig', [
+            'game' => $gameMYR,
+            'goal' => $gameGoalMYR,
+            'stoneQuantity' => $this->workshopMYRService->getPlayerResourcesFromSelectedType(
+                $player, MyrmesParameters::RESOURCE_TYPE_STONE
+            )->getQuantity(),
+            'dirtQuantity' => $this->workshopMYRService->getPlayerResourcesFromSelectedType(
+                $player, MyrmesParameters::RESOURCE_TYPE_DIRT
+            )->getQuantity(),
+            'totalQuantityNeeded' => $quantityNeeded
+        ]);
+    }
+
+
     #[Route('/game/myrmes/{idGame}/validateGoal/{goalId}',
         name: 'app_game_myrmes_validate_goal')]
     public function validateGoal(
@@ -1405,4 +1419,62 @@ class MyrmesController extends AbstractController
         return new Response('Goal validated', Response::HTTP_OK);
     }
 
+    #[Route('/game/myrmes/{idGame}/validateGoal/{goalId}/pheromones/{pheromoneIds}',
+        name: 'app_game_myrmes_validate_pheromone_goal')]
+    public function validatePheromoneGoal(
+        #[MapEntity(id: 'idGame')] GameMYR $gameMYR,
+        #[MapEntity(id: 'goalId')] GameGoalMYR $gameGoalMYR,
+        #[MapEntity(id: 'pheromoneIds')] String $pheromoneIds,
+    ) : Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+        }
+        $nurse = $this->service->getNursesInWorkshopFromPlayer($player)->first();
+        if ($nurse) {
+            return new Response('No nurse available in workshop', Response::HTTP_FORBIDDEN);
+        }
+        $pheromoneIds = explode('_', $pheromoneIds);
+        if (empty($pheromoneIds)) {
+            return new Response('No pheromone ids given', Response::HTTP_FORBIDDEN);
+        }
+
+        try {
+            $pheromones = $this->service->getPheromonesFromListOfIds($pheromoneIds);
+            $this->workshopMYRService->doPheromoneGoal($player, $gameGoalMYR, $nurse, $pheromones);
+        }catch (Exception $e){
+            return new Response($e->getMessage(), Response::HTTP_FORBIDDEN);
+        }
+
+        return new Response('Goal validated', Response::HTTP_OK);
+    }
+
+    #[Route('/game/myrmes/{idGame}/validateGoal/{goalId}/stone/{stoneQuantity}/dirt/{dirtQuantity}',
+        name: 'app_game_myrmes_validate_special_tile_goal')]
+    public function validateSpecialTileGoal(
+        #[MapEntity(id: 'idGame')] GameMYR $gameMYR,
+        #[MapEntity(id: 'goalId')] GameGoalMYR $gameGoalMYR,
+        #[MapEntity(id: 'specialTileIds')] String $specialTileIds,
+    ) : Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+        }
+        $nurse = $this->service->getNursesInWorkshopFromPlayer($player)->first();
+        if ($nurse) {
+            return new Response('No nurse available in workshop', Response::HTTP_FORBIDDEN);
+        }
+
+        $specialTileIds = explode('_', $specialTileIds);
+        $specialTiles = $this->service->getPheromonesFromListOfIds($specialTileIds);
+        try {
+            $this->workshopMYRService->doSpecialTileGoal($player, $gameGoalMYR, $nurse, $specialTiles);
+        }catch (Exception $e){
+            return new Response($e->getMessage(), Response::HTTP_FORBIDDEN);
+        }
+
+        return new Response('Goal validated', Response::HTTP_OK);
+    }
 }

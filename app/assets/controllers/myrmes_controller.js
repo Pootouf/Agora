@@ -206,19 +206,6 @@ export default class extends Controller  {
         window.currentTileMode = 0;
     }
 
-    async displayStoneDirtGoal(goal) {
-        closeObjectivesWindow();
-        let url = goal.params.url;
-        document.getElementById('objectives_button').setAttribute('disabled', '');
-        const response = await fetch(url);
-        let tree = document.getElementById("index_myrmes");
-        let placeholder = document.createElement("div");
-        placeholder.innerHTML = await response.text();
-        const node = placeholder.firstElementChild;
-        tree.appendChild(node);
-        window.currentTileMode = 0;
-    }
-
     async displayBoxActionsWorkerPhase(boardBox) {
         closeSelectedBoxWindow();
         let tileId = boardBox.params.tileId
@@ -438,6 +425,21 @@ export default class extends Controller  {
         await fetch(url);
         await this.togglePheromonePlacement(false);
         await canPlacePheromone(selectedObjectId, selectedOrientation, boardBox.params.tileId);
+    }
+
+    async displayStoneDirtGoal(goal) {
+        let url = goal.params.url;
+        const response = await fetch(url);
+        if (response.ok) {
+            document.getElementById('objectives_home').classList.add('hidden');
+            let tree = document.getElementById("objectives");
+            let placeholder = document.createElement("div");
+            placeholder.innerHTML = await response.text();
+            const node = placeholder.firstElementChild;
+            tree.appendChild(node);
+            updateOtherRange(document.getElementById('stone-range'))
+        }
+
     }
 
     async validateGoal(goal) {
