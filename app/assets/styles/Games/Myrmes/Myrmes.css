@@ -48,3 +48,7 @@
 .selectedTilePlacement {
     color: white; border-color: white; background-color: white;
 }
+
+.selectedPheromoneTile {
+    fill: #ffffff;
+}
