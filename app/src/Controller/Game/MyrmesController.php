@@ -1377,4 +1377,32 @@ class MyrmesController extends AbstractController
 
         return new Response('Goal validated', Response::HTTP_OK);
     }
+
+    #[Route('/game/myrmes/{idGame}/validateGoal/{goalId}/stone/{stoneQuantity}/dirt/{dirtQuantity}',
+        name: 'app_game_myrmes_validate_stone_or_dirt_goal')]
+    public function validateStoneOrDirtGoal(
+        #[MapEntity(id: 'idGame')] GameMYR $gameMYR,
+        #[MapEntity(id: 'goalId')] GameGoalMYR $gameGoalMYR,
+        #[MapEntity(id: 'stoneQuantity')] int $stoneQuantity,
+        #[MapEntity(id: 'dirtQuantity')] int $dirtQuantity,
+    ) : Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+        }
+        $nurse = $this->service->getNursesInWorkshopFromPlayer($player)->first();
+        if ($nurse) {
+            return new Response('No nurse available in workshop', Response::HTTP_FORBIDDEN);
+        }
+
+        try {
+            $this->workshopMYRService->doStoneOrDirtGoal($player, $gameGoalMYR, $nurse, $stoneQuantity, $dirtQuantity);
+        }catch (Exception $e){
+            return new Response($e->getMessage(), Response::HTTP_FORBIDDEN);
+        }
+
+        return new Response('Goal validated', Response::HTTP_OK);
+    }
+
 }

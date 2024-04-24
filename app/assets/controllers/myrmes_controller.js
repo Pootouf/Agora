@@ -439,4 +439,24 @@ export default class extends Controller  {
         await this.togglePheromonePlacement(false);
         await canPlacePheromone(selectedObjectId, selectedOrientation, boardBox.params.tileId);
     }
+
+    async validateGoal(goal) {
+        let url = goal.params.url
+        const response = await fetch(url);
+        if (response.ok) {
+            closeObjectivesWindow();
+        }
+    }
+
+    async validateStoneOrDirtGoal(goal) {
+        const stoneRange = document.getElementById("stone-range");
+        const dirtRange = document.getElementById("dirt-range");
+        let url = goal.params.url
+            .replace("stoneQuantity", stoneRange.value)
+            .replace("dirtQuantity", dirtRange.value);
+        const response = await fetch(url);
+        if (response.ok) {
+            closeObjectivesWindow();
+        }
+    }
 }
