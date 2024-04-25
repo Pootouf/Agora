@@ -25,25 +25,25 @@ class GameManagerService
 {
     private array $gameManagerServices;
 
-    public function __construct(private GameSixQPRepository $gameSixQPRepository,
-                                private GameSPLRepository $gameSPLRepository,
-                                private GameGLMRepository $gameGLMRepository,
-                                private GameMYRRepository $gameMYRRepository,
-                                private PlayerSixQPRepository $playerSixQPRepository,
-                                private PlayerSPLRepository $playerSPLRepository,
-                                private PlayerGLMRepository $playerGLMRepository,
-                                private PlayerMYRRepository $playerMYRRepository,
-                                SixQPGameManagerService $sixQPGameManagerService,
-                                SPLGameManagerService $SPLGameManagerService,
-                                GLMGameManagerService $GLMGameManagerService,
-                                MYRGameManagerService $MYRGameManagerService,
+    public function __construct(private GameSixQPRepository             $gameSixQPRepository,
+                                private GameSPLRepository               $gameSPLRepository,
+                                private GameGLMRepository               $gameGLMRepository,
+                                private GameMYRRepository               $gameMYRRepository,
+                                private PlayerSixQPRepository           $playerSixQPRepository,
+                                private PlayerSPLRepository             $playerSPLRepository,
+                                private PlayerGLMRepository             $playerGLMRepository,
+                                private PlayerMYRRepository             $playerMYRRepository,
+                                SixQPGameManagerService                 $sixQPGameManagerService,
+                                SPLGameManagerService                   $splGameManagerService,
+                                GLMGameManagerService                   $glmGameManagerService,
+                                MYRGameManagerService                   $myrGameManagerService,
                                 private readonly EntityManagerInterface $entityManager
     )
     {
-        $this->gameManagerServices[AbstractGameManagerService::$SIXQP_LABEL] = $sixQPGameManagerService;
-        $this->gameManagerServices[AbstractGameManagerService::$SPL_LABEL] = $SPLGameManagerService;
-        $this->gameManagerServices[AbstractGameManagerService::$GLM_LABEL] = $GLMGameManagerService;
-        $this->gameManagerServices[AbstractGameManagerService::$MYR_LABEL] = $MYRGameManagerService;
+        $this->gameManagerServices[AbstractGameManagerService::SIXQP_LABEL] = $sixQPGameManagerService;
+        $this->gameManagerServices[AbstractGameManagerService::SPL_LABEL] = $splGameManagerService;
+        $this->gameManagerServices[AbstractGameManagerService::GLM_LABEL] = $glmGameManagerService;
+        $this->gameManagerServices[AbstractGameManagerService::MYR_LABEL] = $myrGameManagerService;
     }
 
     public function createGame(string $gameName): int {
@@ -53,7 +53,7 @@ class GameManagerService
     public function joinGame(int $gameId, GameUser $user): int {
         $game = $this->getGameFromId($gameId);
         if ($game == null) {
-            return AbstractGameManagerService::$ERROR_INVALID_GAME;
+            return AbstractGameManagerService::ERROR_INVALID_GAME;
         }
         return $this->gameManagerServices[$game->getGameName()]->createPlayer($user->getUsername(), $game);
     }
@@ -62,10 +62,10 @@ class GameManagerService
     {
         $game = $this->getGameFromId($gameId);
         if ($game == null) {
-            return AbstractGameManagerService::$ERROR_INVALID_GAME;
+            return AbstractGameManagerService::ERROR_INVALID_GAME;
         }
         if ($game->isLaunched()) {
-            return AbstractGameManagerService::$ERROR_GAME_ALREADY_LAUNCHED;
+            return AbstractGameManagerService::ERROR_GAME_ALREADY_LAUNCHED;
         }
         return $this->gameManagerServices[$game->getGameName()]->deletePlayer($user->getUsername(), $game);
     }
@@ -74,7 +74,7 @@ class GameManagerService
     {
         $game = $this->getGameFromId($gameId);
         if ($game == null) {
-            return AbstractGameManagerService::$ERROR_INVALID_GAME;
+            return AbstractGameManagerService::ERROR_INVALID_GAME;
         }
         return $this->gameManagerServices[$game->getGameName()]->deleteGame($game);
     }
@@ -83,7 +83,7 @@ class GameManagerService
     {
         $game = $this->getGameFromId($gameId);
         if ($game == null) {
-            return AbstractGameManagerService::$ERROR_INVALID_GAME;
+            return AbstractGameManagerService::ERROR_INVALID_GAME;
         }
         return $this->gameManagerServices[$game->getGameName()]->launchGame($game);
     }

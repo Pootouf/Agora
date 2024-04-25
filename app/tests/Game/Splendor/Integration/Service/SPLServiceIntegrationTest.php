@@ -600,7 +600,7 @@ class SPLServiceIntegrationTest extends KernelTestCase
     {
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);
         $game = new GameSPL();
-        $game->setGameName(AbstractGameManagerService::$SPL_LABEL);
+        $game->setGameName(AbstractGameManagerService::SPL_LABEL);
         $mainBoard = new MainBoardSPL();
         $mainBoard->setGameSPL($game);
         for ($i = 0; $i <= SplendorParameters::DRAW_CARD_LEVEL_THREE; $i++) {

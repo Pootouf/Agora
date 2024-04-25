@@ -9,7 +9,7 @@ export default class extends Controller {
         }
         const url = message.params.url
             + encodeURI(m);
-        const response = await fetch(url);
+        await fetch(url);
         document.getElementById("inputMessage").value = "";
     }
 

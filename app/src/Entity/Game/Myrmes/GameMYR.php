@@ -62,11 +62,8 @@ class GameMYR extends Game
 
     public function removePlayer(PlayerMYR $player): static
     {
-        if ($this->players->removeElement($player)) {
-            // set the owning side to null (unless already changed)
-            if ($player->getGameMYR() === $this) {
-                $player->setGameMYR(null);
-            }
+        if ($this->players->removeElement($player) && $player->getGameMYR() === $this) {
+            $player->setGameMYR(null);
         }
 
         return $this;

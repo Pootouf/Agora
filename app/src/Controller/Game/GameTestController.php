@@ -16,10 +16,9 @@ use App\Service\Game\AbstractGameManagerService;
 use App\Service\Game\GameManagerService;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Util\Exception;
-use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
@@ -48,7 +47,7 @@ class GameTestController extends AbstractController
     #[Route('/game/sixqp/create', name: 'app_game_sixqp_create')]
     public function createSixQPGame(): Response
     {
-        $this->gameService->createGame(AbstractGameManagerService::$SIXQP_LABEL);
+        $this->gameService->createGame(AbstractGameManagerService::SIXQP_LABEL);
         return $this->redirectToRoute('app_game_sixqp_list');
     }
 
@@ -101,7 +100,7 @@ class GameTestController extends AbstractController
     #[Route('/game/splendor/create', name: 'app_game_splendor_create')]
     public function createSplendorGame(): Response
     {
-        $this->gameService->createGame(AbstractGameManagerService::$SPL_LABEL);
+        $this->gameService->createGame(AbstractGameManagerService::SPL_LABEL);
         return $this->redirectToRoute('app_game_splendor_list');
     }
 
@@ -145,9 +144,12 @@ class GameTestController extends AbstractController
         $tokens = $gameSPL->getMainBoard()->getTokens()->toArray();
 
         $nobleTiles = $gameSPL->getMainBoard()->getNobleTiles()->toArray();
-        $cardsLevel1 = $gameSPL->getMainBoard()->getDrawCards()->get(SplendorParameters::$DRAW_CARD_LEVEL_ONE)->getDevelopmentCards();
-        $cardsLevel2 = $gameSPL->getMainBoard()->getDrawCards()->get(SplendorParameters::$DRAW_CARD_LEVEL_TWO)->getDevelopmentCards();
-        $cardsLevel3 = $gameSPL->getMainBoard()->getDrawCards()->get(SplendorParameters::$DRAW_CARD_LEVEL_THREE)->getDevelopmentCards();
+        $cardsLevel1 = $gameSPL->getMainBoard()->getDrawCards()
+            ->get(SplendorParameters::DRAW_CARD_LEVEL_ONE)->getDevelopmentCards();
+        $cardsLevel2 = $gameSPL->getMainBoard()->getDrawCards()
+            ->get(SplendorParameters::DRAW_CARD_LEVEL_TWO)->getDevelopmentCards();
+        $cardsLevel3 = $gameSPL->getMainBoard()->getDrawCards()
+            ->get(SplendorParameters::DRAW_CARD_LEVEL_THREE)->getDevelopmentCards();
         $cards = array_merge($cardsLevel1->toArray(), $cardsLevel2->toArray(), $cardsLevel3->toArray());
         shuffle($cards);
         shuffle($nobleTiles);
@@ -171,7 +173,8 @@ class GameTestController extends AbstractController
                 $this->doRandomly(function () use ($gameSPL, $entityManager, $cardInd, $cards, $player) {
                     $playerCard = new PlayerCardSPL($player, $cards[$cardInd], false);
                     $player->getPersonalBoard()->addPlayerCard($playerCard);
-                    $gameSPL->getMainBoard()->getDrawCards()->get($cards[$cardInd]->getLevel() - 1)->removeDevelopmentCard($cards[$cardInd]);
+                    $gameSPL->getMainBoard()->getDrawCards()
+                        ->get($cards[$cardInd]->getLevel() - 1)->removeDevelopmentCard($cards[$cardInd]);
                     $entityManager->persist($playerCard);
                     $entityManager->persist($player->getPersonalBoard());
                     $entityManager->persist($gameSPL->getMainBoard());
@@ -183,7 +186,8 @@ class GameTestController extends AbstractController
             $this->doRandomly(function () use ($gameSPL, $entityManager, $cardInd, $cards, $player) {
                 $playerCard = new PlayerCardSPL($player, $cards[$cardInd], true);
                 $player->getPersonalBoard()->addPlayerCard($playerCard);
-                $gameSPL->getMainBoard()->getDrawCards()->get($cards[$cardInd]->getLevel() - 1)->removeDevelopmentCard($cards[$cardInd]);
+                $gameSPL->getMainBoard()->getDrawCards()
+                    ->get($cards[$cardInd]->getLevel() - 1)->removeDevelopmentCard($cards[$cardInd]);
                 $entityManager->persist($playerCard);
                 $entityManager->persist($player->getPersonalBoard());
                 $entityManager->persist($gameSPL->getMainBoard());
@@ -224,7 +228,7 @@ class GameTestController extends AbstractController
     #[Route('/game/glenmore/create', name: 'app_game_glenmore_create')]
     public function createGlenmoreGame(): Response
     {
-        $this->gameService->createGame(AbstractGameManagerService::$GLM_LABEL);
+        $this->gameService->createGame(AbstractGameManagerService::GLM_LABEL);
         return $this->redirectToRoute('app_game_glenmore_list');
     }
 
@@ -233,7 +237,7 @@ class GameTestController extends AbstractController
     {
         $user = $this->getUser();
         $value = $this->gameService->joinGame($game->getId(), $user);
-        if ($value != AbstractGameManagerService::$SUCCESS) {
+        if ($value != AbstractGameManagerService::SUCCESS) {
             throw new Exception($value);
         }
         return $this->redirectToRoute('app_game_glenmore_list');
@@ -244,7 +248,7 @@ class GameTestController extends AbstractController
     {
         $user = $this->getUser();
         $value = $this->gameService->quitGame($game->getId(), $user);
-        if ($value != AbstractGameManagerService::$SUCCESS) {
+        if ($value != AbstractGameManagerService::SUCCESS) {
             throw new Exception($value);
         }
         return $this->redirectToRoute('app_game_glenmore_list');
@@ -254,7 +258,7 @@ class GameTestController extends AbstractController
     public function deleteGlenmoreGame(GameGLM $game): Response
     {
         $value = $this->gameService->deleteGame($game->getId());
-        if ($value != AbstractGameManagerService::$SUCCESS) {
+        if ($value != AbstractGameManagerService::SUCCESS) {
             throw new Exception($value);
         }
         return $this->redirectToRoute('app_game_glenmore_list');
@@ -264,7 +268,7 @@ class GameTestController extends AbstractController
     public function launchGlenmoreGame(GameGLM $game): Response
     {
         $value = $this->gameService->launchGame($game->getId());
-        if ($value != AbstractGameManagerService::$SUCCESS) {
+        if ($value != AbstractGameManagerService::SUCCESS) {
             throw new Exception($value);
         }
         return $this->redirectToRoute('app_game_glenmore_list');
@@ -285,7 +289,7 @@ class GameTestController extends AbstractController
     #[Route('/game/myrmes/create', name: 'app_game_myrmes_create')]
     public function createMyrmesGame(): Response
     {
-        $this->gameService->createGame(AbstractGameManagerService::$MYR_LABEL);
+        $this->gameService->createGame(AbstractGameManagerService::MYR_LABEL);
         return $this->redirectToRoute('app_game_myrmes_list');
     }
 
@@ -294,7 +298,7 @@ class GameTestController extends AbstractController
     {
         $user = $this->getUser();
         $value = $this->gameService->joinGame($game->getId(), $user);
-        if ($value != AbstractGameManagerService::$SUCCESS) {
+        if ($value != AbstractGameManagerService::SUCCESS) {
             throw new Exception($value);
         }
         return $this->redirectToRoute('app_game_myrmes_list');
@@ -305,7 +309,7 @@ class GameTestController extends AbstractController
     {
         $user = $this->getUser();
         $value = $this->gameService->quitGame($game->getId(), $user);
-        if ($value != AbstractGameManagerService::$SUCCESS) {
+        if ($value != AbstractGameManagerService::SUCCESS) {
             throw new Exception($value);
         }
         return $this->redirectToRoute('app_game_myrmes_list');
@@ -315,7 +319,7 @@ class GameTestController extends AbstractController
     public function deleteMyrmesGame(GameMYR $game): Response
     {
         $value = $this->gameService->deleteGame($game->getId());
-        if ($value != AbstractGameManagerService::$SUCCESS) {
+        if ($value != AbstractGameManagerService::SUCCESS) {
             throw new Exception($value);
         }
         return $this->redirectToRoute('app_game_myrmes_list');
@@ -325,7 +329,7 @@ class GameTestController extends AbstractController
     public function launchMyrmesGame(GameMYR $game): Response
     {
         $value = $this->gameService->launchGame($game->getId());
-        if ($value != AbstractGameManagerService::$SUCCESS) {
+        if ($value != AbstractGameManagerService::SUCCESS) {
             throw new Exception($value);
         }
         return $this->redirectToRoute('app_game_myrmes_list');
@@ -333,7 +337,7 @@ class GameTestController extends AbstractController
 
 
 
-    private function doRandomly(Callable $call): void
+    private function doRandomly(callable $call): void
     {
         $random = rand(0, 1);
         if ($random == 1) {

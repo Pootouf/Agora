@@ -574,7 +574,7 @@ class MyrmesController extends AbstractController
             return new Response(GameTranslation::NOT_PLAYER_TURN, Response::HTTP_FORBIDDEN);
         }
         if ($game->getGamePhase() != MyrmesParameters::PHASE_WORKER) {
-            return new Response('Not in worker phase', Response::HTTP_FORBIDDEN);
+            return new Response(MyrmesTranslation::RESPONSE_NOT_IN_WORKER_PHASE, Response::HTTP_FORBIDDEN);
         }
 
         try {
@@ -624,7 +624,7 @@ class MyrmesController extends AbstractController
             return new Response(GameTranslation::NOT_PLAYER_TURN, Response::HTTP_FORBIDDEN);
         }
         if ($game->getGamePhase() != MyrmesParameters::PHASE_WORKER) {
-            return new Response('Not in worker phase', Response::HTTP_FORBIDDEN);
+            return new Response(MyrmesTranslation::RESPONSE_NOT_IN_WORKER_PHASE, Response::HTTP_FORBIDDEN);
         }
 
         $anthillHole = $this->workshopMYRService->getAnthillHoleFromTile($tile, $game);
@@ -697,7 +697,7 @@ class MyrmesController extends AbstractController
         }
         try {
             return new Response($this->workerMYRService
-                ->getNeededMovementPoints($coordX1, $coordY1, $coordX2, $coordY2, $game, $player));
+                ->getNeededMovementPoints($coordX1, $coordY1, $coordX2, $coordY2, $game));
         } catch (Exception $e) {
             return new Response("can't get needed movement points, invalid tile",
                 Response::HTTP_INTERNAL_SERVER_ERROR);
@@ -805,7 +805,7 @@ class MyrmesController extends AbstractController
             return new Response(GameTranslation::NOT_PLAYER_TURN, Response::HTTP_FORBIDDEN);
         }
         if ($game->getGamePhase() != MyrmesParameters::PHASE_WORKER) {
-            return new Response('Not in worker phase', Response::HTTP_FORBIDDEN);
+            return new Response(MyrmesTranslation::RESPONSE_NOT_IN_WORKER_PHASE, Response::HTTP_FORBIDDEN);
         }
 
         $tile = $this->workerMYRService->getTileFromCoordinates($coordX, $coordY);
@@ -889,7 +889,7 @@ class MyrmesController extends AbstractController
             return new Response(GameTranslation::NOT_PLAYER_TURN, Response::HTTP_FORBIDDEN);
         }
         if ($game->getGamePhase() != MyrmesParameters::PHASE_WORKER) {
-            return new Response('Not in worker phase', Response::HTTP_FORBIDDEN);
+            return new Response(MyrmesTranslation::RESPONSE_NOT_IN_WORKER_PHASE, Response::HTTP_FORBIDDEN);
         }
 
         $ant = $player->getGardenWorkerMYRs()->first();
@@ -929,7 +929,7 @@ class MyrmesController extends AbstractController
             return new Response(GameTranslation::NOT_PLAYER_TURN, Response::HTTP_FORBIDDEN);
         }
         if ($game->getGamePhase() != MyrmesParameters::PHASE_WORKER) {
-            return new Response('Not in worker phase', Response::HTTP_FORBIDDEN);
+            return new Response(MyrmesTranslation::RESPONSE_NOT_IN_WORKER_PHASE, Response::HTTP_FORBIDDEN);
         }
 
         $this->workerMYRService->killPlayerGardenWorker($player);

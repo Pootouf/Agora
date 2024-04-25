@@ -98,11 +98,9 @@ class MainBoardMYR extends Component
 
     public function removeGardenWorker(GardenWorkerMYR $gardenWorker): static
     {
-        if ($this->gardenWorkers->removeElement($gardenWorker)) {
-            // set the owning side to null (unless already changed)
-            if ($gardenWorker->getMainBoardMYR() === $this) {
-                $gardenWorker->setMainBoardMYR(null);
-            }
+        if ($this->gardenWorkers->removeElement($gardenWorker)
+            && $gardenWorker->getMainBoardMYR() === $this) {
+            $gardenWorker->setMainBoardMYR(null);
         }
 
         return $this;
@@ -128,11 +126,8 @@ class MainBoardMYR extends Component
 
     public function removePrey(PreyMYR $prey): static
     {
-        if ($this->preys->removeElement($prey)) {
-            // set the owning side to null (unless already changed)
-            if ($prey->getMainBoardMYR() === $this) {
-                $prey->setMainBoardMYR(null);
-            }
+        if ($this->preys->removeElement($prey) && $prey->getMainBoardMYR() === $this) {
+            $prey->setMainBoardMYR(null);
         }
 
         return $this;
@@ -182,11 +177,8 @@ class MainBoardMYR extends Component
 
     public function removeAnthillHole(AnthillHoleMYR $anthillHole): static
     {
-        if ($this->anthillHoles->removeElement($anthillHole)) {
-            // set the owning side to null (unless already changed)
-            if ($anthillHole->getMainBoardMYR() === $this) {
-                $anthillHole->setMainBoardMYR(null);
-            }
+        if ($this->anthillHoles->removeElement($anthillHole) && $anthillHole->getMainBoardMYR() === $this) {
+            $anthillHole->setMainBoardMYR(null);
         }
 
         return $this;
@@ -212,11 +204,8 @@ class MainBoardMYR extends Component
 
     public function removeSeason(SeasonMYR $season): static
     {
-        if ($this->seasons->removeElement($season)) {
-            // set the owning side to null (unless already changed)
-            if ($season->getMainBoard() === $this) {
-                $season->setMainBoard(null);
-            }
+        if ($this->seasons->removeElement($season) && $season->getMainBoard() === $this) {
+            $season->setMainBoard(null);
         }
 
         return $this;
@@ -242,11 +231,9 @@ class MainBoardMYR extends Component
 
     public function removeGameGoalsLevelOne(GameGoalMYR $gameGoalsLevelOne): static
     {
-        if ($this->gameGoalsLevelOne->removeElement($gameGoalsLevelOne)) {
-            // set the owning side to null (unless already changed)
-            if ($gameGoalsLevelOne->getMainBoardLevelOne() === $this) {
-                $gameGoalsLevelOne->setMainBoardLevelOne(null);
-            }
+        if ($this->gameGoalsLevelOne->removeElement($gameGoalsLevelOne)
+            && $gameGoalsLevelOne->getMainBoardLevelOne() === $this) {
+            $gameGoalsLevelOne->setMainBoardLevelOne(null);
         }
 
         return $this;
@@ -272,11 +259,9 @@ class MainBoardMYR extends Component
 
     public function removeGameGoalsLevelTwo(GameGoalMYR $gameGoalsLevelTwo): static
     {
-        if ($this->gameGoalsLevelTwo->removeElement($gameGoalsLevelTwo)) {
-            // set the owning side to null (unless already changed)
-            if ($gameGoalsLevelTwo->getMainBoardLevelTwo() === $this) {
-                $gameGoalsLevelTwo->setMainBoardLevelTwo(null);
-            }
+        if ($this->gameGoalsLevelTwo->removeElement($gameGoalsLevelTwo)
+            && $gameGoalsLevelTwo->getMainBoardLevelTwo() === $this) {
+            $gameGoalsLevelTwo->setMainBoardLevelTwo(null);
         }
 
         return $this;
@@ -302,11 +287,9 @@ class MainBoardMYR extends Component
 
     public function removeGameGoalsLevelThree(GameGoalMYR $gameGoalsLevelThree): static
     {
-        if ($this->gameGoalsLevelThree->removeElement($gameGoalsLevelThree)) {
-            // set the owning side to null (unless already changed)
-            if ($gameGoalsLevelThree->getMainBoardLevelThree() === $this) {
-                $gameGoalsLevelThree->setMainBoardLevelThree(null);
-            }
+        if ($this->gameGoalsLevelThree->removeElement($gameGoalsLevelThree)
+            && $gameGoalsLevelThree->getMainBoardLevelThree() === $this) {
+            $gameGoalsLevelThree->setMainBoardLevelThree(null);
         }
 
         return $this;

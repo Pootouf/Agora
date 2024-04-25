@@ -700,7 +700,7 @@ class SixQPServiceIntegrationTest extends KernelTestCase
     {
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);
         $game = new GameSixQP();
-        $game->setGameName(AbstractGameManagerService::$SIXQP_LABEL);
+        $game->setGameName(AbstractGameManagerService::SIXQP_LABEL);
         for ($i = 0; $i < $numberOfRow; $i++) {
             $row = new RowSixQP();
             $row->setPosition($i);

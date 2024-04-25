@@ -111,11 +111,9 @@ class PersonalBoardSPL
 
     public function removePlayerCard(PlayerCardSPL $playerCard): static
     {
-        if ($this->playerCards->removeElement($playerCard)) {
-            // set the owning side to null (unless already changed)
-            if ($playerCard->getPersonalBoardSPL() === $this) {
-                $playerCard->setPersonalBoardSPL(null);
-            }
+        if ($this->playerCards->removeElement($playerCard)
+            && $playerCard->getPersonalBoardSPL() === $this) {
+            $playerCard->setPersonalBoardSPL(null);
         }
 
         return $this;
@@ -158,11 +156,9 @@ class PersonalBoardSPL
 
     public function removeSelectedToken(SelectedTokenSPL $selectedToken): static
     {
-        if ($this->selectedTokens->removeElement($selectedToken)) {
-            // set the owning side to null (unless already changed)
-            if ($selectedToken->getPersonalBoardSPL() === $this) {
-                $selectedToken->setPersonalBoardSPL(null);
-            }
+        if ($this->selectedTokens->removeElement($selectedToken)
+            && $selectedToken->getPersonalBoardSPL() === $this) {
+            $selectedToken->setPersonalBoardSPL(null);
         }
 
         return $this;

@@ -143,13 +143,13 @@ class DataManagementGLMService
         // Change min and max y & x for adding extra empty tile (one empty line at the start of the board, one empty
         //  tile at each side of the line)
         $miny = $this->playerTileGLMRepository->
-        findOneBy(['personalBoard' => $playerGLM->getPersonalBoard()], ['coord_Y' => 'ASC'])->getCoordY() - 1;
+        findOneBy(['personalBoard' => $playerGLM->getPersonalBoard()], ['coordY' => 'ASC'])->getCoordY() - 1;
         $maxy = $this->playerTileGLMRepository->
-        findOneBy(['personalBoard' => $playerGLM->getPersonalBoard()], ['coord_Y' => 'DESC'])->getCoordY() + 1;
+        findOneBy(['personalBoard' => $playerGLM->getPersonalBoard()], ['coordY' => 'DESC'])->getCoordY() + 1;
         $minx = $this->playerTileGLMRepository->
-        findOneBy(['personalBoard' => $playerGLM->getPersonalBoard()], ['coord_X' => 'ASC'])->getCoordX() - 1;
+        findOneBy(['personalBoard' => $playerGLM->getPersonalBoard()], ['coordX' => 'ASC'])->getCoordX() - 1;
         $maxx = $this->playerTileGLMRepository->
-            findOneBy(['personalBoard' => $playerGLM->getPersonalBoard()], ['coord_X' => 'DESC'])->getCoordX() + 1;
+            findOneBy(['personalBoard' => $playerGLM->getPersonalBoard()], ['coordX' => 'DESC'])->getCoordX() + 1;
 
         //Sorting by x coord and then by y coord
         $tiles = $playerGLM->getPersonalBoard()->getPlayerTiles()->toArray();

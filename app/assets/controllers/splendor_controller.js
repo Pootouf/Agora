@@ -22,21 +22,15 @@ export default class extends Controller {
     }
 
     async buyCard(card) {
-        closeWindow()
-        let url = card.params.url;
-        await fetch(url);
+        await this.closeWindowAndFetchUrl(card.params.url)
     }
 
     async reserveCardOnRow(card) {
-        closeWindow()
-        let url = card.params.url;
-        await fetch(url);
+        await this.closeWindowAndFetchUrl(card.params.url)
     }
 
     async reserveCardOnDraw(level) {
-        closeWindow()
-        let url = level.params.url;
-        await fetch(url);
+        await this.closeWindowAndFetchUrl(level.params.url)
     }
 
     async takeToken(token) {
@@ -46,6 +40,11 @@ export default class extends Controller {
 
     async clearSelectedTokens(button) {
         let url = button.params.url;
+        await fetch(url);
+    }
+
+    async closeWindowAndFetchUrl(url) {
+        closeWindow()
         await fetch(url);
     }
 

@@ -63,11 +63,8 @@ class MainBoardSPL
 
     public function removeRowsSPL(RowSPL $rowsSPL): static
     {
-        if ($this->rowsSPL->removeElement($rowsSPL)) {
-            // set the owning side to null (unless already changed)
-            if ($rowsSPL->getMainBoardSPL() === $this) {
-                $rowsSPL->setMainBoardSPL(null);
-            }
+        if ($this->rowsSPL->removeElement($rowsSPL) && $rowsSPL->getMainBoardSPL() === $this) {
+            $rowsSPL->setMainBoardSPL(null);
         }
 
         return $this;
@@ -141,11 +138,8 @@ class MainBoardSPL
 
     public function removeDrawCard(DrawCardsSPL $drawCard): static
     {
-        if ($this->drawCards->removeElement($drawCard)) {
-            // set the owning side to null (unless already changed)
-            if ($drawCard->getMainBoardSPL() === $this) {
-                $drawCard->setMainBoardSPL(null);
-            }
+        if ($this->drawCards->removeElement($drawCard) && $drawCard->getMainBoardSPL() === $this) {
+            $drawCard->setMainBoardSPL(null);
         }
 
         return $this;

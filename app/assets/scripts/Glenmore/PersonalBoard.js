@@ -1,4 +1,4 @@
-export default class personalBoard {
+export default class PersonalBoard {
 
     static togglePersonalBoard(open) {
         const openedPersonalBoard = document.getElementById("openedPersonalBoard");

@@ -16,10 +16,10 @@ use Exception;
 
 class WinterMYRService
 {
-    public function __construct(private readonly EntityManagerInterface $entityManager,
-                                private readonly ResourceMYRRepository $resourceMYRRepository,
+    public function __construct(private readonly EntityManagerInterface      $entityManager,
+                                private readonly ResourceMYRRepository       $resourceMYRRepository,
                                 private readonly PlayerResourceMYRRepository $playerResourceMYRRepository,
-                                private readonly MYRService $MYRService) {}
+                                private readonly MYRService                  $myrService) {}
 
 
     /**
@@ -35,7 +35,7 @@ class WinterMYRService
         foreach($personalBoard->getPlayerResourceMYRs() as $playerResourceMYR) {
             $totalResourcesCount += $playerResourceMYR->getQuantity();
         }
-        return $playerMYR->getPhase() == MyrmesParameters::PHASE_WINTER and
+        return $playerMYR->getPhase() == MyrmesParameters::PHASE_WINTER &&
             $anthillLevel < 2 ?
             $totalResourcesCount > MyrmesParameters::WAREHOUSE_LOCATIONS_AVAILABLE_ANTHILL_LEVEL_LESS_THAN_2
             : $totalResourcesCount > MyrmesParameters::WAREHOUSE_LOCATIONS_AVAILABLE_ANTHILL_LEVEL_AT_LEAST_2;
@@ -63,7 +63,7 @@ class WinterMYRService
      */
     public function canSetPhaseToWinter(GameMYR $gameMYR): bool
     {
-        return $this->MYRService->getActualSeason($gameMYR)->getName() == MyrmesParameters::FALL_SEASON_NAME;
+        return $this->myrService->getActualSeason($gameMYR)->getName() == MyrmesParameters::FALL_SEASON_NAME;
     }
 
     /**
@@ -115,7 +115,7 @@ class WinterMYRService
         $this->entityManager->persist($playerFood);
 
         for ($i = 0; $i < $remaining; ++$i) {
-            $availableLarvae = $this->MYRService->getAvailableLarvae($player);
+            $availableLarvae = $this->myrService->getAvailableLarvae($player);
             if ($availableLarvae >= 3) {
                 $larvaCount = $player->getPersonalBoardMYR()->getLarvaCount();
                 $player->getPersonalBoardMYR()->setLarvaCount($larvaCount - 3);
@@ -146,7 +146,7 @@ class WinterMYRService
         foreach($gameMYR->getPlayers() as $player) {
             $this->retrievePoints($player);
         }
-        $this->MYRService->manageEndOfRound($gameMYR);
+        $this->myrService->manageEndOfRound($gameMYR);
     }
 
     /**
