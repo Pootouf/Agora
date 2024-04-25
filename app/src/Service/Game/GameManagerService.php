@@ -25,25 +25,25 @@ class GameManagerService
 {
     private array $gameManagerServices;
 
-    public function __construct(private GameSixQPRepository $gameSixQPRepository,
-                                private GameSPLRepository $gameSPLRepository,
-                                private GameGLMRepository $gameGLMRepository,
-                                private GameMYRRepository $gameMYRRepository,
-                                private PlayerSixQPRepository $playerSixQPRepository,
-                                private PlayerSPLRepository $playerSPLRepository,
-                                private PlayerGLMRepository $playerGLMRepository,
-                                private PlayerMYRRepository $playerMYRRepository,
-                                SixQPGameManagerService $sixQPGameManagerService,
-                                SPLGameManagerService $SPLGameManagerService,
-                                GLMGameManagerService $GLMGameManagerService,
-                                MYRGameManagerService $MYRGameManagerService,
+    public function __construct(private GameSixQPRepository             $gameSixQPRepository,
+                                private GameSPLRepository               $gameSPLRepository,
+                                private GameGLMRepository               $gameGLMRepository,
+                                private GameMYRRepository               $gameMYRRepository,
+                                private PlayerSixQPRepository           $playerSixQPRepository,
+                                private PlayerSPLRepository             $playerSPLRepository,
+                                private PlayerGLMRepository             $playerGLMRepository,
+                                private PlayerMYRRepository             $playerMYRRepository,
+                                SixQPGameManagerService                 $sixQPGameManagerService,
+                                SPLGameManagerService                   $splGameManagerService,
+                                GLMGameManagerService                   $glmGameManagerService,
+                                MYRGameManagerService                   $myrGameManagerService,
                                 private readonly EntityManagerInterface $entityManager
     )
     {
         $this->gameManagerServices[AbstractGameManagerService::SIXQP_LABEL] = $sixQPGameManagerService;
-        $this->gameManagerServices[AbstractGameManagerService::SPL_LABEL] = $SPLGameManagerService;
-        $this->gameManagerServices[AbstractGameManagerService::GLM_LABEL] = $GLMGameManagerService;
-        $this->gameManagerServices[AbstractGameManagerService::MYR_LABEL] = $MYRGameManagerService;
+        $this->gameManagerServices[AbstractGameManagerService::SPL_LABEL] = $splGameManagerService;
+        $this->gameManagerServices[AbstractGameManagerService::GLM_LABEL] = $glmGameManagerService;
+        $this->gameManagerServices[AbstractGameManagerService::MYR_LABEL] = $myrGameManagerService;
     }
 
     public function createGame(string $gameName): int {
