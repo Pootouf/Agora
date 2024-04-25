@@ -1,5 +1,5 @@
 import {Controller} from '@hotwired/stimulus';
-import personalBoard from "../scripts/Glenmore/personalBoard.js";
+import PersonalBoard from "../scripts/Glenmore/PersonalBoard.js";
 
 /*
  * This is an example Stimulus controller!
@@ -14,7 +14,7 @@ export default class extends Controller {
 
 	togglePersonalBoard(isOpening) {
 		let open = isOpening.params.open;
-		personalBoard.togglePersonalBoard(open);
+		PersonalBoard.togglePersonalBoard(open);
 	}
 
 	async displayPropertyCards(board) {
