@@ -16,10 +16,9 @@ use App\Service\Game\AbstractGameManagerService;
 use App\Service\Game\GameManagerService;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Util\Exception;
-use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
@@ -145,9 +144,12 @@ class GameTestController extends AbstractController
         $tokens = $gameSPL->getMainBoard()->getTokens()->toArray();
 
         $nobleTiles = $gameSPL->getMainBoard()->getNobleTiles()->toArray();
-        $cardsLevel1 = $gameSPL->getMainBoard()->getDrawCards()->get(SplendorParameters::$DRAW_CARD_LEVEL_ONE)->getDevelopmentCards();
-        $cardsLevel2 = $gameSPL->getMainBoard()->getDrawCards()->get(SplendorParameters::$DRAW_CARD_LEVEL_TWO)->getDevelopmentCards();
-        $cardsLevel3 = $gameSPL->getMainBoard()->getDrawCards()->get(SplendorParameters::$DRAW_CARD_LEVEL_THREE)->getDevelopmentCards();
+        $cardsLevel1 = $gameSPL->getMainBoard()->getDrawCards()
+            ->get(SplendorParameters::DRAW_CARD_LEVEL_ONE)->getDevelopmentCards();
+        $cardsLevel2 = $gameSPL->getMainBoard()->getDrawCards()
+            ->get(SplendorParameters::DRAW_CARD_LEVEL_TWO)->getDevelopmentCards();
+        $cardsLevel3 = $gameSPL->getMainBoard()->getDrawCards()
+            ->get(SplendorParameters::DRAW_CARD_LEVEL_THREE)->getDevelopmentCards();
         $cards = array_merge($cardsLevel1->toArray(), $cardsLevel2->toArray(), $cardsLevel3->toArray());
         shuffle($cards);
         shuffle($nobleTiles);
@@ -171,7 +173,8 @@ class GameTestController extends AbstractController
                 $this->doRandomly(function () use ($gameSPL, $entityManager, $cardInd, $cards, $player) {
                     $playerCard = new PlayerCardSPL($player, $cards[$cardInd], false);
                     $player->getPersonalBoard()->addPlayerCard($playerCard);
-                    $gameSPL->getMainBoard()->getDrawCards()->get($cards[$cardInd]->getLevel() - 1)->removeDevelopmentCard($cards[$cardInd]);
+                    $gameSPL->getMainBoard()->getDrawCards()
+                        ->get($cards[$cardInd]->getLevel() - 1)->removeDevelopmentCard($cards[$cardInd]);
                     $entityManager->persist($playerCard);
                     $entityManager->persist($player->getPersonalBoard());
                     $entityManager->persist($gameSPL->getMainBoard());
@@ -183,7 +186,8 @@ class GameTestController extends AbstractController
             $this->doRandomly(function () use ($gameSPL, $entityManager, $cardInd, $cards, $player) {
                 $playerCard = new PlayerCardSPL($player, $cards[$cardInd], true);
                 $player->getPersonalBoard()->addPlayerCard($playerCard);
-                $gameSPL->getMainBoard()->getDrawCards()->get($cards[$cardInd]->getLevel() - 1)->removeDevelopmentCard($cards[$cardInd]);
+                $gameSPL->getMainBoard()->getDrawCards()
+                    ->get($cards[$cardInd]->getLevel() - 1)->removeDevelopmentCard($cards[$cardInd]);
                 $entityManager->persist($playerCard);
                 $entityManager->persist($player->getPersonalBoard());
                 $entityManager->persist($gameSPL->getMainBoard());
@@ -333,7 +337,7 @@ class GameTestController extends AbstractController
 
 
 
-    private function doRandomly(Callable $call): void
+    private function doRandomly(callable $call): void
     {
         $random = rand(0, 1);
         if ($random == 1) {
