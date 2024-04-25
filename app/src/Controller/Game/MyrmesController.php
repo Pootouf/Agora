@@ -697,7 +697,7 @@ class MyrmesController extends AbstractController
         }
         try {
             return new Response($this->workerMYRService
-                ->getNeededMovementPoints($coordX1, $coordY1, $coordX2, $coordY2, $game, $player));
+                ->getNeededMovementPoints($coordX1, $coordY1, $coordX2, $coordY2, $game));
         } catch (Exception $e) {
             return new Response("can't get needed movement points, invalid tile",
                 Response::HTTP_INTERNAL_SERVER_ERROR);

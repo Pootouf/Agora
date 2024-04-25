@@ -2808,7 +2808,7 @@ class WorkerMYRServiceTest extends TestCase
             ->will($this->onConsecutiveCalls($pheromoneTile1, $pheromoneTile2));
         $expectedResult = 0;
         //WHEN
-        $result = $this->workerMYRService->getNeededMovementPoints($coordX1, $coordY1, $coordX2, $coordY2, $game, $player);
+        $result = $this->workerMYRService->getNeededMovementPoints($coordX1, $coordY1, $coordX2, $coordY2, $game);
         //THEN
         $this->assertEquals($expectedResult, $result);
 
@@ -2848,7 +2848,7 @@ class WorkerMYRServiceTest extends TestCase
             ->will($this->onConsecutiveCalls($pheromoneTile1, null));
         $expectedResult = 1;
         //WHEN
-        $result = $this->workerMYRService->getNeededMovementPoints($coordX1, $coordY1, $coordX2, $coordY2, $game, $player);
+        $result = $this->workerMYRService->getNeededMovementPoints($coordX1, $coordY1, $coordX2, $coordY2, $game);
         //THEN
         $this->assertEquals($expectedResult, $result);
 
@@ -2875,7 +2875,7 @@ class WorkerMYRServiceTest extends TestCase
         //THEN
         $this->expectException(InvalidArgumentException::class);
         //WHEN
-        $this->workerMYRService->getNeededMovementPoints($coordX1, $coordY1, $coordX2, $coordY2, $game, $player);
+        $this->workerMYRService->getNeededMovementPoints($coordX1, $coordY1, $coordX2, $coordY2, $game);
 
     }
 
