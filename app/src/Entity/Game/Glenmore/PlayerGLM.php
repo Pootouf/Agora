@@ -104,11 +104,9 @@ class PlayerGLM extends Player
 
     public function removePlayerTileResourceGLM(PlayerTileResourceGLM $playerTileResourceGLM): static
     {
-        if ($this->playerTileResourceGLMs->removeElement($playerTileResourceGLM)) {
-            // set the owning side to null (unless already changed)
-            if ($playerTileResourceGLM->getPlayer() === $this) {
-                $playerTileResourceGLM->setPlayer(null);
-            }
+        if ($this->playerTileResourceGLMs->removeElement($playerTileResourceGLM)
+            && $playerTileResourceGLM->getPlayer() === $this) {
+            $playerTileResourceGLM->setPlayer(null);
         }
 
         return $this;
