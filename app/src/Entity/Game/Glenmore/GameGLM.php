@@ -43,11 +43,8 @@ class GameGLM extends Game
 
     public function removePlayer(PlayerGLM $player): static
     {
-        if ($this->players->removeElement($player)) {
-            // set the owning side to null (unless already changed)
-            if ($player->getGameGLM() === $this) {
-                $player->setGameGLM(null);
-            }
+        if ($this->players->removeElement($player) && $player->getGameGLM() === $this) {
+            $player->setGameGLM(null);
         }
 
         return $this;
