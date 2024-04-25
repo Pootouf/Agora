@@ -193,6 +193,7 @@ class MyrmesController extends AbstractController
                 'isPreview' => false,
                 'isSpectator' => true,
                 'isAnotherPlayerBoard' => true,
+                'needToPlay' => $playerMYR->isTurnOfPlayer(),
                 'playerPhase' => $playerMYR->getPhase(),
                 'actualSeason' => $this->service->getActualSeason($game),
                 'availableLarvae' => $this->service->getAvailableLarvae($playerMYR),

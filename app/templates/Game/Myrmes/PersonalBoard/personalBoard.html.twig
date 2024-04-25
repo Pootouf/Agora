@@ -49,7 +49,7 @@ This section displays the personal board of a player
         {{ include('Game/Myrmes/PersonalBoard/loadingPersonalBoardData.html.twig') }}
         <div class="inlineFlexCol {% if isPreview %}gap-[0.3vw]{% else %}gap-[1vw]{% endif %} w-[45%]" id="left-column">
             {#send worker on garden#}
-            {% if not isPreview and playerPhase == PHASE_WORKER and player.personalBoardMYR.anthillWorkers|length > 0 and needToPlay %}
+            {% if not isAnotherPlayerBoard and not isPreview and playerPhase == PHASE_WORKER and player.personalBoardMYR.anthillWorkers|length > 0 and needToPlay %}
                 <div class="w-full inlineFlex">
                     <button type="button" class="h-[4vw]"
                             {{ stimulus_action('myrmes','selectAntHillHoleToSendWorker','click',
