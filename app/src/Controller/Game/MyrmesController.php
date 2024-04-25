@@ -1760,7 +1760,7 @@ class MyrmesController extends AbstractController
 
 
 
-        return $this->render('Game/Myrmes/MainBoard/InteractiveGoals/pheromoneGoal.html.twig', [
+        return $this->render('Game/Myrmes/MainBoard/InteractiveGoals/pheromoneAndSpecialTileGoal.html.twig', [
             'game' => $gameMYR,
             'goal' => $gameGoalMYR,
             'tilesOwned' => implode('___', $pheromones->toArray()),
@@ -1804,7 +1804,7 @@ class MyrmesController extends AbstractController
             return $pheromoneId . '__' . implode('_', $tileIds);
         });
 
-        return $this->render('Game/Myrmes/MainBoard/InteractiveGoals/pheromoneGoal.html.twig', [
+        return $this->render('Game/Myrmes/MainBoard/InteractiveGoals/pheromoneAndSpecialTileGoal.html.twig', [
             'game' => $gameMYR,
             'goal' => $gameGoalMYR,
             'tilesOwned' => implode('___', $specialTiles->toArray()),
