@@ -54,6 +54,7 @@ class Board
     private int $partyId;
 
     #[ORM\ManyToMany(targetEntity: User::class)]
+    #[ORM\JoinTable(name: "user_invited")]
     private Collection $invitedContacts;
 
 
