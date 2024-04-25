@@ -29,9 +29,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Exception;
 
-/**
- * @codeCoverageIgnore
- */
 class MyrmesController extends AbstractController
 {
     public function __construct(private readonly MYRService $service,
