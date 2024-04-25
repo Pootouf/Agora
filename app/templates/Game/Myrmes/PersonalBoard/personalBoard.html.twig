@@ -14,7 +14,6 @@ This section displays the personal board of a player
     {% set gapSize = 'gap-[1vw]' %}
     {% set gapBetweenAreasSize = 'gap-[2vw]' %}
 {% endif %}
-{% if not isAnotherPlayerBoard %}
 
 {# Definition of constants #}
 {% set PHASE_EVENT = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::PHASE_EVENT') %}
@@ -38,13 +37,12 @@ This section displays the personal board of a player
 <div {% if not isPreview %}id="personalBoard"{% endif %}
      class="absolute top-0 left-0 w-full h-full bg-black bg-opacity-70 flex z-50 text-white items-center justify-center"
 >
-    {% endif %}
     <div class="bg-[#c67b24] rounded-lg
         {% if isPreview or isAnotherPlayerBoard %}
             w-full h-full
         {% else %}
             absolute left-0 w-[75%] h-full
-        {% endif%}
+        {% endif %}
         inlineFlex gap-[1vw]"
     >
         {# loading tailwind data#}
