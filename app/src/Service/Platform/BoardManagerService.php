@@ -58,7 +58,7 @@ class BoardManagerService
         //If it was the last player to complete the board, launch the game
         if($board->isFull()){
             $this->gameManagerService->launchGame($board->getPartyId());
-            $board->setStatus("IN_GAME");
+            $board->setInGame();
             $users = $board->getListUsers();
             $this->notificationService->notifyManyUser($users, "La partie ".$board->getPartyId()." du jeu ".$board->getGame()->getLabel()." a démarré, vous pouvez maintenant jouer", new \DateTime());
         }

@@ -53,11 +53,15 @@ class Board
     #[ORM\Column]
     private int $partyId;
 
+    //All status of a table
+    private static string $STATUS_WAITING = "WAITING";
+    private static string $STATUS_IN_GAME = "IN_GAME";
+    private static string $STATUS_FINISHED = "FINISHED";
 
 
     public function __construct()
     {
-        $this->status = "WAITING";
+        $this->status = $this::$STATUS_WAITING;
         $this->invitationHash = sha1(random_bytes(10));
         $this->listUsers = new ArrayCollection();
     }
@@ -290,7 +294,7 @@ class Board
      * @return bool Returns true if the board is available, false otherwise.
      */
     public function isAvailble(){
-        return $this->status!="IN_GAME" && $this->listUsers->count() + $this->nbInvitations < $this->nbUserMax;
+        return $this->status!=$this::$STATUS_IN_GAME && $this->listUsers->count() + $this->nbInvitations < $this->nbUserMax;
     }
 
     /**
@@ -393,6 +397,39 @@ class Board
     public function isFull():bool
     {
         return $this->listUsers->count() == $this->nbUserMax;
+    }
+
+
+    /**
+     * Set the board as "Waiting"
+     *
+     *
+     */
+
+    public function setWaiting(): void
+    {
+        $this->status = $this::$STATUS_WAITING;
+    }
+
+    /**
+     * Set the board as "In_Game"
+     *
+     *
+     */
+
+    public function setInGame(): void
+    {
+        $this->status = $this::$STATUS_IN_GAME;
+    }
+
+    /**
+     * Set the board as "Finished"
+     *
+     *
+     */
+    public function setFinished(): void
+    {
+        $this->status = $this::$STATUS_FINISHED;
     }
 
 }
