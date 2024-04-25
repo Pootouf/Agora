@@ -3,6 +3,10 @@ This section displays the ranking with a view of the other players' possessions
 @param : game, players
 @return :
 #}
+
+{#constants declaration#}
+{% set PHASE_BIRTH = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::PHASE_BIRTH') %}
+
 {# Myrmes Logo with actual season dice #}
 {% set seasons = game.mainBoardMYR.seasons %}
 <div id="logo" class="w-full h-[10vw] landscape:1/6  lg:h-1/5 justify-center flex">
@@ -62,7 +66,7 @@ This section displays the ranking with a view of the other players' possessions
                             pt-2 landscape:pt-1
                             flex justify-around justify-between">
                 {# Button to see other player's personal board #}
-                {% if p.id != player.id  %}
+                {% if p.id != player.id and game.gamePhase != PHASE_BIRTH %}
                     <button {{ stimulus_action('myrmes', 'displayPlayerPersonalBoard', 'click',
                         {url:path('app_game_myrmes_display_player_personal_board',
                             {idGame: game.id, idPlayer: p.id}), open: true})
