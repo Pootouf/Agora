@@ -8,65 +8,69 @@ This section displays the stone or dirt goal menu
 <div class="absolute font-bold bg-orange-500 p-5 w-full h-[60%] rounded-lg flex items-center justify-center flex-col"
 	 data-total-quantity-needed="{{ totalQuantityNeeded }}"
 >
-	<p class="text-xl  text-center">
+	<p class="lg:text-2xl md:text:lg text-center">
 		Ressource de pierre / terre à donner pour l'objectif
 	</p>
-	<img class="items-center justify-center rounded-lg shadow-lg max-h-full shadow-black m-2"
+	<img class="items-center justify-center rounded-lg shadow-lg max-h-full shadow-black w-[40%] m-2"
 		 src="{{ asset('resourcesGames/Myrmes/Goals/' ~ goal.goal.id ~ '.svg') }}"
 		 alt="goal_{{ goal.goal.id }}">
 
-	<div class="flex flex-row">
-		<label for="stone-range" class="block mb-2 text-sm font-medium text-gray-900 flex">
-			Pierre
-		</label>
-		<img src="{{asset('resourcesGames/Myrmes/resources/stone.svg')}}" alt="pierre"
-			 class="size-4 ml-1 mr-1 h-full">
-		<p id="stoneQuantitySelected">
-			0
-		</p>
+	<div class="w-full ">
+		<div class="flex flex-row justify-center items-center">
+			<label for="stone-range" class="block mb-2 text-sm font-medium text-gray-900 flex">
+				Pierre
+			</label>
+			<img src="{{asset('resourcesGames/Myrmes/resources/stone.svg')}}" alt="pierre"
+			     class="size-4 ml-1 mr-1 h-full">
+			<p id="stoneQuantitySelected">
+				0
+			</p>
+		</div>
+		<input id="stone-range" type="range" min="0" max="{{ min(stoneQuantity, totalQuantityNeeded) }}"
+		       value="{{ totalQuantityNeeded / 2}}"
+		       oninput="updateOtherRange(this)"
+		       class="w-full h-2 bg-blue-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
+
+		<div class="flex flex-row justify-center items-center">
+			<label for="dirt-range" class=" block mb-2 mt-2 text-sm font-medium text-gray-900 flex">
+				Terre
+			</label>
+			<img src="{{asset('resourcesGames/Myrmes/resources/dirt.svg')}}" alt="terre"
+			     class="size-4 ml-1 mr-1 h-full">
+			<p id="dirtQuantitySelected">
+				0
+			</p>
+		</div>
+		<input id="dirt-range" type="range" min="0" max="{{ min(dirtQuantity, totalQuantityNeeded) }}" value="0"
+		       oninput="updateOtherRange(this)"
+		       class="w-full h-2 bg-blue-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
+
+		<div class="flex flex-row m-2 gap-2 w-full">
+			<button id="StoneAndDirtQuantityGoalValidation"
+			        class="flex flex-grow items-center justify-center bg-[#15803d] disabled:opacity-50 enabled:hover:bg-[#166534]
+				            rounded-lg p-2 text-2xl text-white font-bold disabled:cursor-not-allowed"
+					{{ stimulus_action('myrmes','validateStoneOrDirtGoal','click',
+						{url:path('app_game_myrmes_validate_stone_or_dirt_goal',
+							{
+								idGame: game.id,
+								goalId: goal.id,
+								stoneQuantity: "stoneQuantity",
+								dirtQuantity: "dirtQuantity",
+							})
+						})
+					}}
+			>
+				Valider
+			</button>
+
+			<button id="return_board" onclick="closeObjectivesWindow()"
+			        class="rounded-lg bg-green-900 py-2 px-3 m-1 text-2xl right-0 bottom-0 items-center"
+			>
+				<img src="{{ asset('resourcesGames/utils/return-arrow.svg') }}" id="returnArrow"
+				     alt="return on board"
+				     class="h-8 max-h-full">
+			</button>
+		</div>
 	</div>
 
-
-	<input id="stone-range" type="range" min="0" max="{{ min(stoneQuantity, totalQuantityNeeded) }}"
-		   value="{{ totalQuantityNeeded / 2}}"
-		   oninput="updateOtherRange(this)"
-		   class="w-full h-2 bg-blue-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
-	<div class="flex flex-row items-center">
-		<label for="dirt-range" class=" block mb-2 mt-2 text-sm font-medium text-gray-900 flex">
-			Terre
-		</label>
-		<img src="{{asset('resourcesGames/Myrmes/resources/dirt.svg')}}" alt="terre"
-			 class="size-4 ml-1 mr-1 h-full">
-		<p id="dirtQuantitySelected">
-			0
-		</p>
-	</div>
-	<input id="dirt-range" type="range" min="0" max="{{ min(dirtQuantity, totalQuantityNeeded) }}" value="0"
-		   oninput="updateOtherRange(this)"
-		   class="w-full h-2 bg-blue-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
-
-	<button id="StoneAndDirtQuantityGoalValidation"
-			class="bg-[#15803d] w-full hover:bg-[#166534]
-            rounded-lg p-2 text-2xl text-white font-bold m-4"
-			{{ stimulus_action('myrmes','validateStoneOrDirtGoal','click',
-				{url:path('app_game_myrmes_validate_stone_or_dirt_goal',
-					{
-						idGame: game.id,
-						goalId: goal.id,
-						stoneQuantity: "stoneQuantity",
-						dirtQuantity: "dirtQuantity",
-					})
-				})
-			}}
-	>
-		Valider
-	</button>
-
-	<button id="return_board" onclick="closeObjectivesWindow()"
-			class="absolute rounded-lg bg-green-900 py-2 px-3 m-1 text-2xl right-0 bottom-0 items-center"
-	>
-		<img src="{{ asset('resourcesGames/utils/return-arrow.svg') }}" id="returnArrow"
-			 alt="return on board"
-			 class="h-8 max-h-full">
-	</button>
 </div>
