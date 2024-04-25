@@ -149,12 +149,11 @@ class TileGLMService
             $activableTiles = $this->cardGLMService->applyLochNess($personalBoard);
         }
         // if there is no activable tiles even after Loch Ness
-        if($activableTiles->isEmpty()) {
-            if ($personalBoard->getPlayerGLM()->getRoundPhase() != GlenmoreParameters::SELLING_PHASE) {
-                $personalBoard->getPlayerGLM()->setRoundPhase(GlenmoreParameters::MOVEMENT_PHASE);
-                $this->entityManager->persist($personalBoard->getPlayerGLM());
-                $this->entityManager->flush();
-            }
+        if($activableTiles->isEmpty()
+            && $personalBoard->getPlayerGLM()->getRoundPhase() != GlenmoreParameters::SELLING_PHASE) {
+            $personalBoard->getPlayerGLM()->setRoundPhase(GlenmoreParameters::MOVEMENT_PHASE);
+            $this->entityManager->persist($personalBoard->getPlayerGLM());
+            $this->entityManager->flush();
         }
         return $activableTiles;
     }
@@ -249,11 +248,10 @@ class TileGLMService
 
     /**
      * canBuyLochOich: return true if the player can buy Loch Oich
-     * @param TileGLM $tile
      * @param PlayerGLM $player
      * @return bool
      */
-    public function canBuyLochOich(TileGLM $tile, PlayerGLM $player) : bool
+    public function canBuyLochOich(PlayerGLM $player) : bool
     {
         $playerTiles = $player->getPersonalBoard()->getPlayerTiles();
         $playerResources = new ArrayCollection();
@@ -694,14 +692,13 @@ class TileGLMService
      */
     public function buyTile(TileGLM $tile, PlayerGLM $player) : void
     {
-        if ($tile->getName() === GlenmoreParameters::CARD_LOCH_NESS) {
-            if ($player->getPersonalBoard()->getSelectedResources()->first()->getPlayerTile() == null) {
-                $leaderCount = $player->getPersonalBoard()->getLeaderCount();
-                $player->getPersonalBoard()->setLeaderCount($leaderCount - 1);
-                $this->entityManager->persist($player->getPersonalBoard());
-                $this->entityManager->flush();
-                return;
-            }
+        if ($tile->getName() === GlenmoreParameters::CARD_LOCH_NESS
+            && $player->getPersonalBoard()->getSelectedResources()->first()->getPlayerTile() == null) {
+            $leaderCount = $player->getPersonalBoard()->getLeaderCount();
+            $player->getPersonalBoard()->setLeaderCount($leaderCount - 1);
+            $this->entityManager->persist($player->getPersonalBoard());
+            $this->entityManager->flush();
+            return;
         }
         if ($tile->getName() === GlenmoreParameters::TILE_NAME_TAVERN) {
             if (!$this->buyTavern($player)) {
@@ -920,7 +917,7 @@ class TileGLMService
     public function assignTileToPlayer(BoardTileGLM $boardTile, PlayerGLM $player) : array
     {
         if ($boardTile->getTile()->getName() === GlenmoreParameters::CARD_LOCH_OICH) {
-            if (!$this->canBuyLochOich($boardTile->getTile(), $player)) {
+            if (!$this->canBuyLochOich($player)) {
                 throw new Exception("Unable to buy tile");
             }
         } else {
