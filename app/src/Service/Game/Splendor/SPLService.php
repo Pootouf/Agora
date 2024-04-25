@@ -16,15 +16,11 @@ use App\Repository\Game\Splendor\NobleTileSPLRepository;
 use App\Repository\Game\Splendor\PlayerCardSPLRepository;
 use App\Repository\Game\Splendor\PlayerSPLRepository;
 use App\Repository\Game\Splendor\RowSPLRepository;
-use App\Repository\Game\Splendor\TokenSPLRepository;
 use App\Entity\Game\Splendor\MainBoardSPL;
-use App\Entity\Game\Splendor\RowSPL;
-use App\Service\Game\AbstractGameManagerService;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\DBAL\Exception;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
-use Psr\Log\LoggerInterface;
+use Exception;
 
 class SPLService
 {
@@ -52,7 +48,7 @@ class SPLService
     {
         $cards = $draw->getDevelopmentCards()->toArray();
         shuffle($cards);
-        return sizeof($cards) == 0 ? null : $cards[0];
+        return empty($cards) ? null : $cards[0];
     }
 
     public function getDrawFromGameAndLevel(GameSPL $game, int $level)
@@ -471,7 +467,7 @@ class SPLService
      * @param DevelopmentCardsSPL $developmentCardsSPL
      * @return array retrievePlayerMoney => money removed from the player,
      *               newDevCard => the card added on the main board
-     * @throws \Exception if it's not the card of the player
+     * @throws Exception if it's not the card of the player
      */
     public function buyCard(PlayerSPL $playerSPL,
                             DevelopmentCardsSPL $developmentCardsSPL): array
@@ -480,11 +476,11 @@ class SPLService
         if ($playerCardSPL != null
             && $playerCardSPL->getPersonalBoardSPL()->getPlayerSPL()->getId() != $playerSPL->getId()
         ) {
-            throw new \Exception('Not the card of the player');
+            throw new Exception('Not the card of the player');
         }
         if ($playerSPL->getPersonalBoard()->getPlayerCards()->contains($playerCardSPL)
         && !$playerCardSPL->isIsReserved()) {
-            throw new \Exception('Player already bought this card');
+            throw new Exception('Player already bought this card');
         }
         if($this->hasEnoughMoney($playerSPL, $developmentCardsSPL)){
             if ($playerCardSPL == null) {
@@ -601,28 +597,6 @@ class SPLService
             && $playerCard == null;
     }
 
-    private function checkInRowAtLevel(MainBoardSPL $mainBoard
-        , DevelopmentCardsSPL $card) : bool
-    {
-        $level = $card->getLevel() - 1;
-        $rowAtLevel = $mainBoard->getRowsSPL()->get($level);
-        return $this->isCardInRow($rowAtLevel, $card);
-    }
-
-    private function isCardInRow(RowSPL $row, DevelopmentCardsSPL $card): bool
-    {
-        return $row->getDevelopmentCards()->contains($card);
-    }
-
-    private function checkInDiscardAtLevel(MainBoardSPL $mainBoard
-        , DevelopmentCardsSPL $card) : bool
-    {
-        $level = $card->getLevel() -1;
-        $discardsAtLevel = $mainBoard->getDrawCards()->get($level);
-        $testCard = $discardsAtLevel->getDevelopmentCards()->last();
-        return $card === $testCard;
-    }
-
     private function manageRow(MainBoardSPL $mainBoard, DevelopmentCardsSPL $card): DevelopmentCardsSPL
     {
         $level = $card->getLevel() - 1;
@@ -681,12 +655,6 @@ class SPLService
         return $this->getNumberOfTokenAtColor($tokens, $color);
     }
 
-    private function getNumberOfTokenAtColorAtPlayer(PlayerSPL $player, string $color) : int
-    {
-        $personalBoard = $player->getPersonalBoard();
-        $tokens = $personalBoard->getTokens();
-        return $this->getNumberOfTokenAtColor($tokens, $color);
-    }
 
     private function whereIsThisCard(MainBoardSPL $mainBoard, DevelopmentCardsSPL $card) : int
     {
@@ -719,16 +687,6 @@ class SPLService
             }
         }
         return $token;
-    }
-
-    /**
-     * @param Game $game
-     * @return ?GameSPL
-     */
-    private function getGameSplFromGame(Game $game): ?GameSpl
-    {
-        /** @var GameSpl $game */
-        return $game->getGameName() == AbstractGameManagerService::SPL_LABEL ? $game : null;
     }
 
     /**
