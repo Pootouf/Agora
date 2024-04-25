@@ -19,7 +19,7 @@ class GameSixQP extends Game
     #[ORM\OneToMany(mappedBy: 'game', targetEntity: PlayerSixQP::class, orphanRemoval: true)]
     private Collection $players;
 
-    public function __construct() 
+    public function __construct()
     {
         $this->setGameName(AbstractGameManagerService::$SIXQP_LABEL);
         $this->rowSixQPs = new ArrayCollection();
@@ -46,11 +46,8 @@ class GameSixQP extends Game
 
     public function removeRowSixQP(RowSixQP $rowSixQP): static
     {
-        if ($this->rowSixQPs->removeElement($rowSixQP)) {
-            // set the owning side to null (unless already changed)
-            if ($rowSixQP->getGame() === $this) {
-                $rowSixQP->setGame(null);
-            }
+        if ($this->rowSixQPs->removeElement($rowSixQP) && $rowSixQP->getGame() === $this) {
+            $rowSixQP->setGame(null);
         }
 
         return $this;
@@ -76,11 +73,8 @@ class GameSixQP extends Game
 
     public function removePlayer(PlayerSixQP $player): static
     {
-        if ($this->players->removeElement($player)) {
-            // set the owning side to null (unless already changed)
-            if ($player->getGame() === $this) {
-                $player->setGame(null);
-            }
+        if ($this->players->removeElement($player) && $player->getGame() === $this) {
+            $player->setGame(null);
         }
 
         return $this;
