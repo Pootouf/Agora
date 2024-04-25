@@ -23,7 +23,7 @@ class SplendorGameManagerServiceIntegrationTest extends KernelTestCase
     {
         $gameService = static::getContainer()->get(GameManagerService::class);
 
-        $labelGames = array(AbstractGameManagerService::$SPL_LABEL);
+        $labelGames = array(AbstractGameManagerService::SPL_LABEL);
 
         foreach ($labelGames as $labelGame)
         {
@@ -37,7 +37,7 @@ class SplendorGameManagerServiceIntegrationTest extends KernelTestCase
         $gameService = static::getContainer()->get(GameManagerService::class);
         $gameId = -1;
         $result = $gameService->joinGame($gameId, new GameUser());
-        $this->assertEquals(AbstractGameManagerService::$ERROR_INVALID_GAME, $result);
+        $this->assertEquals(AbstractGameManagerService::ERROR_INVALID_GAME, $result);
     }
 
     public function testJoinGameWhenGameIsLaunched() : void
@@ -48,7 +48,7 @@ class SplendorGameManagerServiceIntegrationTest extends KernelTestCase
         $user->setUsername("toto");
         $game->setLaunched(true);
         $result = $gameService->joinGame($game->getId(), $user);
-        $this->assertEquals(AbstractGameManagerService::$ERROR_GAME_ALREADY_LAUNCHED, $result);
+        $this->assertEquals(AbstractGameManagerService::ERROR_GAME_ALREADY_LAUNCHED, $result);
     }
 
     public function testJoinGameWhenGameIsFull() : void
@@ -58,7 +58,7 @@ class SplendorGameManagerServiceIntegrationTest extends KernelTestCase
         $user = new GameUser();
         $user->setUsername("toto");
         $result = $gameService->joinGame($game->getId(), $user);
-        $this->assertEquals(AbstractGameManagerService::$ERROR_INVALID_NUMBER_OF_PLAYER, $result);
+        $this->assertEquals(AbstractGameManagerService::ERROR_INVALID_NUMBER_OF_PLAYER, $result);
     }
 
     public function testJoinGameWhenGameIsInvalid() : void
@@ -67,7 +67,7 @@ class SplendorGameManagerServiceIntegrationTest extends KernelTestCase
         $user = new GameUser();
         $user->setUsername("toto");
         $result = $gameService->joinGame(-1, $user);
-        $this->assertEquals(AbstractGameManagerService::$ERROR_INVALID_GAME, $result);
+        $this->assertEquals(AbstractGameManagerService::ERROR_INVALID_GAME, $result);
     }
 
     public function testJoinGameSuccessfully() : void
@@ -77,7 +77,7 @@ class SplendorGameManagerServiceIntegrationTest extends KernelTestCase
         $user = new GameUser();
         $user->setUsername("toto");
         $result = $gameService->joinGame($game->getId(), $user);
-        $this->assertEquals(AbstractGameManagerService::$SUCCESS, $result);
+        $this->assertEquals(AbstractGameManagerService::SUCCESS, $result);
     }
     public function testQuitGameWhenGameIsNull()
     {
@@ -88,7 +88,7 @@ class SplendorGameManagerServiceIntegrationTest extends KernelTestCase
         // WHEN
         $result = $gameService->quitGame($gameId, $user);
         // THEN
-        $this->assertEquals(AbstractGameManagerService::$ERROR_INVALID_GAME, $result);
+        $this->assertEquals(AbstractGameManagerService::ERROR_INVALID_GAME, $result);
     }
 
     public function testQuitGameWhenGameIsLaunched()
@@ -103,7 +103,7 @@ class SplendorGameManagerServiceIntegrationTest extends KernelTestCase
         // WHEN
         $result = $gameService->quitGame($gameId, $user);
         // THEN
-        $this->assertEquals(AbstractGameManagerService::$ERROR_GAME_ALREADY_LAUNCHED, $result);
+        $this->assertEquals(AbstractGameManagerService::ERROR_GAME_ALREADY_LAUNCHED, $result);
     }
 
     public function testQuitGameWhenPlayerIsInvalid()
@@ -117,7 +117,7 @@ class SplendorGameManagerServiceIntegrationTest extends KernelTestCase
         // WHEN
         $result = $gameService->quitGame($gameId, $user);
         // THEN
-        $this->assertEquals(AbstractGameManagerService::$ERROR_PLAYER_NOT_FOUND, $result);
+        $this->assertEquals(AbstractGameManagerService::ERROR_PLAYER_NOT_FOUND, $result);
     }
     public function testQuitGameOnSuccess()
     {
@@ -131,14 +131,14 @@ class SplendorGameManagerServiceIntegrationTest extends KernelTestCase
         // WHEN
         $result = $gameService->quitGame($gameId, $user);
         // THEN
-        $this->assertEquals(AbstractGameManagerService::$SUCCESS, $result);
+        $this->assertEquals(AbstractGameManagerService::SUCCESS, $result);
     }
 
     public function testDeleteGameWhenGameIsInvalid() : void
     {
         $gameService = static::getContainer()->get(GameManagerService::class);
 
-        $this->assertEquals(AbstractGameManagerService::$ERROR_INVALID_GAME, $gameService->deleteGame(-1));
+        $this->assertEquals(AbstractGameManagerService::ERROR_INVALID_GAME, $gameService->deleteGame(-1));
     }
 
     public function testDeleteGameWhenGameIsValid() : void
@@ -151,7 +151,7 @@ class SplendorGameManagerServiceIntegrationTest extends KernelTestCase
         $invalidGame->setMainBoard(new MainBoardSPL());
         $entityManager->persist($invalidGame);
         $entityManager->flush();
-        $this->assertEquals(AbstractGameManagerService::$SUCCESS, $gameService->deleteGame($invalidGame->getId()));
+        $this->assertEquals(AbstractGameManagerService::SUCCESS, $gameService->deleteGame($invalidGame->getId()));
     }
 
     public function testLaunchGameSPLFailWhenNotEnoughPlayers() : void
@@ -164,7 +164,7 @@ class SplendorGameManagerServiceIntegrationTest extends KernelTestCase
         $invalidGame->setMainBoard(new MainBoardSPL());
         $entityManager->persist($invalidGame);
         $entityManager->flush();
-        $this->assertEquals(AbstractGameManagerService::$ERROR_INVALID_NUMBER_OF_PLAYER, $gameService->launchGame($invalidGame->getId()));
+        $this->assertEquals(AbstractGameManagerService::ERROR_INVALID_NUMBER_OF_PLAYER, $gameService->launchGame($invalidGame->getId()));
     }
 
     public function testLaunchGameSPLFailWhenTooManyPlayers() : void
@@ -175,12 +175,12 @@ class SplendorGameManagerServiceIntegrationTest extends KernelTestCase
         $invalidGame = $this->createGame(6);
         $entityManager->persist($invalidGame);
         $entityManager->flush();
-        $this->assertEquals(AbstractGameManagerService::$ERROR_INVALID_NUMBER_OF_PLAYER, $gameService->launchGame($invalidGame->getId()));
+        $this->assertEquals(AbstractGameManagerService::ERROR_INVALID_NUMBER_OF_PLAYER, $gameService->launchGame($invalidGame->getId()));
     }
     public function testLaunchGameSPLFailWhenGameIsInvalid() : void
     {
         $gameService = static::getContainer()->get(GameManagerService::class);
-        $this->assertEquals(AbstractGameManagerService::$ERROR_INVALID_GAME, $gameService->launchGame(-1));
+        $this->assertEquals(AbstractGameManagerService::ERROR_INVALID_GAME, $gameService->launchGame(-1));
     }
 
     public function testLaunchGameSPLSuccessWhenGameIsValid() : void
@@ -206,14 +206,14 @@ class SplendorGameManagerServiceIntegrationTest extends KernelTestCase
         $gameService->joinGame($gameId, $user3);
         $gameService->joinGame($gameId, $user4);
 
-        $this->assertEquals(AbstractGameManagerService::$SUCCESS, $gameService->launchGame($gameId));
+        $this->assertEquals(AbstractGameManagerService::SUCCESS, $gameService->launchGame($gameId));
     }
 
     private function createGame($numberOfPlayer): GameSPL
     {
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);
         $game = new GameSPL();
-        $game->setGameName(AbstractGameManagerService::$SPL_LABEL);
+        $game->setGameName(AbstractGameManagerService::SPL_LABEL);
         $mainBoard = new MainBoardSPL();
         $game->setMainBoard($mainBoard);
         for ($i = 1; $i <= SplendorParameters::NUMBER_OF_ROWS_BY_GAME; $i++) {

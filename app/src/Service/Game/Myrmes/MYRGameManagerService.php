@@ -35,7 +35,7 @@ class MYRGameManagerService extends AbstractGameManagerService
     public function createGame(): int
     {
         $game = new GameMYR();
-        $game->setGameName(AbstractGameManagerService::$MYR_LABEL);
+        $game->setGameName(AbstractGameManagerService::MYR_LABEL);
         $mainBoard = new MainBoardMYR();
         $mainBoard->setYearNum(0);
         $season = new SeasonMYR();
@@ -60,17 +60,17 @@ class MYRGameManagerService extends AbstractGameManagerService
     {
         $game = $this->getGameMyrmesFromGame($game);
         if ($game == null) {
-            return MYRGameManagerService::$ERROR_INVALID_GAME;
+            return MYRGameManagerService::ERROR_INVALID_GAME;
         }
         if($game->isLaunched()) {
-            return MYRGameManagerService::$ERROR_GAME_ALREADY_LAUNCHED;
+            return MYRGameManagerService::ERROR_GAME_ALREADY_LAUNCHED;
         }
         if (count($game->getPlayers()) >= MyrmesParameters::MAX_NUMBER_OF_PLAYER) {
-            return MYRGameManagerService::$ERROR_INVALID_NUMBER_OF_PLAYER;
+            return MYRGameManagerService::ERROR_INVALID_NUMBER_OF_PLAYER;
         }
         if ($this->playerMYRRepository->findOneBy(
             ['username' => $playerName, 'gameMYR' => $game->getId()]) != null) {
-            return MYRGameManagerService::$ERROR_ALREADY_IN_PARTY;
+            return MYRGameManagerService::ERROR_ALREADY_IN_PARTY;
         }
         $player = new PlayerMYR($playerName, $game);
         $player->setScore(0);
@@ -91,7 +91,7 @@ class MYRGameManagerService extends AbstractGameManagerService
         $this->entityManager->flush();
         $this->logService->sendPlayerLog($game, $player,
             $playerName . " a rejoint la partie " . $game->getId());
-        return MYRGameManagerService::$SUCCESS;
+        return MYRGameManagerService::SUCCESS;
     }
 
     /**
@@ -101,20 +101,20 @@ class MYRGameManagerService extends AbstractGameManagerService
     {
         $game = $this->getGameMyrmesFromGame($game);
         if ($game == null) {
-            return MYRGameManagerService::$ERROR_INVALID_GAME;
+            return MYRGameManagerService::ERROR_INVALID_GAME;
         }
         if ($game->isLaunched()) {
-            return MYRGameManagerService::$ERROR_GAME_ALREADY_LAUNCHED;
+            return MYRGameManagerService::ERROR_GAME_ALREADY_LAUNCHED;
         }
         $player = $this->myrService->getPlayerFromNameAndGame($game, $playerName);
         if ($player == null) {
-            return MYRGameManagerService::$ERROR_PLAYER_NOT_FOUND;
+            return MYRGameManagerService::ERROR_PLAYER_NOT_FOUND;
         }
         $this->entityManager->remove($player);
         $this->entityManager->flush();
         $this->logService->sendSystemLog($game,
             $playerName . " a été retiré de la partie " . $game->getId());
-        return MYRGameManagerService::$SUCCESS;
+        return MYRGameManagerService::SUCCESS;
     }
 
     /**
@@ -124,7 +124,7 @@ class MYRGameManagerService extends AbstractGameManagerService
     {
         $game = $this->getGameMyrmesFromGame($game);
         if ($game == null) {
-            return MYRGameManagerService::$ERROR_INVALID_GAME;
+            return MYRGameManagerService::ERROR_INVALID_GAME;
         }
         foreach ($game->getPlayers() as $player) {
             foreach ($player->getPreyMYRs() as $prey) {
@@ -149,7 +149,7 @@ class MYRGameManagerService extends AbstractGameManagerService
         $this->logService->sendSystemLog($game, GameTranslation::GAME_STRING . $game->getId() . " a pris fin");
         $this->entityManager->remove($game);
         $this->entityManager->flush();
-        return MYRGameManagerService::$SUCCESS;
+        return MYRGameManagerService::SUCCESS;
     }
 
     /**
@@ -160,28 +160,28 @@ class MYRGameManagerService extends AbstractGameManagerService
     {
         $game = $this->getGameMyrmesFromGame($game);
         if ($game == null) {
-            return MYRGameManagerService::$ERROR_INVALID_GAME;
+            return MYRGameManagerService::ERROR_INVALID_GAME;
         }
         $numberOfPlayers = count($game->getPlayers());
         if ($numberOfPlayers > MyrmesParameters::MAX_NUMBER_OF_PLAYER
             || $numberOfPlayers < MyrmesParameters::MIN_NUMBER_OF_PLAYER) {
-            return MYRGameManagerService::$ERROR_INVALID_NUMBER_OF_PLAYER;
+            return MYRGameManagerService::ERROR_INVALID_NUMBER_OF_PLAYER;
         }
         if ($game->isLaunched()) {
-            return MYRGameManagerService::$ERROR_GAME_ALREADY_LAUNCHED;
+            return MYRGameManagerService::ERROR_GAME_ALREADY_LAUNCHED;
         }
         $game->setLaunched(true);
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         $this->myrService->initializeNewGame($game);
         $this->logService->sendSystemLog($game, GameTranslation::GAME_STRING . $game->getId() . " a commencé");
-        return MYRGameManagerService::$SUCCESS;
+        return MYRGameManagerService::SUCCESS;
     }
 
 
     private function getGameMyrmesFromGame(Game $game): ?GameMYR
     {
         /** @var GameMYR $game */
-        return $game->getGameName() == AbstractGameManagerService::$MYR_LABEL ? $game : null;
+        return $game->getGameName() == AbstractGameManagerService::MYR_LABEL ? $game : null;
     }
 }

@@ -21,7 +21,7 @@ class GameSixQP extends Game
 
     public function __construct()
     {
-        $this->setGameName(AbstractGameManagerService::$SIXQP_LABEL);
+        $this->setGameName(AbstractGameManagerService::SIXQP_LABEL);
         $this->rowSixQPs = new ArrayCollection();
         $this->players = new ArrayCollection();
     }

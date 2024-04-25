@@ -72,7 +72,7 @@ class GameManagerServiceTest extends TestCase
         // GIVEN
         $this->createGameManagerServiceWithMockFunctionRepository('createGame');
         // WHEN
-        $result = $this->gameService->createGame(AbstractGameManagerService::$SIXQP_LABEL);
+        $result = $this->gameService->createGame(AbstractGameManagerService::SIXQP_LABEL);
         // THEN
         $this->assertEquals(1, $result);
     }
@@ -84,46 +84,46 @@ class GameManagerServiceTest extends TestCase
         // WHEN
         $result = $this->gameService->joinGame(-1, $user);
         // THEN
-        $this->assertEquals(AbstractGameManagerService::$ERROR_INVALID_GAME, $result);
+        $this->assertEquals(AbstractGameManagerService::ERROR_INVALID_GAME, $result);
     }
 
     public function testJoinGameWhenGameAlreadyLaunched()
     {
         // GIVEN
         $this->createGameManagerServiceWithMockFunctionWillReturn('createPlayer',
-                                        AbstractGameManagerService::$ERROR_GAME_ALREADY_LAUNCHED);
+                                        AbstractGameManagerService::ERROR_GAME_ALREADY_LAUNCHED);
         $user = new GameUser();
         $user->setUsername("testUser");
         // WHEN
         $result = $this->gameService->joinGame(-1, $user);
         // THEN
-        $this->assertEquals(AbstractGameManagerService::$ERROR_GAME_ALREADY_LAUNCHED, $result);
+        $this->assertEquals(AbstractGameManagerService::ERROR_GAME_ALREADY_LAUNCHED, $result);
     }
 
     public function testJoinGameWhenPlayerAlreadyInParty()
     {
         // GIVEN
        $this->createGameManagerServiceWithMockFunctionWillReturn('createPlayer',
-            AbstractGameManagerService::$ERROR_ALREADY_IN_PARTY);
+            AbstractGameManagerService::ERROR_ALREADY_IN_PARTY);
         $user = new GameUser();
         $user->setUsername("testUser");
         // WHEN
         $result = $this->gameService->joinGame(-1, $user);
         // THEN
-        $this->assertEquals(AbstractGameManagerService::$ERROR_ALREADY_IN_PARTY, $result);
+        $this->assertEquals(AbstractGameManagerService::ERROR_ALREADY_IN_PARTY, $result);
     }
 
     public function testJoinGameWhenInvalidNumberOfPlayer()
     {
         // GIVEN
         $this->createGameManagerServiceWithMockFunctionWillReturn('createPlayer',
-            AbstractGameManagerService::$ERROR_INVALID_NUMBER_OF_PLAYER);
+            AbstractGameManagerService::ERROR_INVALID_NUMBER_OF_PLAYER);
         $user = new GameUser();
         $user->setUsername("testUser");
         // WHEN
         $result = $this->gameService->joinGame(-1, $user);
         // THEN
-        $this->assertEquals(AbstractGameManagerService::$ERROR_INVALID_NUMBER_OF_PLAYER, $result);
+        $this->assertEquals(AbstractGameManagerService::ERROR_INVALID_NUMBER_OF_PLAYER, $result);
     }
 
     public function testJoinGameSuccessful()
@@ -131,13 +131,13 @@ class GameManagerServiceTest extends TestCase
         // GIVEN
 
         $this->createGameManagerServiceWithMockFunctionWillReturn('createPlayer',
-            AbstractGameManagerService::$SUCCESS);
+            AbstractGameManagerService::SUCCESS);
         $user = new GameUser();
         $user->setUsername("testUser");
         // WHEN
         $result = $this->gameService->joinGame(-1, $user);
         // THEN
-        $this->assertEquals(AbstractGameManagerService::$SUCCESS, $result);
+        $this->assertEquals(AbstractGameManagerService::SUCCESS, $result);
     }
 
     public function testDeletePlayerWhenGameIsInvalid()
@@ -147,46 +147,46 @@ class GameManagerServiceTest extends TestCase
         // WHEN
         $result = $this->gameService->quitGame(-1, $user);
         // THEN
-        $this->assertEquals(AbstractGameManagerService::$ERROR_INVALID_GAME, $result);
+        $this->assertEquals(AbstractGameManagerService::ERROR_INVALID_GAME, $result);
     }
 
     public function testDeletePlayerWhenPlayerNotFound()
     {
         // GIVEN
         $this->createGameManagerServiceWithMockFunctionWillReturn('deletePlayer',
-            AbstractGameManagerService::$ERROR_PLAYER_NOT_FOUND);
+            AbstractGameManagerService::ERROR_PLAYER_NOT_FOUND);
         $user = new GameUser();
         $user->setUsername("testUser");
         // WHEN
         $result = $this->gameService->quitGame(-1, $user);
         // THEN
-        $this->assertEquals(AbstractGameManagerService::$ERROR_PLAYER_NOT_FOUND, $result);
+        $this->assertEquals(AbstractGameManagerService::ERROR_PLAYER_NOT_FOUND, $result);
     }
 
     public function testDeletePlayerWhenGameAlreadyLaunched()
     {
         // GIVEN
         $this->createGameManagerServiceWithMockFunctionWillReturn('deletePlayer',
-            AbstractGameManagerService::$ERROR_GAME_ALREADY_LAUNCHED);
+            AbstractGameManagerService::ERROR_GAME_ALREADY_LAUNCHED);
         $user = new GameUser();
         $user->setUsername("testUser");
         // WHEN
         $result = $this->gameService->quitGame(-1, $user);
         // THEN
-        $this->assertEquals(AbstractGameManagerService::$ERROR_GAME_ALREADY_LAUNCHED, $result);
+        $this->assertEquals(AbstractGameManagerService::ERROR_GAME_ALREADY_LAUNCHED, $result);
     }
 
     public function testDeletePlayerSuccessful()
     {
         // GIVEN
         $this->createGameManagerServiceWithMockFunctionWillReturn('deletePlayer',
-            AbstractGameManagerService::$SUCCESS);
+            AbstractGameManagerService::SUCCESS);
         $user = new GameUser();
         $user->setUsername("testUser");
         // WHEN
         $result = $this->gameService->quitGame(-1, $user);
         // THEN
-        $this->assertEquals(AbstractGameManagerService::$SUCCESS, $result);
+        $this->assertEquals(AbstractGameManagerService::SUCCESS, $result);
     }
 
     public function testDeleteGameWhenGameIsInvalid()
@@ -195,20 +195,20 @@ class GameManagerServiceTest extends TestCase
         // WHEN
         $result = $this->gameService->deleteGame(-1);
         // THEN
-        $this->assertEquals(AbstractGameManagerService::$ERROR_INVALID_GAME, $result);
+        $this->assertEquals(AbstractGameManagerService::ERROR_INVALID_GAME, $result);
     }
 
     public function testDeleteGameSuccessful()
     {
         // GIVEN
         $this->createGameManagerServiceWithMockFunctionWillReturn('deleteGame',
-            AbstractGameManagerService::$SUCCESS);
+            AbstractGameManagerService::SUCCESS);
         $user = new GameUser();
         $user->setUsername("testUser");
         // WHEN
         $result = $this->gameService->deleteGame(-1);
         // THEN
-        $this->assertEquals(AbstractGameManagerService::$SUCCESS, $result);
+        $this->assertEquals(AbstractGameManagerService::SUCCESS, $result);
     }
 
     public function testLaunchGameWhenGameIsInvalid()
@@ -217,20 +217,20 @@ class GameManagerServiceTest extends TestCase
         // WHEN
         $result = $this->gameService->launchGame(-1);
         // THEN
-        $this->assertEquals(AbstractGameManagerService::$ERROR_INVALID_GAME, $result);
+        $this->assertEquals(AbstractGameManagerService::ERROR_INVALID_GAME, $result);
     }
 
     public function testLaunchGameSuccessful()
     {
         // GIVEN
         $this->createGameManagerServiceWithMockFunctionWillReturn('launchGame',
-            AbstractGameManagerService::$SUCCESS);
+            AbstractGameManagerService::SUCCESS);
         $user = new GameUser();
         $user->setUsername("testUser");
         // WHEN
         $result = $this->gameService->launchGame(-1);
         // THEN
-        $this->assertEquals(AbstractGameManagerService::$SUCCESS, $result);
+        $this->assertEquals(AbstractGameManagerService::SUCCESS, $result);
     }
 
     /**
@@ -241,10 +241,10 @@ class GameManagerServiceTest extends TestCase
      */
     private function createGameManagerServiceWithMockFunctionRepository(string $functionName) : void
     {
-        $this->sixQPGameManagerService->method($functionName)->willReturn(AbstractGameManagerService::$SUCCESS);
-        $this->SPLGameManagerService->method($functionName)->willReturn(AbstractGameManagerService::$SUCCESS);
-        $this->GLMGameManagerService->method($functionName)->willReturn(AbstractGameManagerService::$SUCCESS);
-        $this->MYRGameManagerService->method($functionName)->willReturn(AbstractGameManagerService::$SUCCESS);
+        $this->sixQPGameManagerService->method($functionName)->willReturn(AbstractGameManagerService::SUCCESS);
+        $this->SPLGameManagerService->method($functionName)->willReturn(AbstractGameManagerService::SUCCESS);
+        $this->GLMGameManagerService->method($functionName)->willReturn(AbstractGameManagerService::SUCCESS);
+        $this->MYRGameManagerService->method($functionName)->willReturn(AbstractGameManagerService::SUCCESS);
     }
 
     /**

@@ -41,7 +41,7 @@ class MyrGameManagerServiceTest extends KernelTestCase
         // WHEN
         $result = $this->myrGameManagerService->createPlayer("test", $game);
         // THEN
-        $this->assertEquals(MYRGameManagerService::$ERROR_GAME_ALREADY_LAUNCHED, $result);
+        $this->assertEquals(MYRGameManagerService::ERROR_GAME_ALREADY_LAUNCHED, $result);
     }
 
     public function testCreatePlayerWhenGameHaveToMuchPlayers() {
@@ -76,7 +76,7 @@ class MyrGameManagerServiceTest extends KernelTestCase
         // WHEN
         $result = $this->myrGameManagerService->createPlayer("test", $game);
         // THEN
-        $this->assertEquals(MYRGameManagerService::$ERROR_INVALID_NUMBER_OF_PLAYER, $result);
+        $this->assertEquals(MYRGameManagerService::ERROR_INVALID_NUMBER_OF_PLAYER, $result);
     }
 
     public function testCreatePlayerWhenPlayerAlreadyInGame() {
@@ -111,7 +111,7 @@ class MyrGameManagerServiceTest extends KernelTestCase
         // WHEN
         $result = $this->myrGameManagerService->createPlayer("jean", $game);
         // THEN
-        $this->assertEquals(MYRGameManagerService::$ERROR_ALREADY_IN_PARTY, $result);
+        $this->assertEquals(MYRGameManagerService::ERROR_ALREADY_IN_PARTY, $result);
     }
 
     public function testCreatePlayer() {
@@ -124,7 +124,7 @@ class MyrGameManagerServiceTest extends KernelTestCase
         // WHEN
         $result = $this->myrGameManagerService->createPlayer("test", $game);
         // THEN
-        $this->assertEquals(MYRGameManagerService::$SUCCESS, $result);
+        $this->assertEquals(MYRGameManagerService::SUCCESS, $result);
     }
 
     public function testDeletePlayerWhenGameIsLaunched() {
@@ -137,7 +137,7 @@ class MyrGameManagerServiceTest extends KernelTestCase
         // WHEN
         $result = $this->myrGameManagerService->deletePlayer("test", $game);
         // THEN
-        $this->assertEquals(MYRGameManagerService::$ERROR_GAME_ALREADY_LAUNCHED, $result);
+        $this->assertEquals(MYRGameManagerService::ERROR_GAME_ALREADY_LAUNCHED, $result);
     }
 
     public function testDeletePlayerWhenPlayerNotInGame() {
@@ -150,7 +150,7 @@ class MyrGameManagerServiceTest extends KernelTestCase
         // WHEN
         $result = $this->myrGameManagerService->deletePlayer("test", $game);
         // THEN
-        $this->assertEquals(MYRGameManagerService::$ERROR_PLAYER_NOT_FOUND, $result);
+        $this->assertEquals(MYRGameManagerService::ERROR_PLAYER_NOT_FOUND, $result);
     }
 
     public function testDeletePlayer() {
@@ -164,7 +164,7 @@ class MyrGameManagerServiceTest extends KernelTestCase
         // WHEN
         $result = $this->myrGameManagerService->deletePlayer("test", $game);
         // THEN
-        $this->assertEquals(MYRGameManagerService::$SUCCESS, $result);
+        $this->assertEquals(MYRGameManagerService::SUCCESS, $result);
     }
 
     /*public function testDeleteGame() {
@@ -214,7 +214,7 @@ class MyrGameManagerServiceTest extends KernelTestCase
         // WHEN
         $result = $this->myrGameManagerService->launchGame($game);
         // THEN
-        $this->assertEquals(MYRGameManagerService::$ERROR_INVALID_NUMBER_OF_PLAYER, $result);
+        $this->assertEquals(MYRGameManagerService::ERROR_INVALID_NUMBER_OF_PLAYER, $result);
     }
 
     public function testLaunchGameWhenTooMuchPlayers()
@@ -250,7 +250,7 @@ class MyrGameManagerServiceTest extends KernelTestCase
         // WHEN
         $result = $this->myrGameManagerService->launchGame($game);
         // THEN
-        $this->assertEquals(MYRGameManagerService::$ERROR_INVALID_NUMBER_OF_PLAYER, $result);
+        $this->assertEquals(MYRGameManagerService::ERROR_INVALID_NUMBER_OF_PLAYER, $result);
     }
 
     public function testLaunchGameWhenGameIsLaunched()
@@ -287,7 +287,7 @@ class MyrGameManagerServiceTest extends KernelTestCase
         // WHEN
         $result = $this->myrGameManagerService->launchGame($game);
         // THEN
-        $this->assertEquals(MYRGameManagerService::$ERROR_GAME_ALREADY_LAUNCHED, $result);
+        $this->assertEquals(MYRGameManagerService::ERROR_GAME_ALREADY_LAUNCHED, $result);
     }
 
     public function testLaunchGameWhenNoProblem()
@@ -323,6 +323,6 @@ class MyrGameManagerServiceTest extends KernelTestCase
         // WHEN
         $result = $this->myrGameManagerService->launchGame($game);
         // THEN
-        $this->assertEquals(MYRGameManagerService::$SUCCESS, $result);
+        $this->assertEquals(MYRGameManagerService::SUCCESS, $result);
     }
 }

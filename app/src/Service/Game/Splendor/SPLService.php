@@ -728,7 +728,7 @@ class SPLService
     private function getGameSplFromGame(Game $game): ?GameSpl
     {
         /** @var GameSpl $game */
-        return $game->getGameName() == AbstractGameManagerService::$SPL_LABEL ? $game : null;
+        return $game->getGameName() == AbstractGameManagerService::SPL_LABEL ? $game : null;
     }
 
     /**

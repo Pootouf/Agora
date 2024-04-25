@@ -33,7 +33,7 @@ class MyrmesGameManagerServiceIntegrationTest extends KernelTestCase
         // WHEN
         $result = $this->gameManager->joinGame($gameId, new GameUser());
         // THEN
-        $this->assertEquals(AbstractGameManagerService::$ERROR_INVALID_GAME, $result);
+        $this->assertEquals(AbstractGameManagerService::ERROR_INVALID_GAME, $result);
     }
 
     public function testJoinGameWhenGameIsFull() : void
@@ -47,7 +47,7 @@ class MyrmesGameManagerServiceIntegrationTest extends KernelTestCase
         // WHEN
         $result = $this->gameManager->joinGame($gameId, $user);
         // THEN
-        $this->assertEquals(AbstractGameManagerService::$ERROR_INVALID_NUMBER_OF_PLAYER, $result);
+        $this->assertEquals(AbstractGameManagerService::ERROR_INVALID_NUMBER_OF_PLAYER, $result);
     }
 
     public function testJoinGameWhenGameIsLaunched() : void
@@ -64,7 +64,7 @@ class MyrmesGameManagerServiceIntegrationTest extends KernelTestCase
         // WHEN
         $result = $this->gameManager->joinGame($gameId, $user);
         // THEN
-        $this->assertEquals(AbstractGameManagerService::$ERROR_GAME_ALREADY_LAUNCHED, $result);
+        $this->assertEquals(AbstractGameManagerService::ERROR_GAME_ALREADY_LAUNCHED, $result);
     }
 
     public function testJoinGameWhenPlayerAlreadyInGame(): void
@@ -77,7 +77,7 @@ class MyrmesGameManagerServiceIntegrationTest extends KernelTestCase
         // WHEN
         $result = $this->gameManager->joinGame($game->getId(), $user);
         // THEN
-        $this->assertEquals(AbstractGameManagerService::$ERROR_ALREADY_IN_PARTY, $result);
+        $this->assertEquals(AbstractGameManagerService::ERROR_ALREADY_IN_PARTY, $result);
     }
 
     public function testJoinGameSuccessfully(): void
@@ -89,7 +89,7 @@ class MyrmesGameManagerServiceIntegrationTest extends KernelTestCase
         // WHEN
         $result = $this->gameManager->joinGame($game->getId(), $user);
         // THEN
-        $this->assertEquals(AbstractGameManagerService::$SUCCESS, $result);
+        $this->assertEquals(AbstractGameManagerService::SUCCESS, $result);
     }
 
     public function testQuitGameWhenGameIsNull(): void
@@ -100,7 +100,7 @@ class MyrmesGameManagerServiceIntegrationTest extends KernelTestCase
         // WHEN
         $result = $this->gameManager->quitGame($gameId, $user);
         // THEN
-        $this->assertEquals(AbstractGameManagerService::$ERROR_INVALID_GAME, $result);
+        $this->assertEquals(AbstractGameManagerService::ERROR_INVALID_GAME, $result);
     }
 
     public function testQuitGameWhenGameIsLaunched() : void
@@ -117,7 +117,7 @@ class MyrmesGameManagerServiceIntegrationTest extends KernelTestCase
         // WHEN
         $result = $this->gameManager->quitGame($gameId, $user);
         // THEN
-        $this->assertEquals(AbstractGameManagerService::$ERROR_GAME_ALREADY_LAUNCHED, $result);
+        $this->assertEquals(AbstractGameManagerService::ERROR_GAME_ALREADY_LAUNCHED, $result);
     }
 
     public function testQuitGameWhenPlayerIsInvalid() : void
@@ -131,7 +131,7 @@ class MyrmesGameManagerServiceIntegrationTest extends KernelTestCase
         // WHEN
         $result = $this->gameManager->quitGame($gameId, $user);
         // THEN
-        $this->assertEquals(AbstractGameManagerService::$ERROR_PLAYER_NOT_FOUND, $result);
+        $this->assertEquals(AbstractGameManagerService::ERROR_PLAYER_NOT_FOUND, $result);
     }
 
     public function testQuitGameOnSuccess() : void
@@ -148,7 +148,7 @@ class MyrmesGameManagerServiceIntegrationTest extends KernelTestCase
         // WHEN
         $result = $this->gameManager->quitGame($gameId, $user);
         // THEN
-        $this->assertEquals(AbstractGameManagerService::$SUCCESS, $result);
+        $this->assertEquals(AbstractGameManagerService::SUCCESS, $result);
     }
 
     public function testDeleteGameWhenGameIsInvalid() : void
@@ -156,19 +156,19 @@ class MyrmesGameManagerServiceIntegrationTest extends KernelTestCase
         // WHEN
         $result = $this->gameManager->deleteGame(-1);
         // THEN
-        $this->assertEquals(AbstractGameManagerService::$ERROR_INVALID_GAME, $result);
+        $this->assertEquals(AbstractGameManagerService::ERROR_INVALID_GAME, $result);
     }
 
     public function testDeleteGameWhenGameIsValid() : void
     {
         // GIVEN
         $game = $this->createMyrmesGame(2);
-        $game->setGameName(AbstractGameManagerService::$MYR_LABEL);
+        $game->setGameName(AbstractGameManagerService::MYR_LABEL);
         $game->setGamePhase(0);
         // WHEN
         $result = $this->gameManager->deleteGame($game->getId());
         // THEN
-        $this->assertEquals(AbstractGameManagerService::$SUCCESS, $result);
+        $this->assertEquals(AbstractGameManagerService::SUCCESS, $result);
     }
 
     public function testLaunchGameMYRFailWhenNotEnoughPlayers() : void
@@ -178,7 +178,7 @@ class MyrmesGameManagerServiceIntegrationTest extends KernelTestCase
         // WHEN
         $result = $this->gameManager->launchGame($game->getId());
         // THEN
-        $this->assertEquals(AbstractGameManagerService::$ERROR_INVALID_NUMBER_OF_PLAYER, $result);
+        $this->assertEquals(AbstractGameManagerService::ERROR_INVALID_NUMBER_OF_PLAYER, $result);
     }
 
     public function testLaunchGameMYRFailWhenTooMuchPlayers() : void
@@ -188,7 +188,7 @@ class MyrmesGameManagerServiceIntegrationTest extends KernelTestCase
         // WHEN
         $result = $this->gameManager->launchGame($game->getId());
         // THEN
-        $this->assertEquals(AbstractGameManagerService::$ERROR_INVALID_NUMBER_OF_PLAYER, $result);
+        $this->assertEquals(AbstractGameManagerService::ERROR_INVALID_NUMBER_OF_PLAYER, $result);
     }
 
     public function testLaunchGameMYRFailWhenGameIsInvalid() : void
@@ -197,7 +197,7 @@ class MyrmesGameManagerServiceIntegrationTest extends KernelTestCase
         // WHEN
         $result = $this->gameManager->launchGame(-1);
         // THEN
-        $this->assertEquals(AbstractGameManagerService::$ERROR_INVALID_GAME, $result);
+        $this->assertEquals(AbstractGameManagerService::ERROR_INVALID_GAME, $result);
     }
 
     public function testLaunchGameMYRFailWhenGameIsValid() : void
@@ -207,7 +207,7 @@ class MyrmesGameManagerServiceIntegrationTest extends KernelTestCase
         // WHEN
         $result = $this->gameManager->launchGame($game->getId());
         // THEN
-        $this->assertEquals(AbstractGameManagerService::$SUCCESS, $result);
+        $this->assertEquals(AbstractGameManagerService::SUCCESS, $result);
     }
 
     public function testExcludePlayerGameMYR() : void
@@ -266,7 +266,7 @@ class MyrmesGameManagerServiceIntegrationTest extends KernelTestCase
     private function createMyrmesGame(int $numberOfPlayer) : GameMYR
     {
         $game = new GameMYR();
-        $game->setGameName(AbstractGameManagerService::$MYR_LABEL);
+        $game->setGameName(AbstractGameManagerService::MYR_LABEL);
         $mainBoard = new MainBoardMYR();
         $mainBoard->setYearNum(0);
         $mainBoard->setGame($game);
@@ -278,7 +278,7 @@ class MyrmesGameManagerServiceIntegrationTest extends KernelTestCase
         $mainBoard->addSeason($season);
         $this->entityManager->persist($season);
         $game->setMainBoardMYR($mainBoard);
-        $game->setGameName(AbstractGameManagerService::$MYR_LABEL);
+        $game->setGameName(AbstractGameManagerService::MYR_LABEL);
         $game->setLaunched(false);
         $game->setGamePhase(MyrmesParameters::PHASE_INVALID);
         $this->entityManager->persist($mainBoard);

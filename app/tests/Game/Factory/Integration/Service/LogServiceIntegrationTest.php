@@ -20,7 +20,7 @@ class LogServiceIntegrationTest extends KernelTestCase
         $logService = static::getContainer()->get(LogService::class);
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);
         $game = new GameSixQP();
-        $game->setGameName(AbstractGameManagerService::$SIXQP_LABEL);
+        $game->setGameName(AbstractGameManagerService::SIXQP_LABEL);
         $player = new PlayerSixQP('test', $game);
         $game->addPlayer($player);
         $entityManager->persist($player);
@@ -41,7 +41,7 @@ class LogServiceIntegrationTest extends KernelTestCase
         $logService = static::getContainer()->get(LogService::class);
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);
         $game = new GameSixQP();
-        $game->setGameName(AbstractGameManagerService::$SIXQP_LABEL);
+        $game->setGameName(AbstractGameManagerService::SIXQP_LABEL);
         $entityManager->persist($game);
         $entityManager->flush();
         $message = "test";

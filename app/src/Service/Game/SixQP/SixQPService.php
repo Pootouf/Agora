@@ -370,6 +370,6 @@ class SixQPService
 
     private function getGameSixQPFromGame(Game $game): ?GameSixQP {
         /** @var GameSixQP $game */
-        return $game->getGameName() == AbstractGameManagerService::$SIXQP_LABEL ? $game : null;
+        return $game->getGameName() == AbstractGameManagerService::SIXQP_LABEL ? $game : null;
     }
 }

@@ -47,7 +47,7 @@ class GameTestController extends AbstractController
     #[Route('/game/sixqp/create', name: 'app_game_sixqp_create')]
     public function createSixQPGame(): Response
     {
-        $this->gameService->createGame(AbstractGameManagerService::$SIXQP_LABEL);
+        $this->gameService->createGame(AbstractGameManagerService::SIXQP_LABEL);
         return $this->redirectToRoute('app_game_sixqp_list');
     }
 
@@ -100,7 +100,7 @@ class GameTestController extends AbstractController
     #[Route('/game/splendor/create', name: 'app_game_splendor_create')]
     public function createSplendorGame(): Response
     {
-        $this->gameService->createGame(AbstractGameManagerService::$SPL_LABEL);
+        $this->gameService->createGame(AbstractGameManagerService::SPL_LABEL);
         return $this->redirectToRoute('app_game_splendor_list');
     }
 
@@ -228,7 +228,7 @@ class GameTestController extends AbstractController
     #[Route('/game/glenmore/create', name: 'app_game_glenmore_create')]
     public function createGlenmoreGame(): Response
     {
-        $this->gameService->createGame(AbstractGameManagerService::$GLM_LABEL);
+        $this->gameService->createGame(AbstractGameManagerService::GLM_LABEL);
         return $this->redirectToRoute('app_game_glenmore_list');
     }
 
@@ -237,7 +237,7 @@ class GameTestController extends AbstractController
     {
         $user = $this->getUser();
         $value = $this->gameService->joinGame($game->getId(), $user);
-        if ($value != AbstractGameManagerService::$SUCCESS) {
+        if ($value != AbstractGameManagerService::SUCCESS) {
             throw new Exception($value);
         }
         return $this->redirectToRoute('app_game_glenmore_list');
@@ -248,7 +248,7 @@ class GameTestController extends AbstractController
     {
         $user = $this->getUser();
         $value = $this->gameService->quitGame($game->getId(), $user);
-        if ($value != AbstractGameManagerService::$SUCCESS) {
+        if ($value != AbstractGameManagerService::SUCCESS) {
             throw new Exception($value);
         }
         return $this->redirectToRoute('app_game_glenmore_list');
@@ -258,7 +258,7 @@ class GameTestController extends AbstractController
     public function deleteGlenmoreGame(GameGLM $game): Response
     {
         $value = $this->gameService->deleteGame($game->getId());
-        if ($value != AbstractGameManagerService::$SUCCESS) {
+        if ($value != AbstractGameManagerService::SUCCESS) {
             throw new Exception($value);
         }
         return $this->redirectToRoute('app_game_glenmore_list');
@@ -268,7 +268,7 @@ class GameTestController extends AbstractController
     public function launchGlenmoreGame(GameGLM $game): Response
     {
         $value = $this->gameService->launchGame($game->getId());
-        if ($value != AbstractGameManagerService::$SUCCESS) {
+        if ($value != AbstractGameManagerService::SUCCESS) {
             throw new Exception($value);
         }
         return $this->redirectToRoute('app_game_glenmore_list');
@@ -289,7 +289,7 @@ class GameTestController extends AbstractController
     #[Route('/game/myrmes/create', name: 'app_game_myrmes_create')]
     public function createMyrmesGame(): Response
     {
-        $this->gameService->createGame(AbstractGameManagerService::$MYR_LABEL);
+        $this->gameService->createGame(AbstractGameManagerService::MYR_LABEL);
         return $this->redirectToRoute('app_game_myrmes_list');
     }
 
@@ -298,7 +298,7 @@ class GameTestController extends AbstractController
     {
         $user = $this->getUser();
         $value = $this->gameService->joinGame($game->getId(), $user);
-        if ($value != AbstractGameManagerService::$SUCCESS) {
+        if ($value != AbstractGameManagerService::SUCCESS) {
             throw new Exception($value);
         }
         return $this->redirectToRoute('app_game_myrmes_list');
@@ -309,7 +309,7 @@ class GameTestController extends AbstractController
     {
         $user = $this->getUser();
         $value = $this->gameService->quitGame($game->getId(), $user);
-        if ($value != AbstractGameManagerService::$SUCCESS) {
+        if ($value != AbstractGameManagerService::SUCCESS) {
             throw new Exception($value);
         }
         return $this->redirectToRoute('app_game_myrmes_list');
@@ -319,7 +319,7 @@ class GameTestController extends AbstractController
     public function deleteMyrmesGame(GameMYR $game): Response
     {
         $value = $this->gameService->deleteGame($game->getId());
-        if ($value != AbstractGameManagerService::$SUCCESS) {
+        if ($value != AbstractGameManagerService::SUCCESS) {
             throw new Exception($value);
         }
         return $this->redirectToRoute('app_game_myrmes_list');
@@ -329,7 +329,7 @@ class GameTestController extends AbstractController
     public function launchMyrmesGame(GameMYR $game): Response
     {
         $value = $this->gameService->launchGame($game->getId());
-        if ($value != AbstractGameManagerService::$SUCCESS) {
+        if ($value != AbstractGameManagerService::SUCCESS) {
             throw new Exception($value);
         }
         return $this->redirectToRoute('app_game_myrmes_list');

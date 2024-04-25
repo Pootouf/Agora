@@ -25,7 +25,7 @@ class MessageServiceIntegrationTest extends KernelTestCase
     {
         // GIVEN
         $game = new GameSixQP();
-        $game->setGameName(AbstractGameManagerService::$SIXQP_LABEL);
+        $game->setGameName(AbstractGameManagerService::SIXQP_LABEL);
         $player = new PlayerSixQP('test', $game);
         $player->setScore(0);
         $game->addPlayer($player);
@@ -46,7 +46,7 @@ class MessageServiceIntegrationTest extends KernelTestCase
         // GIVEN
         $game = new GameSixQP();
         $expectedMessage = "Bonjour à tous";
-        $game->setGameName(AbstractGameManagerService::$SIXQP_LABEL);
+        $game->setGameName(AbstractGameManagerService::SIXQP_LABEL);
         $player = new PlayerSixQP('test', $game);
         $player->setScore(0);
         $game->addPlayer($player);
@@ -65,7 +65,7 @@ class MessageServiceIntegrationTest extends KernelTestCase
     {
         // GIVEN
         $game = new GameSixQP();
-        $game->setGameName(AbstractGameManagerService::$SIXQP_LABEL);
+        $game->setGameName(AbstractGameManagerService::SIXQP_LABEL);
         $player = new PlayerSixQP('test', $game);
         $player->setScore(0);
         $game->addPlayer($player);
