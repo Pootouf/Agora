@@ -182,6 +182,7 @@ class MyrmesController extends AbstractController
         if ($game->isPaused() || !$game->isLaunched()) {
             return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
         }
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
         return $this->render('Game/Myrmes/PersonalBoard/playerPersonalBoard.html.twig',
             [
                 'game' => $game,
@@ -189,7 +190,7 @@ class MyrmesController extends AbstractController
                 'preys' => $playerMYR->getPreyMYRs(),
                 'isPreview' => false,
                 'isSpectator' => true,
-                'isAnotherPlayerBoard' => true,
+                'isAnotherPlayerBoard' => $player !== $playerMYR,
                 'playerPhase' => $playerMYR->getPhase(),
                 'actualSeason' => $this->service->getActualSeason($game),
                 'availableLarvae' => $this->service->getAvailableLarvae($playerMYR),

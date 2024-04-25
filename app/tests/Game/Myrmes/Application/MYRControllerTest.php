@@ -48,7 +48,7 @@ class MYRControllerTest extends WebTestCase
         $gameId = $this->initializeGameWithTwoPlayers();
         /** @var GameMYR $game */
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
-        $game->setPhasel;;;;;;;;;;;;;;;;;;;;;;;;;;(MyrmesParameters::PHASE_WORKSHOP);
+        $game->setGamePhase(MyrmesParameters::PHASE_WORKSHOP);
         $url = "/game/myrmes/" . $gameId;
         //WHEN
         $this->client->request("GET", $url);
@@ -87,7 +87,146 @@ class MYRControllerTest extends WebTestCase
             $this->client->getResponse());
     }
 
+    public function testShowPersonalBoard(): void
+    {
+        //GIVEN
+        $gameId = $this->initializeGameWithTwoPlayers();
+        $url = "/game/myrmes/" . $gameId . "/show/personalBoard";
+        //WHEN
+        $this->client->request("GET", $url);
+        // THEN
+        $this->assertResponseStatusCodeSame(Response::HTTP_OK,
+            $this->client->getResponse());
+    }
 
+    public function testShowPersonalBoardWhenMustDropResource(): void
+    {
+        //GIVEN
+        $gameId = $this->initializeGameWithTwoPlayers();
+        $url = "/game/myrmes/" . $gameId . "/show/personalBoard";
+        /** @var GameMYR $game */
+        $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
+        $player = $game->getPlayers()->first();
+        $resource = $player->getPersonalBoardMYR()->getPlayerResourceMYRs()->first();
+        $resource->setQuantity(6);
+        $this->entityManager->persist($resource);
+        $player->setPhase(MyrmesParameters::PHASE_WINTER);
+        $this->entityManager->persist($player);
+        $this->entityManager->flush();
+        //WHEN
+        $this->client->request("GET", $url);
+        // THEN
+        $this->assertResponseStatusCodeSame(Response::HTTP_OK,
+            $this->client->getResponse());
+    }
+
+    public function testShowPersonalBoardWhenGameIsPaused(): void
+    {
+        //GIVEN
+        $gameId = $this->initializeGameWithTwoPlayers();
+        /** @var GameMYR $game */
+        $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
+        $game->setPaused(true);
+        $url = "/game/myrmes/" . $gameId . "/show/personalBoard";
+        //WHEN
+        $this->client->request("GET", $url);
+        // THEN
+        $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN,
+            $this->client->getResponse());
+    }
+
+    public function testShowPersonalBoardWhenGameNotLaunched(): void
+    {
+        //GIVEN
+        $gameId = $this->initializeGameWithTwoPlayers();
+        /** @var GameMYR $game */
+        $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
+        $game->setPaused(true);
+        $url = "/game/myrmes/" . $gameId . "/show/personalBoard";
+        //WHEN
+        $this->client->request("GET", $url);
+        // THEN
+        $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN,
+            $this->client->getResponse());
+    }
+
+    public function testDisplayPersonalBoard(): void
+    {
+        //GIVEN
+        $gameId = $this->initializeGameWithTwoPlayers();
+        $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
+        $player = $game->getPlayers()->first();
+        $url = "/game/myrmes/" . $gameId . "/displayPersonalBoard/" . $player->getId();
+        //WHEN
+        $this->client->request("GET", $url);
+        // THEN
+        $this->assertResponseStatusCodeSame(Response::HTTP_OK,
+            $this->client->getResponse());
+    }
+
+    public function testDisplayPersonalBoardWhenGameIsPaused(): void
+    {
+        //GIVEN
+        $gameId = $this->initializeGameWithTwoPlayers();
+        /** @var GameMYR $game */
+        $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
+        $player = $game->getPlayers()->first();
+        $game->setPaused(true);
+        $url = "/game/myrmes/" . $gameId . "/displayPersonalBoard/" . $player->getId();
+        //WHEN
+        $this->client->request("GET", $url);
+        // THEN
+        $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN,
+            $this->client->getResponse());
+    }
+
+    public function testDisplayPersonalBoardWhenGameNotLaunched(): void
+    {
+        //GIVEN
+        $gameId = $this->initializeGameWithTwoPlayers();
+        /** @var GameMYR $game */
+        $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
+        $player = $game->getPlayers()->first();
+        $game->setPaused(true);
+        $url = "/game/myrmes/" . $gameId . "/displayPersonalBoard/" . $player->getId();
+        //WHEN
+        $this->client->request("GET", $url);
+        // THEN
+        $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN,
+            $this->client->getResponse());
+    }
+
+    public function testDisplayMainBoardActionsWhenGameNotLaunched(): void
+    {
+        //GIVEN
+        $gameId = $this->initializeGameWithTwoPlayers();
+        /** @var GameMYR $game */
+        $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
+        $tile = $game->getMainBoardMYR()->getTiles()->first();
+        $game->setPaused(true);
+        $url = "/game/myrmes/" . $gameId . "/mainBoard/box/" . $tile->getId() . "/actions";
+        //WHEN
+        $this->client->request("GET", $url);
+        // THEN
+        $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN,
+            $this->client->getResponse());
+    }
+
+    public function testDisplayMainBoardActionsWhenGamePaused(): void
+    {
+        //GIVEN
+        $gameId = $this->initializeGameWithTwoPlayers();
+        /** @var GameMYR $game */
+        $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
+        $tile = $game->getMainBoardMYR()->getTiles()->first();
+        $game->setPaused(true);
+        $url = "/game/myrmes/" . $gameId . "/mainBoard/box/" . $tile->getId() . "/actions";
+        //WHEN
+        $this->client->request("GET", $url);
+        // THEN
+        $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN,
+            $this->client->getResponse());
+    }
 
     private function initializeGameWithTwoPlayers() : int
     {
