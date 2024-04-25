@@ -62,19 +62,23 @@ This section displays the ranking with a view of the other players' possessions
                             pt-2 landscape:pt-1
                             flex justify-around justify-between">
                 {# Button to see other player's personal board #}
-                <button {{ stimulus_action('myrmes', 'displayPlayerPersonalBoard', 'click',
-                    {url:path('app_game_myrmes_display_player_personal_board',
-                        {idGame: game.id, idPlayer: p.id}), open: true})
-                }}
-                        {% if isSpectator %}
-                            disabled
-                        {% endif %}
-                        class=""
-                >
-                    <img class="h-5 -rotate-90 -ml-3"
-                         src="{{ arrowColor }}"
-                         alt="arrow">
-                </button>
+                {% if p.id != player.id  %}
+                    <button {{ stimulus_action('myrmes', 'displayPlayerPersonalBoard', 'click',
+                        {url:path('app_game_myrmes_display_player_personal_board',
+                            {idGame: game.id, idPlayer: p.id}), open: true})
+                    }}
+                            {% if isSpectator %}
+                                disabled
+                            {% endif %}
+                            class=""
+                    >
+                        <img class="h-5 -rotate-90 -ml-3"
+                             src="{{ arrowColor }}"
+                             alt="arrow">
+                    </button>
+                {% else %}
+                    <div class="w-5"></div>
+                {% endif %}
                 {# Display the player's username with a specific color if the background is dark or light #}
                 <p class="landscape:ml-3 landscape:text-sm landscape:lg:text-lg
                         {% if playerColor == 'yellow' %}text-black{% else %}
