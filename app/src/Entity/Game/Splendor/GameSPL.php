@@ -44,11 +44,8 @@ class GameSPL extends Game
 
     public function removePlayer(PlayerSPL $player): static
     {
-        if ($this->players->removeElement($player)) {
-            // set the owning side to null (unless already changed)
-            if ($player->getGameSPL() === $this) {
-                $player->setGameSPL(null);
-            }
+        if ($this->players->removeElement($player) && $player->getGameSPL() === $this) {
+            $player->setGameSPL(null);
         }
 
         return $this;
