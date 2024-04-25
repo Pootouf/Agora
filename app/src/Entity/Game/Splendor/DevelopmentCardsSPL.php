@@ -65,15 +65,6 @@ class DevelopmentCardsSPL extends Card
 
         return $this;
     }
-    /**
-     * @codeCoverageIgnore
-     */
-    private function removeCardCost(CardCostSPL $cardCost): static
-    {
-        $this->cardCost->removeElement($cardCost);
-
-        return $this;
-    }
 
     public function getLevel(): ?int
     {
