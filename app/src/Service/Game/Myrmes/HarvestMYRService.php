@@ -13,7 +13,7 @@ use Exception;
 class HarvestMYRService
 {
     public function __construct(private readonly EntityManagerInterface $entityManager,
-                                private readonly MYRService $MYRService)
+                                private readonly MYRService             $myrService)
     {}
 
     /**
@@ -91,19 +91,15 @@ class HarvestMYRService
         $playerPheromones = $playerMYR->getPheromonMYRs();
         foreach ($playerPheromones as $playerPheromone) {
             $tileType = $playerPheromone->getType();
-            switch ($tileType->getType()) {
-                case MyrmesParameters::SPECIAL_TILE_TYPE_FARM:
-                    foreach ($playerMYR->getPersonalBoardMYR()->getPlayerResourceMYRs() as $playerResource) {
-                        if($playerResource->getResource()->getDescription() == MyrmesParameters::RESOURCE_TYPE_GRASS) {
-                            $playerPheromone->setHarvested(true);
-                            $this->entityManager->persist($playerPheromone);
-                            $playerResource->setQuantity($playerResource->getQuantity() + 1);
-                            $this->entityManager->persist($playerResource);
-                        }
+            if ($tileType->getType() == MyrmesParameters::SPECIAL_TILE_TYPE_FARM) {
+                foreach ($playerMYR->getPersonalBoardMYR()->getPlayerResourceMYRs() as $playerResource) {
+                    if($playerResource->getResource()->getDescription() == MyrmesParameters::RESOURCE_TYPE_GRASS) {
+                        $playerPheromone->setHarvested(true);
+                        $this->entityManager->persist($playerPheromone);
+                        $playerResource->setQuantity($playerResource->getQuantity() + 1);
+                        $this->entityManager->persist($playerResource);
                     }
-                    break;
-                default:
-                    break;
+                }
             }
         }
         $this->entityManager->flush();
@@ -113,7 +109,7 @@ class HarvestMYRService
      * harvestPlayerQuarry : activates a player quarry, and gives him his resources selected
      * @param PlayerMYR $playerMYR
      * @param PheromonMYR $pheromoneMYR
-     * @param ResourceMYR $resourceMYR
+     * @param string $resourceMYR
      * @return void
      * @throws Exception
      */
@@ -152,15 +148,11 @@ class HarvestMYRService
         $playerPheromones = $playerMYR->getPheromonMYRs();
         foreach ($playerPheromones as $playerPheromone) {
             $tileType = $playerPheromone->getType();
-            switch ($tileType->getType()) {
-                case MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL:
-                    $playerPheromone->setHarvested(true);
-                    $this->entityManager->persist($playerPheromone);
-                    $playerMYR->setScore($playerMYR->getScore() + 2);
-                    $this->entityManager->persist($playerMYR);
-                    break;
-                default:
-                    break;
+            if ($tileType->getType() == MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL) {
+                $playerPheromone->setHarvested(true);
+                $this->entityManager->persist($playerPheromone);
+                $playerMYR->setScore($playerMYR->getScore() + 2);
+                $this->entityManager->persist($playerMYR);
             }
         }
         $this->entityManager->flush();
