@@ -465,6 +465,7 @@ class MyrmesController extends AbstractController
         if ($game->getGamePhase() == MyrmesParameters::PHASE_WORKER) {
             foreach ($game->getPlayers() as $p) {
                 $this->publishMainBoard($game, $p, $boardBoxes, false, false);
+                $this->publishRanking($game, $p);
             }
         } else {
             $this->publishMainBoard($game, $player, $boardBoxes, false, false);
