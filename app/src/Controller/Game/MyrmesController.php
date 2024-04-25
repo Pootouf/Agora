@@ -386,6 +386,11 @@ class MyrmesController extends AbstractController
         $message = $player->getUsername() . " a confirmé son choix de bonus";
         $this->logService->sendPlayerLog($game, $player, $message);
         $this->publishPersonalBoard($game, $player);
+        if ($game->getGamePhase() == MyrmesParameters::PHASE_BIRTH) {
+            foreach ($game->getPlayers() as $p) {
+                $this->publishRanking($game, $p);
+            }
+        }
         return new Response('Bonus confirmed', Response::HTTP_OK);
     }
 
