@@ -618,7 +618,7 @@ class MYRService
     {
         $prey = new PreyMYR();
         $prey->setType($type);
-        $tile = $this->tileMYRRepository->findOneBy(['coord_X' => $position[0], 'coord_Y' => $position[1]]);
+        $tile = $this->tileMYRRepository->findOneBy(['coordX' => $position[0], 'coordY' => $position[1]]);
         $prey->setTile($tile);
         $game->getMainBoardMYR()->addPrey($prey);
         $this->entityManager->persist($game->getMainBoardMYR());
@@ -723,7 +723,7 @@ class MYRService
      */
     private function initializeAnthillHoleForPlayer(PlayerMYR $player, array $position) : void
     {
-        $tile = $this->tileMYRRepository->findOneBy(['coord_X' => $position[0], 'coord_Y' => $position[1]]);
+        $tile = $this->tileMYRRepository->findOneBy(['coordX' => $position[0], 'coordY' => $position[1]]);
         $hole = new AnthillHoleMYR();
         $hole->setPlayer($player);
         $hole->setTile($tile);

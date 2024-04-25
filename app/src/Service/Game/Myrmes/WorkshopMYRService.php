@@ -401,17 +401,17 @@ class WorkshopMYRService
         $coordX = $tile->getCoordX();
         $coordY = $tile->getCoordY();
         $result = new ArrayCollection();
-        $newTile = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY - 2]);
+        $newTile = $this->tileMYRRepository->findOneBy(["coordX" => $coordX, "coordY" => $coordY - 2]);
         $result->add($newTile);
-        $newTile = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY + 2]);
+        $newTile = $this->tileMYRRepository->findOneBy(["coordX" => $coordX, "coordY" => $coordY + 2]);
         $result->add($newTile);
-        $newTile = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 1, "coord_Y" => $coordY - 1]);
+        $newTile = $this->tileMYRRepository->findOneBy(["coordX" => $coordX - 1, "coordY" => $coordY - 1]);
         $result->add($newTile);
-        $newTile = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 1, "coord_Y" => $coordY + 1]);
+        $newTile = $this->tileMYRRepository->findOneBy(["coordX" => $coordX - 1, "coordY" => $coordY + 1]);
         $result->add($newTile);
-        $newTile = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 1, "coord_Y" => $coordY - 1]);
+        $newTile = $this->tileMYRRepository->findOneBy(["coordX" => $coordX + 1, "coordY" => $coordY - 1]);
         $result->add($newTile);
-        $newTile = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 1, "coord_Y" => $coordY + 2]);
+        $newTile = $this->tileMYRRepository->findOneBy(["coordX" => $coordX + 1, "coordY" => $coordY + 2]);
         $result->add($newTile);
         return $result;
     }

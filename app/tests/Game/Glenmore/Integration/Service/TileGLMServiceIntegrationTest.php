@@ -2115,7 +2115,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $resourceGLMRepository = static::getContainer()->get(ResourceGLMRepository::class);
         $this->resourceGLMRepository = $resourceGLMRepository;
         $game = new GameGLM();
-        $game->setGameName(AbstractGameManagerService::$GLM_LABEL);
+        $game->setGameName(AbstractGameManagerService::GLM_LABEL);
         $mainBoard = new MainBoardGLM();
         $mainBoard->setGameGLM($game);
         $tilesLevelZero = $tileGLMRepository->findBy(['level' => GlenmoreParameters::TILE_LEVEL_ZERO]);

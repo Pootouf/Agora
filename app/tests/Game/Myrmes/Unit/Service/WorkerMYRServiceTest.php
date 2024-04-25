@@ -2577,7 +2577,7 @@ class WorkerMYRServiceTest extends TestCase
         $destinationTile->setCoordY(2);
         $destinationTile->setCoordX(0);
         $destinationTile->setType(MyrmesParameters::DIRT_TILE_TYPE);
-        $this->tileMYRRepository->method("findOneBy")->with(["coord_X" => 0, "coord_Y" => 2])->willReturn($destinationTile);
+        $this->tileMYRRepository->method("findOneBy")->with(["coordX" => 0, "coordY" => 2])->willReturn($destinationTile);
         //WHEN
         $result = $this->workerMYRService->canWorkerMove($player, $gardenWorker, MyrmesParameters::DIRECTION_EAST);
         //THEN
@@ -2607,7 +2607,7 @@ class WorkerMYRServiceTest extends TestCase
         $prey->setType(MyrmesParameters::LADYBUG_TYPE);
         $destinationTile->setType(MyrmesParameters::DIRT_TILE_TYPE);
         $player->getPersonalBoardMYR()->setWarriorsCount(1);
-        $this->tileMYRRepository->method("findOneBy")->with(["coord_X" => 0, "coord_Y" => 2])->willReturn($destinationTile);
+        $this->tileMYRRepository->method("findOneBy")->with(["coordX" => 0, "coordY" => 2])->willReturn($destinationTile);
         $this->preyMYRRepository->method("findOneBy")->with([
             "tile" => $destinationTile,
             "mainBoardMYR" => $game->getMainBoardMYR()
@@ -2648,7 +2648,7 @@ class WorkerMYRServiceTest extends TestCase
         $destinationPheromoneTile->setMainBoard($game->getMainBoardMYR());
         $destinationTile->setType(MyrmesParameters::DIRT_TILE_TYPE);
         $this->tileMYRRepository->method("findOneBy")
-                                ->with(["coord_X" => 0, "coord_Y" => 2])
+                                ->with(["coordX" => 0, "coordY" => 2])
                                 ->willReturn($destinationTile);
         $this->pheromonTileMYRRepository
             ->expects($this->any())
@@ -2688,7 +2688,7 @@ class WorkerMYRServiceTest extends TestCase
         $destinationPheromoneTile->setTile($destinationTile);
         $destinationPheromoneTile->setPheromonMYR($destinationPheromone);
         $destinationTile->setType(MyrmesParameters::DIRT_TILE_TYPE);
-        $this->tileMYRRepository->method("findOneBy")->with(["coord_X" => 0, "coord_Y" => 2])->willReturn($destinationTile);
+        $this->tileMYRRepository->method("findOneBy")->with(["coordX" => 0, "coordY" => 2])->willReturn($destinationTile);
         $this->pheromonTileMYRRepository
             ->method("findOneBy")
             ->willReturnMap([
@@ -2712,7 +2712,7 @@ class WorkerMYRServiceTest extends TestCase
         $tile->setCoordX($coordX);
         $tile->setCoordY($coordY);
         $tile->setType(MyrmesParameters::DIRT_TILE_TYPE);
-        $this->tileMYRRepository->method("findOneBy")->with(["coord_X" => $coordX, "coord_Y" => $coordY])->willReturn($tile);
+        $this->tileMYRRepository->method("findOneBy")->with(["coordX" => $coordX, "coordY" => $coordY])->willReturn($tile);
         $pheromoneTile = new PheromonTileMYR();
         $pheromone = new PheromonMYR();
         $pheromone->setPlayer($game->getPlayers()->last());
@@ -2741,7 +2741,7 @@ class WorkerMYRServiceTest extends TestCase
         $tile->setCoordX($coordX);
         $tile->setCoordY($coordY);
         $tile->setType(MyrmesParameters::DIRT_TILE_TYPE);
-        $this->tileMYRRepository->method("findOneBy")->with(["coord_X" => $coordX, "coord_Y" => $coordY])->willReturn($tile);
+        $this->tileMYRRepository->method("findOneBy")->with(["coordX" => $coordX, "coordY" => $coordY])->willReturn($tile);
         $prey = new PreyMYR();
         $prey->setTile($tile);
         $prey->setMainBoardMYR($game->getMainBoardMYR());
@@ -3070,7 +3070,7 @@ class WorkerMYRServiceTest extends TestCase
         $tile->setCoordY($coordY);
         $tile->setCoordX($coordX);
         $this->tileMYRRepository->method("findOneBy")->with([
-            "coord_X" => $coordX, "coord_Y" => $coordY
+            "coordX" => $coordX, "coordY" => $coordY
         ])->willReturn($tile);
         //WHEN
         $result = $this->workerMYRService->getTileFromCoordinates($coordX, $coordY);

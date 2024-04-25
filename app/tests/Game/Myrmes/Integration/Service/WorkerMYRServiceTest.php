@@ -3527,7 +3527,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         //GIVEN
         $game = $this->createGame(4);
         $player = $game->getPlayers()->first();
-        $tile = $this->tileMYRRepository->findOneBy(["coord_X" => 7, "coord_Y" => 12]);
+        $tile = $this->tileMYRRepository->findOneBy(["coordX" => 7, "coordY" => 12]);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_ZERO);
         $tileType->setOrientation(0);
@@ -4274,7 +4274,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $game = $this->createGame(2);
         $firstPlayer = $game->getPlayers()->first();
 
-        $workerTile = $this->tileMYRRepository->findOneBy(["coord_X" => 1, "coord_Y" => 16]);
+        $workerTile = $this->tileMYRRepository->findOneBy(["coordX" => 1, "coordY" => 16]);
 
         $gardenWorker = new GardenWorkerMYR();
         $gardenWorker->setPlayer($firstPlayer);
@@ -4283,7 +4283,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $gardenWorker->setTile($workerTile);
         $this->entityManager->persist($gardenWorker);
 
-        $dirtTile = $this->tileMYRRepository->findOneBy(["coord_X" => 2, "coord_Y" => 17]);
+        $dirtTile = $this->tileMYRRepository->findOneBy(["coordX" => 2, "coordY" => 17]);
 
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_ZERO);
@@ -4447,10 +4447,10 @@ class WorkerMYRServiceTest extends KernelTestCase
     private function giveExpectedResultForGiveAllAvailablePositionsForTypeZeroAndOrientationZero
     (GameMYR $game, PlayerMYR $player, int $coordX, int $coordY, bool $hasAnt) : ArrayCollection
     {
-        $chosenTile = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY]);
-        $adjacentTile = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 1, "coord_Y" => $coordY + 1]);
-        $pivotMinusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 1, "coord_Y" => $coordY - 1]);
-        $adjacentTileMinusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY]);
+        $chosenTile = $this->tileMYRRepository->findOneBy(["coordX" => $coordX, "coordY" => $coordY]);
+        $adjacentTile = $this->tileMYRRepository->findOneBy(["coordX" => $coordX + 1, "coordY" => $coordY + 1]);
+        $pivotMinusOne = $this->tileMYRRepository->findOneBy(["coordX" => $coordX - 1, "coordY" => $coordY - 1]);
+        $adjacentTileMinusOne = $this->tileMYRRepository->findOneBy(["coordX" => $coordX, "coordY" => $coordY]);
         if ($hasAnt) {
             $gardenWorker = new GardenWorkerMYR();
             $gardenWorker->setTile($chosenTile);
@@ -4467,17 +4467,17 @@ class WorkerMYRServiceTest extends KernelTestCase
     private function giveExpectedResultForGiveAllAvailablePositionsForTypeOneAndOrientationZero
     (GameMYR $game, PlayerMYR $player, int $coordX, int $coordY, bool $hasAnt) : ArrayCollection
     {
-        $chosenTile = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY]);
-        $adjacentTile = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 1, "coord_Y" => $coordY + 1]);
-        $adjacentTile2 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 1, "coord_Y" => $coordY - 1]);
-        $pivotMinusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 1, "coord_Y" => $coordY - 1]);
-        $adjacentTileMinusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY]);
-        $adjacentTileMinusOne2 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 2,
-            "coord_Y" => $coordY - 2]);
-        $pivotPlusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 1, "coord_Y" => $coordY + 1]);
-        $adjacentTilePlusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY]);
-        $adjacentTilePlusOne2 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 2,
-            "coord_Y" => $coordY + 2]);
+        $chosenTile = $this->tileMYRRepository->findOneBy(["coordX" => $coordX, "coordY" => $coordY]);
+        $adjacentTile = $this->tileMYRRepository->findOneBy(["coordX" => $coordX + 1, "coordY" => $coordY + 1]);
+        $adjacentTile2 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX - 1, "coordY" => $coordY - 1]);
+        $pivotMinusOne = $this->tileMYRRepository->findOneBy(["coordX" => $coordX - 1, "coordY" => $coordY - 1]);
+        $adjacentTileMinusOne = $this->tileMYRRepository->findOneBy(["coordX" => $coordX, "coordY" => $coordY]);
+        $adjacentTileMinusOne2 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX - 2,
+            "coordY" => $coordY - 2]);
+        $pivotPlusOne = $this->tileMYRRepository->findOneBy(["coordX" => $coordX + 1, "coordY" => $coordY + 1]);
+        $adjacentTilePlusOne = $this->tileMYRRepository->findOneBy(["coordX" => $coordX, "coordY" => $coordY]);
+        $adjacentTilePlusOne2 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX + 2,
+            "coordY" => $coordY + 2]);
         if ($hasAnt) {
             $gardenWorker = new GardenWorkerMYR();
             $gardenWorker->setTile($chosenTile);
@@ -4495,17 +4495,17 @@ class WorkerMYRServiceTest extends KernelTestCase
     private function giveExpectedResultForGiveAllAvailablePositionsForTypeTwoAndOrientationZero
     (GameMYR $game, PlayerMYR $player, int $coordX, int $coordY, bool $hasAnt) : ArrayCollection
     {
-        $chosenTile = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY]);
-        $adjacentTile = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 1, "coord_Y" => $coordY + 1]);
-        $adjacentTile2 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 1, "coord_Y" => $coordY - 1]);
-        $pivotMinusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX -1, "coord_Y" => $coordY - 1]);
-        $adjacentTileMinusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY]);
-        $adjacentTileMinusOne2 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX,
-            "coord_Y" => $coordY - 2]);
-        $pivotPlusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 1, "coord_Y" => $coordY + 1]);
-        $adjacentTilePlusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY]);
-        $adjacentTilePlusOne2 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX,
-            "coord_Y" => $coordY + 2]);
+        $chosenTile = $this->tileMYRRepository->findOneBy(["coordX" => $coordX, "coordY" => $coordY]);
+        $adjacentTile = $this->tileMYRRepository->findOneBy(["coordX" => $coordX + 1, "coordY" => $coordY + 1]);
+        $adjacentTile2 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX + 1, "coordY" => $coordY - 1]);
+        $pivotMinusOne = $this->tileMYRRepository->findOneBy(["coordX" => $coordX -1, "coordY" => $coordY - 1]);
+        $adjacentTileMinusOne = $this->tileMYRRepository->findOneBy(["coordX" => $coordX, "coordY" => $coordY]);
+        $adjacentTileMinusOne2 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX,
+            "coordY" => $coordY - 2]);
+        $pivotPlusOne = $this->tileMYRRepository->findOneBy(["coordX" => $coordX - 1, "coordY" => $coordY + 1]);
+        $adjacentTilePlusOne = $this->tileMYRRepository->findOneBy(["coordX" => $coordX, "coordY" => $coordY]);
+        $adjacentTilePlusOne2 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX,
+            "coordY" => $coordY + 2]);
         if ($hasAnt) {
             $gardenWorker = new GardenWorkerMYR();
             $gardenWorker->setTile($chosenTile);
@@ -4522,28 +4522,28 @@ class WorkerMYRServiceTest extends KernelTestCase
     private function giveExpectedResultForGiveAllAvailablePositionsForTypeThreeAndOrientationZero
     (GameMYR $game, PlayerMYR $player, int $coordX, int $coordY, bool $hasAnt) : ArrayCollection
     {
-        $chosenTile = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY]);
-        $adjacentTile = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 1, "coord_Y" => $coordY + 1]);
-        $adjacentTile2 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 1, "coord_Y" => $coordY - 1]);
-        $adjacentTile3 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 2, "coord_Y" => $coordY]);
-        $pivotMinusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX -1, "coord_Y" => $coordY - 1]);
-        $adjacentTileMinusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY]);
-        $adjacentTileMinusOne2 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX,
-            "coord_Y" => $coordY - 2]);
-        $adjacentTileMinusOne3 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 1,
-            "coord_Y" => $coordY - 1]);
-        $pivotPlusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 1, "coord_Y" => $coordY + 1]);
-        $adjacentTilePlusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY]);
-        $adjacentTilePlusOne2 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX,
-            "coord_Y" => $coordY + 2]);
-        $adjacentTilePlusOne3 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 1,
-            "coord_Y" => $coordY + 1]);
-        $pivotPlusTwo = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 2, "coord_Y" => $coordY]);
-        $adjacentTilePlusTwo1 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 1, "coord_Y" => $coordY - 1]);
-        $adjacentTilePlusTwo2 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 1,
-            "coord_Y" => $coordY + 1]);
-        $adjacentTilePlusTwo3 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX,
-            "coord_Y" => $coordY]);
+        $chosenTile = $this->tileMYRRepository->findOneBy(["coordX" => $coordX, "coordY" => $coordY]);
+        $adjacentTile = $this->tileMYRRepository->findOneBy(["coordX" => $coordX + 1, "coordY" => $coordY + 1]);
+        $adjacentTile2 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX + 1, "coordY" => $coordY - 1]);
+        $adjacentTile3 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX + 2, "coordY" => $coordY]);
+        $pivotMinusOne = $this->tileMYRRepository->findOneBy(["coordX" => $coordX -1, "coordY" => $coordY - 1]);
+        $adjacentTileMinusOne = $this->tileMYRRepository->findOneBy(["coordX" => $coordX, "coordY" => $coordY]);
+        $adjacentTileMinusOne2 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX,
+            "coordY" => $coordY - 2]);
+        $adjacentTileMinusOne3 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX + 1,
+            "coordY" => $coordY - 1]);
+        $pivotPlusOne = $this->tileMYRRepository->findOneBy(["coordX" => $coordX - 1, "coordY" => $coordY + 1]);
+        $adjacentTilePlusOne = $this->tileMYRRepository->findOneBy(["coordX" => $coordX, "coordY" => $coordY]);
+        $adjacentTilePlusOne2 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX,
+            "coordY" => $coordY + 2]);
+        $adjacentTilePlusOne3 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX + 1,
+            "coordY" => $coordY + 1]);
+        $pivotPlusTwo = $this->tileMYRRepository->findOneBy(["coordX" => $coordX - 2, "coordY" => $coordY]);
+        $adjacentTilePlusTwo1 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX - 1, "coordY" => $coordY - 1]);
+        $adjacentTilePlusTwo2 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX - 1,
+            "coordY" => $coordY + 1]);
+        $adjacentTilePlusTwo3 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX,
+            "coordY" => $coordY]);
         if ($hasAnt) {
             $gardenWorker = new GardenWorkerMYR();
             $gardenWorker->setTile($chosenTile);
@@ -4562,26 +4562,26 @@ class WorkerMYRServiceTest extends KernelTestCase
     private function giveExpectedResultForGiveAllAvailablePositionsForTypeFourAndOrientationZero
     (GameMYR $game, PlayerMYR $player, int $coordX, int $coordY, bool $hasAnt) : ArrayCollection
     {
-        $chosenTile = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY]);
-        $adjacentTile = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 1, "coord_Y" => $coordY + 1]);
-        $adjacentTile2 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 2, "coord_Y" => $coordY + 2]);
-        $adjacentTile3 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY + 2]);
+        $chosenTile = $this->tileMYRRepository->findOneBy(["coordX" => $coordX, "coordY" => $coordY]);
+        $adjacentTile = $this->tileMYRRepository->findOneBy(["coordX" => $coordX + 1, "coordY" => $coordY + 1]);
+        $adjacentTile2 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX + 2, "coordY" => $coordY + 2]);
+        $adjacentTile3 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX, "coordY" => $coordY + 2]);
 
-        $pivotMinusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX -1, "coord_Y" => $coordY - 1]);
-        $adjacentTileMinusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 1, "coord_Y" => $coordY + 1]);
-        $adjacentTileMinusOne2 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY]);
-        $adjacentTileMinusOne3 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 1, "coord_Y" => $coordY + 1]);
+        $pivotMinusOne = $this->tileMYRRepository->findOneBy(["coordX" => $coordX -1, "coordY" => $coordY - 1]);
+        $adjacentTileMinusOne = $this->tileMYRRepository->findOneBy(["coordX" => $coordX - 1, "coordY" => $coordY + 1]);
+        $adjacentTileMinusOne2 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX, "coordY" => $coordY]);
+        $adjacentTileMinusOne3 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX + 1, "coordY" => $coordY + 1]);
 
-        $pivotPlusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 2, "coord_Y" => $coordY - 2]);
-        $adjacentTilePlusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 1, "coord_Y" => $coordY - 1]);
-        $adjacentTilePlusOne2 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY]);
-        $adjacentTilePlusOne3 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 2, "coord_Y" => $coordY]);
+        $pivotPlusOne = $this->tileMYRRepository->findOneBy(["coordX" => $coordX - 2, "coordY" => $coordY - 2]);
+        $adjacentTilePlusOne = $this->tileMYRRepository->findOneBy(["coordX" => $coordX - 1, "coordY" => $coordY - 1]);
+        $adjacentTilePlusOne2 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX, "coordY" => $coordY]);
+        $adjacentTilePlusOne3 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX - 2, "coordY" => $coordY]);
 
-        $pivotPlusTwo = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY - 2]);
-        $adjacentTilePlusTwo1 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 1, "coord_Y" => $coordY - 1]);
-        $adjacentTilePlusTwo2 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY + 2]);
-        $adjacentTilePlusTwo3 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX,
-            "coord_Y" => $coordY]);
+        $pivotPlusTwo = $this->tileMYRRepository->findOneBy(["coordX" => $coordX, "coordY" => $coordY - 2]);
+        $adjacentTilePlusTwo1 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX + 1, "coordY" => $coordY - 1]);
+        $adjacentTilePlusTwo2 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX, "coordY" => $coordY + 2]);
+        $adjacentTilePlusTwo3 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX,
+            "coordY" => $coordY]);
 
         if ($hasAnt) {
             $gardenWorker = new GardenWorkerMYR();
@@ -4601,36 +4601,36 @@ class WorkerMYRServiceTest extends KernelTestCase
     private function giveExpectedResultForGiveAllAvailablePositionsForTypeFiveAndOrientationZero
     (GameMYR $game, PlayerMYR $player, int $coordX, int $coordY, bool $hasAnt) : ArrayCollection
     {
-        $chosenTile = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY]);
-        $adjacentTile = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY + 2]);
-        $adjacentTile2 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 1, "coord_Y" => $coordY - 1]);
-        $adjacentTile3 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 1, "coord_Y" => $coordY + 1]);
-        $adjacentTile4 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 1, "coord_Y" => $coordY + 3]);
+        $chosenTile = $this->tileMYRRepository->findOneBy(["coordX" => $coordX, "coordY" => $coordY]);
+        $adjacentTile = $this->tileMYRRepository->findOneBy(["coordX" => $coordX, "coordY" => $coordY + 2]);
+        $adjacentTile2 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX + 1, "coordY" => $coordY - 1]);
+        $adjacentTile3 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX + 1, "coordY" => $coordY + 1]);
+        $adjacentTile4 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX + 1, "coordY" => $coordY + 3]);
 
 
-        $pivotMinusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY - 2]);
-        $adjacentTileMinusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY]);
-        $adjacentTileMinusOne2 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 1, "coord_Y" => $coordY + 1]);
-        $adjacentTileMinusOne3 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 1, "coord_Y" => $coordY - 1]);
-        $adjacentTileMinusOne4 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 1, "coord_Y" => $coordY - 3]);
+        $pivotMinusOne = $this->tileMYRRepository->findOneBy(["coordX" => $coordX, "coordY" => $coordY - 2]);
+        $adjacentTileMinusOne = $this->tileMYRRepository->findOneBy(["coordX" => $coordX, "coordY" => $coordY]);
+        $adjacentTileMinusOne2 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX + 1, "coordY" => $coordY + 1]);
+        $adjacentTileMinusOne3 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX + 1, "coordY" => $coordY - 1]);
+        $adjacentTileMinusOne4 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX + 1, "coordY" => $coordY - 3]);
 
-        $pivotPlusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 1, "coord_Y" => $coordY + 1]);
-        $adjacentTilePlusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 1, "coord_Y" => $coordY + 3]);
-        $adjacentTilePlusOne2 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY + 4]);
-        $adjacentTilePlusOne3 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY + 2]);
-        $adjacentTilePlusOne4 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY]);
+        $pivotPlusOne = $this->tileMYRRepository->findOneBy(["coordX" => $coordX - 1, "coordY" => $coordY + 1]);
+        $adjacentTilePlusOne = $this->tileMYRRepository->findOneBy(["coordX" => $coordX - 1, "coordY" => $coordY + 3]);
+        $adjacentTilePlusOne2 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX, "coordY" => $coordY + 4]);
+        $adjacentTilePlusOne3 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX, "coordY" => $coordY + 2]);
+        $adjacentTilePlusOne4 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX, "coordY" => $coordY]);
 
-        $pivotPlusTwo = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 1, "coord_Y" => $coordY - 1]);
-        $adjacentTilePlusTwo1 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 1, "coord_Y" => $coordY + 1]);
-        $adjacentTilePlusTwo2 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY + 2]);
-        $adjacentTilePlusTwo3 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY]);
-        $adjacentTilePlusTwo4 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY - 2]);
+        $pivotPlusTwo = $this->tileMYRRepository->findOneBy(["coordX" => $coordX - 1, "coordY" => $coordY - 1]);
+        $adjacentTilePlusTwo1 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX - 1, "coordY" => $coordY + 1]);
+        $adjacentTilePlusTwo2 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX, "coordY" => $coordY + 2]);
+        $adjacentTilePlusTwo3 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX, "coordY" => $coordY]);
+        $adjacentTilePlusTwo4 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX, "coordY" => $coordY - 2]);
 
-        $pivotMinusTwo = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 1, "coord_Y" => $coordY - 3]);
-        $adjacentTileMinusTwo1 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 1, "coord_Y" => $coordY - 1]);
-        $adjacentTileMinusTwo2 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY]);
-        $adjacentTileMinusTwo3 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY - 2]);
-        $adjacentTileMinusTwo4 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY - 4]);
+        $pivotMinusTwo = $this->tileMYRRepository->findOneBy(["coordX" => $coordX - 1, "coordY" => $coordY - 3]);
+        $adjacentTileMinusTwo1 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX - 1, "coordY" => $coordY - 1]);
+        $adjacentTileMinusTwo2 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX, "coordY" => $coordY]);
+        $adjacentTileMinusTwo3 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX, "coordY" => $coordY - 2]);
+        $adjacentTileMinusTwo4 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX, "coordY" => $coordY - 4]);
 
         if ($hasAnt) {
             $gardenWorker = new GardenWorkerMYR();
@@ -4651,49 +4651,49 @@ class WorkerMYRServiceTest extends KernelTestCase
     private function giveExpectedResultForGiveAllAvailablePositionsForTypeSixAndOrientationZero
     (GameMYR $game, PlayerMYR $player, int $coordX, int $coordY, bool $hasAnt) : ArrayCollection
     {
-        $chosenTile = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY]);
-        $adjacentTile = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 1, "coord_Y" => $coordY + 1]);
-        $adjacentTile2 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 1, "coord_Y" => $coordY - 1]);
-        $adjacentTile3 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 2, "coord_Y" => $coordY + 2]);
-        $adjacentTile4 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 2, "coord_Y" => $coordY]);
-        $adjacentTile5 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 2, "coord_Y" => $coordY + 2]);
+        $chosenTile = $this->tileMYRRepository->findOneBy(["coordX" => $coordX, "coordY" => $coordY]);
+        $adjacentTile = $this->tileMYRRepository->findOneBy(["coordX" => $coordX + 1, "coordY" => $coordY + 1]);
+        $adjacentTile2 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX + 1, "coordY" => $coordY - 1]);
+        $adjacentTile3 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX + 2, "coordY" => $coordY + 2]);
+        $adjacentTile4 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX + 2, "coordY" => $coordY]);
+        $adjacentTile5 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX + 2, "coordY" => $coordY + 2]);
 
 
-        $pivotMinusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 1, "coord_Y" => $coordY + 1]);
-        $adjacentTileMinusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY]);
-        $adjacentTileMinusOne2 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY + 2]);
-        $adjacentTileMinusOne3 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 1, "coord_Y" => $coordY + 1]);
-        $adjacentTileMinusOne4 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 1, "coord_Y" => $coordY - 1]);
-        $adjacentTileMinusOne5 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 1, "coord_Y" => $coordY + 3]);
+        $pivotMinusOne = $this->tileMYRRepository->findOneBy(["coordX" => $coordX - 1, "coordY" => $coordY + 1]);
+        $adjacentTileMinusOne = $this->tileMYRRepository->findOneBy(["coordX" => $coordX, "coordY" => $coordY]);
+        $adjacentTileMinusOne2 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX, "coordY" => $coordY + 2]);
+        $adjacentTileMinusOne3 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX + 1, "coordY" => $coordY + 1]);
+        $adjacentTileMinusOne4 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX + 1, "coordY" => $coordY - 1]);
+        $adjacentTileMinusOne5 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX + 1, "coordY" => $coordY + 3]);
 
 
-        $pivotPlusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 2, "coord_Y" => $coordY + 2]);
-        $adjacentTilePlusOne = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 1, "coord_Y" => $coordY - 1]);
-        $adjacentTilePlusOne2 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY]);
-        $adjacentTilePlusOne3 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY + 2]);
-        $adjacentTilePlusOne4 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY + 4]);
-        $adjacentTilePlusOne5 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 1, "coord_Y" => $coordY + 3]);
+        $pivotPlusOne = $this->tileMYRRepository->findOneBy(["coordX" => $coordX - 2, "coordY" => $coordY + 2]);
+        $adjacentTilePlusOne = $this->tileMYRRepository->findOneBy(["coordX" => $coordX - 1, "coordY" => $coordY - 1]);
+        $adjacentTilePlusOne2 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX, "coordY" => $coordY]);
+        $adjacentTilePlusOne3 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX, "coordY" => $coordY + 2]);
+        $adjacentTilePlusOne4 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX, "coordY" => $coordY + 4]);
+        $adjacentTilePlusOne5 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX - 1, "coordY" => $coordY + 3]);
 
-        $pivotPlusTwo = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 1, "coord_Y" => $coordY - 1]);
-        $adjacentTilePlusTwo1 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 1, "coord_Y" => $coordY + 1]);
-        $adjacentTilePlusTwo2 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY + 2]);
-        $adjacentTilePlusTwo3 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY]);
-        $adjacentTilePlusTwo4 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY - 2]);
-        $adjacentTilePlusTwo5 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 2, "coord_Y" => $coordY]);
+        $pivotPlusTwo = $this->tileMYRRepository->findOneBy(["coordX" => $coordX - 1, "coordY" => $coordY - 1]);
+        $adjacentTilePlusTwo1 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX - 1, "coordY" => $coordY + 1]);
+        $adjacentTilePlusTwo2 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX, "coordY" => $coordY + 2]);
+        $adjacentTilePlusTwo3 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX, "coordY" => $coordY]);
+        $adjacentTilePlusTwo4 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX, "coordY" => $coordY - 2]);
+        $adjacentTilePlusTwo5 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX - 2, "coordY" => $coordY]);
 
-        $pivotMinusTwo = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 2, "coord_Y" => $coordY]);
-        $adjacentTileMinusTwo1 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 1, "coord_Y" => $coordY - 1]);
-        $adjacentTileMinusTwo2 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY - 2]);
-        $adjacentTileMinusTwo3 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY]);
-        $adjacentTileMinusTwo4 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY + 2]);
-        $adjacentTileMinusTwo5 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX + 1, "coord_Y" => $coordY + 1]);
+        $pivotMinusTwo = $this->tileMYRRepository->findOneBy(["coordX" => $coordX - 2, "coordY" => $coordY]);
+        $adjacentTileMinusTwo1 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX - 1, "coordY" => $coordY - 1]);
+        $adjacentTileMinusTwo2 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX, "coordY" => $coordY - 2]);
+        $adjacentTileMinusTwo3 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX, "coordY" => $coordY]);
+        $adjacentTileMinusTwo4 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX, "coordY" => $coordY + 2]);
+        $adjacentTileMinusTwo5 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX + 1, "coordY" => $coordY + 1]);
 
-        $pivotMinusThree = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 2, "coord_Y" => $coordY - 2]);
-        $adjacentTileMinusThree1 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 1, "coord_Y" => $coordY - 3]);
-        $adjacentTileMinusThree2 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY - 4]);
-        $adjacentTileMinusThree3 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY - 2]);
-        $adjacentTileMinusThree4 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX, "coord_Y" => $coordY]);
-        $adjacentTileMinusThree5 = $this->tileMYRRepository->findOneBy(["coord_X" => $coordX - 1, "coord_Y" => $coordY - 1]);
+        $pivotMinusThree = $this->tileMYRRepository->findOneBy(["coordX" => $coordX - 2, "coordY" => $coordY - 2]);
+        $adjacentTileMinusThree1 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX - 1, "coordY" => $coordY - 3]);
+        $adjacentTileMinusThree2 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX, "coordY" => $coordY - 4]);
+        $adjacentTileMinusThree3 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX, "coordY" => $coordY - 2]);
+        $adjacentTileMinusThree4 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX, "coordY" => $coordY]);
+        $adjacentTileMinusThree5 = $this->tileMYRRepository->findOneBy(["coordX" => $coordX - 1, "coordY" => $coordY - 1]);
 
         if ($hasAnt) {
             $gardenWorker = new GardenWorkerMYR();

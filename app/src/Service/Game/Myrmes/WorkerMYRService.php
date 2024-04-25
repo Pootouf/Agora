@@ -156,8 +156,8 @@ class WorkerMYRService
     public function getNeededSoldiers(int $coordX, int $coordY, GameMYR $gameMYR, PlayerMYR $player): int
     {
         $tile = $this->tileMYRRepository->findOneBy([
-            "coord_Y" => $coordY,
-            "coord_X" => $coordX
+            "coordY" => $coordY,
+            "coordX" => $coordX
         ]);
         if($tile == null) {
             throw new InvalidArgumentException("Not a valid tile, can't identify if there is a prey on it");
@@ -188,12 +188,12 @@ class WorkerMYRService
                                             GameMYR $gameMYR) : int
     {
         $tile1 = $this->tileMYRRepository->findOneBy([
-            "coord_Y" => $coordY1,
-            "coord_X" => $coordX1
+            "coordY" => $coordY1,
+            "coordX" => $coordX1
         ]);
         $tile2 = $this->tileMYRRepository->findOneBy([
-            "coord_Y" => $coordY2,
-            "coord_X" => $coordX2
+            "coordY" => $coordY2,
+            "coordX" => $coordX2
         ]);
         if ($tile1 == null || $tile2 == null) {
             throw new InvalidArgumentException("Not a valid tile, can't identify if there is a prey on it");
@@ -606,8 +606,8 @@ class WorkerMYRService
     public function getTileFromCoordinates(int $coordX, int $coordY): ?TileMYR
     {
         return $this->tileMYRRepository->findOneBy([
-            "coord_X" => $coordX,
-            "coord_Y" => $coordY
+            "coordX" => $coordX,
+            "coordY" => $coordY
         ]);
     }
 
@@ -627,7 +627,6 @@ class WorkerMYRService
         TileTypeMYR $tileType, int $antCoordX, int $antCoordY, array $availableTiles) : ArrayCollection
     {
         $orientation = $tileType->getOrientation();
-        $coords = $this->getAllCoordinatesFromTileType($player, $tile, $tileType);
         $translations = match ($orientation) {
             0 => [[0, 0], [-1, -1]],
             1 => [[0, 0], [-1, +1]],
@@ -640,6 +639,7 @@ class WorkerMYRService
         if ($translations == null) {
             return new ArrayCollection();
         }
+        $coords = $this->getAllCoordinatesFromTileType($player, $tile, $tileType);
         return $this->getAllAvailablePositionsFromOrientation($player, $coords,
             $translations, $antCoordX, $antCoordY, $availableTiles);
     }
@@ -660,7 +660,6 @@ class WorkerMYRService
         TileTypeMYR $tileType, int $antCoordX, int $antCoordY, array $availableTiles) : ArrayCollection
     {
         $orientation = $tileType->getOrientation();
-        $coords = $this->getAllCoordinatesFromTileType($player, $tile, $tileType);
         $translations = match ($orientation) {
             0 => [[0, 0], [-1, -1], [1, 1]],
             1 => [[0, 0], [0, +2], [0, -2]],
@@ -670,6 +669,7 @@ class WorkerMYRService
         if ($translations == null) {
             return new ArrayCollection();
         }
+        $coords = $this->getAllCoordinatesFromTileType($player, $tile, $tileType);
         return $this->getAllAvailablePositionsFromOrientation($player, $coords,
             $translations, $antCoordX, $antCoordY, $availableTiles);
     }
@@ -690,7 +690,6 @@ class WorkerMYRService
         TileTypeMYR $tileType, int $antCoordX, int $antCoordY, array $availableTiles) : ArrayCollection
     {
         $orientation = $tileType->getOrientation();
-        $coords = $this->getAllCoordinatesFromTileType($player, $tile, $tileType);
         $translations = match ($orientation) {
             0 => [[0, 0], [-1, 1], [-1, -1]],
             1 => [[0, 0], [-1, +1], [0, 2]],
@@ -703,6 +702,7 @@ class WorkerMYRService
         if ($translations == null) {
             return new ArrayCollection();
         }
+        $coords = $this->getAllCoordinatesFromTileType($player, $tile, $tileType);
         return $this->getAllAvailablePositionsFromOrientation($player, $coords,
             $translations, $antCoordX, $antCoordY, $availableTiles);
     }
@@ -723,7 +723,6 @@ class WorkerMYRService
         TileTypeMYR $tileType, int $antCoordX, int $antCoordY, array $availableTiles) : ArrayCollection
     {
         $orientation = $tileType->getOrientation();
-        $coords = $this->getAllCoordinatesFromTileType($player, $tile, $tileType);
         $translations = match ($orientation) {
             0 => [[0, 0], [-2, 0], [-1, -1], [-1, 1]],
             1 => [[0, 0], [-1, 3], [-1, 1], [0, 2]],
@@ -736,6 +735,7 @@ class WorkerMYRService
         if ($translations == null) {
             return new ArrayCollection();
         }
+        $coords = $this->getAllCoordinatesFromTileType($player, $tile, $tileType);
         return $this->getAllAvailablePositionsFromOrientation($player, $coords,
             $translations, $antCoordX, $antCoordY, $availableTiles);
     }
@@ -756,7 +756,6 @@ class WorkerMYRService
         TileTypeMYR $tileType, int $antCoordX, int $antCoordY, array $availableTiles) : ArrayCollection
     {
         $orientation = $tileType->getOrientation();
-        $coords = $this->getAllCoordinatesFromTileType($player, $tile, $tileType);
         $translations = match ($orientation) {
             0 => [[0, 0], [-1, -1], [-2, -2], [0, -2]],
             1 => [[0, 0], [-2, 2], [-1, 1], [-1, -1]],
@@ -775,6 +774,7 @@ class WorkerMYRService
         if ($translations == null) {
             return new ArrayCollection();
         }
+        $coords = $this->getAllCoordinatesFromTileType($player, $tile, $tileType);
         return $this->getAllAvailablePositionsFromOrientation($player, $coords,
             $translations, $antCoordX, $antCoordY, $availableTiles);
     }
@@ -795,7 +795,6 @@ class WorkerMYRService
         TileTypeMYR $tileType, int $antCoordX, int $antCoordY, array $availableTiles) : ArrayCollection
     {
         $orientation = $tileType->getOrientation();
-        $coords = $this->getAllCoordinatesFromTileType($player, $tile, $tileType);
         $translations = match ($orientation) {
             0 => [[0, 0], [0, -2], [-1, -3], [-1, -1], [-1, 1]],
             1 => [[0, 0], [-1, -1], [-2, 0], [-1, 1], [0, 2]],
@@ -808,6 +807,7 @@ class WorkerMYRService
         if ($translations == null) {
             return new ArrayCollection();
         }
+        $coords = $this->getAllCoordinatesFromTileType($player, $tile, $tileType);
         return $this->getAllAvailablePositionsFromOrientation($player, $coords,
             $translations, $antCoordX, $antCoordY, $availableTiles);
     }
@@ -828,7 +828,6 @@ class WorkerMYRService
         TileTypeMYR $tileType, int $antCoordX, int $antCoordY, array $availableTiles) : ArrayCollection
     {
         $orientation = $tileType->getOrientation();
-        $coords = $this->getAllCoordinatesFromTileType($player, $tile, $tileType);
         $translations = match ($orientation) {
             0 => [[0, 0], [-1, 1], [-1, -1], [-2, +2], [-2, 0], [-2, -2]],
             1 => [[0, 0], [-1, 1], [-2, 2], [-1, +3], [0, 4], [0, 2]],
@@ -841,6 +840,7 @@ class WorkerMYRService
         if ($translations == null) {
             return new ArrayCollection();
         }
+        $coords = $this->getAllCoordinatesFromTileType($player, $tile, $tileType);
         return $this->getAllAvailablePositionsFromOrientation($player, $coords,
             $translations, $antCoordX, $antCoordY, $availableTiles);
     }
@@ -1034,8 +1034,8 @@ class WorkerMYRService
     private function getTileAtCoordinate(int $x, int $y) : ?TileMYR
     {
         return $this->tileMYRRepository->findOneBy([
-        "coord_X" =>  $x,
-        "coord_Y" => $y]);
+        "coordX" =>  $x,
+        "coordY" => $y]);
     }
 
     /**
@@ -1667,7 +1667,7 @@ class WorkerMYRService
             $coordY = $coord[1];
             /** @var TileMYR $newTile */
             $newTile = $this->tileMYRRepository->findOneBy(
-                ["coord_X" => $coordX + $x, "coord_Y" => $coordY + $y]
+                ["coordX" => $coordX + $x, "coordY" => $coordY + $y]
             );
             if ($newTile == null) {
                 throw new Exception(MyrmesTranslation::ERROR_CANNOT_PLACE_TILE);
