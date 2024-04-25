@@ -94,7 +94,9 @@ class MYRService
     public function getPlayerResourceAmount(PlayerMYR $playerMYR, string $resourceName): int
     {
         $resource = $this->resourceMYRRepository->findOneBy(["description"=>$resourceName]);
-        $playerResource = $this->playerResourceMYRRepository->findOneBy(["resource"=>$resource]);
+        $playerResource = $this->playerResourceMYRRepository->findOneBy(
+            ["resource" => $resource, "personalBoard" => $playerMYR->getPersonalBoardMYR()]
+        );
         return $playerResource== null ? 0 : $playerResource->getQuantity();
     }
 
