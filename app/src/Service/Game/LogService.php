@@ -8,11 +8,12 @@ use App\Entity\Game\Log;
 use DateTime;
 use DateTimeZone;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use phpDocumentor\Reflection\Types\String_;
 
 class LogService
 {
-    public static int $SYSTEM_ID = -1;
+    const int SYSTEM_ID = -1;
     private EntityManagerInterface $entityManager;
     public function __construct(EntityManagerInterface $entityManager)
     {
@@ -21,9 +22,10 @@ class LogService
 
     /**
      * sendPlayerLog : register in database the action performed by the player during the game
-     * @param : Game $game : the game in which the action occurred
-     * @param : Player $player : the player who did the action
-     * @param : String $message : the action performed
+     * @param Game $game : the game in which the action occurred
+     * @param Player $player : the player who did the action
+     * @param String $message : the action performed
+     * @throws Exception
      */
     public function sendPlayerLog(Game $game, Player $player, String $message) : void
     {
@@ -32,20 +34,22 @@ class LogService
 
     /**
      * sendSystemLog : register in database the action performed by the system during the game
-     * @param : Game $game : the game in which the action occurred
-     * @param : String $message : the action performed
+     * @param Game $game : the game in which the action occurred
+     * @param String $message : the action performed
+     * @throws Exception
      */
     public function sendSystemLog(Game $game, String $message) : void
     {
-        $this->sendLog($game->getId(), $this::$SYSTEM_ID, $game->getGameName(), $message);
+        $this->sendLog($game->getId(), $this::SYSTEM_ID, $game->getGameName(), $message);
     }
 
     /**
      * sendLog : register in database the action performed by the player during the game
-     * @param : Game $game : the game in which the action occurred
-     * @param : Player $player : the player who did the action
-     * @param : String $gameLabel : the name of the game
-     * @param : String $message : the action performed
+     * @param int $gameId : the game in which the action occurred
+     * @param int $playerId : the player who did the action
+     * @param String $gameLabel : the name of the game
+     * @param String $message : the action performed
+     * @throws Exception
      */
     private function sendLog(int $gameId, int $playerId, String $gameLabel, String $message) : void
     {
