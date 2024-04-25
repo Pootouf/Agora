@@ -46,6 +46,12 @@ class BoardController extends AbstractController
     {
         //Find the game with the id passed in parameters
         $game = $this->entityManagerInterface->getRepository(Game::class)->find($game_id);
+        //get the logged user
+        $userId = $this->security->getUser()->getId();
+        $allUsers = array_filter($this->entityManagerInterface->getRepository(User::class)->findAll(), function($user) use ($userId) {
+            //A modifier
+            return $user->getId() !== $userId && $user->getUsername() !== "admin";
+        });
         //create a board
         $board = new Board();
         $form = $this->createForm(BoardRegistrationType::class, $board, [
@@ -76,7 +82,8 @@ class BoardController extends AbstractController
         }
         return $this->render('platform/dashboard/games/boardRegister.html.twig', [
             'game' => $game,
-            'form' => $form->createView()
+            'form' => $form->createView(),
+            'allUsers' => $allUsers
         ]);
     }
 

@@ -29,7 +29,10 @@ class BoardRegistrationType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $userId = $this->security->getUser()->getId();
-        $user = $this->entityManager->find(User::class, $userId);
+        $allUsers = array_filter($this->entityManager->getRepository(User::class)->findAll(), function($user) use ($userId) {
+            //A modifier
+            return $user->getId() !== $userId && $user->getUsername() !== "admin";
+        });
         $game = $options["game"];
 
         $choices = range($game->getMinPlayers(), $game->getMaxPlayers(), 1);
@@ -52,7 +55,7 @@ class BoardRegistrationType extends AbstractType
             ->add('invitedContacts', EntityType::class, [
                 'placeholder' => "Liste de vos contacts",
                 'class' => User::class,
-                'choices' => $user->getContacts(),
+                'choices' => $allUsers,
                 'multiple' => true,
                 'expanded' => true
             ])

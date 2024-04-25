@@ -36,25 +36,36 @@ Création d'une table
             </div>
          </div>
          <div class="flex flex-col h-[500px] border-2 row-span-3">
-            {{ form_label(form.invitedContacts, 'Contacts à inviter', {'label_attr': {
-               'class': 'block text-center mt-2 text-sm font-medium leading-6 text-gray-900'
+            {{ form_label(form.invitedContacts, 'Joueurs à inviter', {'label_attr': {
+               'class': 'block text-center mt-2 text-md font-medium leading-6 text-gray-900'
             }}) }}
+            <div class="relative flex justify-center gap-x-3">
+               <div class="text-sm leading-6">
+                  <label for="filter" class="font-medium text-gray-900">contacts uniquement</label>
+               </div>
+               <div class="flex h-6 items-center">
+                  <input id="filter" name="filter" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary">
+               </div>
+            </div>
             <div class="border-b-2 py-2 px-2">
                <input type="text" id="contactSearchInput" placeholder="Chercher un contact" class="py-2 px-2 border-2 border-gray-200 rounded-2xl w-full"/>
             </div>
             <ul id="contactList" class="overflow-auto">
-               <li id="liTemplate" class="hidden cursor-pointer">
-                  <div class="group relative flex items-center px-5 py-6 hover:bg-gray-100 hover:text-gray-900">
-                     <div class="relative flex min-w-0 flex-1 items-center">
-                        <span class="relative inline-block flex-shrink-0">
-                           <img src="https://avatarfiles.alphacoders.com/244/thumb-244471.png" alt="Avatar de générique" class="object-cover h-10 w-10 rounded-full"/>
-                        </span>
-                        <div class="ml-4 truncate">
-                           <p class="truncate text-sm font-medium text-gray-900"></p>
+               {% set contacts = app.user.getContacts() %}
+               {% for user in allUsers %}
+                  <li id="{{ user.getUsername() }}_li" class="{% if user in contacts %}contact{% endif %} cursor-pointer">
+                     <div class="group relative flex items-center px-5 py-6 hover:bg-gray-100 hover:text-gray-900">
+                        <div class="relative flex min-w-0 flex-1 items-center">
+                           <span class="relative inline-block flex-shrink-0">
+                              <img src="https://avatarfiles.alphacoders.com/244/thumb-244471.png" alt="Avatar de générique" class="object-cover h-10 w-10 rounded-full"/>
+                           </span>
+                           <div class="ml-4 truncate">
+                              <p class="truncate text-sm font-medium text-gray-900">{{ user.getUsername() }}</p>
+                           </div>
                         </div>
                      </div>
-                  </div>
-               </li>
+                  </li>
+               {% endfor %}
             </ul>
             <div id="noContact" class="hidden px-5 py-6 ml-4 truncate">
                <p class="truncate text-sm font-medium text-gray-900">Aucun contact trouvé</p>
@@ -99,9 +110,9 @@ Création d'une table
 <script>
    const nbUsers = document.getElementById('nbUsers');
    const invitedContacts = document.getElementById('invitedContacts');
-
-   // init checkboxes and label + Create contact list
    const contactListRoot = document.getElementById("contactList");
+
+   // init checkboxes and label
    const checkboxes = invitedContacts.querySelectorAll('input[type="checkbox"]');
    const labels = invitedContacts.querySelectorAll('label');
 
@@ -115,10 +126,7 @@ Création d'une table
       resetInvitedContacts();
 
       // contact list
-      let li = document.getElementById("liTemplate").cloneNode(true);
-      li.attributes.removeNamedItem("id");
-      li.querySelector('p').textContent = labels[i].textContent;
-      li.classList.remove("hidden");
+      let li = document.getElementById(labels[i].textContent + "_li");
       li.addEventListener("click", function() {
          if (!checkboxes[i].checked && checkNbOfInvitedContacts()) {
             checkboxes[i].checked = true;
@@ -128,9 +136,21 @@ Création d'une table
             labels[i].classList.add("hidden");
          }
       });
-
-      contactListRoot.appendChild(li);
    }
+
+   // Reset event
+   nbUsers.addEventListener('change', resetInvitedContacts);
+
+   // filter list event
+   const filterInput = document.getElementById('filter');
+
+   filterInput.addEventListener('change', filterList)
+
+   // Contact list event
+   const contactSearchInput = document.getElementById('contactSearchInput');
+   const noContact = document.getElementById('noContact');
+
+   contactSearchInput.addEventListener('input', filterList);
 
    //reset all choices for the invited contacts when changing the nb of players
    function resetInvitedContacts(){
@@ -155,34 +175,25 @@ Création d'une table
       return nbOfChecks !== (parseInt(nbUsers.value) - 1);
    }
 
-   // Reset event
-   nbUsers.addEventListener('change', resetInvitedContacts);
+   //filter contact list
+   function filterList() {
+      const search = contactSearchInput.value.toLowerCase();
+      console.log(search);
+      noContact.classList.add('hidden');
+      let empty = true;
 
-   // Contact list event
-   document.addEventListener('DOMContentLoaded', function () {
-      const contactSearchInput = document.getElementById('contactSearchInput');
-      const noContact = document.getElementById('noContact');
-
-      contactSearchInput.addEventListener('input', (event)  => {
-         const search = event.target.value.toLowerCase();
-         noContact.classList.add('hidden');
-         let empty = true;
-
-         for (let item of contactListRoot.querySelectorAll('li')) {
-            const text = item.querySelector("p").textContent.toLowerCase();
-            if (text.includes(search) && item.id !== "liTemplate") {
-               empty = false;
-               item.classList.remove('hidden'); // Afficher l'élément si le texte correspond à la recherche
-            } else {
-               item.classList.add('hidden'); // Masquer l'élément sinon
-            }
+      for (let item of contactListRoot.querySelectorAll('li')) {
+         const text = item.querySelector("p").textContent.toLowerCase();
+         if (text.includes(search) && (!filterInput.checked || item.classList.contains("contact"))) {
+            empty = false;
+            item.classList.remove('hidden'); // Afficher l'élément si le texte correspond à la recherche
+         } else {
+            item.classList.add('hidden'); // Masquer l'élément sinon
          }
-         if (empty) {
-            noContact.classList.remove('hidden');
-         }
-      });
-
-   });
-
+      }
+      if (empty) {
+         noContact.classList.remove('hidden');
+      }
+   }
 </script>
 {% endblock %}
