@@ -49,8 +49,7 @@ class BoardController extends AbstractController
         //get the logged user
         $userId = $this->security->getUser()->getId();
         $allUsers = array_filter($this->entityManagerInterface->getRepository(User::class)->findAll(), function($user) use ($userId) {
-            //A modifier
-            return $user->getId() !== $userId && $user->getUsername() !== "admin";
+            return $user->getId() !== $userId && !$user->isAdmin();
         });
         //create a board
         $board = new Board();

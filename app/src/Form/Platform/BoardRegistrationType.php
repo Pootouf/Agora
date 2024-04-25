@@ -30,8 +30,7 @@ class BoardRegistrationType extends AbstractType
     {
         $userId = $this->security->getUser()->getId();
         $allUsers = array_filter($this->entityManager->getRepository(User::class)->findAll(), function($user) use ($userId) {
-            //A modifier
-            return $user->getId() !== $userId && $user->getUsername() !== "admin";
+            return $user->getId() !== $userId && !$user->isAdmin();
         });
         $game = $options["game"];
 
