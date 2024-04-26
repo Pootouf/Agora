@@ -38,7 +38,7 @@ This section displays the personal board of a player
      class="absolute top-0 left-0 w-full h-full bg-black bg-opacity-70 flex z-50 text-white items-center justify-center"
 >
     <div class="bg-[#c67b24] rounded-lg
-        {% if isPreview or not isAnotherPlayerBoard %}
+        {% if isPreview or isAnotherPlayerBoard %}
             w-full h-full
         {% else %}
             absolute left-0 w-[75%] h-full
@@ -114,4 +114,6 @@ This section displays the personal board of a player
             </button>
         {% endif %}
     </div>
+    {%  if not isAnotherPlayerBoard %}
 </div>
+{% endif %}
