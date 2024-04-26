@@ -214,6 +214,9 @@
         <!-- Contenu du menu de notifications avec des notifications plus grandes -->
 			{% for notification in notifications %}
 				<div class="notification-item py-3 text-base text-gray-700 hover:bg-gray-100 hover:text-gray-900">
+					<div class="flex items-start">
+						<div class="text-right text-xs text-blue-500">{{ notification.type }}</div>
+					</div>
 					<p>{{notification.content}}</p>
 					<div class="flex items-end">
 						<svg class="h-5 w-5 text-gray-400 ml-2" viewBox="0 0 20 20" fill="currentColor">

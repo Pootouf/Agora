@@ -60,7 +60,7 @@ class BoardManagerService
             $this->gameManagerService->launchGame($board->getPartyId());
             $board->setInGame();
             $users = $board->getListUsers();
-            $this->notificationService->notifyManyUser($users, "La partie ".$board->getPartyId()." du jeu ".$board->getGame()->getLabel()." a démarré, vous pouvez maintenant jouer", new \DateTime());
+            $this->notificationService->notifyManyUser($users, "La partie ".$board->getPartyId()." du jeu ".$board->getGame()->getLabel()." a démarré, vous pouvez maintenant jouer", new \DateTime(), "Début de partie");
         }
         $this->entityManagerInterface->persist($board);
         $this->entityManagerInterface->persist($user);

@@ -7,7 +7,7 @@ use App\Entity\Platform\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 
-class NotificationService extends Fixture
+class NotificationFixtures extends Fixture
 {
 
     public function __construct(){}
