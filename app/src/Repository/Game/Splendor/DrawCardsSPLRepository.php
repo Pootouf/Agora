@@ -25,28 +25,4 @@ class DrawCardsSPLRepository extends ServiceEntityRepository
         parent::__construct($registry, DrawCardsSPL::class);
     }
 
-//    /**
-//     * @return DrawCardsSPL[] Returns an array of DrawCardsSPL objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('d')
-//            ->andWhere('d.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('d.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
-
-//    public function findOneBySomeField($value): ?DrawCardsSPL
-//    {
-//        return $this->createQueryBuilder('d')
-//            ->andWhere('d.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
 }

@@ -139,7 +139,7 @@ class DataManagementGLMServiceTest extends TestCase
     private function createGame(int $nbOfPlayers): GameGLM
     {
         $game = new GameGLM();
-        $game->setGameName(AbstractGameManagerService::$GLM_LABEL);
+        $game->setGameName(AbstractGameManagerService::GLM_LABEL);
         $mainBoard = new MainBoardGLM();
         $mainBoard->setGameGLM($game);
 

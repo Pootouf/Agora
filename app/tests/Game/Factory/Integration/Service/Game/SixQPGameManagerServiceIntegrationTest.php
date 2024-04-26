@@ -18,7 +18,7 @@ class SixQPGameManagerServiceIntegrationTest extends KernelTestCase
     {
         $gameService = static::getContainer()->get(GameManagerService::class);
 
-        $labelGames = array(AbstractGameManagerService::$SIXQP_LABEL);
+        $labelGames = array(AbstractGameManagerService::SIXQP_LABEL);
 
         foreach ($labelGames as $labelGame)
         {
@@ -32,7 +32,7 @@ class SixQPGameManagerServiceIntegrationTest extends KernelTestCase
         $gameService = static::getContainer()->get(GameManagerService::class);
         $gameId = -1;
         $result = $gameService->joinGame($gameId, new GameUser());
-        $this->assertEquals(AbstractGameManagerService::$ERROR_INVALID_GAME, $result);
+        $this->assertEquals(AbstractGameManagerService::ERROR_INVALID_GAME, $result);
     }
 
     public function testJoinGameWhenGameIsLaunched() : void
@@ -43,7 +43,7 @@ class SixQPGameManagerServiceIntegrationTest extends KernelTestCase
         $user->setUsername("toto");
         $game->setLaunched(true);
         $result = $gameService->joinGame($game->getId(), $user);
-        $this->assertEquals(AbstractGameManagerService::$ERROR_GAME_ALREADY_LAUNCHED, $result);
+        $this->assertEquals(AbstractGameManagerService::ERROR_GAME_ALREADY_LAUNCHED, $result);
     }
 
     public function testJoinGameWhenGameIsFull() : void
@@ -53,7 +53,7 @@ class SixQPGameManagerServiceIntegrationTest extends KernelTestCase
         $user = new GameUser();
         $user->setUsername("toto");
         $result = $gameService->joinGame($game->getId(), $user);
-        $this->assertEquals(AbstractGameManagerService::$ERROR_INVALID_NUMBER_OF_PLAYER, $result);
+        $this->assertEquals(AbstractGameManagerService::ERROR_INVALID_NUMBER_OF_PLAYER, $result);
     }
 
     public function testJoinGameWhenGameIsInvalid() : void
@@ -62,7 +62,7 @@ class SixQPGameManagerServiceIntegrationTest extends KernelTestCase
         $user = new GameUser();
         $user->setUsername("toto");
         $result = $gameService->joinGame(-1, $user);
-        $this->assertEquals(AbstractGameManagerService::$ERROR_INVALID_GAME, $result);
+        $this->assertEquals(AbstractGameManagerService::ERROR_INVALID_GAME, $result);
     }
 
     public function testJoinGameWhenPlayerAlreadyInGame() : void
@@ -73,7 +73,7 @@ class SixQPGameManagerServiceIntegrationTest extends KernelTestCase
         $user->setUsername("toto");
         $gameService->joinGame($game->getId(), $user);
         $result = $gameService->joinGame($game->getId(), $user);
-        $this->assertEquals(AbstractGameManagerService::$ERROR_ALREADY_IN_PARTY, $result);
+        $this->assertEquals(AbstractGameManagerService::ERROR_ALREADY_IN_PARTY, $result);
     }
 
     public function testJoinGameSuccessfully() : void
@@ -83,7 +83,7 @@ class SixQPGameManagerServiceIntegrationTest extends KernelTestCase
         $user = new GameUser();
         $user->setUsername("toto");
         $result = $gameService->joinGame($game->getId(), $user);
-        $this->assertEquals(AbstractGameManagerService::$SUCCESS, $result);
+        $this->assertEquals(AbstractGameManagerService::SUCCESS, $result);
     }
     public function testQuitGameWhenGameIsNull()
     {
@@ -94,7 +94,7 @@ class SixQPGameManagerServiceIntegrationTest extends KernelTestCase
         // WHEN
         $result = $gameService->quitGame($gameId, $user);
         // THEN
-        $this->assertEquals(AbstractGameManagerService::$ERROR_INVALID_GAME, $result);
+        $this->assertEquals(AbstractGameManagerService::ERROR_INVALID_GAME, $result);
     }
 
     public function testQuitGameWhenGameIsLaunched()
@@ -108,7 +108,7 @@ class SixQPGameManagerServiceIntegrationTest extends KernelTestCase
         // WHEN
         $result = $gameService->quitGame($gameId, $user);
         // THEN
-        $this->assertEquals(AbstractGameManagerService::$ERROR_GAME_ALREADY_LAUNCHED, $result);
+        $this->assertEquals(AbstractGameManagerService::ERROR_GAME_ALREADY_LAUNCHED, $result);
     }
 
     public function testQuitGameWhenPlayerIsInvalid()
@@ -122,7 +122,7 @@ class SixQPGameManagerServiceIntegrationTest extends KernelTestCase
         // WHEN
         $result = $gameService->quitGame($gameId, $user);
         // THEN
-        $this->assertEquals(AbstractGameManagerService::$ERROR_PLAYER_NOT_FOUND, $result);
+        $this->assertEquals(AbstractGameManagerService::ERROR_PLAYER_NOT_FOUND, $result);
     }
     public function testQuitGameOnSuccess()
     {
@@ -136,14 +136,14 @@ class SixQPGameManagerServiceIntegrationTest extends KernelTestCase
         // WHEN
         $result = $gameService->quitGame($gameId, $user);
         // THEN
-        $this->assertEquals(AbstractGameManagerService::$SUCCESS, $result);
+        $this->assertEquals(AbstractGameManagerService::SUCCESS, $result);
     }
 
     public function testDeleteGameWhenGameIsInvalid() : void
     {
         $gameService = static::getContainer()->get(GameManagerService::class);
 
-        $this->assertEquals(AbstractGameManagerService::$ERROR_INVALID_GAME, $gameService->deleteGame(-1));
+        $this->assertEquals(AbstractGameManagerService::ERROR_INVALID_GAME, $gameService->deleteGame(-1));
     }
 
     public function testDeleteGameWhenGameIsValid() : void
@@ -154,7 +154,7 @@ class SixQPGameManagerServiceIntegrationTest extends KernelTestCase
         $invalidGame = new GameSixQP();
         $entityManager->persist($invalidGame);
         $entityManager->flush();
-        $this->assertEquals(AbstractGameManagerService::$SUCCESS, $gameService->deleteGame($invalidGame->getId()));
+        $this->assertEquals(AbstractGameManagerService::SUCCESS, $gameService->deleteGame($invalidGame->getId()));
     }
 
     public function testLaunchGame6QPFailWhenNotEnoughPlayers() : void
@@ -165,7 +165,7 @@ class SixQPGameManagerServiceIntegrationTest extends KernelTestCase
         $invalidGame = new GameSixQP();
         $entityManager->persist($invalidGame);
         $entityManager->flush();
-        $this->assertEquals(AbstractGameManagerService::$ERROR_INVALID_NUMBER_OF_PLAYER, $gameService->launchGame($invalidGame->getId()));
+        $this->assertEquals(AbstractGameManagerService::ERROR_INVALID_NUMBER_OF_PLAYER, $gameService->launchGame($invalidGame->getId()));
     }
 
     public function testLaunchGame6QPFailWhenTooManyPlayers() : void
@@ -176,12 +176,12 @@ class SixQPGameManagerServiceIntegrationTest extends KernelTestCase
         $invalidGame = $this->createSixQPGame(11, 4);
         $entityManager->persist($invalidGame);
         $entityManager->flush();
-        $this->assertEquals(AbstractGameManagerService::$ERROR_INVALID_NUMBER_OF_PLAYER, $gameService->launchGame($invalidGame->getId()));
+        $this->assertEquals(AbstractGameManagerService::ERROR_INVALID_NUMBER_OF_PLAYER, $gameService->launchGame($invalidGame->getId()));
     }
     public function testLaunchGame6QPFailWhenGameIsInvalid() : void
     {
         $gameService = static::getContainer()->get(GameManagerService::class);
-        $this->assertEquals(AbstractGameManagerService::$ERROR_INVALID_GAME, $gameService->launchGame(-1));
+        $this->assertEquals(AbstractGameManagerService::ERROR_INVALID_GAME, $gameService->launchGame(-1));
     }
 
     public function testLaunchGame6QPSuccessWhenGameIsValid() : void
@@ -207,14 +207,14 @@ class SixQPGameManagerServiceIntegrationTest extends KernelTestCase
         $gameService->joinGame($gameId, $user3);
         $gameService->joinGame($gameId, $user4);
 
-        $this->assertEquals(AbstractGameManagerService::$SUCCESS, $gameService->launchGame($gameId));
+        $this->assertEquals(AbstractGameManagerService::SUCCESS, $gameService->launchGame($gameId));
     }
 
     private function createSixQPGame(int $numberOfPlayer, int $numberOfRow): GameSixQP
     {
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);
         $game = new GameSixQP();
-        $game->setGameName(AbstractGameManagerService::$SIXQP_LABEL);
+        $game->setGameName(AbstractGameManagerService::SIXQP_LABEL);
         for ($i = 0; $i < $numberOfRow; $i++) {
             $row = new RowSixQP();
             $row->setPosition($i);

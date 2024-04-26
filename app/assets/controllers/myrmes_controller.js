@@ -248,7 +248,6 @@ export default class extends Controller  {
             iterations: 1,
         }
         if (open) {
-            const hidden = document.createAttribute("hidden");
             openedPlayerPersonalBoard.removeAttribute("hidden");
             const openingSliding = [
                 {transform: "translateY(60rem)"},
@@ -342,8 +341,6 @@ export default class extends Controller  {
                 {transform: "translateX(0rem)"}
             ]
             openedDisplayObjectPlacement.animate(openingSliding, Timing);
-
-            let personalBoard = document.getElementById('persoBoard');
         } else {
             openedDisplayObjectPlacement.animate(
                 [

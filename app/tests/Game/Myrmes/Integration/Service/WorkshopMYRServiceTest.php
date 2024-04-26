@@ -98,7 +98,7 @@ class WorkshopMYRServiceTest extends KernelTestCase
         $player->setPhase(MyrmesParameters::PHASE_WORKSHOP);
         $nurse = $player->getPersonalBoardMYR()->getNurses()->first();
         $nurse->setArea(MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA);
-        $tile = $this->tileMYRRepository->findOneBy(["coord_X" => 7, "coord_Y" => 12]);
+        $tile = $this->tileMYRRepository->findOneBy(["coordX" => 7, "coordY" => 12]);
         for ($i = 0; $i < MyrmesParameters::MAX_ANTHILL_HOLE_NB; ++$i) {
             $anthillHole = new AnthillHoleMYR();
             $anthillHole->setMainBoardMYR($player->getGameMyr()->getMainBoardMYR());
@@ -128,7 +128,7 @@ class WorkshopMYRServiceTest extends KernelTestCase
         $player->setPhase(MyrmesParameters::PHASE_WORKSHOP);
         $nurse = $player->getPersonalBoardMYR()->getNurses()->first();
         $nurse->setArea(MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA);
-        $tile = $this->tileMYRRepository->findOneBy(["coord_X" => 10, "coord_Y" => 11]);
+        $tile = $this->tileMYRRepository->findOneBy(["coordX" => 10, "coordY" => 11]);
         $this->entityManager->persist($nurse);
         $this->entityManager->persist($player);
         $this->entityManager->persist($game);
@@ -157,7 +157,7 @@ class WorkshopMYRServiceTest extends KernelTestCase
         );
         $pheromone->setType($tileType);
         $pheromoneTile = new PheromonTileMYR();
-        $tile = $this->tileMYRRepository->findOneBy(["coord_X" => 7, "coord_Y" => 12]);
+        $tile = $this->tileMYRRepository->findOneBy(["coordX" => 7, "coordY" => 12]);
         $pheromoneTile->setTile($tile);
         $pheromoneTile->setResource(null);
         $pheromoneTile->setPheromonMYR($pheromone);
@@ -185,7 +185,7 @@ class WorkshopMYRServiceTest extends KernelTestCase
         $player->setPhase(MyrmesParameters::PHASE_WORKSHOP);
         $nurse = $player->getPersonalBoardMYR()->getNurses()->first();
         $nurse->setArea(MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA);
-        $tile = $this->tileMYRRepository->findOneBy(["coord_X" => 7, "coord_Y" => 12]);
+        $tile = $this->tileMYRRepository->findOneBy(["coordX" => 7, "coordY" => 12]);
         $anthillHole = new AnthillHoleMYR();
         $anthillHole->setMainBoardMYR($player->getGameMyr()->getMainBoardMYR());
         $anthillHole->setPlayer($player);
@@ -213,7 +213,7 @@ class WorkshopMYRServiceTest extends KernelTestCase
         $player->setPhase(MyrmesParameters::PHASE_WORKSHOP);
         $nurse = $player->getPersonalBoardMYR()->getNurses()->first();
         $nurse->setArea(MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA);
-        $tile = $this->tileMYRRepository->findOneBy(["coord_X" => 7, "coord_Y" => 12]);
+        $tile = $this->tileMYRRepository->findOneBy(["coordX" => 7, "coordY" => 12]);
         $prey = new PreyMYR();
         $prey->setTile($tile);
         $prey->setType(MyrmesParameters::LADYBUG_TYPE);
@@ -241,7 +241,7 @@ class WorkshopMYRServiceTest extends KernelTestCase
         $player->setPhase(MyrmesParameters::PHASE_WORKSHOP);
         $nurse = $player->getPersonalBoardMYR()->getNurses()->first();
         $nurse->setArea(MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA);
-        $tile = $this->tileMYRRepository->findOneBy(["coord_X" => 7, "coord_Y" => 12]);
+        $tile = $this->tileMYRRepository->findOneBy(["coordX" => 7, "coordY" => 12]);
         $this->entityManager->persist($nurse);
         $this->entityManager->persist($player);
         $this->entityManager->persist($game);
@@ -264,7 +264,7 @@ class WorkshopMYRServiceTest extends KernelTestCase
         $nurse->setArea(MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA);
         $nurse2 = $player->getPersonalBoardMYR()->getNurses()->last();
         $nurse2->setArea(MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA);
-        $tile = $this->tileMYRRepository->findOneBy(["coord_X" => 7, "coord_Y" => 12]);
+        $tile = $this->tileMYRRepository->findOneBy(["coordX" => 7, "coordY" => 12]);
         $pheromone = new PheromonMYR();
         $pheromone->setPlayer($player);
         $pheromone->setHarvested(false);
@@ -273,7 +273,7 @@ class WorkshopMYRServiceTest extends KernelTestCase
         );
         $pheromone->setType($tileType);
         $pheromoneTile = new PheromonTileMYR();
-        $tile2 = $this->tileMYRRepository->findOneBy(["coord_X" => 6, "coord_Y" => 11]);
+        $tile2 = $this->tileMYRRepository->findOneBy(["coordX" => 6, "coordY" => 11]);
         $pheromoneTile->setTile($tile2);
         $pheromoneTile->setResource(null);
         $pheromoneTile->setPheromonMYR($pheromone);
@@ -302,7 +302,7 @@ class WorkshopMYRServiceTest extends KernelTestCase
         $player->setPhase(MyrmesParameters::PHASE_WORKSHOP);
         $nurse = $player->getPersonalBoardMYR()->getNurses()->first();
         $nurse->setArea(MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA);
-        $tile = $this->tileMYRRepository->findOneBy(["coord_X" => 7, "coord_Y" => 12]);
+        $tile = $this->tileMYRRepository->findOneBy(["coordX" => 7, "coordY" => 12]);
         $pheromone = new PheromonMYR();
         $pheromone->setPlayer($player);
         $pheromone->setHarvested(false);
@@ -311,7 +311,7 @@ class WorkshopMYRServiceTest extends KernelTestCase
         );
         $pheromone->setType($tileType);
         $pheromoneTile = new PheromonTileMYR();
-        $tile2 = $this->tileMYRRepository->findOneBy(["coord_X" => 6, "coord_Y" => 11]);
+        $tile2 = $this->tileMYRRepository->findOneBy(["coordX" => 6, "coordY" => 11]);
         $pheromoneTile->setTile($tile2);
         $pheromoneTile->setResource(null);
         $pheromoneTile->setPheromonMYR($pheromone);
@@ -349,7 +349,7 @@ class WorkshopMYRServiceTest extends KernelTestCase
         $nurse = $player->getPersonalBoardMYR()->getNurses()->first();
         $nurse->setArea(MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA);
         $tile = $this->tileMYRRepository->findOneBy(
-            ["coord_X" => 7, "coord_Y" => 12]);
+            ["coordX" => 7, "coordY" => 12]);
         $pheromone = new PheromonMYR();
         $pheromone->setPlayer($player);
         $pheromone->setHarvested(false);
@@ -359,7 +359,7 @@ class WorkshopMYRServiceTest extends KernelTestCase
         $pheromone->setType($tileType);
         $pheromoneTile = new PheromonTileMYR();
         $tile2 = $this->tileMYRRepository->findOneBy(
-            ["coord_X" => 6, "coord_Y" => 11]);
+            ["coordX" => 6, "coordY" => 11]);
         $pheromoneTile->setTile($tile2);
         $pheromoneTile->setResource(null);
         $pheromoneTile->setPheromonMYR($pheromone);
@@ -420,15 +420,15 @@ class WorkshopMYRServiceTest extends KernelTestCase
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
         $anthillHole = new AnthillHoleMYR();
-        $tileHole = $this->tileMYRRepository->findOneBy(["coord_X" => 9, "coord_Y" => 10]);
+        $tileHole = $this->tileMYRRepository->findOneBy(["coordX" => 9, "coordY" => 10]);
         $anthillHole->setTile($tileHole);
         $anthillHole->setPlayer($player);
         $anthillHole->setMainBoardMYR($game->getMainBoardMYR());
         $this->entityManager->persist($anthillHole);
         $player->addAnthillHoleMYR($anthillHole);
 
-        $tilePheromone1 = $this->tileMYRRepository->findOneBy(["coord_X" => 6, "coord_Y" => 15]);
-        $tilePheromone2 = $this->tileMYRRepository->findOneBy(["coord_X" => 7, "coord_Y" => 16]);
+        $tilePheromone1 = $this->tileMYRRepository->findOneBy(["coordX" => 6, "coordY" => 15]);
+        $tilePheromone2 = $this->tileMYRRepository->findOneBy(["coordX" => 7, "coordY" => 16]);
         $tileType = $this->tileTypeMYRRepository->findOneBy(
             ["type" => MyrmesParameters::PHEROMONE_TYPE_ZERO, "orientation" => 0]
         );
@@ -453,7 +453,7 @@ class WorkshopMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($pheromone);
         $player->addPheromonMYR($pheromone);
         $this->entityManager->persist($player);
-        $tile = $this->tileMYRRepository->findOneBy(["coord_X" => 8, "coord_Y" => 15]);
+        $tile = $this->tileMYRRepository->findOneBy(["coordX" => 8, "coordY" => 15]);
         $prey = new PreyMYR();
         $prey->setTile($tile);
         $prey->setType(MyrmesParameters::LADYBUG_TYPE);
@@ -461,7 +461,7 @@ class WorkshopMYRServiceTest extends KernelTestCase
         $prey->setMainBoardMYR($game->getMainBoardMYR());
         $this->entityManager->persist($player);
         $this->entityManager->persist($prey);
-        $tile = $this->tileMYRRepository->findOneBy(["coord_X" => 8, "coord_Y" => 9]);
+        $tile = $this->tileMYRRepository->findOneBy(["coordX" => 8, "coordY" => 9]);
         $prey = new PreyMYR();
         $prey->setTile($tile);
         $prey->setType(MyrmesParameters::LADYBUG_TYPE);
@@ -469,7 +469,7 @@ class WorkshopMYRServiceTest extends KernelTestCase
         $prey->setMainBoardMYR($game->getMainBoardMYR());
         $this->entityManager->persist($player);
         $this->entityManager->persist($prey);
-        $tile = $this->tileMYRRepository->findOneBy(["coord_X" => 9, "coord_Y" => 12]);
+        $tile = $this->tileMYRRepository->findOneBy(["coordX" => 9, "coordY" => 12]);
         $prey = new PreyMYR();
         $prey->setTile($tile);
         $prey->setType(MyrmesParameters::LADYBUG_TYPE);
@@ -477,7 +477,7 @@ class WorkshopMYRServiceTest extends KernelTestCase
         $prey->setMainBoardMYR($game->getMainBoardMYR());
         $this->entityManager->persist($player);
         $this->entityManager->persist($prey);
-        $tile = $this->tileMYRRepository->findOneBy(["coord_X" => 8, "coord_Y" => 15]);
+        $tile = $this->tileMYRRepository->findOneBy(["coordX" => 8, "coordY" => 15]);
         $prey = new PreyMYR();
         $prey->setTile($tile);
         $prey->setType(MyrmesParameters::LADYBUG_TYPE);
@@ -485,7 +485,7 @@ class WorkshopMYRServiceTest extends KernelTestCase
         $prey->setMainBoardMYR($game->getMainBoardMYR());
         $this->entityManager->persist($player);
         $this->entityManager->persist($prey);
-        $tile = $this->tileMYRRepository->findOneBy(["coord_X" => 10, "coord_Y" => 9]);
+        $tile = $this->tileMYRRepository->findOneBy(["coordX" => 10, "coordY" => 9]);
         $prey = new PreyMYR();
         $prey->setTile($tile);
         $prey->setType(MyrmesParameters::LADYBUG_TYPE);
@@ -495,13 +495,13 @@ class WorkshopMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($prey);
         $this->entityManager->flush();
         $expectedTiles = new ArrayCollection();
-        $tile = $this->tileMYRRepository->findOneBy(["coord_X" => 5, "coord_Y" => 14]);
+        $tile = $this->tileMYRRepository->findOneBy(["coordX" => 5, "coordY" => 14]);
         $expectedTiles->add($tile);
-        $tile = $this->tileMYRRepository->findOneBy(["coord_X" => 6, "coord_Y" => 13]);
+        $tile = $this->tileMYRRepository->findOneBy(["coordX" => 6, "coordY" => 13]);
         $expectedTiles->add($tile);
-        $tile = $this->tileMYRRepository->findOneBy(["coord_X" => 7, "coord_Y" => 14]);
+        $tile = $this->tileMYRRepository->findOneBy(["coordX" => 7, "coordY" => 14]);
         $expectedTiles->add($tile);
-        $tile = $this->tileMYRRepository->findOneBy(["coord_X" => 8, "coord_Y" => 11]);
+        $tile = $this->tileMYRRepository->findOneBy(["coordX" => 8, "coordY" => 11]);
         $expectedTiles->add($tile);
         //WHEN
         $result = $this->workshopMYRService->getAvailableAnthillHolesPositions($player);

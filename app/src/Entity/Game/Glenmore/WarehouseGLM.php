@@ -60,11 +60,9 @@ class WarehouseGLM extends Component
 
     public function removeWarehouseLine(WarehouseLineGLM $warehouseLine): static
     {
-        if ($this->warehouseLine->removeElement($warehouseLine)) {
-            // set the owning side to null (unless already changed)
-            if ($warehouseLine->getWarehouseGLM() === $this) {
-                $warehouseLine->setWarehouseGLM(null);
-            }
+        if ($this->warehouseLine->removeElement($warehouseLine)
+            && $warehouseLine->getWarehouseGLM() === $this) {
+            $warehouseLine->setWarehouseGLM(null);
         }
 
         return $this;

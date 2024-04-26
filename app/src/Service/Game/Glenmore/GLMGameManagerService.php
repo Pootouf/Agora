@@ -35,7 +35,7 @@ class GLMGameManagerService extends AbstractGameManagerService
     public function createGame(): int
     {
         $game = new GameGLM();
-        $game->setGameName(AbstractGameManagerService::$GLM_LABEL);
+        $game->setGameName(AbstractGameManagerService::GLM_LABEL);
         $mainBoard = new MainBoardGLM();
         $game->setMainBoard($mainBoard);
         $warehouse = new WarehouseGLM();
@@ -77,17 +77,17 @@ class GLMGameManagerService extends AbstractGameManagerService
     {
         $game = $this->getGameGlenmoreFromGame($game);
         if ($game == null) {
-            return GLMGameManagerService::$ERROR_INVALID_GAME;
+            return GLMGameManagerService::ERROR_INVALID_GAME;
         }
         if($game->isLaunched()) {
-            return GLMGameManagerService::$ERROR_GAME_ALREADY_LAUNCHED;
+            return GLMGameManagerService::ERROR_GAME_ALREADY_LAUNCHED;
         }
         if (count($game->getPlayers()) >= GlenmoreParameters::MAX_NUMBER_OF_PLAYER) {
-            return GLMGameManagerService::$ERROR_INVALID_NUMBER_OF_PLAYER;
+            return GLMGameManagerService::ERROR_INVALID_NUMBER_OF_PLAYER;
         }
         if ($this->playerGLMRepository->findOneBy(
             ['username' => $playerName, 'gameGLM' => $game->getId()]) != null) {
-            return GLMGameManagerService::$ERROR_ALREADY_IN_PARTY;
+            return GLMGameManagerService::ERROR_ALREADY_IN_PARTY;
         }
         $player = new PlayerGLM($playerName, $game);
         $player->setScore(0);
@@ -108,7 +108,7 @@ class GLMGameManagerService extends AbstractGameManagerService
         $this->entityManager->flush();
         $this->logService->sendPlayerLog($game, $player,
             $playerName . GlenmoreTranslation::JOIN_GAME . $game->getId());
-        return GLMGameManagerService::$SUCCESS;
+        return GLMGameManagerService::SUCCESS;
     }
 
     /**
@@ -118,20 +118,20 @@ class GLMGameManagerService extends AbstractGameManagerService
     {
         $game = $this->getGameGlenmoreFromGame($game);
         if ($game == null) {
-            return GLMGameManagerService::$ERROR_INVALID_GAME;
+            return GLMGameManagerService::ERROR_INVALID_GAME;
         }
         if ($game->isLaunched()) {
-            return GLMGameManagerService::$ERROR_GAME_ALREADY_LAUNCHED;
+            return GLMGameManagerService::ERROR_GAME_ALREADY_LAUNCHED;
         }
         $player = $this->glmService->getPlayerFromNameAndGame($game, $playerName);
         if ($player == null) {
-            return GLMGameManagerService::$ERROR_PLAYER_NOT_FOUND;
+            return GLMGameManagerService::ERROR_PLAYER_NOT_FOUND;
         }
         $this->entityManager->remove($player);
         $this->entityManager->flush();
         $this->logService->sendSystemLog($game,
             $playerName . GlenmoreTranslation::LEAVE_GAME . $game->getId());
-        return GLMGameManagerService::$SUCCESS;
+        return GLMGameManagerService::SUCCESS;
     }
 
     /**
@@ -141,7 +141,7 @@ class GLMGameManagerService extends AbstractGameManagerService
     {
         $game = $this->getGameGlenmoreFromGame($game);
         if ($game == null) {
-            return GLMGameManagerService::$ERROR_INVALID_GAME;
+            return GLMGameManagerService::ERROR_INVALID_GAME;
         }
         foreach ($game->getPlayers() as $player) {
             foreach ($player->getPlayerTileResourceGLMs() as $playerTileResourceGLM) {
@@ -158,7 +158,7 @@ class GLMGameManagerService extends AbstractGameManagerService
             . $game->getId() . GlenmoreTranslation::HAS_ENDED);
         $this->entityManager->remove($game);
         $this->entityManager->flush();
-        return GLMGameManagerService::$SUCCESS;
+        return GLMGameManagerService::SUCCESS;
     }
 
     /**
@@ -169,12 +169,12 @@ class GLMGameManagerService extends AbstractGameManagerService
     {
         $game = $this->getGameGlenmoreFromGame($game);
         if ($game == null) {
-            return GLMGameManagerService::$ERROR_INVALID_GAME;
+            return GLMGameManagerService::ERROR_INVALID_GAME;
         }
         $numberOfPlayers = count($game->getPlayers());
         if ($numberOfPlayers > GlenmoreParameters::MAX_NUMBER_OF_PLAYER
             || $numberOfPlayers < GlenmoreParameters::MIN_NUMBER_OF_PLAYER) {
-            return GLMGameManagerService::$ERROR_INVALID_NUMBER_OF_PLAYER;
+            return GLMGameManagerService::ERROR_INVALID_NUMBER_OF_PLAYER;
         }
         $game->setLaunched(true);
         $this->entityManager->persist($game);
@@ -182,13 +182,13 @@ class GLMGameManagerService extends AbstractGameManagerService
         $this->glmService->initializeNewGame($game);
         $this->logService->sendSystemLog($game, GameTranslation::GAME_STRING
             . $game->getId() . GlenmoreTranslation::GAME_STARTED);
-        return GLMGameManagerService::$SUCCESS;
+        return GLMGameManagerService::SUCCESS;
     }
 
 
     private function getGameGlenmoreFromGame(Game $game): ?GameGLM
     {
         /** @var GameGLM $game */
-        return $game->getGameName() == AbstractGameManagerService::$GLM_LABEL ? $game : null;
+        return $game->getGameName() == AbstractGameManagerService::GLM_LABEL ? $game : null;
     }
 }

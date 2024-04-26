@@ -77,7 +77,7 @@ class DataManagementMYRServiceTest extends KernelTestCase
         $x = 12;
         $y = 5;
         $tile = $this->tileMYRRepository->findOneBy(
-            ["coord_X" => $x, "coord_Y" => $y]
+            ["coordX" => $x, "coordY" => $y]
         );
         $ant = null;
         $prey = new PreyMYR();
@@ -104,7 +104,7 @@ class DataManagementMYRServiceTest extends KernelTestCase
         $x = 12;
         $y = 5;
         $tile = $this->tileMYRRepository->findOneBy(
-            ["coord_X" => $x, "coord_Y" => $y]
+            ["coordX" => $x, "coordY" => $y]
         );
         $ant = null;
         $prey = null;
@@ -125,7 +125,7 @@ class DataManagementMYRServiceTest extends KernelTestCase
         $x = 12;
         $y = 5;
         $tile = $this->tileMYRRepository->findOneBy(
-            ["coord_X" => $x, "coord_Y" => $y]
+            ["coordX" => $x, "coordY" => $y]
         );
         $ant = new GardenWorkerMYR();
         $ant->setMainBoardMYR($game->getMainBoardMYR());
@@ -174,7 +174,7 @@ class DataManagementMYRServiceTest extends KernelTestCase
         $x = 12;
         $y = 5;
         $tile = $this->tileMYRRepository->findOneBy(
-            ["coord_X" => $x, "coord_Y" => $y]
+            ["coordX" => $x, "coordY" => $y]
         );
         $ant = new GardenWorkerMYR();
         $ant->setTile($tile);

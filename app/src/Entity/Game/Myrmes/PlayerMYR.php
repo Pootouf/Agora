@@ -93,11 +93,9 @@ class PlayerMYR extends Player
 
     public function removeGardenWorkerMYR(GardenWorkerMYR $gardenWorkerMYR): static
     {
-        if ($this->gardenWorkerMYRs->removeElement($gardenWorkerMYR)) {
-            // set the owning side to null (unless already changed)
-            if ($gardenWorkerMYR->getPlayer() === $this) {
-                $gardenWorkerMYR->setPlayer(null);
-            }
+        if ($this->gardenWorkerMYRs->removeElement($gardenWorkerMYR)
+            && $gardenWorkerMYR->getPlayer() === $this) {
+            $gardenWorkerMYR->setPlayer(null);
         }
 
         return $this;
@@ -150,11 +148,9 @@ class PlayerMYR extends Player
 
     public function removeAnthillHoleMYR(AnthillHoleMYR $anthillHoleMYR): static
     {
-        if ($this->anthillHoleMYRs->removeElement($anthillHoleMYR)) {
-            // set the owning side to null (unless already changed)
-            if ($anthillHoleMYR->getPlayer() === $this) {
-                $anthillHoleMYR->setPlayer(null);
-            }
+        if ($this->anthillHoleMYRs->removeElement($anthillHoleMYR)
+            && $anthillHoleMYR->getPlayer() === $this) {
+            $anthillHoleMYR->setPlayer(null);
         }
 
         return $this;
@@ -209,11 +205,9 @@ class PlayerMYR extends Player
 
     public function removePheromonMYR(PheromonMYR $pheromonMYR): static
     {
-        if ($this->pheromonMYRs->removeElement($pheromonMYR)) {
-            // set the owning side to null (unless already changed)
-            if ($pheromonMYR->getPlayer() === $this) {
-                $pheromonMYR->setPlayer(null);
-            }
+        if ($this->pheromonMYRs->removeElement($pheromonMYR)
+            && $pheromonMYR->getPlayer() === $this) {
+            $pheromonMYR->setPlayer(null);
         }
 
         return $this;
@@ -239,11 +233,8 @@ class PlayerMYR extends Player
 
     public function removePreyMYR(PreyMYR $preyMYR): static
     {
-        if ($this->preyMYRs->removeElement($preyMYR)) {
-            // set the owning side to null (unless already changed)
-            if ($preyMYR->getPlayer() === $this) {
-                $preyMYR->setPlayer(null);
-            }
+        if ($this->preyMYRs->removeElement($preyMYR) && $preyMYR->getPlayer() === $this) {
+            $preyMYR->setPlayer(null);
         }
 
         return $this;

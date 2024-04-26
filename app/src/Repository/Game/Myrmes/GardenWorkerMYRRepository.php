@@ -25,28 +25,4 @@ class GardenWorkerMYRRepository extends ServiceEntityRepository
         parent::__construct($registry, GardenWorkerMYR::class);
     }
 
-//    /**
-//     * @return GardenWorkerMYR[] Returns an array of GardenWorkerMYR objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('g')
-//            ->andWhere('g.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('g.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
-
-//    public function findOneBySomeField($value): ?GardenWorkerMYR
-//    {
-//        return $this->createQueryBuilder('g')
-//            ->andWhere('g.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
 }

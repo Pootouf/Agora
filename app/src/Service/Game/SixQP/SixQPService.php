@@ -209,13 +209,14 @@ class SixQPService
             }
         }
         usort($chosenCards, function (ChosenCardSixQP $a, ChosenCardSixQP $b) {
-            return $a->getCard()->getValue() - $b->getCard()->getValue();});
+            return $a->getCard()->getValue() - $b->getCard()->getValue();
+        });
         return $chosenCards;
     }
 
     /**
      * isGameEnded : checks if game has ended
-     * @param GameSixQP $gameSixQP 
+     * @param GameSixQP $gameSixQP
      * @return bool
      */
     public function isGameEnded(GameSixQP $gameSixQP): bool
@@ -366,10 +367,5 @@ class SixQPService
             }
         }
         return false;
-    }
-
-    private function getGameSixQPFromGame(Game $game): ?GameSixQP {
-        /** @var GameSixQP $game */
-        return $game->getGameName() == AbstractGameManagerService::$SIXQP_LABEL ? $game : null;
     }
 }

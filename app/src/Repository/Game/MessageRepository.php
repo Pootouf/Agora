@@ -25,17 +25,6 @@ class MessageRepository extends ServiceEntityRepository
         parent::__construct($registry, Message::class);
     }
 
-    // public function findAllMessageFromGame(int $gameId)
-    // {
-    //     $bdd = $this->getEntityManager()->getConnection();
-
-    //     $request = 'SELECT * FROM `message` WHERE WHERE message.gameId = '
-    //         . $gameId . ' ORDER BY message.date';
-        
-    //     $result = $bdd->executeQuery($request);
-
-    //     return $result->fetchAllAssociative();
-    // }
 
    /**
     * @return Message[] Returns an array of Message objects
@@ -51,13 +40,4 @@ class MessageRepository extends ServiceEntityRepository
        ;
    }
 
-//    public function findOneBySomeField($value): ?Message
-//    {
-//        return $this->createQueryBuilder('m')
-//            ->andWhere('m.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
 }

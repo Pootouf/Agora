@@ -12,7 +12,7 @@ This section displays player's colony level track with the crafts available for 
 
 <div class="relative w-[35%] inlineFlexCol items-center p-4 h-auto scale-[0.8]"
      id="colonyLevelTrack">
-    {% set canSendWorkerToAnthill = playerPhase == PHASE_WORKER and player.personalBoardMYR.anthillWorkers|length > 0 and needToPlay %}
+    {% set canSendWorkerToAnthill = not isAnotherPlayerBoard and playerPhase == PHASE_WORKER and player.personalBoardMYR.anthillWorkers|length > 0 and needToPlay %}
     {% set anthillLevel = player.personalBoardMYR.anthillLevel %}
     {#colony track level 0#}
     <{% if not isPreview and canSendWorkerToAnthill %}button{% else %}div{% endif%}  type="button" id="colonyLevel0"
