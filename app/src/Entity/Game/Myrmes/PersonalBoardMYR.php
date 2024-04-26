@@ -103,11 +103,9 @@ class PersonalBoardMYR extends Component
 
     public function removeNurse(NurseMYR $nurse): static
     {
-        if ($this->nurses->removeElement($nurse)) {
-            // set the owning side to null (unless already changed)
-            if ($nurse->getPersonalBoardMYR() === $this) {
-                $nurse->setPersonalBoardMYR(null);
-            }
+        if ($this->nurses->removeElement($nurse)
+            && $nurse->getPersonalBoardMYR() === $this) {
+            $nurse->setPersonalBoardMYR(null);
         }
 
         return $this;
@@ -145,11 +143,9 @@ class PersonalBoardMYR extends Component
 
     public function removeAnthillWorker(AnthillWorkerMYR $anthillWorker): static
     {
-        if ($this->anthillWorkers->removeElement($anthillWorker)) {
-            // set the owning side to null (unless already changed)
-            if ($anthillWorker->getPersonalBoardMYR() === $this) {
-                $anthillWorker->setPersonalBoardMYR(null);
-            }
+        if ($this->anthillWorkers->removeElement($anthillWorker)
+            && $anthillWorker->getPersonalBoardMYR() === $this) {
+            $anthillWorker->setPersonalBoardMYR(null);
         }
 
         return $this;
@@ -187,11 +183,9 @@ class PersonalBoardMYR extends Component
 
     public function removePlayerResourceMYR(PlayerResourceMYR $playerResourceMYR): static
     {
-        if ($this->playerResourceMYRs->removeElement($playerResourceMYR)) {
-            // set the owning side to null (unless already changed)
-            if ($playerResourceMYR->getPersonalBoard() === $this) {
-                $playerResourceMYR->setPersonalBoard(null);
-            }
+        if ($this->playerResourceMYRs->removeElement($playerResourceMYR)
+            && $playerResourceMYR->getPersonalBoard() === $this) {
+            $playerResourceMYR->setPersonalBoard(null);
         }
 
         return $this;

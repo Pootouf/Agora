@@ -140,7 +140,7 @@ class DataManagementGLMServiceIntegrationTest extends KernelTestCase
         $tileGLMRepository = static::getContainer()->get(TileGLMRepository::class);
         $resourceGLMRepository = static::getContainer()->get(ResourceGLMRepository::class);
         $game = new GameGLM();
-        $game->setGameName(AbstractGameManagerService::$GLM_LABEL);
+        $game->setGameName(AbstractGameManagerService::GLM_LABEL);
         $mainBoard = new MainBoardGLM();
         $mainBoard->setGameGLM($game);
         $tilesLevelZero = $tileGLMRepository->findBy(['level' => GlenmoreParameters::TILE_LEVEL_ZERO]);

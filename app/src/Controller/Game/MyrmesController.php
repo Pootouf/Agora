@@ -31,9 +31,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Exception;
 
-/**
- * @codeCoverageIgnore
- */
+
 class MyrmesController extends AbstractController
 {
     public function __construct(private readonly MYRService $service,
@@ -193,6 +191,7 @@ class MyrmesController extends AbstractController
                 'isPreview' => false,
                 'isSpectator' => true,
                 'isAnotherPlayerBoard' => true,
+                'needToPlay' => $playerMYR->isTurnOfPlayer(),
                 'playerPhase' => $playerMYR->getPhase(),
                 'actualSeason' => $this->service->getActualSeason($game),
                 'availableLarvae' => $this->service->getAvailableLarvae($playerMYR),
@@ -417,6 +416,11 @@ class MyrmesController extends AbstractController
         $message = $player->getUsername() . " a confirmé son choix de bonus";
         $this->logService->sendPlayerLog($game, $player, $message);
         $this->publishPersonalBoard($game, $player);
+        if ($game->getGamePhase() == MyrmesParameters::PHASE_BIRTH) {
+            foreach ($game->getPlayers() as $p) {
+                $this->publishRanking($game, $p);
+            }
+        }
         return new Response('Bonus confirmed', Response::HTTP_OK);
     }
 
@@ -495,6 +499,7 @@ class MyrmesController extends AbstractController
         if ($game->getGamePhase() == MyrmesParameters::PHASE_WORKER) {
             foreach ($game->getPlayers() as $p) {
                 $this->publishMainBoard($game, $p, $boardBoxes, false, false);
+                $this->publishRanking($game, $p);
             }
         } else {
             $this->publishMainBoard($game, $player, $boardBoxes, false, false);
@@ -609,7 +614,7 @@ class MyrmesController extends AbstractController
             return new Response(GameTranslation::NOT_PLAYER_TURN, Response::HTTP_FORBIDDEN);
         }
         if ($game->getGamePhase() != MyrmesParameters::PHASE_WORKER) {
-            return new Response('Not in worker phase', Response::HTTP_FORBIDDEN);
+            return new Response(MyrmesTranslation::RESPONSE_NOT_IN_WORKER_PHASE, Response::HTTP_FORBIDDEN);
         }
 
         try {
@@ -659,7 +664,7 @@ class MyrmesController extends AbstractController
             return new Response(GameTranslation::NOT_PLAYER_TURN, Response::HTTP_FORBIDDEN);
         }
         if ($game->getGamePhase() != MyrmesParameters::PHASE_WORKER) {
-            return new Response('Not in worker phase', Response::HTTP_FORBIDDEN);
+            return new Response(MyrmesTranslation::RESPONSE_NOT_IN_WORKER_PHASE, Response::HTTP_FORBIDDEN);
         }
 
         $anthillHole = $this->workshopMYRService->getAnthillHoleFromTile($tile, $game);
@@ -732,7 +737,7 @@ class MyrmesController extends AbstractController
         }
         try {
             return new Response($this->workerMYRService
-                ->getNeededMovementPoints($coordX1, $coordY1, $coordX2, $coordY2, $game, $player));
+                ->getNeededMovementPoints($coordX1, $coordY1, $coordX2, $coordY2, $game));
         } catch (Exception $e) {
             return new Response("can't get needed movement points, invalid tile",
                 Response::HTTP_INTERNAL_SERVER_ERROR);
@@ -780,8 +785,12 @@ class MyrmesController extends AbstractController
             return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         $tile = $this->workerMYRService->getTileFromCoordinates($coordX, $coordY);
+        if ($tile == null) {
+            return new Response(MyrmesTranslation::RESPONSE_INVALID_TILE,
+                Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
         $pheromone = $this->workerMYRService->getPheromoneFromTile($game, $tile);
-        if($tile != null) {
+        if($pheromone != null) {
             return new Response($this->workerMYRService->canCleanPheromone($pheromone, $playerDirtQuantity));
         } else {
             return new Response(MyrmesTranslation::RESPONSE_INVALID_TILE,
@@ -840,12 +849,16 @@ class MyrmesController extends AbstractController
             return new Response(GameTranslation::NOT_PLAYER_TURN, Response::HTTP_FORBIDDEN);
         }
         if ($game->getGamePhase() != MyrmesParameters::PHASE_WORKER) {
-            return new Response('Not in worker phase', Response::HTTP_FORBIDDEN);
+            return new Response(MyrmesTranslation::RESPONSE_NOT_IN_WORKER_PHASE, Response::HTTP_FORBIDDEN);
         }
 
         $tile = $this->workerMYRService->getTileFromCoordinates($coordX, $coordY);
+        if ($tile == null) {
+            return new Response(MyrmesTranslation::RESPONSE_INVALID_TILE,
+                Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
         $pheromone = $this->workerMYRService->getPheromoneFromTile($game, $tile);
-        if($tile == null) {
+        if($pheromone == null) {
             return new Response(MyrmesTranslation::RESPONSE_INVALID_TILE,
                 Response::HTTP_INTERNAL_SERVER_ERROR);
         }
@@ -924,7 +937,7 @@ class MyrmesController extends AbstractController
             return new Response(GameTranslation::NOT_PLAYER_TURN, Response::HTTP_FORBIDDEN);
         }
         if ($game->getGamePhase() != MyrmesParameters::PHASE_WORKER) {
-            return new Response('Not in worker phase', Response::HTTP_FORBIDDEN);
+            return new Response(MyrmesTranslation::RESPONSE_NOT_IN_WORKER_PHASE, Response::HTTP_FORBIDDEN);
         }
 
         $ant = $player->getGardenWorkerMYRs()->first();
@@ -964,7 +977,7 @@ class MyrmesController extends AbstractController
             return new Response(GameTranslation::NOT_PLAYER_TURN, Response::HTTP_FORBIDDEN);
         }
         if ($game->getGamePhase() != MyrmesParameters::PHASE_WORKER) {
-            return new Response('Not in worker phase', Response::HTTP_FORBIDDEN);
+            return new Response(MyrmesTranslation::RESPONSE_NOT_IN_WORKER_PHASE, Response::HTTP_FORBIDDEN);
         }
 
         $this->workerMYRService->killPlayerGardenWorker($player);

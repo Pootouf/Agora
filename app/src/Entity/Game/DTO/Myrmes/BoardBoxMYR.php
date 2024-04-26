@@ -133,3 +133,4 @@ class BoardBoxMYR
         $this->movementPoints = $movementPoints;
     }
 }
+

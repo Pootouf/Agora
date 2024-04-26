@@ -22,4 +22,5 @@ interface MyrmesTranslation
     const string RESPONSE_ERROR_CALCULATING_MAIN_BOARD = "Error while calculating main board tiles disposition";
     const string RESPONSE_INVALID_TILE = "Invalid tile";
     const string RESPONSE_INVALID_TILE_TYPE = "Invalid tile type";
+    const string RESPONSE_NOT_IN_WORKER_PHASE = "Not in worker phase";
 }

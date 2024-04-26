@@ -14,7 +14,6 @@ This section displays the personal board of a player
     {% set gapSize = 'gap-[1vw]' %}
     {% set gapBetweenAreasSize = 'gap-[2vw] sm:gap-[1vw]' %}
 {% endif %}
-{% if not isAnotherPlayerBoard %}
 
 {# Definition of constants #}
 {% set PHASE_EVENT = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::PHASE_EVENT') %}
@@ -38,20 +37,19 @@ This section displays the personal board of a player
 <div {% if not isPreview %}id="personalBoard"{% endif %}
      class="absolute top-0 left-0 w-full h-full bg-black bg-opacity-70 flex z-50 text-white items-center justify-center"
 >
-    {% endif %}
     <div class="bg-[#c67b24] rounded-lg
         {% if isPreview or isAnotherPlayerBoard %}
             w-full h-full
         {% else %}
             absolute left-0 w-[75%] h-full
-        {% endif%}
+        {% endif %}
         inlineFlex gap-[1vw]"
     >
         {# loading tailwind data#}
         {{ include('Game/Myrmes/PersonalBoard/loadingPersonalBoardData.html.twig') }}
         <div class="inlineFlexCol {% if isPreview %}gap-[0.3vw]{% else %}gap-[1vw]{% endif %} w-[45%]" id="left-column">
             {#send worker on garden#}
-            {% if not isPreview and playerPhase == PHASE_WORKER and player.personalBoardMYR.anthillWorkers|length > 0 and needToPlay %}
+            {% if not isAnotherPlayerBoard and not isPreview and playerPhase == PHASE_WORKER and player.personalBoardMYR.anthillWorkers|length > 0 and needToPlay %}
                 <div class="w-full inlineFlex">
                     <button type="button" class="h-[4vw]"
                             {{ stimulus_action('myrmes','selectAntHillHoleToSendWorker','click',
@@ -118,6 +116,6 @@ This section displays the personal board of a player
             </button>
         {% endif %}
     </div>
-    {% if not isAnotherPlayerBoard %}
+    {%  if not isAnotherPlayerBoard %}
 </div>
 {% endif %}

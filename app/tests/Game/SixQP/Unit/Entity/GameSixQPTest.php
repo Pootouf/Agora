@@ -24,7 +24,7 @@ class GameSixQPTest extends TestCase
 
     public function testInitGame(): void
     {
-        $this->assertSame(AbstractGameManagerService::$SIXQP_LABEL, $this->gameSixQP->getGameName());
+        $this->assertSame(AbstractGameManagerService::SIXQP_LABEL, $this->gameSixQP->getGameName());
         $this->assertFalse($this->gameSixQP->isLaunched());
     }
 

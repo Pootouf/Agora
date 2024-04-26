@@ -233,7 +233,7 @@ class SixQPServiceTest extends TestCase
         //WHEN
         $this->sixQPService->calculatePoints($player->getDiscardSixQP());
         //THEN
-        $this->assertTrue($player->getScore() == $expectedPoint);
+        $this->assertEquals($expectedPoint, $player->getScore());
     }
 
 

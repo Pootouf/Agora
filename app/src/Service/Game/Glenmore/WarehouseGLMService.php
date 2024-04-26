@@ -133,7 +133,7 @@ class WarehouseGLMService
             if (!$found) {
                 throw new Exception("player does not need to buy this resource to buy");
             }
-        } else if ($activatingTile != null) {
+        } elseif ($activatingTile != null) {
             $activationPrice = $activatingTile->getTile()->getActivationPrice();
             foreach ($activationPrice as $price) {
                 if ($price->getResource() === $resource) {

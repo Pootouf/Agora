@@ -1465,7 +1465,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $player = $game->getPlayers()->first();
         $tile = $this->tileGLMRepository->findOneBy(["name" => GlenmoreParameters::CARD_LOCH_OICH]);
         //WHEN
-        $result = $this->service->canBuyLochOich($tile, $player);
+        $result = $this->service->canBuyLochOich($player);
         //THEN
         $this->assertTrue($result);
     }
@@ -1488,7 +1488,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $this->entityManager->flush();
         $tile = $this->tileGLMRepository->findOneBy(["name" => GlenmoreParameters::CARD_LOCH_OICH]);
         //WHEN
-        $result = $this->service->canBuyLochOich($tile, $player);
+        $result = $this->service->canBuyLochOich($player);
         //THEN
         $this->assertTrue($result);
     }
@@ -1511,7 +1511,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $this->entityManager->flush();
         $tile = $this->tileGLMRepository->findOneBy(["name" => GlenmoreParameters::CARD_LOCH_OICH]);
         //WHEN
-        $result = $this->service->canBuyLochOich($tile, $player);
+        $result = $this->service->canBuyLochOich($player);
         //THEN
         $this->assertTrue($result);
     }
@@ -1527,7 +1527,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $this->entityManager->flush();
         $tile = $this->tileGLMRepository->findOneBy(["name" => GlenmoreParameters::CARD_LOCH_OICH]);
         //WHEN
-        $result = $this->service->canBuyLochOich($tile, $player);
+        $result = $this->service->canBuyLochOich($player);
         //THEN
         $this->assertFalse($result);
     }
@@ -1554,7 +1554,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $this->entityManager->flush();
         $tile = $this->tileGLMRepository->findOneBy(["name" => GlenmoreParameters::CARD_LOCH_OICH]);
         //WHEN
-        $result = $this->service->canBuyLochOich($tile, $player);
+        $result = $this->service->canBuyLochOich($player);
         //THEN
         $this->assertFalse($result);
     }
@@ -1587,7 +1587,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $this->entityManager->flush();
         $tile = $this->tileGLMRepository->findOneBy(["name" => GlenmoreParameters::CARD_LOCH_OICH]);
         //WHEN
-        $result = $this->service->canBuyLochOich($tile, $player);
+        $result = $this->service->canBuyLochOich($player);
         //THEN
         $this->assertTrue($result);
     }
@@ -1619,7 +1619,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $this->entityManager->flush();
         $tile = $this->tileGLMRepository->findOneBy(["name" => GlenmoreParameters::CARD_LOCH_OICH]);
         //WHEN
-        $result = $this->service->canBuyLochOich($tile, $player);
+        $result = $this->service->canBuyLochOich($player);
         //THEN
         $this->assertTrue($result);
     }
@@ -2115,7 +2115,7 @@ class TileGLMServiceIntegrationTest extends KernelTestCase
         $resourceGLMRepository = static::getContainer()->get(ResourceGLMRepository::class);
         $this->resourceGLMRepository = $resourceGLMRepository;
         $game = new GameGLM();
-        $game->setGameName(AbstractGameManagerService::$GLM_LABEL);
+        $game->setGameName(AbstractGameManagerService::GLM_LABEL);
         $mainBoard = new MainBoardGLM();
         $mainBoard->setGameGLM($game);
         $tilesLevelZero = $tileGLMRepository->findBy(['level' => GlenmoreParameters::TILE_LEVEL_ZERO]);
