@@ -89,8 +89,12 @@ class DashboardController extends AbstractController
     }
 
     #[Route('/dashboard/settings', name: 'app_dashboard_settings')]
+    #[Route('/admin/settings', name: 'app_admin_settings')]
     public function settings(Request $request): Response
     {
+        // Récupérer la route
+        $routeName = $request->attributes->get('_route');
+
         // Récupérer l'utilisateur connecté
         $user = $this->getUser();
 
@@ -101,10 +105,17 @@ class DashboardController extends AbstractController
         $form->handleRequest($request);
 
         // Rendre la vue en passant le formulaire
-        return $this->render('platform/users/editUserProfile.html.twig', [
-            'form' => $form->createView(),
-            'notifications' => $this->notifications,
-        ]);
+        if ($routeName === 'app_admin_settings') {
+            return $this->render('platform/users/editAdminProfile.html.twig', [
+                'form' => $form->createView(),
+                'notifications' => $this->notifications,
+            ]);
+        } else {
+            return $this->render('platform/users/editUserProfile.html.twig', [
+                'form' => $form->createView(),
+                'notifications' => $this->notifications,
+            ]);
+        }
     }
 
     //    Get all game where connected user participate
