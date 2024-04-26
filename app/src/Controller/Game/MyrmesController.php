@@ -818,8 +818,12 @@ class MyrmesController extends AbstractController
         }
 
         $tile = $this->workerMYRService->getTileFromCoordinates($coordX, $coordY);
+        if ($tile == null) {
+            return new Response(MyrmesTranslation::RESPONSE_INVALID_TILE,
+                Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
         $pheromone = $this->workerMYRService->getPheromoneFromTile($game, $tile);
-        if($tile == null) {
+        if($pheromone == null) {
             return new Response(MyrmesTranslation::RESPONSE_INVALID_TILE,
                 Response::HTTP_INTERNAL_SERVER_ERROR);
         }

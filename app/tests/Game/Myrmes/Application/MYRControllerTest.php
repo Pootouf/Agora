@@ -12,6 +12,7 @@ use App\Repository\Game\Myrmes\AnthillHoleMYRRepository;
 use App\Repository\Game\Myrmes\AnthillWorkerMYRRepository;
 use App\Repository\Game\Myrmes\GameMYRRepository;
 use App\Repository\Game\Myrmes\PlayerMYRRepository;
+use App\Repository\Game\Myrmes\PlayerResourceMYRRepository;
 use App\Repository\Game\Myrmes\ResourceMYRRepository;
 use App\Repository\Game\Myrmes\TileMYRRepository;
 use App\Repository\Game\Myrmes\TileTypeMYRRepository;
@@ -33,6 +34,7 @@ class MYRControllerTest extends WebTestCase
     private PlayerMYRRepository $playerMYRRepository;
     private MYRGameManagerService $MYRGameManagerService;
 
+    private PlayerResourceMYRRepository $playerResourceMYRRepository;
     private EntityManagerInterface $entityManager;
     private GameMYRRepository $gameMYRRepository;
     private MYRService $MYRService;
@@ -1658,6 +1660,282 @@ class MYRControllerTest extends WebTestCase
             $this->client->getResponse());
     }
 
+    public function testCanPlacePheromoneWhenGameNotLaunched(): void
+    {
+        //GIVEN
+        $gameId = $this->initializeGameWithTwoPlayers();
+        /** @var GameMYR $game */
+        $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
+        $game->setLaunched(false);
+        $url = "/game/myrmes/" . $gameId . "/canPlace/pheromone/0/0/0/0/ ";
+        //WHEN
+        $this->client->request("GET", $url);
+        // THEN
+        $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN,
+            $this->client->getResponse());
+    }
+
+    public function testCanPlacePheromoneWhenGamePaused(): void
+    {
+        //GIVEN
+        $gameId = $this->initializeGameWithTwoPlayers();
+        /** @var GameMYR $game */
+        $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
+        $game->setPaused(true);
+        $url = "/game/myrmes/" . $gameId . "/canPlace/pheromone/0/0/0/0/ ";
+        //WHEN
+        $this->client->request("GET", $url);
+        // THEN
+        $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN,
+            $this->client->getResponse());
+    }
+
+    public function testCanPlacePheromoneWhenSpectator(): void
+    {
+        //GIVEN
+        $gameId = $this->initializeGameWithTwoPlayers();
+        /** @var GameMYR $game */
+        $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
+        $url = "/game/myrmes/" . $gameId . "/canPlace/pheromone/0/0/0/0/ ";
+        $user2 = $this->gameUserRepository->findOneByUsername("test2");
+        $this->client->loginUser($user2);
+        //WHEN
+        $this->client->request("GET", $url);
+        // THEN
+        $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN,
+            $this->client->getResponse());
+    }
+
+    public function testCanPlacePheromoneWhenTileNull(): void
+    {
+        //GIVEN
+        $gameId = $this->initializeGameWithTwoPlayers();
+        /** @var GameMYR $game */
+        $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
+        $url = "/game/myrmes/" . $gameId . "/canPlace/pheromone/0/0/1/0/ ";
+        //WHEN
+        $this->client->request("GET", $url);
+        // THEN
+        $this->assertResponseStatusCodeSame(Response::HTTP_INTERNAL_SERVER_ERROR,
+            $this->client->getResponse());
+    }
+
+    public function testCanCleanPheromoneWhenTypeIsNull(): void
+    {
+        //GIVEN
+        $gameId = $this->initializeGameWithTwoPlayers();
+        /** @var GameMYR $game */
+        $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
+        $url = "/game/myrmes/" . $gameId . "/canPlace/pheromone/0/0/12/0/ ";
+        //WHEN
+        $this->client->request("GET", $url);
+        // THEN
+        $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN,
+            $this->client->getResponse());
+    }
+    public function testCanPlacePheromone(): void
+    {
+        //GIVEN
+        $gameId = $this->initializeGameWithTwoPlayers();
+        /** @var GameMYR $game */
+        $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
+        $player = $game->getPlayers()->first();
+        $url = "/game/myrmes/" . $gameId . "/canPlace/pheromone/10/5/1/0/ ";
+        //WHEN
+        $this->client->request("GET", $url);
+        // THEN
+        $this->assertResponseStatusCodeSame(Response::HTTP_OK,
+            $this->client->getResponse());
+    }
+
+    public function testCleanPheromoneWhenGameNotLaunched(): void
+    {
+        //GIVEN
+        $gameId = $this->initializeGameWithTwoPlayers();
+        /** @var GameMYR $game */
+        $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
+        $game->setLaunched(false);
+        $url = "/game/myrmes/" . $gameId . "/moveAnt/clean/pheromone/0/0";
+        //WHEN
+        $this->client->request("GET", $url);
+        // THEN
+        $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN,
+            $this->client->getResponse());
+    }
+
+    public function testCleanPheromoneWhenGamePaused(): void
+    {
+        //GIVEN
+        $gameId = $this->initializeGameWithTwoPlayers();
+        /** @var GameMYR $game */
+        $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
+        $game->setPaused(true);
+        $url = "/game/myrmes/" . $gameId . "/moveAnt/clean/pheromone/0/0";
+        //WHEN
+        $this->client->request("GET", $url);
+        // THEN
+        $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN,
+            $this->client->getResponse());
+    }
+
+    public function testCleanPheromoneWhenSpectator(): void
+    {
+        //GIVEN
+        $gameId = $this->initializeGameWithTwoPlayers();
+        /** @var GameMYR $game */
+        $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
+        $url = "/game/myrmes/" . $gameId . "/moveAnt/clean/pheromone/0/0";
+        $user2 = $this->gameUserRepository->findOneByUsername("test2");
+        $this->client->loginUser($user2);
+        //WHEN
+        $this->client->request("GET", $url);
+        // THEN
+        $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN,
+            $this->client->getResponse());
+    }
+
+    public function testCleanPheromoneWhenNotActive(): void
+    {
+        //GIVEN
+        $gameId = $this->initializeGameWithTwoPlayers();
+        /** @var GameMYR $game */
+        $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
+        $url = "/game/myrmes/" . $gameId . "/moveAnt/clean/pheromone/0/0";
+        $game->getPlayers()->last()->setTurnOfPlayer(false);
+        $user2 = $this->gameUserRepository->findOneByUsername("test1");
+        $this->client->loginUser($user2);
+        //WHEN
+        $this->client->request("GET", $url);
+        // THEN
+        $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN,
+            $this->client->getResponse());
+    }
+
+    public function testCleanPheromoneWhenNotWorkerPhase(): void
+    {
+        //GIVEN
+        $gameId = $this->initializeGameWithTwoPlayers();
+        /** @var GameMYR $game */
+        $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
+        $url = "/game/myrmes/" . $gameId . "/moveAnt/clean/pheromone/0/0";
+        $user2 = $this->gameUserRepository->findOneByUsername("test0");
+        $this->client->loginUser($user2);
+        //WHEN
+        $this->client->request("GET", $url);
+        // THEN
+        $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN,
+            $this->client->getResponse());
+    }
+
+    public function testCleanPheromoneWhenTileNull(): void
+    {
+        //GIVEN
+        $gameId = $this->initializeGameWithTwoPlayers();
+        /** @var GameMYR $game */
+        $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
+        $game->setGamePhase(MyrmesParameters::PHASE_WORKER);
+        $this->entityManager->persist($game);
+        $this->entityManager->flush();
+        $url = "/game/myrmes/" . $gameId . "/moveAnt/clean/pheromone/0/0";
+        //WHEN
+        $this->client->request("GET", $url);
+        // THEN
+        $this->assertResponseStatusCodeSame(Response::HTTP_INTERNAL_SERVER_ERROR,
+            $this->client->getResponse());
+    }
+
+    public function testCleanPheromoneWhenPheromoneNull(): void
+    {
+        //GIVEN
+        $gameId = $this->initializeGameWithTwoPlayers();
+        /** @var GameMYR $game */
+        $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
+        $game->setGamePhase(MyrmesParameters::PHASE_WORKER);
+        $this->entityManager->persist($game);
+        $this->entityManager->flush();
+        $url = "/game/myrmes/" . $gameId . "/moveAnt/clean/pheromone/5/10";
+        //WHEN
+        $this->client->request("GET", $url);
+        // THEN
+        $this->assertResponseStatusCodeSame(Response::HTTP_INTERNAL_SERVER_ERROR,
+            $this->client->getResponse());
+    }
+
+    public function testCleanPheromoneWhenCannotCleanBecauseNoDirt(): void
+    {
+        //GIVEN
+        $gameId = $this->initializeGameWithTwoPlayers();
+        /** @var GameMYR $game */
+        $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
+        $game->setGamePhase(MyrmesParameters::PHASE_WORKER);
+        $player = $game->getPlayers()->first();
+        $tileType = $this->tileTypeMYRRepository->findOneBy(["id" => 1]);
+        $tile = $this->tileMYRRepository->findOneBy(["coordX" => 10, "coordY" => 5]);
+        $pheromone = new PheromonMYR();
+        $pheromone->setType($tileType);
+        $pheromone->setPlayer($player);
+        $pheromone->setHarvested(false);
+        $pheromoneTile = new PheromonTileMYR();
+        $pheromoneTile->setTile($tile);
+        $pheromoneTile->setPheromonMYR($pheromone);
+        $pheromoneTile->setResource(null);
+        $pheromoneTile->setMainBoard($game->getMainBoardMYR());
+        $this->entityManager->persist($pheromoneTile);
+        $pheromone->addPheromonTile($pheromoneTile);
+        $this->entityManager->persist($pheromone);
+        $this->entityManager->persist($game);
+        $this->entityManager->flush();
+        $url = "/game/myrmes/" . $gameId . "/moveAnt/clean/pheromone/10/5";
+        //WHEN
+        $this->client->request("GET", $url);
+        // THEN
+        $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN,
+            $this->client->getResponse());
+    }
+
+    public function testCleanPheromone(): void
+    {
+        //GIVEN
+        $gameId = $this->initializeGameWithTwoPlayers();
+        /** @var GameMYR $game */
+        $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
+        $game->setGamePhase(MyrmesParameters::PHASE_WORKER);
+        $player = $game->getPlayers()->first();
+        $dirt = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::RESOURCE_TYPE_DIRT]);
+        $playerDirt = $this->playerResourceMYRRepository->findOneBy(
+            ["resource" => $dirt, "personalBoard" => $player->getPersonalBoardMYR()]
+        );
+        $playerDirt->setQuantity(1);
+        $this->entityManager->persist($playerDirt);
+        $tileType = $this->tileTypeMYRRepository->findOneBy(["id" => 1]);
+        $tile = $this->tileMYRRepository->findOneBy(["coordX" => 10, "coordY" => 5]);
+        $pheromone = new PheromonMYR();
+        $pheromone->setType($tileType);
+        $pheromone->setPlayer($player);
+        $pheromone->setHarvested(false);
+        $pheromoneTile = new PheromonTileMYR();
+        $pheromoneTile->setTile($tile);
+        $pheromoneTile->setPheromonMYR($pheromone);
+        $pheromoneTile->setResource(null);
+        $pheromoneTile->setMainBoard($game->getMainBoardMYR());
+        $this->entityManager->persist($pheromoneTile);
+        $pheromone->addPheromonTile($pheromoneTile);
+        $this->entityManager->persist($pheromone);
+        $this->entityManager->persist($game);
+        $workers = $player->getPersonalBoardMYR()->getAnthillWorkers();
+        for ($i = 0; $i < $workers->count(); ++$i) {
+            $workers->get($i)->setWorkFloor(MyrmesParameters::WORKSHOP_AREA);
+            $this->entityManager->persist($workers->get($i));
+        }
+        $this->entityManager->flush();
+        $url = "/game/myrmes/" . $gameId . "/moveAnt/clean/pheromone/10/5";
+        //WHEN
+        $this->client->request("GET", $url);
+        // THEN
+        $this->assertResponseStatusCodeSame(Response::HTTP_OK,
+            $this->client->getResponse());
+    }
+
     private function initializeGameWithTwoPlayers() : int
     {
         $this->client = static::createClient();
@@ -1671,6 +1949,7 @@ class MYRControllerTest extends WebTestCase
         $this->tileTypeMYRRepository = static::getContainer()->get(TileTypeMYRRepository::class);
         $this->tileMYRRepository = static::getContainer()->get(TileMYRRepository::class);
         $this->MYRService = static::getContainer()->get(MYRService::class);
+        $this->playerResourceMYRRepository = static::getContainer()->get(PlayerResourceMYRRepository::class);
         $user1 = $this->gameUserRepository->findOneByUsername("test0");
         $this->client->loginUser($user1);
         $gameId = $this->MYRGameManagerService->createGame();
