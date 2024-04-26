@@ -29,9 +29,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Exception;
 
-/**
- * @codeCoverageIgnore
- */
+
 class MyrmesController extends AbstractController
 {
     public function __construct(private readonly MYRService $service,
@@ -752,8 +750,12 @@ class MyrmesController extends AbstractController
             return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         $tile = $this->workerMYRService->getTileFromCoordinates($coordX, $coordY);
+        if ($tile == null) {
+            return new Response(MyrmesTranslation::RESPONSE_INVALID_TILE,
+                Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
         $pheromone = $this->workerMYRService->getPheromoneFromTile($game, $tile);
-        if($tile != null) {
+        if($pheromone != null) {
             return new Response($this->workerMYRService->canCleanPheromone($pheromone, $playerDirtQuantity));
         } else {
             return new Response(MyrmesTranslation::RESPONSE_INVALID_TILE,
@@ -816,8 +818,12 @@ class MyrmesController extends AbstractController
         }
 
         $tile = $this->workerMYRService->getTileFromCoordinates($coordX, $coordY);
+        if ($tile == null) {
+            return new Response(MyrmesTranslation::RESPONSE_INVALID_TILE,
+                Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
         $pheromone = $this->workerMYRService->getPheromoneFromTile($game, $tile);
-        if($tile == null) {
+        if($pheromone == null) {
             return new Response(MyrmesTranslation::RESPONSE_INVALID_TILE,
                 Response::HTTP_INTERNAL_SERVER_ERROR);
         }

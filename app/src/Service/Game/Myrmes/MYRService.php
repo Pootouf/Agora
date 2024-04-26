@@ -729,6 +729,8 @@ class MYRService
         $hole->setTile($tile);
         $player->getGameMyr()->getMainBoardMYR()->addAnthillHole($hole);
         $this->entityManager->persist($hole);
+        $player->addAnthillHoleMYR($hole);
+        $this->entityManager->persist($player);
         $this->entityManager->persist($player->getGameMyr()->getMainBoardMYR());
     }
 
