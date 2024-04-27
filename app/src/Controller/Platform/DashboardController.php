@@ -89,8 +89,12 @@ class DashboardController extends AbstractController
     }
 
     #[Route('/dashboard/settings', name: 'app_dashboard_settings')]
+    #[Route('/admin/settings', name: 'app_admin_settings')]
     public function settings(Request $request): Response
     {
+        // Récupérer la route
+        $routeName = $request->attributes->get('_route');
+
         // Récupérer l'utilisateur connecté
         $user = $this->getUser();
 
@@ -101,10 +105,17 @@ class DashboardController extends AbstractController
         $form->handleRequest($request);
 
         // Rendre la vue en passant le formulaire
-        return $this->render('platform/users/editUserProfile.html.twig', [
-            'form' => $form->createView(),
-            'notifications' => $this->notifications,
-        ]);
+        if ($routeName === 'app_admin_settings') {
+            return $this->render('platform/users/editAdminProfile.html.twig', [
+                'form' => $form->createView(),
+                'notifications' => $this->notifications,
+            ]);
+        } else {
+            return $this->render('platform/users/editUserProfile.html.twig', [
+                'form' => $form->createView(),
+                'notifications' => $this->notifications,
+            ]);
+        }
     }
 
     //    Get all game where connected user participate
@@ -235,7 +246,7 @@ class DashboardController extends AbstractController
      *
      * @return Response  HTTP response: list of games page
      */
-    #[Route('/dashboard/allusers', name: 'app_dashboard_allusers')]
+    #[Route('/admin/allusers', name: 'app_dashboard_allusers')]
     public function dashboard_allusers(): Response
     {
         // Récupérer tous les utilisateurs à partir de votre source de données (par exemple, une entité User)
@@ -243,7 +254,7 @@ class DashboardController extends AbstractController
         $users = $userRepository->findAll();
 
         // Passer la liste des utilisateurs à votre modèle de vue
-        return $this->render('platform/dashboard/allusers.html.twig', [
+        return $this->render('platform/admin/allusers.html.twig', [
             'users' => $users,
             'notifications' => $this->notifications, // Assurez-vous que vos notifications sont également disponibles dans ce contrôleur
         ]);
@@ -254,7 +265,7 @@ class DashboardController extends AbstractController
      *
      * @return Response  HTTP response: list of games page
      */
-    #[Route('/dashboard/banmanager', name: 'app_dashboard_banmanager')]
+    #[Route('/admin/banmanager', name: 'app_dashboard_banmanager')]
     public function dashboard_banmanager(): Response
     {
         // Récupérer tous les utilisateurs à partir de votre source de données (par exemple, une entité User)
@@ -262,7 +273,7 @@ class DashboardController extends AbstractController
         $users = $userRepository->findAll();
 
         // Passer la liste des utilisateurs à votre modèle de vue
-        return $this->render('platform/dashboard/banmanager.html.twig', [
+        return $this->render('platform/admin/banmanager.html.twig', [
             'users' => $users,
             'notifications' => $this->notifications, // Assurez-vous que vos notifications sont également disponibles dans ce contrôleur
         ]);

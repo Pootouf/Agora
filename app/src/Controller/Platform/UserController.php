@@ -75,9 +75,16 @@ class UserController extends AbstractController
         ]);
     }
 
-    #[Route('/user/{id}/editProfile', name: 'app_user_edit_profile')]
+    #[Route('/dashboard/{id}/editProfile', name: 'app_user_edit_profile')]
+    #[Route('/admin/{id}/editProfile', name: 'app_admin_edit_profile')]
     public function editAccount(EntityManagerInterface $entityManager, Request $request, UserPasswordHasherInterface $userPasswordHarsher, User $user) :Response
     {
+        // Récupérer la route de destination
+        $routeDest = 'app_dashboard_settings';
+        if ($request->attributes->get('_route') === 'app_admin_edit_profile') {
+            $routeDest = 'app_admin_settings';
+        }
+
         /*
          * we can use this part of code for edit account without passing by the id in the URL
          * get the logged user
@@ -103,12 +110,11 @@ class UserController extends AbstractController
             $entityManager->persist($user);
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_dashboard_settings');
+            return $this->redirectToRoute($routeDest);
         }
-
-        return $this->render('platform/users/editUserProfile.html.twig', [
-            'form' => $form->createView()
-        ]);
+        $this->addFlash('error', 'invalid form');
+        
+        return $this->redirectToRoute($routeDest);
     }
 
 

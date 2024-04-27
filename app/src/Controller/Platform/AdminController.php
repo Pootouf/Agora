@@ -43,7 +43,7 @@ class AdminController extends AbstractController
                 $entityManager->persist($user);
             }
             $entityManager->flush();
-            $this->addFlash('success-account', "Vos comptes sont créés avec les noms d'utilisateurs listés avec le mot de passe: agora");
+            $this->addFlash('success', "Vos comptes sont créés avec les noms d'utilisateurs listés avec le mot de passe: agora");
             return $this->render('platform/admin/generateAccount.html.twig', [
                 'form' => $form->createView(),
                 'users' => $users,
