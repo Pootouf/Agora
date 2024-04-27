@@ -325,11 +325,9 @@ class WorkshopMYRService
         if ($player->getPhase() != MyrmesParameters::PHASE_WORKSHOP) {
             return false;
         }
-
         if($player->getWorkshopActions()[$workshopArea] > 0) {
             return false;
         }
-
         return $this->myrService->getNursesAtPosition($player, $workshopArea)->count() > 0;
     }
 

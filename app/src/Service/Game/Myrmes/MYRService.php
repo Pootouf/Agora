@@ -663,7 +663,7 @@ class MYRService
     {
         $actions = $player->getWorkshopActions();
         for($i = MyrmesParameters::WORKSHOP_GOAL_AREA; $i <= MyrmesParameters::WORKSHOP_NURSE_AREA; $i++) {
-            array_push($actions, $i, 0);
+            $actions[$i] = 0;
         }
         $player->setWorkshopActions($actions);
     }
