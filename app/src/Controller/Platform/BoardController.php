@@ -48,6 +48,11 @@ class BoardController extends AbstractController
     {
         //Find the game with the id passed in parameters
         $game = $this->entityManagerInterface->getRepository(Game::class)->find($game_id);
+        //get the logged user
+        $userId = $this->security->getUser()->getId();
+        $allUsers = array_filter($this->entityManagerInterface->getRepository(User::class)->findAll(), function($user) use ($userId) {
+            return $user->getId() !== $userId && !$user->isAdmin();
+        });
         //create a board
         $board = new Board();
         //generate the BaordRegistrationType form
@@ -86,6 +91,7 @@ class BoardController extends AbstractController
             'game' => $game,
             'form' => $form->createView(),
             'notifications' => $notifications,
+            'allUsers' => $allUsers
         ]);
     }
 

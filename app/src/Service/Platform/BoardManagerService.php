@@ -14,7 +14,11 @@ class BoardManagerService
 
     private GameManagerService $gameManagerService;
 
+    //Success return code
     private static $SUCCESS = 1;
+
+    //Nb of Days before expiration of an invitation
+    private static $DAYS_BEFORE_EXPIRATION = "+1 week";
     private EntityManagerInterface $entityManagerInterface;
 
     private NotificationService $notificationService;
@@ -35,9 +39,15 @@ class BoardManagerService
     public function setUpBoard(Board $board, Game $game):int
     {
 
-        //setting all timers of the board
-        $board->setCreationDate(new \DateTime());
-        $board->setInvitationTimer(new \DateTime());
+        $actualDate = new \DateTime();
+
+        //setting creation date
+        $board->setCreationDate($actualDate);
+        // Calculating expiration date of invitation
+        $expirationDate = $actualDate->modify($this::$DAYS_BEFORE_EXPIRATION);
+        $expirationDate->modify('tomorrow')->setTime(0, 0, 0);
+        $board->setInvitationTimer($expirationDate);
+
         $board->setInactivityTimer(new \DateTime());
 
         //create the instance of game and register its id to the board
@@ -83,6 +93,8 @@ class BoardManagerService
 
         return BoardManagerService::$SUCCESS;
     }
+
+
 
 
 }

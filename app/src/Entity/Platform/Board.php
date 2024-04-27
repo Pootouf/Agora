@@ -53,6 +53,10 @@ class Board
     #[ORM\Column]
     private int $partyId;
 
+    #[ORM\ManyToMany(targetEntity: User::class)]
+    #[ORM\JoinTable(name: "user_invited")]
+    private Collection $invitedContacts;
+
     //All status of a table
     private static string $STATUS_WAITING = "WAITING";
     private static string $STATUS_IN_GAME = "IN_GAME";
@@ -64,6 +68,7 @@ class Board
         $this->status = $this::$STATUS_WAITING;
         $this->invitationHash = sha1(random_bytes(10));
         $this->listUsers = new ArrayCollection();
+        $this->invitedContacts = new ArrayCollection();
     }
     /**
      * Gets the ID of the board.
@@ -430,6 +435,30 @@ class Board
     public function setFinished(): void
     {
         $this->status = $this::$STATUS_FINISHED;
+    }
+
+    /**
+     * @return Collection<int, User>
+     */
+    public function getInvitedContacts(): Collection
+    {
+        return $this->invitedContacts;
+    }
+
+    public function addInvitedContact(User $invitedContact): static
+    {
+        if (!$this->invitedContacts->contains($invitedContact)) {
+            $this->invitedContacts->add($invitedContact);
+        }
+
+        return $this;
+    }
+
+    public function removeInvitedContact(User $invitedContact): static
+    {
+        $this->invitedContacts->removeElement($invitedContact);
+
+        return $this;
     }
 
 }

@@ -22,8 +22,8 @@ final class Version6QPPLATFORM extends AbstractMigration
     public function up(Schema $schema): void
     {
             $this->connection->insert('game', [
-                'name' => 'Six Qui Prends',
-                'descr_rule' => 'C\'est le six qui prends' ,
+                'name' => 'Six Qui Prend',
+                'descr_rule' => 'C\'est le six qui prend' ,
                 'img_url' => 'images/6qp.jpg',
                 'label' => '6QP',
                 'is_active' => true,
