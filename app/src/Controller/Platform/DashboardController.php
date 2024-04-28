@@ -187,12 +187,20 @@ class DashboardController extends AbstractController
 
 
     #[Route('/dashboard/history', name: 'app_board_history')]
-    public function history(): Response
+    public function history(Request $request, BoardRepository $boardRepository): Response
     {
+        $data = new SearchData();
+        $form = $this->createForm(SearchBoardType::class, $data);
+        $form->handleRequest($request);
+
+        $boards = $boardRepository->searchBoards($data);
         return $this->render('platform/dashboard/history.html.twig', [
+            'boards' => $boards,
+            'searchboard' => $form->createView(),
             'notifications' => $this->notifications,
         ]);
     }
+
 
     /**
      * Displays a list of games.
