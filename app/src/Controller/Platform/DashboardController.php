@@ -18,6 +18,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use App\Form\Platform\EditProfileType;
 use Symfony\Component\HttpFoundation\Request;
+use App\Entity\Game\Message;
+
 
 
 class DashboardController extends AbstractController
@@ -195,16 +197,25 @@ class DashboardController extends AbstractController
     }
 
     #[Route('/dashboard/tableadmin', name: 'app_board_history')]
-    public function tableadmin(Request $request, BoardRepository $boardRepository): Response
+    public function tableadmin(Request $request, BoardRepository $boardRepository, NotificationService $notificationService): Response
     {
+    
+        $user = $this->getUser();
         $data = new SearchData();
         $form = $this->createForm(SearchBoardType::class, $data);
         $form->handleRequest($request);
+    
+        $message = $this->entityManager->getRepository(Message::class)->findAll();
 
         $boards = $boardRepository->searchBoards($data);
+    
+        if ($user){
+            $notifications = $notificationService->getNotifications($this->security);
+        }
         return $this->render('platform/dashboard/tableadmin.html.twig', [
             'boards' => $boards,
             'searchboard' => $form->createView(),
+            'messages' => $message,
             'notifications' => $this->notifications,
         ]);
     }
