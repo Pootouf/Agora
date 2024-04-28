@@ -19,6 +19,16 @@ class AdminController extends AbstractController
         return $this->render('platform/admin/index.html.twig');
     }
 
+    #[Route('/admin/ban/{id}', name: 'app_dashboard_ban_user')]
+    public function banUser(int $id, EntityManagerInterface $entityManager): Response
+    {
+        $user = $entityManager->getRepository(User::class)->find($id);
+
+        return $this->render('platform/admin/banUser.html.twig', [
+            'user' => $user,
+        ]);
+    }
+
     #[Route('/admin/generate', name: 'app_dashboard_generate')]
     public function createaccount(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $hasher): Response
     {

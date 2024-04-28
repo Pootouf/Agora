@@ -60,7 +60,7 @@ Gestion des bannissements
                      </td>
                      <td class="p-3 px-5 flex justify-end mt-3">
                         {# {% if not user.banned %} #}
-                        <a href="#" class="text-white bg-red-500 hover:bg-red-400 focus:ring-4 focus:outline-none focus:ring-red-300 font-semibold rounded-lg text-sm px-4 py-2 text-center me-2 mb-2">
+                        <a href="{{ path('app_dashboard_ban_user', {'id' : user.getId() }) }}" class="text-white bg-red-500 hover:bg-red-400 focus:ring-4 focus:outline-none focus:ring-red-300 font-semibold rounded-lg text-sm px-4 py-2 text-center me-2 mb-2">
                         Bannir
                         </a>
                         {# {% else %} #}
