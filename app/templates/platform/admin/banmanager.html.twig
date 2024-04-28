@@ -3,7 +3,7 @@
 Gestion des bannissements
 {% endblock %}
 {% block content %}
-<header class="relative isolate px-6 pt-14 lg:px-8">
+<div class="relative isolate px-6 pt-14 lg:px-8">
    <div class="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80" aria-hidden="true">
       <div class="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-danger to-primary opacity-30 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]" style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)"></div>
    </div>
@@ -13,65 +13,90 @@ Gestion des bannissements
          {# Déplacer le titre à l'intérieur de la div principale et la centrer #}
          <h1 class="text-3xl">Gestion des bannissements</h1>
       </div>
+      <div class="mt-5 flex justify-center">
+         <div class="m-auto">
+            <label for="userSearch" class="block text-sm font-medium leading-6 text-gray-900">Recherche par utilisateur : </label>
+            <div class="mt-2 mb-4">
+               <div class="flex bg-white rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-primary sm:max-w-md">
+                  <input type="text" name="userSearch" id="userSearch" class="block flex-1 border-0 bg-transparent py-1.5 pl-1 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6" placeholder="Nom d'utilisateur">
+               </div>
+            </div>
+         </div>
+         <div class="m-auto">
+            <label for="mailSearch" class="block text-sm font-medium leading-6 text-gray-900">Recherche par email : </label>
+            <div class="mt-2 mb-4">
+               <div class="flex bg-white rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-primary sm:max-w-md">
+                  <input type="text" name="mailSearch" id="mailSearch" class="block flex-1 border-0 bg-transparent py-1.5 pl-1 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6" placeholder="email d'utilisateur">
+               </div>
+            </div>
+         </div>
+      </div>
       <div class="px-3 py-4 flex justify-center">
          <div class="border-gray-300">
             {# Ajout de la bordure autour de la table #}
             <table class="w-full text-md bg-white shadow-md rounded mb-4 border-b-4 border-gray-300">
-               <tbody>
+               <thead>
                   <tr>
                      <th class="text-left p-3 px-5">Profil</th>
                      <th class="text-left p-3 px-5">Identifiant</th>
                      <th class="text-left p-3 px-5">Email</th>
-                     <th class="text-left p-3 px-5">Temps de ban</th>
-                     <th class="text-left p-3 px-5">Raison</th>
+                     <th class="text-left p-3 px-5">État</th>
                      <th class="text-center p-3 px-5">Action</th>
                   </tr>
+               </thead>
+               <tbody id="userList">
                   {% for user in users %}
-                  <tr class="border-b hover:bg-red-100 bg-gray-100">
+                  <tr  class="border-b hover:bg-red-100 bg-gray-100">
                      <td class="p-3 px-5">
                         <div style="width: 50px; margin: 0 auto;">
                            <a href="{{ path('app_other_user_profile', {'user_id': user.id}) }}" class="flex items-center justify-center">
                               <div style="text-align: center;">
                                  <img src="https://avatarfiles.alphacoders.com/244/thumb-244471.png" alt="Avatar de {{ user.username }}" class="w-8 h-8 rounded-full object-cover mb-1">
-                                 <div class="text-black font-bold">{{ user.username }}</div>
                               </div>
                            </a>
                         </div>
                      </td>
                      <td class="p-3 px-5">
-                        <input type="text" value="{{ user.username }}" class="bg-transparent border-b-2 border-gray-300 py-2" readonly disabled>
+                        <p class="name block text-sm font-medium leading-6 text-gray-900">{{ user.getUserName() }}</p>
                      </td>
                      <td class="p-3 px-5">
-                        <input type="text" value="{{ user.email }}" class="bg-transparent border-b-2 border-gray-300 py-2" readonly disabled>
+                        <p class="mail block text-sm font-medium leading-6 text-gray-900">{{ user.getEmail() }}</p>
                      </td>
                      <td class="p-3 px-5">
-                        <select class="border-b-2 border-gray-300 py-2">
-                           <option value="1">1 heure</option>
-                           <option value="2">2 heures</option>
-                           <option value="24">1 jour</option>
-                           <option value="168">1 semaine</option>
-                           <option value="720">1 mois</option>
-                           <option value="8760">1 an</option>
-                           <option value="lifeban">Définitif</option>
-                        </select>
-                     </td>
-                     <td class="p-3 px-5">
-                        <input type="text" value="" class="border-b-2 border-gray-300 py-2">
+                        {% if user.isIsBanned() %}
+                           <p class="block text-sm font-bold leading-6 text-danger">Ban</p>
+                        {% else %}
+                           <p class="block text-sm font-bold leading-6 text-success">Actif</p>
+                        {% endif %}
                      </td>
                      <td class="p-3 px-5 flex justify-end mt-3">
-                        {# {% if not user.banned %} #}
-                        <a href="{{ path('app_dashboard_ban_user', {'id' : user.getId() }) }}" class="text-white bg-red-500 hover:bg-red-400 focus:ring-4 focus:outline-none focus:ring-red-300 font-semibold rounded-lg text-sm px-4 py-2 text-center me-2 mb-2">
-                        Bannir
-                        </a>
-                        {# {% else %} #}
-                        <a href="#" class="text-white bg-primary hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold rounded-lg text-sm px-4 py-2 text-center me-2 mb-2">
-                        Débannir
-                        </a>
-                        {# {% endif %} #}
+                         {% if not user.isIsBanned() %}
+                            <a href="{{ path('app_dashboard_ban_user', {'id' : user.getId() }) }}" class="text-white bg-red-500 hover:bg-red-400 focus:ring-4 focus:outline-none focus:ring-red-300 font-semibold rounded-lg text-sm px-4 py-2 text-center me-2 mb-2">
+                               Bannir
+                            </a>
+                        {% else %}
+                           <a href="#" class="text-white bg-primary hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold rounded-lg text-sm px-4 py-2 text-center me-2 mb-2">
+                              Débannir
+                           </a>
+                           <a href="{{ path('app_dashboard_ban_user', {'id' : user.getId() }) }}" class="text-white bg-red-500 hover:bg-red-400 focus:ring-4 focus:outline-none focus:ring-red-300 font-semibold rounded-lg text-sm px-4 py-2 text-center me-2 mb-2">
+                              Prolonger
+                           </a>
+                        {% endif %}
                      </td>
                   </tr>
                   {% endfor %}
                </tbody>
+               <tfoot>
+               <tr id="noUser" class="hidden border-b hover:bg-red-100 bg-gray-100">
+                  <td class="p-3 px-5"></td>
+                  <td class="p-3 px-5"></td>
+                  <td class="p-3 px-5">
+                     <p class="block text-sm font-medium leading-6 text-gray-900">Aucun utilisateur trouvé</p>
+                  </td>
+                  <td class="p-3 px-5"></td>
+                  <td class="p-3 px-5"></td>
+               </tr>
+               </tfoot>
             </table>
          </div>
       </div>
@@ -129,5 +154,41 @@ Gestion des bannissements
    <div class="absolute inset-x-0 top-[calc(100%-13rem)] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[calc(100%-30rem)]" aria-hidden="true">
       <div class="relative left-[calc(50%+3rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 bg-gradient-to-tr from-primary to-danger opacity-30 sm:left-[calc(50%+36rem)] sm:w-[72.1875rem]" style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)"></div>
    </div>
-</header>
+</div>
+
+   <script>
+
+      const userSearchInput = document.getElementById('userSearch');
+      const mailSearchInput = document.getElementById('mailSearch');
+      const noUser = document.getElementById('noUser');
+      const userList = document.getElementById('userList').getElementsByTagName('tr');
+
+      function searchUser() {
+         const userInput = userSearchInput.value.toLowerCase();
+         const mailInput = mailSearchInput.value.toLowerCase();
+         noUser.classList.add('hidden');
+         let empty = true;
+
+         for (let element of userList) {
+            const name = element.querySelector(".name").textContent.toLowerCase();
+            const mail = element.querySelector(".mail").textContent.toLowerCase();
+
+            if (name.includes(userInput) && mail.includes(mailInput)) {
+               empty = false;
+               element.classList.remove('hidden'); // Afficher l'élément si le texte correspond à la recherche
+            } else {
+               element.classList.add('hidden'); // Masquer l'élément sinon
+            }
+         }
+         if (empty) {
+            noUser.classList.remove('hidden');
+         }
+
+      }
+
+      userSearchInput.addEventListener('input', searchUser);
+      mailSearchInput.addEventListener('input', searchUser)
+
+   </script>
+
 {% endblock %}
