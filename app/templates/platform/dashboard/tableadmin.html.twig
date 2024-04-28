@@ -287,11 +287,12 @@ Administration des tables
             <div class="content" style="font-size: 1rem;">
                 <div style="max-height: 200px; overflow-y: auto;">
                     {% for message in messages %}
-                        {% if message.gameId == board.partyId %}
+                        {% if message.gameId == board.id %}
                             <div>
-                                <strong class="sender">{{ message.sender }} | </strong>
-                                <strong class="message-date">{{ message.date|date('d M Y à H:i') }}</strong>
+                                <strong class="sender">{{ message.authorUsername }} | </strong>
+                                <strong class="message-date">Le {{ message.date|date('d M Y à H:i') }}</strong>
                             </div>
+
                             <p>{{ message.content }}</p>
                             <hr style="margin-top: 10px; margin-bottom: 10px;">
                         {% endif %}
@@ -446,6 +447,8 @@ function closeMenu(event, boardId) {
     // Vérifier si l'élément sur lequel vous avez cliqué est le bouton "Fermer"
     if (event.target.classList.contains('close-button')) {
         // Empêcher la propagation de l'événement de clic
+        event.preventDefault(); // Empêche le comportement par défaut du lien ou du bouton
+
         event.stopPropagation();
 
         // Fermer le menu
