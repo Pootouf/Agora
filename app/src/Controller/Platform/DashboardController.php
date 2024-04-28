@@ -194,6 +194,21 @@ class DashboardController extends AbstractController
         ]);
     }
 
+    #[Route('/dashboard/tableadmin', name: 'app_board_history')]
+    public function tableadmin(Request $request, BoardRepository $boardRepository): Response
+    {
+        $data = new SearchData();
+        $form = $this->createForm(SearchBoardType::class, $data);
+        $form->handleRequest($request);
+
+        $boards = $boardRepository->searchBoards($data);
+        return $this->render('platform/dashboard/tableadmin.html.twig', [
+            'boards' => $boards,
+            'searchboard' => $form->createView(),
+            'notifications' => $this->notifications,
+        ]);
+    }
+
     /**
      * Displays a list of games.
      *
