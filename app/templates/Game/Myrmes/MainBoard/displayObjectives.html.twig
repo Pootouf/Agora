@@ -58,7 +58,8 @@
                                         less dirt and stone resources needed, the goal can be validated
                                         without any other interaction with the player  #}
                                         {% if goal.goal.name == GOAL_RESSOURCE_STONE_OR_DIRT_NAME and
-                                            stoneAndDirtQuantity <= interactivegoalsRoute[goal.goal.name][goal.goal.difficulty] %}
+                                            (stoneAndDirtQuantity <= interactivegoalsRoute[goal.goal.name][goal.goal.difficulty] or
+                                            min(stoneOrDirtGoal.dirt, stoneOrDirtGoal.stone) < 1) %}
                                             {{ stimulus_action('myrmes', 'validateGoal', 'click',
                                                 {url:path('app_game_myrmes_validate_stone_or_dirt_goal',
                                                     {
