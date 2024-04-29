@@ -18,6 +18,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use App\Form\Platform\EditProfileType;
 use Symfony\Component\HttpFoundation\Request;
+use App\Entity\Game\Message;
+
 
 
 class DashboardController extends AbstractController
