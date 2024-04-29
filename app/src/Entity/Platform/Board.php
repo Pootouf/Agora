@@ -225,7 +225,7 @@ class Board
      */
     public function getNbInvitations(): ?int
     {
-        return $this->nbInvitations;
+        return $this->getInvitedContacts()->count();
     }
 
     /**
@@ -299,7 +299,7 @@ class Board
      * @return bool Returns true if the board is available, false otherwise.
      */
     public function isAvailble(){
-        return $this->status!=$this::$STATUS_IN_GAME && $this->listUsers->count() + $this->nbInvitations < $this->nbUserMax;
+        return $this->isWaiting() && $this->listUsers->count() + $this->getNbInvitations() < $this->nbUserMax;
     }
 
     /**
@@ -345,7 +345,7 @@ class Board
      */
     public function getNbAvailbleSlots():int{
         return $this->getNbUserMax() - ($this->listUsers->count() +
-                $this->nbInvitations);
+                $this->getNbInvitations());
     }
 
     /**
@@ -417,6 +417,17 @@ class Board
     }
 
     /**
+     * Check if the board as the status "Waiting"
+     *
+     *
+     */
+
+    public function isWaiting(): bool
+    {
+        return $this->status === $this::$STATUS_WAITING;
+    }
+
+    /**
      * Set the board as "In_Game"
      *
      *
@@ -428,6 +439,18 @@ class Board
     }
 
     /**
+     * Check if the board as the status "In_Game"
+     *
+     *
+     */
+
+    public function isInGame(): bool
+    {
+        return $this->status === $this::$STATUS_IN_GAME;
+    }
+
+
+    /**
      * Set the board as "Finished"
      *
      *
@@ -436,6 +459,18 @@ class Board
     {
         $this->status = $this::$STATUS_FINISHED;
     }
+
+    /**
+     * Check if the board as the status "Finished"
+     *
+     *
+     */
+
+    public function isFinished(): bool
+    {
+        return $this->status === $this::$STATUS_FINISHED;
+    }
+
 
     /**
      * @return Collection<int, User>
@@ -449,6 +484,7 @@ class Board
     {
         if (!$this->invitedContacts->contains($invitedContact)) {
             $this->invitedContacts->add($invitedContact);
+            $this->setNbInvitations($this->getNbInvitations());
         }
 
         return $this;
@@ -457,8 +493,14 @@ class Board
     public function removeInvitedContact(User $invitedContact): static
     {
         $this->invitedContacts->removeElement($invitedContact);
+        $this->setNbInvitations($this->getNbInvitations());
 
         return $this;
+    }
+
+    public function cleanInvitationList() : void
+    {
+        $this->invitedContacts->clear();
     }
 
 }

@@ -4,7 +4,7 @@
 		<!-- Off-canvas menu for mobile, show/hide based on off-canvas menu state. -->
 		<div class="relative z-50 lg:hidden" role="dialog" aria-modal="true">
 			<div id="sidebar-overlay" class="hidden fixed inset-0 bg-gray-900/80"></div>
-			<div id="sidebar" class="hidden fixed inset-0 ">
+			<div id="sidebar" class="hidden fixed inset-0">
 				<div class="relative mr-16 flex w-full max-w-xs flex-1">
 					<div id="sidebar-close-button" class="absolute left-full top-0 flex w-16 justify-center pt-5">
 						<button type="button" class="-m-2.5 p-2.5">
@@ -191,12 +191,22 @@
 						</svg>
 						<div class="text-right text-xs text-gray-500">{{ notification.createdAt | date }}</div>
 					</div>
-					<div class="mt-4 flex justify-center">
-						<a href="#" class="text-sm text-primary hover:text-blue-400 font-semibold rounded-lg px-3 py-1.5 text-center mr-2 mb-2 mark-as-read">Voir</a>
-						<a href="readNotification/{{ notification.id }}" class="text-sm text-primary hover:text-blue-400 font-semibold rounded-lg px-3 py-1.5 text-center mr-2 mb-2 mark-as-read">Marquer comme lu</a>
+
+					{% if notification.type == "Invitation" %}
+						{% set boardId = notification.content|board_id %}
+						<div class="mt-4 flex justify-center">
+							<a href="{{ path('app_join_invitation', {'id': boardId}) }}" class="text-sm text-primary hover:text-blue-400 font-semibold rounded-lg px-3 py-1.5 text-center mr-2 mb-2 mark-as-read">
+								Rejoindre la table</a>
+							<a href="readNotification/{{ notification.id }}" class="text-sm text-primary hover:text-blue-400 font-semibold rounded-lg px-3 py-1.5 text-center mr-2 mb-2 mark-as-read">Marquer comme lu</a>
+						</div>
+					{% else %}
+						<div class="mt-4 flex justify-center">
+							<a href="#" class="text-sm text-primary hover:text-blue-400 font-semibold rounded-lg px-3 py-1.5 text-center mr-2 mb-2 mark-as-read">Voir</a>
+							<a href="readNotification/{{ notification.id }}" class="text-sm text-primary hover:text-blue-400 font-semibold rounded-lg px-3 py-1.5 text-center mr-2 mb-2 mark-as-read">Marquer comme lu</a>
+						</div>
+					{% endif %}
+						<div class="mt-1 py-0 text-base text-gray-700 hover:bg-gray-100 hover:text-gray-900 border-b border-gray-900 last:border-b-0 transition duration-150"></div>
 					</div>
-					<div class="mt-1 py-0 text-base text-gray-700 hover:bg-gray-100 hover:text-gray-900 border-b border-gray-900 last:border-b-0 transition duration-150"></div>
-				</div>
 			{% endfor %}
 		</div>
 

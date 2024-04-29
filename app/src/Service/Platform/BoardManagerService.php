@@ -4,6 +4,7 @@ namespace App\Service\Platform;
 
 use App\Entity\Platform\Board;
 use App\Entity\Platform\Game;
+use App\Entity\Platform\Notification;
 use App\Entity\Platform\User;
 use App\Service\Game\GameManagerService;
 use App\Service\Platform\NotificationService;
@@ -48,13 +49,20 @@ class BoardManagerService
         $expirationDate->modify('tomorrow')->setTime(0, 0, 0);
         $board->setInvitationTimer($expirationDate);
 
+
         $board->setInactivityTimer(new \DateTime());
 
         //create the instance of game and register its id to the board
         $gameId = $this->gameManagerService->createGame($game->getLabel());
         $board->setGame($game);
         $board->setPartyId($gameId);
+        $this->entityManagerInterface->persist($board);
+        $this->entityManagerInterface->flush();
 
+        //Sending notifications of invitation to all invited contacts
+        $invitedUsers = $board->getInvitedContacts();
+        $this->notificationService->notifyManyUser($invitedUsers, "Vous êtes invité à rejoindre la table (".$board->getId().") pour jouer à : ".$board->getGame()->getName(), new \DateTime(), Notification::$TYPE_INVITATION);
+        $board->setNbInvitations($invitedUsers->count());
         return BoardManagerService::$SUCCESS;
     }
 
@@ -67,10 +75,12 @@ class BoardManagerService
 
         //If it was the last player to complete the board, launch the game
         if($board->isFull()){
+            $board->cleanInvitationList();
             $this->gameManagerService->launchGame($board->getPartyId());
             $board->setInGame();
             $users = $board->getListUsers();
-            $this->notificationService->notifyManyUser($users, "La partie ".$board->getPartyId()." du jeu ".$board->getGame()->getLabel()." a démarré, vous pouvez maintenant jouer", new \DateTime(), "Début de partie");
+            $this->notificationService->notifyManyUser($users, "La table ".$board->getId()." pour le jeu ".$board->getGame()->getName()." a démarré, vous pouvez maintenant jouer", new \DateTime(), "Début de partie");
+
         }
         $this->entityManagerInterface->persist($board);
         $this->entityManagerInterface->persist($user);
@@ -78,6 +88,14 @@ class BoardManagerService
         $this->entityManagerInterface->flush();
 
         return BoardManagerService::$SUCCESS;
+    }
+
+    // add $user to the board, when he clicked on an invitation link
+    public function addUserToBoardFromInvitation(Board $board, User $user):int
+    {
+        $returnCode = $this->addUserToBoard($board, $user);
+        $board->removeInvitedContact($user);
+        return $returnCode;
     }
 
     // Remove $user from the board
