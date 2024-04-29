@@ -196,30 +196,6 @@ class DashboardController extends AbstractController
         ]);
     }
 
-    #[Route('/dashboard/tableadmin', name: 'app_board_history')]
-    public function tableadmin(Request $request, BoardRepository $boardRepository, NotificationService $notificationService): Response
-    {
-    
-        $user = $this->getUser();
-        $data = new SearchData();
-        $form = $this->createForm(SearchBoardType::class, $data);
-        $form->handleRequest($request);
-    
-        $message = $this->entityManager->getRepository(Message::class)->findAll();
-
-        $boards = $boardRepository->searchBoards($data);
-    
-        if ($user){
-            $notifications = $notificationService->getNotifications($this->security);
-        }
-        return $this->render('platform/dashboard/tableadmin.html.twig', [
-            'boards' => $boards,
-            'searchboard' => $form->createView(),
-            'messages' => $message,
-            'notifications' => $this->notifications,
-        ]);
-    }
-
     /**
      * Displays a list of games.
      *

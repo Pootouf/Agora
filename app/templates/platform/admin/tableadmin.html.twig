@@ -1,0 +1,453 @@
+{% extends 'platform/admin/layout.html.twig' %}
+{% block title %}
+Administration des tables
+{% endblock %}
+{% block content %}
+<style>
+   .table-container {
+   border-collapse: separate;
+   border-spacing: 0 8px;
+   }
+   .search-label {
+   display: block;
+   margin-bottom: 0.5rem; /* Ajoute de l'espace entre les libellés et les menus déroulants */
+   }
+   .search-form-container {
+   display: flex;
+   justify-content: center; /* Centrer horizontalement */
+   margin-bottom: 2rem; /* Ajouter de l'espace en bas */
+   }
+   .search-form-container .w-full {
+   margin-right: 5rem; /* Ajouter un espace horizontal entre chaque filtre */
+   }
+   .overlay {
+   position: fixed;
+   top: 0;
+   left: 0;
+   width: 100%;
+   height: 100%; /* Hauteur maximale de 80% de la fenêtre */
+   background-color: rgba(0, 0, 0, 0.5);
+   z-index: 9999;
+   padding-top: 250px;
+   padding-bottom: 100px;
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   overflow-y: auto; /* Défilement vertical activé si nécessaire */
+   }
+   .menu {
+   /* Ajoutez une largeur maximale pour limiter la largeur du menu et faciliter le défilement */
+   max-width: 100%; /* Vous pouvez ajuster cette valeur selon vos besoins */
+   background-color: white;
+   padding: 16px;
+   border-radius: 8px;
+   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+   display: flex;
+   flex-direction: column;
+   overflow-y: auto; /* Défilement vertical activé si nécessaire */
+   }
+   .no-scroll {
+   overflow-y: hidden; /* Désactive le défilement vertical */
+   }
+   .menu-section {
+   margin-bottom: 20px;
+   }
+   .menu-section h3 {
+   margin-bottom: 10px;
+   }
+   .grid {
+   display: grid;
+   grid-template-columns: repeat(3, 1fr); /* 3 colonnes de largeur égale */
+   gap: 20px; /* Espacement de 20px entre les colonnes et les lignes */
+   }
+   .md\\:col-span-2 {
+   grid-column: span 3; /* Augmente la couverture de colonne de 2 à 3 */
+   }
+   .text-xl {
+   font-size: 1.25rem; /* Taille de texte pour les titres */
+   font-weight: bold;
+   margin-bottom: 16px;
+   }
+   .button {
+   margin-top: 8px; /* Réduction de l'espace au-dessus du bouton */
+   padding: 8px 20px;
+   }
+   .select-users {
+   margin-top: 8px; /* Espace ajouté au-dessus pour alignement */
+   }
+</style>
+<header class="relative isolate px-6 pt-14 lg:px-8">
+   <div class="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80" aria-hidden="true">
+      <div class="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-danger to-primary opacity-30 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]" style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)"></div>
+   </div>
+   {% include 'platform/shared/flashMessage.html.twig' %}
+   <div class="mx-auto max-w-7xl px-6 lg:px-8 mt-16">
+      <div class="search-form-container">
+         <!-- Ajout de la classe de conteneur pour le formulaire -->
+         <!-- Formulaire de recherche -->
+         {{ form_start(searchboard, {'attr': {'id': 'searchForm'}}) }}
+         <div class="my-custom-class-for-errors">
+            {{ form_errors(searchboard) }}
+         </div>
+         <div class="flex items-start">
+            <!-- Ajout de la classe "items-start" pour aligner les éléments en haut -->
+            <div class="w-full md:w-1/4 pr-2">
+               <div class="text-black font-bold">{{ form_label(searchboard.status, 'Statut', {'label_attr': {'class': 'search-label'}}) }}</div>
+               {{ form_widget(searchboard.status, {'id': 'statusSelect', 'placeholder': 'Choisir le statut'}) }}
+            </div>
+            <div class="w-full md:w-1/4 pr-2">
+               <div class="text-black font-bold">{{ form_label(searchboard.availability, 'Disponibilité', {'label_attr': {'class': 'search-label'}}) }}</div>
+               {{ form_widget(searchboard.availability, {'id': 'availabilitySelect', 'placeholder': 'Choisir la disponibilité'}) }}
+            </div>
+            <div class="w-full md:w-1/4 pr-2">
+               <div class="text-black font-bold">{{ form_label(searchboard.datecreation, 'Date de création', {'label_attr': {'class': 'search-label'}}) }}</div>
+               {{ form_widget(searchboard.datecreation, {'id': 'datecreationSelect', 'placeholder': 'Choisir la date de création'}) }}
+            </div>
+            <div class="w-full md:w-1/4">
+               <div class="text-black font-bold">{{ form_label(searchboard.game, 'Jeu', {'label_attr': {'class': 'search-label'}}) }}</div>
+               {{ form_widget(searchboard.game, {'id': 'gameSelect', 'placeholder': 'Choisir le jeu'}) }}
+            </div>
+         </div>
+         {{ form_end(searchboard) }}
+      </div>
+   </div>
+   <div class="mx-auto max-w-7xl px-6 lg:px-8 mt-16">
+      <div id="table-container" class="relative overflow-x-auto shadow-md sm:rounded-lg">
+         <table class="w-full text-sm text-left rtl:text-right text-gray-500 border border-gray-300">
+            <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+               <tr>
+                  <th scope="col" class="px-3 py-3 text-center">
+                     Jeux
+                  </th>
+                  <th scope="col" class="px-3 py-3">
+                     Informations
+                  </th>
+                  <th scope="col" class="px-20 py-3">
+                     Joueurs
+                  </th>
+                  <th scope="col" class="px-3 py-3">
+                     Action
+                  </th>
+               </tr>
+            </thead>
+            {% if app.user is not null %}
+            {% set currentUserID = app.user.id %}
+            {% endif %}
+            <tbody id="table-body">
+               {% for board in boards %}
+               {% set users = board.listUsers %}
+               {% set availableSeats = board.getNbAvailbleSlots() %}
+               {% set colorClass = board.status == 'IN_GAME' ? 'bg-gradient-to-r from-transparent to-orange-200' : (board.isAvailble() ? 'bg-gradient-to-r from-transparent to-green-200' : 'bg-gradient-to-r from-transparent to-red-200') %}
+               {% set usersIds = users|map(user => user.id) %}
+               <tr class="{{ colorClass }} border-b hover:bg-gray-50" onclick="toggleMenu('{{ board.id }}')">
+                  <td class="p-2 text-center">
+                     {% if board.game is not empty %}
+                     <a href="{{ path('app_dashboard_game_description', {'game_id': board.game.id}) }}" onclick="event.stopPropagation();">
+                     <img src="{{ asset(board.game.imgURL) }}" class="w-32 h-16 md:w-24 md:h-24 rounded-md mx-auto" alt="{{ board.game.name }}">
+                     </a>
+                     {% else %}
+                     <span class="text-red-500">Image non disponible</span>
+                     {% endif %}
+                  </td>
+                  <td class="px-3 py-4 font-semibold text-gray-900">
+                     <div class="text-black font-bold">{{ board.game.name }}</div>
+                     </br>
+                     <div>Places disponibles : {{ availableSeats }}</div>
+                     <div>Status :
+                        {% if board.status == 'WAITING' %}
+                        En attente
+                        {% elseif board.status == 'IN_GAME' %}
+                        En cours
+                        {% elseif board.status == 'FINISH' %}
+                        Terminé
+                        {% endif %}
+                     </div>
+                     <div>Accessibilité :
+                        {% if board.isAvailble() == true %}
+                        Ouverte
+                        {% elseif board.isAvailble() == false %}
+                        Fermé
+                        {% endif %}
+                     </div>
+                     <div>Date de création : Le {{ board.creationdate|date('d-m-Y à H:i') }}</div>
+                  </td>
+                  <td class="px-20 py-4">
+                     <table class="w-full text-xs text-gray-500 table-container">
+                        {% set usersCount = users|length %}
+                        {% set maxUsers = board.getNbUserMax() %}
+                        {% set rows = (maxUsers / 4)|round(0, 'ceil') %}
+                        {% set cellWidth = 100 / 4 %}
+                        {% for row in 1..rows %}
+                        <tr>
+                           {% for column in 1..4 %}
+                           {% set userIndex = (row - 1) * 4 + column - 1 %}
+                           {% set user = userIndex < usersCount ? users[userIndex] : null %}
+                           <td style="width: {{ cellWidth }}%;{% if column < 4 %} margin-right: 1%;{% endif %}">
+                              {% if user %}
+                              <div style="width: 50px; margin: 0 auto;">
+                                 <a href="{{ path('app_other_user_profile', {'user_id': user.id}) }}" onclick="event.stopPropagation();">
+                                    <img src="https://avatarfiles.alphacoders.com/244/thumb-244471.png" alt="Avatar de {{ user.username }}" class="w-8 h-8 rounded-full object-cover mb-1">
+                                    <div class="text-black font-bold">{{ user.username }}</div>
+                                 </a>
+                              </div>
+                              {% endif %}
+                           </td>
+                           {% endfor %}
+                        </tr>
+                        {% endfor %}
+                     </table>
+                  </td>
+                  <td class="px-3 py-4">
+                     {# Zone des boutons #}
+                  </td>
+               </tr>
+               <tr id="menu-{{ board.id }}" class="hidden no-scroll">
+                  <td colspan="4">
+                     <!-- Overlay pour tout le menu -->
+                     <div class="overlay" onclick="toggleMenu('{{ board.id }}')">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 px-4 py-8">
+                           <!-- Overlay pour la liste des joueurs -->
+                           <div class="menu flex flex-col bg-white p-4 rounded-md shadow-md h-full md:col-span-1">
+                              <h3 class="text-xl font-bold mb-4">Liste des joueurs</h3>
+                              <select class="select-users mb-4" onchange="redirectToUserProfile(this)">
+                                 {% for user in users %}
+                                 <option value="{{ user.id }}">{{ user.username }}</option>
+                                 {% endfor %}
+                              </select>
+                              <!-- Ajoutez ici d'autres éléments ou fonctionnalités -->
+                              <a href="#" class="text-white bg-red-500 hover:bg-red-400 focus:ring-4 focus:outline-none focus:ring-red-300 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2" onclick="handleButtonClick(event)">
+                              Exclure
+                              </a>
+                           </div>
+                           <!-- Overlay pour le bouton de suppression -->
+                           <div class="menu flex flex-col bg-white p-4 rounded-md shadow-md h-full md:mr-4 mb-4">
+                              <h3 class="text-xl font-bold mb-4">Supprimer la table</h3>
+                              <!-- Section du bouton supprimer la table -->
+                              <a href="#" class="text-white bg-red-500 hover:bg-red-400 focus:ring-4 focus:outline-none focus:ring-red-300 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2" onclick="handleButtonClick(event)">
+                              Supprimer
+                              </a>
+                           </div>
+                           <!-- Bouton pour fermer le menu -->
+                           <div class="menu flex flex-col bg-white p-4 rounded-md shadow-md h-full md:col-span-1">
+                              <h3 class="text-xl font-bold mb-4">Fermer le menu</h3>
+                              <a href="#" class="close-button text-white bg-gray-500 hover:bg-gray-600 focus:ring-4 focus:outline-none focus:ring-gray-300 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2" onclick="closeMenu(event, '{{ board.id }}')">
+                              Fermer
+                              </a>
+                           </div>
+                           {# 
+                           <div class="menu flex flex-col bg-white p-4 rounded-md shadow-md h-full col-span-3 overflow-auto">
+                              <h3 class="text-xl font-bold mb-4">Informations de la table cliquée</h3>
+                              <div style="max-height: 200px; overflow-y: scroll;">
+                                 <p>ID de la table cliquée : {{ board.id }}</p>
+                                 {% set usersCount = users|length %}
+                                 <p>Nombre de joueurs : {{ usersCount }}</p>
+                              </div>
+                           </div>
+                           #}
+                           <div class="menu flex flex-col bg-white p-4 rounded-md shadow-md h-full col-span-3 overflow-auto chatlog" style="max-width: 700px;">
+                              <h3 class="text-xl font-bold mb-4">Chatlog</h3>
+                              <!-- Contenu du chatlog ici -->
+                              <div class="overflow-auto h-96">
+                                 <!-- Messages du chatlog -->
+                                 <div class="message">
+                                    <div class="content" style="font-size: 1rem;">
+                                       <div style="max-height: 350px; overflow-y: auto;">
+                                          {% for message in messages %}
+                                          {% if message.gameId == board.id %}
+                                          <div>
+                                             <strong class="sender">{{ message.authorUsername }} | </strong>
+                                             <strong class="message-date">Le {{ message.date|date('d M Y à H:i') }}</strong>
+                                          </div>
+                                          <p>{{ message.content }}</p>
+                                          <hr style="margin-top: 10px; margin-bottom: 10px;">
+                                          {% endif %}
+                                          {% endfor %}
+                                       </div>
+                                    </div>
+                                 </div>
+                                 <!-- Ajoutez d'autres messages ici -->
+                              </div>
+                           </div>
+                           <!-- Overlay pour les profils des joueurs -->
+                           <div class="menu flex flex-col bg-white p-4 rounded-md shadow-md h-full col-span-3">
+                              <h3 class="text-xl font-bold mb-4">Profils des joueurs</h3>
+                              <!-- Ajoutez ici le contenu pour afficher les profils des joueurs -->
+                              <div style="max-height: 200px; overflow-y: scroll;">
+                                 <table class="w-full text-xs text-gray-500 table-container">
+                                    {% set usersCount = users|length %}
+                                    {% set maxUsers = board.getNbUserMax() %}
+                                    {% set rows = (maxUsers / 4)|round(0, 'ceil') %}
+                                    {% set cellWidth = 100 / 4 %}
+                                    {% for row in 1..rows %}
+                                    <tr>
+                                       {% for column in 1..4 %}
+                                       {% set userIndex = (row - 1) * 4 + column - 1 %}
+                                       {% set user = userIndex < usersCount ? users[userIndex] : null %}
+                                       <td style="width: {{ cellWidth }}%;{% if column < 4 %} margin-right: 1%;{% endif %}">
+                                          {% if user %}
+                                          <div style="width: 50px; margin: 0 auto;">
+                                             <a href="{{ path('app_other_user_profile', {'user_id': user.id}) }}" onclick="event.stopPropagation();">
+                                                <img src="https://avatarfiles.alphacoders.com/244/thumb-244471.png" alt="Avatar de {{ user.username }}" class="w-8 h-8 rounded-full object-cover mb-1">
+                                                <div class="text-black font-bold">{{ user.username }}</div>
+                                             </a>
+                                          </div>
+                                          {% endif %}
+                                       </td>
+                                       {% endfor %}
+                                    </tr>
+                                    {% endfor %}
+                                 </table>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </td>
+               </tr>
+               {% endfor %}
+            </tbody>
+         </table>
+      </div>
+      <div class="flex justify-center mt-4">
+         <nav aria-label="Page navigation example">
+            <ul class="inline-flex -space-x-px text-sm">
+               <li>
+                  <a href="#" class="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 bg-white border border-e-0 border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">Previous</a>
+               </li>
+               <li>
+                  <a href="#" class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">1</a>
+               </li>
+               <li>
+                  <a href="#" class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">2</a>
+               </li>
+               <li>
+                  <a href="#" aria-current="page" class="flex items-center justify-center px-3 h-8 text-blue-600 border border-gray-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white">3</a>
+               </li>
+               <li>
+                  <a href="#" class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">4</a>
+               </li>
+               <li>
+                  <a href="#" class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">5</a>
+               </li>
+               <li>
+                  <a href="#" class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">Next</a>
+               </li>
+            </ul>
+         </nav>
+      </div>
+   </div>
+   <div class="absolute inset-x-0 top-[calc(100%-13rem)] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[calc(100%-30rem)]" aria-hidden="true">
+      <div class="relative left-[calc(50%+3rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 bg-gradient-to-tr from-primary to-danger opacity-30 sm:left-[calc(50%+36rem)] sm:w-[72.1875rem]" style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)"></div>
+   </div>
+</header>
+<script>
+   // Fonction pour soumettre automatiquement le formulaire lorsqu'une sélection change
+   function submitSearchForm() {
+       document.getElementById('searchForm').submit();
+   }
+   
+   function toggleMenu(boardId) {
+    var menu = document.getElementById('menu-' + boardId);
+    var body = document.querySelector('body');
+    if (menu.classList.contains('hidden')) {
+        menu.classList.remove('hidden');
+        body.classList.add('no-scroll');
+    } else {
+        menu.classList.add('hidden');
+        body.classList.remove('no-scroll');
+    }
+   }
+   
+   
+   
+   
+   function toggleScroll(menu) {
+    // Ajoutez ou supprimez la classe no-scroll pour activer ou désactiver le défilement du contenu du menu
+    menu.classList.toggle('no-scroll');
+   }
+   
+   // Fonction pour récupérer l'ID de la table lorsque vous cliquez dessus
+   function getTableId(event) {
+    // Recherchez l'élément parent tr contenant l'ID de la table
+    var element = event.target;
+    while (element && element.tagName !== 'TR') {
+        element = element.parentElement;
+    }
+    if (element) {
+        return element.id.split('-')[1]; // Obtenez l'ID de la table à partir de l'ID du tr
+    }
+    return null;
+   }
+   
+   // Ajoutez un gestionnaire d'événements à chaque ligne de tableau pour récupérer l'ID de la table lorsqu'elle est cliquée
+   var tableRows = document.querySelectorAll('#table-body tr');
+   tableRows.forEach(function(row) {
+    row.addEventListener('click', function(event) {
+        var tableId = getTableId(event);
+        if (tableId) {
+            toggleMenu(tableId);
+        }
+    });
+   });
+   
+   
+   function closeMenu(event, boardId) {
+    // Vérifier si l'élément sur lequel vous avez cliqué est le bouton "Fermer"
+    if (event.target.classList.contains('close-button')) {
+        // Empêcher la propagation de l'événement de clic
+        event.preventDefault(); // Empêche le comportement par défaut du lien ou du bouton
+   
+        event.stopPropagation();
+   
+        // Fermer le menu
+        toggleMenu(boardId);
+    }
+   }
+   
+   function handleButtonClick(event) {
+    // Empêcher la propagation de l'événement de clic
+    event.preventDefault();
+    event.stopPropagation();
+   }
+   
+   
+   
+   
+   
+   // Ajouter des écouteurs d'événements pour les changements de sélection
+   document.getElementById('statusSelect').addEventListener('change', submitSearchForm);
+   document.getElementById('availabilitySelect').addEventListener('change', submitSearchForm);
+   document.getElementById('datecreationSelect').addEventListener('change', submitSearchForm);
+   document.getElementById('gameSelect').addEventListener('change', submitSearchForm);
+   // Ajoutez cet événement de clic au document entier
+   // Ajoutez cet événement de clic au document entier
+   
+   
+   
+   document.addEventListener('click', function(event) {
+    // Recherchez l'élément parent tr contenant l'ID de la carte
+    var boardId = null;
+    var element = event.target;
+    while (element && element.tagName !== 'TR') {
+        element = element.parentElement;
+    }
+    if (element) {
+        boardId = element.id.split('-')[1]; // Obtenez l'ID de la carte à partir de l'ID du tr
+    }
+   
+    // Vérifiez si le clic est à l'intérieur du menu
+    var menu = document.getElementById('menu-' + boardId);
+    if (menu) {
+        var isClickInsideMenu = menu.contains(event.target);
+   
+        // Si le clic n'est pas à l'intérieur du menu, fermez-le
+        if (!isClickInsideMenu) {
+            // Fermer le menu
+            toggleMenu(boardId);
+        }
+    }
+   });
+   
+   
+   
+</script>
+{% endblock %}

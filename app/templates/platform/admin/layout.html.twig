@@ -48,6 +48,14 @@
 												Gestion des bannissements
 											</a>
 										</li>
+										<li>
+											<a href="{{ path('app_dashboard_tableadmin') }}" class="text-gray-400 hover:text-white hover:bg-gray-800 group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold">
+												<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+													<path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+												</svg>
+												Gestion des tables
+											</a>
+										</li>
 									</ul>
 								</li>
 								<li class="mt-auto">
@@ -104,6 +112,15 @@
 										Gestion des bannissements
 									</a>
 								</li>
+								<li>
+									<a href="{{ path('app_dashboard_tableadmin') }}" class="text-gray-400 hover:text-white hover:bg-gray-800 group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold">
+										<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+											<path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+										</svg>
+										Gestion des tables
+									</a>
+								</li>
+								
 							</ul>
 						</li>
 
@@ -132,53 +149,7 @@
 				<!-- Separator -->
 				<div class="h-6 w-px bg-gray-900/10 lg:hidden" aria-hidden="true"></div>
 				<div class="flex items-center gap-x-4 lg:gap-x-6 justify-end w-full">
-					<div class="relative inline-block text-left" id="notification-container">
-    <button type="button" class="-m-2.5 p-2.5 text-gray-400 hover:text-gray-500 relative" id="notification-button">
-    <span class="sr-only">Afficher les notifications</span>
-
-    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"/>
-    </svg>
-</button>
-
-						{#
-					<!-- Menu de notification -->
-<div class="hidden origin-top-right absolute right-0 mt-2 lg:w-72 rounded-md shadow-lg py-2 bg-white ring-1 ring-black ring-opacity-5" id="notification-menu">
-    <!-- Titre du menu -->
-    <div class="px-4">
-        <h2 class="text-lg font-semibold text-gray-800 mb-0">Mes notifications</h2>
-        <div class="mt-1 py-0 text-base text-gray-700 hover:bg-gray-100 hover:text-gray-900 border-b border-gray-900 last:border-b-0 transition duration-150"></div>
-		<div id="notif-content">
-        <!-- Contenu du menu de notifications avec des notifications plus grandes -->
-			{% for notification in notifications %}
-				<div class="notification-item py-3 text-base text-gray-700 hover:bg-gray-100 hover:text-gray-900">
-					<p>{{notification.content}}</p>
-					<div class="flex items-end">
-						<svg class="h-5 w-5 text-gray-400 ml-2" viewBox="0 0 20 20" fill="currentColor">
-							<path fill-rule="evenodd" d="M13 10a3 3 0 11-6 0 3 3 0 016 0zm-2 0a1 1 0 10-2 0 1 1 0 002 0z" clip-rule="evenodd"/>
-						</svg>
-						<div class="text-right text-xs text-gray-500">{{ notification.createdAt | date }}</div>
-					</div>
-					<div class="mt-4 flex justify-center">
-						<a href="#" class="text-sm text-primary hover:text-blue-400 font-semibold rounded-lg px-3 py-1.5 text-center mr-2 mb-2 mark-as-read">Voir</a>
-						<a href="readNotification/{{ notification.id }}" class="text-sm text-primary hover:text-blue-400 font-semibold rounded-lg px-3 py-1.5 text-center mr-2 mb-2 mark-as-read">Marquer comme lu</a>
-					</div>
-					<div class="mt-1 py-0 text-base text-gray-700 hover:bg-gray-100 hover:text-gray-900 border-b border-gray-900 last:border-b-0 transition duration-150"></div>
-				</div>
-			{% endfor %}
-		</div>
-
-
-        <!-- Bouton Tout marquer comme lu -->
-        <div class="mt-3 flex justify-center">
-            <a href="#" id="mark-all-as-read" class="text-sm text-red-500 hover:text-red-700 mark-all-as-read">Tout marquer comme lu</a>
-        </div>
-    </div>
-
-</div>
-#}
-
-</div>
+					
 
 
 
@@ -214,56 +185,6 @@
 			</main>
 		</div>
 	</div>
-
-{#	Notifications ---------------------------------------------------#}
-
-	<script src="{{ asset('js/Platform/notify.js') }}"></script>
-	<script>
-		let eventSource;
-		{% if app.user %}
-		eventSource = new EventSource("{{ mercure('agora/notifications/user/' ~ app.user.id)|escape('js') }}");
-		{% else %}
-		eventSource = new EventSource("{{ mercure('agora/notifications/user/null')|escape('js') }}");
-		{% endif %}
-		eventSource.onmessage = event => {
-			const data = JSON.parse(event.data);
-			notify(data.content, "Agora");
-			updateNotificationFrame(data);
-		}
-		function updateNotificationFrame(notification) {
-			const notificationsList = document.getElementById('notif-content');
-			const date = new Date(notification.date);
-
-			const formattedDate = date.toLocaleString('fr-FR', {
-				hour: 'numeric',
-				minute: 'numeric',
-				month: 'long',
-				day: '2-digit',
-				year: 'numeric'
-			}).replace(' à ', ' ');
-
-			const notif = document.createElement('div');
-			notif.innerHTML = `
-            <div class="notification-item py-3 text-base text-gray-700 hover:bg-gray-100 hover:text-gray-900">
-            <p>${notification.content}</p>
-			<div class="flex items-end">
-            	<svg class="h-5 w-5 text-gray-400 ml-2" viewBox="0 0 20 20" fill="currentColor">
-            		<path fill-rule="evenodd" d="M13 10a3 3 0 11-6 0 3 3 0 016 0zm-2 0a1 1 0 10-2 0 1 1 0 002 0z" clip-rule="evenodd"/>
-            	</svg>
-            	<div class="text-right text-xs text-gray-500">${formattedDate}</div>
-            </div>
-            <div class="mt-4 flex justify-center">
-                <a href="#" class="text-sm text-primary hover:text-blue-400 font-semibold rounded-lg px-3 py-1.5 text-center mr-2 mb-2 mark-as-read">Voir</a>
-                <a href="#" class="text-sm text-primary hover:text-blue-400 font-semibold rounded-lg px-3 py-1.5 text-center mr-2 mb-2 mark-as-read">Marquer comme lu</a>
-            </div>
-            <div class="mt-1 py-0 text-base text-gray-700 hover:bg-gray-100 hover:text-gray-900 border-b border-gray-900 last:border-b-0 transition duration-150"></div>
-        </div>
-        `;
-			notificationsList.prepend(notif);
-		}
-	</script>
-
-{#	End notifications ---------------------------------------------------------------------#}
 
 	<script>
 		const dropdownButton = document.getElementById("user-menu-button");
