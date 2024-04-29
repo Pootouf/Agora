@@ -490,6 +490,7 @@ export default class extends Controller  {
         let url = goal.params.url
         const response = await fetch(url);
         if (response.ok) {
+            workshop.toggleWorkshop(false);
             closeObjectivesWindow();
         }
     }
