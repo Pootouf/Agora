@@ -459,15 +459,21 @@ export default class extends Controller  {
         let url = goal.params.url;
         const response = await fetch(url);
         if (response.ok) {
-            document.getElementById('objectives_home').classList.add('hidden');
-            let tree = document.getElementById("objectives");
-            let placeholder = document.createElement("div");
-            placeholder.innerHTML = await response.text();
-            const node = placeholder.firstElementChild;
-            tree.appendChild(node);
+            await this.initInteractiveGoal(response);
             updateOtherRange(document.getElementById('stone-range'))
         }
 
+    }
+
+    async initInteractiveGoal(response) {
+        workshop.toggleWorkshop(false);
+        document.getElementById('objectives_home').classList.add('hidden');
+        let tree = document.getElementById("objectives");
+        let placeholder = document.createElement("div");
+        placeholder.innerHTML = await response.text();
+        const node = placeholder.firstElementChild;
+        tree.appendChild(node);
+        return node;
     }
 
     async displayPheromoneOrSpecialTileGoal(goal) {
@@ -475,12 +481,7 @@ export default class extends Controller  {
         const response = await fetch(url);
 
         if (response.ok) {
-            document.getElementById('objectives_home').classList.add('hidden');
-            let tree = document.getElementById("objectives");
-            let placeholder = document.createElement("div");
-            placeholder.innerHTML = await response.text();
-            const node = placeholder.firstElementChild;
-            tree.appendChild(node);
+            let node = await this.initInteractiveGoal(response);
             initTilesSelectionForGoal(node.dataset.tilesOwned, parseInt(node.dataset.neededResources));
         }
 
