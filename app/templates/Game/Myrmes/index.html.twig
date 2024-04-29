@@ -55,7 +55,7 @@
         window.currentTileMode = 1;
     </script>
 
-    {#PERSONAL BOARD MANAGEMENT#}
+    {# PERSONAL BOARD MANAGEMENT #}
     <script>
         {% set personalBoardPath = path('app_game_show_myr', {'id': game.id}) ~ 'personalBoard' ~ player.id %}
         const eventSourcePersonalBoard = new EventSource("{{ mercure(personalBoardPath)|escape('js') }}");
@@ -66,7 +66,17 @@
         }
     </script>
 
-    {#PREVIEW MANAGEMENT#}
+    {# QUEUE MANAGEMENT #}
+    <script>
+        {% set queueWorkerPhasePath = path('app_game_show_myr', {'id': game.id}) ~ 'initWorkerPhase' ~ player.id %}
+        const eventSourceWorkerPhase = new EventSource("{{ mercure(queueWorkerPhasePath)|escape('js') }}");
+        eventSourceWorkerPhase.onmessage = event => {
+            let result = event.data.split(' ')
+            initQueue(result[0], result[1], result[2])
+        }
+    </script>
+
+    {# PREVIEW MANAGEMENT #}
     <script>
         {% set previewPath = path('app_game_show_myr', {'id': game.id}) ~ 'preview' ~ player.id %}
         const eventSourcePreview = new EventSource("{{ mercure(previewPath)|escape('js') }}");
@@ -76,7 +86,7 @@
         }
     </script>
 
-    {#RANKING MANAGEMENT#}
+    {# RANKING MANAGEMENT #}
     <script>
         {% set rankingPath = path('app_game_show_myr', {'id': game.id}) ~ 'ranking' ~ player.id %}
         const eventSourceRanking = new EventSource("{{ mercure(rankingPath)|escape('js') }}");
@@ -86,7 +96,7 @@
         }
     </script>
 
-    {#MAIN BOARD MANAGEMENT#}
+    {# MAIN BOARD MANAGEMENT #}
     <script>
         {% set mainBoardPath = path('app_game_show_myr', {'id': game.id}) ~ 'mainBoard' ~ player.id %}
         const eventSourceMainBoard = new EventSource("{{ mercure(mainBoardPath)|escape('js') }}");

@@ -110,8 +110,7 @@
                 {{  include('Game/Myrmes/MainBoard/MainBoardElements/pheromoneDisplay.html.twig') }}
                 <img class="absolute rounded rounded-full size-full"
                      src="{{ asset('resourcesGames/Myrmes/pheromone.svg') }}" alt="pheromone">
-        {% else %}
-        {{ include('Game/Myrmes/MainBoard/elementsOnBoardBox.html.twig') }}
         {% endif %}
+        {{ include('Game/Myrmes/MainBoard/elementsOnBoardBox.html.twig') }}
     </div>
 {% endif %}

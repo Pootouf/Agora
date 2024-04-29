@@ -268,27 +268,23 @@ class WorkshopMYRService
      * Manage resources and purchase about position of nurse
      *
      * @param PlayerMYR    $player
-     * @param int          $workshop
+     * @param int          $selectedCraft
      * @param TileMYR|null $tile
      * @return void
      * @throws Exception
      */
-    public function manageWorkshop(PlayerMYR $player, int $workshop, TileMYR $tile = null): void
+    public function manageWorkshop(PlayerMYR $player, int $selectedCraft, TileMYR $tile = null): void
     {
         if ($player->getGameMyr()->getGamePhase() != MyrmesParameters::PHASE_WORKSHOP) {
             throw new Exception("Not in phase workshop, can't do the craft");
         }
-        if (!$this->canChooseThisBonus($player, $workshop)) {
+        if (!$this->canChooseThisBonus($player, $selectedCraft)) {
             throw new Exception("player can not choose this bonus");
         }
-        $nurses = $this->myrService->getNursesAtPosition($player, $workshop);
-        $nursesCount = $nurses->count()
-        ;
-        if ($nursesCount != 1) {
-            throw new Exception("player can not choose this bonus");
-        }
+        $nurses = $this->myrService->getNursesAtPosition($player, MyrmesParameters::WORKSHOP_AREA);
+        $nursesCount = $nurses->count();
 
-        switch ($workshop) {
+        switch ($selectedCraft) {
             case MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA:
                 $this->manageAnthillHole($nursesCount, $player, $tile);
                 break;
@@ -304,20 +300,20 @@ class WorkshopMYRService
                 break;
             default:
         }
-        $player->getWorkshopActions()[$workshop] = 1;
+        $player->getWorkshopActions()[$selectedCraft] = 1;
         $this->entityManager->flush();
     }
 
     /**
      * canChooseThisBonus : checks if the player can choose the selected bonus in the workshopArea
      * @param PlayerMYR $player
-     * @param int       $workshopArea
+     * @param int       $selectedCraft
      * @return bool
      */
-    private function canChooseThisBonus(PlayerMYR $player, int $workshopArea) : bool
+    private function canChooseThisBonus(PlayerMYR $player, int $selectedCraft) : bool
     {
-        if ( $workshopArea < MyrmesParameters::WORKSHOP_GOAL_AREA
-            || $workshopArea > MyrmesParameters::WORKSHOP_NURSE_AREA)
+        if ( $selectedCraft < MyrmesParameters::WORKSHOP_GOAL_AREA
+            || $selectedCraft > MyrmesParameters::WORKSHOP_NURSE_AREA)
         {
             return false;
         }
@@ -325,10 +321,10 @@ class WorkshopMYRService
         if ($player->getPhase() != MyrmesParameters::PHASE_WORKSHOP) {
             return false;
         }
-        if($player->getWorkshopActions()[$workshopArea] > 0) {
+        if($player->getWorkshopActions()[$selectedCraft] > 0) {
             return false;
         }
-        return $this->myrService->getNursesAtPosition($player, $workshopArea)->count() > 0;
+        return $this->myrService->getNursesAtPosition($player, MyrmesParameters::WORKSHOP_AREA)->count() > 0;
     }
 
     /**
@@ -415,7 +411,7 @@ class WorkshopMYRService
     }
 
     /**
-     * Manage all change driven by add anthill hole
+     * manageAnthillHole : Manage all change driven by add anthill hole
      *
      * @param int          $nursesCount
      * @param PlayerMYR    $player
@@ -441,7 +437,7 @@ class WorkshopMYRService
             $this->giveDirtToPlayer($player);
             $this->entityManager->persist($player);
             $this->myrService->manageNursesAfterBonusGive(
-                $player, 1, MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA
+                $player, 1, MyrmesParameters::WORKSHOP_AREA
             );
         }
     }
@@ -543,7 +539,7 @@ class WorkshopMYRService
             $level = $personalBoard->getAnthillLevel();
             $personalBoard->setAnthillLevel($level + 1);
             $this->myrService->manageNursesAfterBonusGive(
-                $player, 1, MyrmesParameters::WORKSHOP_LEVEL_AREA
+                $player, 1, MyrmesParameters::WORKSHOP_AREA
             );
         }
     }
@@ -608,7 +604,7 @@ class WorkshopMYRService
         $this->entityManager->persist($pBoard);
 
         $this->myrService->manageNursesAfterBonusGive(
-            $player, $nursesCount, MyrmesParameters::WORKSHOP_NURSE_AREA
+            $player, $nursesCount, MyrmesParameters::WORKSHOP_AREA
         );
     }
 

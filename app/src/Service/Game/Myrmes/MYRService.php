@@ -2,6 +2,7 @@
 
 namespace App\Service\Game\Myrmes;
 
+use App\Entity\Game\DTO\Player;
 use App\Entity\Game\Myrmes\AnthillHoleMYR;
 use App\Entity\Game\Myrmes\AnthillWorkerMYR;
 use App\Entity\Game\Myrmes\GameGoalMYR;
@@ -281,6 +282,21 @@ class MYRService
     }
 
     /**
+     * getActualPlayer : return the player who need to play
+     * @param GameMYR $game
+     * @return PlayerMYR|null
+     */
+    public function getActualPlayer(GameMYR $game) : ?PlayerMYR
+    {
+        $result = $game->getPlayers()->filter(
+            function (PlayerMYR $player) {
+                return $player->isTurnOfPlayer();
+            }
+        )->first();
+        return !$result ? null : $result ;
+    }
+
+    /**
      * manageNursesAfterBonusGive : Replace all nurses that have been used
      * @param PlayerMYR $player
      * @param int $nurseCount
@@ -300,13 +316,9 @@ class MYRService
                     case MyrmesParameters::LARVAE_AREA:
                     case MyrmesParameters::SOLDIERS_AREA:
                     case MyrmesParameters::WORKER_AREA:
-                    case MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA:
-                    case MyrmesParameters::WORKSHOP_LEVEL_AREA:
-                    case MyrmesParameters::WORKSHOP_NURSE_AREA:
+                    case MyrmesParameters::WORKSHOP_AREA:
                         $n->setArea(MyrmesParameters::BASE_AREA);
                         $this->entityManager->persist($n);
-                        break;
-                    case MyrmesParameters::WORKSHOP_GOAL_AREA:
                         break;
                     default:
                         throw new Exception("Don't manage bonus");
@@ -314,6 +326,7 @@ class MYRService
                 $nurseCount--;
             }
         }
+        $this->entityManager->flush();
     }
 
     /**
@@ -351,8 +364,7 @@ class MYRService
             $playerMYR->getGameMyr()->setGamePhase($phase);
             $this->entityManager->persist($playerMYR->getGameMyr());
 
-            if ($phase == MyrmesParameters::PHASE_EVENT
-                && $playerMYR->getGameMyr()->getMainBoardMYR()->getYearNum() != MyrmesParameters::FIRST_YEAR_NUM) {
+            if ($phase == MyrmesParameters::PHASE_EVENT) {
                 $this->manageEndOfRound($playerMYR->getGameMyr());
             }
 

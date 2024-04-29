@@ -61,6 +61,11 @@ function initQueue(baseUrl,
     url = baseUrl
     soldierNumber = playerSoldierNumber
     dirtNumber = playerDirtNumber
+    movementPoints = 0
+    antPosition = {x: 0, y: 0}
+    cleanedTiles = []
+    spentDirt = 0
+    spentSoldier = 0
 }
 
 /**
@@ -85,7 +90,6 @@ async function move(direction) {
         return;
     }
     await manageMovementPointsOfPlayer(previousCoord, coord)
-    cleanedTiles.push(coord)
     antPosition = coord
     queue.push(action)
     await refreshMainBoard()
@@ -195,6 +199,9 @@ async function manageSoldierOfPlayer(coord) {
     let soldier = parseInt(await response.text())
     if (soldierNumber < spentSoldier + soldier) {
         throw new InvalidSoldierNumberException()
+    }
+    if (soldier > 0) {
+        cleanedTiles.push(coord)
     }
     spentSoldier += soldier
 }
@@ -314,7 +321,6 @@ function directionByAction(action) {
  * @returns {Promise<void>}
  */
 async function rewindQueueWorkerPhase(queue) {
-    alert("test")
     while (!queue.isEmpty()) {
         const action = queue.shift();
         let routeUrl = url;
@@ -323,7 +329,6 @@ async function rewindQueueWorkerPhase(queue) {
             routeUrl += '/moveAnt/direction/' + dir;
             await fetch(routeUrl);
         } else if (action.startsWith('HOLE')) {
-            alert("test2")
             routeUrl += '/placeWorkerOnAntHillHole/' + action.split('_').pop();
             await fetch(routeUrl);
         } else {

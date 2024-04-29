@@ -6,7 +6,7 @@
 
 {% set WEST = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::DIRECTION_WEST') %}
 {% set NORTH_WEST = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::DIRECTION_NORTH_WEST') %}
-{% set SOUTH_WEST = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::DIRECTION_WEST') %}
+{% set SOUTH_WEST = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::DIRECTION_SOUTH_WEST') %}
 {% set EAST = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::DIRECTION_EAST') %}
 {% set NORTH_EAST = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::DIRECTION_NORTH_EAST') %}
 {% set SOUTH_EAST = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::DIRECTION_SOUTH_EAST') %}
@@ -44,6 +44,7 @@
         >
     </div>
 {% endif %}
+<div id="{{ boardBox.ant != null }}"></div>
 {% if boardBox.ant != null %}
      {# Display the directions if it is worker phase and the player has shifts count #}
     {% if isActionable and
