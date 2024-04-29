@@ -72,9 +72,11 @@
         {% set personalBoardPath = path('app_game_show_myr', {'id': game.id}) ~ 'personalBoard' ~ player.id %}
         const eventSourcePersonalBoard = new EventSource("{{ mercure(personalBoardPath)|escape('js') }}");
         eventSourcePersonalBoard.onmessage = event => {
-            const index = document.getElementById('index_myrmes');
-            closeWindow();
-            index.innerHTML += event.data;
+            let personalBoard = document.getElementById('personalBoard');
+            let placeholder = document.createElement("div");
+            placeholder.innerHTML = event.data;
+            personalBoard.replaceChild(
+                    placeholder.firstElementChild.firstElementChild, personalBoard.firstElementChild);
         }
     </script>
 
