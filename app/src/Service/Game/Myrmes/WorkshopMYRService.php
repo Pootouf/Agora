@@ -1163,9 +1163,13 @@ class WorkshopMYRService
                 break;
             default:
         }
-        foreach ($specialTiles as $tile) {
-            $tile->setPlayer(null);
-            $this->entityManager->persist($tile);
+        foreach ($specialTiles as $specialTile) {
+            foreach ($specialTile->getPheromonTiles() as $tile) {
+                $tile->setResource(null);
+                $this->entityManager->persist($tile);
+            }
+            $specialTile->setPlayer(null);
+            $this->entityManager->persist($specialTile);
         }
         $this->entityManager->flush();
     }
@@ -1189,7 +1193,7 @@ class WorkshopMYRService
         }
         foreach ($pheromones as $pheromone) {
             foreach ($pheromone->getPheromonTiles() as $tile) {
-                $tile->setPlayer(null);
+                $tile->setResource(null);
                 $this->entityManager->persist($tile);
             }
         }
