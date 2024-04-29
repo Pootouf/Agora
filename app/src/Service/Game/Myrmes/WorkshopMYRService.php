@@ -1388,19 +1388,21 @@ class WorkshopMYRService
         while ($tilesToVerify->count() > 0) {
             $tile = $tilesToVerify->first();
             $distinctPheromones = $this->getDistinctPheromonesAroundPheromoneTile($tile);
-            $distinctPheromones->filter(function (PheromonMYR $pheromone) use ($pheromones) {
+            $distinctPheromones = $distinctPheromones->filter(function (PheromonMYR $pheromone) use ($pheromones) {
                 return $pheromones->contains($pheromone);
             });
             foreach ($distinctPheromones as $distinctPheromone) {
-                if ($pheromones->contains($distinctPheromone)) {
+                if ($pheromoneConnected->contains($distinctPheromone)) {
                     continue;
                 }
+                $pheromoneConnected->add($distinctPheromone);
                 foreach ($distinctPheromone->getPheromonTiles() as $tile) {
                     $tilesToVerify->add($tile);
                 }
             }
+            $tilesToVerify->removeElement($tile);
         }
-        return $pheromones->forAll(function (PheromonMYR $pheromone) use ($pheromoneConnected) {
+        return $pheromones->forAll(function (int $key, PheromonMYR $pheromone) use ($pheromoneConnected) {
             return $pheromoneConnected->contains($pheromone);
         });
     }
@@ -1459,11 +1461,11 @@ class WorkshopMYRService
         }
         $pheromoneTile = $this->pheromoneTileMYRRepository->findOneBy(
             [
-            'tile' => $tile,
-                'myr' => $game->getMainBoardMYR(),
+                'tile' => $tile,
+                'mainBoard' => $game->getMainBoardMYR(),
             ]
         );
-        return $pheromoneTile->getPheromonMyr();
+        return $pheromoneTile != null ? $pheromoneTile->getPheromonMYR() : null;
     }
 
     /**
