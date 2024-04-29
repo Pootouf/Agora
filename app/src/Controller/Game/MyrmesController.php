@@ -1950,12 +1950,12 @@ class MyrmesController extends AbstractController
         return new Response(MyrmesTranslation::RESPONSE_GOAL_VALIDATE, Response::HTTP_OK);
     }
 
-    #[Route('/game/myrmes/{idGame}/validateGoal/{goalId}/stone/{stoneQuantity}/dirt/{dirtQuantity}',
+    #[Route('/game/myrmes/{idGame}/validateGoal/{goalId}/specialTiles/{pheromoneIds}',
         name: 'app_game_myrmes_validate_special_tile_goal')]
     public function validateSpecialTileGoal(
         #[MapEntity(id: 'idGame')] GameMYR $gameMYR,
         #[MapEntity(id: 'goalId')] GameGoalMYR $gameGoalMYR,
-        #[MapEntity(id: 'specialTileIds')] String $specialTileIds,
+        #[MapEntity(id: 'pheromoneIds')] String $pheromoneIds,
     ) : Response
     {
         if ($gameMYR->isPaused() || !$gameMYR->isLaunched()) {
@@ -1970,8 +1970,8 @@ class MyrmesController extends AbstractController
             return new Response(MyrmesTranslation::RESPONSE_NO_NURSE_WORKSHOP, Response::HTTP_FORBIDDEN);
         }
 
-        $specialTileIds = explode('_', $specialTileIds);
-        $specialTiles = $this->workerMYRService->getPheromonesFromListOfIds($specialTileIds);
+        $pheromoneIds = explode('_', $pheromoneIds);
+        $specialTiles = $this->workerMYRService->getPheromonesFromListOfIds($pheromoneIds);
         try {
             $this->workshopMYRService->doSpecialTileGoal($player, $gameGoalMYR, $nurse, $specialTiles);
         }catch (Exception $e){
