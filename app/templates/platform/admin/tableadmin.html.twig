@@ -206,26 +206,25 @@ Administration des tables
                      <!-- Overlay pour tout le menu -->
                      <div class="overlay" onclick="toggleMenu('{{ board.id }}')">
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 px-4 py-8">
-                           <!-- Overlay pour la liste des joueurs -->
-                           <div class="menu flex flex-col bg-white p-4 rounded-md shadow-md h-full md:col-span-1">
+                           <!-- Menu pour exclure un joueur -->
+                           <div class="menu flex flex-col bg-white p-4 rounded-md shadow-md h-full md:col-span-1" id="menu1">
                               <h3 class="text-xl font-bold mb-4">Liste des joueurs</h3>
-                              <select class="select-users mb-4" onchange="redirectToUserProfile(this)">
+                              <select class="select-users mb-4">
                                  {% for user in users %}
                                  <option value="{{ user.id }}">{{ user.username }}</option>
                                  {% endfor %}
                               </select>
-                              <!-- Ajoutez ici d'autres éléments ou fonctionnalités -->
-                              <a href="#" class="text-white bg-red-500 hover:bg-red-400 focus:ring-4 focus:outline-none focus:ring-red-300 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2" onclick="handleButtonClick(event)">
+                              <!-- Bouton pour exclure un joueur -->
+                              <button class="exclude-user-btn text-white bg-red-500 hover:bg-red-400 focus:ring-4 focus:outline-none focus:ring-red-300 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2">
                               Exclure
-                              </a>
+                              </button>
                            </div>
-                           <!-- Overlay pour le bouton de suppression -->
-                           <div class="menu flex flex-col bg-white p-4 rounded-md shadow-md h-full md:mr-4 mb-4">
+                           <div class="menu flex flex-col bg-white p-4 rounded-md shadow-md h-full md:mr-4 mb-4" id="menu2">
                               <h3 class="text-xl font-bold mb-4">Supprimer la table</h3>
-                              <!-- Section du bouton supprimer la table -->
-                              <a href="#" class="text-white bg-red-500 hover:bg-red-400 focus:ring-4 focus:outline-none focus:ring-red-300 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2" onclick="handleButtonClick(event)">
+                              <!-- Bouton pour supprimer la table -->
+                              <button class="delete-table-btn text-white bg-red-500 hover:bg-red-400 focus:ring-4 focus:outline-none focus:ring-red-300 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2">
                               Supprimer
-                              </a>
+                              </button>
                            </div>
                            <!-- Bouton pour fermer le menu -->
                            <div class="menu flex flex-col bg-white p-4 rounded-md shadow-md h-full md:col-span-1">
@@ -234,16 +233,6 @@ Administration des tables
                               Fermer
                               </a>
                            </div>
-                           {# 
-                           <div class="menu flex flex-col bg-white p-4 rounded-md shadow-md h-full col-span-3 overflow-auto">
-                              <h3 class="text-xl font-bold mb-4">Informations de la table cliquée</h3>
-                              <div style="max-height: 200px; overflow-y: scroll;">
-                                 <p>ID de la table cliquée : {{ board.id }}</p>
-                                 {% set usersCount = users|length %}
-                                 <p>Nombre de joueurs : {{ usersCount }}</p>
-                              </div>
-                           </div>
-                           #}
                            <div class="menu flex flex-col bg-white p-4 rounded-md shadow-md h-full col-span-3 overflow-auto chatlog" style="max-width: 700px;">
                               <h3 class="text-xl font-bold mb-4">Chatlog</h3>
                               <!-- Contenu du chatlog ici -->
@@ -268,7 +257,6 @@ Administration des tables
                                  <!-- Ajoutez d'autres messages ici -->
                               </div>
                            </div>
-                           <!-- Overlay pour les profils des joueurs -->
                            <div class="menu flex flex-col bg-white p-4 rounded-md shadow-md h-full col-span-3">
                               <h3 class="text-xl font-bold mb-4">Profils des joueurs</h3>
                               <!-- Ajoutez ici le contenu pour afficher les profils des joueurs -->
@@ -340,7 +328,6 @@ Administration des tables
    </div>
 </header>
 <script>
-   // Fonction pour soumettre automatiquement le formulaire lorsqu'une sélection change
    function submitSearchForm() {
        document.getElementById('searchForm').submit();
    }
@@ -361,24 +348,20 @@ Administration des tables
    
    
    function toggleScroll(menu) {
-    // Ajoutez ou supprimez la classe no-scroll pour activer ou désactiver le défilement du contenu du menu
     menu.classList.toggle('no-scroll');
    }
    
-   // Fonction pour récupérer l'ID de la table lorsque vous cliquez dessus
    function getTableId(event) {
-    // Recherchez l'élément parent tr contenant l'ID de la table
     var element = event.target;
     while (element && element.tagName !== 'TR') {
         element = element.parentElement;
     }
     if (element) {
-        return element.id.split('-')[1]; // Obtenez l'ID de la table à partir de l'ID du tr
+        return element.id.split('-')[1]; 
     }
     return null;
    }
    
-   // Ajoutez un gestionnaire d'événements à chaque ligne de tableau pour récupérer l'ID de la table lorsqu'elle est cliquée
    var tableRows = document.querySelectorAll('#table-body tr');
    tableRows.forEach(function(row) {
     row.addEventListener('click', function(event) {
@@ -391,57 +374,90 @@ Administration des tables
    
    
    function closeMenu(event, boardId) {
-    // Vérifier si l'élément sur lequel vous avez cliqué est le bouton "Fermer"
     if (event.target.classList.contains('close-button')) {
-        // Empêcher la propagation de l'événement de clic
-        event.preventDefault(); // Empêche le comportement par défaut du lien ou du bouton
+        event.preventDefault(); 
    
         event.stopPropagation();
    
-        // Fermer le menu
         toggleMenu(boardId);
     }
    }
    
-   function handleButtonClick(event) {
-    // Empêcher la propagation de l'événement de clic
-    event.preventDefault();
-    event.stopPropagation();
+    function handleExcludeButtonClick(event) {
+    event.preventDefault(); 
+   
+    const menu = event.currentTarget.closest('.menu');
+   
+    const selectElement = menu.querySelector('.select-users');
+   
+    const userName = selectElement.options[selectElement.selectedIndex].text;
+   
+    console.log('Nom de l\'utilisateur sélectionné :', userName);
+   
+    excludePlayer(userName);
    }
    
+    function excludePlayer(userName) {
+        const data = {
+            userName: userName
+        };
+   
+        const options = {
+            method: 'POST',
+            body: JSON.stringify(data),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        };
+   
+        fetch('/excludePlayer', options)
+            .then(response => {
+                if (response.ok) {
+                  //...
+                    console.log('Le joueur a été exclu avec succès.');
+                } else {
+                  //...
+                    console.error('Une erreur s\'est produite lors de l\'exclusion du joueur.');
+                }
+            })
+            .catch(error => {
+               //...
+                console.error('Une erreur s\'est produite :', error);
+            });
+    }
+   var excludeButtons = document.querySelectorAll('.exclude-user-btn');
+   
+   excludeButtons.forEach(function(button) {
+    button.addEventListener('click', handleExcludeButtonClick);
+   });
+   
+   // meme chose pour delete-table-btn
    
    
    
    
-   // Ajouter des écouteurs d'événements pour les changements de sélection
    document.getElementById('statusSelect').addEventListener('change', submitSearchForm);
    document.getElementById('availabilitySelect').addEventListener('change', submitSearchForm);
    document.getElementById('datecreationSelect').addEventListener('change', submitSearchForm);
    document.getElementById('gameSelect').addEventListener('change', submitSearchForm);
-   // Ajoutez cet événement de clic au document entier
-   // Ajoutez cet événement de clic au document entier
    
    
    
    document.addEventListener('click', function(event) {
-    // Recherchez l'élément parent tr contenant l'ID de la carte
     var boardId = null;
     var element = event.target;
     while (element && element.tagName !== 'TR') {
         element = element.parentElement;
     }
     if (element) {
-        boardId = element.id.split('-')[1]; // Obtenez l'ID de la carte à partir de l'ID du tr
+        boardId = element.id.split('-')[1]; 
     }
    
-    // Vérifiez si le clic est à l'intérieur du menu
     var menu = document.getElementById('menu-' + boardId);
     if (menu) {
         var isClickInsideMenu = menu.contains(event.target);
    
-        // Si le clic n'est pas à l'intérieur du menu, fermez-le
         if (!isClickInsideMenu) {
-            // Fermer le menu
             toggleMenu(boardId);
         }
     }
