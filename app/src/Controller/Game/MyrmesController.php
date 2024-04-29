@@ -592,13 +592,14 @@ class MyrmesController extends AbstractController
             $this->logService->sendPlayerLog($game, $player, $message);
             return new Response('failed to place worker on colony', Response::HTTP_FORBIDDEN);
         }
-        $this->publishPersonalBoard($game, $player);
-        $this->publishPreview($game, $player);
-        $this->publishRanking($game, $player);
+
         $this->service->setNextPlayerTurn($player);
         if ($this->service->getNumberOfFreeWorkerOfPlayer($player) <= 0) {
             $this->service->setPhase($player, MyrmesParameters::PHASE_HARVEST);
         }
+        $this->publishPersonalBoard($game, $player);
+        $this->publishPreview($game, $player);
+        $this->publishRanking($game, $player);
 
         $message = $player->getUsername() . " a placé une ouvrière sur le niveau de fourmilière " . $level;
         $this->logService->sendPlayerLog($game, $player, $message);
@@ -607,6 +608,8 @@ class MyrmesController extends AbstractController
             if ($this->service->getNumberOfFreeWorkerOfPlayer($player) <= 0) {
                 $this->service->setPhase($player, MyrmesParameters::PHASE_HARVEST);
             }
+            $boardBoxes = $this->dataManagementMYRService->organizeMainBoardRows($game);
+            $this->publishMainBoard($game, $player, $boardBoxes,false, false);
         }
         return new Response("placed worker on colony", Response::HTTP_OK);
     }
