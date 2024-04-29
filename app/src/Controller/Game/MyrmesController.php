@@ -1711,7 +1711,7 @@ class MyrmesController extends AbstractController
 
         try {
             if (!$this->workshopMYRService->canPlayerDoGoal($player, $gameGoalMYR)) {
-                throw new Exception("Goal can't be done");
+                throw new Exception(MyrmesTranslation::ERROR_GOAL_CANT_BE_DONE);
             }
         } catch (Exception $e) {
             return new Response($e->getMessage(), Response::HTTP_FORBIDDEN);
@@ -1744,19 +1744,19 @@ class MyrmesController extends AbstractController
     {
         $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(MyrmesTranslation::RESPONSE_INVALID_PLAYER, Response::HTTP_FORBIDDEN);
         }
 
         try {
             if (!$this->workshopMYRService->canPlayerDoGoal($player, $gameGoalMYR)) {
-                throw new Exception("Goal can't be done");
+                throw new Exception(MyrmesTranslation::ERROR_GOAL_CANT_BE_DONE);
             } else {
                 $neededResources = match ($gameGoalMYR->getGoal()->getDifficulty()) {
                     MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE =>
                     MyrmesParameters::GOAL_NEEDED_RESOURCES_NEEDED_PHEROMONE_LEVEL_ONE,
                     MyrmesParameters::GOAL_DIFFICULTY_LEVEL_THREE =>
                     MyrmesParameters::GOAL_NEEDED_RESOURCES_NEEDED_PHEROMONE_LEVEL_THREE,
-                    default => throw new Exception("Goal difficulty invalid for pheromone goal"),
+                    default => throw new Exception(MyrmesTranslation::ERROR_GOAL_DIFFICULTY_INVALID),
                 };
             }
         } catch (Exception $e) {
@@ -1790,19 +1790,19 @@ class MyrmesController extends AbstractController
     {
         $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
         if ($player == null) {
-            return new Response('Invalid player', Response::HTTP_FORBIDDEN);
+            return new Response(MyrmesTranslation::RESPONSE_INVALID_PLAYER, Response::HTTP_FORBIDDEN);
         }
 
         try {
             if (!$this->workshopMYRService->canPlayerDoGoal($player, $gameGoalMYR)) {
-                throw new Exception("Goal can't be done");
+                throw new Exception(MyrmesTranslation::ERROR_GOAL_CANT_BE_DONE);
             } else {
                 $neededResources = match ($gameGoalMYR->getGoal()->getDifficulty()) {
                     MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE =>
                     MyrmesParameters::GOAL_NEEDED_RESOURCES_REMOVED_SPECIAL_TILE_LEVEL_ONE,
                     MyrmesParameters::GOAL_DIFFICULTY_LEVEL_TWO =>
                     MyrmesParameters::GOAL_NEEDED_RESOURCES_REMOVED_SPECIAL_TILE_LEVEL_TWO,
-                    default => throw new Exception("Goal difficulty invalid for specialTile goal"),
+                    default => throw new Exception(MyrmesTranslation::ERROR_GOAL_DIFFICULTY_INVALID),
                 };
             }
         } catch (Exception $e) {
@@ -1838,7 +1838,7 @@ class MyrmesController extends AbstractController
         }
         $nurse = $this->service->getNursesAtPosition($player, MyrmesParameters::WORKSHOP_AREA)->first();
         if (!$nurse) {
-            return new Response('No nurse available in workshop', Response::HTTP_FORBIDDEN);
+            return new Response(MyrmesTranslation::RESPONSE_NO_NURSE_WORKSHOP, Response::HTTP_FORBIDDEN);
         }
 
         try {
@@ -1847,7 +1847,7 @@ class MyrmesController extends AbstractController
             return new Response($e->getMessage(), Response::HTTP_FORBIDDEN);
         }
 
-        return new Response('Goal validated', Response::HTTP_OK);
+        return new Response(MyrmesTranslation::RESPONSE_GOAL_VALIDATE, Response::HTTP_OK);
     }
 
     #[Route('/game/myrmes/{idGame}/validateGoal/{goalId}/stone/{stoneQuantity}/dirt/{dirtQuantity}',
@@ -1865,7 +1865,7 @@ class MyrmesController extends AbstractController
         }
         $nurse = $this->service->getNursesAtPosition($player, MyrmesParameters::WORKSHOP_AREA)->first();
         if (!$nurse) {
-            return new Response('No nurse available in workshop', Response::HTTP_FORBIDDEN);
+            return new Response(MyrmesTranslation::RESPONSE_NO_NURSE_WORKSHOP, Response::HTTP_FORBIDDEN);
         }
 
         try {
@@ -1891,11 +1891,11 @@ class MyrmesController extends AbstractController
         }
         $nurse = $this->service->getNursesAtPosition($player, MyrmesParameters::WORKSHOP_AREA)->first();
         if (!$nurse) {
-            return new Response('No nurse available in workshop', Response::HTTP_FORBIDDEN);
+            return new Response(MyrmesTranslation::RESPONSE_NO_NURSE_WORKSHOP, Response::HTTP_FORBIDDEN);
         }
         $pheromoneIds = explode('_', $pheromoneIds);
         if (empty($pheromoneIds)) {
-            return new Response('No pheromone ids given', Response::HTTP_FORBIDDEN);
+            return new Response(MyrmesTranslation::RESPONSE_NO_PHEROMONE_IDS_GIVEN, Response::HTTP_FORBIDDEN);
         }
 
         try {
@@ -1922,7 +1922,7 @@ class MyrmesController extends AbstractController
         }
         $nurse = $this->service->getNursesAtPosition($player, MyrmesParameters::WORKSHOP_AREA)->first();
         if (!$nurse) {
-            return new Response('No nurse available in workshop', Response::HTTP_FORBIDDEN);
+            return new Response(MyrmesTranslation::RESPONSE_NO_NURSE_WORKSHOP, Response::HTTP_FORBIDDEN);
         }
 
         $specialTileIds = explode('_', $specialTileIds);
