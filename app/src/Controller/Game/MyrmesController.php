@@ -1704,6 +1704,9 @@ class MyrmesController extends AbstractController
         #[MapEntity(id: 'goalId')] GameGoalMYR $gameGoalMYR
     ): Response
     {
+        if ($gameMYR->isPaused() || !$gameMYR->isLaunched()) {
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
         $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
@@ -1742,6 +1745,9 @@ class MyrmesController extends AbstractController
         #[MapEntity(id: 'goalId')] GameGoalMYR $gameGoalMYR
     ): Response
     {
+        if ($gameMYR->isPaused() || !$gameMYR->isLaunched()) {
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
         $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response(MyrmesTranslation::RESPONSE_INVALID_PLAYER, Response::HTTP_FORBIDDEN);
@@ -1788,6 +1794,9 @@ class MyrmesController extends AbstractController
         #[MapEntity(id: 'goalId')] GameGoalMYR $gameGoalMYR
     ): Response
     {
+        if ($gameMYR->isPaused() || !$gameMYR->isLaunched()) {
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
         $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response(MyrmesTranslation::RESPONSE_INVALID_PLAYER, Response::HTTP_FORBIDDEN);
@@ -1832,6 +1841,9 @@ class MyrmesController extends AbstractController
         #[MapEntity(id: 'goalId')] GameGoalMYR $gameGoalMYR,
     ) : Response
     {
+        if ($gameMYR->isPaused() || !$gameMYR->isLaunched()) {
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
         $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
@@ -1859,6 +1871,9 @@ class MyrmesController extends AbstractController
         #[MapEntity(id: 'dirtQuantity')] int $dirtQuantity,
     ) : Response
     {
+        if ($gameMYR->isPaused() || !$gameMYR->isLaunched()) {
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
         $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
@@ -1874,7 +1889,15 @@ class MyrmesController extends AbstractController
             return new Response($e->getMessage(), Response::HTTP_FORBIDDEN);
         }
 
-        return new Response('Goal validated', Response::HTTP_OK);
+        $this->publishPreview($gameMYR, $player);
+        foreach ($gameMYR->getPlayers() as $p) {
+            $this->publishRanking($gameMYR, $p);
+        }
+        $this->publishNotification($gameMYR, MyrmesParameters::NOTIFICATION_DURATION_PHASE,
+            MyrmesTranslation::CONGRATULATION,
+            MyrmesTranslation::GOAL_VALIDATE, GameParameters::INFO_NOTIFICATION_TYPE,
+            GameParameters::NOTIFICATION_COLOR_GREEN, $player->getUsername());
+        return new Response(MyrmesTranslation::RESPONSE_GOAL_VALIDATE, Response::HTTP_OK);
     }
 
     #[Route('/game/myrmes/{idGame}/validateGoal/{goalId}/pheromones/{pheromoneIds}',
@@ -1885,6 +1908,9 @@ class MyrmesController extends AbstractController
         #[MapEntity(id: 'pheromoneIds')] String $pheromoneIds,
     ) : Response
     {
+        if ($gameMYR->isPaused() || !$gameMYR->isLaunched()) {
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
         $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
@@ -1905,7 +1931,23 @@ class MyrmesController extends AbstractController
             return new Response($e->getMessage(), Response::HTTP_FORBIDDEN);
         }
 
-        return new Response('Goal validated', Response::HTTP_OK);
+
+        try {
+            $boardBoxes = $this->dataManagementMYRService->organizeMainBoardRows($gameMYR);
+        } catch (Exception) {
+            return new Response(MyrmesTranslation::RESPONSE_ERROR_CALCULATING_MAIN_BOARD,
+                Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+        $this->publishPreview($gameMYR, $player);
+        foreach ($gameMYR->getPlayers() as $p) {
+            $this->publishMainBoard($gameMYR, $p, $boardBoxes, false, false);
+            $this->publishRanking($gameMYR, $p);
+        }
+        $this->publishNotification($gameMYR, MyrmesParameters::NOTIFICATION_DURATION_PHASE,
+            MyrmesTranslation::CONGRATULATION,
+            MyrmesTranslation::GOAL_VALIDATE, GameParameters::INFO_NOTIFICATION_TYPE,
+            GameParameters::NOTIFICATION_COLOR_GREEN, $player->getUsername());
+        return new Response(MyrmesTranslation::RESPONSE_GOAL_VALIDATE, Response::HTTP_OK);
     }
 
     #[Route('/game/myrmes/{idGame}/validateGoal/{goalId}/stone/{stoneQuantity}/dirt/{dirtQuantity}',
@@ -1916,6 +1958,9 @@ class MyrmesController extends AbstractController
         #[MapEntity(id: 'specialTileIds')] String $specialTileIds,
     ) : Response
     {
+        if ($gameMYR->isPaused() || !$gameMYR->isLaunched()) {
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
         $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
         if ($player == null) {
             return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
@@ -1933,7 +1978,22 @@ class MyrmesController extends AbstractController
             return new Response($e->getMessage(), Response::HTTP_FORBIDDEN);
         }
 
-        return new Response('Goal validated', Response::HTTP_OK);
+        try {
+            $boardBoxes = $this->dataManagementMYRService->organizeMainBoardRows($gameMYR);
+        } catch (Exception) {
+            return new Response(MyrmesTranslation::RESPONSE_ERROR_CALCULATING_MAIN_BOARD,
+                Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+        $this->publishPreview($gameMYR, $player);
+        foreach ($gameMYR->getPlayers() as $p) {
+            $this->publishMainBoard($gameMYR, $p, $boardBoxes, false, false);
+            $this->publishRanking($gameMYR, $p);
+        }
+        $this->publishNotification($gameMYR, MyrmesParameters::NOTIFICATION_DURATION_PHASE,
+            MyrmesTranslation::CONGRATULATION,
+            MyrmesTranslation::GOAL_VALIDATE, GameParameters::INFO_NOTIFICATION_TYPE,
+            GameParameters::NOTIFICATION_COLOR_GREEN, $player->getUsername());
+        return new Response(MyrmesTranslation::RESPONSE_GOAL_VALIDATE, Response::HTTP_OK);
     }
 
     private function publishNotification(GameMYR $game, int $duration, string $message,
