@@ -73,6 +73,11 @@ class BoardManagerService
         $this->gameManagerService->joinGame($board->getPartyId() , $user);
         $board->addListUser($user);
 
+        //this part manage the case where an invited user joint the table but not by using his invitation
+        if($board->getInvitedContacts()->contains($user)){
+            $board->removeInvitedContact($user);
+        }
+
         //If it was the last player to complete the board, launch the game
         if($board->isFull()){
             $board->cleanInvitationList();
