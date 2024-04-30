@@ -37,7 +37,7 @@ class Board
     private ?string $invitationHash = null;
 
     #[ORM\Column]
-    private ?int $nbInvitations = null;
+    private ?int $nbInvitations = 0;
 
     #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'boards')]
     private Collection $listUsers;

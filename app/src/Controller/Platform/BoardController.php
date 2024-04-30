@@ -155,7 +155,7 @@ class BoardController extends AbstractController
         $user = $this->entityManagerInterface->getRepository(User::class)->find($userId);
         $actualDate = new \DateTime();
         if ($board->getInvitedContacts()->contains($user) && $board->getInvitationTimer() < $actualDate) {
-            $board->removeInvitedContact($user);
+            $this->boardManagerService->removePlayerFromInvitationList($board, $user);
             return $this->redirectToRoute('app_join_board', ['id' => $id]);
         }
         //send the error message to user, using session or flush

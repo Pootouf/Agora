@@ -285,4 +285,5 @@ class DashboardController extends AbstractController
         $this->entityManager->flush();
         return new JsonResponse(['message' => 'Notification lue avec succès']);
     }
+
 }
