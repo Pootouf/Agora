@@ -396,7 +396,7 @@ document.addEventListener("DOMContentLoaded", function() {
 	// Ajouter un écouteur d'événements au lien "Tout marquer comme lu"
     const markAllAsReadLink = document.getElementById('mark-all-as-read');
     markAllAsReadLink.addEventListener('click', function(event) {
-        event.preventDefault(); // Empêcher le comportement par défaut du lien
+       event.preventDefault(); // Empêcher le comportement par défaut du lien
 
         // Supprimer toutes les notifications
         notificationItems.forEach(function(notificationItem) {

@@ -18,6 +18,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use App\Form\Platform\EditProfileType;
 use Symfony\Component\HttpFoundation\Request;
+use App\Entity\Game\Message;
+
 
 
 class DashboardController extends AbstractController
@@ -187,12 +189,20 @@ class DashboardController extends AbstractController
 
 
     #[Route('/dashboard/history', name: 'app_board_history')]
-    public function history(): Response
+    public function history(Request $request, BoardRepository $boardRepository): Response
     {
+        $data = new SearchData();
+        $form = $this->createForm(SearchBoardType::class, $data);
+        $form->handleRequest($request);
+
+        $boards = $boardRepository->searchBoards($data);
         return $this->render('platform/dashboard/history.html.twig', [
+            'boards' => $boards,
+            'searchboard' => $form->createView(),
             'notifications' => $this->notifications,
         ]);
     }
+
 
     /**
      * Displays a list of games.
