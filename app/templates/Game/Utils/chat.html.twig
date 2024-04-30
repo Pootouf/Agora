@@ -6,10 +6,12 @@
 <div id="closedChat" class="bg-[#d5bdaf] w-1/4 landscape:w-1/6 h-[3rem] landscape:h-fit lg:h-fit absolute bottom-0 z-10 rounded-tr-2xl"
         {{ stimulus_controller('message') }}
 >
-    <div class="flex justify-center align-center w-full h-full cursor-pointer"
+    <div class="inlineFlex gap-[2vw] landscape:gap-[1vw] w-full h-full cursor-pointer"
             {{ stimulus_action('message', 'toggleChat', 'click', { 'open': true}) }}>
-        <img src="{{ asset('resourcesGames/utils/arrow_up.svg') }}" alt="arrow up" class="h-8 landscape:h-4 mt-1 mr-2">
-        <p class="text-5xl landscape:text-base">chat</p>
+        <div class="inlineFlexCol">
+            <img src="{{ asset('resourcesGames/utils/arrow_up.svg') }}" alt="arrow up" class="h-[5vw] landscape:h-[3vw] landscape:lg:h-[1.2vw]">
+        </div>
+        <p class="text-[6vw] landscape:text-[3vw] landscape:lg:text-[1.1vw] {#landscape:text-base#}">chat</p>
     </div>
 </div>
 

@@ -55,7 +55,7 @@ class HarvestMYRService
         $playerPheromones = $playerMYR->getPheromonMYRs();
         foreach ($playerPheromones as $playerPheromone) {
             foreach ($playerPheromone->getPheromonTiles() as $tile) {
-                if($tile->getTile() === $tileMYR) {
+                if($tile->getTile() === $tileMYR && $tile->getResource() != null) {
                     if($playerPheromone->isHarvested()) {
                         if($playerMYR->getRemainingHarvestingBonus() <= 0) {
                             throw new Exception("Pheromone already harvested");

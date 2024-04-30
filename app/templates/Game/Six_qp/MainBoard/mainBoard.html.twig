@@ -6,9 +6,9 @@ This section displays the main board of the game
 
 <div class="p-2 bg-red-500 flow float-start w-full h-full overflow-hidden
             shadow-black shadow-[10px_10px_15px_-3px_rgba(0,0,0,0.1)]">
-    <div id="rowsContainer" class="flex flex-col h-full w-full ml-4">
+    <div id="rowsContainer" class="inlineFlexCol h-full w-full ml-4">
         {% for row in rows.values %}
-            <div id="row_{{ row.id }}" class="h-1/4 portrait:h-[12%] portrait:mb-52">
+            <div id="row_{{ row.id }}" class="h-1/4">
                 <button {% if needToChoose %}{% else %}disabled{% endif%} class="rows button h-full"
                 {{ stimulus_action('sixqp', 'selectRow', 'click',
                     {url: path('app_game_sixqp_placecardonrow', {idRow: row.id, idGame: game.id})}) }}>

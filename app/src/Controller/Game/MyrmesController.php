@@ -627,13 +627,14 @@ class MyrmesController extends AbstractController
             $this->logService->sendPlayerLog($game, $player, $message);
             return new Response('failed to place worker on colony', Response::HTTP_FORBIDDEN);
         }
-        $this->publishPersonalBoard($game, $player);
-        $this->publishPreview($game, $player);
-        $this->publishRanking($game, $player);
+
         $this->service->setNextPlayerTurn($player);
         if ($this->service->getNumberOfFreeWorkerOfPlayer($player) <= 0) {
             $this->service->setPhase($player, MyrmesParameters::PHASE_HARVEST);
         }
+        $this->publishPersonalBoard($game, $player);
+        $this->publishPreview($game, $player);
+        $this->publishRanking($game, $player);
 
         $message = $player->getUsername() . " a placé une ouvrière sur le niveau de fourmilière " . $level;
         $this->logService->sendPlayerLog($game, $player, $message);
@@ -642,6 +643,8 @@ class MyrmesController extends AbstractController
             if ($this->service->getNumberOfFreeWorkerOfPlayer($player) <= 0) {
                 $this->service->setPhase($player, MyrmesParameters::PHASE_HARVEST);
             }
+            $boardBoxes = $this->dataManagementMYRService->organizeMainBoardRows($game);
+            $this->publishMainBoard($game, $player, $boardBoxes,false, false);
         }
         return new Response("placed worker on colony", Response::HTTP_OK);
     }
@@ -894,9 +897,13 @@ class MyrmesController extends AbstractController
             return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
         $tile = $this->workerMYRService->getTileFromCoordinates($coordX, $coordY);
+        if ($tile == null) {
+            return new Response(MyrmesTranslation::RESPONSE_INVALID_TILE,
+                Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
         $pheromone = $this->workerMYRService->getPheromoneFromTile($game, $tile);
 
-        if($tile != null) {
+        if($pheromone != null) {
             return new Response($this->workerMYRService->getStringCoordsOfPheromoneTiles($pheromone));
         } else {
             return new Response(MyrmesTranslation::RESPONSE_INVALID_TILE,
@@ -1211,16 +1218,10 @@ class MyrmesController extends AbstractController
             return new Response("Not in phase workshop, can't end it", Response::HTTP_FORBIDDEN);
         }
 
-        try {
-            if ($this->winterMYRService->canSetPhaseToWinter($game)) {
-                $player->setPhase(MyrmesParameters::PHASE_WINTER);
-            } else {
-                $player->setPhase(MyrmesParameters::PHASE_EVENT);
-            }
-        } catch (Exception) {
-            $message = $player->getUsername() . " a essayé de confirmer ses actions de l'atelier mais n'a pas pû.";
-            $this->logService->sendPlayerLog($game, $player, $message);
-            return new Response("failed to confirm workshop actions", Response::HTTP_FORBIDDEN);
+        if ($this->winterMYRService->canSetPhaseToWinter($game)) {
+            $player->setPhase(MyrmesParameters::PHASE_WINTER);
+        } else {
+            $player->setPhase(MyrmesParameters::PHASE_EVENT);
         }
 
         if (!$this->service->canOnePlayerDoWorkshopPhase($game)) {
@@ -1276,15 +1277,7 @@ class MyrmesController extends AbstractController
         $this->logService->sendPlayerLog($game, $player, $message);
 
         if($this->winterMYRService->canManageEndOfWinter($game)) {
-            try {
-                $this->winterMYRService->manageEndOfWinter($game);
-            } catch (Exception) {
-                $message =
-                    "Le système a essayé de terminer la phase hiver "
-                    . ", mais n'a pas pu.";
-                $this->logService->sendSystemLog($game, $message);
-                return new Response('failed to manage end of winter', Response::HTTP_FORBIDDEN);
-            }
+            $this->winterMYRService->manageEndOfWinter($game);
             $message = "Le système a mis fin à la phase hiver ";
             $this->logService->sendSystemLog($game, $message);
             foreach ($game->getPlayers() as $player) {
