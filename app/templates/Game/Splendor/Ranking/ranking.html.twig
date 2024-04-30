@@ -1,11 +1,42 @@
 {#
     This section displays the ranking with a view of the other players' possessions
     @param : array colorsNames, array colors, array colorsTokens, array tokensNames, array prcards,
-             int angleStep, array translateY, array landscapeTranslateY, array lgTranslateY, array xlTranslateY,
-             array translateX, array landscapeTranslateX, array lgTranslateX, array xlTranslateX,
-             array playerCardsColorsCount, array playerTokensColorsCount,
+             int angleStep, array playerCardsColorsCount, array playerTokensColorsCount,
     @return : display the ranking of the game with public player information
 #}
+
+{#constants declaration#}
+
+{#colors for player's buyed cards #}
+{% set colorsNames = ["green","white","blue","black","red"] %}
+{% set colors = [
+    {"green": "009b77"},
+    {"white": "ffffff"},
+    {"blue": "0f52ba"},
+    {"black": "0f0f0f"},
+    {"red": "e0115f"}
+] %}
+
+{#colors for player's tokens#}
+{% set colorsTokens = ["green","white","blue","black","red","yellow"] %}
+{% set tokensNames = [
+    {"green": "emeraldToken.png"},
+    {"white": "diamondToken.png"},
+    {"blue": "sapphireToken.png"},
+    {"black": "onyxToken.png"},
+    {"red": "rubyToken.png"},
+    {"yellow": "goldToken.png"}
+] %}
+
+{#files for reserved cards#}
+{% set prcards = [
+    {"1": "reservedCardLvl1.svg"},
+    {"2": "reservedCardLvl2.svg"},
+    {"3": "reservedCardLvl3.svg"}
+] %}
+
+{#angles for reserved cards#}
+{% set angleStep = 45 %}
 
 {#splendor logo#}
 <div id="logo" class="w-full h-[10%] landscape:1/6  lg:h-1/5 justify-center flex">
@@ -14,83 +45,12 @@
 
 {{ include('/Game/Splendor/Ranking/loadingRankingData.html.twig') }}
 
-<div class="w-full h-[90%] landscape:h-4/5 z-1 z-2 z-3">
-    {#colors for player's buted cards #}
-    {% set colorsNames = ["green","white","blue","black","red"] %}
-    {% set colors = [
-        {"green": "009b77"},
-        {"white": "ffffff"},
-        {"blue": "0f52ba"},
-        {"black": "0f0f0f"},
-        {"red": "e0115f"}
-    ] %}
-
-    {#colors for player's tokens#}
-    {% set colorsTokens = ["green","white","blue","black","red","yellow"] %}
-    {% set tokensNames = [
-        {"green": "emeraldToken.png"},
-        {"white": "diamondToken.png"},
-        {"blue": "sapphireToken.png"},
-        {"black": "onyxToken.png"},
-        {"red": "rubyToken.png"},
-        {"yellow": "goldToken.png"}
-    ] %}
-
-    {#files for reserved cards#}
-    {% set prcards = [
-        {"1": "reservedCardLvl1.svg"},
-        {"2": "reservedCardLvl2.svg"},
-        {"3": "reservedCardLvl3.svg"}
-    ] %}
-
-    {#angles for reserved cards#}
-    {% set angleStep = 45 %}
-
-    {#values for reservec cards shifting depending of screen size#}
-    {#vertical values#}
-    {% set translateY = [
-        {"0": "0"},
-        {"1": "6.5"},
-        {"2": "13"}
-    ] %}
-    {% set landscapeTranslateY = [
-        {"0": 1},
-        {"1": -1.7},
-        {"2": -4.4}
-    ] %}
-    {% set lgTranslateY = [
-        {"0": 1},
-        {"1": -2.8},
-        {"2": -6.5}
-    ] %}
-    {% set xlTranslateY = [
-        {"0": 0},
-        {"1": -5.5},
-        {"2": -11}
-    ] %}
-    {#horizontal values#}
-    {% set translateX = [
-        {"0": "0"},
-        {"1": "1"},
-        {"2": "1.5"}
-    ] %}
-    {% set landscapeTranslateX = [
-        {"0": 0},
-        {"1": 0.3},
-        {"2": 0.5}
-    ] %}
-    {% set lgTranslateX = [
-        {"0": 0},
-        {"1": 0.4},
-        {"2": 0}
-    ] %}
-    {% set xlTranslateX = [
-        {"0": 0},
-        {"1": 0.6},
-        {"2": 0.8}
-    ] %}
+<div class="w-full h-[90%] inline-flex flex-col justify-start gap-[2vw] landscape:gap-[0.5vw] h-4/5 z-1 z-2 z-3">
 
     {% for p in ranking %}
+
+        {#is p current player#}
+        {% set isCurrentPlayer = p.username == player.username and not isSpectator %}
 
         {#player's cards#}
         {% set playerCards = p.personalBoard.playerCards %}
@@ -120,88 +80,59 @@
             {"yellow": playerTokensColors|filter(c => c == "yellow")|length}
         ] %}
 
-        <div id="{{ p.username }}" class="bg-gradient-to-r from-[#707984ff] to-[#4C6E9Bff]
-                    border-solid border-[5px] border-[#AC9424ff] rounded-2xl
-                    h-[23.5%] landscape:md:h-1/4 landscape:lg:h-[23.5%]
-                    mx-3 landscape:mx-2 lg:mx-5
-                    my-6 landscape:my-2
-                    text-3xl">
-            {# player's name and score#}
-            <div class="w-full h-[12%] landscape:h-1/5
-                        pt-2 landscape:pt-1
-                        flex justify-around landscape:justify-between">
-                {% if p.username == player.username and not isSpectator %}
-                    <p class="landscape:ml-3 landscape:text-sm landscape:lg:text-lg font-bold text-purple-800">{{ p.username }}</p>
-                {% else %}
-                    <p class="landscape:ml-3 landscape:text-sm landscape:lg:text-lg">{{ p.username }}</p>
-                {% endif %}
-                <div class="flex landscape:mr-2">
-                    <p class="mr-1 landscape:text-base landscape:lg:text-lg">{{ p.score }}</p>
-                    <img class="h-8 landscape:h-5 landscape:lg:h-7"
-                         src="{{ asset('resourcesGames/utils/star.svg') }}" alt="splendor victory point">
+        {#ranking box#}
+        <div id="{{ p.id }}"
+             class="bg-gradient-to-r from-[#707984ff] to-[#4C6E9Bff]
+             border-solid border-[0.3vw] border-[#AC9424ff] rounded-[1vw] h-[15vw] landscape:h-[9vw]
+             inline-flex flex-col justify-around landscape:justify-center p-[0.5vw]">
+
+            {#player name and score#}
+            <div class="inline-flex justify-between text-[2vw]  landscape:text-[1.5vw]">
+                <p class="{% if isCurrentPlayer %}font-bold text-purple-800{% endif %} ">{{ p.username }}</p>
+                <div class="inlineFlex gap-[0.5vw]">
+                    <p>{{ p.score }}</p>
+                    <img class="h-[2vw]" src="{{ asset('resourcesGames/utils/star.svg') }}" alt="splendor victory point icon">
                 </div>
             </div>
+            <div class="inline-flex justify-between ">
 
-            {# player's cards(buyed and reserved#}
-            <div class="w-full h-2/5 landscape:h-2/5
-                        pt-2 landscape:ml-2 landscape:lg:ml-4
-                        grid grid-cols-3 grid-rows-2 landscape:flex
-                        gap-y-3 landscape:gap-3 ">
-                {% for color in colorsNames %}
-                    <div class="h-full landscape:w-[10%] landscape:lg:w-[11%]
-                                rounded-xl bg-[#{{ colors|column(color)|first }}]
-                                mx-2 landscape:mx-0
-                                flex items-center justify-center">
-                        <p class="h-fit text-[#c0c0c0] text-5xl landscape:text-xl landscape:lg:text-3xl">
-                            {{ playerCardsColorsCount|column(color)|first }}</p>
-                    </div>
-                {% endfor %}
-                <div class="mt-3 scale-[60%] landscape:w-[13%]
-                            translate-x-[0.5rem] -translate-y-[1rem]
-                            landscape:translate-x-0 landscape:lg:translate-x-[1rem]">
-                    {% set i = 0 %}
-                    {% for lvl in playerReservedCardsLevel %}
-                        {% set lTranslateY = landscapeTranslateY|column(i)|first %}
-                        {% set llgTranslateY = lgTranslateY|column(i)|first %}
-                        {% set lxlTranslateY = xlTranslateY|column(i)|first %}
-                        <div class="-rotate-{{ i * angleStep }} origin-bottom
-                        -translate-y-[{{ translateY|column(i)|first }}rem]
-                        translate-x-[{{ translateX|column(i)|first }}rem]
-                        landscape:{% if lTranslateY < 0 %}-{% endif %}translate-y-[{{ lTranslateY|abs }}rem]
-                        landscape:translate-x-[{{ landscapeTranslateX|column(i)|first }}rem]
-                        landscape:lg:{% if llgTranslateY < 0 %}-{% endif %}translate-y-[{{ llgTranslateY|abs }}rem]
-                        landscape:lg:translate-x-[{{ lgTranslateX|column(i)|first }}rem]
-                        landscape:2xl:{% if lxlTranslateY < 0 %}-{% endif %}translate-y-[{{ lxlTranslateY|abs }}rem]
-                        landscape:2xl:translate-x-[{{ xlTranslateX|column(i)|first }}rem]
-                        z-{{ i + 1 }}">
-                            {% set c = prcards|column(lvl)|first %}
-                            <img src="{{ asset('resourcesGames/Splendor/Images/' ~ c) }}" alt="{{ c|split('.')[0] }}">
-                        </div>
-                        {% set i = i + 1 %}
+                {#player buyed cards count#}
+                <div class="inlineFlex gap-[0.5vw]">
+                    {% for color in colorsNames %}
+                        <svg viewBox="0 0 80 100" class="h-[4vw] landscape:h-[2.5vw]">
+                            <rect height="100" width="80" rx="25%" fill="#{{ colors|column(color)|first }}"/>
+                            <text x="40" y="75" class="text-[450%]" fill="#c0c0c0" text-anchor="middle">
+                                {{ playerCardsColorsCount|column(color)|first }}
+                            </text>
+                        </svg>
                     {% endfor %}
                 </div>
+
+                {#player reserved cards#}
+                <div>
+                    <svg viewBox="0 0 300 300" class="h-[4.5vw] landscape:h-[3vw]">
+                        {% set i = 0 %}
+                        {% for lvl in playerReservedCardsLevel %}
+                            {% set c = prcards|column(lvl)|first %}
+                            <image z="10" transform="rotate(-{{ i * angleStep }}, 220, 160)" x="150" y="0" height="180" width="131"
+                                   href="{{ asset('resourcesGames/Splendor/Images/' ~ c) }} "/>
+                            {% set i = i + 1 %}
+                        {% endfor %}
+                    </svg>
+                </div>
             </div>
 
-            {#player's tokens#}
-            <div class="w-full h-2/6 landscape:h-2/5
-                        mt-2 landscape:lg:ml-2 landscape:mt-0 landscape:mx-1 landscape:ml-1 landscape:lg:pt-2
-                        grid grid-cols-3 grid-rows-2 gap-y-14 landscape:gap-0 landscape:flex">
+            {#player tokens#}
+            <div class="inline-flex justify-start gap-[0.5vw]">
                 {% for tokenColor in colorsTokens %}
-                <div class="block landscape:flex landscape:w-[15%] landscape:2xl:w-[14%]">
-                    <img class="scale-[0.85] landscape:scale-[0.7] landscape:lg:scale-[0.8]"
-                         src="{{ asset('resourcesGames/Splendor/Images/Tokens/' ~
-                             tokensNames|column(tokenColor)|first) }}"
-                         alt="player emerald stock overflow-visible">
-                    <p class="hidden scale-[70%] lg:scale-100 landscape:2xl:scale-125 text-xs
-                              landscape:flex right-0 top-0 bg-red-600 rounded-full h-fit
-                              py-0.5 px-1.5
-                              -translate-x-4 lg:-translate-x-5 -translate-y-1 lg:translate-y-0 text-white">
-                        {{ playerTokensColorsCount|column(tokenColor)|first }}
-                    </p>
-                    <p class="landscape:hidden text-3xl w-full text-center">
-                        {{ playerTokensColorsCount|column(tokenColor)|first }}
-                    </p>
-                </div>
+                    <svg viewBox="0 0 250 250" class="h-[4vw] landscape:h-[3vw]">
+                        <image x="0" y="25" height="200" width="200" href="{{ asset('resourcesGames/Splendor/Images/Tokens/' ~
+                            tokensNames|column(tokenColor)|first) }}"/>
+                        <circle cx="180" cy="60" r="60" fill="red" stroke="white" stroke-width="3"/>
+                        <text text-anchor="middle" x="180" y="95" class="text-[600%] font-extrabold" fill="white">
+                            {{ playerTokensColorsCount|column(tokenColor)|first }}
+                        </text>
+                    </svg>
                 {% endfor %}
             </div>
         </div>
