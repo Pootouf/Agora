@@ -118,17 +118,6 @@ class BoardManagerService
     }
 
 
-    // Remove $user from the invitation list of the board
-
-    public function removePlayerFromInvitationList(Board $board, User $user):int
-    {
-        $board->removeInvitedContact($user);
-        $this->entityManagerInterface->persist($board);
-        $this->entityManagerInterface->flush();
-
-        return BoardManagerService::$SUCCESS;
-    }
-
 
 
 
