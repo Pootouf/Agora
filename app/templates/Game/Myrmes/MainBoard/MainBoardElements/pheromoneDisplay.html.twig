@@ -13,7 +13,10 @@
 
 {% set fill = "" %}
 {% set stroke = "" %}
-{% if boardBox.pheromonTile.pheromonMYR.player.color ==  PLAYER_COLOR_BLUE %}
+{% if boardBox.pheromonTile.pheromonMYR.player.color is not defined %}
+    {% set fill = 'fill-[rgba(153,_153,_153,_1)]' %}
+    {% set stroke = "stroke:#595959;stroke-width:18" %}
+{% elseif boardBox.pheromonTile.pheromonMYR.player.color ==  PLAYER_COLOR_BLUE %}
     {% set fill = 'fill-[rgba(0,_0,_255,_1)]' %}
     {% set stroke = "stroke:#3d6ab2;stroke-width:18" %}
 {% elseif boardBox.pheromonTile.pheromonMYR.player.color ==  PLAYER_COLOR_RED %}

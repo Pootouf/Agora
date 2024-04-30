@@ -30,7 +30,7 @@ This section displays workshop menu.
             {#increasing anthill level#}
             <svg id="anthill level" viewBox="{{ vbValues }}" class="{{ svgSize }} translate-y-[3.2vw]">
                 <image href="{{ asset('resourcesGames/Myrmes/workshop/anthill_level.svg') }}"
-                       x="25" y="15" height="{{ imageSize }}" width="{{ imageSize }}"/>
+                       x="25" y="15" height="{{ imageSize }}" width="{{ imageSize }}"></image>
                 <polygon class="cursor-pointer"
                          points="90,30 210,30 275,140 210,250 90,250 25,140" fill-opacity="0"
                         {{ stimulus_action('myrmes','activateWorkshop','click',
@@ -45,7 +45,7 @@ This section displays workshop menu.
                 {#placing new anthill hole on garden#}
                 <svg id="anthill hole" viewBox="{{ vbValues }}" class="{{ svgSize }}">
                     <image href="{{ asset('resourcesGames/Myrmes/workshop/anthill_hole.svg') }}"
-                           x="50" y="0" height="{{ imageSize }}" width="{{ imageSize }}"/>
+                           x="50" y="0" height="{{ imageSize }}" width="{{ imageSize }}"></image>
                     <polygon class="cursor-pointer"
                              points="115,15 235,15 300,125 235,235 115,235 50,125" fill-opacity="0"
                             {{ stimulus_action('myrmes','activateWorkshop','click',
@@ -62,16 +62,19 @@ This section displays workshop menu.
                            x="0" y="0" height="{{ imageSize }}" width="{{ imageSize }}"/>
                     <polygon class="cursor-pointer"
                              points="65,15 185,15 250,125 185,235 65,235 0,125" fill-opacity="0"
-                            {{ stimulus_action('myrmes','activateWorkshop','click',
-                                {placement: 3}) }}
-                    />
+		                    {{ stimulus_action('myrmes','activateWorkshop','click',
+                                {
+                                    placement: 3,
+                                    url:path('app_game_myrmes_display_objective_selection', {idGame: game.id})
+                                })
+                            }}/>
                 </svg>
             </div>
             {#creating new nurse#}
             <svg id="nurse" viewBox="{{ vbValues }}" class="{{ svgSize }} -translate-y-[3.2vw]">
                 <image
                        href="{{ asset('resourcesGames/Myrmes/workshop/create_nurse.svg') }}"
-                       x="25" y="-15" height="{{ imageSize }}" width="{{ imageSize }}"/>
+                       x="25" y="-15" height="{{ imageSize }}" width="{{ imageSize }}"></image>
                 <polygon class="cursor-pointer"
                          points="90,0 210,0 275,110 210,220 90,220 25,110" fill-opacity="0"
                         {{ stimulus_action('myrmes','activateWorkshop','click',

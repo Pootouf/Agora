@@ -162,17 +162,28 @@ export default class extends Controller  {
     }
 
     async displayBoxActions(boardBox) {
-        closeSelectedBoxWindow();
-        let url = boardBox.params.url;
-        const response = await fetch(url);
-        let tree = document.getElementById("index_myrmes");
-        let placeholder = document.createElement("div");
-        placeholder.innerHTML = await response.text();
-        const node = placeholder.firstElementChild;
-        tree.appendChild(node);
+        if (window.currentTileMode === 1) {
+            closeSelectedBoxWindow();
+            let url = boardBox.params.url;
+            const response = await fetch(url);
+            let tree = document.getElementById("index_myrmes");
+            let placeholder = document.createElement("div");
+            placeholder.innerHTML = await response.text();
+            const node = placeholder.firstElementChild;
+            tree.appendChild(node);
+        } else if (window.currentTileMode === 3 &&
+            window.goalPheromonesSelected.length <= window.goalNeededResources) {
+            let pheromoneId =
+                getOwnedPheromoneIdFromBoardBoxTileId(parseInt(boardBox.target.parentElement.id.split('_')[0]));
+
+            if (pheromoneId !== null) {
+                pheromoneSelectedForGoal(pheromoneId);
+            }
+        }
     }
 
     async displayObjectives(objective) {
+        closeObjectivesWindow();
         let url = objective.params.url;
         document.getElementById('objectives_button').setAttribute('disabled', '');
         const response = await fetch(url);
@@ -292,7 +303,15 @@ export default class extends Controller  {
                 }
                 break;
             case 3:
-                alert("objectives");
+                closeObjectivesWindow();
+                closeSelectedBoxWindow();
+                window.currentTileMode = 0;
+                const response = await fetch(url);
+                let tree = document.getElementById("index_myrmes");
+                let placeholder = document.createElement("div");
+                placeholder.innerHTML = await response.text();
+                const node = placeholder.firstElementChild;
+                tree.appendChild(node);
                 break;
             case 4:
                 if (window.confirm("Confirmez vous la création d'une nouvelle nourrice ?")) {
@@ -433,6 +452,68 @@ export default class extends Controller  {
                 .replace("tileId", boardBox.params.tileid);
             await fetch(url);
             await this.togglePheromonePlacement(false);
+        }
+    }
+
+    async displayStoneDirtGoal(goal) {
+        let url = goal.params.url;
+        const response = await fetch(url);
+        if (response.ok) {
+            await this.initInteractiveGoal(response);
+            updateOtherRange(document.getElementById('stone-range'))
+        }
+
+    }
+
+    async initInteractiveGoal(response) {
+        workshop.toggleWorkshop(false);
+        document.getElementById('objectives_home').classList.add('hidden');
+        let tree = document.getElementById("objectives");
+        let placeholder = document.createElement("div");
+        placeholder.innerHTML = await response.text();
+        const node = placeholder.firstElementChild;
+        tree.appendChild(node);
+        return node;
+    }
+
+    async displayPheromoneOrSpecialTileGoal(goal) {
+        let url = goal.params.url;
+        const response = await fetch(url);
+
+        if (response.ok) {
+            let node = await this.initInteractiveGoal(response);
+            initTilesSelectionForGoal(node.dataset.tilesOwned, parseInt(node.dataset.neededResources));
+        }
+
+    }
+
+    async validateGoal(goal) {
+        let url = goal.params.url
+        const response = await fetch(url);
+        if (response.ok) {
+            workshop.toggleWorkshop(false);
+            closeObjectivesWindow();
+        }
+    }
+
+    async validateStoneOrDirtGoal(goal) {
+        const stoneRange = document.getElementById("stone-range");
+        const dirtRange = document.getElementById("dirt-range");
+        let url = goal.params.url
+            .replace("stoneQuantity", stoneRange.value)
+            .replace("dirtQuantity", dirtRange.value);
+        const response = await fetch(url);
+        if (response.ok) {
+            closeObjectivesWindow();
+        }
+    }
+
+    async validatePheromoneOrSpecialTileGoal(goal) {
+        let url = goal.params.url
+            .replace("pheromoneIds", window.goalPheromonesSelected.join('_'));
+        const response = await fetch(url);
+        if (response.ok) {
+            closeObjectivesWindow();
         }
     }
 }

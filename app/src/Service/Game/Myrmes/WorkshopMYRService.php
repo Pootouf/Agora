@@ -308,6 +308,29 @@ class WorkshopMYRService
         $this->entityManager->flush();
     }
 
+    /** playerAvailableGoals : give player's available goals
+     * @param PlayerMYR $player
+     * @param GameMYR $game
+     * @return ArrayCollection
+     */
+    public function playerAvailableGoals(PlayerMYR $player, GameMYR $game): ArrayCollection
+    {
+        $gameGoalLevels = [$game->getMainBoardMYR()->getGameGoalsLevelOne(),
+            $game->getMainBoardMYR()->getGameGoalsLevelTwo(),
+            $game->getMainBoardMYR()->getGameGoalsLevelThree()];
+
+        $availableGoals = new ArrayCollection();
+
+        foreach ($gameGoalLevels as $gameGoalLevel) {
+            foreach ($gameGoalLevel as $gameGoal) {
+                if (!$this->hasPlayerAlreadyDoneSelectedGoal($player, $gameGoal) && $this->doesPlayerHaveDoneGoalWithLowerDifficulty($player, $gameGoal->getGoal())) {
+                    $availableGoals->add($gameGoal);
+                }
+            }
+        }
+        return $availableGoals;
+    }
+
     /**
      * canChooseThisBonus : checks if the player can choose the selected bonus in the workshopArea
      * @param PlayerMYR $player
@@ -830,7 +853,7 @@ class WorkshopMYRService
      * @param string $selectedType
      * @return PlayerResourceMYR|null
      */
-    private function getPlayerResourcesFromSelectedType(PlayerMYR $player, string $selectedType) : ?PlayerResourceMYR
+    public function getPlayerResourcesFromSelectedType(PlayerMYR $player, string $selectedType) : ?PlayerResourceMYR
     {
         return $player->getPersonalBoardMYR()->getPlayerResourceMYRs()
             ->filter(
@@ -845,7 +868,7 @@ class WorkshopMYRService
      * @param PlayerMYR $player
      * @return Collection<PheromonMYR>
      */
-    private function getSpecialTilesOfPlayer(PlayerMYR $player) : Collection
+    public function getSpecialTilesOfPlayer(PlayerMYR $player) : Collection
     {
         return $player->getPheromonMYRs()->filter(
             function (PheromonMYR $pheromone) {
@@ -1138,9 +1161,13 @@ class WorkshopMYRService
                 break;
             default:
         }
-        foreach ($specialTiles as $tile) {
-            $tile->setPlayer(null);
-            $this->entityManager->persist($tile);
+        foreach ($specialTiles as $specialTile) {
+            foreach ($specialTile->getPheromonTiles() as $tile) {
+                $tile->setResource(null);
+                $this->entityManager->persist($tile);
+            }
+            $specialTile->setPlayer(null);
+            $this->entityManager->persist($specialTile);
         }
         $this->entityManager->flush();
     }
@@ -1164,7 +1191,7 @@ class WorkshopMYRService
         }
         foreach ($pheromones as $pheromone) {
             foreach ($pheromone->getPheromonTiles() as $tile) {
-                $tile->setPlayer(null);
+                $tile->setResource(null);
                 $this->entityManager->persist($tile);
             }
         }
@@ -1363,19 +1390,21 @@ class WorkshopMYRService
         while ($tilesToVerify->count() > 0) {
             $tile = $tilesToVerify->first();
             $distinctPheromones = $this->getDistinctPheromonesAroundPheromoneTile($tile);
-            $distinctPheromones->filter(function (PheromonMYR $pheromone) use ($pheromones) {
+            $distinctPheromones = $distinctPheromones->filter(function (PheromonMYR $pheromone) use ($pheromones) {
                 return $pheromones->contains($pheromone);
             });
             foreach ($distinctPheromones as $distinctPheromone) {
-                if ($pheromones->contains($distinctPheromone)) {
+                if ($pheromoneConnected->contains($distinctPheromone)) {
                     continue;
                 }
+                $pheromoneConnected->add($distinctPheromone);
                 foreach ($distinctPheromone->getPheromonTiles() as $tile) {
                     $tilesToVerify->add($tile);
                 }
             }
+            $tilesToVerify->removeElement($tile);
         }
-        return $pheromones->forAll(function (PheromonMYR $pheromone) use ($pheromoneConnected) {
+        return $pheromones->forAll(function (int $key, PheromonMYR $pheromone) use ($pheromoneConnected) {
             return $pheromoneConnected->contains($pheromone);
         });
     }
@@ -1434,11 +1463,11 @@ class WorkshopMYRService
         }
         $pheromoneTile = $this->pheromoneTileMYRRepository->findOneBy(
             [
-            'tile' => $tile,
-                'myr' => $game->getMainBoardMYR(),
+                'tile' => $tile,
+                'mainBoard' => $game->getMainBoardMYR(),
             ]
         );
-        return $pheromoneTile->getPheromonMyr();
+        return $pheromoneTile != null ? $pheromoneTile->getPheromonMYR() : null;
     }
 
     /**
