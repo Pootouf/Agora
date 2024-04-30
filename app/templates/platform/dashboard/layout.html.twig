@@ -4,7 +4,7 @@
 		<!-- Off-canvas menu for mobile, show/hide based on off-canvas menu state. -->
 		<div class="relative z-50 lg:hidden" role="dialog" aria-modal="true">
 			<div id="sidebar-overlay" class="hidden fixed inset-0 bg-gray-900/80"></div>
-			<div id="sidebar" class="hidden fixed inset-0 ">
+			<div id="sidebar" class="hidden fixed inset-0">
 				<div class="relative mr-16 flex w-full max-w-xs flex-1">
 					<div id="sidebar-close-button" class="absolute left-full top-0 flex w-16 justify-center pt-5">
 						<button type="button" class="-m-2.5 p-2.5">
@@ -180,27 +180,36 @@
 		<div id="notif-content">
         <!-- Contenu du menu de notifications avec des notifications plus grandes -->
 			{% for notification in notifications %}
-    {% if not notification.isRead %}
-    <div class="notification-item py-3 text-base text-gray-700 hover:bg-gray-100 hover:text-gray-900">
-        <div class="flex items-start">
-            <div class="text-right text-xs text-blue-500">{{ notification.type }}</div>
-        </div>
-        <p>{{ notification.content }}</p>
-        <div class="flex items-end">
-            <svg class="h-5 w-5 text-gray-400 ml-2" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M13 10a3 3 0 11-6 0 3 3 0 016 0zm-2 0a1 1 0 10-2 0 1 1 0 002 0z" clip-rule="evenodd"/>
-            </svg>
-            <div class="text-right text-xs text-gray-500">{{ notification.createdAt | date }}</div>
-        </div>
-        <div class="mt-4 flex justify-center">
-            <a href="readNotification/{{ notification.id }}" class="text-sm text-primary hover:text-blue-400 font-semibold rounded-lg px-3 py-1.5 text-center mr-2 mb-2 mark-as-read">Voir</a>
-            <a href="readNotification/{{ notification.id }}" class="text-sm text-primary hover:text-blue-400 font-semibold rounded-lg px-3 py-1.5 text-center mr-2 mb-2 mark-as-read">Marquer comme lu</a>
-        </div>
-        <div class="mt-1 py-0 text-base text-gray-700 hover:bg-gray-100 hover:text-gray-900 border-b border-gray-900 last:border-b-0 transition duration-150"></div>
-    </div>
- {% endif %}
-{% endfor %}
+                {% if not notification.isRead %}
+				<div class="notification-item py-3 text-base text-gray-700 hover:bg-gray-100 hover:text-gray-900">
+					<div class="flex items-start">
+						<div class="text-right text-xs text-blue-500">{{ notification.type }}</div>
+					</div>
+					<p>{{notification.content}}</p>
+					<div class="flex items-end">
+						<svg class="h-5 w-5 text-gray-400 ml-2" viewBox="0 0 20 20" fill="currentColor">
+							<path fill-rule="evenodd" d="M13 10a3 3 0 11-6 0 3 3 0 016 0zm-2 0a1 1 0 10-2 0 1 1 0 002 0z" clip-rule="evenodd"/>
+						</svg>
+						<div class="text-right text-xs text-gray-500">{{ notification.createdAt | date }}</div>
+					</div>
 
+					{% if notification.type == "Invitation" %}
+						{% set boardId = notification.content|board_id %}
+						<div class="mt-4 flex justify-center">
+							<a href="{{ path('app_join_invitation', {'id': boardId}) }}" class="text-sm text-primary hover:text-blue-400 font-semibold rounded-lg px-3 py-1.5 text-center mr-2 mb-2 mark-as-read">
+								Rejoindre la table</a>
+							<a href="readNotification/{{ notification.id }}" class="text-sm text-primary hover:text-blue-400 font-semibold rounded-lg px-3 py-1.5 text-center mr-2 mb-2 mark-as-read">Marquer comme lu</a>
+						</div>
+					{% else %}
+						<div class="mt-4 flex justify-center">
+							<a href="#" class="text-sm text-primary hover:text-blue-400 font-semibold rounded-lg px-3 py-1.5 text-center mr-2 mb-2 mark-as-read">Voir</a>
+							<a href="readNotification/{{ notification.id }}" class="text-sm text-primary hover:text-blue-400 font-semibold rounded-lg px-3 py-1.5 text-center mr-2 mb-2 mark-as-read">Marquer comme lu</a>
+						</div>
+					{% endif %}
+						<div class="mt-1 py-0 text-base text-gray-700 hover:bg-gray-100 hover:text-gray-900 border-b border-gray-900 last:border-b-0 transition duration-150"></div>
+					</div>
+                {% endif %}
+			{% endfor %}
 		</div>
 
 
