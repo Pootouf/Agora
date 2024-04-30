@@ -793,7 +793,7 @@ class MyrmesController extends AbstractController
             return new Response(MyrmesTranslation::RESPONSE_INVALID_TILE_TYPE, Response::HTTP_FORBIDDEN);
         }
         if($tile != null) {
-            return new Response($this->workerMYRService->canPlacePheromone($player, $tile, $type, $coords));
+            return new Response($this->workerMYRService->canPlacePheromone($player, $tile, $coordX, $coordY, $type, $coords));
         } else {
             return new Response(MyrmesTranslation::RESPONSE_INVALID_TILE,
                 Response::HTTP_INTERNAL_SERVER_ERROR);
@@ -966,13 +966,15 @@ class MyrmesController extends AbstractController
         return new Response("Action confirmed for worker phase", Response::HTTP_OK);
     }
 
-    #[Route('/game/myrmes/{idGame}/placePheromone/{tileId}/{tileType}/{orientation}',
+    #[Route('/game/myrmes/{idGame}/placePheromone/{tileId}/{tileType}/{orientation}/{antCoordX}/{antCoordY}',
         name: 'app_game_myrmes_place_pheromone')]
     public function placePheromone(
         #[MapEntity(id: 'idGame')] GameMYR  $game,
         #[MapEntity(id: 'tileId')] TileMYR  $tileMYR,
         #[MapEntity(id: 'tileType')] int    $tileType,
         #[MapEntity(id: 'orientation')] int $orientation,
+        int $antCoordX,
+        int $antCoordY
     ) : Response
     {
         if ($game->isPaused() || !$game->isLaunched()) {
@@ -992,7 +994,7 @@ class MyrmesController extends AbstractController
         }
 
         try {
-            $this->workerMYRService->placePheromone($player, $tileMYR, $tileTypeMYR);
+            $this->workerMYRService->placePheromone($player, $tileMYR, $tileTypeMYR, $antCoordX, $antCoordY);
         }catch (Exception $e) {
             $this->logService->sendPlayerLog($game, $player,
                 $player->getUsername() . " a essayé de placer la phéromone de type " . $tileTypeMYR->getType()

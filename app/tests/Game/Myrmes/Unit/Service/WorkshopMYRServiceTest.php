@@ -42,6 +42,8 @@ class WorkshopMYRServiceTest extends TestCase
 
     private MYRService $MYRService;
 
+    private PlayerResourceMYRRepository $playerResourceMYRRepository;
+
     private NurseMYRRepository $nurseMYRRepository;
 
     private AnthillHoleMYRRepository $anthillHoleMYRRepository;
@@ -56,7 +58,7 @@ class WorkshopMYRServiceTest extends TestCase
         $food = new ResourceMYR();
         $food->setDescription(MyrmesParameters::RESOURCE_TYPE_GRASS);
         $resourceMYRRepository->method("findOneBy")->willReturn($food);
-        $playerResourceMYRRepository = $this->getMockBuilder(PlayerResourceMYRRepository::class)
+        $this->playerResourceMYRRepository = $this->getMockBuilder(PlayerResourceMYRRepository::class)
             ->setConstructorArgs([$managerRegistry])
             ->getMock();
         $playerFood = new PlayerResourceMYR();
@@ -81,11 +83,10 @@ class WorkshopMYRServiceTest extends TestCase
             ->setConstructorArgs([$managerRegistry])
             ->getMock();
         $this->MYRService = $this->createMock(MYRService::class);
-
-        $playerResourceMYRRepository->method("findOneBy")->willReturn($playerFood);
+        $this->playerResourceMYRRepository->method("findOneBy")->willReturn($playerFood);
         $this->workshopMYRService = new WorkshopMYRService($entityManager, $this->MYRService, $pheromoneTileMyrRepository,
             $preyMyrRepository, $tileMYRRepository, $pheromoneMyrRepository, $resourceMYRRepository,
-            $playerResourceMYRRepository, $this->nurseMYRRepository, $this->anthillHoleMYRRepository);
+            $this->playerResourceMYRRepository, $this->nurseMYRRepository, $this->anthillHoleMYRRepository);
     }
 
     public function testGiveBonusWhenAskIncreaseLevelWhenCanIncrease() : void
@@ -317,16 +318,17 @@ class WorkshopMYRServiceTest extends TestCase
 
         $player = $game->getPlayers()->first();
         $personalBoard = $player->getPersonalBoardMYR();
+        $personalBoard->setLarvaCount(2);
 
         $array = new ArrayCollection();
         $array->add($personalBoard->getNurses()->first());
         $array->add($personalBoard->getNurses()->last());
         $this->MYRService->method("getNursesAtPosition")
             ->willReturn($array);
-
+        $this->MYRService->method("manageNursesAfterBonusGive")
+            ->willThrowException(new Exception());
         $this->nurseMYRRepository->method("findOneBy")
             ->willReturn($personalBoard->getNurses()->last());
-
         // THEN
 
         $this->expectException(\Exception::class);

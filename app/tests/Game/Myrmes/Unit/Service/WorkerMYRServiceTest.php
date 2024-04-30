@@ -323,7 +323,7 @@ class WorkerMYRServiceTest extends TestCase
         $gardenWorker->setPlayer($firstPlayer);
         $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -355,7 +355,7 @@ class WorkerMYRServiceTest extends TestCase
         $gardenWorker->setPlayer($firstPlayer);
         $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -387,7 +387,7 @@ class WorkerMYRServiceTest extends TestCase
         $gardenWorker->setPlayer($firstPlayer);
         $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -419,7 +419,7 @@ class WorkerMYRServiceTest extends TestCase
         $gardenWorker->setPlayer($firstPlayer);
         $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -451,7 +451,7 @@ class WorkerMYRServiceTest extends TestCase
         $gardenWorker->setPlayer($firstPlayer);
         $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -483,7 +483,7 @@ class WorkerMYRServiceTest extends TestCase
         $gardenWorker->setPlayer($firstPlayer);
         $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -517,7 +517,7 @@ class WorkerMYRServiceTest extends TestCase
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
     }
 
     public function testPlacePheromoneOfTypeZeroWhenTileContainPrey()
@@ -551,7 +551,7 @@ class WorkerMYRServiceTest extends TestCase
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
     }
 
     public function testPlacePheromoneOfTypeOneWithOrientation0()
@@ -581,7 +581,7 @@ class WorkerMYRServiceTest extends TestCase
         $gardenWorker->setPlayer($firstPlayer);
         $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -613,7 +613,7 @@ class WorkerMYRServiceTest extends TestCase
         $gardenWorker->setPlayer($firstPlayer);
         $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -645,7 +645,7 @@ class WorkerMYRServiceTest extends TestCase
         $gardenWorker->setPlayer($firstPlayer);
         $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -679,7 +679,7 @@ class WorkerMYRServiceTest extends TestCase
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
     }
 
     public function testPlacePheromoneOfTypeOneWhenTileContainPrey()
@@ -713,7 +713,7 @@ class WorkerMYRServiceTest extends TestCase
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
     }
 
     public function testPlacePheromoneOfTypeTwoWithOrientation0()
@@ -743,7 +743,7 @@ class WorkerMYRServiceTest extends TestCase
         $gardenWorker->setPlayer($firstPlayer);
         $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -775,7 +775,7 @@ class WorkerMYRServiceTest extends TestCase
         $gardenWorker->setPlayer($firstPlayer);
         $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -807,7 +807,7 @@ class WorkerMYRServiceTest extends TestCase
         $gardenWorker->setPlayer($firstPlayer);
         $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -839,7 +839,7 @@ class WorkerMYRServiceTest extends TestCase
         $gardenWorker->setPlayer($firstPlayer);
         $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -871,7 +871,7 @@ class WorkerMYRServiceTest extends TestCase
         $gardenWorker->setPlayer($firstPlayer);
         $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -903,7 +903,7 @@ class WorkerMYRServiceTest extends TestCase
         $gardenWorker->setPlayer($firstPlayer);
         $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -937,7 +937,7 @@ class WorkerMYRServiceTest extends TestCase
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
     }
 
     public function testPlacePheromoneOfTypeTwoWhenTileContainPrey()
@@ -971,7 +971,7 @@ class WorkerMYRServiceTest extends TestCase
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
     }
 
     public function testPlacePheromoneOfTypeThreeWithOrientation0()
@@ -1001,7 +1001,7 @@ class WorkerMYRServiceTest extends TestCase
         $gardenWorker->setPlayer($firstPlayer);
         $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -1033,7 +1033,7 @@ class WorkerMYRServiceTest extends TestCase
         $gardenWorker->setPlayer($firstPlayer);
         $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -1065,7 +1065,7 @@ class WorkerMYRServiceTest extends TestCase
         $gardenWorker->setPlayer($firstPlayer);
         $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -1097,7 +1097,7 @@ class WorkerMYRServiceTest extends TestCase
         $gardenWorker->setPlayer($firstPlayer);
         $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -1129,7 +1129,7 @@ class WorkerMYRServiceTest extends TestCase
         $gardenWorker->setPlayer($firstPlayer);
         $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -1161,7 +1161,7 @@ class WorkerMYRServiceTest extends TestCase
         $gardenWorker->setPlayer($firstPlayer);
         $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -1195,7 +1195,7 @@ class WorkerMYRServiceTest extends TestCase
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
     }
 
     public function testPlacePheromoneOfTypeThreeWhenTileContainPrey()
@@ -1229,7 +1229,7 @@ class WorkerMYRServiceTest extends TestCase
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
     }
 
     public function testPlacePheromoneOfTypeFourWithOrientation0()
@@ -1259,7 +1259,7 @@ class WorkerMYRServiceTest extends TestCase
         $gardenWorker->setPlayer($firstPlayer);
         $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -1291,7 +1291,7 @@ class WorkerMYRServiceTest extends TestCase
         $gardenWorker->setPlayer($firstPlayer);
         $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -1323,7 +1323,7 @@ class WorkerMYRServiceTest extends TestCase
         $gardenWorker->setPlayer($firstPlayer);
         $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -1355,7 +1355,7 @@ class WorkerMYRServiceTest extends TestCase
         $gardenWorker->setPlayer($firstPlayer);
         $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -1387,7 +1387,7 @@ class WorkerMYRServiceTest extends TestCase
         $gardenWorker->setPlayer($firstPlayer);
         $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -1419,7 +1419,7 @@ class WorkerMYRServiceTest extends TestCase
         $gardenWorker->setPlayer($firstPlayer);
         $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -1451,7 +1451,7 @@ class WorkerMYRServiceTest extends TestCase
         $gardenWorker->setPlayer($firstPlayer);
         $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -1483,7 +1483,7 @@ class WorkerMYRServiceTest extends TestCase
         $gardenWorker->setPlayer($firstPlayer);
         $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -1515,7 +1515,7 @@ class WorkerMYRServiceTest extends TestCase
         $gardenWorker->setPlayer($firstPlayer);
         $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -1547,7 +1547,7 @@ class WorkerMYRServiceTest extends TestCase
         $gardenWorker->setPlayer($firstPlayer);
         $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -1579,7 +1579,7 @@ class WorkerMYRServiceTest extends TestCase
         $gardenWorker->setPlayer($firstPlayer);
         $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -1611,7 +1611,7 @@ class WorkerMYRServiceTest extends TestCase
         $gardenWorker->setPlayer($firstPlayer);
         $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -1645,7 +1645,7 @@ class WorkerMYRServiceTest extends TestCase
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
     }
 
     public function testPlacePheromoneOfTypeFourWhenTileContainPrey()
@@ -1679,7 +1679,7 @@ class WorkerMYRServiceTest extends TestCase
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
     }
 
     public function testPlacePheromoneOfTypeFiveWithOrientation0()
@@ -1709,7 +1709,7 @@ class WorkerMYRServiceTest extends TestCase
         $gardenWorker->setPlayer($firstPlayer);
         $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -1741,7 +1741,7 @@ class WorkerMYRServiceTest extends TestCase
         $gardenWorker->setPlayer($firstPlayer);
         $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -1773,7 +1773,7 @@ class WorkerMYRServiceTest extends TestCase
         $gardenWorker->setPlayer($firstPlayer);
         $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -1805,7 +1805,7 @@ class WorkerMYRServiceTest extends TestCase
         $gardenWorker->setPlayer($firstPlayer);
         $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -1837,7 +1837,7 @@ class WorkerMYRServiceTest extends TestCase
         $gardenWorker->setPlayer($firstPlayer);
         $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -1869,7 +1869,7 @@ class WorkerMYRServiceTest extends TestCase
         $gardenWorker->setPlayer($firstPlayer);
         $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -1903,7 +1903,7 @@ class WorkerMYRServiceTest extends TestCase
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
     }
 
     public function testPlacePheromoneOfTypeFiveWhenTileContainPrey()
@@ -1937,7 +1937,7 @@ class WorkerMYRServiceTest extends TestCase
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
     }
 
     public function testPlacePheromoneOfTypeSixWithOrientation0()
@@ -1968,7 +1968,7 @@ class WorkerMYRServiceTest extends TestCase
         $gardenWorker->setPlayer($firstPlayer);
         $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -2001,7 +2001,7 @@ class WorkerMYRServiceTest extends TestCase
         $gardenWorker->setPlayer($firstPlayer);
         $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -2034,7 +2034,7 @@ class WorkerMYRServiceTest extends TestCase
         $gardenWorker->setPlayer($firstPlayer);
         $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -2067,7 +2067,7 @@ class WorkerMYRServiceTest extends TestCase
         $gardenWorker->setPlayer($firstPlayer);
         $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -2100,7 +2100,7 @@ class WorkerMYRServiceTest extends TestCase
         $gardenWorker->setPlayer($firstPlayer);
         $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -2133,7 +2133,7 @@ class WorkerMYRServiceTest extends TestCase
         $gardenWorker->setPlayer($firstPlayer);
         $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -2168,7 +2168,7 @@ class WorkerMYRServiceTest extends TestCase
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
     }
 
     public function testPlacePheromoneOfTypeSixWhenTileContainPrey()
@@ -2203,7 +2203,7 @@ class WorkerMYRServiceTest extends TestCase
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
     }
 
     public function testPlaceSpecialTileFarmButPlayerDoNotHaveEnoughResources() : void
@@ -2234,7 +2234,7 @@ class WorkerMYRServiceTest extends TestCase
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
     }
 
     public function testPlaceQuarryWhenPlayerHaveEnoughResources() : void
@@ -2271,7 +2271,7 @@ class WorkerMYRServiceTest extends TestCase
         }
         $this->playerResourceMYRRepository->method("findOneBy")->willReturn($playerResourceMYR);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -2304,7 +2304,7 @@ class WorkerMYRServiceTest extends TestCase
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
     }
 
     public function testPlaceSpecialTileSubAnthillWhenPlayerHaveEnoughResources() : void
@@ -2350,7 +2350,7 @@ class WorkerMYRServiceTest extends TestCase
             }
         }
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -2383,7 +2383,7 @@ class WorkerMYRServiceTest extends TestCase
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
     }
 
     public function testPlacePheromoneOfUnknownType()
@@ -2418,7 +2418,7 @@ class WorkerMYRServiceTest extends TestCase
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
     }
 
     public function testPlacePheromoneButNotEnoughLevel()
@@ -2451,7 +2451,7 @@ class WorkerMYRServiceTest extends TestCase
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
     }
 
     public function testPlaceTwoPheromoneOfTypeZero()
@@ -2485,7 +2485,7 @@ class WorkerMYRServiceTest extends TestCase
         $playerPheromone->setType($tileType);
         $firstPlayer->addPheromonMYR($playerPheromone);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -2509,7 +2509,7 @@ class WorkerMYRServiceTest extends TestCase
         $newTile->setType(MyrmesParameters::GRASS_TILE_TYPE);
         $newTile->setCoordX(1);
         $newTile->setCoordY(1);
-        $this->tileMYRRepository->method("findOneBy")->willReturn($newTile);
+        $this->tileMYRRepository->method("findOneBy")->willReturnOnConsecutiveCalls($tile, $newTile);
         $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_ZERO);
@@ -2519,7 +2519,7 @@ class WorkerMYRServiceTest extends TestCase
         $gardenWorker->setPlayer($firstPlayer);
         $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertEquals(MyrmesParameters::PHEROMONE_TYPE_LEVEL[MyrmesParameters::PHEROMONE_TYPE_ZERO] + 1,
             $firstPlayer->getScore());
@@ -2544,7 +2544,7 @@ class WorkerMYRServiceTest extends TestCase
         $newTile->setType(MyrmesParameters::WATER_TILE_TYPE);
         $newTile->setCoordX(1);
         $newTile->setCoordY(1);
-        $this->tileMYRRepository->method("findOneBy")->willReturn($newTile);
+        $this->tileMYRRepository->method("findOneBy")->willReturnOnConsecutiveCalls($tile, $newTile);
         $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_ZERO);
@@ -2556,7 +2556,7 @@ class WorkerMYRServiceTest extends TestCase
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
     }
 
     public function testCanWorkerMoveReturnTrueIfFuturePositionIsValidAndNoPreyToAttackAndEnoughShiftCount() : void

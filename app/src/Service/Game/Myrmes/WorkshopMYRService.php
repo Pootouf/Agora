@@ -283,7 +283,6 @@ class WorkshopMYRService
         }
         $nurses = $this->myrService->getNursesAtPosition($player, MyrmesParameters::WORKSHOP_AREA);
         $nursesCount = $nurses->count();
-
         switch ($selectedCraft) {
             case MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA:
                 $this->manageAnthillHole($nursesCount, $player, $tile);
@@ -602,7 +601,6 @@ class WorkshopMYRService
 
         $this->entityManager->persist($nurse);
         $this->entityManager->persist($pBoard);
-
         $this->myrService->manageNursesAfterBonusGive(
             $player, $nursesCount, MyrmesParameters::WORKSHOP_AREA
         );

@@ -967,12 +967,6 @@ class MYRService
                 "name" => MyrmesParameters::SUMMER_SEASON_NAME
             ]
         );
-        $winter = $this->seasonMYRRepository->findOneBy(
-            [
-                "mainBoard" => $mainBoard,
-                "name" => MyrmesParameters::WINTER_SEASON_NAME
-            ]
-        );
         if ($actualSeason->getName() === MyrmesParameters::SPRING_SEASON_NAME) {
             $summer->setActualSeason(true);
             $this->entityManager->persist($summer);
@@ -982,10 +976,6 @@ class MYRService
             $fall->setActualSeason(true);
             $this->entityManager->persist($fall);
             $this->initializeEventBonus($game);
-            $this->entityManager->persist($game);
-        } elseif ($actualSeason->getName() === MyrmesParameters::FALL_SEASON_NAME) {
-            $winter->setActualSeason(true);
-            $this->entityManager->persist($winter);
             $this->entityManager->persist($game);
         }
         $actualSeason->setActualSeason(false);
@@ -1002,10 +992,10 @@ class MYRService
     {
         $this->clearSeasons($game);
         $yearNum = $game->getMainBoardMYR()->getYearNum();
-        $game->getMainBoardMYR()->setYearNum($yearNum + 1);
-        if ($yearNum > MyrmesParameters::THIRD_YEAR_NUM) {
+        if ($yearNum + 1 > MyrmesParameters::THIRD_YEAR_NUM) {
             return;
         }
+        $game->getMainBoardMYR()->setYearNum($yearNum + 1);
         $this->initializeNewSeason($game, MyrmesParameters::SPRING_SEASON_NAME);
         $this->initializeNewSeason($game, MyrmesParameters::SUMMER_SEASON_NAME);
         $this->initializeNewSeason($game, MyrmesParameters::FALL_SEASON_NAME);

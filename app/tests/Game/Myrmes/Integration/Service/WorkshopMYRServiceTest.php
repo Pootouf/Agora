@@ -261,9 +261,9 @@ class WorkshopMYRServiceTest extends KernelTestCase
         $player = $game->getPlayers()->first();
         $player->setPhase(MyrmesParameters::PHASE_WORKSHOP);
         $nurse = $player->getPersonalBoardMYR()->getNurses()->first();
-        $nurse->setArea(MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA);
+        $nurse->setArea(MyrmesParameters::WORKSHOP_AREA);
         $nurse2 = $player->getPersonalBoardMYR()->getNurses()->last();
-        $nurse2->setArea(MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA);
+        $nurse2->setArea(MyrmesParameters::WORKSHOP_AREA);
         $tile = $this->tileMYRRepository->findOneBy(["coordX" => 7, "coordY" => 12]);
         $pheromone = new PheromonMYR();
         $pheromone->setPlayer($player);
@@ -301,7 +301,7 @@ class WorkshopMYRServiceTest extends KernelTestCase
         $player = $game->getPlayers()->first();
         $player->setPhase(MyrmesParameters::PHASE_WORKSHOP);
         $nurse = $player->getPersonalBoardMYR()->getNurses()->first();
-        $nurse->setArea(MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA);
+        $nurse->setArea(MyrmesParameters::WORKSHOP_AREA);
         $tile = $this->tileMYRRepository->findOneBy(["coordX" => 7, "coordY" => 12]);
         $pheromone = new PheromonMYR();
         $pheromone->setPlayer($player);
@@ -347,7 +347,7 @@ class WorkshopMYRServiceTest extends KernelTestCase
         $player = $game->getPlayers()->first();
         $player->setPhase(MyrmesParameters::PHASE_WORKSHOP);
         $nurse = $player->getPersonalBoardMYR()->getNurses()->first();
-        $nurse->setArea(MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA);
+        $nurse->setArea(MyrmesParameters::WORKSHOP_AREA);
         $tile = $this->tileMYRRepository->findOneBy(
             ["coordX" => 7, "coordY" => 12]);
         $pheromone = new PheromonMYR();
