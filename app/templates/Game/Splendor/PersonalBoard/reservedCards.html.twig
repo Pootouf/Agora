@@ -18,7 +18,7 @@
                 }}
                 {% if not needToPlay %}
                 disabled
-                {% endif %}class="hover:-translate-y-[100%] hover:scale-y-150 hover:scale-x-[1.4] transition ease-in-out delay-100">
+                {% endif %}class="w-[20vw] hover:-translate-y-[100%] hover:scale-y-150 hover:scale-x-[1.4] transition ease-in-out delay-100">
             <img
                     {% set shadowColor = 'red-800' %}
                     {% for purchasableCard in purchasableCardsOnPersonalBoard|filter(purchasableCard => purchasableCard == playerCard.developmentCard) %}
