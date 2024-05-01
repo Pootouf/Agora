@@ -14,7 +14,8 @@ This section displays the main board that every player and spectator can see
 
 <div
      class="absolute top-0 left-0 w-full h-full bg-black bg-opacity-70 flex text-white items-center justify-center">
-    <div class="bg-gradient-to-b from-green-950 to-yellow-900 rounded-lg w-full h-full flex flex-row justify-center items-center">
+    <div class="bg-gradient-to-b from-green-950 to-yellow-900 rounded-lg w-full h-full flex flex-row
+                justify-center items-center">
         <div class="flex justify-center items-center font-bold w-[70%] h-[80%] pb-4">
              {{ include('Game/Myrmes/MainBoard/displayBoardBoxes.html.twig') }}
         </div>
@@ -71,7 +72,7 @@ This section displays the main board that every player and spectator can see
                                 })
                             }}
                         {% endif %}
-                        >
+                >
                     <img class="w-[8vw]"
                          src="{{ asset('resourcesGames/Myrmes/sacrificeLarvaeButton.svg') }}"
                          alt="sacrifice three larvae to get one food">
@@ -84,7 +85,8 @@ This section displays the main board that every player and spectator can see
                                 {idGame: game.id})
                             })
                         }}
-                        class="bg-[#8F901F] py-2 px-3 rounded-lg text-2xl enabled:hover:bg-[#3e3f0d] disabled:opacity-50"
+                        class="bg-[#8F901F] py-2 px-3 rounded-lg text-2xl enabled:hover:bg-[#3e3f0d] disabled:opacity-50
+                                disabled:cursor-not-allowed"
                 >
                     Objectifs
                 </button>

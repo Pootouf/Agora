@@ -41,16 +41,28 @@
             {% block chat %}
                 {{ include('/Game/Utils/chat.html.twig') }}
             {% endblock %}
+            {% block notification %}
+                <div id="notificationsContainer"
+                     class="absolute space-y-2 landscape:sm:w-[27%] portrait:w-[30%] landscape:lg:w-[20%]
+					 		top-0 right-0 z-[60]">
+                </div>
+                {{ include('/Game/Utils/notification.html.twig') }}
+            {% endblock %}
         </div>
     </div>
 
+    <script type="text/javascript" src="{{ asset('resourcesGames/utils/ingameNotification.js') }}"></script>
     <script type="text/javascript" src="{{ asset('scripts/GameFactory/queue.js') }}"></script>
     <script type="text/javascript" src="{{ asset('scripts/Myrmes/queueWorkerPhase.js') }}"></script>
 
     <script>
-        {#{% if needToPlay %}
-        alert("A toi de jouer ! ");
-        {% endif %}#}
+        document.addEventListener('DOMContentLoaded', () => {
+            {% if needToPlay %}
+            new GameNotification(10, 'C\'est votre tour !', 'Jouez votre meilleur coup !', 'ringing', 'yellow');
+            {% else %}
+            new GameNotification(5, 'C\'est au tour d\'un autre joueur !', '', 'info', 'green');
+            {% endif %}
+        })
 
         window.currentTileMode = 1;
     </script>
@@ -60,9 +72,11 @@
         {% set personalBoardPath = path('app_game_show_myr', {'id': game.id}) ~ 'personalBoard' ~ player.id %}
         const eventSourcePersonalBoard = new EventSource("{{ mercure(personalBoardPath)|escape('js') }}");
         eventSourcePersonalBoard.onmessage = event => {
-            const index = document.getElementById('index_myrmes');
-            closeWindow();
-            index.innerHTML += event.data;
+            let personalBoard = document.getElementById('personalBoard');
+            let placeholder = document.createElement("div");
+            placeholder.innerHTML = event.data;
+            personalBoard.replaceChild(
+                    placeholder.firstElementChild.firstElementChild, personalBoard.firstElementChild);
         }
     </script>
 
@@ -132,6 +146,11 @@
             if (objectives != null) {
                 objectives.remove();
                 document.getElementById('objectives_button').removeAttribute('disabled');
+                if (window.currentTileMode === 3) {
+                    document.querySelectorAll('.selectedPheromoneTile').forEach(element => {
+                        element.classList.remove('selectedPheromoneTile');
+                    })
+                }
                 window.currentTileMode = 1;
             }
         }
@@ -148,6 +167,21 @@
                 tile.classList.add("fill-[rgba(255,_255,_255,_0.35)]")
                 tile.classList.add("displayedActionsTile")
         }
+
+        {% if isSpectator %}
+        {% set path = path('app_game_show_myr', {'id': game.id}) ~ 'notification' %}
+        {% else %}
+        {% set path = path('app_game_show_myr', {'id': game.id}) ~ 'notification' ~ player.username %}
+        {% endif %}
+
+        const eventSourceNotification = new EventSource("{{ mercure(path)|escape('js') }}");
+        eventSourceNotification.onmessage = event => {
+            let data = event.data.split('_');
+            if (data.length >= 5 ) {
+                new GameNotification(Number(data[0]), data[1], data[2], data[3], data[4]);
+            }
+        }
+
     </script>
 
     {# TILE POSITIONING MANAGEMENT #}
@@ -206,6 +240,97 @@
             document.getElementById('ObjectSelectionList').parentElement.appendChild(divClone)
             document.getElementById('ObjectSelectionList').classList.add('hidden')
         }
+
+        {# INTERACTIVE GOALS MANAGEMENT #}
+
+        window.goalNeededResources = 0;
+
+        /**
+         * updateOtherRange: used only for the stone or dirt goal to update the value of the other range input
+         * @param range
+         */
+        function updateOtherRange(range) {
+            const stoneRange = document.getElementById("stone-range");
+            const dirtRange = document.getElementById("dirt-range");
+            const stoneQuantitySelected = document.getElementById("stoneQuantitySelected");
+            const dirtQuantitySelected = document.getElementById("dirtQuantitySelected");
+            const otherRange = range === stoneRange ? dirtRange : stoneRange;
+            const totalQuantityNeeded = range.parentNode.parentElement.dataset.totalQuantityNeeded;
+
+            otherRange.value = totalQuantityNeeded - parseInt(range.value);
+
+            stoneQuantitySelected.textContent = stoneRange.value;
+            dirtQuantitySelected.textContent = dirtRange.value;
+        }
+
+        /**
+         * initTilesSelectionForGoal: initialize variables for pheromones / special tile goal
+         * @param tilesOwned
+         * @param neededResources
+         */
+        function initTilesSelectionForGoal(tilesOwned, neededResources) {
+            window.currentTileMode = 3;
+            window.goalNeededResources = neededResources;
+            window.goalPheromonesSelected = [];
+            window.goalTilesOwned = {};
+
+            tilesOwned.split('___').forEach(value => {
+                let valueSplit = value.split('__');
+                window.goalTilesOwned[valueSplit[0]] = valueSplit[1].split('_');
+            });
+        }
+
+        /**
+         * getOwnedPheromoneIdFromBoardBoxTileId: return the id (key) of the pheromone from the id of one of his tile
+         * @param BoardBoxTileId
+         * @returns {string|null}
+         */
+        function getOwnedPheromoneIdFromBoardBoxTileId(BoardBoxTileId) {
+            const entries = Object.entries(window.goalTilesOwned);
+            for (let [key, value] of entries) {
+                if (value.includes(BoardBoxTileId.toString())) {
+                    return key;
+                }
+            }
+            return null;
+        }
+
+        /**
+         * updateGoalMenuData: update information on the goal menu and change the state of the validation button
+         */
+        function updateGoalMenuData() {
+            document.getElementById('TileSelectionLeft').textContent =
+                    `${window.goalNeededResources - window.goalPheromonesSelected.length}`;
+
+            if (window.goalNeededResources - window.goalPheromonesSelected.length === 0) {
+                document.getElementById('PheromoneAndSpecialTileValidation').removeAttribute('disabled');
+            } else {
+                document.getElementById('PheromoneAndSpecialTileValidation').setAttribute('disabled', '');
+            }
+        }
+
+        /**
+         * pheromoneSelectedForGoal: add / remove a pheromone from the selected list for the goal
+         * @param pheromoneId
+         */
+        function pheromoneSelectedForGoal(pheromoneId) {
+            let pheromoneIdIndex= window.goalPheromonesSelected.indexOf(pheromoneId);
+            if (pheromoneIdIndex !== -1) {
+                window.goalTilesOwned[pheromoneId].forEach(value => {
+                    let tileElement = document.getElementById(`${value}-clickable-zone`)
+                    tileElement.parentElement.classList.remove('selectedPheromoneTile');
+                });
+                window.goalPheromonesSelected.splice(pheromoneIdIndex, 1);
+            } else if (window.goalPheromonesSelected.length < window.goalNeededResources){
+                window.goalTilesOwned[pheromoneId].forEach(value => {
+                    let tileElement = document.getElementById(`${value}-clickable-zone`)
+                    tileElement.parentElement.classList.add('selectedPheromoneTile');
+                });
+                window.goalPheromonesSelected.push(pheromoneId);
+            }
+            updateGoalMenuData();
+        }
+
     </script>
 
     {% if game.gamePhase == PHASE_WORKER %}

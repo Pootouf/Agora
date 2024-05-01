@@ -161,6 +161,14 @@ interface MyrmesParameters
 
     // Pheromone Type
 
+    const array PHEROMONE_TYPES = [MyrmesParameters::PHEROMONE_TYPE_ZERO,
+        MyrmesParameters::PHEROMONE_TYPE_ONE,
+        MyrmesParameters::PHEROMONE_TYPE_TWO,
+        MyrmesParameters::PHEROMONE_TYPE_THREE,
+        MyrmesParameters::PHEROMONE_TYPE_FOUR,
+        MyrmesParameters::PHEROMONE_TYPE_FIVE,
+        MyrmesParameters::PHEROMONE_TYPE_SIX];
+
     const int PHEROMONE_TYPE_ZERO = 0;
     const int PHEROMONE_TYPE_ONE = 1;
     const int PHEROMONE_TYPE_TWO = 2;
@@ -388,7 +396,7 @@ interface MyrmesParameters
     const int GOAL_NEEDED_RESOURCES_REMOVED_ANTHILL_LEVEL_LEVEL_THREE = 2;
 
     // Goal Special Tile
-    const int GOAL_NEEDED_RESOURCES_NEEDED_SPECIAL_TILE_LEVEL_ONE = 3;
+    const int GOAL_NEEDED_RESOURCES_NEEDED_SPECIAL_TILE_LEVEL_ONE = 2;
     const int GOAL_NEEDED_RESOURCES_REMOVED_SPECIAL_TILE_LEVEL_ONE = 1;
     const int GOAL_NEEDED_RESOURCES_NEEDED_SPECIAL_TILE_LEVEL_TWO = 3;
     const int GOAL_NEEDED_RESOURCES_REMOVED_SPECIAL_TILE_LEVEL_TWO = 2;
@@ -415,4 +423,7 @@ interface MyrmesParameters
     const int SCORE_INCREASE_GOAL_DIFFICULTY_ONE = 6;
     const int SCORE_INCREASE_GOAL_DIFFICULTY_TWO = 9;
     const int SCORE_INCREASE_GOAL_DIFFICULTY_THREE = 12;
+
+    //NOTIFICATIONS
+    const int NOTIFICATION_DURATION = 10;
 }

@@ -42,7 +42,7 @@ class MYRService
                 private readonly SeasonMYRRepository $seasonMYRRepository,
                 private readonly GoalMYRRepository $goalMYRRepository,
                 private readonly ResourceMYRRepository $resourceMYRRepository,
-                private readonly PlayerResourceMYRRepository $playerResourceMYRRepository)
+                private readonly PlayerResourceMYRRepository $playerResourceMYRRepository,)
     {
 
     }
