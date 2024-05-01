@@ -72,8 +72,24 @@ class BoardRepository extends ServiceEntityRepository
         }
 
         if (!empty($search->datecreation)) {
-            $query->andWhere('b.creationDate = :creationdate')
-                ->setParameter('creationdate', $search->datecreation);
+            if (!empty($search->dateselection) && $search->dateselection === 'before') {
+                // Option: Date avant
+                $query->andWhere('b.creationDate < :creationdate')
+                    ->setParameter('creationdate', $search->datecreation);
+            } elseif (!empty($search->dateselection) && $search->dateselection === 'after') {
+                // Option: Date après
+                $query->andWhere('b.creationDate > :creationdate')
+                    ->setParameter('creationdate', $search->datecreation);
+            } elseif (!empty($search->dateselection) && $search->dateselection === 'between' && !empty($search->datecreationplus)) {
+                // Option: Entre les dates
+                $query->andWhere('b.creationDate BETWEEN :start_date AND :end_date')
+                    ->setParameter('start_date', $search->datecreation)
+                    ->setParameter('end_date', $search->datecreationplus);
+
+            }else {
+                $query->andWhere('b.creationDate = :creationdate')
+                    ->setParameter('creationdate', $search->datecreation);
+            }
         }
 
         if (!empty($search->game)) {
@@ -108,8 +124,24 @@ class BoardRepository extends ServiceEntityRepository
         }
 
         if (!empty($search->datecreation)) {
-            $query->andWhere('b.creationDate = :creationdate')
-                ->setParameter('creationdate', $search->datecreation);
+            if (!empty($search->dateselection) && $search->dateselection === 'before') {
+                // Option: Date avant
+                $query->andWhere('b.creationDate < :creationdate')
+                    ->setParameter('creationdate', $search->datecreation);
+            } elseif (!empty($search->dateselection) && $search->dateselection === 'after') {
+                // Option: Date après
+                $query->andWhere('b.creationDate > :creationdate')
+                    ->setParameter('creationdate', $search->datecreation);
+            } elseif (!empty($search->dateselection) && $search->dateselection === 'between' && !empty($search->datecreationplus)) {
+                // Option: Entre les dates
+                $query->andWhere('b.creationDate BETWEEN :start_date AND :end_date')
+                    ->setParameter('start_date', $search->datecreation)
+                    ->setParameter('end_date', $search->datecreationplus);
+
+            }else {
+                $query->andWhere('b.creationDate = :creationdate')
+                    ->setParameter('creationdate', $search->datecreation);
+            }
         }
 
             $query->andWhere('b.game = :game')
