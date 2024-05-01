@@ -145,8 +145,25 @@ class WinterMYRService
         }
         foreach($gameMYR->getPlayers() as $player) {
             $this->retrievePoints($player);
+            $this->myrService->setPhase($player, MyrmesParameters::PHASE_EVENT);
         }
         $this->myrService->manageEndOfRound($gameMYR);
+    }
+
+    /**
+     * beginWinter: begin the winter phase, and end it if no player can throw resources
+     * @param GameMYR $game
+     * @return void
+     * @throws Exception
+     */
+    public function beginWinter(GameMYR $game) : void
+    {
+        if ($game->getGamePhase() != MyrmesParameters::PHASE_WINTER) {
+            return;
+        }
+        if ($this->canManageEndOfWinter($game)) {
+            $this->manageEndOfWinter($game);
+        }
     }
 
     /**

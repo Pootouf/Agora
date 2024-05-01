@@ -124,7 +124,7 @@ class MYRGameManagerService extends AbstractGameManagerService
     {
         $game = $this->getGameMyrmesFromGame($game);
         if ($game == null) {
-            return MYRGameManagerService::ERROR_INVALID_GAME;
+            return AbstractGameManagerService::ERROR_INVALID_GAME;
         }
         foreach ($game->getPlayers() as $player) {
             foreach ($player->getPreyMYRs() as $prey) {
@@ -145,11 +145,14 @@ class MYRGameManagerService extends AbstractGameManagerService
         foreach ($game->getMainBoardMYR()->getGameGoalsLevelThree() as $goal) {
             $this->entityManager->remove($goal);
         }
+        $game->setFirstPlayer(null);
+        $this->entityManager->persist($game);
+        $this->entityManager->flush();
         $this->entityManager->remove($game->getMainBoardMYR());
         $this->logService->sendSystemLog($game, GameTranslation::GAME_STRING . $game->getId() . " a pris fin");
         $this->entityManager->remove($game);
         $this->entityManager->flush();
-        return MYRGameManagerService::SUCCESS;
+        return AbstractGameManagerService::SUCCESS;
     }
 
     /**

@@ -51,6 +51,16 @@ class WorkerMYRService
     {}
 
     /**
+     * getNumberOfGardenWorkerOfPlayer: return the number of garden worker of the player
+     * @param PlayerMYR $player
+     * @return int
+     */
+    public function getNumberOfGardenWorkerOfPlayer(PlayerMYR $player) : int
+    {
+        return $player->getGardenWorkerMYRs()->count();
+    }
+
+    /**
      * getAvailablePheromones : returns a collection (type, amount, orientations) of all tile types for a player
      *
      * @param PlayerMYR $playerMYR
@@ -152,10 +162,16 @@ class WorkerMYRService
      * @param int $coordY
      * @param GameMYR $gameMYR
      * @param PlayerMYR $player
+     * @param array<array<int, int>> $cleanedTiles
      * @return int
      */
-    public function getNeededSoldiers(int $coordX, int $coordY, GameMYR $gameMYR, PlayerMYR $player): int
+    public function getNeededSoldiers(
+        int $coordX, int $coordY, GameMYR $gameMYR, PlayerMYR $player, array $cleanedTiles
+    ): int
     {
+        if (in_array([$coordX, $coordY], $cleanedTiles)) {
+            return 0;
+        }
         $tile = $this->tileMYRRepository->findOneBy([
             "coordY" => $coordY,
             "coordX" => $coordX
@@ -172,6 +188,31 @@ class WorkerMYRService
 
         return ($prey == null ? 0 : MyrmesParameters::NUMBER_SOLDIERS_FOR_ATTACK_PREY[$prey->getType()])
             + $soldiersForPheromone;
+    }
+
+    /**
+     * isPreyOnTile: indicate if there is a prey on the tile at the selected coordinates, taking into account
+     *               the cleaned tiles
+     * @param int $coordX
+     * @param int $coordY
+     * @param GameMYR $game
+     * @param array $cleanedTiles
+     * @return bool
+     */
+    public function isPreyOnTile(int $coordX, int $coordY, GameMYR $game, array $cleanedTiles): bool
+    {
+        if (in_array([$coordX, $coordY], $cleanedTiles)) {
+            return false;
+        }
+        $tile = $this->tileMYRRepository->findOneBy([
+            "coordY" => $coordY,
+            "coordX" => $coordX
+        ]);
+        if($tile == null) {
+            throw new InvalidArgumentException("Not a valid tile, can't identify if there is a prey on it");
+        }
+        $prey = $this->getPrey($game, $tile);
+        return $prey != null;
     }
 
     /**
@@ -417,6 +458,13 @@ class WorkerMYRService
         ]);
         if(!$ant) {
             throw new Exception('No more free ants');
+        }
+        $antInFloor = $this->anthillWorkerMYRRepository->findOneBy([
+            'personalBoardMYR' => $personalBoard,
+            'workFloor' => $anthillFloor
+        ]);
+        if ($antInFloor) {
+            throw new Exception('Already an ant at this position');
         }
         $ant->setWorkFloor($anthillFloor);
         $this->entityManager->persist($ant);

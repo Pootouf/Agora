@@ -189,19 +189,32 @@ async function isValidPositionForAnt(coord) {
 }
 
 /**
+ * managePreyOnTile: add the coord object in the cleaned tiles if there is a prey on tile at coord coordinates
+ * @param coord
+ * @returns {Promise<void>}
+ */
+async function managePreyOnTile(coord) {
+    let response = await fetch(url + "/moveAnt/isPrey/"
+        + coord.x + "/" + coord.y + "/" + getCleanedTilesString())
+    let bool = parseInt(await response.text())
+    if (bool === 1) {
+        cleanedTiles.push(coord)
+    }
+}
+
+/**
  * manageSoldierOfPlayer: remove the needed number of soldier for the ant to move on the selected tile
  * @throws InvalidSoldierNumberException if the player can't afford the cost
  * @param coord
  * @returns {Promise<void>}
  */
 async function manageSoldierOfPlayer(coord) {
-    let response = await fetch(url + "/moveAnt/neededResources/soldierNb/" + coord.x + "/" + coord.y)
+    await managePreyOnTile(coord);
+    let response = await fetch(url + "/moveAnt/neededResources/soldierNb/"
+        + coord.x + "/" + coord.y + "/" + getCleanedTilesString())
     let soldier = parseInt(await response.text())
     if (soldierNumber < spentSoldier + soldier) {
         throw new InvalidSoldierNumberException()
-    }
-    if (soldier > 0) {
-        cleanedTiles.push(coord)
     }
     spentSoldier += soldier
 }
@@ -236,7 +249,7 @@ async function canPlayerCleanPheromone() {
  * @returns {Promise<void>}
  */
 async function managePheromoneCleanedTiles() {
-    let response = await fetch(url + "/moveAnt/getPheromoneTiles/coords/givenTile"
+    let response = await fetch(url + "/moveAnt/getPheromoneTiles/coords/givenTile/"
         + antPosition.x + "/" + antPosition.y)
     let stringCoords = await response.text()
     let coordTiles = stringCoords.split(" ")

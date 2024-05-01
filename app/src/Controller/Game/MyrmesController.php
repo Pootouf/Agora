@@ -664,12 +664,13 @@ class MyrmesController extends AbstractController
             null, false, false);
     }
 
-    #[Route('/game/myrmes/{gameId}/moveAnt/neededResources/soldierNb/{coordX}/{coordY}',
+    #[Route('/game/myrmes/{gameId}/moveAnt/neededResources/soldierNb/{coordX}/{coordY}/{cleanedTilesString}',
         name:'app_game_myrmes_needed_soldiers_to_move')]
     public function neededSoldiersToMove(
         #[MapEntity(id: 'gameId')] GameMYR $game,
         int                                $coordX,
-        int                                $coordY
+        int                                $coordY,
+        string                             $cleanedTilesString
     ): Response
     {
         if ($game->isPaused() || !$game->isLaunched()) {
@@ -679,9 +680,35 @@ class MyrmesController extends AbstractController
         if ($player == null) {
             return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
         }
+        $cleanedTiles = $this->dataManagementMYRService->getListOfCoordinatesFromString($cleanedTilesString);
         try {
-            return new Response($this->workerMYRService->getNeededSoldiers($coordX, $coordY, $game, $player));
-        } catch (Exception $e) {
+            return new Response($this->workerMYRService->getNeededSoldiers(
+                $coordX, $coordY, $game, $player, $cleanedTiles
+            ));
+        } catch (Exception) {
+            return new Response("can't get needed soldiers, invalid tile",
+                Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    #[Route('/game/myrmes/{gameId}/moveAnt/isPrey/{coordX}/{coordY}/{cleanedTilesString}',
+        name:'app_game_myrmes_is_prey_on_tile')]
+    public function isPreyOnTile(
+        #[MapEntity(id: 'gameId')] GameMYR $game,
+        int                                $coordX,
+        int                                $coordY,
+        string                             $cleanedTilesString
+    ): Response
+    {
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
+        $cleanedTiles = $this->dataManagementMYRService->getListOfCoordinatesFromString($cleanedTilesString);
+        try {
+            return new Response($this->workerMYRService->isPreyOnTile(
+                $coordX, $coordY, $game, $cleanedTiles
+            ));
+        } catch (Exception) {
             return new Response("can't get needed soldiers, invalid tile",
                 Response::HTTP_INTERNAL_SERVER_ERROR);
         }
@@ -840,11 +867,6 @@ class MyrmesController extends AbstractController
                 Response::HTTP_FORBIDDEN);
         }
 
-        $this->service->setNextPlayerTurn($player);
-        if ($this->service->getNumberOfFreeWorkerOfPlayer($player) <= 0) {
-            $this->service->setPhase($player, MyrmesParameters::PHASE_HARVEST);
-        }
-
         return new Response("Pheromone cleaned");
     }
 
@@ -954,7 +976,9 @@ class MyrmesController extends AbstractController
             return new Response(MyrmesTranslation::RESPONSE_NOT_IN_WORKER_PHASE, Response::HTTP_FORBIDDEN);
         }
 
-        $this->workerMYRService->killPlayerGardenWorker($player);
+        if ($this->workerMYRService->getNumberOfGardenWorkerOfPlayer($player) > 0) {
+            $this->workerMYRService->killPlayerGardenWorker($player);
+        }
 
         try {
             $this->managePlayerEndOfRoundWorkerPhase($player, $game);
@@ -1074,9 +1098,9 @@ class MyrmesController extends AbstractController
         if($this->service->canOnePlayerDoWorkshopPhase($game)) {
             $this->service->setPhase($player, MyrmesParameters::PHASE_WORKSHOP);
         } elseif($this->winterMYRService->canSetPhaseToWinter($game)) {
-                $this->service->setPhase($player, MyrmesParameters::PHASE_WINTER);
+            $this->service->setPhase($player, MyrmesParameters::PHASE_WINTER);
+            $this->winterMYRService->beginWinter($game);
         } else {
-            $this->service->manageEndOfRound($game);
             $this->service->setPhase($player, MyrmesParameters::PHASE_EVENT);
         }
 
@@ -1228,18 +1252,21 @@ class MyrmesController extends AbstractController
             return new Response("Not in phase workshop, can't end it", Response::HTTP_FORBIDDEN);
         }
 
-        if ($this->winterMYRService->canSetPhaseToWinter($game)) {
-            $player->setPhase(MyrmesParameters::PHASE_WINTER);
-        } else {
-            $player->setPhase(MyrmesParameters::PHASE_EVENT);
-        }
-
         $this->service->setNextPlayerTurn($player);
 
+        if ($this->winterMYRService->canSetPhaseToWinter($game)) {
+            $this->service->setPhase($player, MyrmesParameters::PHASE_WINTER);
+            $this->winterMYRService->beginWinter($game);
+        } else {
+            $this->service->setPhase($player, MyrmesParameters::PHASE_EVENT);
+        }
+
         if (!$this->service->canOnePlayerDoWorkshopPhase($game)) {
+            $canGoToWinter = $this->winterMYRService->canSetPhaseToWinter($game);
             foreach ($game->getPlayers() as $player) {
-                if($this->winterMYRService->canSetPhaseToWinter($game)) {
+                if($canGoToWinter) {
                     $this->service->setPhase($player, MyrmesParameters::PHASE_WINTER);
+                    $this->winterMYRService->beginWinter($game);
                 } else {
                     $this->service->setPhase($player, MyrmesParameters::PHASE_EVENT);
                 }
@@ -1438,7 +1465,9 @@ class MyrmesController extends AbstractController
                 MyrmesParameters::WORKSHOP_AREA
             )->count(),
             'hasSelectedAnthillHolePlacement' => $hasSelectedAnthillHolePlacement,
-            'availableLarvae' => $this->service->getAvailableLarvae($player)
+            'availableLarvae' => $this->service->getAvailableLarvae($player),
+            'hasFinishedObligatoryHarvesting' => $player == null
+                || $this->harvestMYRService->areAllPheromonesHarvested($player),
         ]);
     }
 

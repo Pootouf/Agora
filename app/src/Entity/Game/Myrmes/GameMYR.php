@@ -35,7 +35,7 @@ class GameMYR extends Game
         return $this->firstPlayer;
     }
 
-    public function setFirstPlayer(PlayerMYR $firstPlayer): static
+    public function setFirstPlayer(?PlayerMYR $firstPlayer): static
     {
         $this->firstPlayer = $firstPlayer;
 
