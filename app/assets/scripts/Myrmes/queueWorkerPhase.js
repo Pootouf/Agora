@@ -61,6 +61,11 @@ function initQueue(baseUrl,
     url = baseUrl
     soldierNumber = playerSoldierNumber
     dirtNumber = playerDirtNumber
+    movementPoints = 0
+    antPosition = {x: 0, y: 0}
+    cleanedTiles = []
+    spentDirt = 0
+    spentSoldier = 0
 }
 
 /**
@@ -85,7 +90,6 @@ async function move(direction) {
         return;
     }
     await manageMovementPointsOfPlayer(previousCoord, coord)
-    cleanedTiles.push(coord)
     antPosition = coord
     queue.push(action)
     await refreshMainBoard()
@@ -185,13 +189,29 @@ async function isValidPositionForAnt(coord) {
 }
 
 /**
+ * managePreyOnTile: add the coord object in the cleaned tiles if there is a prey on tile at coord coordinates
+ * @param coord
+ * @returns {Promise<void>}
+ */
+async function managePreyOnTile(coord) {
+    let response = await fetch(url + "/moveAnt/isPrey/"
+        + coord.x + "/" + coord.y + "/" + getCleanedTilesString())
+    let bool = parseInt(await response.text())
+    if (bool === 1) {
+        cleanedTiles.push(coord)
+    }
+}
+
+/**
  * manageSoldierOfPlayer: remove the needed number of soldier for the ant to move on the selected tile
  * @throws InvalidSoldierNumberException if the player can't afford the cost
  * @param coord
  * @returns {Promise<void>}
  */
 async function manageSoldierOfPlayer(coord) {
-    let response = await fetch(url + "/moveAnt/neededResources/soldierNb/" + coord.x + "/" + coord.y)
+    await managePreyOnTile(coord);
+    let response = await fetch(url + "/moveAnt/neededResources/soldierNb/"
+        + coord.x + "/" + coord.y + "/" + getCleanedTilesString())
     let soldier = parseInt(await response.text())
     if (soldierNumber < spentSoldier + soldier) {
         throw new InvalidSoldierNumberException()
@@ -229,7 +249,7 @@ async function canPlayerCleanPheromone() {
  * @returns {Promise<void>}
  */
 async function managePheromoneCleanedTiles() {
-    let response = await fetch(url + "/moveAnt/getPheromoneTiles/coords/givenTile"
+    let response = await fetch(url + "/moveAnt/getPheromoneTiles/coords/givenTile/"
         + antPosition.x + "/" + antPosition.y)
     let stringCoords = await response.text()
     let coordTiles = stringCoords.split(" ")
@@ -314,7 +334,6 @@ function directionByAction(action) {
  * @returns {Promise<void>}
  */
 async function rewindQueueWorkerPhase(queue) {
-    alert("test")
     while (!queue.isEmpty()) {
         const action = queue.shift();
         let routeUrl = url;
@@ -323,7 +342,6 @@ async function rewindQueueWorkerPhase(queue) {
             routeUrl += '/moveAnt/direction/' + dir;
             await fetch(routeUrl);
         } else if (action.startsWith('HOLE')) {
-            alert("test2")
             routeUrl += '/placeWorkerOnAntHillHole/' + action.split('_').pop();
             await fetch(routeUrl);
         } else {

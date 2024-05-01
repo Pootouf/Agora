@@ -2849,7 +2849,7 @@ class MYRControllerTest extends WebTestCase
         $player = $game->getPlayers()->first();
         $player->setPhase(MyrmesParameters::PHASE_WORKSHOP);
         $this->entityManager->persist($player);
-        $player->getPersonalBoardMYR()->getNurses()->first()->setArea(MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA);
+        $player->getPersonalBoardMYR()->getNurses()->first()->setArea(MyrmesParameters::WORKSHOP_AREA);
         $this->entityManager->persist($player->getPersonalBoardMYR()->getNurses()->first());
         $this->entityManager->flush();
         $anthillHole = $player->getAnthillHoleMYRs()->first();
@@ -2870,7 +2870,7 @@ class MYRControllerTest extends WebTestCase
         /** @var GameMYR $game */
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
         $game->setLaunched(false);
-        $url = "/Game/" . $gameId . "/increaseAnthillLevel";
+        $url = "/game/myrmes/" . $gameId . "/workshop/increaseAnthillLevel";
         //WHEN
         $this->client->request("GET", $url);
         // THEN
@@ -2885,7 +2885,7 @@ class MYRControllerTest extends WebTestCase
         /** @var GameMYR $game */
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
         $game->setPaused(true);
-        $url = "/Game/" . $gameId . "/increaseAnthillLevel";
+        $url = "/game/myrmes/" . $gameId . "/workshop/increaseAnthillLevel";
         //WHEN
         $this->client->request("GET", $url);
         // THEN
@@ -2899,7 +2899,7 @@ class MYRControllerTest extends WebTestCase
         $gameId = $this->initializeGameWithTwoPlayers();
         /** @var GameMYR $game */
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
-        $url = "/Game/" . $gameId . "/increaseAnthillLevel";
+        $url = "/game/myrmes/" . $gameId . "/workshop/increaseAnthillLevel";
         $user2 = $this->gameUserRepository->findOneByUsername("test2");
         $this->client->loginUser($user2);
         //WHEN
@@ -2915,7 +2915,7 @@ class MYRControllerTest extends WebTestCase
         $gameId = $this->initializeGameWithTwoPlayers();
         /** @var GameMYR $game */
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
-        $url = "/Game/" . $gameId . "/increaseAnthillLevel";
+        $url = "/game/myrmes/" . $gameId . "/workshop/increaseAnthillLevel";
         $game->getPlayers()->last()->setTurnOfPlayer(false);
         $user2 = $this->gameUserRepository->findOneByUsername("test1");
         $this->client->loginUser($user2);
@@ -2932,7 +2932,7 @@ class MYRControllerTest extends WebTestCase
         $gameId = $this->initializeGameWithTwoPlayers();
         /** @var GameMYR $game */
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
-        $url = "/Game/" . $gameId . "/increaseAnthillLevel";
+        $url = "/game/myrmes/" . $gameId . "/workshop/increaseAnthillLevel";
         //WHEN
         $this->client->request("GET", $url);
         // THEN
@@ -2956,10 +2956,10 @@ class MYRControllerTest extends WebTestCase
         $playerGrass->setQuantity(2);
         $this->entityManager->persist($playerGrass);
         $this->entityManager->persist($player);
-        $player->getPersonalBoardMYR()->getNurses()->first()->setArea(MyrmesParameters::WORKSHOP_LEVEL_AREA);
+        $player->getPersonalBoardMYR()->getNurses()->first()->setArea(MyrmesParameters::WORKSHOP_AREA);
         $this->entityManager->persist($player->getPersonalBoardMYR()->getNurses()->first());
         $this->entityManager->flush();
-        $url = "/Game/" . $gameId . "/increaseAnthillLevel";
+        $url = "/game/myrmes/" . $gameId . "/workshop/increaseAnthillLevel";
         //WHEN
         $this->client->request("GET", $url);
         // THEN
@@ -2974,7 +2974,7 @@ class MYRControllerTest extends WebTestCase
         /** @var GameMYR $game */
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
         $game->setLaunched(false);
-        $url = "/Game/" . $gameId . "/createNurse";
+        $url = "/game/myrmes/" . $gameId . "/workshop/createNurse";
         //WHEN
         $this->client->request("GET", $url);
         // THEN
@@ -2989,7 +2989,7 @@ class MYRControllerTest extends WebTestCase
         /** @var GameMYR $game */
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
         $game->setPaused(true);
-        $url = "/Game/" . $gameId . "/createNurse";
+        $url = "/game/myrmes/" . $gameId . "/workshop/createNurse";
         //WHEN
         $this->client->request("GET", $url);
         // THEN
@@ -3003,7 +3003,7 @@ class MYRControllerTest extends WebTestCase
         $gameId = $this->initializeGameWithTwoPlayers();
         /** @var GameMYR $game */
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
-        $url = "/Game/" . $gameId . "/createNurse";
+        $url = "/game/myrmes/" . $gameId . "/workshop/createNurse";
         $user2 = $this->gameUserRepository->findOneByUsername("test2");
         $this->client->loginUser($user2);
         //WHEN
@@ -3019,7 +3019,7 @@ class MYRControllerTest extends WebTestCase
         $gameId = $this->initializeGameWithTwoPlayers();
         /** @var GameMYR $game */
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
-        $url = "/Game/" . $gameId . "/createNurse";
+        $url = "/game/myrmes/" . $gameId . "/workshop/createNurse";
         $game->getPlayers()->last()->setTurnOfPlayer(false);
         $user2 = $this->gameUserRepository->findOneByUsername("test1");
         $this->client->loginUser($user2);
@@ -3036,7 +3036,7 @@ class MYRControllerTest extends WebTestCase
         $gameId = $this->initializeGameWithTwoPlayers();
         /** @var GameMYR $game */
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
-        $url = "/Game/" . $gameId . "/createNurse";
+        $url = "/game/myrmes/" . $gameId . "/workshop/createNurse";
         //WHEN
         $this->client->request("GET", $url);
         // THEN
@@ -3055,10 +3055,10 @@ class MYRControllerTest extends WebTestCase
         $player = $game->getPlayers()->first();
         $player->setPhase(MyrmesParameters::PHASE_WORKSHOP);
         $this->entityManager->persist($player);
-        $player->getPersonalBoardMYR()->getNurses()->first()->setArea(MyrmesParameters::WORKSHOP_NURSE_AREA);
+        $player->getPersonalBoardMYR()->getNurses()->first()->setArea(MyrmesParameters::WORKSHOP_AREA);
         $this->entityManager->persist($player->getPersonalBoardMYR()->getNurses()->first());
         $this->entityManager->flush();
-        $url = "/Game/" . $gameId . "/createNurse";
+        $url = "/game/myrmes/" . $gameId . "/workshop/createNurse";
         //WHEN
         $this->client->request("GET", $url);
         // THEN
@@ -3073,7 +3073,7 @@ class MYRControllerTest extends WebTestCase
         /** @var GameMYR $game */
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
         $game->setLaunched(false);
-        $url = "/Game/" . $gameId . "/confirmWorkshopActions";
+        $url = "/game/myrmes/" . $gameId . "/workshop/confirmWorkshopActions";
         //WHEN
         $this->client->request("GET", $url);
         // THEN
@@ -3088,7 +3088,7 @@ class MYRControllerTest extends WebTestCase
         /** @var GameMYR $game */
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
         $game->setPaused(true);
-        $url = "/Game/" . $gameId . "/confirmWorkshopActions";
+        $url = "/game/myrmes/" . $gameId . "/workshop/confirmWorkshopActions";
         //WHEN
         $this->client->request("GET", $url);
         // THEN
@@ -3102,7 +3102,7 @@ class MYRControllerTest extends WebTestCase
         $gameId = $this->initializeGameWithTwoPlayers();
         /** @var GameMYR $game */
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
-        $url = "/Game/" . $gameId . "/confirmWorkshopActions";
+        $url = "/game/myrmes/" . $gameId . "/workshop/confirmWorkshopActions";
         $user2 = $this->gameUserRepository->findOneByUsername("test2");
         $this->client->loginUser($user2);
         //WHEN
@@ -3118,7 +3118,7 @@ class MYRControllerTest extends WebTestCase
         $gameId = $this->initializeGameWithTwoPlayers();
         /** @var GameMYR $game */
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
-        $url = "/Game/" . $gameId . "/confirmWorkshopActions";
+        $url = "/game/myrmes/" . $gameId . "/workshop/confirmWorkshopActions";
         $game->getPlayers()->last()->setTurnOfPlayer(false);
         $user2 = $this->gameUserRepository->findOneByUsername("test1");
         $this->client->loginUser($user2);
@@ -3135,7 +3135,7 @@ class MYRControllerTest extends WebTestCase
         $gameId = $this->initializeGameWithTwoPlayers();
         /** @var GameMYR $game */
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
-        $url = "/Game/" . $gameId . "/confirmWorkshopActions";
+        $url = "/game/myrmes/" . $gameId . "/workshop/confirmWorkshopActions";
         //WHEN
         $this->client->request("GET", $url);
         // THEN
@@ -3154,7 +3154,7 @@ class MYRControllerTest extends WebTestCase
         $this->entityManager->persist($game->getPlayers()->first()->getPersonalBoardMYR()->getNurses()->first());
         $this->entityManager->persist($game);
         $this->entityManager->flush();
-        $url = "/Game/" . $gameId . "/confirmWorkshopActions";
+        $url = "/game/myrmes/" . $gameId . "/workshop/confirmWorkshopActions";
         //WHEN
         $this->client->request("GET", $url);
         // THEN
@@ -3171,7 +3171,7 @@ class MYRControllerTest extends WebTestCase
         $game->setGamePhase(MyrmesParameters::PHASE_WORKSHOP);
         $this->entityManager->persist($game);
         $this->entityManager->flush();
-        $url = "/Game/" . $gameId . "/confirmWorkshopActions";
+        $url = "/game/myrmes/" . $gameId . "/workshop/confirmWorkshopActions";
         //WHEN
         $this->client->request("GET", $url);
         // THEN
@@ -3198,7 +3198,7 @@ class MYRControllerTest extends WebTestCase
         $game->setGamePhase(MyrmesParameters::PHASE_WORKSHOP);
         $this->entityManager->persist($game);
         $this->entityManager->flush();
-        $url = "/Game/" . $gameId . "/confirmWorkshopActions";
+        $url = "/game/myrmes/" . $gameId . "/workshop/confirmWorkshopActions";
         //WHEN
         $this->client->request("GET", $url);
         // THEN
@@ -3316,7 +3316,6 @@ class MYRControllerTest extends WebTestCase
     {
         //GIVEN
         $gameId = $this->initializeGameWithTwoPlayers();
-        /** @var GameMYR $game */
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
         $game->setGamePhase(MyrmesParameters::PHASE_WINTER);
         $this->entityManager->persist($game);

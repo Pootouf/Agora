@@ -449,7 +449,9 @@ export default class extends Controller  {
             let url = boardBox.params.url
                 .replace("tileType", window.selectedObjectId)
                 .replace("orientation", window.selectedOrientation)
-                .replace("tileId", boardBox.params.tileid);
+                .replace("tileId", boardBox.params.tileid)
+                .replace("antCoordX", antPosition.x)
+                .replace("antCoordY", antPosition.y);
             await fetch(url);
             await this.togglePheromonePlacement(false);
         }

@@ -31,6 +31,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use InvalidArgumentException;
+use function Symfony\Component\Translation\t;
 
 class WorkerMYRService
 {
@@ -48,6 +49,16 @@ class WorkerMYRService
                                 private readonly PheromonTileMYRRepository   $pheromonTileMYRRepository
     )
     {}
+
+    /**
+     * getNumberOfGardenWorkerOfPlayer: return the number of garden worker of the player
+     * @param PlayerMYR $player
+     * @return int
+     */
+    public function getNumberOfGardenWorkerOfPlayer(PlayerMYR $player) : int
+    {
+        return $player->getGardenWorkerMYRs()->count();
+    }
 
     /**
      * getAvailablePheromones : returns a collection (type, amount, orientations) of all tile types for a player
@@ -151,10 +162,16 @@ class WorkerMYRService
      * @param int $coordY
      * @param GameMYR $gameMYR
      * @param PlayerMYR $player
+     * @param array<array<int, int>> $cleanedTiles
      * @return int
      */
-    public function getNeededSoldiers(int $coordX, int $coordY, GameMYR $gameMYR, PlayerMYR $player): int
+    public function getNeededSoldiers(
+        int $coordX, int $coordY, GameMYR $gameMYR, PlayerMYR $player, array $cleanedTiles
+    ): int
     {
+        if (in_array([$coordX, $coordY], $cleanedTiles)) {
+            return 0;
+        }
         $tile = $this->tileMYRRepository->findOneBy([
             "coordY" => $coordY,
             "coordX" => $coordX
@@ -171,6 +188,31 @@ class WorkerMYRService
 
         return ($prey == null ? 0 : MyrmesParameters::NUMBER_SOLDIERS_FOR_ATTACK_PREY[$prey->getType()])
             + $soldiersForPheromone;
+    }
+
+    /**
+     * isPreyOnTile: indicate if there is a prey on the tile at the selected coordinates, taking into account
+     *               the cleaned tiles
+     * @param int $coordX
+     * @param int $coordY
+     * @param GameMYR $game
+     * @param array $cleanedTiles
+     * @return bool
+     */
+    public function isPreyOnTile(int $coordX, int $coordY, GameMYR $game, array $cleanedTiles): bool
+    {
+        if (in_array([$coordX, $coordY], $cleanedTiles)) {
+            return false;
+        }
+        $tile = $this->tileMYRRepository->findOneBy([
+            "coordY" => $coordY,
+            "coordX" => $coordX
+        ]);
+        if($tile == null) {
+            throw new InvalidArgumentException("Not a valid tile, can't identify if there is a prey on it");
+        }
+        $prey = $this->getPrey($game, $tile);
+        return $prey != null;
     }
 
     /**
@@ -417,6 +459,13 @@ class WorkerMYRService
         if(!$ant) {
             throw new Exception('No more free ants');
         }
+        $antInFloor = $this->anthillWorkerMYRRepository->findOneBy([
+            'personalBoardMYR' => $personalBoard,
+            'workFloor' => $anthillFloor
+        ]);
+        if ($antInFloor) {
+            throw new Exception('Already an ant at this position');
+        }
         $ant->setWorkFloor($anthillFloor);
         $this->entityManager->persist($ant);
         $this->entityManager->flush();
@@ -487,14 +536,16 @@ class WorkerMYRService
     /**
      * canPlacePheromone : checks if a player can place a pheromone of a type on a tile
      *
-     * @param PlayerMYR   $player
-     * @param TileMYR     $tile
-     * @param TileTypeMYR $tileType
-     * @param array<array<Int, Int>>       $availablePositions (optional)
+     * @param PlayerMYR              $player
+     * @param TileMYR                $tile
+     * @param int                    $antCoordX
+     * @param int                    $antCoordY
+     * @param TileTypeMYR            $tileType
+     * @param array<array<Int, Int>> $availablePositions (optional)
      * @return bool
      */
-    public function canPlacePheromone(PlayerMYR $player, TileMYR $tile, TileTypeMYR $tileType,
-        array $availablePositions = []) : bool
+    public function canPlacePheromone(PlayerMYR $player, TileMYR $tile, int $antCoordX, int $antCoordY,
+        TileTypeMYR $tileType, array $availablePositions = []) : bool
     {
         $pheromoneCount = $this->getPheromoneCountOfType($player, $tileType);
         try {
@@ -508,7 +559,7 @@ class WorkerMYRService
             return false;
         }
         try {
-            $tiles = $this->getAllCoordinatesFromTileType($player, $tile, $tileType, $availablePositions);
+            $tiles = $this->getAllAvailablePositions($player, $tile, $tileType, $antCoordX, $antCoordY, $availablePositions);
         } catch (Exception $e) {
             return false;
         }
@@ -521,12 +572,14 @@ class WorkerMYRService
      * @param PlayerMYR   $player
      * @param TileMYR     $tile
      * @param TileTypeMYR $tileType
+     * @param int         $antCoordX
+     * @param int         $antCoordY
      * @return void
      * @throws Exception
      */
-    public function placePheromone(PlayerMYR $player, TileMYR $tile, TileTypeMYR $tileType) : void
+    public function placePheromone(PlayerMYR $player, TileMYR $tile, TileTypeMYR $tileType, int $antCoordX, int $antCoordY) : void
     {
-        if (!$this->canPlacePheromone($player, $tile, $tileType)) {
+        if (!$this->canPlacePheromone($player, $tile, $antCoordX, $antCoordY, $tileType)) {
             throw new Exception("this pheromone can't be placed there");
         }
         $tiles = $this->getAllCoordinatesFromTileType($player, $tile, $tileType);
@@ -639,7 +692,7 @@ class WorkerMYRService
         if ($translations == null) {
             return new ArrayCollection();
         }
-        $coords = $this->getAllCoordinatesFromTileType($player, $tile, $tileType);
+        $coords = $this->getAllCoordinatesFromTileType($player, $tile, $tileType, $availableTiles);
         return $this->getAllAvailablePositionsFromOrientation($player, $coords,
             $translations, $antCoordX, $antCoordY, $availableTiles);
     }
@@ -849,7 +902,7 @@ class WorkerMYRService
      * getAllAvailablePositionsFromOrientation : returns a list of lists of tiles where player can place the pheromone
      *
      * @param PlayerMYR                                       $player
-     * @param ArrayCollection<Int, ArrayCollection<Int, Int>> $coords
+     * @param ArrayCollection<Int, TileMYR> $coords
      * @param Array<Int, Array<Int, Int>>                     $translations
      * @param int                                             $antCoordX
      * @param int                                             $antCoordY
@@ -872,12 +925,12 @@ class WorkerMYRService
             $translationY = $translation[1];
             $correctPlacement = true;
             foreach ($coords as $coord) {
-                $coordX = $coord->getCoordX() + $translationX;
-                $coordY = $coord->getCoordY() + $translationY;
+                $coordX = $coord[0] + $translationX;
+                $coordY = $coord[1] + $translationY;
                 $newTile = $this->getTileAtCoordinate($coordX, $coordY);
                 if ($newTile == null) {
                     $correctPlacement = false;
-                    break;
+                    continue;
                 }
                 if (!($this->isPositionAvailable($game, $newTile) && !$this->containsPrey($game, $newTile))) {
                     $found = false;
@@ -891,7 +944,7 @@ class WorkerMYRService
                     }
                     if (!$found) {
                         $correctPlacement = false;
-                        break;
+                        continue;
                     }
                 }
                 $boardTile = new BoardTileMYR($newTile, $isPivot);
@@ -1125,9 +1178,7 @@ class WorkerMYRService
         $coordX = $tile->getCoordX();
         $coordY = $tile->getCoordY();
         $game = $player->getGameMyr();
-        if (!$this->isPositionAvailable($game, $tile) || $this->containsPrey($game, $tile)) {
-            return new ArrayCollection();
-        }
+
         $coords = match ($tileType->getOrientation()) {
             0 => [[0, 0], [1, 1]],
             1 => [[0, 0], [1, -1]],
@@ -1156,9 +1207,7 @@ class WorkerMYRService
         $coordX = $tile->getCoordX();
         $coordY = $tile->getCoordY();
         $game = $player->getGameMyr();
-        if (!$this->isPositionAvailable($game, $tile) || $this->containsPrey($game, $tile)) {
-            throw new Exception(MyrmesTranslation::ERROR_CANNOT_PLACE_TILE);
-        }
+
         $coords = match ($tileType->getOrientation()) {
             0 => [[0, 0], [-1, -1], [1, 1]],
             1 => [[0, 0], [0, -2], [0, 2]],
@@ -1184,9 +1233,7 @@ class WorkerMYRService
         $coordX = $tile->getCoordX();
         $coordY = $tile->getCoordY();
         $game = $player->getGameMyr();
-        if (!$this->isPositionAvailable($game, $tile) || $this->containsPrey($game, $tile)) {
-            throw new Exception(MyrmesTranslation::ERROR_CANNOT_PLACE_TILE);
-        }
+
         $coords = match ($tileType->getOrientation()) {
             0 => [[0, 0], [1, -1], [1, 1]],
             1 => [[0, 0], [1, -1], [0, -2]],
@@ -1215,9 +1262,7 @@ class WorkerMYRService
         $coordX = $tile->getCoordX();
         $coordY = $tile->getCoordY();
         $game = $player->getGameMyr();
-        if (!$this->isPositionAvailable($game, $tile) || $this->containsPrey($game, $tile)) {
-            throw new Exception(MyrmesTranslation::ERROR_CANNOT_PLACE_TILE);
-        }
+
         $coords = match ($tileType->getOrientation()) {
             0 => [[0, 0], [1, 1], [1, -1], [2, 0]],
             1 => [[0, 0], [0, -2], [1, -1], [1, -3]],
@@ -1247,9 +1292,7 @@ class WorkerMYRService
         $coordX = $tile->getCoordX();
         $coordY = $tile->getCoordY();
         $game = $player->getGameMyr();
-        if (!$this->isPositionAvailable($game, $tile) || $this->containsPrey($game, $tile)) {
-            throw new Exception(MyrmesTranslation::ERROR_CANNOT_PLACE_TILE);
-        }
+
         $coords = match ($tileType->getOrientation()) {
             0 => [[0, 0], [0, 2], [1, 1], [2, 2]],
             1 => [[0, 0], [1, -1], [1, 1], [2, -2]],
@@ -1284,9 +1327,7 @@ class WorkerMYRService
         $coordX = $tile->getCoordX();
         $coordY = $tile->getCoordY();
         $game = $player->getGameMyr();
-        if (!$this->isPositionAvailable($game, $tile) || $this->containsPrey($game, $tile)) {
-            throw new Exception(MyrmesTranslation::ERROR_CANNOT_PLACE_TILE);
-        }
+
         $coords = match ($tileType->getOrientation()) {
             0 => [[0, 0], [0, 2], [1, 3], [1, 1], [1, -1]],
             1 => [[0, 0], [1, 1], [2, 0], [1, -1], [0, -2]],
@@ -1315,9 +1356,7 @@ class WorkerMYRService
         $coordX = $tile->getCoordX();
         $coordY = $tile->getCoordY();
         $game = $player->getGameMyr();
-        if (!$this->isPositionAvailable($game, $tile) || $this->containsPrey($game, $tile)) {
-            throw new Exception(MyrmesTranslation::ERROR_CANNOT_PLACE_TILE);
-        }
+
         $coords = match ($tileType->getOrientation()) {
             0 => [[0, 0], [1, 1], [2, 2], [2, 0], [2, -2], [1, -1]],
             1 => [[0, 0], [1, -1], [2, -2], [1, -3], [0, -4], [0, -2]],
@@ -1459,7 +1498,10 @@ class WorkerMYRService
             default => throw new Exception("pheromone type unknown"),
         };
         $allowedSize = $anthillLevel + 2;
-        if ($player->getPersonalBoardMYR()->getBonus() === MyrmesParameters::BONUS_PHEROMONE) {
+        if ($player->getPersonalBoardMYR()->getBonus() === MyrmesParameters::BONUS_LEVEL ||
+            ($player->getPersonalBoardMYR()->getBonus() === MyrmesParameters::BONUS_PHEROMONE
+                && $tileType->getType() >= MyrmesParameters::PHEROMONE_TYPE_ZERO
+                && $tileType->getType() <= MyrmesParameters::PHEROMONE_TYPE_SIX)) {
             ++$allowedSize;
         }
         if ($pheromoneSize > $allowedSize) {
@@ -1595,8 +1637,11 @@ class WorkerMYRService
         $pheromone->setType($tileTypeMYR);
         $pheromone->setHarvested(false);
         foreach ($tiles as $tile) {
+            $coordX = $tile[0];
+            $coordY = $tile[1];
+            $tileToPlace = $this->getTileAtCoordinate($coordX, $coordY);
             $pheromoneTile = new PheromonTileMYR();
-            $pheromoneTile->setTile($tile);
+            $pheromoneTile->setTile($tileToPlace);
             $pheromoneTile->setPheromonMYR($pheromone);
             $this->placeResourceOnTile($pheromoneTile);
             $pheromoneTile->setMainBoard($playerMYR->getGameMyr()->getMainBoardMYR());
@@ -1663,29 +1708,16 @@ class WorkerMYRService
     {
         $tiles = new ArrayCollection();
         foreach ($coords as $coord) {
+            $tmp = array();
             $coordX = $coord[0];
             $coordY = $coord[1];
             /** @var TileMYR $newTile */
             $newTile = $this->tileMYRRepository->findOneBy(
                 ["coordX" => $coordX + $x, "coordY" => $coordY + $y]
             );
-            if ($newTile == null) {
-                throw new Exception(MyrmesTranslation::ERROR_CANNOT_PLACE_TILE);
-            }
-            $newTileX = $newTile->getCoordX();
-            $newTileY = $newTile->getCoordY();
-            $isInAvailablePositions = false;
-            for ($i = 0; $i < count($availablePositions); ++$i) {
-                if ($newTileX === $availablePositions[$i][0] && $newTileY === $availablePositions[$i][1]) {
-                    $isInAvailablePositions = true;
-                    break;
-                }
-            }
-            $result = $this->isPositionAvailable($game, $newTile) && !$this->containsPrey($game, $newTile);
-            if (!$result && !$isInAvailablePositions) {
-                throw new Exception(MyrmesTranslation::ERROR_CANNOT_PLACE_TILE);
-            }
-            $tiles->add($newTile);
+            $tmp[0] = $coordX + $x;
+            $tmp[1] = $coordY + $y;
+            $tiles->add($tmp);
         }
         return $tiles;
     }

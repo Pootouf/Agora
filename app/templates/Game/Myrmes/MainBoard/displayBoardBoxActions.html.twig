@@ -87,12 +87,12 @@
                     <p>Sélectionner la ressource pour la récolter :</p>
                     <img class="max-h-[5vw]"
                          src="{{ asset('resourcesGames/Myrmes/resources/' ~
-                             boardBox.pheromonTile.resource ~ '.svg') }}"
+                             boardBox.pheromonTile.resource.description ~ '.svg') }}"
                          alt="dirt"
                             {{ stimulus_action('myrmes','harvestResource','click',
                                 {url:path('app_game_myrmes_harvest_resource',
                                     {
-                                        id: game.id,
+                                        gameId: game.id,
                                         tileId: boardBox.tile.id
                                     })
                                 })
@@ -101,8 +101,8 @@
                 {% elseif playerPhase == PHASE_HARVEST and not hasFinishedObligatoryHarvesting and not canStillHarvest %}
                     <p>Vous avez déjà récolté une ressource sur cette phéromone </p>
                     <img class="max-h-[5vw] opacity-25"
-                         src="{{ asset('resourcesGames/Myrmes/resources/' ~ boardBox.pheromonTile.resource ~ '.svg') }}"
-                         alt="{{ boardBox.pheromonTile.resource }}">
+                         src="{{ asset('resourcesGames/Myrmes/resources/' ~ boardBox.pheromonTile.resource.description ~ '.svg') }}"
+                         alt="{{ boardBox.pheromonTile.resource.description }}">
                 {% else %}
                     <p>Ressource présente sur la tuile : </p>
                     <img class="max-h-[5vw]"

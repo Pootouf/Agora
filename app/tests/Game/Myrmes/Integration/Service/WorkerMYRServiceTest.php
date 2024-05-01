@@ -367,7 +367,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -403,7 +403,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 1, 1);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -439,7 +439,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -475,7 +475,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -511,7 +511,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 1, 1);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -547,7 +547,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -585,7 +585,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
     }
 
     public function testPlacePheromoneOfTypeZeroWhenTileContainPrey()
@@ -626,7 +626,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
     }
 
     public function testPlacePheromoneOfTypeOneWithOrientation0()
@@ -665,7 +665,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -706,7 +706,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -747,7 +747,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -790,7 +790,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
     }
 
     public function testPlacePheromoneOfTypeOneWhenTileContainPrey()
@@ -836,7 +836,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
     }
 
     public function testPlacePheromoneOfTypeTwoWithOrientation0()
@@ -875,7 +875,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -916,7 +916,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -957,7 +957,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -998,7 +998,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -1039,7 +1039,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -1080,7 +1080,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -1123,7 +1123,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
     }
 
     public function testPlacePheromoneOfTypeTwoWhenTileContainPrey()
@@ -1169,7 +1169,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
     }
 
     public function testPlacePheromoneOfTypeThreeWithOrientation0()
@@ -1213,7 +1213,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -1259,7 +1259,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -1305,7 +1305,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -1351,7 +1351,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -1397,7 +1397,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -1443,7 +1443,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -1491,7 +1491,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
     }
 
     public function testPlacePheromoneOfTypeThreeWhenTileContainPrey()
@@ -1542,7 +1542,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
     }
 
     public function testPlacePheromoneOfTypeFourWithOrientation0()
@@ -1586,7 +1586,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -1632,7 +1632,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -1678,7 +1678,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -1724,7 +1724,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -1770,7 +1770,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -1816,7 +1816,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -1862,7 +1862,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -1908,7 +1908,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -1954,7 +1954,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -2000,7 +2000,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -2046,7 +2046,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -2092,7 +2092,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -2140,7 +2140,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
     }
 
     public function testPlacePheromoneOfTypeFourWhenTileContainPrey()
@@ -2191,7 +2191,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
     }
 
     public function testPlacePheromoneOfTypeFiveWithOrientation0()
@@ -2240,7 +2240,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -2291,7 +2291,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -2342,7 +2342,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -2393,7 +2393,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -2444,7 +2444,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -2495,7 +2495,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -2548,7 +2548,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
     }
 
     public function testPlacePheromoneOfTypeFiveWhenTileContainPrey()
@@ -2604,7 +2604,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
     }
 
     public function testPlacePheromoneOfTypeSixWithOrientation0()
@@ -2659,7 +2659,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -2716,7 +2716,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -2773,7 +2773,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -2830,7 +2830,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -2887,7 +2887,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -2944,7 +2944,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -3003,7 +3003,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
     }
 
     public function testPlacePheromoneOfTypeSixWhenTileContainPrey()
@@ -3065,7 +3065,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
     }
 
     public function testPlaceSpecialTileFarmWhenPlayerHaveEnoughResources()
@@ -3111,7 +3111,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         }
         $this->entityManager->flush();
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -3154,7 +3154,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
     }
 
     public function testPlaceSpecialTileQuarryWhenPlayerHaveEnoughResources()
@@ -3200,7 +3200,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         }
         $this->entityManager->flush();
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -3243,7 +3243,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
     }
 
     public function testPlaceSpecialTileSubAnthillWhenPlayerHaveEnoughResources()
@@ -3306,7 +3306,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -3355,7 +3355,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
     }
 
     public function testPlacePheromoneOfUnknownType()
@@ -3391,7 +3391,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
     }
 
     public function testPlacePheromoneButNotEnoughLevel()
@@ -3448,7 +3448,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
     }
 
     public function testGetAllAvailablePositionsWithTileTypeZeroAndOrientationZero() : void
@@ -3930,7 +3930,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertNotEmpty($firstPlayer->getPheromonMYRs());
     }
@@ -3967,7 +3967,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->persist($game);
         $this->entityManager->flush();
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
         $this->assertEquals(MyrmesParameters::PHEROMONE_TYPE_LEVEL[MyrmesParameters::PHEROMONE_TYPE_ZERO] + 1,
             $firstPlayer->getScore());
@@ -4006,7 +4006,7 @@ class WorkerMYRServiceTest extends KernelTestCase
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
-        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType);
+        $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
     }
 
     public function testGetAvailablePheromonesShouldReturnUnmodifiedTable()

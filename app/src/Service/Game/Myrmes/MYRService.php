@@ -2,6 +2,7 @@
 
 namespace App\Service\Game\Myrmes;
 
+use App\Entity\Game\DTO\Player;
 use App\Entity\Game\Myrmes\AnthillHoleMYR;
 use App\Entity\Game\Myrmes\AnthillWorkerMYR;
 use App\Entity\Game\Myrmes\GameGoalMYR;
@@ -10,6 +11,7 @@ use App\Entity\Game\Myrmes\GoalMYR;
 use App\Entity\Game\Myrmes\MainBoardMYR;
 use App\Entity\Game\Myrmes\MyrmesParameters;
 use App\Entity\Game\Myrmes\NurseMYR;
+use App\Entity\Game\Myrmes\PheromonTileMYR;
 use App\Entity\Game\Myrmes\PlayerMYR;
 use App\Entity\Game\Myrmes\PlayerResourceMYR;
 use App\Entity\Game\Myrmes\PreyMYR;
@@ -68,7 +70,7 @@ class MYRService
     {
         return $player->getPersonalBoardMYR()->getNurses()->filter(
             function (NurseMYR $nurse) {
-                return $nurse->getArea() == MyrmesParameters::WORKSHOP_NURSE_AREA;
+                return $nurse->getArea() == MyrmesParameters::WORKSHOP_AREA;
             }
         );
     }
@@ -281,6 +283,21 @@ class MYRService
     }
 
     /**
+     * getActualPlayer : return the player who need to play
+     * @param GameMYR $game
+     * @return PlayerMYR|null
+     */
+    public function getActualPlayer(GameMYR $game) : ?PlayerMYR
+    {
+        $result = $game->getPlayers()->filter(
+            function (PlayerMYR $player) {
+                return $player->isTurnOfPlayer();
+            }
+        )->first();
+        return !$result ? null : $result ;
+    }
+
+    /**
      * manageNursesAfterBonusGive : Replace all nurses that have been used
      * @param PlayerMYR $player
      * @param int $nurseCount
@@ -300,13 +317,9 @@ class MYRService
                     case MyrmesParameters::LARVAE_AREA:
                     case MyrmesParameters::SOLDIERS_AREA:
                     case MyrmesParameters::WORKER_AREA:
-                    case MyrmesParameters::WORKSHOP_ANTHILL_HOLE_AREA:
-                    case MyrmesParameters::WORKSHOP_LEVEL_AREA:
-                    case MyrmesParameters::WORKSHOP_NURSE_AREA:
+                    case MyrmesParameters::WORKSHOP_AREA:
                         $n->setArea(MyrmesParameters::BASE_AREA);
                         $this->entityManager->persist($n);
-                        break;
-                    case MyrmesParameters::WORKSHOP_GOAL_AREA:
                         break;
                     default:
                         throw new Exception("Don't manage bonus");
@@ -314,6 +327,7 @@ class MYRService
                 $nurseCount--;
             }
         }
+        $this->entityManager->flush();
     }
 
     /**
@@ -351,8 +365,7 @@ class MYRService
             $playerMYR->getGameMyr()->setGamePhase($phase);
             $this->entityManager->persist($playerMYR->getGameMyr());
 
-            if ($phase == MyrmesParameters::PHASE_EVENT
-                && $playerMYR->getGameMyr()->getMainBoardMYR()->getYearNum() != MyrmesParameters::FIRST_YEAR_NUM) {
+            if ($phase == MyrmesParameters::PHASE_EVENT) {
                 $this->manageEndOfRound($playerMYR->getGameMyr());
             }
 
@@ -461,6 +474,7 @@ class MYRService
             $this->replaceWorkers($player);
             $this->replaceNurses($player);
             $this->resetWorkshopActions($player);
+            $this->makePheromonesHarvestable($player);
         }
         $this->endRoundOfFirstPlayer($game);
         $this->endSeason($game);
@@ -545,7 +559,8 @@ class MYRService
         $selectedLarvae = $player->getPersonalBoardMYR()->getSelectedEventLarvaeAmount();
         $playerLarvae = $player->getPersonalBoardMYR()->getLarvaCount();
         $player->getPersonalBoardMYR()->setLarvaCount($playerLarvae - $selectedLarvae);
-        $this->entityManager->persist($player);
+        $player->getPersonalBoardMYR()->setSelectedEventLarvaeAmount(0);
+        $this->entityManager->persist($player->getPersonalBoardMYR());
         $this->entityManager->flush();
     }
 
@@ -757,7 +772,7 @@ class MYRService
     {
         foreach ($game->getPlayers() as $player) {
             $player->getPersonalBoardMYR()->setBonus($this->getActualSeason($game)->getDiceResult());
-            $this->entityManager->persist($player);
+            $this->entityManager->persist($player->getPersonalBoardMYR());
         }
         $this->entityManager->flush();
     }
@@ -805,26 +820,38 @@ class MYRService
     private function manageTurnOfPlayerNewPhase(Collection $players, int $phase): void
     {
         switch ($phase) {
+            case MyrmesParameters::PHASE_HARVEST :
+                $this->setPheromonesHarvestedIfNoResourcesOnIt($players);
+                // No break because harvest is also a parallel phase
             case MyrmesParameters::PHASE_EVENT :
             case MyrmesParameters::PHASE_BIRTH :
-            case MyrmesParameters::PHASE_HARVEST :
             case MyrmesParameters::PHASE_WINTER :
                 foreach ($players as $player) {
                     $player->setTurnOfPlayer(true);
                     $this->entityManager->persist($player);
-                    $this->entityManager->flush();
                 }
                 break;
             case MyrmesParameters::PHASE_WORKER :
+                $firstPlayer = $players->first()->getGameMyr()->getFirstPlayer();
+                $firstPlayer->setTurnOfPlayer(true);
+                $this->entityManager->persist($firstPlayer);
+                break;
             case MyrmesParameters::PHASE_WORKSHOP :
-                foreach($players as $player) {
-                    $player->setTurnOfPlayer($player->getGameMyr()->getFirstPlayer() == $player);
-                    $this->entityManager->persist($player);
-                    $this->entityManager->flush();
+                $player = $players->first()->getGameMyr()->getFirstPlayer();
+                $player->setTurnOfPlayer(true);
+                $this->entityManager->persist($player);
+                while ($this->getNursesInWorkshopFromPlayer($player)->count() <= 0) {
+                    $this->setNextPlayerTurn($player);
+                    $player = $player->getGameMyr()->getPlayers()->filter(
+                        function (PlayerMYR $player) {
+                            return $player->isTurnOfPlayer();
+                        }
+                    )->first();
                 }
                 break;
             default:
         }
+        $this->entityManager->flush();
     }
 
     /**
@@ -939,7 +966,7 @@ class MYRService
     {
         $actualSeason = $this->getActualSeason($game);
         $mainBoard = $game->getMainBoardMYR();
-        if ($actualSeason->getName() === MyrmesParameters::WINTER_SEASON_NAME) {
+        if ($game->getGamePhase() == MyrmesParameters::PHASE_WINTER) {
             $this->initializeNewYear($game);
             return;
         }
@@ -955,12 +982,8 @@ class MYRService
                 "name" => MyrmesParameters::SUMMER_SEASON_NAME
             ]
         );
-        $winter = $this->seasonMYRRepository->findOneBy(
-            [
-                "mainBoard" => $mainBoard,
-                "name" => MyrmesParameters::WINTER_SEASON_NAME
-            ]
-        );
+        $actualSeason->setActualSeason(false);
+        $this->entityManager->persist($actualSeason);
         if ($actualSeason->getName() === MyrmesParameters::SPRING_SEASON_NAME) {
             $summer->setActualSeason(true);
             $this->entityManager->persist($summer);
@@ -971,13 +994,7 @@ class MYRService
             $this->entityManager->persist($fall);
             $this->initializeEventBonus($game);
             $this->entityManager->persist($game);
-        } elseif ($actualSeason->getName() === MyrmesParameters::FALL_SEASON_NAME) {
-            $winter->setActualSeason(true);
-            $this->entityManager->persist($winter);
-            $this->entityManager->persist($game);
         }
-        $actualSeason->setActualSeason(false);
-        $this->entityManager->persist($actualSeason);
         $this->entityManager->flush();
     }
 
@@ -990,10 +1007,10 @@ class MYRService
     {
         $this->clearSeasons($game);
         $yearNum = $game->getMainBoardMYR()->getYearNum();
-        $game->getMainBoardMYR()->setYearNum($yearNum + 1);
-        if ($yearNum > MyrmesParameters::THIRD_YEAR_NUM) {
+        if ($yearNum + 1 > MyrmesParameters::THIRD_YEAR_NUM) {
             return;
         }
+        $game->getMainBoardMYR()->setYearNum($yearNum + 1);
         $this->initializeNewSeason($game, MyrmesParameters::SPRING_SEASON_NAME);
         $this->initializeNewSeason($game, MyrmesParameters::SUMMER_SEASON_NAME);
         $this->initializeNewSeason($game, MyrmesParameters::FALL_SEASON_NAME);
@@ -1106,6 +1123,41 @@ class MYRService
                 return $this->getNumberOfFreeWorkerOfPlayer($player) > 0;
             }
         );
+    }
+
+    /**
+     * setPheromonesHarvestedIfNoResourcesOnIt: get all the pheromones of the players and set them as harvested if
+     *                                          there is no resources on them
+     * @param Collection $players
+     * @return void
+     */
+    private function setPheromonesHarvestedIfNoResourcesOnIt(Collection $players) : void
+    {
+        foreach ($players as $player) {
+            foreach ($player->getPheromonMYRs() as $pheromone) {
+                if ($pheromone->getPheromonTiles()->forAll(
+                    function (int $key, PheromonTileMYR $pheromonTile) {
+                        return $pheromonTile->getResource() == null;
+                    }
+                )) {
+                    $pheromone->setHarvested(true);
+                    $this->entityManager->persist($pheromone);
+                }
+            }
+        }
+    }
+
+    /**
+     * makePheromonesHarvestable: make all the pheromones of the player harvestable
+     * @param PlayerMYR $player
+     * @return void
+     */
+    private function makePheromonesHarvestable(PlayerMYR $player): void
+    {
+        foreach ($player->getPheromonMYRs() as $pheromone) {
+            $pheromone->setHarvested(false);
+            $this->entityManager->persist($pheromone);
+        }
     }
 
 }
