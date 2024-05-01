@@ -26,14 +26,12 @@ class UserController extends AbstractController
     private UserPasswordHasherInterface $userPasswordHasher;
 
     private TokenStorageInterface $tokenStorage;
-    private SessionInterface $session;
     public function __construct(
         UserService $userService,
         Security $security,
         EntityManagerInterface $entityManager,
         UserPasswordHasherInterface $passwordHasher,
-        TokenStorageInterface $tokenStorage,
-        SessionInterface $session
+        TokenStorageInterface $tokenStorage
     )
     {
         $this->userService = $userService;
@@ -41,7 +39,6 @@ class UserController extends AbstractController
         $this->entityManager = $entityManager;
         $this->userPasswordHasher = $passwordHasher;
         $this->tokenStorage = $tokenStorage;
-        $this->session = $session;
     }
 
     #[Route('/user/addContact/{contact_id}', name: 'app_user_add_contact', requirements: ['user_id' => '\d+'])]
@@ -134,7 +131,7 @@ class UserController extends AbstractController
 
 
     #[Route('/user/delete/{id}', name: 'app_user_delete')]
-public function deleteUser(int $id): RedirectResponse
+public function deleteUser(int $id, SessionInterface $session): RedirectResponse
 {
     // Récupérer l'utilisateur à supprimer
     $user = $this->entityManager->getRepository(User::class)->find($id);
@@ -152,12 +149,12 @@ public function deleteUser(int $id): RedirectResponse
 
     // Déconnecter l'utilisateur en invalidant le token de sécurité
     $this->tokenStorage->setToken(null);
-    $this->session->getFlashBag()->add('success', 'L\'utilisateur a bien été supprimé.');
+    $session->getFlashBag()->add('success', 'L\'utilisateur a bien été supprimé.');
     return $this->redirectToRoute('app_home');
 }
 
     #[Route('/user/autodelete', name: 'app_user_autodelete')]
-    public function autoDeleteUser(): RedirectResponse
+    public function autoDeleteUser(SessionInterface $session): RedirectResponse
     {    $user = $this->getUser();
             if (!$user) {
             return $this->redirectToRoute('app_home');
@@ -169,7 +166,7 @@ public function deleteUser(int $id): RedirectResponse
     
          // Déconnecter l'utilisateur en invalidant le token de sécurité
          $this->tokenStorage->setToken(null);
-         $this->session->getFlashBag()->add('success', 'Votre compte a bien été supprimé.');
+         $session->getFlashBag()->add('success', 'Votre compte a bien été supprimé.');
          return $this->redirectToRoute('app_home');
     }
 
