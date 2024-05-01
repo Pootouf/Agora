@@ -3,11 +3,11 @@
 
 namespace App\Tests\Game\Factory\Unit\Service;
 
-use App\Entity\Game\GameUser;
 use App\Entity\Game\Glenmore\GameGLM;
 use App\Entity\Game\Myrmes\GameMYR;
 use App\Entity\Game\SixQP\GameSixQP;
 use App\Entity\Game\Splendor\GameSPL;
+use App\Entity\Platform\User;
 use App\Repository\Game\Glenmore\GameGLMRepository;
 use App\Repository\Game\Glenmore\PlayerGLMRepository;
 use App\Repository\Game\Myrmes\GameMYRRepository;
@@ -80,7 +80,7 @@ class GameManagerServiceTest extends TestCase
     public function testJoinGameWhenInvalidGame()
     {
         // GIVEN
-        $user = new GameUser();
+        $user = new User();
         // WHEN
         $result = $this->gameService->joinGame(-1, $user);
         // THEN
@@ -92,7 +92,7 @@ class GameManagerServiceTest extends TestCase
         // GIVEN
         $this->createGameManagerServiceWithMockFunctionWillReturn('createPlayer',
                                         AbstractGameManagerService::ERROR_GAME_ALREADY_LAUNCHED);
-        $user = new GameUser();
+        $user = new User();
         $user->setUsername("testUser");
         // WHEN
         $result = $this->gameService->joinGame(-1, $user);
@@ -105,7 +105,7 @@ class GameManagerServiceTest extends TestCase
         // GIVEN
        $this->createGameManagerServiceWithMockFunctionWillReturn('createPlayer',
             AbstractGameManagerService::ERROR_ALREADY_IN_PARTY);
-        $user = new GameUser();
+        $user = new User();
         $user->setUsername("testUser");
         // WHEN
         $result = $this->gameService->joinGame(-1, $user);
@@ -118,7 +118,7 @@ class GameManagerServiceTest extends TestCase
         // GIVEN
         $this->createGameManagerServiceWithMockFunctionWillReturn('createPlayer',
             AbstractGameManagerService::ERROR_INVALID_NUMBER_OF_PLAYER);
-        $user = new GameUser();
+        $user = new User();
         $user->setUsername("testUser");
         // WHEN
         $result = $this->gameService->joinGame(-1, $user);
@@ -132,7 +132,7 @@ class GameManagerServiceTest extends TestCase
 
         $this->createGameManagerServiceWithMockFunctionWillReturn('createPlayer',
             AbstractGameManagerService::SUCCESS);
-        $user = new GameUser();
+        $user = new User();
         $user->setUsername("testUser");
         // WHEN
         $result = $this->gameService->joinGame(-1, $user);
@@ -143,7 +143,7 @@ class GameManagerServiceTest extends TestCase
     public function testDeletePlayerWhenGameIsInvalid()
     {
         // GIVEN
-        $user = new GameUser();
+        $user = new User();
         // WHEN
         $result = $this->gameService->quitGame(-1, $user);
         // THEN
@@ -155,7 +155,7 @@ class GameManagerServiceTest extends TestCase
         // GIVEN
         $this->createGameManagerServiceWithMockFunctionWillReturn('deletePlayer',
             AbstractGameManagerService::ERROR_PLAYER_NOT_FOUND);
-        $user = new GameUser();
+        $user = new User();
         $user->setUsername("testUser");
         // WHEN
         $result = $this->gameService->quitGame(-1, $user);
@@ -168,7 +168,7 @@ class GameManagerServiceTest extends TestCase
         // GIVEN
         $this->createGameManagerServiceWithMockFunctionWillReturn('deletePlayer',
             AbstractGameManagerService::ERROR_GAME_ALREADY_LAUNCHED);
-        $user = new GameUser();
+        $user = new User();
         $user->setUsername("testUser");
         // WHEN
         $result = $this->gameService->quitGame(-1, $user);
@@ -181,7 +181,7 @@ class GameManagerServiceTest extends TestCase
         // GIVEN
         $this->createGameManagerServiceWithMockFunctionWillReturn('deletePlayer',
             AbstractGameManagerService::SUCCESS);
-        $user = new GameUser();
+        $user = new User();
         $user->setUsername("testUser");
         // WHEN
         $result = $this->gameService->quitGame(-1, $user);
@@ -203,7 +203,7 @@ class GameManagerServiceTest extends TestCase
         // GIVEN
         $this->createGameManagerServiceWithMockFunctionWillReturn('deleteGame',
             AbstractGameManagerService::SUCCESS);
-        $user = new GameUser();
+        $user = new User();
         $user->setUsername("testUser");
         // WHEN
         $result = $this->gameService->deleteGame(-1);
@@ -225,7 +225,7 @@ class GameManagerServiceTest extends TestCase
         // GIVEN
         $this->createGameManagerServiceWithMockFunctionWillReturn('launchGame',
             AbstractGameManagerService::SUCCESS);
-        $user = new GameUser();
+        $user = new User();
         $user->setUsername("testUser");
         // WHEN
         $result = $this->gameService->launchGame(-1);

@@ -2,10 +2,10 @@
 
 namespace App\Tests\Game\Factory\Integration\Service\Game;
 
-use App\Entity\Game\GameUser;
 use App\Entity\Game\SixQP\GameSixQP;
 use App\Entity\Game\SixQP\PlayerSixQP;
 use App\Entity\Game\SixQP\RowSixQP;
+use App\Entity\Platform\User;
 use App\Service\Game\AbstractGameManagerService;
 use App\Service\Game\GameManagerService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -31,7 +31,7 @@ class SixQPGameManagerServiceIntegrationTest extends KernelTestCase
     {
         $gameService = static::getContainer()->get(GameManagerService::class);
         $gameId = -1;
-        $result = $gameService->joinGame($gameId, new GameUser());
+        $result = $gameService->joinGame($gameId, new User());
         $this->assertEquals(AbstractGameManagerService::ERROR_INVALID_GAME, $result);
     }
 
@@ -39,7 +39,7 @@ class SixQPGameManagerServiceIntegrationTest extends KernelTestCase
     {
         $gameService = static::getContainer()->get(GameManagerService::class);
         $game = $this->createSixQPGame(3, 4);
-        $user = new GameUser();
+        $user = new User();
         $user->setUsername("toto");
         $game->setLaunched(true);
         $result = $gameService->joinGame($game->getId(), $user);
@@ -50,7 +50,7 @@ class SixQPGameManagerServiceIntegrationTest extends KernelTestCase
     {
         $gameService = static::getContainer()->get(GameManagerService::class);
         $game = $this->createSixQPGame(10, 4);
-        $user = new GameUser();
+        $user = new User();
         $user->setUsername("toto");
         $result = $gameService->joinGame($game->getId(), $user);
         $this->assertEquals(AbstractGameManagerService::ERROR_INVALID_NUMBER_OF_PLAYER, $result);
@@ -59,7 +59,7 @@ class SixQPGameManagerServiceIntegrationTest extends KernelTestCase
     public function testJoinGameWhenGameIsInvalid() : void
     {
         $gameService = static::getContainer()->get(GameManagerService::class);
-        $user = new GameUser();
+        $user = new User();
         $user->setUsername("toto");
         $result = $gameService->joinGame(-1, $user);
         $this->assertEquals(AbstractGameManagerService::ERROR_INVALID_GAME, $result);
@@ -69,7 +69,7 @@ class SixQPGameManagerServiceIntegrationTest extends KernelTestCase
     {
         $gameService = static::getContainer()->get(GameManagerService::class);
         $game = $this->createSixQPGame(3, 4);
-        $user = new GameUser();
+        $user = new User();
         $user->setUsername("toto");
         $gameService->joinGame($game->getId(), $user);
         $result = $gameService->joinGame($game->getId(), $user);
@@ -80,7 +80,7 @@ class SixQPGameManagerServiceIntegrationTest extends KernelTestCase
     {
         $gameService = static::getContainer()->get(GameManagerService::class);
         $game = $this->createSixQPGame(3, 4);
-        $user = new GameUser();
+        $user = new User();
         $user->setUsername("toto");
         $result = $gameService->joinGame($game->getId(), $user);
         $this->assertEquals(AbstractGameManagerService::SUCCESS, $result);
@@ -90,7 +90,7 @@ class SixQPGameManagerServiceIntegrationTest extends KernelTestCase
         // GIVEN
         $gameService = static::getContainer()->get(GameManagerService::class);
         $gameId = -1;
-        $user = new GameUser();
+        $user = new User();
         // WHEN
         $result = $gameService->quitGame($gameId, $user);
         // THEN
@@ -104,7 +104,7 @@ class SixQPGameManagerServiceIntegrationTest extends KernelTestCase
         $game = $this->createSixQPGame(3, 4);
         $gameId = $game->getId();
         $gameService->launchGame($gameId);
-        $user = new GameUser();
+        $user = new User();
         // WHEN
         $result = $gameService->quitGame($gameId, $user);
         // THEN
@@ -117,7 +117,7 @@ class SixQPGameManagerServiceIntegrationTest extends KernelTestCase
         $gameService = static::getContainer()->get(GameManagerService::class);
         $game = $this->createSixQPGame(3, 4);
         $gameId = $game->getId();
-        $user = new GameUser();
+        $user = new User();
         $user->setUsername("vrgyuvgryugerzygvzyegfyzefgbyezgfy");
         // WHEN
         $result = $gameService->quitGame($gameId, $user);
@@ -131,7 +131,7 @@ class SixQPGameManagerServiceIntegrationTest extends KernelTestCase
         $game = $this->createSixQPGame(3, 4);
         $gameId = $game->getId();
         $userName = $game->getPlayers()[0]->getUsername();
-        $user = new GameUser();
+        $user = new User();
         $user->setUsername($userName);
         // WHEN
         $result = $gameService->quitGame($gameId, $user);
@@ -186,13 +186,13 @@ class SixQPGameManagerServiceIntegrationTest extends KernelTestCase
 
     public function testLaunchGame6QPSuccessWhenGameIsValid() : void
     {
-        $user1 = new GameUser();
+        $user1 = new User();
         $user1->setUsername("test1");
-        $user2 = new GameUser();
+        $user2 = new User();
         $user2->setUsername("test2");
-        $user3 = new GameUser();
+        $user3 = new User();
         $user3->setUsername("test3");
-        $user4 = new GameUser();
+        $user4 = new User();
         $user4->setUsername("test4");
 
         $gameService = static::getContainer()->get(GameManagerService::class);

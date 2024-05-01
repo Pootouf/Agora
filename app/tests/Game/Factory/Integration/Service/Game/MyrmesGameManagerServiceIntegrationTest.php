@@ -2,7 +2,6 @@
 
 namespace App\Tests\Game\Factory\Integration\Service\Game;
 
-use App\Entity\Game\GameUser;
 use App\Entity\Game\Myrmes\GameMYR;
 use App\Entity\Game\Myrmes\MainBoardMYR;
 use App\Entity\Game\Myrmes\MyrmesParameters;
@@ -10,6 +9,7 @@ use App\Entity\Game\Myrmes\NurseMYR;
 use App\Entity\Game\Myrmes\PersonalBoardMYR;
 use App\Entity\Game\Myrmes\PlayerMYR;
 use App\Entity\Game\Myrmes\SeasonMYR;
+use App\Entity\Platform\User;
 use App\Service\Game\AbstractGameManagerService;
 use App\Service\Game\GameManagerService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -31,7 +31,7 @@ class MyrmesGameManagerServiceIntegrationTest extends KernelTestCase
         // GIVEN
         $gameId = -1;
         // WHEN
-        $result = $this->gameManager->joinGame($gameId, new GameUser());
+        $result = $this->gameManager->joinGame($gameId, new User());
         // THEN
         $this->assertEquals(AbstractGameManagerService::ERROR_INVALID_GAME, $result);
     }
@@ -41,7 +41,7 @@ class MyrmesGameManagerServiceIntegrationTest extends KernelTestCase
         // GIVEN
         $game = $this->createMyrmesGame(10);
         $gameId = $game->getId();
-        $user = new GameUser();
+        $user = new User();
         $user->setUsername("test");
         $this->entityManager->persist($user);
         // WHEN
@@ -58,7 +58,7 @@ class MyrmesGameManagerServiceIntegrationTest extends KernelTestCase
         $gameId = $game->getId();
         $this->entityManager->persist($game);
         $this->entityManager->flush();
-        $user = new GameUser();
+        $user = new User();
         $user->setUsername("test");
         $this->entityManager->persist($user);
         // WHEN
@@ -71,7 +71,7 @@ class MyrmesGameManagerServiceIntegrationTest extends KernelTestCase
     {
         // GIVEN
         $game = $this->createMyrmesGame(2);
-        $user = new GameUser();
+        $user = new User();
         $user->setUsername("test");
         $this->gameManager->joinGame($game->getId(), $user);
         // WHEN
@@ -84,7 +84,7 @@ class MyrmesGameManagerServiceIntegrationTest extends KernelTestCase
     {
         // GIVEN
         $game = $this->createMyrmesGame(3);
-        $user = new GameUser();
+        $user = new User();
         $user->setUsername("test");
         // WHEN
         $result = $this->gameManager->joinGame($game->getId(), $user);
@@ -96,7 +96,7 @@ class MyrmesGameManagerServiceIntegrationTest extends KernelTestCase
     {
         // GIVEN
         $gameId = -1;
-        $user = new GameUser();
+        $user = new User();
         // WHEN
         $result = $this->gameManager->quitGame($gameId, $user);
         // THEN
@@ -111,7 +111,7 @@ class MyrmesGameManagerServiceIntegrationTest extends KernelTestCase
         $gameId = $game->getId();
         $this->entityManager->persist($game);
         $this->entityManager->flush();
-        $user = new GameUser();
+        $user = new User();
         $user->setUsername("test");
         $this->entityManager->persist($user);
         // WHEN
@@ -125,7 +125,7 @@ class MyrmesGameManagerServiceIntegrationTest extends KernelTestCase
         // GIVEN
         $game = $this->createMyrmesGame(3);
         $gameId = $game->getId();
-        $user = new GameUser();
+        $user = new User();
         $user->setUsername("vhuheguruogvtyugbseyvgbyosbge");
         $this->entityManager->persist($user);
         // WHEN
@@ -142,7 +142,7 @@ class MyrmesGameManagerServiceIntegrationTest extends KernelTestCase
         $userName = $game->getPlayers()->first()->getUsername();
         $this->entityManager->persist($game);
         $this->entityManager->flush();
-        $user = new GameUser();
+        $user = new User();
         $user->setUsername($userName);
         $user->setPassword("uyfvgbuybgvyugbr");
         // WHEN

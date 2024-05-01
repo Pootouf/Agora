@@ -2,9 +2,9 @@
 
 namespace App\Tests\Game\Splendor\Application;
 
-use App\Repository\Game\GameUserRepository;
 use App\Repository\Game\Splendor\GameSPLRepository;
 use App\Repository\Game\Splendor\PlayerSPLRepository;
+use App\Repository\Platform\UserRepository;
 use App\Service\Game\Splendor\SPLGameManagerService;
 use App\Service\Game\Splendor\SPLService;
 use App\Service\Game\Splendor\TokenSPLService;
@@ -16,7 +16,7 @@ use Symfony\Component\HttpFoundation\Response;
 class SPLControllerTest extends WebTestCase
 {
     private KernelBrowser $client;
-    private GameUserRepository $gameUserRepository;
+    private UserRepository $userRepository;
 
     private PlayerSPLRepository $playerSPLRepository;
     private SPLGameManagerService $SPLGameManagerService;
@@ -42,13 +42,13 @@ class SPLControllerTest extends WebTestCase
     {
         //GIVEN
         $gameId = $this->initializeGameWithTwoPlayers();
-        $game = $this->gameSPLRepository->findOneById($gameId);
+        $game = $this->gameSPLRepository->find($gameId);
         $mainBoard = $game->getMainBoard();
         $card = $mainBoard->getRowsSPL()->first()->getDevelopmentCards()->first();
         $url = "/game/" . $gameId . "/splendor/select/board/" . $card->getId();
         //WHEN
         $this->client->request("GET", $url);
-        $user = $this->gameUserRepository->findOneByUsername("test0");
+        $user = $this->userRepository->findOneBy(["username"=>"test0"]);
         $this->client->loginUser($user);
         //THEN
         $this->expectNotToPerformAssertions();
@@ -58,13 +58,13 @@ class SPLControllerTest extends WebTestCase
     {
         //GIVEN
         $gameId = $this->initializeGameWithTwoPlayers();
-        $game = $this->gameSPLRepository->findOneById($gameId);
+        $game = $this->gameSPLRepository->find($gameId);
         $mainBoard = $game->getMainBoard();
         $level = $mainBoard->getDrawCards()->first()->getLevel();
         $url = "/game/" . $gameId . "/splendor/select/draw/" . $level;
         //WHEN
         $this->client->request("GET", $url);
-        $user = $this->gameUserRepository->findOneByUsername("test0");
+        $user = $this->userRepository->findOneBy(["username"=>"test0"]);
         $this->client->loginUser($user);
         //THEN
         $this->expectNotToPerformAssertions();
@@ -74,7 +74,7 @@ class SPLControllerTest extends WebTestCase
     {
         //GIVEN
         $gameId = $this->initializeGameWithTwoPlayers();
-        $game = $this->gameSPLRepository->findOneById($gameId);
+        $game = $this->gameSPLRepository->find($gameId);
         $player = $game->getPlayers()->first();
         $mainBoard = $game->getMainBoard();
         $card = $mainBoard->getRowsSPL()->first()->getDevelopmentCards()->first();
@@ -85,7 +85,7 @@ class SPLControllerTest extends WebTestCase
         $url = "/game/" . $gameId . "/splendor/select/reserved/" . $card->getId();
         //WHEN
         $this->client->request("GET", $url);
-        $user = $this->gameUserRepository->findOneByUsername("test0");
+        $user = $this->userRepository->findOneBy(["username"=>"test0"]);
         $this->client->loginUser($user);
         //THEN
         $this->expectNotToPerformAssertions();
@@ -95,8 +95,8 @@ class SPLControllerTest extends WebTestCase
     {
         //GIVEN
         $gameId = $this->initializeGameWithTwoPlayers();
-        $game = $this->gameSPLRepository->findOneById($gameId);
-        $user3 = $this->gameUserRepository->findOneByUsername("test2");
+        $game = $this->gameSPLRepository->find($gameId);
+        $user3 = $this->userRepository->findOneBy(["username"=>"test2"]);
         $this->client->loginUser($user3);
         $mainBoard = $game->getMainBoard();
         $card = $mainBoard->getRowsSPL()->first()->getDevelopmentCards()->first();
@@ -112,8 +112,8 @@ class SPLControllerTest extends WebTestCase
     {
         //GIVEN
         $gameId = $this->initializeGameWithTwoPlayers();
-        $game = $this->gameSPLRepository->findOneById($gameId);
-        $user2 = $this->gameUserRepository->findOneByUsername("test1");
+        $game = $this->gameSPLRepository->find($gameId);
+        $user2 = $this->userRepository->findOneBy(["username"=>"test1"]);
         $this->client->loginUser($user2);
         $mainBoard = $game->getMainBoard();
         $card = $mainBoard->getRowsSPL()->first()->getDevelopmentCards()->first();
@@ -129,8 +129,8 @@ class SPLControllerTest extends WebTestCase
     {
         //GIVEN
         $gameId = $this->initializeGameWithTwoPlayers();
-        $game = $this->gameSPLRepository->findOneById($gameId);
-        $user2 = $this->gameUserRepository->findOneByUsername("test0");
+        $game = $this->gameSPLRepository->find($gameId);
+        $user2 = $this->userRepository->findOneBy(["username"=>"test0"]);
         $this->client->loginUser($user2);
         $mainBoard = $game->getMainBoard();
         $card = $mainBoard->getRowsSPL()->first()->getDevelopmentCards()->first();
@@ -146,15 +146,15 @@ class SPLControllerTest extends WebTestCase
     {
         //GIVEN
         $gameId = $this->initializeGameWithTwoPlayers();
-        $game = $this->gameSPLRepository->findOneById($gameId);
+        $game = $this->gameSPLRepository->find($gameId);
         $mainBoard = $game->getMainBoard();
         $card = $mainBoard->getRowsSPL()->first()->getDevelopmentCards()->first();
         $url = "/game/" . $gameId . "/splendor/reserve/card/" . $card->getId();
-        $user = $this->gameUserRepository->findOneByUsername("test0");
+        $user = $this->userRepository->findOneBy(["username"=>"test0"]);
         $this->client->loginUser($user);
         $this->client->request("GET", $url);
         $url = "/game/" . $gameId . "/splendor/buy/card/" . $card->getId();
-        $user = $this->gameUserRepository->findOneByUsername("test0");
+        $user = $this->userRepository->findOneBy(["username"=>"test0"]);
         $this->client->loginUser($user);
         //WHEN
         $this->client->request("GET", $url);
@@ -167,11 +167,11 @@ class SPLControllerTest extends WebTestCase
     {
         //GIVEN
         $gameId = $this->initializeGameWithTwoPlayers();
-        $game = $this->gameSPLRepository->findOneById($gameId);
+        $game = $this->gameSPLRepository->find($gameId);
         $mainBoard = $game->getMainBoard();
         $token = $mainBoard->getTokens()[0];
         $newUrl = "/game/" . $gameId . "/splendor/takeToken/" . $token->getColor();
-        $user3 = $this->gameUserRepository->findOneByUsername("test2");
+        $user3 = $this->userRepository->findOneBy(["username"=>"test2"]);
         $this->client->loginUser($user3);
         //WHEN
         $this->client->request("GET", $newUrl);
@@ -184,11 +184,11 @@ class SPLControllerTest extends WebTestCase
     {
         //GIVEN
         $gameId = $this->initializeGameWithTwoPlayers();
-        $game = $this->gameSPLRepository->findOneById($gameId);
+        $game = $this->gameSPLRepository->find($gameId);
         $mainBoard = $game->getMainBoard();
         $token = $mainBoard->getTokens()[0];
         $newUrl = "/game/" . $gameId . "/splendor/takeToken/" . $token->getColor();
-        $user1 = $this->gameUserRepository->findOneByUsername("test0");
+        $user1 = $this->userRepository->findOneBy(["username"=>"test0"]);
         $player = $this->SPLService->getActivePlayer($game);
         $this->SPLService->endRoundOfPlayer($game, $player);
         $this->client->loginUser($user1);
@@ -203,10 +203,10 @@ class SPLControllerTest extends WebTestCase
     {
         //GIVEN
         $gameId = $this->initializeGameWithTwoPlayers();
-        $game = $this->gameSPLRepository->findOneById($gameId);
+        $game = $this->gameSPLRepository->find($gameId);
         $mainBoard = $game->getMainBoard();
         $tokens = $mainBoard->getTokens();
-        $user1 = $this->gameUserRepository->findOneByUsername("test0");
+        $user1 = $this->userRepository->findOneBy(["username"=>"test0"]);
         $player = $this->SPLService->getActivePlayer($game);
         for ($i = 0; $i < 10; ++$i) {
             $player->getPersonalBoard()->addToken($tokens[$i]);
@@ -224,10 +224,10 @@ class SPLControllerTest extends WebTestCase
     {
         //GIVEN
         $gameId = $this->initializeGameWithTwoPlayers();
-        $game = $this->gameSPLRepository->findOneById($gameId);
+        $game = $this->gameSPLRepository->find($gameId);
         $mainBoard = $game->getMainBoard();
         $tokens = $mainBoard->getTokens();
-        $user1 = $this->gameUserRepository->findOneByUsername("test0");
+        $user1 = $this->userRepository->findOneBy(["username"=>"test0"]);
         $player = $this->SPLService->getActivePlayer($game);
         for ($i = 0; $i < 9; ++$i) {
             $player->getPersonalBoard()->addToken($tokens[$i]);
@@ -252,11 +252,11 @@ class SPLControllerTest extends WebTestCase
     {
         //GIVEN
         $gameId = $this->initializeGameWithTwoPlayers();
-        $game = $this->gameSPLRepository->findOneById($gameId);
+        $game = $this->gameSPLRepository->find($gameId);
         $mainBoard = $game->getMainBoard();
         $tokens = $mainBoard->getTokens();
         $whiteTokens = $this->tokenSPLService->getWhiteTokensFromCollection($tokens);
-        $user1 = $this->gameUserRepository->findOneByUsername("test0");
+        $user1 = $this->userRepository->findOneBy(["username"=>"test0"]);
         for ($i = 0; $i < 2; ++$i) {
             $mainBoard->removeToken($whiteTokens->first());
         }
@@ -274,9 +274,9 @@ class SPLControllerTest extends WebTestCase
     {
         //GIVEN
         $gameId = $this->initializeGameWithTwoPlayers();
-        $game = $this->gameSPLRepository->findOneById($gameId);
+        $game = $this->gameSPLRepository->find($gameId);
         $newUrl = "/game/" . $gameId . "/splendor/takeToken/red";
-        $user1 = $this->gameUserRepository->findOneByUsername("test0");
+        $user1 = $this->userRepository->findOneBy(["username"=>"test0"]);
         $player = $this->SPLService->getActivePlayer($game);
         $this->client->loginUser($user1);
         //WHEN
@@ -290,13 +290,13 @@ class SPLControllerTest extends WebTestCase
     {
         $this->client =  static::createClient();
         $this->SPLGameManagerService = static::getContainer()->get(SPLGameManagerService::class);
-        $this->gameUserRepository = static::getContainer()->get(GameUserRepository::class);
+        $this->userRepository = static::getContainer()->get(UserRepository::class);
         $this->gameSPLRepository = static::getContainer()->get(GameSPLRepository::class);
         $this->entityManager = static::getContainer()->get(EntityManagerInterface::class);
         $this->playerSPLRepository = static::getContainer()->get(PlayerSPLRepository::class);
         $this->tokenSPLService = static::getContainer()->get(TokenSPLService::class);
         $this->SPLService = static::getContainer()->get(SPLService::class);
-        $user1 = $this->gameUserRepository->findOneByUsername("test0");
+        $user1 = $this->userRepository->findOneByUsername("test0");
         $this->client->loginUser($user1);
         $gameId = $this->SPLGameManagerService->createGame();
         $game = $this->gameSPLRepository->findOneById($gameId);

@@ -3,8 +3,8 @@
 namespace App\Tests\Game\Glenmore\Application;
 
 use App\Entity\Game\Glenmore\GameGLM;
-use App\Repository\Game\GameUserRepository;
 use App\Repository\Game\Glenmore\GameGLMRepository;
+use App\Repository\Platform\UserRepository;
 use App\Service\Game\Glenmore\GLMGameManagerService;
 use App\Service\Game\Glenmore\GLMService;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -16,7 +16,7 @@ class MessageControllerTest extends WebTestCase
     private KernelBrowser $client;
 
     private GLMService $service;
-    private GameUserRepository $gameUserRepository;
+    private UserRepository $userRepository;
 
     private GLMGameManagerService $GLMGameManagerService;
 
@@ -57,9 +57,9 @@ class MessageControllerTest extends WebTestCase
         $this->client = static::createClient();
         $this->service = static::getContainer()->get(GLMService::class);
         $this->GLMGameManagerService = static::getContainer()->get(GLMGameManagerService::class);
-        $this->gameUserRepository = static::getContainer()->get(GameUserRepository::class);
+        $this->userRepository = static::getContainer()->get(UserRepository::class);
         $this->gameGLMRepository = static::getContainer()->get(GameGLMRepository::class);
-        $user1 = $this->gameUserRepository->findOneByUsername("test0");
+        $user1 = $this->userRepository->findOneByUsername("test0");
         $this->client->loginUser($user1);
         $gameId = $this->GLMGameManagerService->createGame();
         $game = $this->gameGLMRepository->findOneById($gameId);

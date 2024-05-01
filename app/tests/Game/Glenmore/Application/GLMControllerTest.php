@@ -2,7 +2,6 @@
 
 namespace App\Tests\Game\Glenmore\Application;
 
-use App\Entity\Game\DTO\Myrmes\BoardTileMYR;
 use App\Entity\Game\Glenmore\BoardTileGLM;
 use App\Entity\Game\Glenmore\BuyingTileGLM;
 use App\Entity\Game\Glenmore\GameGLM;
@@ -10,10 +9,8 @@ use App\Entity\Game\Glenmore\GlenmoreParameters;
 use App\Entity\Game\Glenmore\PlayerGLM;
 use App\Entity\Game\Glenmore\PlayerTileGLM;
 use App\Entity\Game\Glenmore\PlayerTileResourceGLM;
-use App\Entity\Game\Glenmore\ResourceGLM;
 use App\Entity\Game\Glenmore\TileGLM;
 use App\Entity\Game\Glenmore\WarehouseLineGLM;
-use App\Repository\Game\GameUserRepository;
 use App\Repository\Game\Glenmore\BoardTileGLMRepository;
 use App\Repository\Game\Glenmore\GameGLMRepository;
 use App\Repository\Game\Glenmore\PlayerGLMRepository;
@@ -22,7 +19,7 @@ use App\Repository\Game\Glenmore\PlayerTileResourceGLMRepository;
 use App\Repository\Game\Glenmore\ResourceGLMRepository;
 use App\Repository\Game\Glenmore\TileGLMRepository;
 use App\Repository\Game\Glenmore\WarehouseLineGLMRepository;
-use App\Repository\Game\Myrmes\PlayerResourceMYRRepository;
+use App\Repository\Platform\UserRepository;
 use App\Service\Game\Glenmore\CardGLMService;
 use App\Service\Game\Glenmore\DataManagementGLMService;
 use App\Service\Game\Glenmore\GLMGameManagerService;
@@ -39,7 +36,7 @@ class GLMControllerTest extends WebTestCase
 {
 
     private KernelBrowser $client;
-    private GameUserRepository$gameUserRepository;
+    private UserRepository $userRepository;
 
     private PlayerGLMRepository $playerGLMRepository;
     private GLMGameManagerService $GLMGameManagerService;
@@ -80,7 +77,7 @@ class GLMControllerTest extends WebTestCase
         //GIVEN
         $gameId = $this->initializeGameWithFivePlayers();
         $newUrl = "/game/glenmore/" . $gameId;
-        $user6 = $this->gameUserRepository->findOneByUsername("test6");
+        $user6 = $this->userRepository->findOneByUsername("test6");
         $this->client->loginUser($user6);
         //WHEN
         $this->client->request("GET", $newUrl);
@@ -98,7 +95,7 @@ class GLMControllerTest extends WebTestCase
         $this->entityManager->persist($player);
         $this->entityManager->flush();
         $newUrl = "/game/glenmore/" . $gameId;
-        $user = $this->gameUserRepository->findOneByUsername("test0");
+        $user = $this->userRepository->findOneByUsername("test0");
         $this->client->loginUser($user);
         //WHEN
         $this->client->request("GET", $newUrl);
@@ -115,7 +112,7 @@ class GLMControllerTest extends WebTestCase
         $url = "/game/glenmore/" . $gameId . "/display/propertyCards/" . $player->getId();
         //WHEN
         $this->client->request("GET", $url);
-        $user = $this->gameUserRepository->findOneByUsername("test0");
+        $user = $this->userRepository->findOneByUsername("test0");
         $this->client->loginUser($user);
         //THEN
         $this->expectNotToPerformAssertions();
@@ -133,7 +130,7 @@ class GLMControllerTest extends WebTestCase
         $url = "/game/glenmore/" . $gameId . "/select/money/warehouse/production/mainBoard/" . $lineId;
         //WHEN
         $this->client->request("GET", $url);
-        $user = $this->gameUserRepository->findOneByUsername("test0");
+        $user = $this->userRepository->findOneByUsername("test0");
         $this->client->loginUser($user);
         //THEN
         $this->expectNotToPerformAssertions();
@@ -151,7 +148,7 @@ class GLMControllerTest extends WebTestCase
         $url = "/game/glenmore/" . $gameId . "/select/resource/warehouse/production/mainBoard/" . $lineId;
         //WHEN
         $this->client->request("GET", $url);
-        $user = $this->gameUserRepository->findOneByUsername("test0");
+        $user = $this->userRepository->findOneByUsername("test0");
         $this->client->loginUser($user);
         //THEN
         $this->expectNotToPerformAssertions();
@@ -166,7 +163,7 @@ class GLMControllerTest extends WebTestCase
         $line = $this->warehouseLineGLMRepository->findOneBy(["warehouseGLM" => $game->getMainBoard()->getWarehouse()->getId()]);
         $lineId = $line->getId();
         $newUrl = "/game/glenmore/" . $gameId . "/buy/resource/warehouse/production/mainBoard/" . $lineId;
-        $user4 = $this->gameUserRepository->findOneByUsername("test4");
+        $user4 = $this->userRepository->findOneByUsername("test4");
         $this->client->loginUser($user4);
         // WHEN
         $this->client->request("GET", $newUrl);
@@ -184,7 +181,7 @@ class GLMControllerTest extends WebTestCase
         $line = $this->warehouseLineGLMRepository->findOneBy(["warehouseGLM" => $game->getMainBoard()->getWarehouse()->getId()]);
         $lineId = $line->getId();
         $newUrl = "/game/glenmore/" . $gameId . "/buy/resource/warehouse/production/mainBoard/" . $lineId;
-        $user6 = $this->gameUserRepository->findOneByUsername("test6");
+        $user6 = $this->userRepository->findOneByUsername("test6");
         $this->client->loginUser($user6);
         // WHEN
         $this->client->request("GET", $newUrl);
@@ -201,7 +198,7 @@ class GLMControllerTest extends WebTestCase
         $line = $this->warehouseLineGLMRepository->findOneBy(["warehouseGLM" => $game->getMainBoard()->getWarehouse()->getId()]);
         $lineId = $line->getId();
         $newUrl = "/game/glenmore/" . $gameId . "/buy/resource/warehouse/production/mainBoard/" . $lineId;
-        $user = $this->gameUserRepository->findOneByUsername("test0");
+        $user = $this->userRepository->findOneByUsername("test0");
         $this->client->loginUser($user);
         //WHEN
         $this->client->request("GET", $newUrl);
@@ -241,7 +238,7 @@ class GLMControllerTest extends WebTestCase
         $this->entityManager->flush();
         $lineId = $line->getId();
         $newUrl = "/game/glenmore/" . $gameId . "/buy/resource/warehouse/production/mainBoard/" . $lineId;
-        $user = $this->gameUserRepository->findOneByUsername("test0");
+        $user = $this->userRepository->findOneByUsername("test0");
         $this->client->loginUser($user);
         //WHEN
         $this->client->request("GET", $newUrl);
@@ -259,7 +256,7 @@ class GLMControllerTest extends WebTestCase
         $line = $this->warehouseLineGLMRepository->findOneBy(["warehouseGLM" => $game->getMainBoard()->getWarehouse()->getId()]);
         $lineId = $line->getId();
         $newUrl = "/game/glenmore/" . $gameId . "/activate/selling/resource/warehouse/production/mainBoard/" . $lineId;
-        $user6 = $this->gameUserRepository->findOneByUsername("test6");
+        $user6 = $this->userRepository->findOneByUsername("test6");
         $this->client->loginUser($user6);
         // WHEN
         $this->client->request("GET", $newUrl);
@@ -277,7 +274,7 @@ class GLMControllerTest extends WebTestCase
         $line = $this->warehouseLineGLMRepository->findOneBy(["warehouseGLM" => $game->getMainBoard()->getWarehouse()->getId()]);
         $lineId = $line->getId();
         $newUrl = "/game/glenmore/" . $gameId . "/activate/selling/resource/warehouse/production/mainBoard/" . $lineId;
-        $user4 = $this->gameUserRepository->findOneByUsername("test4");
+        $user4 = $this->userRepository->findOneByUsername("test4");
         $this->client->loginUser($user4);
         // WHEN
         $this->client->request("GET", $newUrl);
@@ -299,7 +296,7 @@ class GLMControllerTest extends WebTestCase
         $line = $this->warehouseLineGLMRepository->findOneBy(["warehouseGLM" => $game->getMainBoard()->getWarehouse()->getId()]);
         $lineId = $line->getId();
         $newUrl = "/game/glenmore/" . $gameId . "/activate/selling/resource/warehouse/production/mainBoard/" . $lineId;
-        $user = $this->gameUserRepository->findOneByUsername("test0");
+        $user = $this->userRepository->findOneByUsername("test0");
         $this->client->loginUser($user);
         // WHEN
         $this->client->request("GET", $newUrl);
@@ -317,7 +314,7 @@ class GLMControllerTest extends WebTestCase
         $line = $this->warehouseLineGLMRepository->findOneBy(["warehouseGLM" => $game->getMainBoard()->getWarehouse()->getId()]);
         $lineId = $line->getId();
         $newUrl = "/game/glenmore/" . $gameId . "/activate/selling/resource/warehouse/production/mainBoard/" . $lineId;
-        $user = $this->gameUserRepository->findOneByUsername("test0");
+        $user = $this->userRepository->findOneByUsername("test0");
         $this->client->loginUser($user);
         // WHEN
         $this->client->request("GET", $newUrl);
@@ -341,7 +338,7 @@ class GLMControllerTest extends WebTestCase
         $this->entityManager->persist($boardTile);
         $this->entityManager->flush();
         $newUrl = "/game/glenmore/" . $gameId . "/select/tile/mainBoard/" . $boardTile->getId();
-        $user6 = $this->gameUserRepository->findOneByUsername("test6");
+        $user6 = $this->userRepository->findOneByUsername("test6");
         $this->client->loginUser($user6);
         // WHEN
         $this->client->request("GET", $newUrl);
@@ -364,7 +361,7 @@ class GLMControllerTest extends WebTestCase
         $this->entityManager->persist($boardTile);
         $this->entityManager->flush();
         $newUrl = "/game/glenmore/" . $gameId . "/select/tile/mainBoard/" . $boardTile->getId();
-        $user4 = $this->gameUserRepository->findOneByUsername("test4");
+        $user4 = $this->userRepository->findOneByUsername("test4");
         $this->client->loginUser($user4);
         // WHEN
         $this->client->request("GET", $newUrl);
@@ -396,7 +393,7 @@ class GLMControllerTest extends WebTestCase
         $this->entityManager->persist($player->getPersonalBoard());
         $this->entityManager->flush();
         $newUrl = "/game/glenmore/" . $gameId . "/select/tile/mainBoard/" . $boardTile->getId();
-        $user = $this->gameUserRepository->findOneByUsername("test0");
+        $user = $this->userRepository->findOneByUsername("test0");
         $this->client->loginUser($user);
         // WHEN
         $this->client->request("GET", $newUrl);
@@ -425,7 +422,7 @@ class GLMControllerTest extends WebTestCase
         $this->entityManager->persist($player->getPersonalBoard());
         $this->entityManager->flush();
         $newUrl = "/game/glenmore/" . $gameId . "/select/tile/mainBoard/" . $boardTile->getId();
-        $user = $this->gameUserRepository->findOneByUsername("test0");
+        $user = $this->userRepository->findOneByUsername("test0");
         $this->client->loginUser($user);
         // WHEN
         $this->client->request("GET", $newUrl);
@@ -467,7 +464,7 @@ class GLMControllerTest extends WebTestCase
         $this->entityManager->persist($player->getPersonalBoard());
         $this->entityManager->flush();
         $newUrl = "/game/glenmore/" . $gameId . "/select/tile/mainBoard/" . $boardTile->getId();
-        $user = $this->gameUserRepository->findOneByUsername("test0");
+        $user = $this->userRepository->findOneByUsername("test0");
         $this->client->loginUser($user);
         // WHEN
         $this->client->request("GET", $newUrl);
@@ -485,7 +482,7 @@ class GLMControllerTest extends WebTestCase
         /** @var PlayerTileGLM $village */
         $village = $this->playerTileGLMRepository->findOneBy(["personalBoard" => $player->getPersonalBoard()]);
         $newUrl = "/game/glenmore/" . $gameId . "/select/tile/personalBoard/" . $village->getId();
-        $user6 = $this->gameUserRepository->findOneByUsername("test6");
+        $user6 = $this->userRepository->findOneByUsername("test6");
         $this->client->loginUser($user6);
         // WHEN
         $this->client->request("GET", $newUrl);
@@ -503,7 +500,7 @@ class GLMControllerTest extends WebTestCase
         /** @var PlayerTileGLM $village */
         $village = $this->playerTileGLMRepository->findOneBy(["personalBoard" => $player->getPersonalBoard()]);
         $newUrl = "/game/glenmore/" . $gameId . "/select/tile/personalBoard/" . $village->getId();
-        $user6 = $this->gameUserRepository->findOneByUsername("test0");
+        $user6 = $this->userRepository->findOneByUsername("test0");
         $this->client->loginUser($user6);
         // WHEN
         $this->client->request("GET", $newUrl);
@@ -516,7 +513,7 @@ class GLMControllerTest extends WebTestCase
         // GIVEN
         $gameId = $this->initializeGameWithFivePlayers();
         $newUrl = "/game/glenmore/" . $gameId . "/select/leader";
-        $user = $this->gameUserRepository->findOneByUsername("test6");
+        $user = $this->userRepository->findOneByUsername("test6");
         $this->client->loginUser($user);
         // WHEN
         $this->client->request("GET", $newUrl);
@@ -530,7 +527,7 @@ class GLMControllerTest extends WebTestCase
         // GIVEN
         $gameId = $this->initializeGameWithFivePlayers();
         $newUrl = "/game/glenmore/" . $gameId . "/select/leader";
-        $user = $this->gameUserRepository->findOneByUsername("test0");
+        $user = $this->userRepository->findOneByUsername("test0");
         $this->client->loginUser($user);
         // WHEN
         $this->client->request("GET", $newUrl);
@@ -566,7 +563,7 @@ class GLMControllerTest extends WebTestCase
         $player->getPersonalBoard()->setBuyingTile($buyingTile);
         $this->entityManager->persist($player->getPersonalBoard());
         $this->entityManager->flush();
-        $user = $this->gameUserRepository->findOneByUsername("test0");
+        $user = $this->userRepository->findOneByUsername("test0");
         $this->client->loginUser($user);
         // WHEN
         $this->client->request("GET", $newUrl);
@@ -603,7 +600,7 @@ class GLMControllerTest extends WebTestCase
         $player->getPersonalBoard()->setBuyingTile($buyingTile);
         $this->entityManager->persist($player->getPersonalBoard());
         $this->entityManager->flush();
-        $user = $this->gameUserRepository->findOneByUsername("test0");
+        $user = $this->userRepository->findOneByUsername("test0");
         $this->client->loginUser($user);
         // WHEN
         $this->client->request("GET", $newUrl);
@@ -626,7 +623,7 @@ class GLMControllerTest extends WebTestCase
             ["resource" => $villagerResource, "playerTileGLM" => $village]
         );
         $newUrl = "/game/glenmore/" . $gameId . "/remove/" . $village->getId() . "/villager/" . $villager->getId();
-        $user = $this->gameUserRepository->findOneByUsername("test6");
+        $user = $this->userRepository->findOneByUsername("test6");
         $this->client->loginUser($user);
         // WHEN
         $this->client->request("GET", $newUrl);
@@ -648,7 +645,7 @@ class GLMControllerTest extends WebTestCase
             ["resource" => $villagerResource, "playerTileGLM" => $village]
         );
         $newUrl = "/game/glenmore/" . $gameId . "/remove/" . $village->getId() . "/villager/" . $villager->getId();
-        $user = $this->gameUserRepository->findOneByUsername("test1");
+        $user = $this->userRepository->findOneByUsername("test1");
         $this->client->loginUser($user);
         // WHEN
         $this->client->request("GET", $newUrl);
@@ -673,7 +670,7 @@ class GLMControllerTest extends WebTestCase
             ["resource" => $villagerResource, "playerTileGLM" => $village]
         );
         $newUrl = "/game/glenmore/" . $gameId . "/remove/" . $village->getId() . "/villager/" . $villager->getId();
-        $user = $this->gameUserRepository->findOneByUsername("test0");
+        $user = $this->userRepository->findOneByUsername("test0");
         $this->client->loginUser($user);
         // WHEN
         $this->client->request("GET", $newUrl);
@@ -712,7 +709,7 @@ class GLMControllerTest extends WebTestCase
         $this->entityManager->persist($player);
         $this->entityManager->flush();
         $newUrl = "/game/glenmore/" . $gameId . "/remove/" . $village->getId() . "/villager/" . $villager->getId();
-        $user = $this->gameUserRepository->findOneByUsername("test0");
+        $user = $this->userRepository->findOneByUsername("test0");
         $this->client->loginUser($user);
         // WHEN
         $this->client->request("GET", $newUrl);
@@ -726,7 +723,7 @@ class GLMControllerTest extends WebTestCase
         // GIVEN
         $gameId = $this->initializeGameWithFivePlayers();
         $newUrl = "/game/glenmore/" . $gameId . "/cancel/resources/selection";
-        $user = $this->gameUserRepository->findOneByUsername("test6");
+        $user = $this->userRepository->findOneByUsername("test6");
         $this->client->loginUser($user);
         // WHEN
         $this->client->request("GET", $newUrl);
@@ -740,7 +737,7 @@ class GLMControllerTest extends WebTestCase
         // GIVEN
         $gameId = $this->initializeGameWithFivePlayers();
         $newUrl = "/game/glenmore/" . $gameId . "/cancel/resources/selection";
-        $user = $this->gameUserRepository->findOneByUsername("test0");
+        $user = $this->userRepository->findOneByUsername("test0");
         $this->client->loginUser($user);
         // WHEN
         $this->client->request("GET", $newUrl);
@@ -754,7 +751,7 @@ class GLMControllerTest extends WebTestCase
         // GIVEN
         $gameId = $this->initializeGameWithFivePlayers();
         $newUrl = "/game/glenmore/" . $gameId . "/end/player/round";
-        $user = $this->gameUserRepository->findOneByUsername("test6");
+        $user = $this->userRepository->findOneByUsername("test6");
         $this->client->loginUser($user);
         // WHEN
         $this->client->request("GET", $newUrl);
@@ -775,7 +772,7 @@ class GLMControllerTest extends WebTestCase
         $this->entityManager->persist($mainBoard);
         $this->entityManager->flush();
         $newUrl = "/game/glenmore/" . $gameId . "/end/player/round";
-        $user = $this->gameUserRepository->findOneByUsername("test0");
+        $user = $this->userRepository->findOneByUsername("test0");
         $this->client->loginUser($user);
         // WHEN
         $this->client->request("GET", $newUrl);
@@ -794,7 +791,7 @@ class GLMControllerTest extends WebTestCase
         $this->entityManager->persist($player);
         $this->entityManager->flush();
         $newUrl = "/game/glenmore/" . $gameId . "/displayPersonalBoard/" . $player->getId();
-        $user = $this->gameUserRepository->findOneByUsername("test0");
+        $user = $this->userRepository->findOneByUsername("test0");
         $this->client->loginUser($user);
         // WHEN
         $this->client->request("GET", $newUrl);
@@ -807,7 +804,7 @@ class GLMControllerTest extends WebTestCase
         // GIVEN
         $gameId = $this->initializeGameWithFivePlayers();
         $newUrl = "/game/" . $gameId . "/glenmore/show/main/board";
-        $user = $this->gameUserRepository->findOneByUsername("test0");
+        $user = $this->userRepository->findOneByUsername("test0");
         $this->client->loginUser($user);
         // WHEN
         $this->client->request("GET", $newUrl);
@@ -820,7 +817,7 @@ class GLMControllerTest extends WebTestCase
         // GIVEN
         $gameId = $this->initializeGameWithFivePlayers();
         $newUrl = "/game/" . $gameId . "/glenmore/cancel/buying/tile";
-        $user = $this->gameUserRepository->findOneByUsername("test6");
+        $user = $this->userRepository->findOneByUsername("test6");
         $this->client->loginUser($user);
         // WHEN
         $this->client->request("GET", $newUrl);
@@ -854,7 +851,7 @@ class GLMControllerTest extends WebTestCase
         $this->entityManager->persist($player->getPersonalBoard());
         $this->entityManager->flush();
         $newUrl = "/game/" . $gameId . "/glenmore/cancel/buying/tile";
-        $user = $this->gameUserRepository->findOneByUsername("test0");
+        $user = $this->userRepository->findOneByUsername("test0");
         $this->client->loginUser($user);
         // WHEN
         $this->client->request("GET", $newUrl);
@@ -868,7 +865,7 @@ class GLMControllerTest extends WebTestCase
         // GIVEN
         $gameId = $this->initializeGameWithFivePlayers();
         $newUrl = "/game/" . $gameId . "/glenmore/cancel/activating/tile";
-        $user = $this->gameUserRepository->findOneByUsername("test6");
+        $user = $this->userRepository->findOneByUsername("test6");
         $this->client->loginUser($user);
         // WHEN
         $this->client->request("GET", $newUrl);
@@ -882,7 +879,7 @@ class GLMControllerTest extends WebTestCase
         // GIVEN
         $gameId = $this->initializeGameWithFivePlayers();
         $newUrl = "/game/" . $gameId . "/glenmore/cancel/activating/tile";
-        $user = $this->gameUserRepository->findOneByUsername("test0");
+        $user = $this->userRepository->findOneByUsername("test0");
         $this->client->loginUser($user);
         // WHEN
         $this->client->request("GET", $newUrl);
@@ -896,7 +893,7 @@ class GLMControllerTest extends WebTestCase
         //GIVEN
         $gameId = $this->initializeGameWithFivePlayers();
         $newUrl = 'game/glenmore/' . $gameId . '/validate/resources/selection';
-        $user6 = $this->gameUserRepository->findOneByUsername("test5");
+        $user6 = $this->userRepository->findOneByUsername("test5");
         $this->client->loginUser($user6);
         //WHEN
         $this->client->request("GET", $newUrl);
@@ -910,7 +907,7 @@ class GLMControllerTest extends WebTestCase
         //GIVEN
         $gameId = $this->initializeGameWithFivePlayers();
         $newUrl = 'game/glenmore/' . $gameId . '/validate/resources/selection';
-        $user0 = $this->gameUserRepository->findOneByUsername("test0");
+        $user0 = $this->userRepository->findOneByUsername("test0");
         //WHEN
         $this->client->request("GET", $newUrl);
         //THEN
@@ -922,7 +919,7 @@ class GLMControllerTest extends WebTestCase
     {
         $this->client = static::createClient();
         $this->GLMGameManagerService = static::getContainer()->get(GLMGameManagerService::class);
-        $this->gameUserRepository = static::getContainer()->get(GameUserRepository::class);
+        $this->userRepository = static::getContainer()->get(UserRepository::class);
         $this->playerTileGLMRepository = static::getContainer()->get(PlayerTileGLMRepository::class);
         $this->playerGLMRepository = static::getContainer()->get(PlayerGLMRepository::class);
         $this->gameGLMRepository = static::getContainer()->get(GameGLMRepository::class);
@@ -937,7 +934,7 @@ class GLMControllerTest extends WebTestCase
         $this->tileGLMService = static::getContainer()->get(TileGLMService::class);
         $this->warehouseLineGLMRepository = static::getContainer()->get(WarehouseLineGLMRepository::class);
         $this->warehouseGLMService = static::getContainer()->get(WarehouseGLMService::class);
-        $user1 = $this->gameUserRepository->findOneByUsername("test0");
+        $user1 = $this->userRepository->findOneByUsername("test0");
         $this->client->loginUser($user1);
         $gameId = $this->GLMGameManagerService->createGame();
         $game = $this->gameGLMRepository->findOneById($gameId);

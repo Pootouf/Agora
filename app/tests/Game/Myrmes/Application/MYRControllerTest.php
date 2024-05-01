@@ -8,29 +8,26 @@ use App\Entity\Game\Myrmes\MyrmesParameters;
 use App\Entity\Game\Myrmes\PheromonMYR;
 use App\Entity\Game\Myrmes\PheromonTileMYR;
 use App\Entity\Game\Myrmes\PlayerResourceMYR;
-use App\Entity\Game\Myrmes\TileTypeMYR;
-use App\Repository\Game\GameUserRepository;
 use App\Repository\Game\Myrmes\AnthillHoleMYRRepository;
-use App\Repository\Game\Myrmes\AnthillWorkerMYRRepository;
 use App\Repository\Game\Myrmes\GameMYRRepository;
 use App\Repository\Game\Myrmes\PlayerMYRRepository;
 use App\Repository\Game\Myrmes\PlayerResourceMYRRepository;
 use App\Repository\Game\Myrmes\ResourceMYRRepository;
 use App\Repository\Game\Myrmes\TileMYRRepository;
 use App\Repository\Game\Myrmes\TileTypeMYRRepository;
+use App\Repository\Platform\UserRepository;
 use App\Service\Game\Myrmes\MYRGameManagerService;
 use App\Service\Game\Myrmes\MYRService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
-use function Symfony\Component\Translation\t;
 
 class MYRControllerTest extends WebTestCase
 {
 
     private KernelBrowser $client;
-    private GameUserRepository $gameUserRepository;
+    private UserRepository $userRepository;
 
     private ResourceMYRRepository $resourceMYRRepository;
     private PlayerMYRRepository $playerMYRRepository;
@@ -252,7 +249,7 @@ class MYRControllerTest extends WebTestCase
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
         $tile = $game->getMainBoardMYR()->getTiles()->first();
         $url = "/game/myrmes/" . $gameId . "/display/mainBoard/box/" . $tile->getId() . "/actions";
-        $user2 = $this->gameUserRepository->findOneByUsername("test2");
+        $user2 = $this->userRepository->findOneByUsername("test2");
         $this->client->loginUser($user2);
         //WHEN
         $this->client->request("GET", $url);
@@ -315,7 +312,7 @@ class MYRControllerTest extends WebTestCase
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
         $tile = $game->getMainBoardMYR()->getTiles()->first();
         $url = "/game/myrmes/" . $gameId . "/workerPhase/displayBoardBoxActions/10/5/0/" . $tile->getId() . "/ ";
-        $user2 = $this->gameUserRepository->findOneByUsername("test2");
+        $user2 = $this->userRepository->findOneByUsername("test2");
         $this->client->loginUser($user2);
         //WHEN
         $this->client->request("GET", $url);
@@ -424,7 +421,7 @@ class MYRControllerTest extends WebTestCase
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
         $playerResource = $game->getPlayers()->first()->getPersonalBoardMYR()->getPlayerResourceMYRs()->first();
         $url = "/game/myrmes/" . $gameId . "/display/personalBoard/throwResource/" . $playerResource->getId() . "/actions";
-        $user2 = $this->gameUserRepository->findOneByUsername("test2");
+        $user2 = $this->userRepository->findOneByUsername("test2");
         $this->client->loginUser($user2);
         //WHEN
         $this->client->request("GET", $url);
@@ -484,7 +481,7 @@ class MYRControllerTest extends WebTestCase
         /** @var GameMYR $game */
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
         $url = "/game/myrmes/" . $gameId . "/up/bonus/";
-        $user2 = $this->gameUserRepository->findOneByUsername("test2");
+        $user2 = $this->userRepository->findOneByUsername("test2");
         $this->client->loginUser($user2);
         //WHEN
         $this->client->request("GET", $url);
@@ -502,7 +499,7 @@ class MYRControllerTest extends WebTestCase
         $player = $game->getPlayers()->last();
         $player->setTurnOfPlayer(false);
         $url = "/game/myrmes/" . $gameId . "/up/bonus/";
-        $user2 = $this->gameUserRepository->findOneByUsername("test1");
+        $user2 = $this->userRepository->findOneByUsername("test1");
         $this->client->loginUser($user2);
         //WHEN
         $this->client->request("GET", $url);
@@ -578,7 +575,7 @@ class MYRControllerTest extends WebTestCase
         /** @var GameMYR $game */
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
         $url = "/game/myrmes/" . $gameId . "/lower/bonus/";
-        $user2 = $this->gameUserRepository->findOneByUsername("test2");
+        $user2 = $this->userRepository->findOneByUsername("test2");
         $this->client->loginUser($user2);
         //WHEN
         $this->client->request("GET", $url);
@@ -596,7 +593,7 @@ class MYRControllerTest extends WebTestCase
         $player = $game->getPlayers()->last();
         $player->setTurnOfPlayer(false);
         $url = "/game/myrmes/" . $gameId . "/lower/bonus/";
-        $user2 = $this->gameUserRepository->findOneByUsername("test1");
+        $user2 = $this->userRepository->findOneByUsername("test1");
         $this->client->loginUser($user2);
         //WHEN
         $this->client->request("GET", $url);
@@ -671,7 +668,7 @@ class MYRControllerTest extends WebTestCase
         /** @var GameMYR $game */
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
         $url = "/game/myrmes/" . $gameId . "/confirm/bonus/";
-        $user2 = $this->gameUserRepository->findOneByUsername("test2");
+        $user2 = $this->userRepository->findOneByUsername("test2");
         $this->client->loginUser($user2);
         //WHEN
         $this->client->request("GET", $url);
@@ -689,7 +686,7 @@ class MYRControllerTest extends WebTestCase
         $player = $game->getPlayers()->last();
         $player->setTurnOfPlayer(false);
         $url = "/game/myrmes/" . $gameId . "/confirm/bonus/";
-        $user2 = $this->gameUserRepository->findOneByUsername("test1");
+        $user2 = $this->userRepository->findOneByUsername("test1");
         $this->client->loginUser($user2);
         //WHEN
         $this->client->request("GET", $url);
@@ -750,7 +747,7 @@ class MYRControllerTest extends WebTestCase
         /** @var GameMYR $game */
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
         $url = "/game/myrmes/" . $gameId . "/placeNurse/1";
-        $user2 = $this->gameUserRepository->findOneByUsername("test2");
+        $user2 = $this->userRepository->findOneByUsername("test2");
         $this->client->loginUser($user2);
         //WHEN
         $this->client->request("GET", $url);
@@ -768,7 +765,7 @@ class MYRControllerTest extends WebTestCase
         $player = $game->getPlayers()->last();
         $player->setTurnOfPlayer(false);
         $url = "/game/myrmes/" . $gameId . "/placeNurse/1";
-        $user2 = $this->gameUserRepository->findOneByUsername("test1");
+        $user2 = $this->userRepository->findOneByUsername("test1");
         $this->client->loginUser($user2);
         //WHEN
         $this->client->request("GET", $url);
@@ -848,7 +845,7 @@ class MYRControllerTest extends WebTestCase
         /** @var GameMYR $game */
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
         $url = "/game/myrmes/" . $gameId . "/confirm/nursesPlacement";
-        $user2 = $this->gameUserRepository->findOneByUsername("test2");
+        $user2 = $this->userRepository->findOneByUsername("test2");
         $this->client->loginUser($user2);
         //WHEN
         $this->client->request("GET", $url);
@@ -866,7 +863,7 @@ class MYRControllerTest extends WebTestCase
         $player = $game->getPlayers()->last();
         $player->setTurnOfPlayer(false);
         $url = "/game/myrmes/" . $gameId . "/confirm/nursesPlacement";
-        $user2 = $this->gameUserRepository->findOneByUsername("test1");
+        $user2 = $this->userRepository->findOneByUsername("test1");
         $this->client->loginUser($user2);
         //WHEN
         $this->client->request("GET", $url);
@@ -951,7 +948,7 @@ class MYRControllerTest extends WebTestCase
         /** @var GameMYR $game */
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
         $url = "/game/myrmes/" . $gameId . "/cancel/nursesPlacement";
-        $user2 = $this->gameUserRepository->findOneByUsername("test2");
+        $user2 = $this->userRepository->findOneByUsername("test2");
         $this->client->loginUser($user2);
         //WHEN
         $this->client->request("GET", $url);
@@ -969,7 +966,7 @@ class MYRControllerTest extends WebTestCase
         $player = $game->getPlayers()->last();
         $player->setTurnOfPlayer(false);
         $url = "/game/myrmes/" . $gameId . "/cancel/nursesPlacement";
-        $user2 = $this->gameUserRepository->findOneByUsername("test1");
+        $user2 = $this->userRepository->findOneByUsername("test1");
         $this->client->loginUser($user2);
         //WHEN
         $this->client->request("GET", $url);
@@ -1028,7 +1025,7 @@ class MYRControllerTest extends WebTestCase
         /** @var GameMYR $game */
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
         $url = "/games/myrmes/" . $gameId . "/selectAntHillHoleToSendWorker";
-        $user2 = $this->gameUserRepository->findOneByUsername("test2");
+        $user2 = $this->userRepository->findOneByUsername("test2");
         $this->client->loginUser($user2);
         //WHEN
         $this->client->request("GET", $url);
@@ -1087,7 +1084,7 @@ class MYRControllerTest extends WebTestCase
         /** @var GameMYR $game */
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
         $url = "/game/myrmes/" . $gameId . "/workerPhase/mainBoard/10/5/0/ ";
-        $user2 = $this->gameUserRepository->findOneByUsername("test2");
+        $user2 = $this->userRepository->findOneByUsername("test2");
         $this->client->loginUser($user2);
         //WHEN
         $this->client->request("GET", $url);
@@ -1146,7 +1143,7 @@ class MYRControllerTest extends WebTestCase
         /** @var GameMYR $game */
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
         $url = "/game/myrmes/" . $gameId . "/placeWorkerOnColonyLevelTrack/1";
-        $user2 = $this->gameUserRepository->findOneByUsername("test2");
+        $user2 = $this->userRepository->findOneByUsername("test2");
         $this->client->loginUser($user2);
         //WHEN
         $this->client->request("GET", $url);
@@ -1163,7 +1160,7 @@ class MYRControllerTest extends WebTestCase
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
         $url = "/game/myrmes/" . $gameId . "/placeWorkerOnColonyLevelTrack/1";
         $game->getPlayers()->last()->setTurnOfPlayer(false);
-        $user2 = $this->gameUserRepository->findOneByUsername("test1");
+        $user2 = $this->userRepository->findOneByUsername("test1");
         $this->client->loginUser($user2);
         //WHEN
         $this->client->request("GET", $url);
@@ -1264,7 +1261,7 @@ class MYRControllerTest extends WebTestCase
         /** @var GameMYR $game */
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
         $url = "/game/myrmes/" . $gameId . "/placeWorkerOnAntHillHole/1";
-        $user2 = $this->gameUserRepository->findOneByUsername("test2");
+        $user2 = $this->userRepository->findOneByUsername("test2");
         $this->client->loginUser($user2);
         //WHEN
         $this->client->request("GET", $url);
@@ -1281,7 +1278,7 @@ class MYRControllerTest extends WebTestCase
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
         $url = "/game/myrmes/" . $gameId . "/placeWorkerOnAntHillHole/1";
         $game->getPlayers()->last()->setTurnOfPlayer(false);
-        $user2 = $this->gameUserRepository->findOneByUsername("test1");
+        $user2 = $this->userRepository->findOneByUsername("test1");
         $this->client->loginUser($user2);
         //WHEN
         $this->client->request("GET", $url);
@@ -1387,7 +1384,7 @@ class MYRControllerTest extends WebTestCase
         /** @var GameMYR $game */
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
         $url = "/game/myrmes/" . $gameId . "/moveAnt/neededResources/soldierNb/0/0/[]";
-        $user2 = $this->gameUserRepository->findOneByUsername("test2");
+        $user2 = $this->userRepository->findOneByUsername("test2");
         $this->client->loginUser($user2);
         //WHEN
         $this->client->request("GET", $url);
@@ -1462,7 +1459,7 @@ class MYRControllerTest extends WebTestCase
         /** @var GameMYR $game */
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
         $url = "/game/myrmes/" . $gameId . "/moveAnt/neededResources/movementPoints/originTile/0/0/destinationTile/0/0";
-        $user2 = $this->gameUserRepository->findOneByUsername("test2");
+        $user2 = $this->userRepository->findOneByUsername("test2");
         $this->client->loginUser($user2);
         //WHEN
         $this->client->request("GET", $url);
@@ -1537,7 +1534,7 @@ class MYRControllerTest extends WebTestCase
         /** @var GameMYR $game */
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
         $url = "/game/myrmes/" . $gameId . "/moveAnt/isValid/tile/0/0";
-        $user2 = $this->gameUserRepository->findOneByUsername("test2");
+        $user2 = $this->userRepository->findOneByUsername("test2");
         $this->client->loginUser($user2);
         //WHEN
         $this->client->request("GET", $url);
@@ -1596,7 +1593,7 @@ class MYRControllerTest extends WebTestCase
         /** @var GameMYR $game */
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
         $url = "/game/myrmes/" . $gameId . "/moveAnt/canClean/pheromone/0/0/0";
-        $user2 = $this->gameUserRepository->findOneByUsername("test2");
+        $user2 = $this->userRepository->findOneByUsername("test2");
         $this->client->loginUser($user2);
         //WHEN
         $this->client->request("GET", $url);
@@ -1699,7 +1696,7 @@ class MYRControllerTest extends WebTestCase
         /** @var GameMYR $game */
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
         $url = "/game/myrmes/" . $gameId . "/canPlace/pheromone/0/0/0/0/ ";
-        $user2 = $this->gameUserRepository->findOneByUsername("test2");
+        $user2 = $this->userRepository->findOneByUsername("test2");
         $this->client->loginUser($user2);
         //WHEN
         $this->client->request("GET", $url);
@@ -1787,7 +1784,7 @@ class MYRControllerTest extends WebTestCase
         /** @var GameMYR $game */
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
         $url = "/game/myrmes/" . $gameId . "/moveAnt/clean/pheromone/0/0";
-        $user2 = $this->gameUserRepository->findOneByUsername("test2");
+        $user2 = $this->userRepository->findOneByUsername("test2");
         $this->client->loginUser($user2);
         //WHEN
         $this->client->request("GET", $url);
@@ -1804,7 +1801,7 @@ class MYRControllerTest extends WebTestCase
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
         $url = "/game/myrmes/" . $gameId . "/moveAnt/clean/pheromone/0/0";
         $game->getPlayers()->last()->setTurnOfPlayer(false);
-        $user2 = $this->gameUserRepository->findOneByUsername("test1");
+        $user2 = $this->userRepository->findOneByUsername("test1");
         $this->client->loginUser($user2);
         //WHEN
         $this->client->request("GET", $url);
@@ -1820,7 +1817,7 @@ class MYRControllerTest extends WebTestCase
         /** @var GameMYR $game */
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
         $url = "/game/myrmes/" . $gameId . "/moveAnt/clean/pheromone/0/0";
-        $user2 = $this->gameUserRepository->findOneByUsername("test0");
+        $user2 = $this->userRepository->findOneByUsername("test0");
         $this->client->loginUser($user2);
         //WHEN
         $this->client->request("GET", $url);
@@ -1975,7 +1972,7 @@ class MYRControllerTest extends WebTestCase
         /** @var GameMYR $game */
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
         $url = "/game/myrmes/" . $gameId . "/moveAnt/getPheromoneTiles/coords/givenTile/0/0";
-        $user2 = $this->gameUserRepository->findOneByUsername("test2");
+        $user2 = $this->userRepository->findOneByUsername("test2");
         $this->client->loginUser($user2);
         //WHEN
         $this->client->request("GET", $url);
@@ -2109,7 +2106,7 @@ class MYRControllerTest extends WebTestCase
         /** @var GameMYR $game */
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
         $url = "/game/myrmes/" . $gameId . "/moveAnt/direction/1";
-        $user2 = $this->gameUserRepository->findOneByUsername("test2");
+        $user2 = $this->userRepository->findOneByUsername("test2");
         $this->client->loginUser($user2);
         //WHEN
         $this->client->request("GET", $url);
@@ -2127,7 +2124,7 @@ class MYRControllerTest extends WebTestCase
         $player = $game->getPlayers()->last();
         $player->setTurnOfPlayer(false);
         $url = "/game/myrmes/" . $gameId . "/moveAnt/direction/1";
-        $user2 = $this->gameUserRepository->findOneByUsername("test1");
+        $user2 = $this->userRepository->findOneByUsername("test1");
         $this->client->loginUser($user2);
         //WHEN
         $this->client->request("GET", $url);
@@ -2265,7 +2262,7 @@ class MYRControllerTest extends WebTestCase
         /** @var GameMYR $game */
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
         $url = "/game/myrmes/" . $gameId . "/confirm/action/workerPhase/";
-        $user2 = $this->gameUserRepository->findOneByUsername("test2");
+        $user2 = $this->userRepository->findOneByUsername("test2");
         $this->client->loginUser($user2);
         //WHEN
         $this->client->request("GET", $url);
@@ -2282,7 +2279,7 @@ class MYRControllerTest extends WebTestCase
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
         $url = "/game/myrmes/" . $gameId . "/confirm/action/workerPhase/";
         $game->getPlayers()->last()->setTurnOfPlayer(false);
-        $user2 = $this->gameUserRepository->findOneByUsername("test1");
+        $user2 = $this->userRepository->findOneByUsername("test1");
         $this->client->loginUser($user2);
         //WHEN
         $this->client->request("GET", $url);
@@ -2375,7 +2372,7 @@ class MYRControllerTest extends WebTestCase
         /** @var GameMYR $game */
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
         $url = "/game/myrmes/" . $gameId . "/harvestResource/1";
-        $user2 = $this->gameUserRepository->findOneByUsername("test2");
+        $user2 = $this->userRepository->findOneByUsername("test2");
         $this->client->loginUser($user2);
         //WHEN
         $this->client->request("GET", $url);
@@ -2392,7 +2389,7 @@ class MYRControllerTest extends WebTestCase
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
         $url = "/game/myrmes/" . $gameId . "/harvestResource/1";
         $game->getPlayers()->last()->setTurnOfPlayer(false);
-        $user2 = $this->gameUserRepository->findOneByUsername("test1");
+        $user2 = $this->userRepository->findOneByUsername("test1");
         $this->client->loginUser($user2);
         //WHEN
         $this->client->request("GET", $url);
@@ -2507,7 +2504,7 @@ class MYRControllerTest extends WebTestCase
         /** @var GameMYR $game */
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
         $url = "/game/myrmes/" . $gameId . "/end/harvestPhase";
-        $user2 = $this->gameUserRepository->findOneByUsername("test2");
+        $user2 = $this->userRepository->findOneByUsername("test2");
         $this->client->loginUser($user2);
         //WHEN
         $this->client->request("GET", $url);
@@ -2524,7 +2521,7 @@ class MYRControllerTest extends WebTestCase
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
         $url = "/game/myrmes/" . $gameId . "/end/harvestPhase";
         $game->getPlayers()->last()->setTurnOfPlayer(false);
-        $user2 = $this->gameUserRepository->findOneByUsername("test1");
+        $user2 = $this->userRepository->findOneByUsername("test1");
         $this->client->loginUser($user2);
         //WHEN
         $this->client->request("GET", $url);
@@ -2722,7 +2719,7 @@ class MYRControllerTest extends WebTestCase
         /** @var GameMYR $game */
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
         $url = "/game/myrmes/" . $gameId . "/workshop/activate/anthillHolePlacement";
-        $user2 = $this->gameUserRepository->findOneByUsername("test2");
+        $user2 = $this->userRepository->findOneByUsername("test2");
         $this->client->loginUser($user2);
         //WHEN
         $this->client->request("GET", $url);
@@ -2739,7 +2736,7 @@ class MYRControllerTest extends WebTestCase
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
         $url = "/game/myrmes/" . $gameId . "/workshop/activate/anthillHolePlacement";
         $game->getPlayers()->last()->setTurnOfPlayer(false);
-        $user2 = $this->gameUserRepository->findOneByUsername("test1");
+        $user2 = $this->userRepository->findOneByUsername("test1");
         $this->client->loginUser($user2);
         //WHEN
         $this->client->request("GET", $url);
@@ -2799,7 +2796,7 @@ class MYRControllerTest extends WebTestCase
         /** @var GameMYR $game */
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
         $url = "/game/myrmes/" . $gameId . "/workshop/activate/anthillHolePlacement/1";
-        $user2 = $this->gameUserRepository->findOneByUsername("test2");
+        $user2 = $this->userRepository->findOneByUsername("test2");
         $this->client->loginUser($user2);
         //WHEN
         $this->client->request("GET", $url);
@@ -2816,7 +2813,7 @@ class MYRControllerTest extends WebTestCase
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
         $url = "/game/myrmes/" . $gameId . "/workshop/activate/anthillHolePlacement/1";
         $game->getPlayers()->last()->setTurnOfPlayer(false);
-        $user2 = $this->gameUserRepository->findOneByUsername("test1");
+        $user2 = $this->userRepository->findOneByUsername("test1");
         $this->client->loginUser($user2);
         //WHEN
         $this->client->request("GET", $url);
@@ -2901,7 +2898,7 @@ class MYRControllerTest extends WebTestCase
         /** @var GameMYR $game */
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
         $url = "/game/myrmes/" . $gameId . "/workshop/increaseAnthillLevel";
-        $user2 = $this->gameUserRepository->findOneByUsername("test2");
+        $user2 = $this->userRepository->findOneByUsername("test2");
         $this->client->loginUser($user2);
         //WHEN
         $this->client->request("GET", $url);
@@ -2918,7 +2915,7 @@ class MYRControllerTest extends WebTestCase
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
         $url = "/game/myrmes/" . $gameId . "/workshop/increaseAnthillLevel";
         $game->getPlayers()->last()->setTurnOfPlayer(false);
-        $user2 = $this->gameUserRepository->findOneByUsername("test1");
+        $user2 = $this->userRepository->findOneByUsername("test1");
         $this->client->loginUser($user2);
         //WHEN
         $this->client->request("GET", $url);
@@ -3005,7 +3002,7 @@ class MYRControllerTest extends WebTestCase
         /** @var GameMYR $game */
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
         $url = "/game/myrmes/" . $gameId . "/workshop/createNurse";
-        $user2 = $this->gameUserRepository->findOneByUsername("test2");
+        $user2 = $this->userRepository->findOneByUsername("test2");
         $this->client->loginUser($user2);
         //WHEN
         $this->client->request("GET", $url);
@@ -3022,7 +3019,7 @@ class MYRControllerTest extends WebTestCase
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
         $url = "/game/myrmes/" . $gameId . "/workshop/createNurse";
         $game->getPlayers()->last()->setTurnOfPlayer(false);
-        $user2 = $this->gameUserRepository->findOneByUsername("test1");
+        $user2 = $this->userRepository->findOneByUsername("test1");
         $this->client->loginUser($user2);
         //WHEN
         $this->client->request("GET", $url);
@@ -3113,7 +3110,7 @@ class MYRControllerTest extends WebTestCase
         /** @var GameMYR $game */
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
         $url = "/game/myrmes/" . $gameId . "/workshop/confirmWorkshopActions";
-        $user2 = $this->gameUserRepository->findOneByUsername("test2");
+        $user2 = $this->userRepository->findOneByUsername("test2");
         $this->client->loginUser($user2);
         //WHEN
         $this->client->request("GET", $url);
@@ -3130,7 +3127,7 @@ class MYRControllerTest extends WebTestCase
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
         $url = "/game/myrmes/" . $gameId . "/workshop/confirmWorkshopActions";
         $game->getPlayers()->last()->setTurnOfPlayer(false);
-        $user2 = $this->gameUserRepository->findOneByUsername("test1");
+        $user2 = $this->userRepository->findOneByUsername("test1");
         $this->client->loginUser($user2);
         //WHEN
         $this->client->request("GET", $url);
@@ -3259,7 +3256,7 @@ class MYRControllerTest extends WebTestCase
         $player = $game->getPlayers()->first();
         $resource = $player->getPersonalBoardMYR()->getPlayerResourceMYRs()->first();
         $url = "/game/myrmes/" . $gameId . "/throwResource/warehouse/" . $resource->getId();
-        $user2 = $this->gameUserRepository->findOneByUsername("test2");
+        $user2 = $this->userRepository->findOneByUsername("test2");
         $this->client->loginUser($user2);
         //WHEN
         $this->client->request("GET", $url);
@@ -3278,7 +3275,7 @@ class MYRControllerTest extends WebTestCase
         $resource = $player->getPersonalBoardMYR()->getPlayerResourceMYRs()->first();
         $url = "/game/myrmes/" . $gameId . "/throwResource/warehouse/" . $resource->getId();
         $game->getPlayers()->last()->setTurnOfPlayer(false);
-        $user2 = $this->gameUserRepository->findOneByUsername("test1");
+        $user2 = $this->userRepository->findOneByUsername("test1");
         $this->client->loginUser($user2);
         //WHEN
         $this->client->request("GET", $url);
@@ -3379,7 +3376,7 @@ class MYRControllerTest extends WebTestCase
         /** @var GameMYR $game */
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
         $url = "/game/myrmes/" . $gameId . "/display/menu/pheromone/1";
-        $user2 = $this->gameUserRepository->findOneByUsername("test2");
+        $user2 = $this->userRepository->findOneByUsername("test2");
         $this->client->loginUser($user2);
         //WHEN
         $this->client->request("GET", $url);
@@ -3407,7 +3404,7 @@ class MYRControllerTest extends WebTestCase
     {
         $this->client = static::createClient();
         $this->MYRGameManagerService = static::getContainer()->get(MYRGameManagerService::class);
-        $this->gameUserRepository = static::getContainer()->get(GameUserRepository::class);
+        $this->userRepository = static::getContainer()->get(UserRepository::class);
         $this->playerMYRRepository = static::getContainer()->get(PlayerMYRRepository::class);
         $this->gameMYRRepository = static::getContainer()->get(GameMYRRepository::class);
         $this->anthillHoleMYRRepository = static::getContainer()->get(AnthillHoleMYRRepository::class);
@@ -3417,7 +3414,7 @@ class MYRControllerTest extends WebTestCase
         $this->tileMYRRepository = static::getContainer()->get(TileMYRRepository::class);
         $this->MYRService = static::getContainer()->get(MYRService::class);
         $this->playerResourceMYRRepository = static::getContainer()->get(PlayerResourceMYRRepository::class);
-        $user1 = $this->gameUserRepository->findOneByUsername("test0");
+        $user1 = $this->userRepository->findOneByUsername("test0");
         $this->client->loginUser($user1);
         $gameId = $this->MYRGameManagerService->createGame();
         $game = $this->gameMYRRepository->findOneById($gameId);
