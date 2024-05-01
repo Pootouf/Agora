@@ -157,6 +157,21 @@
                 tile.classList.add("fill-[rgba(255,_255,_255,_0.35)]")
                 tile.classList.add("displayedActionsTile")
         }
+
+        {% if isSpectator %}
+        {% set path = path('app_game_show_myr', {'id': game.id}) ~ 'notification' %}
+        {% else %}
+        {% set path = path('app_game_show_myr', {'id': game.id}) ~ 'notification' ~ player.username %}
+        {% endif %}
+
+        const eventSourceNotification = new EventSource("{{ mercure(path)|escape('js') }}");
+        eventSourceNotification.onmessage = event => {
+            let data = event.data.split('_');
+            if (data.length >= 5 ) {
+                new GameNotification(Number(data[0]), data[1], data[2], data[3], data[4]);
+            }
+        }
+
     </script>
 
     {# TILE POSITIONING MANAGEMENT #}
