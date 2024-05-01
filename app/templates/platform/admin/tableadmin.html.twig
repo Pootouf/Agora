@@ -142,9 +142,8 @@ Administration des tables
                <tr class="{{ colorClass }} border-b hover:bg-gray-50" onclick="toggleMenu('{{ board.id }}')">
                   <td class="p-2 text-center">
                      {% if board.game is not empty %}
-                     <a href="{{ path('app_dashboard_game_description', {'game_id': board.game.id}) }}" onclick="event.stopPropagation();">
                      <img src="{{ asset(board.game.imgURL) }}" class="w-32 h-16 md:w-24 md:h-24 rounded-md mx-auto" alt="{{ board.game.name }}">
-                     </a>
+                     </>
                      {% else %}
                      <span class="text-red-500">Image non disponible</span>
                      {% endif %}
@@ -185,10 +184,8 @@ Administration des tables
                            <td style="width: {{ cellWidth }}%;{% if column < 4 %} margin-right: 1%;{% endif %}">
                               {% if user %}
                               <div style="width: 50px; margin: 0 auto;">
-                                 <a href="{{ path('app_other_user_profile', {'user_id': user.id}) }}" onclick="event.stopPropagation();">
-                                    <img src="https://avatarfiles.alphacoders.com/244/thumb-244471.png" alt="Avatar de {{ user.username }}" class="w-8 h-8 rounded-full object-cover mb-1">
-                                    <div class="text-black font-bold">{{ user.username }}</div>
-                                 </a>
+                                  <img src="https://avatarfiles.alphacoders.com/244/thumb-244471.png" alt="Avatar de {{ user.username }}" class="w-8 h-8 rounded-full object-cover mb-1">
+                                  <div class="text-black font-bold">{{ user.username }}</div>
                               </div>
                               {% endif %}
                            </td>
@@ -274,10 +271,8 @@ Administration des tables
                                        <td style="width: {{ cellWidth }}%;{% if column < 4 %} margin-right: 1%;{% endif %}">
                                           {% if user %}
                                           <div style="width: 50px; margin: 0 auto;">
-                                             <a href="{{ path('app_other_user_profile', {'user_id': user.id}) }}" onclick="event.stopPropagation();">
-                                                <img src="https://avatarfiles.alphacoders.com/244/thumb-244471.png" alt="Avatar de {{ user.username }}" class="w-8 h-8 rounded-full object-cover mb-1">
-                                                <div class="text-black font-bold">{{ user.username }}</div>
-                                             </a>
+                                              <img src="https://avatarfiles.alphacoders.com/244/thumb-244471.png" alt="Avatar de {{ user.username }}" class="w-8 h-8 rounded-full object-cover mb-1">
+                                              <div class="text-black font-bold">{{ user.username }}</div>
                                           </div>
                                           {% endif %}
                                        </td>
