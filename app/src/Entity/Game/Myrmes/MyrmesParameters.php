@@ -426,5 +426,4 @@ interface MyrmesParameters
 
     //NOTIFICATIONS
     const int NOTIFICATION_DURATION = 10;
-    const int NOTIFICATION_DURATION_PHASE = 20;
 }

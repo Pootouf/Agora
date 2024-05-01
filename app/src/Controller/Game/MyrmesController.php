@@ -349,6 +349,11 @@ class MyrmesController extends AbstractController
         try {
             $this->eventMYRService->upBonus($player);
         } catch (Exception) {
+            $this->publishNotification($game, MyrmesParameters::NOTIFICATION_DURATION,
+                MyrmesTranslation::WARNING,
+                MyrmesTranslation::ERROR_BONUS_INCREASE_IMPOSSIBLE,
+                GameParameters::ALERT_NOTIFICATION_TYPE,
+                GameParameters::NOTIFICATION_COLOR_RED, $player->getUsername());
             $message = $player->getUsername() . " a essayé d'augmenter son bonus mais n'a pas pu";
             $this->logService->sendPlayerLog($game, $player, $message);
             return new Response("bonus is not reachable for player", Response::HTTP_FORBIDDEN);
@@ -378,6 +383,11 @@ class MyrmesController extends AbstractController
         try {
             $this->eventMYRService->lowerBonus($player);
         } catch (Exception) {
+            $this->publishNotification($game, MyrmesParameters::NOTIFICATION_DURATION,
+                MyrmesTranslation::WARNING,
+                MyrmesTranslation::ERROR_BONUS_DECREASE_IMPOSSIBLE,
+                    GameParameters::ALERT_NOTIFICATION_TYPE,
+                GameParameters::NOTIFICATION_COLOR_RED, $player->getUsername());
             $message = $player->getUsername() . " a essayé d'abaisser son bonus mais n'a pas pu";
             $this->logService->sendPlayerLog($game, $player, $message);
             return new Response("bonus is not reachable for player", Response::HTTP_FORBIDDEN);
@@ -408,10 +418,11 @@ class MyrmesController extends AbstractController
         $this->eventMYRService->confirmBonus($player);
         $this->service->endPlayerRound($player);
         $this->service->setPhase($player, MyrmesParameters::PHASE_BIRTH);
-        $this->publishNotification($game, MyrmesParameters::NOTIFICATION_DURATION_PHASE,
-            MyrmesTranslation::WARNING,
-            MyrmesTranslation::IMPOSSIBLE_TO_PLACE_NURSE, GameParameters::ALERT_NOTIFICATION_TYPE,
-            GameParameters::NOTIFICATION_COLOR_RED, $player->getUsername());
+        $this->publishNotification($game, MyrmesParameters::NOTIFICATION_DURATION,
+            MyrmesTranslation::CONGRATULATION,
+            MyrmesTranslation::BONUS_VALIDATE,
+                GameParameters::VALIDATION_NOTIFICATION_TYPE,
+            GameParameters::NOTIFICATION_COLOR_GREEN, $player->getUsername());
 
         $message = $player->getUsername() . " a confirmé son choix de bonus";
         $this->logService->sendPlayerLog($game, $player, $message);
@@ -444,9 +455,10 @@ class MyrmesController extends AbstractController
         try {
             $this->birthMYRService->placeNurse($player, $position);
         } catch (Exception) {
-            $this->publishNotification($game, MyrmesParameters::NOTIFICATION_DURATION_PHASE,
+            $this->publishNotification($game, MyrmesParameters::NOTIFICATION_DURATION,
                 MyrmesTranslation::WARNING,
-                MyrmesTranslation::IMPOSSIBLE_TO_PLACE_NURSE, GameParameters::ALERT_NOTIFICATION_TYPE,
+                MyrmesTranslation::ERROR_IMPOSSIBLE_TO_PLACE_NURSE,
+                    GameParameters::ALERT_NOTIFICATION_TYPE,
                 GameParameters::NOTIFICATION_COLOR_RED, $player->getUsername());
             $message = $player->getUsername()
                 . " a essayé de placer une nourrice sur la piste de naissance "
@@ -482,6 +494,11 @@ class MyrmesController extends AbstractController
         try {
             $this->birthMYRService->giveBirthBonus($player);
         } catch (Exception) {
+            $this->publishNotification($game, MyrmesParameters::NOTIFICATION_DURATION,
+                MyrmesTranslation::WARNING,
+                MyrmesTranslation::ERROR_VALIDATE_NURSE_IMPOSSIBLE,
+                GameParameters::ALERT_NOTIFICATION_TYPE,
+                GameParameters::NOTIFICATION_COLOR_RED, $player->getUsername());
             $message = $player->getUsername() . " a essayé de confirmé le placement de ses nourrices mais n'a pas pu";
             $this->logService->sendPlayerLog($game, $player, $message);
             return new Response('failed to confirm nurses', Response::HTTP_FORBIDDEN);
@@ -491,6 +508,11 @@ class MyrmesController extends AbstractController
         $this->publishRanking($game, $player);
         $this->service->endPlayerRound($player);
         $this->service->setPhase($player, MyrmesParameters::PHASE_WORKER);
+        $this->publishNotification($game, MyrmesParameters::NOTIFICATION_DURATION,
+            MyrmesTranslation::CONGRATULATION,
+            MyrmesTranslation::VALIDATE_NURSE,
+            GameParameters::VALIDATION_NOTIFICATION_TYPE,
+            GameParameters::NOTIFICATION_COLOR_GREEN, $player->getUsername());
 
         $message = $player->getUsername() . " a confirmé le placement de ses nourrices";
         $this->logService->sendPlayerLog($game, $player, $message);
@@ -525,6 +547,11 @@ class MyrmesController extends AbstractController
         }
 
         $this->birthMYRService->cancelNursesPlacement($player);
+        $this->publishNotification($game, MyrmesParameters::NOTIFICATION_DURATION,
+            MyrmesTranslation::VALIDATION,
+            MyrmesTranslation::CANCEL_NURSE_PLACEMENT,
+            GameParameters::VALIDATION_NOTIFICATION_TYPE,
+            GameParameters::NOTIFICATION_COLOR_GREEN, $player->getUsername());
 
         $message = $player->getUsername() . " a annulé le placement de ses nourrices";
         $this->logService->sendPlayerLog($game, $player, $message);
@@ -620,6 +647,11 @@ class MyrmesController extends AbstractController
         try {
             $this->workerMYRService->placeAntInAnthill($player->getPersonalBoardMYR(), $level);
         } catch (Exception) {
+            $this->publishNotification($game, MyrmesParameters::NOTIFICATION_DURATION,
+                MyrmesTranslation::WARNING,
+                MyrmesTranslation::ERROR_WORKER_PLACE_IN_ANTHILL,
+                GameParameters::ALERT_NOTIFICATION_TYPE,
+                GameParameters::NOTIFICATION_COLOR_RED, $player->getUsername());
             $message = $player->getUsername()
                 . " a essayé de placer une ouvrière sur le niveau de fourmilière "
                 . $level
@@ -635,6 +667,11 @@ class MyrmesController extends AbstractController
         $this->publishPersonalBoard($game, $player);
         $this->publishPreview($game, $player);
         $this->publishRanking($game, $player);
+        $this->publishNotification($game, MyrmesParameters::NOTIFICATION_DURATION,
+            MyrmesTranslation::VALIDATION,
+            MyrmesTranslation::WORKER_PLACE_IN_ANTHILL.$level,
+            GameParameters::VALIDATION_NOTIFICATION_TYPE,
+            GameParameters::NOTIFICATION_COLOR_GREEN, $player->getUsername());
 
         $message = $player->getUsername() . " a placé une ouvrière sur le niveau de fourmilière " . $level;
         $this->logService->sendPlayerLog($game, $player, $message);
@@ -872,6 +909,11 @@ class MyrmesController extends AbstractController
             return new Response("cannot clean the pheromone",
                 Response::HTTP_FORBIDDEN);
         }
+        $this->publishNotification($game, MyrmesParameters::NOTIFICATION_DURATION,
+            MyrmesTranslation::VALIDATION,
+            MyrmesTranslation::CLEAN_PHEROMONE,
+            GameParameters::VALIDATION_NOTIFICATION_TYPE,
+            GameParameters::NOTIFICATION_COLOR_GREEN, $player->getUsername());
 
         $this->service->setNextPlayerTurn($player);
         if ($this->service->getNumberOfFreeWorkerOfPlayer($player) <= 0) {
@@ -1131,6 +1173,11 @@ class MyrmesController extends AbstractController
             $this->logService->sendPlayerLog($game, $player, $message);
             return new Response('failed to place anthill hole' . $e->getMessage(), Response::HTTP_FORBIDDEN);
         }
+        $this->publishNotification($game, MyrmesParameters::NOTIFICATION_DURATION,
+            MyrmesTranslation::VALIDATION,
+            MyrmesTranslation::PLACE_ANTHILL_HOLE,
+            GameParameters::VALIDATION_NOTIFICATION_TYPE,
+            GameParameters::NOTIFICATION_COLOR_GREEN, $player->getUsername());
         $message = $player->getUsername()
             . " a posé un trou de fourmilière "
             . " sur la tuile " . $tileMYR->getId();
@@ -1162,6 +1209,11 @@ class MyrmesController extends AbstractController
             $this->logService->sendPlayerLog($game, $player, $message);
             return new Response('failed to increase anthill level', Response::HTTP_FORBIDDEN);
         }
+        $this->publishNotification($game, MyrmesParameters::NOTIFICATION_DURATION,
+            MyrmesTranslation::VALIDATION,
+            MyrmesTranslation::INCREASE_ANTHILL_LEVEL,
+            GameParameters::VALIDATION_NOTIFICATION_TYPE,
+            GameParameters::NOTIFICATION_COLOR_GREEN, $player->getUsername());
 
         $message = $player->getUsername() . " a augmenté son niveau de fourmilière";
         $this->logService->sendPlayerLog($game, $player, $message);
@@ -1192,6 +1244,11 @@ class MyrmesController extends AbstractController
             $this->logService->sendPlayerLog($game, $player, $message);
             return new Response("failed to create nurse", Response::HTTP_FORBIDDEN);
         }
+        $this->publishNotification($game, MyrmesParameters::NOTIFICATION_DURATION,
+            MyrmesTranslation::VALIDATION,
+            MyrmesTranslation::CREATE_NURSE,
+            GameParameters::VALIDATION_NOTIFICATION_TYPE,
+            GameParameters::NOTIFICATION_COLOR_GREEN, $player->getUsername());
 
         $message = $player->getUsername() . " a crée une nourrice.";
         $this->logService->sendPlayerLog($game, $player, $message);
@@ -1437,6 +1494,11 @@ class MyrmesController extends AbstractController
             $this->logService->sendPlayerLog($game, $player, $message);
             return new Response("can't sacrifice larvae", Response::HTTP_FORBIDDEN);
         }
+        $this->publishNotification($game, MyrmesParameters::NOTIFICATION_DURATION,
+            MyrmesTranslation::VALIDATION,
+            MyrmesTranslation::SACRIFICE_LARVAE,
+            GameParameters::VALIDATION_NOTIFICATION_TYPE,
+            GameParameters::NOTIFICATION_COLOR_GREEN, $player->getUsername());
         $message = $player->getUsername() . " a réussi a sacrifier 3 de ses larves.";
         $this->logService->sendPlayerLog($game, $player, $message);
         $this->publishPreview($game, $player);
@@ -1879,6 +1941,10 @@ class MyrmesController extends AbstractController
         try {
             $this->workshopMYRService->doStoneOrDirtGoal($player, $gameGoalMYR, $nurse, $stoneQuantity, $dirtQuantity);
         }catch (Exception $e){
+            $this->publishNotification($gameMYR, MyrmesParameters::NOTIFICATION_DURATION,
+                MyrmesTranslation::WARNING,
+                MyrmesTranslation::ERROR_STONE_OR_DIRT_GOAL, GameParameters::ALERT_NOTIFICATION_TYPE,
+                GameParameters::NOTIFICATION_COLOR_RED, $player->getUsername());
             return new Response($e->getMessage(), Response::HTTP_FORBIDDEN);
         }
 
@@ -1886,7 +1952,7 @@ class MyrmesController extends AbstractController
         foreach ($gameMYR->getPlayers() as $p) {
             $this->publishRanking($gameMYR, $p);
         }
-        $this->publishNotification($gameMYR, MyrmesParameters::NOTIFICATION_DURATION_PHASE,
+        $this->publishNotification($gameMYR, MyrmesParameters::NOTIFICATION_DURATION,
             MyrmesTranslation::CONGRATULATION,
             MyrmesTranslation::GOAL_VALIDATE, GameParameters::INFO_NOTIFICATION_TYPE,
             GameParameters::NOTIFICATION_COLOR_GREEN, $player->getUsername());
@@ -1921,6 +1987,10 @@ class MyrmesController extends AbstractController
             $pheromones = $this->workerMYRService->getPheromonesFromListOfIds($pheromoneIds);
             $this->workshopMYRService->doPheromoneGoal($player, $gameGoalMYR, $nurse, $pheromones);
         }catch (Exception $e){
+            $this->publishNotification($gameMYR, MyrmesParameters::NOTIFICATION_DURATION,
+                MyrmesTranslation::WARNING,
+                MyrmesTranslation::ERROR_PHEROMONE_GOAL, GameParameters::ALERT_NOTIFICATION_TYPE,
+                GameParameters::NOTIFICATION_COLOR_RED, $player->getUsername());
             return new Response($e->getMessage(), Response::HTTP_FORBIDDEN);
         }
 
@@ -1936,7 +2006,7 @@ class MyrmesController extends AbstractController
             $this->publishMainBoard($gameMYR, $p, $boardBoxes, false, false);
             $this->publishRanking($gameMYR, $p);
         }
-        $this->publishNotification($gameMYR, MyrmesParameters::NOTIFICATION_DURATION_PHASE,
+        $this->publishNotification($gameMYR, MyrmesParameters::NOTIFICATION_DURATION,
             MyrmesTranslation::CONGRATULATION,
             MyrmesTranslation::GOAL_VALIDATE, GameParameters::INFO_NOTIFICATION_TYPE,
             GameParameters::NOTIFICATION_COLOR_GREEN, $player->getUsername());
@@ -1968,6 +2038,10 @@ class MyrmesController extends AbstractController
         try {
             $this->workshopMYRService->doSpecialTileGoal($player, $gameGoalMYR, $nurse, $specialTiles);
         }catch (Exception $e){
+            $this->publishNotification($gameMYR, MyrmesParameters::NOTIFICATION_DURATION,
+                MyrmesTranslation::WARNING,
+                MyrmesTranslation::ERROR_SPECIAL_TILE_GOAL, GameParameters::ALERT_NOTIFICATION_TYPE,
+                GameParameters::NOTIFICATION_COLOR_RED, $player->getUsername());
             return new Response($e->getMessage(), Response::HTTP_FORBIDDEN);
         }
 
@@ -1982,7 +2056,7 @@ class MyrmesController extends AbstractController
             $this->publishMainBoard($gameMYR, $p, $boardBoxes, false, false);
             $this->publishRanking($gameMYR, $p);
         }
-        $this->publishNotification($gameMYR, MyrmesParameters::NOTIFICATION_DURATION_PHASE,
+        $this->publishNotification($gameMYR, MyrmesParameters::NOTIFICATION_DURATION,
             MyrmesTranslation::CONGRATULATION,
             MyrmesTranslation::GOAL_VALIDATE, GameParameters::INFO_NOTIFICATION_TYPE,
             GameParameters::NOTIFICATION_COLOR_GREEN, $player->getUsername());
