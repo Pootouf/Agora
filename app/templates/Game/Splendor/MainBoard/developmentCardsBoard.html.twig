@@ -7,101 +7,66 @@
 #}
 
 {# Loading of Tailwind values #}
-
 <div hidden="hidden" class="shadow-green-700 shadow-red-800"></div>
 
-    {# Display discards and remaining cards number #}
-<div class="flex w-3/12 h-full grid grid-rows-3">
-    {% set drawCardsCount =
-        [drawCardsLevelOneCount, drawCardsLevelTwoCount, drawCardsLevelThreeCount]
-    %}
+{#variable declaration#}
+{% set drawCardsCount = [drawCardsLevelOneCount, drawCardsLevelTwoCount, drawCardsLevelThreeCount] %}
+
+{#development cards#}
+<div id="developmentCards" class="inline-flex flex-col justify-around w-full">
+
+    {#cards rows#}
     {% for i in 3..1 %}
-        <div class="relative h-full w-fit mx-auto p-2">
-            <button
-                    {{ stimulus_action('splendor', 'selectCard', 'click',
-                        {url:path('app_game_splendor_select_from_draw',
-                            {idGame: game.id, level: i})
-                        })
-                    }}
-                    {% if not needToPlay or isSpectator %}
-                        disabled
-                    {% endif %}
-                    class="h-full p-2 w-full"
-            >
+        <div id="developmentCardsRow{{ i }}" class="inlineFlex pl-[5vw] w-full">
 
-                {# Portrait mode #}
-               <div class="landscape:hidden relative justify-center items-center aspect-auto my-auto p-auto
-                            max-h-full"
-               >
-                   <img id="drawCards_{{ i }}_portrait"
-                        class="landscape:hidden items-center aspect-auto justify-center rounded-lg shadow-black shadow-lg m-auto
-                                max-h-full"
-                        src="{{ asset('resourcesGames/Splendor/Images/cardLevel' ~ i ~ '.png') }}"
-                        alt='{{ 'cardLevel' ~ i ~ '.png' }}'
-                    >
-                    <span
-                            class="absolute -top-2 -right-2 inline-flex items-center justify-center w-6 h-6 text-xs
-                            font-bold text-white
-                                   bg-red-500 border-2 border-white rounded-full top-2 end-1 dark:border-gray-900"
-                    >
-                        {{ drawCardsCount[i-1] }}
-                    </span>
-               </div>
-
-                {# Landscape mode #}
-                <img    id="drawCards_{{ i }}_landscape"
-                        class="portrait:hidden items-center aspect-auto justify-center rounded-lg shadow-black
-                                shadow-lg m-auto max-h-full"
-                        src="{{ asset('resourcesGames/Splendor/Images/cardLevel' ~ i ~ '.png') }}"
-                        alt='{{ 'cardLevel' ~ i ~ '.png' }}'
-                >
-                <span
-                        class="portrait:hidden absolute top-0 right-0 inline-flex items-center justify-center w-6
-                                   h-6 text-xs font-bold text-white bg-red-500 border-2 border-white rounded-full
-                                   top-2 end-1 dark:border-gray-900"
-                >
-                        {{ drawCardsCount[i-1] }}
-                </span>
-            </button>
-        </div>
-    {% endfor %}
-</div>
-
-{# Display development cards #}
-<div id="development_cards" class="flex grid grid-rows-3 grid-cols-4 h-full w-9/12 z-4">
-    {% for i in 3..1 %}
-        {% for card in rows[i - 1].developmentCards|filter(card => card.level == i) %}
-            <div class="h-full p-2 w-full" id="card_{{ card.id }}">
-                <button {{ stimulus_action('splendor', 'selectCard', 'click',
-                            {url:path('app_game_splendor_select_from_board',
-                                {idGame: game.id, idCard: card.id})
-                            })
-                        }}
-                        {% if not needToPlay or isSpectator %}
-                        disabled
+            {#pick#}
+            <svg id="pickLevel{{ i }}" class="h-[13vw] landscape:h-[10vw]" viewBox="0 0 90 100">
+                <image x="0" y="2" width="70"
+                       href="{{ asset('resourcesGames/Splendor/Images/pick/cardLevel' ~ i ~ '.svg') }}"
+                        {% if needToPlay and not isSpectator %}
+                            class="cursor-pointer"
+                            {{ stimulus_action('splendor', 'selectCard', 'click',
+                                {url:path('app_game_splendor_select_from_draw',
+                                    {idGame: game.id, level: i})
+                                })
+                            }}
                         {% endif %}
-                        class="h-full p-2 w-full"
-                >
-                        <img alt="image_card_{{ card.id }}" id='image_card_{{ card.id }}'
+                />
+                <circle cx="70" cy="5" r="10" fill="red" stroke="white" stroke-width="1"/>
+                <text text-anchor="middle" x="70" y="9" class="text-[70%] font-extrabold" fill="white">{{ drawCardsCount[i-1] }}</text>
+            </svg>
+
+            {#buyable cards#}
+            <div class="inline-flex justify-evenly w-full">
+                {% for card in rows[i - 1].developmentCards|filter(card => card.level == i) %}
+                    <div class="h-[13vw] landscape:h-[10vw]
+                        {% if needToPlay and not isSpectator %}
+                            cursor-pointer"
+                            {{ stimulus_action('splendor', 'selectCard', 'click',
+                                {url:path('app_game_splendor_select_from_board',
+                                    {idGame: game.id, idCard: card.id})
+                                })
+                            }}
+                        {% else %}
+                            "
+                        {% endif %}
+                    >
+                        <img alt="development card {{ card.id }}" id='image_card_{{ card.id }}'
                                 {% set shadowColor = 'red-800' %}
                                 {% for purchasableCard in purchasableCards|filter(purchasableCard => purchasableCard == card) %}
                                     {% set shadowColor = 'green-700' %}
                                 {% endfor %}
                              class="hover:scale-[2] transition ease-in-out delay-100
-                                    items-center justify-center rounded-lg {{ 'shadow-' ~ shadowColor }}
+                                    items-center justify-center rounded-lg shadow-{{ shadowColor }}
                                     shadow-lg max-h-full
                                     {% if isSpectator %}transform hover:-translate-y-20{% endif %}
                                     {% if card.id == takenCard %} portrait:opacity-0 landscape:opacity-0 {% endif %}"
-
-
-                             src="{{
-                                    asset('resourcesGames/Splendor/Images/DevelopmentCards/'
-                                        ~ card.id ~ '.png')
-                                  }}"
+                             src="{{ asset('resourcesGames/Splendor/Images/DevelopmentCards/'~ card.id ~ '.png') }}"
                              alt="{{ 'cardLevel' ~ i }}"
                         >
-                </button>
+                    </div>
+                {% endfor %}
             </div>
-        {% endfor %}
+        </div>
     {% endfor %}
 </div>
