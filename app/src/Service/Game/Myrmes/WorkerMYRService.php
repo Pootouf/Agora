@@ -1450,7 +1450,10 @@ class WorkerMYRService
             default => throw new Exception("pheromone type unknown"),
         };
         $allowedSize = $anthillLevel + 2;
-        if ($player->getPersonalBoardMYR()->getBonus() === MyrmesParameters::BONUS_PHEROMONE) {
+        if ($player->getPersonalBoardMYR()->getBonus() === MyrmesParameters::BONUS_LEVEL ||
+            ($player->getPersonalBoardMYR()->getBonus() === MyrmesParameters::BONUS_PHEROMONE
+                && $tileType->getType() >= MyrmesParameters::PHEROMONE_TYPE_ZERO
+                && $tileType->getType() <= MyrmesParameters::PHEROMONE_TYPE_SIX)) {
             ++$allowedSize;
         }
         if ($pheromoneSize > $allowedSize) {
