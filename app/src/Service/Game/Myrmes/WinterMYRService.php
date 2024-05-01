@@ -145,7 +145,6 @@ class WinterMYRService
         }
         foreach($gameMYR->getPlayers() as $player) {
             $this->retrievePoints($player);
-            $this->myrService->setPhase($player, MyrmesParameters::PHASE_EVENT);
         }
         $this->myrService->manageEndOfRound($gameMYR);
     }

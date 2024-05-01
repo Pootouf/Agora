@@ -964,12 +964,14 @@ class MYRService
      */
     private function endSeason(GameMYR $game) : void
     {
-        $actualSeason = $this->getActualSeason($game);
         $mainBoard = $game->getMainBoardMYR();
         if ($game->getGamePhase() == MyrmesParameters::PHASE_WINTER) {
             $this->initializeNewYear($game);
+            $this->initializeEventBonus($game);
+            $this->entityManager->persist($game);
             return;
         }
+        $actualSeason = $this->getActualSeason($game);
         $fall = $this->seasonMYRRepository->findOneBy(
             [
                 "mainBoard" => $mainBoard,

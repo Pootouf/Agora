@@ -306,19 +306,20 @@ class WinterMYRServiceTest extends TestCase
         $spring->setMainBoard($game->getMainBoardMYR());
         $spring->setActualSeason(false);
 
-        $winter = new SeasonMYR();
-        $winter->setDiceResult(5);
-        $winter->setName(MyrmesParameters::WINTER_SEASON_NAME);
-        $winter->setMainBoard($game->getMainBoardMYR());
-        $winter->setActualSeason(true);
+        $fall = new SeasonMYR();
+        $fall->setDiceResult(5);
+        $fall->setName(MyrmesParameters::FALL_SEASON_NAME);
+        $fall->setMainBoard($game->getMainBoardMYR());
+        $fall->setActualSeason(true);
 
         $game->getMainBoardMYR()->addSeason($spring);
-        $game->getMainBoardMYR()->addSeason($winter);
+        $game->getMainBoardMYR()->addSeason($fall);
 
         $this->seasonMYRRepository->method("findOneBy")->willReturn($spring);
 
         $firstPlayer->setPhase(MyrmesParameters::PHASE_WINTER);
         $lastPlayer->setPhase(MyrmesParameters::PHASE_WINTER);
+        $game->setGamePhase(MyrmesParameters::PHASE_WINTER);
 
         $firstPlayer->getPersonalBoardMYR()->setAnthillLevel(2);
         $lastPlayer->getPersonalBoardMYR()->setAnthillLevel(2);

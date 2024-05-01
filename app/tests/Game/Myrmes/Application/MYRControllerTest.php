@@ -7,6 +7,7 @@ use App\Entity\Game\Myrmes\GardenWorkerMYR;
 use App\Entity\Game\Myrmes\MyrmesParameters;
 use App\Entity\Game\Myrmes\PheromonMYR;
 use App\Entity\Game\Myrmes\PheromonTileMYR;
+use App\Entity\Game\Myrmes\PlayerResourceMYR;
 use App\Entity\Game\Myrmes\TileTypeMYR;
 use App\Repository\Game\GameUserRepository;
 use App\Repository\Game\Myrmes\AnthillHoleMYRRepository;
@@ -1356,7 +1357,7 @@ class MYRControllerTest extends WebTestCase
         /** @var GameMYR $game */
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
         $game->setLaunched(false);
-        $url = "/game/myrmes/" . $gameId . "/moveAnt/neededResources/soldierNb/0/0";
+        $url = "/game/myrmes/" . $gameId . "/moveAnt/neededResources/soldierNb/0/0/[]";
         //WHEN
         $this->client->request("GET", $url);
         // THEN
@@ -1371,7 +1372,7 @@ class MYRControllerTest extends WebTestCase
         /** @var GameMYR $game */
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
         $game->setPaused(true);
-        $url = "/game/myrmes/" . $gameId . "/moveAnt/neededResources/soldierNb/0/0";
+        $url = "/game/myrmes/" . $gameId . "/moveAnt/neededResources/soldierNb/0/0/[]";
         //WHEN
         $this->client->request("GET", $url);
         // THEN
@@ -1385,7 +1386,7 @@ class MYRControllerTest extends WebTestCase
         $gameId = $this->initializeGameWithTwoPlayers();
         /** @var GameMYR $game */
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
-        $url = "/game/myrmes/" . $gameId . "/moveAnt/neededResources/soldierNb/0/0";
+        $url = "/game/myrmes/" . $gameId . "/moveAnt/neededResources/soldierNb/0/0/[]";
         $user2 = $this->gameUserRepository->findOneByUsername("test2");
         $this->client->loginUser($user2);
         //WHEN
@@ -1401,7 +1402,7 @@ class MYRControllerTest extends WebTestCase
         $gameId = $this->initializeGameWithTwoPlayers();
         /** @var GameMYR $game */
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
-        $url = "/game/myrmes/" . $gameId . "/moveAnt/neededResources/soldierNb/0/0";
+        $url = "/game/myrmes/" . $gameId . "/moveAnt/neededResources/soldierNb/0/0/[]";
         //WHEN
         $this->client->request("GET", $url);
         // THEN
@@ -1415,7 +1416,7 @@ class MYRControllerTest extends WebTestCase
         $gameId = $this->initializeGameWithTwoPlayers();
         /** @var GameMYR $game */
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
-        $url = "/game/myrmes/" . $gameId . "/moveAnt/neededResources/soldierNb/10/5";
+        $url = "/game/myrmes/" . $gameId . "/moveAnt/neededResources/soldierNb/10/5/[]";
         //WHEN
         $this->client->request("GET", $url);
         // THEN
@@ -3057,6 +3058,15 @@ class MYRControllerTest extends WebTestCase
         $this->entityManager->persist($player);
         $player->getPersonalBoardMYR()->getNurses()->first()->setArea(MyrmesParameters::WORKSHOP_AREA);
         $this->entityManager->persist($player->getPersonalBoardMYR()->getNurses()->first());
+        $foodResource = $player->getPersonalBoardMYR()->getPlayerResourceMYRs()->filter(
+            function (PlayerResourceMYR $playerResource) {
+                return $playerResource->getResource()->getDescription() == MyrmesParameters::RESOURCE_TYPE_GRASS;
+            }
+        )->first();
+        $foodResource->setQuantity(2);
+        $this->entityManager->persist($foodResource);
+        $player->getPersonalBoardMYR()->setLarvaCount(2);
+        $this->entityManager->persist($player->getPersonalBoardMYR());
         $this->entityManager->flush();
         $url = "/game/myrmes/" . $gameId . "/workshop/createNurse";
         //WHEN

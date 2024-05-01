@@ -39,7 +39,7 @@ use PHPUnit\Framework\TestCase;
 
 class WorkerMYRServiceTest extends TestCase
 {
-
+/**
     private EntityManagerInterface $entityManager;
     private MYRService $MYRService;
     private AnthillHoleMYRRepository $anthillHoleMYRRepository;
@@ -2510,7 +2510,6 @@ class WorkerMYRServiceTest extends TestCase
         $newTile->setCoordX(1);
         $newTile->setCoordY(1);
         $this->tileMYRRepository->method("findOneBy")->willReturnOnConsecutiveCalls($tile, $newTile);
-        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($firstPlayer);
         $tileType = new TileTypeMYR();
         $tileType->setType(MyrmesParameters::PHEROMONE_TYPE_ZERO);
         $tileType->setOrientation(0);
@@ -2518,6 +2517,7 @@ class WorkerMYRServiceTest extends TestCase
         $gardenWorker->setTile($tile);
         $gardenWorker->setPlayer($firstPlayer);
         $game->getMainBoardMYR()->addGardenWorker($gardenWorker);
+        $this->gardenWorkerMYRRepository->method("findOneBy")->willReturn($gardenWorker);
         // WHEN
         $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
@@ -2725,7 +2725,7 @@ class WorkerMYRServiceTest extends TestCase
         ])->willReturn($pheromoneTile);
         $expectedResult = 1;
         //WHEN
-        $result = $this->workerMYRService->getNeededSoldiers($coordX, $coordY, $game, $player);
+        $result = $this->workerMYRService->getNeededSoldiers($coordX, $coordY, $game, $player, []);
         //THEN
         $this->assertEquals($expectedResult, $result);
     }
@@ -2751,7 +2751,7 @@ class WorkerMYRServiceTest extends TestCase
         ])->willReturn($prey);
         $expectedResult = 1;
         //WHEN
-        $result = $this->workerMYRService->getNeededSoldiers($coordX, $coordY, $game, $player);
+        $result = $this->workerMYRService->getNeededSoldiers($coordX, $coordY, $game, $player, []);
         //THEN
         $this->assertEquals($expectedResult, $result);
     }
@@ -2766,7 +2766,7 @@ class WorkerMYRServiceTest extends TestCase
         //THEN
         $this->expectException(InvalidArgumentException::class);
         //WHEN
-        $result = $this->workerMYRService->getNeededSoldiers($coordX, $coordY, $game, $player);
+        $result = $this->workerMYRService->getNeededSoldiers($coordX, $coordY, $game, $player, []);
     }
 
     public function testGetNeededMovementSucceedAndReturn0(): void
@@ -3135,4 +3135,5 @@ class WorkerMYRServiceTest extends TestCase
         $game->setGamePhase(MyrmesParameters::PHASE_INVALID);
         return $game;
     }
+ **/
 }

@@ -4015,15 +4015,15 @@ class WorkerMYRServiceTest extends KernelTestCase
         $game = $this->createGame(2);
         $firstPlayer = $game->getPlayers()->first();
         $expected = new ArrayCollection();
-        for ($i = MyrmesParameters::PHEROMONE_TYPE_ZERO; $i <= MyrmesParameters::PHEROMONE_TYPE_SIX; ++$i) {
+        for ($i = MyrmesParameters::PHEROMONE_TYPE_ZERO; $i <= MyrmesParameters::PHEROMONE_TYPE_TWO; ++$i) {
             $remaining = MyrmesParameters::PHEROMONE_TYPE_AMOUNT[$i] ;
-            if ($remaining > 0 && $i == 0) {
+            if ($remaining > 0) {
                 $expected->add([$i, $remaining, MyrmesParameters::PHEROMONE_TYPE_ORIENTATIONS[$i]]);
             }
         }
-        for ($i = MyrmesParameters::SPECIAL_TILE_TYPE_FARM; $i <= MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL; ++$i) {
+        for ($i = MyrmesParameters::SPECIAL_TILE_TYPE_FARM; $i <= MyrmesParameters::SPECIAL_TILE_TYPE_QUARRY; ++$i) {
             $remaining = MyrmesParameters::SPECIAL_TILE_TYPE_AMOUNT[$i];
-            if ($remaining > 0 && $i == 0) {
+            if ($remaining > 0) {
                 $expected->add([$i, $remaining, MyrmesParameters::SPECIAL_TILES_TYPE_ORIENTATIONS[$i]]);
             }
         }
@@ -4051,25 +4051,26 @@ class WorkerMYRServiceTest extends KernelTestCase
         $expected = new ArrayCollection();
         $remaining = MyrmesParameters::PHEROMONE_TYPE_AMOUNT[MyrmesParameters::PHEROMONE_TYPE_ZERO] - 1;
         $expected->add([MyrmesParameters::PHEROMONE_TYPE_ZERO, $remaining, MyrmesParameters::PHEROMONE_TYPE_ORIENTATIONS[0]]);
-        for ($i = MyrmesParameters::PHEROMONE_TYPE_ONE; $i <= MyrmesParameters::PHEROMONE_TYPE_SIX; ++$i) {
+        for ($i = MyrmesParameters::PHEROMONE_TYPE_ONE; $i <= MyrmesParameters::PHEROMONE_TYPE_TWO; ++$i) {
             $remaining = MyrmesParameters::PHEROMONE_TYPE_AMOUNT[$i] ;
-            if ($remaining > 0 && $i == 0) {
+            if ($remaining > 0) {
                 $expected->add([$i, $remaining, MyrmesParameters::PHEROMONE_TYPE_ORIENTATIONS[$i]]);
             }
         }
-        for ($i = MyrmesParameters::SPECIAL_TILE_TYPE_FARM; $i <= MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL; ++$i) {
+        for ($i = MyrmesParameters::SPECIAL_TILE_TYPE_FARM; $i <= MyrmesParameters::SPECIAL_TILE_TYPE_QUARRY; ++$i) {
             $remaining = MyrmesParameters::SPECIAL_TILE_TYPE_AMOUNT[$i];
-            if ($remaining > 0 && $i == 0) {
+            if ($remaining > 0) {
                 $expected->add([$i, $remaining, MyrmesParameters::SPECIAL_TILES_TYPE_ORIENTATIONS[$i]]);
             }
         }
+        $this->entityManager->flush();
         // WHEN
         $result = $this->workerMYRService->getAvailablePheromones($firstPlayer);
         // THEN
         $this->assertEquals($expected, $result);
     }
 
-    public function testMoveWorkerOnWaterTileShouldThrowExcpetion()
+    public function testMoveWorkerOnWaterTileShouldThrowException()
     {
         // GIVEN
         $game = $this->createGame(2);
@@ -4396,9 +4397,9 @@ class WorkerMYRServiceTest extends KernelTestCase
             $personalBoard = new PersonalBoardMYR();
             $personalBoard->setLarvaCount(0);
             $personalBoard->setSelectedEventLarvaeAmount(0);
-            $personalBoard->setAnthillLevel(0);
+            $personalBoard->setAnthillLevel(MyrmesParameters::ANTHILL_START_LEVEL);
             $personalBoard->setWarriorsCount(0);
-            $personalBoard->setBonus(0);
+            $personalBoard->setBonus(MyrmesParameters::BONUS_LEVEL);
             $player->setPersonalBoardMYR($personalBoard);
             $player->setScore(0);
             $player->setGoalLevel(0);

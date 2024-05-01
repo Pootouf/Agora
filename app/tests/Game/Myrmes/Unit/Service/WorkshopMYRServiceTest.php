@@ -10,7 +10,6 @@ use App\Entity\Game\Myrmes\MainBoardMYR;
 use App\Entity\Game\Myrmes\MyrmesParameters;
 use App\Entity\Game\Myrmes\NurseMYR;
 use App\Entity\Game\Myrmes\PersonalBoardMYR;
-use App\Entity\Game\Myrmes\PheromonMYR;
 use App\Entity\Game\Myrmes\PlayerMYR;
 use App\Entity\Game\Myrmes\PlayerResourceMYR;
 use App\Entity\Game\Myrmes\ResourceMYR;
@@ -19,20 +18,16 @@ use App\Repository\Game\Myrmes\AnthillHoleMYRRepository;
 use App\Repository\Game\Myrmes\NurseMYRRepository;
 use App\Repository\Game\Myrmes\PheromonMYRRepository;
 use App\Repository\Game\Myrmes\PheromonTileMYRRepository;
-use App\Repository\Game\Myrmes\PlayerMYRRepository;
 use App\Repository\Game\Myrmes\PlayerResourceMYRRepository;
 use App\Repository\Game\Myrmes\PreyMYRRepository;
 use App\Repository\Game\Myrmes\ResourceMYRRepository;
-use App\Repository\Game\Myrmes\SeasonMYRRepository;
 use App\Repository\Game\Myrmes\TileMYRRepository;
-use App\Repository\Game\Myrmes\TileTypeMYRRepository;
 use App\Service\Game\Myrmes\MYRService;
-use App\Service\Game\Myrmes\WinterMYRService;
 use App\Service\Game\Myrmes\WorkshopMYRService;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\DBAL\Exception;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
+use Exception;
 use PHPUnit\Framework\TestCase;
 
 class WorkshopMYRServiceTest extends TestCase
@@ -216,13 +211,20 @@ class WorkshopMYRServiceTest extends TestCase
 
         $array = new ArrayCollection();
         $nurse = $personalBoard->getNurses()->first();
-        $nurse->setArea(MyrmesParameters::WORKSHOP_NURSE_AREA);
+        $nurse->setArea(MyrmesParameters::WORKSHOP_AREA);
         $array->add($nurse);
+
+        $foodResource = new PlayerResourceMYR();
+        $foodResource->setQuantity(2);
+        $foodResource->setResource(new ResourceMYR());
 
         $this->MYRService->method("getNursesAtPosition")
             ->willReturn($array);
+        $this->MYRService->method("getNursesInWorkshopFromPlayer")
+            ->willReturn($array);
         $this->nurseMYRRepository->method("findOneBy")
             ->willReturn($personalBoard->getNurses()->last());
+        $this->playerResourceMYRRepository->method("findOneBy")->willReturn($foodResource);
 
         // WHEN
 
@@ -259,14 +261,14 @@ class WorkshopMYRServiceTest extends TestCase
         $this->nurseMYRRepository->method("findOneBy")
             ->willReturn($personalBoard->getNurses()->last());
 
+        //THEN
+
+        $this->expectException(Exception::class);
+
         // WHEN
 
         $this->workshopMYRService->manageWorkshop($player,
             MyrmesParameters::WORKSHOP_NURSE_AREA);
-
-        // THEN
-
-        $this->assertSame(1, $personalBoard->getLarvaCount());
     }
 
     public function testGiveBonusWhenAreaIsInvalid() : void
