@@ -22,6 +22,9 @@ Gestion des utilisateurs
          <h1 class="text-3xl">Gestion des utilisateurs</h1>
       </div>
 
+       {% for message in app.flashes('success-role') %}
+           <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4" role="alert">{{ message }}</div>
+       {% endfor %}
        <div class="mx-auto max-w-7xl px-6 lg:px-8 mt-16">
            <div class="search-form-container">
                {{ form_start(form, {'attr': {'id': 'searchForm'}}) }}
@@ -81,13 +84,13 @@ Gestion des utilisateurs
         <option value="{{ user.roles[0] }}">{{ currentRole }}</option>
         {% for role in ['Utilisateur', 'Modérateur', 'Administrateur'] %}
             {% if role != currentRole %}
-                <option value="{{ 'ROLE_' ~ role }}">{{ role }}</option>
+                <option value="{{ role|replace({'Utilisateur': 'ROLE_USER', 'Modérateur': 'ROLE_MODERATOR', 'Administrateur': 'ROLE_ADMIN'}) }}">{{ role }}</option>
             {% endif %}
         {% endfor %}
     </select>
 </td>
 <td class="p-3 px-5 flex justify-end mt-3">
-    <a href="#" class="text-white bg-primary hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold rounded-lg text-sm px-4 py-2 text-center me-2 mb-2" onclick="saveRole({{ user.id }}, '{{ user.username }}')">
+    <a href="" class="text-white bg-primary hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold rounded-lg text-sm px-4 py-2 text-center me-2 mb-2" onclick="saveRole({{ user.id }})">
     Sauvegarder
 </a>
 
@@ -158,16 +161,15 @@ Gestion des utilisateurs
 </header>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-    function saveRole(userId, username) {
-        var selectedRole = $('#roleSelect_' + userId).val();
+    function saveRole(userId) {
+        var selectElement = document.getElementById('roleSelect_' + userId);
+        var newRole = selectElement.value;
 
         $.ajax({
             type: 'POST',
-            url: '/save-role', // Remplacez cette URL par l'URL de votre endpoint de sauvegarde
+            url: '/admin/attributerole/'+userId+"/"+newRole, // Url du endpoint permettant d'accorder le role voulu
             data: {
-                userId: userId,
-                username: username,
-                role: selectedRole
+                userId: userId
             },
             success: function(response) {
                 // Gérer la réponse du serveur si nécessaire

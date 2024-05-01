@@ -9,6 +9,7 @@ use App\Entity\Game\Message;
 use App\Form\Platform\SearchUserType;
 use App\Repository\Platform\BoardRepository;
 use App\Form\Platform\GenerateAccountsType;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -151,6 +152,15 @@ class AdminController extends AbstractController
             'form' => $form->createView(),
             'notifications' => $this->notifications, // Assurez-vous que vos notifications sont également disponibles dans ce contrôleur
         ]);
+    }
+
+    #[Route('/admin/attributerole/{user}/{role}', name: 'app_attribute_role')]
+    public function attributerolemoderate(User $user, String $role): JsonResponse
+    {
+        $user->setRoles([$role]);
+        $this->entityManager->flush();
+        $this->addFlash('success-role', 'L\'utilisateur '. $user->getUsername(). ' a reçu un nouveau rôle');
+        return new JsonResponse(['message' => 'Role attribuée avec succès']);
     }
 
 }
