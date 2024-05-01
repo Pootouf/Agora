@@ -3,39 +3,78 @@ This section displays the event track which the player can see and change the se
 @param :
 @return :
 #}
-<div class="relative inline-flex flex-col gap-4 w-full h-[20%] ml-3" id="eventTrack">
-    <div class="inlineFlex w-full gap-1 lg:gap-2.5" id="eventTrackDices">
+
+{# variables declaration #}
+{% set playerColor = player.color %}
+{% set canInteract = not isAnotherPlayerBoard and not isPreview and playerPhase == PHASE_EVENT %}
+
+<div class="shadow-yellow-800 shadow-blue-800 shadow-gray-800 shadow-red-800" hidden></div>
+<div class="inline-flex flex-col w-full h-[3vw] ml-3" id="eventTrack">
+    <div class="inlineFlex w-full gap-[0.4vw]" id="eventTrackDices">
         {#button to move event track bonus selector to left#}
-        <div class="inline-flex flex-col align-top">
-            <button type="button"
-                    {{ stimulus_action('myrmes','moveToLeftOnEventTrack','click') }}
-            >
-                <img class="relative h-full mt-0.5 lg:mt-1.5 -rotate-90" id="eventTrackLeftButton"
-                     src="{{ asset('resourcesGames/Myrmes/myrmesArrow.svg') }}"
-                     alt="event track left button"/>
-            </button>
-        </div>
+        {% if not isPreview %}
+            <div class="inline-flex flex-col align-top">
+                <{% if canInteract%}button type="button"
+                        {{ stimulus_action('myrmes','moveToLeftOnEventTrack','click',
+                            {url:path('app_game_myrmes_lower_bonus',
+                                {idGame: game.id})
+                            })
+                        }}
+                 {% else %}div{% endif %}
+                >
+                    <img class="relative h-full mt-0.5 lg:mt-1.5 -rotate-90" id="eventTrackLeftButton"
+                         src="{{ asset('resourcesGames/Myrmes/myrmesArrow.svg') }}"
+                         alt="event track left button"/>
+                </{% if canInteract%}button{% else %}div{% endif %}>
+            </div>
+        {% endif %}
         {% for i in 0..7 %}
-            <div class="inlineFlexCol gap-2 items-center h-full">
+            <div class="inlineFlexCol gap-[0.2vw] items-center h-full">
                 {#event track dices#}
-                <img class="w-full"
-                     src="{{ asset('resourcesGames/Myrmes/personalBoard/dices/dice' ~ i ~ '.svg') }}"
-                     alt="dice {{ i }}">
+                <div class="size-full
+                    {% if i == player.personalBoardMYR.bonus and not isPreview %}
+                        shadow-lg shadow-white
+                    {% endif %}">
+                    <img class="w-full"
+                         src="{{ asset('resourcesGames/Myrmes/personalBoard/dices/dice' ~ i ~ '.svg') }}"
+                         alt="dice {{ i }}">
+                </div>
                 {#event track bonus#}
-                <img class="h-8 lg:h-14"
+                <img class="{% if isPreview %}h-[2vw]{% else %}h-[3vw]{% endif %}"
                      src="{{ asset('resourcesGames/Myrmes/personalBoard/eventBonus/eventBonus' ~ i ~ '.svg') }}"
                      alt="event bonus {{ i }}">
             </div>
         {% endfor %}
         {#button to move event track bonus selector to right#}
-        <div class="inline-flex flex-col align-top">
-            <button type="button"
-                    {{ stimulus_action('myrmes','moveToRightOnEventTrack','click') }}
-            >
-                <img class="relative h-full mt-0.5 lg:mt-1.5 rotate-90" id="eventTrackRightButton"
-                     src="{{ asset('resourcesGames/Myrmes/myrmesArrow.svg') }}"
-                     alt="event track right button" />
-            </button>
-        </div>
+        {% if not isPreview %}
+            <div class="inline-flex flex-col align-top">
+                <{% if canInteract%}button type="button"
+                        {{ stimulus_action('myrmes','moveToRightOnEventTrack','click',
+                            {url:path('app_game_myrmes_up_bonus',
+                                {idGame: game.id})
+                            })
+                        }}
+                 {% else %}div{% endif %}
+                >
+                    <img class="relative h-full mt-0.5 lg:mt-1.5 rotate-90" id="eventTrackRightButton"
+                         src="{{ asset('resourcesGames/Myrmes/myrmesArrow.svg') }}"
+                         alt="event track right button" />
+                </{% if canInteract%}button{% else %}div{% endif %}>
+            </div>
+        {% endif %}
+            {% if canInteract %}
+                    <button type="button" class="rounded-lg bg-[#8F901F] py-2 px-3 m-1 portrait:text-2xl items-center"
+                            {{ stimulus_action('myrmes', 'confirmBonus', 'click',
+                                {url:path('app_game_myrmes_confirm_bonus',
+                                    {idGame: game.id})
+                                })
+                            }}
+                    >
+                        <img class="h-6 max-h-full"
+                             src="{{ asset('resourcesGames/utils/checkmark.svg') }}"
+                             alt="confirm event choice">
+                    </button>
+
+            {% endif %}
     </div>
 </div>

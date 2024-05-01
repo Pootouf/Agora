@@ -24,6 +24,10 @@ class PheromonTileMYR
     #[ORM\JoinColumn(nullable: false)]
     private ?PheromonMYR $pheromonMYR = null;
 
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?MainBoardMYR $mainBoard = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -61,6 +65,18 @@ class PheromonTileMYR
     public function setPheromonMYR(?PheromonMYR $pheromonMYR): static
     {
         $this->pheromonMYR = $pheromonMYR;
+
+        return $this;
+    }
+
+    public function getMainBoard(): ?MainBoardMYR
+    {
+        return $this->mainBoard;
+    }
+
+    public function setMainBoard(?MainBoardMYR $mainBoard): static
+    {
+        $this->mainBoard = $mainBoard;
 
         return $this;
     }

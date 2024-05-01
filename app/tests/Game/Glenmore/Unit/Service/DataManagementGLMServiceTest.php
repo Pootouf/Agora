@@ -45,7 +45,7 @@ class DataManagementGLMServiceTest extends TestCase
         $tile = new PlayerTileGLM();
         $tileResource = new PlayerTileResourceGLM();
         $resource = new ResourceGLM();
-        $resource->setType(GlenmoreParameters::$WHISKY_RESOURCE);
+        $resource->setType(GlenmoreParameters::WHISKY_RESOURCE);
         $tileResource->setResource($resource);
         $tileResource->setQuantity($amount);
         $tileResource->setPlayerTileGLM($tile);
@@ -55,7 +55,7 @@ class DataManagementGLMServiceTest extends TestCase
         $tile = new PlayerTileGLM();
         $tileResource = new PlayerTileResourceGLM();
         $resource = new ResourceGLM();
-        $resource->setType(GlenmoreParameters::$WHISKY_RESOURCE);
+        $resource->setType(GlenmoreParameters::WHISKY_RESOURCE);
         $tileResource->setResource($resource);
         $tileResource->setQuantity($amount2);
         $tileResource->setPlayerTileGLM($tile);
@@ -83,7 +83,7 @@ class DataManagementGLMServiceTest extends TestCase
             }
             $expectedResult->add($box);
         }
-        for ($i = 2; $i < GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD - 1; ++$i) {
+        for ($i = 2; $i < GlenmoreParameters::NUMBER_OF_BOXES_ON_BOARD - 1; ++$i) {
             $tile = $game->getMainBoard()->getBoardTiles()->get($i - 2);
             try {
                 $box = new BoardBoxGLM($tile, null);
@@ -139,11 +139,11 @@ class DataManagementGLMServiceTest extends TestCase
     private function createGame(int $nbOfPlayers): GameGLM
     {
         $game = new GameGLM();
-        $game->setGameName(AbstractGameManagerService::$GLM_LABEL);
+        $game->setGameName(AbstractGameManagerService::GLM_LABEL);
         $mainBoard = new MainBoardGLM();
         $mainBoard->setGameGLM($game);
 
-        for ($i = GlenmoreParameters::$TILE_LEVEL_ZERO; $i <= GlenmoreParameters::$TILE_LEVEL_THREE; ++$i) {
+        for ($i = GlenmoreParameters::TILE_LEVEL_ZERO; $i <= GlenmoreParameters::TILE_LEVEL_THREE; ++$i) {
             $draw = new DrawTilesGLM();
             $draw->setLevel($i);
             $draw->setMainBoardGLM($mainBoard);
@@ -151,32 +151,32 @@ class DataManagementGLMServiceTest extends TestCase
                 $tile = new TileGLM();
                 $tile->setLevel($j);
                 if ($j % 5 == 0) {
-                    $tile->setType(GlenmoreParameters::$TILE_TYPE_GREEN);
-                    $tile->setName(GlenmoreParameters::$TILE_NAME_FOREST);
+                    $tile->setType(GlenmoreParameters::TILE_TYPE_GREEN);
+                    $tile->setName(GlenmoreParameters::TILE_NAME_FOREST);
                 } else if ($j % 5 == 1) {
-                    $tile->setType(GlenmoreParameters::$TILE_TYPE_YELLOW);
-                    $tile->setName(GlenmoreParameters::$TILE_NAME_FIELD);
+                    $tile->setType(GlenmoreParameters::TILE_TYPE_YELLOW);
+                    $tile->setName(GlenmoreParameters::TILE_NAME_FIELD);
                 } else if ($j % 5 == 2) {
-                    $tile->setType(GlenmoreParameters::$TILE_TYPE_BROWN);
-                    $tile->setName(GlenmoreParameters::$TILE_NAME_CATTLE);
+                    $tile->setType(GlenmoreParameters::TILE_TYPE_BROWN);
+                    $tile->setName(GlenmoreParameters::TILE_NAME_CATTLE);
                 } else if ($j % 5 == 3) {
-                    $tile->setType(GlenmoreParameters::$TILE_TYPE_GREEN);
-                    $tile->setName(GlenmoreParameters::$TILE_NAME_PASTURE);
+                    $tile->setType(GlenmoreParameters::TILE_TYPE_GREEN);
+                    $tile->setName(GlenmoreParameters::TILE_NAME_PASTURE);
                 } else if ($j % 5 == 4) {
-                    $tile->setType(GlenmoreParameters::$TILE_TYPE_VILLAGE);
-                    $tile->setName(GlenmoreParameters::$TILE_NAME_VILLAGE);
+                    $tile->setType(GlenmoreParameters::TILE_TYPE_VILLAGE);
+                    $tile->setName(GlenmoreParameters::TILE_NAME_VILLAGE);
                 }
                 $draw->addTile($tile);
             }
             $mainBoard->addDrawTile($draw);
             $warehouse = new WarehouseGLM();
-            $array = [GlenmoreParameters::$COLOR_BROWN, GlenmoreParameters::$COLOR_GREEN, GlenmoreParameters::$COLOR_WHITE,
-                GlenmoreParameters::$COLOR_YELLOW, GlenmoreParameters::$COLOR_GREY];
+            $array = [GlenmoreParameters::COLOR_BROWN, GlenmoreParameters::COLOR_GREEN, GlenmoreParameters::COLOR_WHITE,
+                GlenmoreParameters::COLOR_YELLOW, GlenmoreParameters::COLOR_GREY];
             for ($j = 0; $j < 5; ++$j) {
                 $warehouseLine = new WarehouseLineGLM();
                 $resource = new ResourceGLM();
                 $resource->setColor($array[$j]);
-                $resource->setType(GlenmoreParameters::$PRODUCTION_RESOURCE);
+                $resource->setType(GlenmoreParameters::PRODUCTION_RESOURCE);
                 $warehouseLine->setResource($resource);
                 $warehouseLine->setQuantity(0);
                 $warehouse->addWarehouseLine($warehouseLine);
@@ -187,38 +187,38 @@ class DataManagementGLMServiceTest extends TestCase
             $player = new PlayerGLM('test', $game);
             $player->setGameGLM($game);
             $player->setTurnOfPlayer(false);
-            $player->setPoints(0);
+            $player->setScore(0);
             $game->addPlayer($player);
             $personalBoard = new PersonalBoardGLM();
             $player->setPersonalBoard($personalBoard);
             $personalBoard->setPlayerGLM($player);
             $personalBoard->setLeaderCount(0);
-            $personalBoard->setMoney(GlenmoreParameters::$START_MONEY);
+            $personalBoard->setMoney(GlenmoreParameters::START_MONEY);
             $pawn = new PawnGLM();
-            $pawn->setColor(GlenmoreParameters::$COLOR_FROM_POSITION[$i]);
+            $pawn->setColor(GlenmoreParameters::COLOR_FROM_POSITION[$i]);
             $pawn->setPosition($i);
             $pawn->setMainBoardGLM($mainBoard);
             $mainBoard->addPawn($pawn);
             $player->setPawn($pawn);
             $playerTile = new PlayerTileGLM();
             $startTile = new TileGLM();
-            $startTile->setName(GlenmoreParameters::$TILE_NAME_START_VILLAGE);
-            $startTile->setType(GlenmoreParameters::$TILE_TYPE_VILLAGE);
+            $startTile->setName(GlenmoreParameters::TILE_NAME_START_VILLAGE);
+            $startTile->setType(GlenmoreParameters::TILE_TYPE_VILLAGE);
             $playerTile->setTile($startTile);
             $playerTile->setPersonalBoard($personalBoard);
             $playerTileResource = new PlayerTileResourceGLM();
             $playerTileResource->setPlayerTileGLM($playerTile);
             $playerTileResource->setPlayer($player);
             $villager = new ResourceGLM();
-            $villager->setType(GlenmoreParameters::$VILLAGER_RESOURCE);
+            $villager->setType(GlenmoreParameters::VILLAGER_RESOURCE);
             $playerTileResource->setResource($villager);
             $playerTileResource->setQuantity(1);
         }
 
-        for ($i = $nbOfPlayers; $i < GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD - 1; ++$i) {
+        for ($i = $nbOfPlayers; $i < GlenmoreParameters::NUMBER_OF_BOXES_ON_BOARD - 1; ++$i) {
             $drawTiles = $mainBoard->getDrawTiles();
             $level = 0;
-            for ($j = GlenmoreParameters::$TILE_LEVEL_ZERO; $j <= GlenmoreParameters::$TILE_LEVEL_THREE; ++$j) {
+            for ($j = GlenmoreParameters::TILE_LEVEL_ZERO; $j <= GlenmoreParameters::TILE_LEVEL_THREE; ++$j) {
                 if ($drawTiles->get($j)->getTiles()->isEmpty()) {
                     ++$level;
                 } else {

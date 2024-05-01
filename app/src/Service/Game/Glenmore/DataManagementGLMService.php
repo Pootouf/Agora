@@ -12,6 +12,7 @@ use App\Entity\Game\Splendor\SplendorParameters;
 use App\Repository\Game\Glenmore\PlayerTileGLMRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Exception;
 use Psr\Log\LoggerInterface;
 
 
@@ -37,7 +38,7 @@ class DataManagementGLMService
         foreach ($tiles as $tile) {
             $resources = $tile->getPlayerTileResource();
             foreach($resources as $resource) {
-                if($resource->getResource()->getType() == GlenmoreParameters::$WHISKY_RESOURCE) {
+                if($resource->getResource()->getType() == GlenmoreParameters::WHISKY_RESOURCE) {
                     $whiskyCount += $resource->getQuantity();
                 }
             }
@@ -77,30 +78,9 @@ class DataManagementGLMService
         $pawns = $game->getMainBoard()->getPawns();
         $boardBoxes = new ArrayCollection();
 
-        for($i = 0; $i < GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD; $i++) {
-            $isEmptyBox = true;
-            foreach($tiles as $tile) {
-                if($tile->getPosition() == $i) {
-                    try {
-                        $boardBoxes->add(new BoardBoxGLM($tile, null));
-                    } catch (\Exception $e) {
-                        //Can't append here with a null argument
-                    }
-                    $isEmptyBox = false;
-                    break;
-                }
-            }
-            foreach($pawns as $pawn) {
-                if($pawn->getPosition() == $i) {
-                    try {
-                        $boardBoxes->add(new BoardBoxGLM(null, $pawn));
-                    } catch (\Exception $e) {
-                        //Can't append here with a null argument
-                    }
-                    $isEmptyBox = false;
-                    break;
-                }
-            }
+        for($i = 0; $i < GlenmoreParameters::NUMBER_OF_BOXES_ON_BOARD; $i++) {
+            $isEmptyBox = $this->addTile($tiles, $i, $boardBoxes)
+                && $this->addPawn($pawns, $i, $boardBoxes);
             if($isEmptyBox) {
                 $boardBoxes->add(new BoardBoxGLM(null, null));
             }
@@ -163,13 +143,13 @@ class DataManagementGLMService
         // Change min and max y & x for adding extra empty tile (one empty line at the start of the board, one empty
         //  tile at each side of the line)
         $miny = $this->playerTileGLMRepository->
-        findOneBy(['personalBoard' => $playerGLM->getPersonalBoard()], ['coord_Y' => 'ASC'])->getCoordY() - 1;
+        findOneBy(['personalBoard' => $playerGLM->getPersonalBoard()], ['coordY' => 'ASC'])->getCoordY() - 1;
         $maxy = $this->playerTileGLMRepository->
-        findOneBy(['personalBoard' => $playerGLM->getPersonalBoard()], ['coord_Y' => 'DESC'])->getCoordY() + 1;
+        findOneBy(['personalBoard' => $playerGLM->getPersonalBoard()], ['coordY' => 'DESC'])->getCoordY() + 1;
         $minx = $this->playerTileGLMRepository->
-        findOneBy(['personalBoard' => $playerGLM->getPersonalBoard()], ['coord_X' => 'ASC'])->getCoordX() - 1;
+        findOneBy(['personalBoard' => $playerGLM->getPersonalBoard()], ['coordX' => 'ASC'])->getCoordX() - 1;
         $maxx = $this->playerTileGLMRepository->
-            findOneBy(['personalBoard' => $playerGLM->getPersonalBoard()], ['coord_X' => 'DESC'])->getCoordX() + 1;
+            findOneBy(['personalBoard' => $playerGLM->getPersonalBoard()], ['coordX' => 'DESC'])->getCoordX() + 1;
 
         //Sorting by x coord and then by y coord
         $tiles = $playerGLM->getPersonalBoard()->getPlayerTiles()->toArray();
@@ -211,7 +191,8 @@ class DataManagementGLMService
                 ));
                 $y++;
             }
-            $currentLine->add(new PersonalBoardBoxGLM($tile, $x, $y, in_array([$x, $y], $possiblePlacement)));
+            $currentLine->add(new PersonalBoardBoxGLM($tile, $x, $y, in_array([$x, $y], $possiblePlacement)
+            ));
             $previousX = $tile->getCoordX();
             $y++;
         }
@@ -233,5 +214,49 @@ class DataManagementGLMService
             $result->add($currentLine);
         }
         return $result;
+    }
+
+    /**
+     * addTile: create a tile with no pawn at the selected index if there is a tile
+     * @param Collection $tiles
+     * @param int $index
+     * @param Collection<BoardBoxGLM> $boardBoxes
+     * @return bool false if cycle doesn't need emptyBoxes at the end
+     */
+    private function addTile(Collection $tiles, int $index, Collection &$boardBoxes): bool
+    {
+        foreach($tiles as $tile) {
+            if($tile->getPosition() == $index) {
+                try {
+                    $boardBoxes->add(new BoardBoxGLM($tile, null));
+                } catch (Exception) {
+                    //Can't append here with a null argument
+                }
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * addPawn: add a pawn at the selected index
+     * @param Collection $pawns
+     * @param int $index
+     * @param Collection $boardBoxes
+     * @return bool false if cycle doesn't need emptyBoxes at the end
+     */
+    private function addPawn(Collection $pawns, int $index, Collection &$boardBoxes) : bool
+    {
+        foreach($pawns as $pawn) {
+            if($pawn->getPosition() == $index) {
+                try {
+                    $boardBoxes->add(new BoardBoxGLM(null, $pawn));
+                } catch (\Exception $e) {
+                    //Can't append here with a null argument
+                }
+                return false;
+            }
+        }
+        return true;
     }
 }

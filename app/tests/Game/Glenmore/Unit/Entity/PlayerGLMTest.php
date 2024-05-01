@@ -40,21 +40,6 @@ class PlayerGLMTest extends TestCase
         $this->assertSame($personalBoard, $this->playerGLM->getPersonalBoard());
     }
 
-    public function testSetPoints() : void
-    {
-        // GIVEN
-
-        $point = 40;
-
-        // WHEN
-
-        $this->playerGLM->setPoints($point);
-
-        // THEN
-
-        $this->assertSame($point, $this->playerGLM->getPoints());
-    }
-
     public function testSetPawn() : void
     {
         // GIVEN
@@ -189,6 +174,21 @@ class PlayerGLMTest extends TestCase
         // THEN
 
         $this->assertSame($previousPhase, $this->playerGLM->getPreviousPhase());
+    }
+
+    public function testSetActivatedNewResourcesAcquisition() : void
+    {
+        // GIVEN
+
+        $activateNewResourceAcquisition = true;
+
+        // WHEN
+
+        $this->playerGLM->setActivatedNewResourcesAcqusition($activateNewResourceAcquisition);
+
+        // THEN
+
+        $this->assertSame($activateNewResourceAcquisition, $this->playerGLM->isActivatedNewResourcesAcqusition());
     }
 
     protected function setUp(): void

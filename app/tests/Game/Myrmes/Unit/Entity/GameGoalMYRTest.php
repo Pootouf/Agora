@@ -5,6 +5,7 @@ namespace App\Tests\Game\Myrmes\Unit\Entity;
 use App\Entity\Game\Myrmes\GameGoalMYR;
 use App\Entity\Game\Myrmes\GameMYR;
 use App\Entity\Game\Myrmes\GoalMYR;
+use App\Entity\Game\Myrmes\MainBoardMYR;
 use App\Entity\Game\Myrmes\PlayerMYR;
 use PHPUnit\Framework\TestCase;
 
@@ -66,6 +67,67 @@ class GameGoalMYRTest extends TestCase
         // THEN
 
         $this->assertSame($goal, $this->gameGoalMYR->getGoal());
+    }
+
+    public function testSetMainBoardLevelOne() : void
+    {
+        //GIVEN
+        $mainBoardOne = new MainBoardMYR();
+        //WHEN
+        $this->gameGoalMYR->setMainBoardLevelOne($mainBoardOne);
+        //THEN
+        $this->assertSame($mainBoardOne, $this->gameGoalMYR->getMainBoardLevelOne());
+    }
+
+    public function testSetMainBoardLevelTwo() : void
+    {
+        //GIVEN
+        $mainBoardTwo = new MainBoardMYR();
+        //WHEN
+        $this->gameGoalMYR->setMainBoardLevelTwo($mainBoardTwo);
+        //THEN
+        $this->assertSame($mainBoardTwo, $this->gameGoalMYR->getMainBoardLevelTwo());
+    }
+
+    public function testSetMainBoardLevelThree() : void
+    {
+        //GIVEN
+        $mainBoardThree = new MainBoardMYR();
+        //WHEN
+        $this->gameGoalMYR->setMainBoardLevelThree($mainBoardThree);
+        //THEN
+        $this->assertSame($mainBoardThree, $this->gameGoalMYR->getMainBoardLevelThree());
+    }
+
+    public function testAddGoalAlreadyDoneNotYetAdded() : void
+    {
+        // GIVEN
+
+        $player = new PlayerMYR("test", new GameMYR());
+
+        // WHEN
+
+        $this->gameGoalMYR->addGoalAlreadyDone($player);
+
+        // THEN
+
+        $this->assertContains($player, $this->gameGoalMYR->getGoalAlreadyDone());
+    }
+
+    public function testRemoveGoalAlreadyDone() : void
+    {
+        // GIVEN
+
+        $player = new PlayerMYR("test", new GameMYR());
+        $this->gameGoalMYR->addGoalAlreadyDone($player);
+
+        // WHEN
+
+        $this->gameGoalMYR->removeGoalAlreadyDone($player);
+
+        // THEN
+
+        $this->assertNotContains($player, $this->gameGoalMYR->getGoalAlreadyDone());
     }
 
     protected function setUp(): void

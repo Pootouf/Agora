@@ -186,7 +186,7 @@ class PlayerTileGLMTest extends TestCase
 
         // THEN
 
-        $this->assertSame($this->playerTileGLM->getCoordX(), $abscissa);
+        $this->assertSame($abscissa, $this->playerTileGLM->getCoordX());
     }
 
     public function testSetCoordinateY() : void
@@ -201,7 +201,7 @@ class PlayerTileGLMTest extends TestCase
 
         // THEN
 
-        $this->assertSame($this->playerTileGLM->getCoordY(), $ordinate);
+        $this->assertSame($ordinate, $this->playerTileGLM->getCoordY());
     }
 
     public function testSetIsActivated() : void

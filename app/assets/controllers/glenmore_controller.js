@@ -1,5 +1,5 @@
 import {Controller} from '@hotwired/stimulus';
-import personalBoard from "../scripts/Glenmore/personalBoard.js";
+import PersonalBoard from "../scripts/Glenmore/PersonalBoard.js";
 
 /*
  * This is an example Stimulus controller!
@@ -14,7 +14,7 @@ export default class extends Controller {
 
 	togglePersonalBoard(isOpening) {
 		let open = isOpening.params.open;
-		personalBoard.togglePersonalBoard(open);
+		PersonalBoard.togglePersonalBoard(open);
 	}
 
 	async displayPropertyCards(board) {
@@ -39,69 +39,61 @@ export default class extends Controller {
 
 	async selectResource(resource) {
 		let url = resource.params.url;
-		const response = await fetch(url);
+		await fetch(url);
 	}
 
 	async activateTile(tile) {
 		let url = tile.params.url;
 		document.getElementById("returnArrow").click();
-		const response = await fetch(url);
+		await fetch(url);
 	}
 
 	async removeVillager(tile) {
-		let url = tile.params.url;
-		const response = await fetch(url);
-		if (response.status === 200) {
-			closeSelectedTileWindow();
-		}
+		await this.fetchUrlAndCloseMenu(tile.params.url)
 	}
 
 	async moveVillager(tile) {
-		let url = tile.params.url;
-		const response = await fetch(url);
-		if (response.status === 200) {
-			closeSelectedTileWindow();
-		}
+		await this.fetchUrlAndCloseMenu(tile.params.url)
 	}
 
 	async validateNewResourcesAcquisition(tile) {
 		let url = tile.params.url;
-		const response = await fetch(url);
+		await fetch(url);
 	}
 
 	async cancelNewResourcesAcquisition(tile) {
 		let url = tile.params.url;
-		const response = await fetch(url);
+		await fetch(url);
 	}
 
 	async validateResourcesSelection(tile) {
 		let url = tile.params.url;
-		const response = await fetch(url);
+		await fetch(url);
 	}
 
 	async cancelResourcesSelection(tile) {
 		let url = tile.params.url;
-		const response = await fetch(url);
+		await fetch(url);
 	}
 
 	async cancelBuyingTile(tile) {
 		let url = tile.params.url;
-		const response = await fetch(url);
+		await fetch(url);
 	}
 
 	async cancelActivatingTile(tile) {
 		let url = tile.params.url;
-		const response = await fetch(url);
+		await fetch(url);
 	}
 
 	async endRoundPlayer(player) {
 		let url = player.params.url;
-		const response = await fetch(url);
+		await fetch(url);
 	}
 
 	async endActivationTilesPhase(player) {
 		let url = player.params.url;
-		const response = await fetch(url);
+		await fetch(url);
 	}
 
     async buyTile(tile) {
@@ -126,7 +118,7 @@ export default class extends Controller {
 
 	async putTileInPersonalBoard(tile) {
 		let url = tile.params.url;
-		const response = await fetch(url);
+		await fetch(url);
 	}
 
 	async togglePlayerPersonalBoard(open) {
@@ -136,7 +128,6 @@ export default class extends Controller {
 			iterations: 1,
 		}
 		if (open) {
-			const hidden = document.createAttribute("hidden");
 			openedPlayerPersonalBoard.removeAttribute("hidden");
 			const openingSliding = [
 				{transform: "translateY(60rem)"},
@@ -164,38 +155,22 @@ export default class extends Controller {
 
     async selectResourceWarehouseProductionOnMainBoard(resourceLine) {
         let url = resourceLine.params.url;
-        const response = await fetch(url);
-        let tree = document.getElementById("index_glenmore");
-        let placeholder = document.createElement("div");
-        placeholder.innerHTML = await response.text();
-        const node = placeholder.firstElementChild;
-        tree.appendChild(node);
+		await this.fetchUrlAndInsertResponseInIndex(url)
     }
 
     async selectMoneyWarehouseProductionOnMainBoard(resourceLine) {
         let url = resourceLine.params.url;
-        const response = await fetch(url);
-        let tree = document.getElementById("index_glenmore");
-        let placeholder = document.createElement("div");
-        placeholder.innerHTML = await response.text();
-        const node = placeholder.firstElementChild;
-        tree.appendChild(node);
+		await this.fetchUrlAndInsertResponseInIndex(url)
     }
 
     async buyResourceFromWarehouse(resourceLine) {
         let url = resourceLine.params.url;
-        const response = await fetch(url);
-		if (response.status === 200) {
-			closeSelectedWarehouseResource();
-		}
+        await this.fetchUrlAndCloseWarehouseMenu(url)
     }
 
     async sellResourceFromWarehouse(resourceLine) {
         let url = resourceLine.params.url;
-        const response = await fetch(url);
-		if (response.status === 200) {
-			closeSelectedWarehouseResource();
-		}
+		await this.fetchUrlAndCloseWarehouseMenu(url)
     }
 
 	async showMainBoard(main)  {
@@ -210,6 +185,29 @@ export default class extends Controller {
 
 	async selectNewResourceAcquisition(resource) {
 		let url = resource.params.url;
+		await fetch(url);
+	}
+
+	async fetchUrlAndCloseMenu(url) {
 		const response = await fetch(url);
+		if (response.status === 200) {
+			closeSelectedTileWindow();
+		}
+	}
+
+	async fetchUrlAndInsertResponseInIndex(url) {
+		const response = await fetch(url);
+		let tree = document.getElementById("index_glenmore");
+		let placeholder = document.createElement("div");
+		placeholder.innerHTML = await response.text();
+		const node = placeholder.firstElementChild;
+		tree.appendChild(node);
+	}
+
+	async fetchUrlAndCloseWarehouseMenu(url) {
+		const response = await fetch(url);
+		if (response.status === 200) {
+			closeSelectedWarehouseResource();
+		}
 	}
 }

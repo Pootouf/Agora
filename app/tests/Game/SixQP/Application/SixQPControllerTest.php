@@ -2,11 +2,10 @@
 
 namespace App\Tests\Game\SixQP\Application;
 
-use App\Entity\Game\SixQP\GameSixQP;
-use App\Entity\Game\SixQP\PlayerSixQP;
-use App\Repository\Game\GameUserRepository;
+
 use App\Repository\Game\SixQP\GameSixQPRepository;
 use App\Repository\Game\SixQP\PlayerSixQPRepository;
+use App\Repository\Platform\UserRepository;
 use App\Service\Game\PublishService;
 use App\Service\Game\SixQP\SixQPGameManagerService;
 use App\Service\Game\SixQP\SixQPService;
@@ -17,7 +16,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 class SixQPControllerTest extends WebTestCase
 {
     private SixQPGameManagerService $managerService;
-    private GameUserRepository $gameUserRepository;
+    private UserRepository $userRepository;
 
     private GameSixQPRepository $gameSixQPRepository;
     private PlayerSixQPRepository $playerSixQPRepository;
@@ -45,10 +44,10 @@ class SixQPControllerTest extends WebTestCase
     {
         $gameId = $this->initializeGameWithTwoPlayers();
         $game = $this->gameSixQPRepository->findOneById($gameId);
-        $player = $game->getPlayerSixQPs()[0];
+        $player = $game->getPlayers()[0];
         $card = $player->getCards()[0];
         $newUrl = "/game/" . $gameId . "/sixqp/select/" . $card->getId();
-        $user3 = $this->gameUserRepository->findOneByUsername("test2");
+        $user3 = $this->userRepository->findOneByUsername("test2");
         $this->client3->loginUser($user3);
         $this->client3->request("GET", $newUrl);
         $this->assertEquals(Response::HTTP_FORBIDDEN,
@@ -58,7 +57,7 @@ class SixQPControllerTest extends WebTestCase
     public function testCannotChooseTwoCards() : void
     {
         $gameId = $this->initializeGameWithTwoPlayers();
-        $user1 = $this->gameUserRepository->findOneByUsername("test0");
+        $user1 = $this->userRepository->findOneByUsername("test0");
         $this->client1->loginUser($user1);
         $url = "/game/sixqp/" . $gameId;
         $this->client1->request("GET", $url);
@@ -84,7 +83,7 @@ class SixQPControllerTest extends WebTestCase
         $this->client1->request("GET", $url);
         $player2 = $this->playerSixQPRepository->findOneBy(['game' => $gameId, 'username' => "test1"]);
         $card = $player2->getCards()[0];
-        $user1 = $this->gameUserRepository->findOneByUsername("test0");
+        $user1 = $this->userRepository->findOneByUsername("test0");
         $this->client1->loginUser($user1);
         $newUrl = "/game/" . $gameId . "/sixqp/select/" . $card->getId();
         $this->client1->request("GET", $newUrl);
@@ -98,7 +97,7 @@ class SixQPControllerTest extends WebTestCase
         $game = $this->gameSixQPRepository->findOneById($gameId);
         $row = $game->getRowSixQPs()[0];
         $newUrl = "/game/" . $gameId . "/sixqp/place/row/" . $row->getId();
-        $user3 = $this->gameUserRepository->findOneByUsername("test2");
+        $user3 = $this->userRepository->findOneByUsername("test2");
         $this->client3->loginUser($user3);
         $this->client3->request("GET", $newUrl);
         $this->assertEquals(Response::HTTP_FORBIDDEN,
@@ -110,7 +109,7 @@ class SixQPControllerTest extends WebTestCase
         $gameId = $this->initializeGameWithTwoPlayers();
         $game = $this->gameSixQPRepository->findOneById($gameId);
         $row = $game->getRowSixQPs()[0];
-        $user1 = $this->gameUserRepository->findOneByUsername("test0");
+        $user1 = $this->userRepository->findOneByUsername("test0");
         $this->client1->loginUser($user1);
         $newUrl = "/game/" . $gameId . "/sixqp/place/row/" . $row->getId();
         $this->client1->request("GET", $newUrl);
@@ -123,13 +122,13 @@ class SixQPControllerTest extends WebTestCase
         $this->client2 = clone $this->client1;
         $this->client3 = clone $this->client1;
         $this->managerService = static::getContainer()->get(SixQPGameManagerService::class);
-        $this->gameUserRepository = static::getContainer()->get(GameUserRepository::class);
+        $this->userRepository = static::getContainer()->get(UserRepository::class);
         $this->gameSixQPRepository = static::getContainer()->get(GameSixQPRepository::class);
         $this->playerSixQPRepository = static::getContainer()->get(PlayerSixQPRepository::class);
         $this->sixQPService = static::getContainer()->get(SixQPService::class);
-        $user1 = $this->gameUserRepository->findOneByUsername("test0");
-        $user2 = $this->gameUserRepository->findOneByUsername("test1");
-        $user3 = $this->gameUserRepository->findOneByUsername("test2");
+        $user1 = $this->userRepository->findOneByUsername("test0");
+        $user2 = $this->userRepository->findOneByUsername("test1");
+        $user3 = $this->userRepository->findOneByUsername("test2");
         $this->client1->loginUser($user1);
         $this->client2->loginUser($user2);
         $this->client3->loginUser($user3);

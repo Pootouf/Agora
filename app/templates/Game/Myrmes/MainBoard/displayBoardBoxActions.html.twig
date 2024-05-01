@@ -1,0 +1,123 @@
+{#
+    Display the board box data and possible actions
+    param : selectedBox, game
+    return : display possible action if it's turn of player
+#}
+
+{# Player phases #}
+
+{% set PHASE_EVENT = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::PHASE_EVENT') %}
+{% set PHASE_BIRTH = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::PHASE_BIRTH') %}
+{% set PHASE_WORKER = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::PHASE_WORKER') %}
+{% set PHASE_HARVEST = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::PHASE_HARVEST') %}
+{% set PHASE_WORKSHOP = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::PHASE_WORKSHOP') %}
+{% set PHASE_WINTER =  constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::PHASE_WINTER') %}
+
+{# Tile types #}
+{% set WATER_TILE_TYPE = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::WATER_TILE_TYPE') %}
+{% set DIRT_TILE_TYPE = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::DIRT_TILE_TYPE') %}
+{% set MUSHROOM_TILE_TYPE = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::MUSHROOM_TILE_TYPE') %}
+{% set STONE_TILE_TYPE = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::STONE_TILE_TYPE') %}
+{% set GRASS_TILE_TYPE = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::GRASS_TILE_TYPE') %}
+
+<div id="selectedBoxActions"
+     class="absolute top-0 right-0 w-[28%] h-full flex z-50 bg-black bg-opacity-75 items-center justify-center text-white">
+    <div class="absolute bg-orange-500 p-5 w-full h-full rounded-lg flex items-center justify-center flex-col">
+
+        {% if selectedBox.tile != null %}
+            {% set color = "" %}
+            {% if selectedBox.tile.type == WATER_TILE_TYPE %}
+                {% set color = "blue-600" %}
+            {% elseif selectedBox.tile.type == DIRT_TILE_TYPE %}
+                {% set color = "orange-950" %}
+            {% elseif selectedBox.tile.type == MUSHROOM_TILE_TYPE %}
+                {% set color = "red-700" %}
+            {% elseif selectedBox.tile.type == STONE_TILE_TYPE %}
+                {% set color = "stone-700" %}
+            {% else %}
+                {% set color = "green-600" %}
+            {% endif %}
+            {% set boardBox = selectedBox %}
+            {% set isShifted = false %}
+            <div class="flex flex-col items-center relative justify-center h-[40%] py-[20%] w-full rounded-xl bg-black bg-opacity-25">
+                {% set isActionable = true %}
+                {{ include('Game/Myrmes/MainBoard/boardBox.html.twig') }}
+            </div>
+            {% if boardBox.ant != null %}
+                {% if game.gamePhase == PHASE_WORKER and needToPlay %}
+                    <button id="pheromone_placement"
+                            class="rounded-lg bg-green-900 py-2 px-3 m-3 text-2xl items-center"
+                            {{ stimulus_action('myrmes','displayPheromonePlacement','click',
+                                {url:path('app_game_myrmes_display_pheromone_special_tile_menu_to_place',
+                                    {
+                                        idGame: game.id,
+                                        tileId: boardBox.tile.id,
+                                    }), open: true
+                                })
+                            }}
+                    >
+                        Placer une phéromone
+                    </button>
+
+                    <button id="clean_pheromone"
+                            class="rounded-lg bg-green-900 py-2 px-3 m-3 text-2xl items-center"
+                            {{ stimulus_action('myrmes','cleanPheromoneAction','click') }}
+                    >
+                        Nettoyer la phéromone adverse
+                    </button>
+                {% endif %}
+            {% endif %}
+            {% if playerPhase == PHASE_WORKSHOP %}
+                <button id="anthill_hole_placement"
+                        class="rounded-lg bg-green-900 py-2 px-3 m-5 text-2xl items-center"
+                        {{ stimulus_action('myrmes', 'placeAnthillHole', 'click',
+                            {url:path('app_game_myrmes_place_anthill_hole',
+                                {
+                                    gameId: game.id,
+                                    tileId: boardBox.tile.id
+                                })}
+
+                        ) }}
+                >
+                    Placer un trou de fourmis
+                </button>
+            {% endif %}
+            {% if boardBox.pheromonTile != null and boardBox.pheromonTile.resource != null %}
+                {% if playerPhase == PHASE_HARVEST and (not hasFinishedObligatoryHarvesting or canStillHarvest) %}
+                    <p>Sélectionner la ressource pour la récolter :</p>
+                    <img class="max-h-[5vw]"
+                         src="{{ asset('resourcesGames/Myrmes/resources/' ~
+                             boardBox.pheromonTile.resource.description ~ '.svg') }}"
+                         alt="dirt"
+                            {{ stimulus_action('myrmes','harvestResource','click',
+                                {url:path('app_game_myrmes_harvest_resource',
+                                    {
+                                        gameId: game.id,
+                                        tileId: boardBox.tile.id
+                                    })
+                                })
+                            }}
+                    >
+                {% elseif playerPhase == PHASE_HARVEST and not hasFinishedObligatoryHarvesting and not canStillHarvest %}
+                    <p>Vous avez déjà récolté une ressource sur cette phéromone </p>
+                    <img class="max-h-[5vw] opacity-25"
+                         src="{{ asset('resourcesGames/Myrmes/resources/' ~ boardBox.pheromonTile.resource.description ~ '.svg') }}"
+                         alt="{{ boardBox.pheromonTile.resource.description }}">
+                {% else %}
+                    <p>Ressource présente sur la tuile : </p>
+                    <img class="max-h-[5vw]"
+                         src="{{ asset('resourcesGames/Myrmes/resources/' ~ boardBox.pheromonTile.resource.description ~ '.svg') }}"
+                         alt="{{ boardBox.pheromonTile.resource.description }}">
+                {% endif %}
+            {% endif %}
+
+        {% endif %}
+        <button id="return_board" onclick="closeSelectedBoxWindow()"
+                class="absolute rounded-lg bg-green-900 py-2 px-3 m-1 text-2xl right-0 bottom-0 items-center"
+        >
+            <img src="{{ asset('resourcesGames/utils/return-arrow.svg') }}" id="returnArrow"
+                 alt="return on board"
+                 class="h-8 max-h-full">
+        </button>
+    </div>
+</div>

@@ -30,16 +30,15 @@ class EventMYRServiceTest extends KernelTestCase
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
         $personalBoard = $player->getPersonalBoardMYR();
+        $personalBoard->setBonus(1);
         $personalBoard->setLarvaCount(2);
         $this->entityManager->persist($personalBoard);
         $this->entityManager->flush();
-        $bonusWanted = 3;
-        $expectedLarvaCount = 0;
+        $bonusWanted = 2;
         //WHEN
-        $this->eventMYRService->chooseBonus($player, $bonusWanted);
+        $this->eventMYRService->upBonus($player);
 
         //THEN
-        $this->assertSame($expectedLarvaCount, $personalBoard->getLarvaCount());
         $this->assertSame($bonusWanted, $personalBoard->getBonus());
     }
 
@@ -50,15 +49,14 @@ class EventMYRServiceTest extends KernelTestCase
         $player = $game->getPlayers()->first();
         $personalBoard = $player->getPersonalBoardMYR();
         $personalBoard->setLarvaCount(4);
+        $personalBoard->setBonus(5);
         $this->entityManager->persist($personalBoard);
         $this->entityManager->flush();
-        $bonusWanted = 3;
-        $expectedLarvaCount = 2;
+        $bonusWanted = 4;
         //WHEN
-        $this->eventMYRService->chooseBonus($player, $bonusWanted);
+        $this->eventMYRService->lowerBonus($player, $bonusWanted);
 
         //THEN
-        $this->assertSame($expectedLarvaCount, $personalBoard->getLarvaCount());
         $this->assertSame($bonusWanted, $personalBoard->getBonus());
     }
 
@@ -67,11 +65,14 @@ class EventMYRServiceTest extends KernelTestCase
         //GIVEN
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
-        $bonusWanted = 10;
+        $personalBoard = $player->getPersonalBoardMYR();
+        $personalBoard->setBonus(MyrmesParameters::BONUS_WORKER);
+        $this->entityManager->persist($personalBoard);
+        $this->entityManager->flush();
         //THEN
         $this->expectException(\Exception::class);
         //WHEN
-        $this->eventMYRService->chooseBonus($player, $bonusWanted);
+        $this->eventMYRService->upBonus($player);
     }
 
     public function testChooseBonusShouldFailBecauseNotEnoughLarvae() : void
@@ -80,14 +81,14 @@ class EventMYRServiceTest extends KernelTestCase
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
         $personalBoard = $player->getPersonalBoardMYR();
-        $personalBoard->setLarvaCount(2);
+        $personalBoard->setLarvaCount(0);
+        $personalBoard->setBonus(1);
         $this->entityManager->persist($personalBoard);
         $this->entityManager->flush();
-        $bonusWanted = 1;
         //THEN
         $this->expectException(\Exception::class);
         //WHEN
-        $this->eventMYRService->chooseBonus($player, $bonusWanted);
+        $this->eventMYRService->lowerBonus($player);
     }
 
     public function testChooseBonusShouldFailBecauseNotEventPhase() : void
@@ -95,7 +96,7 @@ class EventMYRServiceTest extends KernelTestCase
         //GIVEN
         $game = $this->createGame(2);
         $player = $game->getPlayers()->first();
-        $player->setPhase(MyrmesParameters::$PHASE_BIRTH);
+        $player->setPhase(MyrmesParameters::PHASE_BIRTH);
         $personalBoard = $player->getPersonalBoardMYR();
         $personalBoard->setLarvaCount(2);
         $this->entityManager->persist($personalBoard);
@@ -105,57 +106,102 @@ class EventMYRServiceTest extends KernelTestCase
         //THEN
         $this->expectException(\Exception::class);
         //WHEN
-        $this->eventMYRService->chooseBonus($player, $bonusWanted);
+        $this->eventMYRService->upBonus($player, $bonusWanted);
     }
 
+    public function testUpBonusTwice() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $personalBoard = $player->getPersonalBoardMYR();
+        $personalBoard->setBonus(1);
+        $personalBoard->setLarvaCount(2);
+        $this->entityManager->persist($personalBoard);
+        $this->entityManager->flush();
+        $bonusWanted = 3;
+        //WHEN
+        $this->eventMYRService->upBonus($player);
+        $this->eventMYRService->upBonus($player);
+
+        //THEN
+        $this->assertSame($bonusWanted, $personalBoard->getBonus());
+    }
+
+    public function testUpBonusThenLowerBonus() : void
+    {
+        //GIVEN
+        $game = $this->createGame(2);
+        $player = $game->getPlayers()->first();
+        $personalBoard = $player->getPersonalBoardMYR();
+        $personalBoard->setBonus(1);
+        $personalBoard->setLarvaCount(2);
+        $this->entityManager->persist($personalBoard);
+        $this->entityManager->flush();
+        $bonusWanted = 1;
+        $selectedLarvaeExpected = 0;
+        //WHEN
+        $this->eventMYRService->upBonus($player);
+        $this->eventMYRService->lowerBonus($player);
+
+        //THEN
+        $this->assertSame($bonusWanted, $personalBoard->getBonus());
+        $this->assertSame($selectedLarvaeExpected, $personalBoard->getSelectedEventLarvaeAmount());
+
+    }
 
     private function createGame(int $numberOfPlayers) : GameMYR
     {
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);
-        if($numberOfPlayers < MyrmesParameters::$MIN_NUMBER_OF_PLAYER ||
-            $numberOfPlayers > MyrmesParameters::$MAX_NUMBER_OF_PLAYER) {
+        if($numberOfPlayers < MyrmesParameters::MIN_NUMBER_OF_PLAYER ||
+            $numberOfPlayers > MyrmesParameters::MAX_NUMBER_OF_PLAYER) {
             throw new \Exception("TOO MUCH PLAYERS ON CREATE GAME");
         }
         $game = new GameMYR();
-        for ($i = 0; $i < $numberOfPlayers; $i += 1) {
-            $player = new PlayerMYR('test', $game);
-            $game->addPlayer($player);
-            $player->setGameMyr($game);
-            $player->setPhase(MyrmesParameters::$PHASE_EVENT);
-            $personalBoard = new PersonalBoardMYR();
-            $personalBoard->setLarvaCount(0);
-            $personalBoard->setAnthillLevel(0);
-            $personalBoard->setWarriorsCount(0);
-            $personalBoard->setBonus(5);
-            $player->setPersonalBoardMYR($personalBoard);
-            $player->setScore(0);
-            $player->setGoalLevel(0);
-            for($j = 0; $j < MyrmesParameters::$START_NURSES_COUNT_PER_PLAYER; $j += 1) {
-                $nurse = new NurseMYR();
-                $nurse->setPosition(-1);
-                $nurse->setArea(MyrmesParameters::$LARVAE_AREA);
-                $nurse->setAvailable(true);
-                $nurse->setPlayer($player);
-                $personalBoard->addNurse($nurse);
-                $entityManager->persist($nurse);
-            }
-            $entityManager->persist($player);
-            $entityManager->persist($personalBoard);
-        }
         $mainBoard = new MainBoardMYR();
         $mainBoard->setYearNum(0);
         $mainBoard->setGame($game);
         $season = new SeasonMYR();
         $season->setName("Spring");
-        $season->setMainBoardMYR($mainBoard);
         $season->setDiceResult(1);
+        $season->setMainBoard($mainBoard);
+        $season->setActualSeason(true);
+        $mainBoard->addSeason($season);
         $entityManager->persist($season);
-        $mainBoard->setActualSeason($season);
+        $entityManager->persist($season);
         $game->setMainBoardMYR($mainBoard);
         $game->setGameName("test");
         $game->setLaunched(true);
+        $game->setGamePhase(MyrmesParameters::PHASE_INVALID);
         $entityManager->persist($mainBoard);
         $entityManager->persist($game);
+        for ($i = 0; $i < $numberOfPlayers; $i += 1) {
+            $player = new PlayerMYR('test', $game);
+            $game->addPlayer($player);
+            $player->setGameMyr($game);
+            $player->setColor("");
+            $player->setPhase(MyrmesParameters::PHASE_EVENT);
+            $personalBoard = new PersonalBoardMYR();
+            $personalBoard->setLarvaCount(0);
+            $personalBoard->setAnthillLevel(0);
+            $personalBoard->setWarriorsCount(0);
+            $personalBoard->setSelectedEventLarvaeAmount(0);
+            $personalBoard->setBonus(5);
+            $player->setPersonalBoardMYR($personalBoard);
+            $player->setScore(0);
+            $player->setGoalLevel(0);
+            $player->setRemainingHarvestingBonus(0);
+            for($j = 0; $j < MyrmesParameters::START_NURSES_COUNT_PER_PLAYER; $j += 1) {
+                $nurse = new NurseMYR();
+                $nurse->setArea(MyrmesParameters::LARVAE_AREA);
+                $nurse->setAvailable(true);
+                $personalBoard->addNurse($nurse);
+                $entityManager->persist($nurse);
+            }
+            $entityManager->persist($player);
+            $entityManager->persist($personalBoard);
+            $entityManager->flush();
+        }
         $entityManager->flush();
         return $game;
     }

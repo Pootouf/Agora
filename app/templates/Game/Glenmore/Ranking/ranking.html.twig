@@ -14,7 +14,7 @@ This section displays the ranking with a view of the other players' possessions
 	</div>
 </div>
 
-<div class="overflow-y-auto">
+<div class="flex-grow-0 w-full h-[80%] lg:h-[2/5] landscape:5/6 overflow-y-auto">
 	{% for playerData in playersDataResources %}
 		{% if not playerData.player.isBot %}
 			{# Tailwind loading of background color in order red yellow blue white green #}
@@ -70,7 +70,7 @@ This section displays the ranking with a view of the other players' possessions
 						<div class=" w-[15%]">
 							<p class="landscape:text-base landscape:lg:text-lg text-right
 										 {% if colorPawn == 'white' or colorPawn == 'yellow' %}text-black{% else %}
-									text-white{% endif %}">{{ playerData.player.points }}</p>
+									text-white{% endif %}">{{ playerData.player.score }}</p>
 						</div>
 					</div>
 

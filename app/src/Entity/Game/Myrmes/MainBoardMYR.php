@@ -16,10 +16,6 @@ class MainBoardMYR extends Component
 
     #[ORM\OneToOne(inversedBy: 'mainBoardMYR', cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
-    private ?SeasonMYR $actualSeason = null;
-
-    #[ORM\OneToOne(inversedBy: 'mainBoardMYR', cascade: ['persist', 'remove'])]
-    #[ORM\JoinColumn(nullable: false)]
     private ?GameMYR $game = null;
 
     #[ORM\OneToMany(targetEntity: GardenWorkerMYR::class, mappedBy: 'mainBoardMYR', orphanRemoval: true)]
@@ -34,12 +30,28 @@ class MainBoardMYR extends Component
     #[ORM\OneToMany(targetEntity: AnthillHoleMYR::class, mappedBy: 'mainBoardMYR', orphanRemoval: true)]
     private Collection $anthillHoles;
 
+    #[ORM\OneToMany(targetEntity: SeasonMYR::class, mappedBy: 'mainBoard', orphanRemoval: true)]
+    private Collection $seasons;
+
+    #[ORM\OneToMany(targetEntity: GameGoalMYR::class, mappedBy: 'mainBoardLevelOne')]
+    private Collection $gameGoalsLevelOne;
+
+    #[ORM\OneToMany(targetEntity: GameGoalMYR::class, mappedBy: 'mainBoardLevelTwo')]
+    private Collection $gameGoalsLevelTwo;
+
+    #[ORM\OneToMany(targetEntity: GameGoalMYR::class, mappedBy: 'mainBoardLevelThree')]
+    private Collection $gameGoalsLevelThree;
+
     public function __construct()
     {
         $this->gardenWorkers = new ArrayCollection();
         $this->preys = new ArrayCollection();
         $this->tiles = new ArrayCollection();
         $this->anthillHoles = new ArrayCollection();
+        $this->seasons = new ArrayCollection();
+        $this->gameGoalsLevelOne = new ArrayCollection();
+        $this->gameGoalsLevelTwo = new ArrayCollection();
+        $this->gameGoalsLevelThree = new ArrayCollection();
     }
 
     public function getYearNum(): ?int
@@ -50,18 +62,6 @@ class MainBoardMYR extends Component
     public function setYearNum(int $yearNum): static
     {
         $this->yearNum = $yearNum;
-
-        return $this;
-    }
-
-    public function getActualSeason(): ?SeasonMYR
-    {
-        return $this->actualSeason;
-    }
-
-    public function setActualSeason(SeasonMYR $actualSeason): static
-    {
-        $this->actualSeason = $actualSeason;
 
         return $this;
     }
@@ -98,11 +98,9 @@ class MainBoardMYR extends Component
 
     public function removeGardenWorker(GardenWorkerMYR $gardenWorker): static
     {
-        if ($this->gardenWorkers->removeElement($gardenWorker)) {
-            // set the owning side to null (unless already changed)
-            if ($gardenWorker->getMainBoardMYR() === $this) {
-                $gardenWorker->setMainBoardMYR(null);
-            }
+        if ($this->gardenWorkers->removeElement($gardenWorker)
+            && $gardenWorker->getMainBoardMYR() === $this) {
+            $gardenWorker->setMainBoardMYR(null);
         }
 
         return $this;
@@ -128,11 +126,8 @@ class MainBoardMYR extends Component
 
     public function removePrey(PreyMYR $prey): static
     {
-        if ($this->preys->removeElement($prey)) {
-            // set the owning side to null (unless already changed)
-            if ($prey->getMainBoardMYR() === $this) {
-                $prey->setMainBoardMYR(null);
-            }
+        if ($this->preys->removeElement($prey) && $prey->getMainBoardMYR() === $this) {
+            $prey->setMainBoardMYR(null);
         }
 
         return $this;
@@ -182,11 +177,119 @@ class MainBoardMYR extends Component
 
     public function removeAnthillHole(AnthillHoleMYR $anthillHole): static
     {
-        if ($this->anthillHoles->removeElement($anthillHole)) {
-            // set the owning side to null (unless already changed)
-            if ($anthillHole->getMainBoardMYR() === $this) {
-                $anthillHole->setMainBoardMYR(null);
-            }
+        if ($this->anthillHoles->removeElement($anthillHole) && $anthillHole->getMainBoardMYR() === $this) {
+            $anthillHole->setMainBoardMYR(null);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, SeasonMYR>
+     */
+    public function getSeasons(): Collection
+    {
+        return $this->seasons;
+    }
+
+    public function addSeason(SeasonMYR $season): static
+    {
+        if (!$this->seasons->contains($season)) {
+            $this->seasons->add($season);
+            $season->setMainBoard($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSeason(SeasonMYR $season): static
+    {
+        if ($this->seasons->removeElement($season) && $season->getMainBoard() === $this) {
+            $season->setMainBoard(null);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, GameGoalMYR>
+     */
+    public function getGameGoalsLevelOne(): Collection
+    {
+        return $this->gameGoalsLevelOne;
+    }
+
+    public function addGameGoalsLevelOne(GameGoalMYR $gameGoalsLevelOne): static
+    {
+        if (!$this->gameGoalsLevelOne->contains($gameGoalsLevelOne)) {
+            $this->gameGoalsLevelOne->add($gameGoalsLevelOne);
+            $gameGoalsLevelOne->setMainBoardLevelOne($this);
+        }
+
+        return $this;
+    }
+
+    public function removeGameGoalsLevelOne(GameGoalMYR $gameGoalsLevelOne): static
+    {
+        if ($this->gameGoalsLevelOne->removeElement($gameGoalsLevelOne)
+            && $gameGoalsLevelOne->getMainBoardLevelOne() === $this) {
+            $gameGoalsLevelOne->setMainBoardLevelOne(null);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, GameGoalMYR>
+     */
+    public function getGameGoalsLevelTwo(): Collection
+    {
+        return $this->gameGoalsLevelTwo;
+    }
+
+    public function addGameGoalsLevelTwo(GameGoalMYR $gameGoalsLevelTwo): static
+    {
+        if (!$this->gameGoalsLevelTwo->contains($gameGoalsLevelTwo)) {
+            $this->gameGoalsLevelTwo->add($gameGoalsLevelTwo);
+            $gameGoalsLevelTwo->setMainBoardLevelTwo($this);
+        }
+
+        return $this;
+    }
+
+    public function removeGameGoalsLevelTwo(GameGoalMYR $gameGoalsLevelTwo): static
+    {
+        if ($this->gameGoalsLevelTwo->removeElement($gameGoalsLevelTwo)
+            && $gameGoalsLevelTwo->getMainBoardLevelTwo() === $this) {
+            $gameGoalsLevelTwo->setMainBoardLevelTwo(null);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, GameGoalMYR>
+     */
+    public function getGameGoalsLevelThree(): Collection
+    {
+        return $this->gameGoalsLevelThree;
+    }
+
+    public function addGameGoalsLevelThree(GameGoalMYR $gameGoalsLevelThree): static
+    {
+        if (!$this->gameGoalsLevelThree->contains($gameGoalsLevelThree)) {
+            $this->gameGoalsLevelThree->add($gameGoalsLevelThree);
+            $gameGoalsLevelThree->setMainBoardLevelThree($this);
+        }
+
+        return $this;
+    }
+
+    public function removeGameGoalsLevelThree(GameGoalMYR $gameGoalsLevelThree): static
+    {
+        if ($this->gameGoalsLevelThree->removeElement($gameGoalsLevelThree)
+            && $gameGoalsLevelThree->getMainBoardLevelThree() === $this) {
+            $gameGoalsLevelThree->setMainBoardLevelThree(null);
         }
 
         return $this;

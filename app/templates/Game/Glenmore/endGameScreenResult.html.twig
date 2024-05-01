@@ -55,10 +55,10 @@
 		{# Arbitrary value impossible to reach  #}
 		{% set winnerScore = 0 %}
 		{% for player in game.players %}
-			{% if player.points > winnerScore %}
-				{% set winnerScore = player.points %}
+			{% if player.score > winnerScore %}
+				{% set winnerScore = player.score %}
 				{% set winner = player.username %}
-			{% elseif player.points == winnerScore %}
+			{% elseif player.score == winnerScore %}
 				{% set winner = null %}
 			{% endif %}
 		{% endfor %}

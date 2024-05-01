@@ -223,26 +223,11 @@ class TileGLMTest extends TestCase
         $this->assertNotContains($tileActivationBonus, $this->tileGLM->getActivationBonus());
     }
 
-    public function testSetType() : void
-    {
-        // GIVEN
-
-        $type = GlenmoreParameters::$TILE_TYPE_VILLAGE;
-
-        // WHEN
-
-        $this->tileGLM->setType($type);
-
-        // THEN
-
-        $this->assertSame($type, $this->tileGLM->getType());
-    }
-
     public function testSetName() : void
     {
         // GIVEN
 
-        $name = GlenmoreParameters::$TILE_NAME_DISTILLERY;
+        $name = GlenmoreParameters::TILE_NAME_DISTILLERY;
 
         // WHEN
 
@@ -279,7 +264,7 @@ class TileGLMTest extends TestCase
     {
         // GIVEN
 
-        $level = GlenmoreParameters::$TILE_LEVEL_THREE;
+        $level = GlenmoreParameters::TILE_LEVEL_THREE;
 
         // WHEN
 

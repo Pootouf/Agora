@@ -94,11 +94,8 @@ class PersonalBoardGLM extends Component
 
     public function removePlayerTile(PlayerTileGLM $playerTile): static
     {
-        if ($this->playerTiles->removeElement($playerTile)) {
-            // set the owning side to null (unless already changed)
-            if ($playerTile->getPersonalBoard() === $this) {
-                $playerTile->setPersonalBoard(null);
-            }
+        if ($this->playerTiles->removeElement($playerTile) && $playerTile->getPersonalBoard() === $this) {
+            $playerTile->setPersonalBoard(null);
         }
 
         return $this;
@@ -141,11 +138,9 @@ class PersonalBoardGLM extends Component
 
     public function removePlayerCardGLM(PlayerCardGLM $playerCardGLM): static
     {
-        if ($this->playerCardGLM->removeElement($playerCardGLM)) {
-            // set the owning side to null (unless already changed)
-            if ($playerCardGLM->getPersonalBoard() === $this) {
-                $playerCardGLM->setPersonalBoard(null);
-            }
+        if ($this->playerCardGLM->removeElement($playerCardGLM)
+            && $playerCardGLM->getPersonalBoard() === $this) {
+            $playerCardGLM->setPersonalBoard(null);
         }
 
         return $this;
@@ -171,11 +166,9 @@ class PersonalBoardGLM extends Component
 
     public function removeSelectedResource(SelectedResourceGLM $selectedResource): static
     {
-        if ($this->selectedResources->removeElement($selectedResource)) {
-            // set the owning side to null (unless already changed)
-            if ($selectedResource->getPersonalBoardGLM() === $this) {
-                $selectedResource->setPersonalBoardGLM(null);
-            }
+        if ($this->selectedResources->removeElement($selectedResource)
+            && $selectedResource->getPersonalBoardGLM() === $this) {
+            $selectedResource->setPersonalBoardGLM(null);
         }
 
         return $this;
@@ -201,11 +194,9 @@ class PersonalBoardGLM extends Component
 
     public function removeCreatedResource(CreatedResourceGLM $createdResource): static
     {
-        if ($this->createdResources->removeElement($createdResource)) {
-            // set the owning side to null (unless already changed)
-            if ($createdResource->getPersonalBoardGLM() === $this) {
-                $createdResource->setPersonalBoardGLM(null);
-            }
+        if ($this->createdResources->removeElement($createdResource)
+            && $createdResource->getPersonalBoardGLM() === $this) {
+            $createdResource->setPersonalBoardGLM(null);
         }
 
         return $this;

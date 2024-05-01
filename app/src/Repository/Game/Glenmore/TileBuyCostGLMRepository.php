@@ -25,28 +25,4 @@ class TileBuyCostGLMRepository extends ServiceEntityRepository
         parent::__construct($registry, TileBuyCostGLM::class);
     }
 
-//    /**
-//     * @return TileBuyCostGLM[] Returns an array of TileBuyCostGLM objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('t')
-//            ->andWhere('t.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('t.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
-
-//    public function findOneBySomeField($value): ?TileBuyCostGLM
-//    {
-//        return $this->createQueryBuilder('t')
-//            ->andWhere('t.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
 }

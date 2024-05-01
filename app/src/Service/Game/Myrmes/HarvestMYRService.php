@@ -2,22 +2,46 @@
 
 namespace App\Service\Game\Myrmes;
 
-use App\Entity\Game\Myrmes\AnthillHoleMYR;
 use App\Entity\Game\Myrmes\MyrmesParameters;
-use App\Entity\Game\Myrmes\NurseMYR;
+use App\Entity\Game\Myrmes\PheromonMYR;
 use App\Entity\Game\Myrmes\PlayerMYR;
+use App\Entity\Game\Myrmes\ResourceMYR;
 use App\Entity\Game\Myrmes\TileMYR;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 
-/**
- * @codeCoverageIgnore
- */
 class HarvestMYRService
 {
     public function __construct(private readonly EntityManagerInterface $entityManager,
-                                private readonly MYRService $MYRService)
+                                private readonly MYRService             $myrService)
     {}
+
+    /**
+     * areAllPheromonesHarvested : indicate if a player has ended its harvest obligatory phase
+     * @param PlayerMYR $playerMYR
+     * @return bool
+     */
+    public function areAllPheromonesHarvested(PlayerMYR $playerMYR): bool
+    {
+        $pheromones = $playerMYR->getPheromonMYRs();
+        foreach ($pheromones as $pheromone) {
+            if(!$pheromone->isHarvested()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * canStillHarvest : indicate if a player is still in harvest phase
+     * @param PlayerMYR $playerMYR
+     * @return bool
+     */
+    public function canStillHarvest(PlayerMYR $playerMYR): bool
+    {
+        return $this->areAllPheromonesHarvested($playerMYR) && $playerMYR->getRemainingHarvestingBonus() > 0
+            || !$this->areAllPheromonesHarvested($playerMYR);
+    }
 
     /**
      * harvestPheromone : remove the resources which is on tile and gives it to the player
@@ -31,15 +55,20 @@ class HarvestMYRService
         $playerPheromones = $playerMYR->getPheromonMYRs();
         foreach ($playerPheromones as $playerPheromone) {
             foreach ($playerPheromone->getPheromonTiles() as $tile) {
-                if($tile->getTile() === $tileMYR) {
+                if($tile->getTile() === $tileMYR && $tile->getResource() != null) {
                     if($playerPheromone->isHarvested()) {
-                        throw new Exception("Pheromone already harvested");
+                        if($playerMYR->getRemainingHarvestingBonus() <= 0) {
+                            throw new Exception("Pheromone already harvested");
+                        }
+                        $playerMYR->setRemainingHarvestingBonus(
+                            $playerMYR->getRemainingHarvestingBonus() - 1);
+                        $this->entityManager->persist($playerMYR);
                     }
                     $resource = $tile->getResource();
                     $tile->setResource(null);
                     $playerResources = $playerMYR->getPersonalBoardMYR()->getPlayerResourceMYRs();
                     foreach ($playerResources as $playerResource) {
-                        if($playerResource === $resource) {
+                        if($playerResource->getResource()->getDescription() == $resource->getDescription()) {
                             $playerResource->setQuantity($playerResource->getQuantity() + 1);
                             $playerPheromone->setHarvested(true);
                             $this->entityManager->persist($playerResource);
@@ -53,85 +82,79 @@ class HarvestMYRService
     }
 
     /**
-     * @param PlayerMYR $player
+     * harvestPlayerFarms : activates all the player farms
+     * @param PlayerMYR $playerMYR
      * @return void
-     * @throws Exception
      */
-    public function manageHarvest(PlayerMYR $player) {
-
-        for ($i = 4; $i < MyrmesParameters::$AREA_COUNT; $i += 1)
-        {
-            $nurses = $this->MYRService->getNursesAtPosition($player ,$i);
-            $nursesCount = $nurses->count();
-            switch ($i) {
-                case MyrmesParameters::$WORKSHOP_ANTHILL_HOLE_AREA:
-                    $this->manageAnthillHole($nursesCount, $player);
-                    break;
-                case MyrmesParameters::$WORKSHOP_LEVEL_AREA:
-                    $this->manageLevel($nursesCount, $player);
-                    break;
-                case MyrmesParameters::$WORKSHOP_NURSE_AREA:
-                    $this->manageNurse($nursesCount, $player);
-                    break;
-                case MyrmesParameters::$WORKSHOP_GOAL_AREA:
-                    break;
-                default:
-                    throw new Exception("Don't give bonus");
+    public function harvestPlayerFarms(PlayerMYR $playerMYR) : void
+    {
+        $playerPheromones = $playerMYR->getPheromonMYRs();
+        foreach ($playerPheromones as $playerPheromone) {
+            $tileType = $playerPheromone->getType();
+            if ($tileType->getType() == MyrmesParameters::SPECIAL_TILE_TYPE_FARM) {
+                foreach ($playerMYR->getPersonalBoardMYR()->getPlayerResourceMYRs() as $playerResource) {
+                    if($playerResource->getResource()->getDescription() == MyrmesParameters::RESOURCE_TYPE_GRASS) {
+                        $playerPheromone->setHarvested(true);
+                        $this->entityManager->persist($playerPheromone);
+                        $playerResource->setQuantity($playerResource->getQuantity() + 1);
+                        $this->entityManager->persist($playerResource);
+                    }
+                }
             }
-            $this->entityManager->flush();
         }
+        $this->entityManager->flush();
     }
 
     /**
-     * @param int $nursesCount
-     * @param PlayerMYR $player
+     * harvestPlayerQuarry : activates a player quarry, and gives him his resources selected
+     * @param PlayerMYR $playerMYR
+     * @param PheromonMYR $pheromoneMYR
+     * @param string $resourceMYR
      * @return void
      * @throws Exception
      */
-    private function manageAnthillHole(int $nursesCount, PlayerMYR $player) : void
+    public function harvestPlayerQuarry(PlayerMYR $playerMYR, PheromonMYR $pheromoneMYR,
+                                        string $resourceMYR) : void
     {
-        if ($nursesCount == 1)
-        {
-            $player->addAnthillHoleMYR(new AnthillHoleMYR());
-            $this->MYRService->manageNursesAfterBonusGive(
-                $player, 1, MyrmesParameters::$WORKSHOP_ANTHILL_HOLE_AREA
-            );
+        if($pheromoneMYR->isHarvested()) {
+            throw new Exception("Quarry already harvested");
         }
+        if(!($resourceMYR == MyrmesParameters::RESOURCE_TYPE_DIRT ||
+            $resourceMYR == MyrmesParameters::RESOURCE_TYPE_STONE)) {
+            throw new Exception("Invalid resource");
+        }
+        $tileType = $pheromoneMYR->getType();
+        if($tileType->getType() != MyrmesParameters::SPECIAL_TILE_TYPE_QUARRY) {
+            throw new Exception("Invalid tile");
+        }
+        foreach ($playerMYR->getPersonalBoardMYR()->getPlayerResourceMYRs() as $playerResource) {
+            if($playerResource->getResource()->getDescription() == $resourceMYR) {
+                $pheromoneMYR->setHarvested(true);
+                $this->entityManager->persist($pheromoneMYR);
+                $playerResource->setQuantity($playerResource->getQuantity() + 1);
+                $this->entityManager->persist($playerResource);
+            }
+        }
+        $this->entityManager->flush();
     }
 
     /**
-     * @param int $nursesCount
-     * @param PlayerMYR $player
+     * harvestPlayerSubAnthill : activates all the player farms
+     * @param PlayerMYR $playerMYR
      * @return void
-     * @throws Exception
      */
-    private function manageLevel(int $nursesCount, PlayerMYR $player) : void
+    public function harvestPlayerSubAnthill(PlayerMYR $playerMYR) : void
     {
-        if ($nursesCount == 1)
-        {
-            $personalBoard = $player->getPersonalBoardMYR();
-            $level = $personalBoard->getAnthillLevel();
-            $personalBoard->setAnthillLevel($level + 1);
-            $this->MYRService->manageNursesAfterBonusGive(
-                $player, 1, MyrmesParameters::$WORKSHOP_LEVEL_AREA
-            );
+        $playerPheromones = $playerMYR->getPheromonMYRs();
+        foreach ($playerPheromones as $playerPheromone) {
+            $tileType = $playerPheromone->getType();
+            if ($tileType->getType() == MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL) {
+                $playerPheromone->setHarvested(true);
+                $this->entityManager->persist($playerPheromone);
+                $playerMYR->setScore($playerMYR->getScore() + 2);
+                $this->entityManager->persist($playerMYR);
+            }
         }
+        $this->entityManager->flush();
     }
-
-    private function manageNurse(int $nursesCount, PlayerMYR $player) : void
-    {
-
-        $personalBoard = $player->getPersonalBoardMYR();
-
-        if ($nursesCount == 1)
-        {
-            $nurse = new NurseMYR();
-            $nurse->setPosition(MyrmesParameters::$BASE_AREA);
-            $personalBoard->addNurse($nurse);
-            $this->MYRService->manageNursesAfterBonusGive(
-                $player, 1, MyrmesParameters::$WORKSHOP_NURSE_AREA
-            );
-        }
-    }
-
 }

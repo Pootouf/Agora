@@ -18,6 +18,8 @@ This section displays the player tile resources and possible actions
 {% set NORTH_WEST = 7 %}
 
 {% set CARD_LOCH_NESS = "Loch Ness" %}
+{% set CARD_LOCH_LOCHY = "Loch Lochy" %}
+{% set CARD_IONA_ABBEY = "Iona Abbey" %}
 
 {% set PRODUCTION_TYPE = ['brown', 'green', 'grey', 'white', 'yellow'] %}
 
@@ -225,7 +227,8 @@ This section displays the player tile resources and possible actions
             {% endif %}
 
             {# Display the new resources the player must select to have them #}
-            {% if activatedNewResourceAcquisition %}
+            {% if activatedNewResourceAcquisition and
+                (selectedTile.tile.name == CARD_LOCH_LOCHY or selectedTile.tile.name == CARD_IONA_ABBEY)%}
                 <div class="grid grid-rows-4 grid-cols-1 gap-1 mb-6">
                     <span class="border-white border-2 bg-green-700
                                 text-white text-lg flex items-center border-solid text-center justify-center">

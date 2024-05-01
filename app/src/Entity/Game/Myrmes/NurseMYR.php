@@ -11,13 +11,6 @@ class NurseMYR extends Component
 {
 
     #[ORM\Column]
-    private ?int $position = null;
-
-    #[ORM\ManyToOne(inversedBy: 'nurseMYRs')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?PlayerMYR $player = null;
-
-    #[ORM\Column]
     private ?bool $available = null;
 
     #[ORM\ManyToOne(inversedBy: 'nurses')]
@@ -26,30 +19,6 @@ class NurseMYR extends Component
 
     #[ORM\Column]
     private ?int $area = null;
-
-    public function getPosition(): ?int
-    {
-        return $this->position;
-    }
-
-    public function setPosition(int $position): static
-    {
-        $this->position = $position;
-
-        return $this;
-    }
-
-    public function getPlayer(): ?PlayerMYR
-    {
-        return $this->player;
-    }
-
-    public function setPlayer(?PlayerMYR $player): static
-    {
-        $this->player = $player;
-
-        return $this;
-    }
 
     public function isAvailable(): ?bool
     {

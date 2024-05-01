@@ -57,11 +57,8 @@ class MainBoardGLM extends Component
 
     public function removeBoardTile(BoardTileGLM $boardTile): static
     {
-        if ($this->boardTiles->removeElement($boardTile)) {
-            // set the owning side to null (unless already changed)
-            if ($boardTile->getMainBoardGLM() === $this) {
-                $boardTile->setMainBoardGLM(null);
-            }
+        if ($this->boardTiles->removeElement($boardTile) && $boardTile->getMainBoardGLM() === $this) {
+            $boardTile->setMainBoardGLM(null);
         }
 
         return $this;
@@ -87,11 +84,8 @@ class MainBoardGLM extends Component
 
     public function removeDrawTile(DrawTilesGLM $drawTile): static
     {
-        if ($this->drawTiles->removeElement($drawTile)) {
-            // set the owning side to null (unless already changed)
-            if ($drawTile->getMainBoardGLM() === $this) {
-                $drawTile->setMainBoardGLM(null);
-            }
+        if ($this->drawTiles->removeElement($drawTile) && $drawTile->getMainBoardGLM() === $this) {
+            $drawTile->setMainBoardGLM(null);
         }
 
         return $this;
@@ -129,11 +123,8 @@ class MainBoardGLM extends Component
 
     public function removePawn(PawnGLM $pawn): static
     {
-        if ($this->pawns->removeElement($pawn)) {
-            // set the owning side to null (unless already changed)
-            if ($pawn->getMainBoardGLM() === $this) {
-                $pawn->setMainBoardGLM(null);
-            }
+        if ($this->pawns->removeElement($pawn) && $pawn->getMainBoardGLM() === $this) {
+            $pawn->setMainBoardGLM(null);
         }
 
         return $this;

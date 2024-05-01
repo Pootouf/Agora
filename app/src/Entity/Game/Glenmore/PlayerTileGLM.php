@@ -27,15 +27,18 @@ class PlayerTileGLM extends Component
     private Collection $playerTileResource;
 
     #[ORM\Column]
-    private ?int $coord_X = null;
+    private ?int $coordX = null;
 
     #[ORM\Column]
-    private ?int $coord_Y = null;
+    private ?int $coordY = null;
 
     #[ORM\Column]
     private ?bool $activated = false;
 
-    #[ORM\OneToMany(targetEntity: SelectedResourceGLM::class, mappedBy: 'playerTile', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: SelectedResourceGLM::class,
+        mappedBy: 'playerTile',
+        orphanRemoval: true,
+        cascade: ["persist"])]
     private Collection $selectedResources;
 
     public function __construct()
@@ -114,11 +117,9 @@ class PlayerTileGLM extends Component
 
     public function removePlayerTileResource(PlayerTileResourceGLM $playerTileResource): static
     {
-        if ($this->playerTileResource->removeElement($playerTileResource)) {
-            // set the owning side to null (unless already changed)
-            if ($playerTileResource->getPlayerTileGLM() === $this) {
-                $playerTileResource->setPlayerTileGLM(null);
-            }
+        if ($this->playerTileResource->removeElement($playerTileResource)
+            && $playerTileResource->getPlayerTileGLM() === $this) {
+            $playerTileResource->setPlayerTileGLM(null);
         }
 
         return $this;
@@ -126,24 +127,24 @@ class PlayerTileGLM extends Component
 
     public function getCoordX(): ?int
     {
-        return $this->coord_X;
+        return $this->coordX;
     }
 
-    public function setCoordX(int $coord_X): static
+    public function setCoordX(int $coordX): static
     {
-        $this->coord_X = $coord_X;
+        $this->coordX = $coordX;
 
         return $this;
     }
 
     public function getCoordY(): ?int
     {
-        return $this->coord_Y;
+        return $this->coordY;
     }
 
-    public function setCoordY(int $coord_Y): static
+    public function setCoordY(int $coordY): static
     {
-        $this->coord_Y = $coord_Y;
+        $this->coordY = $coordY;
 
         return $this;
     }
@@ -180,11 +181,9 @@ class PlayerTileGLM extends Component
 
     public function removeSelectedResource(SelectedResourceGLM $selectedResource): static
     {
-        if ($this->selectedResources->removeElement($selectedResource)) {
-            // set the owning side to null (unless already changed)
-            if ($selectedResource->getPlayerTile() === $this) {
-                $selectedResource->setPlayerTile(null);
-            }
+        if ($this->selectedResources->removeElement($selectedResource)
+            && $selectedResource->getPlayerTile() === $this) {
+            $selectedResource->setPlayerTile(null);
         }
 
         return $this;

@@ -140,15 +140,15 @@ class DataManagementGLMServiceIntegrationTest extends KernelTestCase
         $tileGLMRepository = static::getContainer()->get(TileGLMRepository::class);
         $resourceGLMRepository = static::getContainer()->get(ResourceGLMRepository::class);
         $game = new GameGLM();
-        $game->setGameName(AbstractGameManagerService::$GLM_LABEL);
+        $game->setGameName(AbstractGameManagerService::GLM_LABEL);
         $mainBoard = new MainBoardGLM();
         $mainBoard->setGameGLM($game);
-        $tilesLevelZero = $tileGLMRepository->findBy(['level' => GlenmoreParameters::$TILE_LEVEL_ZERO]);
-        $tilesLevelOne = $tileGLMRepository->findBy(['level' => GlenmoreParameters::$TILE_LEVEL_ONE]);
-        $tilesLevelTwo = $tileGLMRepository->findBy(['level' => GlenmoreParameters::$TILE_LEVEL_TWO]);
-        $tilesLevelThree = $tileGLMRepository->findBy(['level' => GlenmoreParameters::$TILE_LEVEL_THREE]);
+        $tilesLevelZero = $tileGLMRepository->findBy(['level' => GlenmoreParameters::TILE_LEVEL_ZERO]);
+        $tilesLevelOne = $tileGLMRepository->findBy(['level' => GlenmoreParameters::TILE_LEVEL_ONE]);
+        $tilesLevelTwo = $tileGLMRepository->findBy(['level' => GlenmoreParameters::TILE_LEVEL_TWO]);
+        $tilesLevelThree = $tileGLMRepository->findBy(['level' => GlenmoreParameters::TILE_LEVEL_THREE]);
         $drawArray = [$tilesLevelZero, $tilesLevelOne, $tilesLevelTwo, $tilesLevelThree];
-        for ($i = GlenmoreParameters::$TILE_LEVEL_ZERO; $i <= GlenmoreParameters::$TILE_LEVEL_THREE; ++$i) {
+        for ($i = GlenmoreParameters::TILE_LEVEL_ZERO; $i <= GlenmoreParameters::TILE_LEVEL_THREE; ++$i) {
             $draw = new DrawTilesGLM();
             $draw->setLevel($i);
             $draw->setMainBoardGLM($mainBoard);
@@ -165,27 +165,48 @@ class DataManagementGLMServiceIntegrationTest extends KernelTestCase
             $entityManager->persist($mainBoard);
         }
 
+        for ($i = $nbOfPlayers; $i < GlenmoreParameters::NUMBER_OF_BOXES_ON_BOARD; ++$i) {
+            $drawTiles = $mainBoard->getDrawTiles();
+            $level = 0;
+            for ($j = GlenmoreParameters::TILE_LEVEL_ZERO; $j <= GlenmoreParameters::TILE_LEVEL_THREE; ++$j) {
+                if ($drawTiles->get($j)->getTiles()->isEmpty()) {
+                    ++$level;
+                } else {
+                    break;
+                }
+            }
+            $draw = $drawTiles->get($level);
+            $tile = $draw->getTiles()->first();
+            $mainBoardTile = new BoardTileGLM();
+            $mainBoardTile->setTile($tile);
+            $mainBoardTile->setMainBoardGLM($mainBoard);
+            $mainBoardTile->setPosition($i);
+            $entityManager->persist($mainBoardTile);
+            $draw->removeTile($tile);
+            $entityManager->persist($draw);
+        }
+
         for ($i = 0; $i < $nbOfPlayers; $i++) {
             $player = new PlayerGLM('test', $game);
             $player->setRoundPhase(0);
             $player->setGameGLM($game);
             $player->setTurnOfPlayer(false);
-            $player->setPoints(0);
+            $player->setScore(0);
             $game->addPlayer($player);
             $personalBoard = new PersonalBoardGLM();
             $player->setPersonalBoard($personalBoard);
             $personalBoard->setPlayerGLM($player);
             $personalBoard->setLeaderCount(0);
-            $personalBoard->setMoney(GlenmoreParameters::$START_MONEY);
+            $personalBoard->setMoney(GlenmoreParameters::START_MONEY);
             $pawn = new PawnGLM();
-            $pawn->setColor(GlenmoreParameters::$COLOR_FROM_POSITION[$i]);
+            $pawn->setColor(GlenmoreParameters::COLOR_FROM_POSITION[$i]);
             $pawn->setPosition($i);
             $pawn->setMainBoardGLM($mainBoard);
             $player->setPawn($pawn);
             $entityManager->persist($pawn);
             $entityManager->persist($player);
-            $startVillages = $tileGLMRepository->findBy(['name' => GlenmoreParameters::$TILE_NAME_START_VILLAGE]);
-            $villager = $resourceGLMRepository->findOneBy(['type' => GlenmoreParameters::$VILLAGER_RESOURCE]);
+            $startVillages = $tileGLMRepository->findBy(['name' => GlenmoreParameters::TILE_NAME_START_VILLAGE]);
+            $villager = $resourceGLMRepository->findOneBy(['type' => GlenmoreParameters::VILLAGER_RESOURCE]);
             $playerTile = new PlayerTileGLM();
             $playerTile->setActivated(false);
             $playerTile->setCoordX(0);
@@ -203,28 +224,9 @@ class DataManagementGLMServiceIntegrationTest extends KernelTestCase
             $entityManager->persist($playerTileResource);
             $entityManager->persist($personalBoard);
             $entityManager->persist($player);
+            $entityManager->flush();
         }
 
-        for ($i = $nbOfPlayers; $i < GlenmoreParameters::$NUMBER_OF_BOXES_ON_BOARD; ++$i) {
-            $drawTiles = $mainBoard->getDrawTiles();
-            $level = 0;
-            for ($j = GlenmoreParameters::$TILE_LEVEL_ZERO; $j <= GlenmoreParameters::$TILE_LEVEL_THREE; ++$j) {
-                if ($drawTiles->get($j)->getTiles()->isEmpty()) {
-                    ++$level;
-                } else {
-                    break;
-                }
-            }
-            $draw = $drawTiles->get($level);
-            $tile = $draw->getTiles()->first();
-            $mainBoardTile = new BoardTileGLM();
-            $mainBoardTile->setTile($tile);
-            $mainBoardTile->setMainBoardGLM($mainBoard);
-            $mainBoardTile->setPosition($i);
-            $entityManager->persist($mainBoardTile);
-            $draw->removeTile($tile);
-            $entityManager->persist($draw);
-        }
         $firstPlayer = $game->getPlayers()->first();
         $firstPlayer->setTurnOfPlayer(true);
         $entityManager->persist($firstPlayer);

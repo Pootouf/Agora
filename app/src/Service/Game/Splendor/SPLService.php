@@ -16,15 +16,11 @@ use App\Repository\Game\Splendor\NobleTileSPLRepository;
 use App\Repository\Game\Splendor\PlayerCardSPLRepository;
 use App\Repository\Game\Splendor\PlayerSPLRepository;
 use App\Repository\Game\Splendor\RowSPLRepository;
-use App\Repository\Game\Splendor\TokenSPLRepository;
 use App\Entity\Game\Splendor\MainBoardSPL;
-use App\Entity\Game\Splendor\RowSPL;
-use App\Service\Game\AbstractGameManagerService;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\DBAL\Exception;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
-use Psr\Log\LoggerInterface;
+use Exception;
 
 class SPLService
 {
@@ -52,7 +48,7 @@ class SPLService
     {
         $cards = $draw->getDevelopmentCards()->toArray();
         shuffle($cards);
-        return sizeof($cards) == 0 ? null : $cards[0];
+        return empty($cards) ? null : $cards[0];
     }
 
     public function getDrawFromGameAndLevel(GameSPL $game, int $level)
@@ -115,22 +111,11 @@ class SPLService
     public function hasOnePlayerReachedLimit(GameSPL $game): bool
     {
         foreach ($game->getPlayers() as $player) {
-            if ($this->getPrestigePoints($player) >= SplendorParameters::$MAX_PRESTIGE_POINTS) {
+            if ($player->getScore() >= SplendorParameters::MAX_PRESTIGE_POINTS) {
                 return true;
             }
         }
         return false;
-    }
-
-    /**
-     * getPrestigePoints : returns total prestige points of a player
-     *
-     * @param PlayerSPL $player
-     * @return int
-     */
-    private function getPrestigePoints(PlayerSPL $player): int
-    {
-        return $player->getTotalPoints();
     }
 
     /**
@@ -172,9 +157,29 @@ class SPLService
         $array = $gameSPL->getPlayers()->toArray();
         usort($array,
             function(PlayerSPL $player1, PlayerSPL $player2) {
-                return $this->getPrestigePoints($player2) - $this->getPrestigePoints($player1);
+                $gap = $player2->getScore() - $player1->getScore();
+                if ($gap == 0) {
+                    return $this->getBoughtDevelopmentCards($player2) - $this->getBoughtDevelopmentCards($player1);
+                }
+                return $gap;
             });
         return $array;
+    }
+
+    /**
+     * getBoughtDevelopmentCards : returns the amount of card a player bought
+     * @param PlayerSPL $player
+     * @return int
+     */
+    public function getBoughtDevelopmentCards(PlayerSPL $player) : int
+    {
+        $result = 0;
+        foreach ($player->getPersonalBoard()->getPlayerCards() as $card) {
+            if (!$card->isIsReserved()) {
+                ++$result;
+            }
+        }
+        return $result;
     }
 
     /**
@@ -278,7 +283,7 @@ class SPLService
     {
         $reservedCardsOfPlayer = $this->getReservedCards($player);
         return sizeof($reservedCardsOfPlayer)
-            >= SplendorParameters::$MAX_COUNT_RESERVED_CARDS;
+            >= SplendorParameters::MAX_COUNT_RESERVED_CARDS;
     }
 
     /**
@@ -315,32 +320,32 @@ class SPLService
             $mainBoard->addNobleTile($nobleTiles[$i]);
         }
         $levelOneCards = $this->developmentCardsSPLRepository->findBy(
-            ['level' => SplendorParameters::$DEVELOPMENT_CARD_LEVEL_ONE]
+            ['level' => SplendorParameters::DEVELOPMENT_CARD_LEVEL_ONE]
         );
         $levelTwoCards = $this->developmentCardsSPLRepository->findBy(
-            ['level' => SplendorParameters::$DEVELOPMENT_CARD_LEVEL_TWO]
+            ['level' => SplendorParameters::DEVELOPMENT_CARD_LEVEL_TWO]
         );
         $levelThreeCards = $this->developmentCardsSPLRepository->findBy(
-            ['level' => SplendorParameters::$DEVELOPMENT_CARD_LEVEL_THREE]
+            ['level' => SplendorParameters::DEVELOPMENT_CARD_LEVEL_THREE]
         );
         shuffle($levelOneCards);
         shuffle($levelTwoCards);
         shuffle($levelThreeCards);
         $rows = $mainBoard->getRowsSPL();
         for ($i = 0; $i < 4; $i++) {
-            $rows[SplendorParameters::$DRAW_CARD_LEVEL_ONE]->addDevelopmentCard($levelOneCards[$i]);
-            $rows[SplendorParameters::$DRAW_CARD_LEVEL_TWO]->addDevelopmentCard($levelTwoCards[$i]);
-            $rows[SplendorParameters::$DRAW_CARD_LEVEL_THREE]->addDevelopmentCard($levelThreeCards[$i]);
+            $rows[SplendorParameters::DRAW_CARD_LEVEL_ONE]->addDevelopmentCard($levelOneCards[$i]);
+            $rows[SplendorParameters::DRAW_CARD_LEVEL_TWO]->addDevelopmentCard($levelTwoCards[$i]);
+            $rows[SplendorParameters::DRAW_CARD_LEVEL_THREE]->addDevelopmentCard($levelThreeCards[$i]);
         }
         array_splice($levelOneCards, 0, 4);
         array_splice($levelTwoCards, 0, 4);
         array_splice($levelThreeCards, 0, 4);
-        $this->entityManager->persist($rows[SplendorParameters::$DRAW_CARD_LEVEL_ONE]);
-        $this->entityManager->persist($rows[SplendorParameters::$DRAW_CARD_LEVEL_TWO]);
-        $this->entityManager->persist($rows[SplendorParameters::$DRAW_CARD_LEVEL_THREE]);
-        $drawCardLevelOne = $mainBoard->getDrawCards()->get(SplendorParameters::$DRAW_CARD_LEVEL_ONE);
-        $drawCardLevelTwo = $mainBoard->getDrawCards()->get(SplendorParameters::$DRAW_CARD_LEVEL_TWO);
-        $drawCardLevelThree = $mainBoard->getDrawCards()->get(SplendorParameters::$DRAW_CARD_LEVEL_THREE);
+        $this->entityManager->persist($rows[SplendorParameters::DRAW_CARD_LEVEL_ONE]);
+        $this->entityManager->persist($rows[SplendorParameters::DRAW_CARD_LEVEL_TWO]);
+        $this->entityManager->persist($rows[SplendorParameters::DRAW_CARD_LEVEL_THREE]);
+        $drawCardLevelOne = $mainBoard->getDrawCards()->get(SplendorParameters::DRAW_CARD_LEVEL_ONE);
+        $drawCardLevelTwo = $mainBoard->getDrawCards()->get(SplendorParameters::DRAW_CARD_LEVEL_TWO);
+        $drawCardLevelThree = $mainBoard->getDrawCards()->get(SplendorParameters::DRAW_CARD_LEVEL_THREE);
         foreach ($levelOneCards as $card) {
             $drawCardLevelOne->addDevelopmentCard($card);
         }
@@ -398,7 +403,7 @@ class SPLService
         $this->entityManager->persist($playerCard);
         $this->entityManager->persist($personalBoard);
         $cardFromDraw = null;
-        if ($from === SplendorParameters::$COMES_OF_THE_DISCARDS)
+        if ($from === SplendorParameters::COMES_OF_THE_DISCARDS)
         {
             $this->manageDiscard($mainBoard, $card);
         } else {
@@ -427,10 +432,10 @@ class SPLService
         }
         foreach ($developCards as $card) {
             if(!$card->isIsReserved()) {
-                $total += $card->getDevelopmentCard()->getPrestigePoints();
+                $total += $card->getDevelopmentCard()->getPoints();
             }
         }
-        $player->setTotalPoints($total);
+        $player->setScore($total);
         $this->entityManager->persist($player);
         $this->entityManager->flush();
     }
@@ -462,7 +467,7 @@ class SPLService
      * @param DevelopmentCardsSPL $developmentCardsSPL
      * @return array retrievePlayerMoney => money removed from the player,
      *               newDevCard => the card added on the main board
-     * @throws \Exception if it's not the card of the player
+     * @throws Exception if it's not the card of the player
      */
     public function buyCard(PlayerSPL $playerSPL,
                             DevelopmentCardsSPL $developmentCardsSPL): array
@@ -471,11 +476,11 @@ class SPLService
         if ($playerCardSPL != null
             && $playerCardSPL->getPersonalBoardSPL()->getPlayerSPL()->getId() != $playerSPL->getId()
         ) {
-            throw new \Exception('Not the card of the player');
+            throw new Exception('Not the card of the player');
         }
         if ($playerSPL->getPersonalBoard()->getPlayerCards()->contains($playerCardSPL)
         && !$playerCardSPL->isIsReserved()) {
-            throw new \Exception('Player already bought this card');
+            throw new Exception('Player already bought this card');
         }
         if($this->hasEnoughMoney($playerSPL, $developmentCardsSPL)){
             if ($playerCardSPL == null) {
@@ -564,11 +569,11 @@ class SPLService
      */
     private function filterCardsByColor(Collection $playerCards): array {
         return [
-            SplendorParameters::$COLOR_BLUE => $this->getCardOfColor($playerCards, SplendorParameters::$COLOR_BLUE),
-            SplendorParameters::$COLOR_BLACK => $this->getCardOfColor($playerCards, SplendorParameters::$COLOR_BLACK),
-            SplendorParameters::$COLOR_GREEN => $this->getCardOfColor($playerCards, SplendorParameters::$COLOR_GREEN),
-            SplendorParameters::$COLOR_RED => $this->getCardOfColor($playerCards, SplendorParameters::$COLOR_RED),
-            SplendorParameters::$COLOR_WHITE => $this->getCardOfColor($playerCards, SplendorParameters::$COLOR_WHITE),
+            SplendorParameters::COLOR_BLUE => $this->getCardOfColor($playerCards, SplendorParameters::COLOR_BLUE),
+            SplendorParameters::COLOR_BLACK => $this->getCardOfColor($playerCards, SplendorParameters::COLOR_BLACK),
+            SplendorParameters::COLOR_GREEN => $this->getCardOfColor($playerCards, SplendorParameters::COLOR_GREEN),
+            SplendorParameters::COLOR_RED => $this->getCardOfColor($playerCards, SplendorParameters::COLOR_RED),
+            SplendorParameters::COLOR_WHITE => $this->getCardOfColor($playerCards, SplendorParameters::COLOR_WHITE),
         ];
     }
 
@@ -590,28 +595,6 @@ class SPLService
         $playerCard = $this->getPlayerCardFromDevelopmentCard($player->getGameSPL(), $card);
         return !$this->doesPlayerAlreadyHaveMaxNumberOfReservedCard($player)
             && $playerCard == null;
-    }
-
-    private function checkInRowAtLevel(MainBoardSPL $mainBoard
-        , DevelopmentCardsSPL $card) : bool
-    {
-        $level = $card->getLevel() - 1;
-        $rowAtLevel = $mainBoard->getRowsSPL()->get($level);
-        return $this->isCardInRow($rowAtLevel, $card);
-    }
-
-    private function isCardInRow(RowSPL $row, DevelopmentCardsSPL $card): bool
-    {
-        return $row->getDevelopmentCards()->contains($card);
-    }
-
-    private function checkInDiscardAtLevel(MainBoardSPL $mainBoard
-        , DevelopmentCardsSPL $card) : bool
-    {
-        $level = $card->getLevel() -1;
-        $discardsAtLevel = $mainBoard->getDrawCards()->get($level);
-        $testCard = $discardsAtLevel->getDevelopmentCards()->last();
-        return $card === $testCard;
     }
 
     private function manageRow(MainBoardSPL $mainBoard, DevelopmentCardsSPL $card): DevelopmentCardsSPL
@@ -648,12 +631,12 @@ class SPLService
     {
         $personalBoard = $player->getPersonalBoard();
         $tokens = $personalBoard->getTokens();
-        if ($tokens->count() < SplendorParameters::$PLAYER_MAX_TOKEN)
+        if ($tokens->count() < SplendorParameters::PLAYER_MAX_TOKEN)
         {
             $game = $player->getGameSPL();
             $mainBoard = $game->getMainBoard();
             if ($this->getNumberOfTokenAtColorAtMainBoard($mainBoard,
-                SplendorParameters::$LABEL_JOKER) > 0)
+                SplendorParameters::LABEL_JOKER) > 0)
             {
                 $joker = $this->getJokerToken($mainBoard);
                 $personalBoard->addToken($joker);
@@ -672,12 +655,6 @@ class SPLService
         return $this->getNumberOfTokenAtColor($tokens, $color);
     }
 
-    private function getNumberOfTokenAtColorAtPlayer(PlayerSPL $player, string $color) : int
-    {
-        $personalBoard = $player->getPersonalBoard();
-        $tokens = $personalBoard->getTokens();
-        return $this->getNumberOfTokenAtColor($tokens, $color);
-    }
 
     private function whereIsThisCard(MainBoardSPL $mainBoard, DevelopmentCardsSPL $card) : int
     {
@@ -685,13 +662,13 @@ class SPLService
         $row = $mainBoard->getRowsSPL()->get($level);
         if ($row->getDevelopmentCards()->contains($card))
         {
-            return SplendorParameters::$COMES_OF_THE_ROWS;
+            return SplendorParameters::COMES_OF_THE_ROWS;
         }
 
         $discards = $mainBoard->getDrawCards()->get($level);
         if ($discards->getDevelopmentCards()->contains($card))
         {
-            return SplendorParameters::$COMES_OF_THE_DISCARDS;
+            return SplendorParameters::COMES_OF_THE_DISCARDS;
         }
 
         return -1;
@@ -704,22 +681,12 @@ class SPLService
         for ($i = 0; $i < $tokens->count(); $i++)
         {
             $token = $tokens->get($i);
-            if ($token->getColor() === SplendorParameters::$LABEL_JOKER)
+            if ($token->getColor() === SplendorParameters::LABEL_JOKER)
             {
                 break;
             }
         }
         return $token;
-    }
-
-    /**
-     * @param Game $game
-     * @return ?GameSPL
-     */
-    private function getGameSplFromGame(Game $game): ?GameSpl
-    {
-        /** @var GameSpl $game */
-        return $game->getGameName() == AbstractGameManagerService::$SPL_LABEL ? $game : null;
     }
 
     /**
@@ -741,7 +708,7 @@ class SPLService
                 $difference += ($amount - $playerMoney[$color]);
             }
         }
-        if($playerMoney[SplendorParameters::$COLOR_YELLOW] >= $difference){
+        if($playerMoney[SplendorParameters::COLOR_YELLOW] >= $difference){
             return true;
         }
         return false;
@@ -813,7 +780,7 @@ class SPLService
         foreach ($cardPrice as $color => $amount){
             $tokens = $playerSPL->getPersonalBoard()->getTokens();
             foreach ($tokens as $token){
-                if($token->getColor() == $color && $token->getColor() != SplendorParameters::$COLOR_YELLOW
+                if($token->getColor() == $color && $token->getColor() != SplendorParameters::COLOR_YELLOW
                     && $amount > 0){
                     $playerSPL->getPersonalBoard()->removeToken($token);
                     $amount -= 1;
@@ -828,7 +795,7 @@ class SPLService
             if($amount > 0){
                 $tokens = $playerSPL->getPersonalBoard()->getTokens();
                 foreach ($tokens as $token){
-                    if($token->getColor() == SplendorParameters::$COLOR_YELLOW && $amount > 0){
+                    if($token->getColor() == SplendorParameters::COLOR_YELLOW && $amount > 0){
                         $playerSPL->getPersonalBoard()->removeToken($token);
                         $amount -= 1;
                         $playerSPL->getGameSPL()->getMainBoard()->addToken($token);
@@ -842,12 +809,12 @@ class SPLService
 
     private function initializeColorTab():array
     {
-        $array[SplendorParameters::$COLOR_YELLOW] = 0;
-        $array[SplendorParameters::$COLOR_RED] = 0;
-        $array[SplendorParameters::$COLOR_BLUE] = 0;
-        $array[SplendorParameters::$COLOR_BLACK] = 0;
-        $array[SplendorParameters::$COLOR_GREEN] = 0;
-        $array[SplendorParameters::$COLOR_WHITE] = 0;
+        $array[SplendorParameters::COLOR_YELLOW] = 0;
+        $array[SplendorParameters::COLOR_RED] = 0;
+        $array[SplendorParameters::COLOR_BLUE] = 0;
+        $array[SplendorParameters::COLOR_BLACK] = 0;
+        $array[SplendorParameters::COLOR_GREEN] = 0;
+        $array[SplendorParameters::COLOR_WHITE] = 0;
         return $array;
     }
 }

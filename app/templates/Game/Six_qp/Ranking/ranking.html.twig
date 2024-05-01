@@ -11,7 +11,7 @@ This section displays the game's name, and the current game's timer and leaderbo
 	<div class="my-2 mx-2">
 		<img src="{{ asset('resourcesGames/6QP/logo.png') }}" alt="logo">
 	</div>
-	<p class="text-center py-2 font-bold bg-gray-700 text-white text-xl border-y-4 border-violet-600">
+	<p class="text-center py-2 font-bold bg-gray-700 text-white text-[2.5vw] border-y-4 border-violet-600">
 		Classement
 	</p>
 	<div class="bg-slate-400 overflow-y-auto">
@@ -21,12 +21,12 @@ This section displays the game's name, and the current game's timer and leaderbo
 					<div
 							id="l_{{ user.username }}_points"
 							class="portrait:hidden flex w-full items-center overflow-hidden"
-							data-score="{{ user.discardSIxQP.totalPoints }}"
+							data-score="{{ user.score }}"
 					>
 						<img src="{{ asset('resourcesGames/6QP/teteDeBoeuf.svg') }}" alt="logo"
 						     class="lg:size-8 size-4 mr-1">
 						<p class="mr-1 lg:text-xl font-bold">
-							{{ user.discardSIxQP.totalPoints }}
+							{{ user.score }}
 						</p>
 						{% if player.username == user.username and not isSpectator %}
 							<p class="pr-1 flex-grow text-clip text-right sm:text-xl text-violet-300">{{ user.username }}</p>
@@ -46,7 +46,7 @@ This section displays the game's name, and the current game's timer and leaderbo
 							<img src="{{ asset('resourcesGames/6QP/teteDeBoeuf.svg') }}" alt="logo"
 							     class="size-8  mr-1">
 							<p class="mr-1 text-xl font-bold">
-								{{ user.discardSIxQP.totalPoints }}
+								{{ user.score }}
 							</p>
 						</div>
 					</div>

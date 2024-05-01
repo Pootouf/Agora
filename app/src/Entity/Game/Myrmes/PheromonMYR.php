@@ -22,7 +22,7 @@ class PheromonMYR
     private ?bool $harvested = null;
 
     #[ORM\ManyToOne(inversedBy: 'pheromonMYRs')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?PlayerMYR $player = null;
 
     #[ORM\ManyToOne]
@@ -59,11 +59,9 @@ class PheromonMYR
 
     public function removePheromonTile(PheromonTileMYR $pheromonTile): static
     {
-        if ($this->pheromonTiles->removeElement($pheromonTile)) {
-            // set the owning side to null (unless already changed)
-            if ($pheromonTile->getPheromonMYR() === $this) {
-                $pheromonTile->setPheromonMYR(null);
-            }
+        if ($this->pheromonTiles->removeElement($pheromonTile)
+            && $pheromonTile->getPheromonMYR() === $this) {
+            $pheromonTile->setPheromonMYR(null);
         }
 
         return $this;

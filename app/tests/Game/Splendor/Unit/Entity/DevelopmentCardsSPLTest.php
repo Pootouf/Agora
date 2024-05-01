@@ -23,16 +23,6 @@ class DevelopmentCardsSPLTest extends TestCase
         $this->assertEmpty($this->developmentCardsSPL->getCardCost());
     }
 
-    public function testSetPrestigePoints(): void
-    {
-        //GIVEN
-        $points = 456;
-        //WHEN
-        $this->developmentCardsSPL->setPrestigePoints($points);
-        //THEN
-        $this->assertSame($points, $this->developmentCardsSPL->getPrestigePoints());
-    }
-
     public function testSetColor(): void
     {
         //GIVEN
@@ -46,7 +36,7 @@ class DevelopmentCardsSPLTest extends TestCase
     public function testSetLevel(): void
     {
         //GIVEN
-        $level = SplendorParameters::$DEVELOPMENT_CARD_LEVEL_THREE;
+        $level = SplendorParameters::DEVELOPMENT_CARD_LEVEL_THREE;
         //WHEN
         $this->developmentCardsSPL->setLevel($level);
         //THEN

@@ -17,13 +17,13 @@ class GameSixQP extends Game
     private Collection $rowSixQPs;
 
     #[ORM\OneToMany(mappedBy: 'game', targetEntity: PlayerSixQP::class, orphanRemoval: true)]
-    private Collection $playerSixQPs;
+    private Collection $players;
 
-    public function __construct() 
+    public function __construct()
     {
-        $this->setGameName(AbstractGameManagerService::$SIXQP_LABEL);
+        $this->setGameName(AbstractGameManagerService::SIXQP_LABEL);
         $this->rowSixQPs = new ArrayCollection();
-        $this->playerSixQPs = new ArrayCollection();
+        $this->players = new ArrayCollection();
     }
 
     /**
@@ -46,11 +46,8 @@ class GameSixQP extends Game
 
     public function removeRowSixQP(RowSixQP $rowSixQP): static
     {
-        if ($this->rowSixQPs->removeElement($rowSixQP)) {
-            // set the owning side to null (unless already changed)
-            if ($rowSixQP->getGame() === $this) {
-                $rowSixQP->setGame(null);
-            }
+        if ($this->rowSixQPs->removeElement($rowSixQP) && $rowSixQP->getGame() === $this) {
+            $rowSixQP->setGame(null);
         }
 
         return $this;
@@ -59,28 +56,25 @@ class GameSixQP extends Game
     /**
      * @return Collection<int, PlayerSixQP>
      */
-    public function getPlayerSixQPs(): Collection
+    public function getPlayers(): Collection
     {
-        return $this->playerSixQPs;
+        return $this->players;
     }
 
-    public function addPlayerSixQP(PlayerSixQP $playerSixQP): static
+    public function addPlayer(PlayerSixQP $player): static
     {
-        if (!$this->playerSixQPs->contains($playerSixQP)) {
-            $this->playerSixQPs->add($playerSixQP);
-            $playerSixQP->setGame($this);
+        if (!$this->players->contains($player)) {
+            $this->players->add($player);
+            $player->setGame($this);
         }
 
         return $this;
     }
 
-    public function removePlayerSixQP(PlayerSixQP $playerSixQP): static
+    public function removePlayer(PlayerSixQP $player): static
     {
-        if ($this->playerSixQPs->removeElement($playerSixQP)) {
-            // set the owning side to null (unless already changed)
-            if ($playerSixQP->getGame() === $this) {
-                $playerSixQP->setGame(null);
-            }
+        if ($this->players->removeElement($player) && $player->getGame() === $this) {
+            $player->setGame(null);
         }
 
         return $this;

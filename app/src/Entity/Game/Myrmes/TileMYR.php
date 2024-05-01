@@ -11,34 +11,34 @@ use Doctrine\ORM\Mapping as ORM;
 class TileMYR extends Component
 {
     #[ORM\Column]
-    private ?int $coord_X = null;
+    private ?int $coordX = null;
 
     #[ORM\Column]
-    private ?int $coord_Y = null;
+    private ?int $coordY = null;
 
     #[ORM\Column(length: 255)]
     private ?string $type = null;
 
     public function getCoordX(): ?int
     {
-        return $this->coord_X;
+        return $this->coordX;
     }
 
-    public function setCoordX(int $coord_X): static
+    public function setCoordX(int $coordX): static
     {
-        $this->coord_X = $coord_X;
+        $this->coordX = $coordX;
 
         return $this;
     }
 
     public function getCoordY(): ?int
     {
-        return $this->coord_Y;
+        return $this->coordY;
     }
 
-    public function setCoordY(int $coord_Y): static
+    public function setCoordY(int $coordY): static
     {
-        $this->coord_Y = $coord_Y;
+        $this->coordY = $coordY;
 
         return $this;
     }

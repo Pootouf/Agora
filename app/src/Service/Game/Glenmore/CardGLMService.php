@@ -21,7 +21,7 @@ use Exception;
 class CardGLMService
 {
     public function __construct(private readonly EntityManagerInterface $entityManager,
-        private ResourceGLMRepository $resourceGLMRepository) {}
+        private readonly ResourceGLMRepository $resourceGLMRepository) {}
 
     /** applyCastle Of Mey : applies effect of card Castle Of Mey
      *
@@ -32,7 +32,7 @@ class CardGLMService
     public function applyCastleOfMey(PersonalBoardGLM $personalBoard, int $playerResource): int
     {
         foreach ($personalBoard->getPlayerCardGLM() as $playerCard) {
-            if ($playerCard->getCard()->getName() == GlenmoreParameters::$CARD_CASTLE_OF_MEY) {
+            if ($playerCard->getCard()->getName() == GlenmoreParameters::CARD_CASTLE_OF_MEY) {
                 $playerResource *= 2;
                 break;
             }
@@ -50,33 +50,16 @@ class CardGLMService
     {
         $activableTiles = new ArrayCollection();
         $owns = false;
-        $mustActivate = false;
         // checks if player owns Loch Ness
         $cards = $personalBoard->getPlayerCardGLM();
         foreach ($cards as $card) {
-            if ($card->getCard()->getName() == GlenmoreParameters::$CARD_LOCH_NESS) {
+            if ($card->getCard()->getName() == GlenmoreParameters::CARD_LOCH_NESS) {
                 $owns = true;
                 break;
             }
         }
         if ($owns) {
-            // gets Loch Ness tile
-            foreach ($personalBoard->getPlayerTiles() as $playerTile) {
-                if ($playerTile->getTile()->getName() == GlenmoreParameters::$CARD_LOCH_NESS) {
-                    // if Loch Ness power was not used
-                    if(!$playerTile->isActivated()) {
-                        $mustActivate = true;
-                        break;
-                    }
-                }
-            }
-            if ($mustActivate) {
-                foreach ($personalBoard->getPlayerTiles() as $playerTile) {
-                    if(!$playerTile->isActivated() && !$playerTile->getTile()->getActivationBonus()->isEmpty()) {
-                        $activableTiles->add($playerTile);
-                    }
-                }
-            }
+            $activableTiles =  $this->getActivableTilesWithLochNess($personalBoard);
         }
         return $activableTiles;
     }
@@ -93,21 +76,21 @@ class CardGLMService
         $personalBoard = $playerTileGLM->getPersonalBoard();
         $card = $tile->getCard();
         switch($card->getName()) {
-            case GlenmoreParameters::$CARD_CASTLE_STALKER:
+            case GlenmoreParameters::CARD_CASTLE_STALKER:
                 $this->applyCastleStalker($playerTileGLM);
                 break;
-            case GlenmoreParameters::$CARD_LOCH_SHIEL:
+            case GlenmoreParameters::CARD_LOCH_SHIEL:
                 $this->applyLochShiel($personalBoard);
                 break;
-            case GlenmoreParameters::$CARD_DONAN_CASTLE:
+            case GlenmoreParameters::CARD_DONAN_CASTLE:
                 $this->applyDonanCastle($playerTileGLM);
                 break;
-            case GlenmoreParameters::$CARD_ARMADALE_CASTLE:
+            case GlenmoreParameters::CARD_ARMADALE_CASTLE:
                 $this->applyArmadaleCastle($personalBoard);
                 break;
-            case GlenmoreParameters::$CARD_LOCH_LOCHY:
-                return $this->applyLochLochy($playerTileGLM);
-            case GlenmoreParameters::$CARD_CASTLE_MOIL:
+            case GlenmoreParameters::CARD_LOCH_LOCHY:
+                return $this->applyLochLochy();
+            case GlenmoreParameters::CARD_CASTLE_MOIL:
                 $this->applyCastleMoil($playerTileGLM);
                 break;
             default:
@@ -124,8 +107,8 @@ class CardGLMService
      */
     public function applyIonaAbbey(GameGLM $gameGLM): void
     {
-        $this->applyEndGameCard($gameGLM, GlenmoreParameters::$CARD_IONA_ABBEY,
-            GlenmoreParameters::$TILE_TYPE_YELLOW, GlenmoreParameters::$IONA_ABBEY_POINTS);
+        $this->applyEndGameCard($gameGLM, GlenmoreParameters::CARD_IONA_ABBEY,
+            GlenmoreParameters::TILE_TYPE_YELLOW, GlenmoreParameters::IONA_ABBEY_POINTS);
     }
 
     /**
@@ -136,8 +119,8 @@ class CardGLMService
      */
     public function applyDuartCastle(GameGLM $gameGLM): void
     {
-        $this->applyEndGameCard($gameGLM, GlenmoreParameters::$CARD_DUART_CASTLE,
-            GlenmoreParameters::$TILE_TYPE_VILLAGE, GlenmoreParameters::$DUART_CASTLE_POINTS);
+        $this->applyEndGameCard($gameGLM, GlenmoreParameters::CARD_DUART_CASTLE,
+            GlenmoreParameters::TILE_TYPE_VILLAGE, GlenmoreParameters::DUART_CASTLE_POINTS);
     }
 
     /**
@@ -148,8 +131,8 @@ class CardGLMService
      */
     public function applyLochMorar(GameGLM $gameGLM): void
     {
-        $this->applyEndGameCard($gameGLM, GlenmoreParameters::$CARD_LOCH_MORAR,
-            GlenmoreParameters::$TILE_TYPE_GREEN, GlenmoreParameters::$LOCH_MORAR_POINTS);
+        $this->applyEndGameCard($gameGLM, GlenmoreParameters::CARD_LOCH_MORAR,
+            GlenmoreParameters::TILE_TYPE_GREEN, GlenmoreParameters::LOCH_MORAR_POINTS);
     }
 
     /**
@@ -167,6 +150,9 @@ class CardGLMService
         }
         if ($createdResources->count() == 1) {
             $createdResource = $createdResources->first();
+            if ($createdResource->getQuantity() >= 2) {
+                throw new Exception("can't pick of this resource");
+            }
             if ($createdResource->getResource()->getColor() === $resourceGLM->getColor()) {
                 $createdResource->setQuantity($createdResource->getQuantity() + 1);
                 $this->entityManager->persist($createdResource);
@@ -214,7 +200,7 @@ class CardGLMService
         $createdResources = $playerGLM->getPersonalBoard()->getCreatedResources();
         $tile = null;
         foreach ($playerGLM->getPersonalBoard()->getPlayerTiles() as $playerTile) {
-            if ($playerTile->getTile()->getName() === GlenmoreParameters::$CARD_LOCH_LOCHY) {
+            if ($playerTile->getTile()->getName() === GlenmoreParameters::CARD_LOCH_LOCHY) {
                 $tile = $playerTile;
             }
         }
@@ -229,6 +215,16 @@ class CardGLMService
             $this->entityManager->persist($tile);
         }
         $this->clearCreatedResources($playerGLM);
+    }
+
+    /**
+     * applyCastleMoil : gives a whisky barrel to the player
+     * @param PlayerTileGLM $playerTileGLM
+     * @return void
+     */
+    private function applyCastleMoil(PlayerTileGLM $playerTileGLM) : void
+    {
+        $this->giveWhisky($playerTileGLM, 1);
     }
 
     /**
@@ -255,7 +251,7 @@ class CardGLMService
             if ($owns) {
                 foreach ($player->getPersonalBoard()->getPlayerTiles() as $tile) {
                     if ($tile->getTile()->getType() == $tileColor) {
-                        $player->setPoints($player->getPoints() + $cardPoints);
+                        $player->setScore($player->getScore() + $cardPoints);
                     }
                 }
                 break;
@@ -263,16 +259,6 @@ class CardGLMService
             $this->entityManager->persist($player);
         }
         $this->entityManager->flush();
-    }
-
-    /**
-     * applyCastleMoil : gives a whisky barrel to the player
-     * @param PlayerTileGLM $playerTileGLM
-     * @return void
-     */
-    private function applyCastleMoil(PlayerTileGLM $playerTileGLM) : void
-    {
-        $this->giveWhisky($playerTileGLM, 1);
     }
 
     /**
@@ -293,7 +279,7 @@ class CardGLMService
     private function applyCastleStalker(PlayerTileGLM $playerTileGLM) : void
     {
         foreach ($playerTileGLM->getPlayerTileResource() as $playerTileResource) {
-            if ($playerTileResource->getResource()->getType() == GlenmoreParameters::$VILLAGER_RESOURCE) {
+            if ($playerTileResource->getResource()->getType() == GlenmoreParameters::VILLAGER_RESOURCE) {
                 $playerTileResource->setQuantity($playerTileResource->getQuantity() + 1);
                 $this->entityManager->persist($playerTileResource);
             }
@@ -311,7 +297,7 @@ class CardGLMService
      */
     private function giveWhisky(PlayerTileGLM $playerTileGLM, int $amount) : void
     {
-        $resource = $this->resourceGLMRepository->findOneBy(["type" => GlenmoreParameters::$WHISKY_RESOURCE]);
+        $resource = $this->resourceGLMRepository->findOneBy(["type" => GlenmoreParameters::WHISKY_RESOURCE]);
         $playerTileResource = new PlayerTileResourceGLM();
         $playerTileResource->setResource($resource);
         $playerTileResource->setPlayer($playerTileGLM->getPersonalBoard()->getPlayerGLM());
@@ -345,13 +331,14 @@ class CardGLMService
     {
         $tiles = $personalBoard->getPlayerTiles();
         foreach ($tiles as $tile) {
+            if ($tile->getTile()->getName() === GlenmoreParameters::CARD_LOCH_LOCHY) {
+                continue;
+            }
             foreach ($tile->getPlayerTileResource() as $playerTileResource) {
-                if ($playerTileResource->getResource()->getType()
-                    == GlenmoreParameters::$PRODUCTION_RESOURCE) {
-                    if($playerTileResource->getQuantity() == 0) {
-                        $playerTileResource->setQuantity(1);
-                        $this->entityManager->persist($playerTileResource);
-                    }
+                if ($playerTileResource->getResource()->getType() == GlenmoreParameters::PRODUCTION_RESOURCE
+                    && $playerTileResource->getQuantity() == 0) {
+                    $playerTileResource->setQuantity(1);
+                    $this->entityManager->persist($playerTileResource);
                 }
             }
         }
@@ -361,12 +348,41 @@ class CardGLMService
 
     /**
      * applyLochLochy : returns an integer to indicate to the controller to publish a Mercure notif
-     * @param PlayerTileGLM $playerTileGLM
      * @return int
      */
-    private function applyLochLochy(PlayerTileGLM $playerTileGLM) : int
+    private function applyLochLochy() : int
     {
         return -1;
+    }
+
+    /**
+     * getActivableTilesWithLochNess: apply the loch ness tile if the player owns it
+     * @param PersonalBoardGLM $personalBoard
+     * @return Collection<PlayerTileGLM>
+     */
+    private function getActivableTilesWithLochNess(
+        PersonalBoardGLM $personalBoard
+    ) : Collection
+    {
+        $activableTiles = new ArrayCollection();
+        $mustActivate = false;
+        // gets Loch Ness tile
+        foreach ($personalBoard->getPlayerTiles() as $playerTile) {
+            if ($playerTile->getTile()->getName() == GlenmoreParameters::CARD_LOCH_NESS
+                && !$playerTile->isActivated()) {
+                // if Loch Ness power was not used
+                $mustActivate = true;
+                break;
+            }
+        }
+        if ($mustActivate) {
+            foreach ($personalBoard->getPlayerTiles() as $playerTile) {
+                if(!$playerTile->isActivated() && !$playerTile->getTile()->getActivationBonus()->isEmpty()) {
+                    $activableTiles->add($playerTile);
+                }
+            }
+        }
+        return $activableTiles;
     }
 
 }

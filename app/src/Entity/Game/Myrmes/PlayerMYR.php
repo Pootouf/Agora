@@ -6,15 +6,12 @@ use App\Entity\Game\DTO\Player;
 use App\Repository\Game\Myrmes\PlayerMYRRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PlayerMYRRepository::class)]
 class PlayerMYR extends Player
 {
-
-    #[ORM\Column]
-    private ?int $score = null;
-
     #[ORM\Column]
     private ?int $goalLevel = null;
 
@@ -40,8 +37,17 @@ class PlayerMYR extends Player
     #[ORM\OneToMany(targetEntity: PreyMYR::class, mappedBy: 'player')]
     private Collection $preyMYRs;
 
+    #[ORM\Column(length: 255)]
+    private ?string $color = null;
+
     #[ORM\Column]
     private ?int $phase = null;
+
+    #[ORM\Column]
+    private ?int $remainingHarvestingBonus = null;
+
+    #[ORM\Column(type: Types::ARRAY)]
+    private array $workshopActions = [];
 
     public function __construct(string $name, GameMYR $game)
     {
@@ -52,19 +58,6 @@ class PlayerMYR extends Player
         $this->gameMYR = $game;
         $this->pheromonMYRs = new ArrayCollection();
         $this->preyMYRs = new ArrayCollection();
-    }
-
-
-    public function getScore(): ?int
-    {
-        return $this->score;
-    }
-
-    public function setScore(int $score): static
-    {
-        $this->score = $score;
-
-        return $this;
     }
 
     public function getGoalLevel(): ?int
@@ -100,11 +93,9 @@ class PlayerMYR extends Player
 
     public function removeGardenWorkerMYR(GardenWorkerMYR $gardenWorkerMYR): static
     {
-        if ($this->gardenWorkerMYRs->removeElement($gardenWorkerMYR)) {
-            // set the owning side to null (unless already changed)
-            if ($gardenWorkerMYR->getPlayer() === $this) {
-                $gardenWorkerMYR->setPlayer(null);
-            }
+        if ($this->gardenWorkerMYRs->removeElement($gardenWorkerMYR)
+            && $gardenWorkerMYR->getPlayer() === $this) {
+            $gardenWorkerMYR->setPlayer(null);
         }
 
         return $this;
@@ -157,11 +148,9 @@ class PlayerMYR extends Player
 
     public function removeAnthillHoleMYR(AnthillHoleMYR $anthillHoleMYR): static
     {
-        if ($this->anthillHoleMYRs->removeElement($anthillHoleMYR)) {
-            // set the owning side to null (unless already changed)
-            if ($anthillHoleMYR->getPlayer() === $this) {
-                $anthillHoleMYR->setPlayer(null);
-            }
+        if ($this->anthillHoleMYRs->removeElement($anthillHoleMYR)
+            && $anthillHoleMYR->getPlayer() === $this) {
+            $anthillHoleMYR->setPlayer(null);
         }
 
         return $this;
@@ -216,11 +205,9 @@ class PlayerMYR extends Player
 
     public function removePheromonMYR(PheromonMYR $pheromonMYR): static
     {
-        if ($this->pheromonMYRs->removeElement($pheromonMYR)) {
-            // set the owning side to null (unless already changed)
-            if ($pheromonMYR->getPlayer() === $this) {
-                $pheromonMYR->setPlayer(null);
-            }
+        if ($this->pheromonMYRs->removeElement($pheromonMYR)
+            && $pheromonMYR->getPlayer() === $this) {
+            $pheromonMYR->setPlayer(null);
         }
 
         return $this;
@@ -246,12 +233,21 @@ class PlayerMYR extends Player
 
     public function removePreyMYR(PreyMYR $preyMYR): static
     {
-        if ($this->preyMYRs->removeElement($preyMYR)) {
-            // set the owning side to null (unless already changed)
-            if ($preyMYR->getPlayer() === $this) {
-                $preyMYR->setPlayer(null);
-            }
+        if ($this->preyMYRs->removeElement($preyMYR) && $preyMYR->getPlayer() === $this) {
+            $preyMYR->setPlayer(null);
         }
+
+        return $this;
+    }
+
+    public function getColor(): ?string
+    {
+        return $this->color;
+    }
+
+    public function setColor(string $color): static
+    {
+        $this->color = $color;
 
         return $this;
     }
@@ -264,6 +260,30 @@ class PlayerMYR extends Player
     public function setPhase(int $phase): static
     {
         $this->phase = $phase;
+
+        return $this;
+    }
+
+    public function getRemainingHarvestingBonus(): ?int
+    {
+        return $this->remainingHarvestingBonus;
+    }
+
+    public function setRemainingHarvestingBonus(int $remainingHarvestingBonus): static
+    {
+        $this->remainingHarvestingBonus = $remainingHarvestingBonus;
+
+        return $this;
+    }
+
+    public function &getWorkshopActions(): array
+    {
+        return $this->workshopActions;
+    }
+
+    public function setWorkshopActions(array $workshopActions): static
+    {
+        $this->workshopActions = $workshopActions;
 
         return $this;
     }

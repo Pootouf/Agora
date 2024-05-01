@@ -19,6 +19,9 @@
                 <a href="{{ path('app_game_myrmes_join', {'id': game.id}) }}">S'inscrire</a>
                 <a href="{{ path('app_game_myrmes_launch', {'id': game.id}) }}">Lancer</a>
             {% endif %}
+            {% if game.paused %}
+                <a href="{{ path('app_game_replace_player', {'gameId': game.id}) }}">Remplacer le joueur manquant</a>
+            {% endif %}
             <a href="{{ path('app_game_myrmes_delete', {'id': game.id}) }}">Supprimer</a>
         </div>
     {% endfor %}
