@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="UTF-8">
 		<title>
-			{% block title %}Welcome!
+			{% block title %}Bienvenue!
 			{% endblock %}
 		</title>
 		<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text></svg>">
@@ -19,9 +19,11 @@
 		{% endblock %}
 	</head>
 	<body>
-		{% block navbar %}
+		{% if app.request.getPathInfo() starts with '/dashboard' %}
+			{% block dashboard_layout %}{% endblock %}
+		{% else %}
 			{% include 'platform/shared/navbar.html.twig' %}
-		{% endblock %}
-		{% block body %}{% endblock %}
+			{% block body %}{% endblock %}
+		{% endif %}
 	</body>
 </html>

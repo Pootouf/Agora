@@ -7,6 +7,7 @@ stages:
   - splendor
   - glenmore
   - myrmes
+  - platform
   - report
   - sonarqube
   - deploy
@@ -27,6 +28,18 @@ variables:
   DOCKER_HOST: tcp://docker:2376
   DOCKER_TLS_CERTDIR: "/certs"
   DOCKER_BUILDKIT: '1'
+
+.only_game_branches: &only_game_branches
+  only:
+    - develop-game
+    - preprod
+    - main
+
+.only_platform_branches: &only_platform_branches
+  only:
+    - develop-platform
+    - preprod
+    - main
 
 .deploy: &deploy
   stage: deploy
@@ -94,10 +107,7 @@ variables:
   services:
     - name: mariadb:10.11.2
       alias: database
-  only:
-    - develop-game
-    - preprod
-    - main
+  <<: *only_game_branches
 
 .base_application_test: &base_application_test
   <<: *base_integration_test
@@ -149,7 +159,6 @@ phpstan:
     <<: *cache
     policy: pull
 
-
 phpcs:
   image: $CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/agora:latest
   stage: quality_check
@@ -166,12 +175,20 @@ twig-lint:
   image: $CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/agora:latest
   stage: quality_check
   script:
-  - php bin/console lint:twig ./templates
+    - php bin/console lint:twig ./templates
   allow_failure: true
   cache:
     <<: *cache
     policy: pull
 
+unitPlatform:
+  stage: platform
+  <<: *base_test
+  <<: *only_platform_branches
+  script:
+    - php bin/phpunit tests/Platform/Unit
+  allow_failure: false
+  environment: test
 
 unitFactory:
   stage: factory
@@ -382,3 +399,17 @@ deploy:dev_game:
     DOCKER_COMPOSE_FILE: compose.gametest.yaml
     GIT_BRANCH_NAME: develop-game
     ID_RSA: $ID_RSA_GAME
+
+deploy:dev_platform:
+  <<: *deploy
+  environment:
+    name: development
+  variables:
+    SERVER_USER: $SERVER_PLATFORM_USER
+    SERVER_IP: $SERVER_PLATFORM_IP
+    SERVER_LOCATION: /opt/agora
+    DOCKER_COMPOSE_FILE: compose-dev.yaml
+    GIT_BRANCH_NAME: develop-platform
+    ID_RSA: $ID_RSA_PLATFORM
+  only:
+    - develop-platform
