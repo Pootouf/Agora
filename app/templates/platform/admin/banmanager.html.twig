@@ -3,6 +3,16 @@
 Gestion des bannissements
 {% endblock %}
 {% block content %}
+   <style>
+      .search-form-container {
+         display: flex;
+         justify-content: center; /* Centrer horizontalement */
+         margin-bottom: 2rem; /* Ajouter de l'espace en bas */
+      }
+      .search-form-container .w-full {
+         margin-right: 5rem; /* Ajouter un espace horizontal entre chaque filtre */
+      }
+   </style>
 <header class="relative isolate px-6 pt-14 lg:px-8">
    <div class="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80" aria-hidden="true">
       <div class="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-danger to-primary opacity-30 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]" style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)"></div>
@@ -13,6 +23,31 @@ Gestion des bannissements
          {# Déplacer le titre à l'intérieur de la div principale et la centrer #}
          <h1 class="text-3xl">Gestion des bannissements</h1>
       </div>
+
+      <div class="mx-auto max-w-7xl px-6 lg:px-8 mt-16">
+         <div class="search-form-container">
+            {{ form_start(form, {'attr': {'id': 'searchForm'}}) }}
+            <div class="my-custom-class-for-errors">
+               {{ form_errors(form) }}
+            </div>
+            <div class="flex items-start">
+               <div class="w-full md:w-1/4 pr-2">
+                  <div class="text-black font-bold">{{ form_label(form.username, 'Nom d\'utilisateur', {'label_attr': {'class': 'search-label'}}) }}</div>
+                  {{ form_widget(form.username, {'id': 'usernameInput', 'placeholder': 'username'}) }}
+               </div>
+               <div class="w-full md:w-1/4 pr-2">
+                  <div class="text-black font-bold">{{ form_label(form.role, 'Rôle', {'label_attr': {'class': 'search-label'}}) }}</div>
+                  {{ form_widget(form.role, {'id': 'roleSelect', 'placeholder': 'Sélectionner le rôle'}) }}
+               </div>
+               <div class="w-full md:w-1/4 pr-2">
+                  <div class="text-black font-bold">{{ form_label(form.isbanned, 'Bannissement', {'label_attr': {'class': 'search-label'}}) }}</div>
+                  {{ form_widget(form.isbanned, {'id': 'isbannedSelect', 'placeholder': 'Selectionner le bannissement'}) }}
+               </div>
+            </div>
+            {{ form_end(form) }}
+         </div>
+      </div>
+
       <div class="px-3 py-4 flex justify-center">
          <div class="border-gray-300">
             {# Ajout de la bordure autour de la table #}
@@ -130,4 +165,17 @@ Gestion des bannissements
       <div class="relative left-[calc(50%+3rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 bg-gradient-to-tr from-primary to-danger opacity-30 sm:left-[calc(50%+36rem)] sm:w-[72.1875rem]" style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)"></div>
    </div>
 </header>
+
+   <script>
+      // Fonction pour soumettre automatiquement le formulaire lorsqu'une sélection change
+      function submitSearchForm() {
+         document.getElementById('searchForm').submit();
+      }
+
+      // Ajouter des écouteurs d'événements pour les changements de sélection
+      document.getElementById('usernameInput').addEventListener('change', submitSearchForm);
+      document.getElementById('roleSelect').addEventListener('change', submitSearchForm);
+      document.getElementById('isbannedSelect').addEventListener('change', submitSearchForm);
+   </script>
+
 {% endblock %}

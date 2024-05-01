@@ -3,8 +3,10 @@
 namespace App\Controller\Platform;
 
 use App\Data\SearchData;
+use App\Data\SearchUser;
 use App\Entity\Platform\User;
 use App\Entity\Game\Message;
+use App\Form\Platform\SearchUserType;
 use App\Repository\Platform\BoardRepository;
 use App\Form\Platform\GenerateAccountsType;
 use Symfony\Component\HttpFoundation\Request;
@@ -28,12 +30,6 @@ class AdminController extends AbstractController
         $this->notifications = $notificationService->getNotifications($security);
         $this->security = $security;
         $this->entityManager = $entityManager;
-    }
-
-    #[Route('/admin', name: 'app_dashboard_admin')]
-    public function index(): Response
-    {
-        return $this->render('platform/admin/index.html.twig');
     }
 
     #[Route('/admin/generate', name: 'app_dashboard_generate')]
@@ -96,12 +92,64 @@ class AdminController extends AbstractController
     
         if ($user){
             $notifications = $notificationService->getNotifications($this->security);
+        }else{
+            $notifications = null;
         }
         return $this->render('platform/admin/tableadmin.html.twig', [
             'boards' => $boards,
             'searchboard' => $form->createView(),
             'messages' => $message,
             'notifications' => $this->notifications,
+        ]);
+    }
+
+    /**
+     * @param EntityManagerInterface $entityManager The entity manager to interact with the database
+     *
+     * @return Response  HTTP response: list of games page
+     */
+
+    #[Route('/admin', name: 'app_dashboard_admin')]
+    #[Route('/admin/allusers', name: 'app_dashboard_allusers')]
+    public function dashboard_allusers(Request $request): Response
+    {
+        // Récupérer tous les utilisateurs à partir de votre source de données (par exemple, une entité User)
+        $userRepository = $this->entityManager->getRepository(User::class);
+
+        $data = new SearchUser();
+        $form = $this->createForm(SearchUserType::class, $data);
+        $form->handleRequest($request);
+        $users = $userRepository->searchUsers($data);
+
+        // Passer la liste des utilisateurs à votre modèle de vue
+        return $this->render('platform/admin/allusers.html.twig', [
+            'users' => $users,
+            'form' => $form->createView(),
+            'notifications' => $this->notifications,
+        ]);
+    }
+
+    /**
+     * @param EntityManagerInterface $entityManager The entity manager to interact with the database
+     *
+     * @return Response  HTTP response: list of games page
+     */
+    #[Route('/admin/banmanager', name: 'app_dashboard_banmanager')]
+    public function dashboard_banmanager(Request $request): Response
+    {
+        // Récupérer tous les utilisateurs à partir de votre source de données (par exemple, une entité User)
+        $userRepository = $this->entityManager->getRepository(User::class);
+
+        $data = new SearchUser();
+        $form = $this->createForm(SearchUserType::class, $data);
+        $form->handleRequest($request);
+        $users = $userRepository->searchUsers($data);
+
+        // Passer la liste des utilisateurs à votre modèle de vue
+        return $this->render('platform/admin/banmanager.html.twig', [
+            'users' => $users,
+            'form' => $form->createView(),
+            'notifications' => $this->notifications, // Assurez-vous que vos notifications sont également disponibles dans ce contrôleur
         ]);
     }
 
