@@ -2,6 +2,7 @@
 
 namespace App\Security\Platform;
 
+use App\Entity\Platform\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\HttpFoundation\Request;
@@ -45,6 +46,33 @@ class EmailVerifier
         $this->verifyEmailHelper->validateEmailConfirmation($request->getUri(), $user->getId(), $user->getEmail());
 
         $user->setIsVerified(true);
+
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
+    }
+
+    public function sendResetPasswordConfirmation(string $verifyEmailRouteName, User $user, TemplatedEmail $email): void
+    {
+        $signatureComponents = $this->verifyEmailHelper->generateSignature(
+            $verifyEmailRouteName,
+            $user->getId(),
+            $user->getEmail(),
+            ['id' => $user->getId()] // add the user's id as an extra query param
+        );
+
+        $context = $email->getContext();
+        $context['signedUrl'] = $signatureComponents->getSignedUrl();
+        $context['expiresAtMessageKey'] = $signatureComponents->getExpirationMessageKey();
+        $context['expiresAtMessageData'] = $signatureComponents->getExpirationMessageData();
+
+        $email->context($context);
+
+        $this->mailer->send($email);
+    }
+    public function handleResetPassword( User $user, String $password): void
+    {
+
+        $user->setPassword($password);
 
         $this->entityManager->persist($user);
         $this->entityManager->flush();
