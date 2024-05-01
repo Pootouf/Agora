@@ -480,6 +480,11 @@ class Board
         return $this->invitedContacts;
     }
 
+    /**
+     * Add user to the list of invited contacts
+     *
+     *
+     */
     public function addInvitedContact(User $invitedContact): static
     {
         if (!$this->invitedContacts->contains($invitedContact)) {
@@ -490,6 +495,11 @@ class Board
         return $this;
     }
 
+    /**
+     * Remove user form the list of invited contacts
+     *
+     *
+     */
     public function removeInvitedContact(User $invitedContact): static
     {
         $this->invitedContacts->removeElement($invitedContact);
@@ -497,6 +507,12 @@ class Board
 
         return $this;
     }
+
+    /**
+     * Remove all invited contacts from the list
+     *
+     *
+     */
 
     public function cleanInvitationList() : void
     {

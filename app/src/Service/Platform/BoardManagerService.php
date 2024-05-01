@@ -95,14 +95,6 @@ class BoardManagerService
         return BoardManagerService::$SUCCESS;
     }
 
-    // add $user to the board, when he clicked on an invitation link
-    public function addUserToBoardFromInvitation(Board $board, User $user):int
-    {
-        $returnCode = $this->addUserToBoard($board, $user);
-        $board->removeInvitedContact($user);
-        return $returnCode;
-    }
-
     // Remove $user from the board
     public function removePlayerFromBoard(Board $board, User $user):int
     {
