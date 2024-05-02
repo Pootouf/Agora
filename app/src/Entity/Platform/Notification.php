@@ -31,6 +31,10 @@ class Notification
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $title = null;
 
+
+    public  static string $TYPE_MESSAGE = "Message";
+    public  static string $TYPE_INVITATION = "Invitation";
+
     /**
      * Gets the ID of the notification.
      *

@@ -36,7 +36,6 @@ class BoardFixtures extends Fixture implements DependentFixtureInterface
             //setting the data from the board creation form :
                 $board->setGame($game);
                 $board->setNbUserMax($nbPlayersMax);
-                $board->setNbInvitations($nbInvitations);
                 $board->setInactivityHours(rand(24,72));
 
             //Setting up the board :
@@ -51,6 +50,11 @@ class BoardFixtures extends Fixture implements DependentFixtureInterface
                 $this->boardManagerService->addUserToBoard($board, $user);
             }
 
+            for($j=$nbJoinedPlayers; $j < $nbJoinedPlayers + $nbInvitations; $j++)
+            {
+                $user = $users[$j];
+                $board->addInvitedContact($user);
+            }
 
             $manager->persist($board);
             $manager->flush();

@@ -20,43 +20,44 @@ class NotificationService
     $this->entityManager = $entityManager;
     }
 
-    public function notifyGroup($topic, $content, $date): void
+    public function notifyGroup($topic, $content, $date, $type): void
     {
         $update = new Update(
             $topic,
             json_encode(['content' => $content,
-                'date' => $date])
+                'date' => $date, 'type' => $type])
         );
 
         $this->hub->publish($update);
 
     }
 
-    public function notifyUser($user, $content, $date): void
+    public function notifyUser($user, $content, $date, $type): void
     {
         $update = new Update(
             'agora/notifications/user/'. $user,
             json_encode(['content' => $content,
-                'date' => $date])
+                'date' => $date, 'type' => $type])
         );
 
         $this->hub->publish($update);
     }
 
-    public function  storeNotification($user, $content): void
+    public function  storeNotification($user, $content, $type): void
     {
         $notification = new Notification();
         $notification->setContent($content);
+        $notification->setType($type);
         $notification->setIsRead(false);
         $notification->setReceiver($user);
         $this->entityManager->persist($notification);
     }
 
-    public function notifyManyUser($users, $content, $date): void
+    public function notifyManyUser($users, $content, $date, $type): void
     {
         foreach ($users as $user) {
-            $this->storeNotification($user, $content);
-            $this->notifyUser($user->getId(), $content, $date->format('Y-m-d H:i:s.u'));
+            $this->storeNotification($user, $content, $type);
+            $this->notifyUser($user->getId(), $content, $date->format('Y-m-d H:i:s.u'), $type);
         }
         $this->entityManager->flush();
     }

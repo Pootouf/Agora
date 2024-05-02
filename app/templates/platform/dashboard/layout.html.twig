@@ -4,7 +4,7 @@
 		<!-- Off-canvas menu for mobile, show/hide based on off-canvas menu state. -->
 		<div class="relative z-50 lg:hidden" role="dialog" aria-modal="true">
 			<div id="sidebar-overlay" class="hidden fixed inset-0 bg-gray-900/80"></div>
-			<div id="sidebar" class="hidden fixed inset-0 ">
+			<div id="sidebar" class="hidden fixed inset-0">
 				<div class="relative mr-16 flex w-full max-w-xs flex-1">
 					<div id="sidebar-close-button" class="absolute left-full top-0 flex w-16 justify-center pt-5">
 						<button type="button" class="-m-2.5 p-2.5">
@@ -63,23 +63,6 @@
 												Historique
 											</a>
 										</li>
-										<li>
-									<a href="/dashboard/allusers" class="text-gray-400 hover:text-white hover:bg-gray-800 group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold">
-										<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewbox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-											<path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/>
-										</svg>
-										Modifier un utilisateur (ADM)
-									</a>
-								</li>
-								<li>
-									<a href="/dashboard/banmanager" class="text-gray-400 hover:text-white hover:bg-gray-800 group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold">
-										<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewbox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-											<path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/>
-										</svg>
-										Bannir ou débannir (ADM)
-									</a>
-								</li>
-
 									</ul>
 								</li>
 								<li class="mt-auto">
@@ -103,7 +86,7 @@
 			<!-- Sidebar component, swap this element with another sidebar if you like -->
 			<div class="flex grow flex-col gap-y-5 overflow-y-auto bg-gray-900 px-6 pb-4">
 				<div class="flex h-16 shrink-0 items-center">
-					<a href="/" class="text-xl font-bold text-white">
+					<a href="/dashboard/user" class="text-xl font-bold text-white">
 						AGORA
 					</a>
 				</div>
@@ -149,22 +132,6 @@
 											<path stroke-linecap="round" stroke-linejoin="round" d="m15.75 10.5 4.72-4.72a.75.75 0 0 1 1.28.53v11.38a.75.75 0 0 1-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25h-9A2.25 2.25 0 0 0 2.25 7.5v9a2.25 2.25 0 0 0 2.25 2.25Z"/>
 										</svg>
 										Historique
-									</a>
-								</li>
-								<li>
-									<a href="/dashboard/allusers" class="text-gray-400 hover:text-white hover:bg-gray-800 group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold">
-										<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewbox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-											<path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/>
-										</svg>
-										Gestion des utilisateurs
-									</a>
-								</li>
-								<li>
-									<a href="/dashboard/banmanager" class="text-gray-400 hover:text-white hover:bg-gray-800 group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold">
-										<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewbox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-											<path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/>
-										</svg>
-										Gestion des bannissements
 									</a>
 								</li>
 							</ul>
@@ -213,7 +180,11 @@
 		<div id="notif-content">
         <!-- Contenu du menu de notifications avec des notifications plus grandes -->
 			{% for notification in notifications %}
+                {% if not notification.isRead %}
 				<div class="notification-item py-3 text-base text-gray-700 hover:bg-gray-100 hover:text-gray-900">
+					<div class="flex items-start">
+						<div class="text-right text-xs text-blue-500">{{ notification.type }}</div>
+					</div>
 					<p>{{notification.content}}</p>
 					<div class="flex items-end">
 						<svg class="h-5 w-5 text-gray-400 ml-2" viewBox="0 0 20 20" fill="currentColor">
@@ -221,12 +192,23 @@
 						</svg>
 						<div class="text-right text-xs text-gray-500">{{ notification.createdAt | date }}</div>
 					</div>
-					<div class="mt-4 flex justify-center">
-						<a href="#" class="text-sm text-primary hover:text-blue-400 font-semibold rounded-lg px-3 py-1.5 text-center mr-2 mb-2 mark-as-read">Voir</a>
-						<a href="readNotification/{{ notification.id }}" class="text-sm text-primary hover:text-blue-400 font-semibold rounded-lg px-3 py-1.5 text-center mr-2 mb-2 mark-as-read">Marquer comme lu</a>
+
+					{% if notification.type == "Invitation" %}
+						{% set boardId = notification.content|board_id %}
+						<div class="mt-4 flex justify-center">
+							<a href="{{ path('app_join_invitation', {'id': boardId}) }}" class="text-sm text-primary hover:text-blue-400 font-semibold rounded-lg px-3 py-1.5 text-center mr-2 mb-2 mark-as-read">
+								Rejoindre la table</a>
+							<a href="{{ path('app_read_notif', {'notification': notification.id}) }}" class="text-sm text-primary hover:text-blue-400 font-semibold rounded-lg px-3 py-1.5 text-center mr-2 mb-2 mark-as-read">Marquer comme lu</a>
+						</div>
+					{% else %}
+						<div class="mt-4 flex justify-center">
+							<a href="#" class="text-sm text-primary hover:text-blue-400 font-semibold rounded-lg px-3 py-1.5 text-center mr-2 mb-2 mark-as-read">Voir</a>
+							<a href="{{ path('app_read_notif', {'notification': notification.id}) }}" class="text-sm text-primary hover:text-blue-400 font-semibold rounded-lg px-3 py-1.5 text-center mr-2 mb-2 mark-as-read">Marquer comme lu</a>
+						</div>
+					{% endif %}
+						<div class="mt-1 py-0 text-base text-gray-700 hover:bg-gray-100 hover:text-gray-900 border-b border-gray-900 last:border-b-0 transition duration-150"></div>
 					</div>
-					<div class="mt-1 py-0 text-base text-gray-700 hover:bg-gray-100 hover:text-gray-900 border-b border-gray-900 last:border-b-0 transition duration-150"></div>
-				</div>
+                {% endif %}
 			{% endfor %}
 		</div>
 
@@ -414,7 +396,7 @@ document.addEventListener("DOMContentLoaded", function() {
 	// Ajouter un écouteur d'événements au lien "Tout marquer comme lu"
     const markAllAsReadLink = document.getElementById('mark-all-as-read');
     markAllAsReadLink.addEventListener('click', function(event) {
-        event.preventDefault(); // Empêcher le comportement par défaut du lien
+       event.preventDefault(); // Empêcher le comportement par défaut du lien
 
         // Supprimer toutes les notifications
         notificationItems.forEach(function(notificationItem) {
@@ -425,7 +407,7 @@ document.addEventListener("DOMContentLoaded", function() {
 		// Ajouter un écouteur d'événements à chaque lien
 markAsReadLinks.forEach(function(link) {
     link.addEventListener('click', function(event) {
-        event.preventDefault(); // Empêcher le comportement par défaut du lien
+        //event.preventDefault(); // Empêcher le comportement par défaut du lien
         event.stopPropagation(); // Empêcher la propagation de l'événement
 
         const notificationItem = this.closest('.notification-item'); // Trouver l'élément parent de la notification
