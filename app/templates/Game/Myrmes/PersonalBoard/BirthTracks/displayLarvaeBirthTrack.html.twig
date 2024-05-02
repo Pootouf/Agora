@@ -57,9 +57,9 @@ This section displays the birth track for larvae.
             </div>
         </div>
         {#button to place nurse on larvae birth track#}
-        {% if not isPreview %}
+        {% if not isPreview and game.gamePhase == PHASE_BIRTH and playerPhase == PHASE_BIRTH %}
         <div class="flex justify-center">
-            <{% if playerPhase == PHASE_BIRTH %}button {% else %}div{% endif%}
+            <button
                     type="button" class="{{ placeButtonSize }}"
                     {% if playerPhase == PHASE_BIRTH %}
                     {{ stimulus_action('myrmes','placeNurseOnLarvaeTrack','click',
@@ -71,7 +71,7 @@ This section displays the birth track for larvae.
                 <img id="larvaeButton"
                      src="{{ asset('resourcesGames/Myrmes/myrmesArrow.svg') }}"
                      alt="place larvae"/>
-            </{% if playerPhase == PHASE_BIRTH %}button {% else %}div{% endif%}>
+            </button>
         </div>
         {% endif %}
     </div>

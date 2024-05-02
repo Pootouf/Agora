@@ -49,9 +49,9 @@ This section displays the birth track for soldiers.
             </div>
         </div>
         {# button to place nurse on soldiers birth track#}
-        {% if not isPreview %}
+        {% if not isPreview and game.gamePhase == PHASE_BIRTH and playerPhase == PHASE_BIRTH %}
         <div class="flex justify-center">
-            <{% if playerPhase == PHASE_BIRTH %}button {% else %}div{% endif%}
+            <button
                     type="button" class="{{ placeButtonSize }}"
                     {% if playerPhase == PHASE_BIRTH %}
                         {{ stimulus_action('myrmes','placeNurseOnSoldiersTrack','click',
@@ -64,7 +64,7 @@ This section displays the birth track for soldiers.
                 <img class="relative" id="soldierButton"
                      src="{{ asset('resourcesGames/Myrmes/myrmesArrow.svg') }}"
                      alt="place soldier"/>
-            </{% if playerPhase == PHASE_BIRTH %}button {% else %}div{% endif%}>
+            </button>
         </div>
         {% endif %}
     </div>
