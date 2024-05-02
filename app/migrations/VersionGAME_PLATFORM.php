@@ -51,6 +51,16 @@ final class Version6QPPLATFORM extends AbstractMigration
             'max_players' => 5
         ]);
 
+        $this->connection->insert('game', [
+            'name' => 'Myrmes',
+            'descr_rule' => 'C\'est le myrmes' ,
+            'img_url' => 'images/myrmes.jpg',
+            'label' => 'MYR',
+            'is_active' => true,
+            'min_players' => 2,
+            'max_players' => 4
+        ]);
+
 
     }
 
