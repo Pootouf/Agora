@@ -74,7 +74,7 @@ export default class extends Controller  {
         const response = await fetch(url);
         if (response.status === 200) {
             closeWindow();
-            document.getElementById('mainBoard').innerHTML = await response.text();
+            updateMainBoardAndDisplayPheromoneBorders(await response.text())
         }
     }
 

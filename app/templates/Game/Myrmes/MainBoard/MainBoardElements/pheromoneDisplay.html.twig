@@ -47,6 +47,15 @@
 
 <script>
     window.addEventListener("load", function () {
+        updatePheromoneBorder{{ boardBox.pheromonTile.id }}();
+    });
+
+    if (window.borderFunctions == null) {
+        window.borderFunctions = []
+    }
+    window.borderFunctions.push(updatePheromoneBorder{{ boardBox.pheromonTile.id }})
+
+    function updatePheromoneBorder{{ boardBox.pheromonTile.id }}() {
         let boardBoxCoordX = {{ boardBox.tile.coordX }};
         let boardBoxCoordY = {{ boardBox.tile.coordY }};
         let pheromoneId = {{ boardBox.pheromonTile.pheromonMYR.id }};
@@ -99,5 +108,5 @@
                 + (boardBoxCoordY) + ' '
                 + pheromoneId).getElementsByClassName('south-east')[0].classList.add('hidden')
         }
-    });
+    }
 </script>

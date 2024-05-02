@@ -270,7 +270,7 @@ async function refreshMainBoard() {
     const response = await fetch(url + "/workerPhase/mainBoard/" + antPosition.x + "/"
     + antPosition.y + "/" + movementPoints + "/" + cleanedTilesString);
     if (response.status === 200) {
-        document.getElementById('mainBoard').innerHTML = await response.text();
+        updateMainBoardAndDisplayPheromoneBorders(await response.text())
     }
 }
 
@@ -358,4 +358,21 @@ async function canPlacePheromone(type, orientation) {
     + "/" + antPosition.y + "/" + type + "/" + orientation + "/" + cleanedTilesString);
     return response.status === 200 && await response.text() === "1";
 
+}
+
+/**
+ * updateMainBoardAndDisplayPheromoneBorders: refresh the main board by replacing his content with data
+ *                                            and execute all the border functions of the main board
+ *                                            to make pheromone borders visible only at the real borders
+ * @param data
+ */
+function updateMainBoardAndDisplayPheromoneBorders(data) {
+    window.borderFunctions = null;
+    const mainBoard = document.getElementById('mainBoard');
+    let temp = document.createRange().createContextualFragment(data)
+    mainBoard.innerHTML = "";
+    mainBoard.appendChild(temp)
+    window.borderFunctions.forEach(
+        (func) => func()
+    )
 }

@@ -85,7 +85,7 @@ This section displays the personal board of a player
         {#colony level track#}
         {{ include('Game/Myrmes/PersonalBoard/displayColonyLevelTrack.html.twig') }}
 
-        {% if not isPreview and playerPhase == PHASE_BIRTH %}
+        {% if not isPreview and game.gamePhase == PHASE_BIRTH and playerPhase == PHASE_BIRTH %}
             <div class="flex flex-col justify-center items-center">
                 <button type="button" class="rounded-lg bg-[#8F901F] py-2 px-3 m-1 portrait:text-2xl items-center"
                         {{ stimulus_action('myrmes','confirmNursesPlacement','click',
