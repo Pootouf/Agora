@@ -1110,7 +1110,7 @@ class MyrmesController extends AbstractController
             return new Response("Impossible to calculate main board positions " . $e->getMessage(),
                 Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-
+        $this->publishRanking($game, $player);
         return new Response('Pheromone positioned', Response::HTTP_OK);
     }
 
@@ -1453,6 +1453,7 @@ class MyrmesController extends AbstractController
         int $antCoordX, int $antCoordY, string $cleanedTilesString
     ) : Response
     {
+        $tileMYR = $this->workerMYRService->getTileFromCoordinates($antCoordX, $antCoordY);
         if ($game->isPaused() || !$game->isLaunched()) {
             return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
         }

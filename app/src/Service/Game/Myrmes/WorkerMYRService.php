@@ -31,6 +31,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use InvalidArgumentException;
+use Psr\Log\LoggerInterface;
 use function Symfony\Component\Translation\t;
 
 class WorkerMYRService
@@ -1407,7 +1408,7 @@ class WorkerMYRService
                 $playerResource = $playerResourceMYR;
             }
         }
-        return $playerResource != null && $playerResource->getQuantity() > 0;
+       return $playerResource != null && $playerResource->getQuantity() > 0;
     }
 
     /**
@@ -1567,6 +1568,9 @@ class WorkerMYRService
      */
     private function placeResourceOnTile(PheromonTileMYR $tile) : void
     {
+        if ($tile->getPheromonMYR()->getType()->getType() >= MyrmesParameters::SPECIAL_TILE_TYPE_FARM) {
+            return;
+        }
         $grass = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::RESOURCE_TYPE_GRASS]);
         $stone = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::RESOURCE_TYPE_STONE]);
         $dirt = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::RESOURCE_TYPE_DIRT]);
