@@ -11,6 +11,7 @@ use App\Entity\Game\Myrmes\GoalMYR;
 use App\Entity\Game\Myrmes\MainBoardMYR;
 use App\Entity\Game\Myrmes\MyrmesParameters;
 use App\Entity\Game\Myrmes\NurseMYR;
+use App\Entity\Game\Myrmes\PheromonMYR;
 use App\Entity\Game\Myrmes\PheromonTileMYR;
 use App\Entity\Game\Myrmes\PlayerMYR;
 use App\Entity\Game\Myrmes\PlayerResourceMYR;
@@ -1130,7 +1131,7 @@ class MYRService
     /**
      * setPheromonesHarvestedIfNoResourcesOnIt: get all the pheromones of the players and set them as harvested if
      *                                          there is no resources on them
-     * @param Collection $players
+     * @param Collection<PlayerMYR> $players
      * @return void
      */
     private function setPheromonesHarvestedIfNoResourcesOnIt(Collection $players) : void
@@ -1142,8 +1143,10 @@ class MYRService
                         return $pheromonTile->getResource() == null;
                     }
                 )) {
-                    $pheromone->setHarvested(true);
-                    $this->entityManager->persist($pheromone);
+                    if ($pheromone->getType()->getType() != MyrmesParameters::SPECIAL_TILE_TYPE_QUARRY) {
+                        $pheromone->setHarvested(true);
+                        $this->entityManager->persist($pheromone);
+                    }
                 }
             }
         }

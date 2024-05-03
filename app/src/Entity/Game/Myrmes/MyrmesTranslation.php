@@ -33,6 +33,7 @@ interface MyrmesTranslation
     const string ERROR_PHEROMONE_GOAL = "Les phéromones ne sont pas connectées ou tu n'en as pas sélectionné assez.";
     const string ERROR_STONE_OR_DIRT_GOAL = "Tu n'as pas assez de ressources !";
     const string ERROR_SPECIAL_TILE_GOAL = "Tu n'as pas sélectionné assez de tuiles spéciales !";
+    const string NEED_TO_SELECT_QUARRY_RESOURCE = "N'oublie pas de sélectionner la ressource que tu veux pour ta fouille !";
 
 
     // LOG MESSAGES

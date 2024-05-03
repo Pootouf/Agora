@@ -10,6 +10,7 @@ use App\Entity\Game\Myrmes\GameGoalMYR;
 use App\Entity\Game\Myrmes\GameMYR;
 use App\Entity\Game\Myrmes\MyrmesParameters;
 use App\Entity\Game\Myrmes\MyrmesTranslation;
+use App\Entity\Game\Myrmes\PheromonMYR;
 use App\Entity\Game\Myrmes\PlayerMYR;
 use App\Entity\Game\Myrmes\PlayerResourceMYR;
 use App\Entity\Game\Myrmes\TileMYR;
@@ -119,11 +120,20 @@ class MyrmesController extends AbstractController
                 || $this->harvestMYRService->areAllPheromonesHarvested($player),
             'canStillHarvest' => $player != null && $this->harvestMYRService->canStillHarvest($player),
             'hasSelectedAnthillHolePlacement' => false,
-            'possibleAnthillHolePlacement' => $game->getGamePhase() == MyrmesParameters::PHASE_WORKSHOP ?
-                $this->workshopMYRService->getAvailableAnthillHolesPositions($player)
-                : null,
+            'possibleAnthillHolePlacement' => $player == null ?
+                null
+                : ($game->getGamePhase() == MyrmesParameters::PHASE_WORKSHOP ?
+                    $this->workshopMYRService->getAvailableAnthillHolesPositions($player)
+                    : null),
             'workersOnAnthillLevels' => $this->dataManagementMYRService
-                ->workerOnAnthillLevels($player->getPersonalBoardMYR())
+                ->workerOnAnthillLevels($player->getPersonalBoardMYR()),
+            'doesPlayerHaveQuarryToHarvest' =>
+                $player == null or !($game->getGamePhase() != MyrmesParameters::PHASE_HARVEST) && $player->getPheromonMYRs()->filter(
+                    function (PheromonMYR $pheromone) {
+                        return $pheromone->getType()->getType() == MyrmesParameters::SPECIAL_TILE_TYPE_QUARRY
+                            && !$pheromone->isHarvested();
+                    }
+                )->count() > 0
         ]);
     }
 
@@ -661,10 +671,16 @@ class MyrmesController extends AbstractController
             return new Response('failed to place worker on colony', Response::HTTP_FORBIDDEN);
         }
 
-        $this->service->setNextPlayerTurn($player);
-        if ($this->service->getNumberOfFreeWorkerOfPlayer($player) <= 0) {
-            $this->service->setPhase($player, MyrmesParameters::PHASE_HARVEST);
+        try {
+            $this->managePlayerEndOfRoundWorkerPhase($player, $game);
+        } catch (Exception $e) {
+            return new Response("Impossible to calculate main board positions " . $e->getMessage(),
+                Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+
+        $message = $player->getUsername() . " a placé une ouvrière sur le niveau de fourmilière " . $level;
+        $this->logService->sendPlayerLog($game, $player, $message);
+
         $this->publishPersonalBoard($game, $player);
         $this->publishPreview($game, $player);
         $this->publishRanking($game, $player);
@@ -674,17 +690,6 @@ class MyrmesController extends AbstractController
             MyrmesTranslation::WORKER_PLACE_IN_ANTHILL.$level,
             GameParameters::VALIDATION_NOTIFICATION_TYPE,
             GameParameters::NOTIFICATION_COLOR_GREEN, $player->getUsername());
-
-        $message = $player->getUsername() . " a placé une ouvrière sur le niveau de fourmilière " . $level;
-        $this->logService->sendPlayerLog($game, $player, $message);
-
-        foreach ($game->getPlayers() as $player) {
-            if ($this->service->getNumberOfFreeWorkerOfPlayer($player) <= 0) {
-                $this->service->setPhase($player, MyrmesParameters::PHASE_HARVEST);
-            }
-            $boardBoxes = $this->dataManagementMYRService->organizeMainBoardRows($game);
-            $this->publishMainBoard($game, $player, $boardBoxes,false, false);
-        }
         return new Response("placed worker on colony", Response::HTTP_OK);
     }
 
@@ -1147,6 +1152,38 @@ class MyrmesController extends AbstractController
         return new Response("harvested resource on this tile", Response::HTTP_OK);
     }
 
+    #[Route('game/myrmes/{gameId}/select/quarry/{pheromoneId}/resource/{resource}',
+        name:'app_game_myrmes_select_quarry_resource' )]
+    public function selectQuarryResource(
+        #[MapEntity(id: 'gameId')]      GameMYR $game,
+        #[MapEntity(id: 'pheromoneId')] PheromonMYR $pheromone,
+        string                          $resource
+    ): Response
+    {
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
+        if (!$player->isTurnOfPlayer()) {
+            return new Response(GameTranslation::NOT_PLAYER_TURN, Response::HTTP_FORBIDDEN);
+        }
+
+        try {
+            $this->harvestMYRService->harvestPlayerQuarry($player, $pheromone, $resource);
+        } catch (Exception $e) {
+            return new Response('failed to select quarry resource ' . $e, Response::HTTP_FORBIDDEN);
+        }
+
+        $message = $player->getUsername() . " a récolté la ressource" . $resource . "sur la phéromone "
+            . $pheromone->getId();
+        $this->logService->sendPlayerLog($game, $player, $message);
+        return new Response("harvested resource" . $resource . "on pheromone" . $pheromone->getId(),
+            Response::HTTP_OK);
+    }
+
     #[Route('/game/myrmes/{gameId}/end/harvestPhase', name: 'app_game_myrmes_end_harvest_phase')]
     public function endHarvestPhase(
         #[MapEntity(id: 'gameId')] GameMYR $game
@@ -1555,15 +1592,15 @@ class MyrmesController extends AbstractController
             'isSpectator' => $player == null,
             'needToPlay' => $player == null ? false : $player->isTurnOfPlayer(),
             'selectedBox' => $selectedBox,
-            'playerPhase' => $player->getPhase(),
+            'playerPhase' => $player?->getPhase(),
             'actualSeason' => $this->service->getActualSeason($game),
             'sendingWorkerOnGarden' => $sendingWorkerOnGarden,
-            'nursesOnWorkshop' => $this->service->getNursesAtPosition(
+            'nursesOnWorkshop' => $player == null ? null : $this->service->getNursesAtPosition(
                 $player,
                 MyrmesParameters::WORKSHOP_AREA
             )->count(),
             'hasSelectedAnthillHolePlacement' => $hasSelectedAnthillHolePlacement,
-            'availableLarvae' => $this->service->getAvailableLarvae($player),
+            'availableLarvae' => $player == null ? null : $this->service->getAvailableLarvae($player),
             'hasFinishedObligatoryHarvesting' => $player == null
                 || $this->harvestMYRService->areAllPheromonesHarvested($player),
         ]);
@@ -2145,9 +2182,22 @@ class MyrmesController extends AbstractController
             }
         }
 
-
         $boardBoxes = $this->dataManagementMYRService->organizeMainBoardRows($game);
+        $isGamePhaseHarvest = $game->getGamePhase() == MyrmesParameters::PHASE_HARVEST;
         foreach ($game->getPlayers() as $player) {
+            $hasQuarry = $player->getPheromonMYRs()->filter(
+                function (PheromonMYR $pheromone) {
+                    return $pheromone->getType()->getType() == MyrmesParameters::SPECIAL_TILE_TYPE_QUARRY
+                        && !$pheromone->isHarvested();
+                }
+            )->count() > 0;
+            if($isGamePhaseHarvest and $hasQuarry) {
+                $this->publishNotification($game,MyrmesParameters::NOTIFICATION_DURATION,
+                    MyrmesTranslation::WARNING,
+                    MyrmesTranslation::NEED_TO_SELECT_QUARRY_RESOURCE,
+                    GameParameters::ALERT_NOTIFICATION_TYPE,
+                    GameParameters::NOTIFICATION_COLOR_YELLOW, $player->getUsername());
+            }
             $this->publishMainBoard(
                 $game, $player, $boardBoxes, false, false
             );

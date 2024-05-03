@@ -58,9 +58,17 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             {% if needToPlay %}
-            new GameNotification(10, 'C\'est votre tour !', 'Jouez votre meilleur coup !', 'ringing', 'yellow');
+                new GameNotification(10, 'C\'est votre tour !', 'Jouez votre meilleur coup !', 'ringing', 'yellow');
             {% else %}
-            new GameNotification(5, 'C\'est au tour d\'un autre joueur !', '', 'info', 'green');
+                new GameNotification(5, 'C\'est au tour d\'un autre joueur !', '', 'info', 'green');
+            {% endif %}
+
+            {% if doesPlayerHaveQuarryToHarvest %}
+                new GameNotification(10, 'Attention !',
+                    "N'oublie pas de sélectionner la ressource que tu veux pour ta fouille !",
+                    'ringing',
+                    'yellow'
+                );
             {% endif %}
         })
 

@@ -74,16 +74,16 @@ export default class extends Controller  {
         const response = await fetch(url);
         if (response.status === 200) {
             closeWindow();
-            updateMainBoardAndDisplayPheromoneBorders(await response.text())
+            updateMainBoardAndDisplayPheromoneBorders(await response.text());
         }
     }
 
     async placeWorkerOnAntHillHole(hole) {
         let tileId = hole.params.tileId;
-        let coordX = hole.params.coordX
-        let coordY = hole.params.coordY
-        let movementPoints = hole.params.movementPoints
-        await placeWorkerOnAnthillHole(tileId, coordX, coordY, movementPoints)
+        let coordX = hole.params.coordX;
+        let coordY = hole.params.coordY;
+        let movementPoints = hole.params.movementPoints;
+        await placeWorkerOnAnthillHole(tileId, coordX, coordY, movementPoints);
     }
 
     //place worker on colony level track
@@ -98,24 +98,29 @@ export default class extends Controller  {
     //management of worker phase
 
     async confirmWorkerPhase() {
-        await rewindQueueWorkerPhase(queue)
-        await fetch(url + "/confirm/action/workerPhase/")
+        await rewindQueueWorkerPhase(queue);
+        await fetch(url + "/confirm/action/workerPhase/");
     }
 
     async cancelWorkerPhase() {
-        location.reload()
+        location.reload();
     }
 
     //harvest a resource
 
     async harvestResource(resource){
         let url = resource.params.url;
-        await fetch(url)
+        await fetch(url);
+    }
+
+    async selectQuarryResource(resource) {
+        let url = resource.params.url;
+        await fetch(url);
     }
 
     async endHarvestPhase(endingPhase) {
         let url = endingPhase.params.url;
-        await fetch(url)
+        await fetch(url);
     }
 
     // workshop actions
