@@ -10,6 +10,11 @@
 {% set PLAYER_COLOR_RED = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::PLAYER_COLOR_RED') %}
 {% set PLAYER_COLOR_YELLOW = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::PLAYER_COLOR_YELLOW') %}
 
+{# Special tile types #}
+{% set QUARRY_SPECIAL_TILE_TYPE = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::SPECIAL_TILE_TYPE_QUARRY') %}
+{% set FARM_SPECIAL_TILE_TYPE = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::SPECIAL_TILE_TYPE_FARM')%}
+{% set SUBANTHILL_SPECIAL_TILE_TYPE = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL') %}
+
 
 {% set fill = "" %}
 {% set stroke = "" %}
@@ -30,6 +35,13 @@
     {% set stroke = "stroke:#ffffff;stroke-width:18" %}
 {% endif %}
 
+{% if boardBox.pheromonTile.pheromonMYR.type.type == FARM_SPECIAL_TILE_TYPE %}
+    {% set fill = 'fill-[rgba(16,_110,_8,_1)]' %}
+{% elseif boardBox.pheromonTile.pheromonMYR.type.type == QUARRY_SPECIAL_TILE_TYPE %}
+    {% set fill = 'fill-[rgba(132,_136,_131,_1)]' %}
+{% elseif boardBox.pheromonTile.pheromonMYR.type.type == SUBANTHILL_SPECIAL_TILE_TYPE %}
+    {% set fill = 'fill-[rgba(104,_57,_17,_1)]' %}
+{% endif %}
 
 
 
