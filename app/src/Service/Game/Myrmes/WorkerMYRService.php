@@ -469,9 +469,9 @@ class WorkerMYRService
         }
         $ant->setWorkFloor($anthillFloor);
         $this->entityManager->persist($ant);
+        $this->giveColonyLevelBonus($personalBoard, $anthillFloor);
         $this->entityManager->flush();
     }
-
 
     /**
      * takeOutAnt: allow the player to transform his ant into a garden worker ant
@@ -1748,6 +1748,49 @@ class WorkerMYRService
         $pheromoneTypes = $this->tileTypeMYRRepository->findBy(['type' => MyrmesParameters::PHEROMONE_TYPES]);
         return new ArrayCollection(
             $this->pheromonMYRRepository->findBy(['player' => $playerMYR, 'type' => $pheromoneTypes]));
+    }
+
+    /**
+     * giveColonyLevelBonus: gives bonus to the player whenever he places a worker into anthill
+     * @param PersonalBoardMYR $personalBoard
+     * @param int $anthillFloor
+     * @return void
+     * @throws Exception
+     */
+    private function giveColonyLevelBonus(PersonalBoardMYR $personalBoard, int $anthillFloor) : void
+    {
+        $food = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::RESOURCE_TYPE_GRASS]);
+        $playerFood = $this->playerResourceMYRRepository->findOneBy(
+            ["personalBoard" => $personalBoard, "resource" => $food]
+        );
+        switch ($anthillFloor) {
+            case 0 :
+                $personalBoard->setLarvaCount($personalBoard->getLarvaCount() + 1);
+                $this->entityManager->persist($personalBoard);
+                return;
+            case 1:
+                $playerFood->setQuantity($playerFood->getQuantity() + 1);
+                $this->entityManager->persist($playerFood);
+                return;
+            case 2:
+                //TODO
+                return;
+            case 3:
+                if ($playerFood->getQuantity() <= 0) {
+                    throw new Exception("not enough food");
+                }
+                $playerFood->setQuantity($playerFood->getQuantity() - 1);
+                $this->entityManager->persist($playerFood);
+                $player = $personalBoard->getPlayer();
+                $score = $player->getScore();
+                $points = 2;
+                if ($personalBoard->getBonus() === MyrmesParameters::BONUS_POINT) {
+                    ++$points;
+                }
+                $player->setScore($score + $points);
+                $this->entityManager->persist($player);
+                return;
+        }
     }
 
 }
