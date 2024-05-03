@@ -476,6 +476,9 @@ class MYRService
             $this->replaceNurses($player);
             $this->resetWorkshopActions($player);
             $this->makePheromonesHarvestable($player);
+            $player->setTurnOfPlayer(true);
+            $player->setPhase(MyrmesParameters::PHASE_EVENT);
+            $this->entityManager->persist($player);
         }
         $this->endRoundOfFirstPlayer($game);
         $this->endSeason($game);
