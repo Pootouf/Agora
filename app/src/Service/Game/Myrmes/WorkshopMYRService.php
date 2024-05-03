@@ -436,9 +436,11 @@ class WorkshopMYRService
         $result->add($newTile);
         $newTile = $this->tileMYRRepository->findOneBy(["coordX" => $coordX + 1, "coordY" => $coordY - 1]);
         $result->add($newTile);
-        $newTile = $this->tileMYRRepository->findOneBy(["coordX" => $coordX + 1, "coordY" => $coordY + 2]);
+        $newTile = $this->tileMYRRepository->findOneBy(["coordX" => $coordX + 1, "coordY" => $coordY + 1]);
         $result->add($newTile);
-        return $result;
+        return $result->filter(function(?TileMYR $tileMYR, int $key) {
+            return $tileMYR != null;
+        });
     }
 
     /**

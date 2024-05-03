@@ -44,6 +44,19 @@ class HarvestMYRService
     }
 
     /**
+     * harvestSpecialTiles: activates all the player's special tiles
+     *
+     * @param PlayerMYR $player
+     * @return void
+     * @throws Exception
+     */
+    public function harvestSpecialTiles(PlayerMYR $player) : void
+    {
+        $this->harvestPlayerFarms($player);
+        $this->harvestPlayerSubAnthill($player);
+    }
+
+    /**
      * harvestPheromone : remove the resources which is on tile and gives it to the player
      * @param PlayerMYR $playerMYR
      * @param TileMYR $tileMYR

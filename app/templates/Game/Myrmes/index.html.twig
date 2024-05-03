@@ -14,7 +14,7 @@
             {% endblock %}#}
             {% block ranking %}
                 <div id="ranking"
-                     class="absolute bg-gradient-to-b from-[#4C6E9Bff] to-[#20222Dff] w-[28%] h-[70%] top-0 right-0">
+                     class="absolute bg-gradient-to-b from-[#288420] to-[#2D2D0B] w-[28%] h-[70%] top-0 right-0">
                     {{ include('/Game/Myrmes/Ranking/ranking.html.twig') }}
                 </div>
             {% endblock %}
@@ -58,9 +58,17 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             {% if needToPlay %}
-            new GameNotification(10, 'C\'est votre tour !', 'Jouez votre meilleur coup !', 'ringing', 'yellow');
+                new GameNotification(10, 'C\'est votre tour !', 'Jouez votre meilleur coup !', 'ringing', 'yellow');
             {% else %}
-            new GameNotification(5, 'C\'est au tour d\'un autre joueur !', '', 'info', 'green');
+                new GameNotification(5, 'C\'est au tour d\'un autre joueur !', '', 'info', 'green');
+            {% endif %}
+
+            {% if doesPlayerHaveQuarryToHarvest %}
+                new GameNotification(10, 'Attention !',
+                    "N'oublie pas de sélectionner la ressource que tu veux pour ta fouille !",
+                    'ringing',
+                    'yellow'
+                );
             {% endif %}
         })
 
@@ -115,8 +123,7 @@
         {% set mainBoardPath = path('app_game_show_myr', {'id': game.id}) ~ 'mainBoard' ~ player.id %}
         const eventSourceMainBoard = new EventSource("{{ mercure(mainBoardPath)|escape('js') }}");
         eventSourceMainBoard.onmessage = event => {
-            const mainBoard = document.getElementById('mainBoard');
-            mainBoard.innerHTML = event.data;
+            updateMainBoardAndDisplayPheromoneBorders(event.data)
         }
     </script>
 
