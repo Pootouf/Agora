@@ -1639,7 +1639,12 @@ class WorkerMYRService
         $pheromone = new PheromonMYR();
         $pheromone->setPlayer($playerMYR);
         $pheromone->setType($tileTypeMYR);
-        $pheromone->setHarvested(false);
+        if ($tileTypeMYR->getType() === MyrmesParameters::SPECIAL_TILE_TYPE_FARM ||
+            $tileTypeMYR->getType() === MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL) {
+            $pheromone->setHarvested(true);
+        } else {
+            $pheromone->setHarvested(false);
+        }
         foreach ($tiles as $tile) {
             $coordX = $tile[0];
             $coordY = $tile[1];

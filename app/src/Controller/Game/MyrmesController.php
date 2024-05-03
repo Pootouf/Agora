@@ -1171,7 +1171,7 @@ class MyrmesController extends AbstractController
             return new Response('failed to end harvest phase', Response::HTTP_FORBIDDEN);
         }
         $this->service->endPlayerRound($player);
-
+        $this->harvestMYRService->harvestSpecialTiles($player);
         if($this->service->canOnePlayerDoWorkshopPhase($game)) {
             $this->service->setPhase($player, MyrmesParameters::PHASE_WORKSHOP);
         } elseif($this->winterMYRService->canSetPhaseToWinter($game)) {
