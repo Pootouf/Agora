@@ -8,7 +8,7 @@ This section displays the birth track for workers.
     {#workers counter#}
     <div class="inlineFlex items-center gap-[0.3vw] w-full {% if isPreview %} h-[1.0vw] {% else %} h-[5vw] {% endif %}"
          id="workerCount">
-        <p class="relative w-10 h-fit {% if isPreview %}text_mini {% else %} text3-4 {% endif %}">
+        <p class="relative w-10 h-fit {% if isPreview %}text_mini {% else %} text1-4 {% endif %}">
             {{ player.personalBoardMYR.anthillWorkers|filter(worker => worker.workFloor == NO_WORKFLOOR)|length }}
         </p>
         <img class="h-full" id="workerIcon"
