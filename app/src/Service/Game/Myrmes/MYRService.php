@@ -1157,8 +1157,11 @@ class MYRService
     private function makePheromonesHarvestable(PlayerMYR $player): void
     {
         foreach ($player->getPheromonMYRs() as $pheromone) {
-            $pheromone->setHarvested(false);
-            $this->entityManager->persist($pheromone);
+            if ($pheromone->getType()->getType() !== MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL &&
+                $pheromone->getType()->getType() !== MyrmesParameters::SPECIAL_TILE_TYPE_FARM) {
+                $pheromone->setHarvested(false);
+                $this->entityManager->persist($pheromone);
+            }
         }
     }
 
