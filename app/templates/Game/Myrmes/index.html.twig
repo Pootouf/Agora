@@ -9,9 +9,9 @@
 
     <div class="h-screen w-screen overflow-hidden absolute" {{ stimulus_controller('myrmes') }}>
         <div id="index_myrmes" class="h-full w-full static overflow-hidden">
-            {#{% block endGame %}
+            {% block endGame %}
                 {{ include('/Game/Myrmes/endGameScreenResult.html.twig') }}
-            {% endblock %}#}
+            {% endblock %}
             {% block ranking %}
                 <div id="ranking"
                      class="absolute bg-gradient-to-b from-[#288420] to-[#2D2D0B] w-[28%] h-[70%] top-0 right-0">

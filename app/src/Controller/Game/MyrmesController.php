@@ -68,6 +68,7 @@ class MyrmesController extends AbstractController
         return $this->render('/Game/Myrmes/index.html.twig', [
             'player' => $player,
             'game' => $game,
+            'isGameFinished' => $this->service->isGameEnded($game),
             'messages' => $messages,
             'goalsLevelOne' => $game->getMainBoardMYR()->getGameGoalsLevelOne(),
             'goalsLevelTwo' => $game->getMainBoardMYR()->getGameGoalsLevelTwo(),
