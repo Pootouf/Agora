@@ -43,7 +43,12 @@ This section displays player's colony level track with the crafts available for 
         <{% if not isPreview and canSendWorkerToAnthill %}button{% else %}div{% endif %} class="-translate-y-[{{ 15*i }}%]" type="button" id="level{{ i }}"
                 {% if not isPreview and canSendWorkerToAnthill %}
                     {{ stimulus_action('myrmes','placeWorkerOnColonyLevelTrack','click',
-                        {url: path('app_game_myrmes_place_worker_colony', {gameId: game.id, level: i})})
+                        {url: path('app_game_myrmes_place_worker_colony',
+                            {
+                                gameId: game.id,
+                                level: i
+                            })
+                        })
                     }}
                 {% endif %}>
             <svg viewBox="0 0 600 300" class="{% if isPreview %}h-[4vw]{% else %}h-[11vw]{% endif %}">
@@ -59,4 +64,9 @@ This section displays player's colony level track with the crafts available for 
             </svg>
         </{% if not isPreview and canSendWorkerToAnthill %}button{% else %}div{% endif %}>
     {% endfor %}
+    {% if not isPreview and not isSpectator and selectionLvlTwoBonus and not isAnotherPlayerBoard %}
+        <div id="selectLvlTwoResource">
+            {{ include('Game/Myrmes/PersonalBoard/ActionsMenu/selectionAnthillLvlTwoResource.html.twig') }}
+        </div>
+    {% endif %}
 </div>

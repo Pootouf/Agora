@@ -1,0 +1,41 @@
+{#
+This section displays menu to select dirt or stone reward for placing worker on anthill level two.
+@param :
+@return :
+#}
+
+{% set STONE = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::RESOURCE_TYPE_STONE') %}
+{% set DIRT = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::RESOURCE_TYPE_DIRT') %}
+
+<div class="inlineFlexCol gap-[0.5vw]">
+    <p class="text-[1.2vw] font-bold">Selectonnez une ressource bonus</p>
+    <div class="inlineFlex w-full gap-[2vw]">
+        <button type="button"
+                {{ stimulus_action('myrmes','placeWorkerOnColonyLevelTrack','click',
+                    {url: path('app_game_myrmes_place_worker_colony',
+                        {
+                            gameId: game.id,
+                            level: 2,
+                            lvlTwoResource: DIRT
+                        })
+                    })
+                }}
+        >
+            <img src="{{ asset('resourcesGames/Myrmes/resources/dirt.svg') }}" alt="dirt icon">
+        </button>
+        <button type="button"
+                {{ stimulus_action('myrmes','placeWorkerOnColonyLevelTrack','click',
+                    {url: path('app_game_myrmes_place_worker_colony',
+                        {
+                            gameId: game.id,
+                            level: 2,
+                            lvlTwoResource: STONE
+                        })
+                    })
+                }}
+        >
+            <img src="{{ asset('resourcesGames/Myrmes/resources/stone.svg') }}" alt="stone icon">
+        </button>
+
+    </div>
+</div>
