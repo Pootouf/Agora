@@ -41,7 +41,16 @@ This section displays player's colony level track with the crafts available for 
              alt="upgrade cost to level {{ i }}">
         {#colony track levels 1 to 3#}
         <{% if not isPreview and canSendWorkerToAnthill %}button{% else %}div{% endif %} class="-translate-y-[{{ 15*i }}%]" type="button" id="level{{ i }}"
-                {% if not isPreview and canSendWorkerToAnthill %}
+                {% if not isPreview and canSendWorkerToAnthill and i == 2 %}
+                    {{
+                        stimulus_action('myrmes', 'selectLvlTwoAnthillResource', 'click',
+                            {url: path('app_game_myrmes_select_resource_lvl_two_anthill',
+                                {
+                                    gameId: game.id
+                                })
+                            })
+                    }}
+                {% elseif not isPreview and canSendWorkerToAnthill %}
                     {{ stimulus_action('myrmes','placeWorkerOnColonyLevelTrack','click',
                         {url: path('app_game_myrmes_place_worker_colony',
                             {
