@@ -417,7 +417,7 @@ class WorkshopMYRServiceTest extends KernelTestCase
     public function testGetAvailableAnthillPositions() : void
     {
         //GIVEN
-        $game = $this->createGame(2);
+        $game = $this->createGame(4);
         $player = $game->getPlayers()->first();
         $anthillHole = new AnthillHoleMYR();
         $tileHole = $this->tileMYRRepository->findOneBy(["coordX" => 9, "coordY" => 10]);
@@ -477,7 +477,7 @@ class WorkshopMYRServiceTest extends KernelTestCase
         $prey->setMainBoardMYR($game->getMainBoardMYR());
         $this->entityManager->persist($player);
         $this->entityManager->persist($prey);
-        $tile = $this->tileMYRRepository->findOneBy(["coordX" => 8, "coordY" => 15]);
+        $tile = $this->tileMYRRepository->findOneBy(["coordX" => 7, "coordY" => 18]);
         $prey = new PreyMYR();
         $prey->setTile($tile);
         $prey->setType(MyrmesParameters::LADYBUG_TYPE);
