@@ -29,6 +29,11 @@
     text-center tracking-normal whitespace-nowrap;
 }
 
+.text1-3 {
+    @apply font-extrabold text-white text-xl lg:text-3xl
+    text-center tracking-normal whitespace-nowrap;
+}
+
 
 
 

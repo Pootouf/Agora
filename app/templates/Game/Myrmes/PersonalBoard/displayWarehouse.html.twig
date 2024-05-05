@@ -9,10 +9,11 @@ This section displays the storage of the player
     and playerPhase == PHASE_WINTER
     and mustThrowResources %}
 
-<div>
-<p class="relative pt-[1vw] w-fit {% if isPreview %}text_mini {% else %} text2-4 {% endif %}">Entrepôt</p>
+<div class="inlineFlexCol items-center">
+<p class="relative pt-[1vw] w-fit {% if isPreview %}text_mini {% else %} text1-3 {% endif %}">Entrepôt</p>
     {% if mustThrowResourcesInWinter and not isPreview %}
-        <p class="relative mt-[0.5vw] flex align-middle text-center bg-black bg-opacity-25 rounded-xl w-fit text-lg">
+        <p class="relative mt-[0.5vw] flex align-middle text-center bg-black bg-opacity-25 rounded-xl w-fit
+                   text-xs lg:text-lg">
             Cliquez pour jeter <br> une ressource
         </p>
     {% endif %}

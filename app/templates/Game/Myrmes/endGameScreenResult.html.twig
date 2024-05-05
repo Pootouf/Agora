@@ -52,13 +52,13 @@
 
     {% if isGameFinished %}
 		{% set winner = null %}
-		{# Arbitrary value impossible to reach  #}
+		 /*Arbitrary value impossible to reach*/
 		{% set winnerScore = 0 %}
 		{% for player in game.players %}
-			{% if player.totalPoints > winnerScore %}
-				{% set winnerScore = player.totalPoints %}
+			{% if player.score > winnerScore %}
+				{% set winnerScore = player.score %}
 				{% set winner = player.username %}
-			{% elseif player.totalPoints == winnerScore %}
+			{% elseif player.score == winnerScore %}
 				{% set winner = null %}
 			{% endif %}
 		{% endfor %}
