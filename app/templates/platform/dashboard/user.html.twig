@@ -49,6 +49,14 @@ Mes tables
             <div class="w-full md:w-1/4 pr-2">
                <div class="text-black font-bold">{{ form_label(searchboard.datecreation, 'Date de création', {'label_attr': {'class': 'search-label'}}) }}</div>
                {{ form_widget(searchboard.datecreation, {'id': 'datecreationSelect', 'placeholder': 'Choisir la date de création'}) }}
+               <div id="datecreationplusContainer" style="display: none;">
+                  <div class="text-black font-bold label-dateplus">{{ form_label(searchboard.datecreationplus, 'Date d\'intervalle', {'label_attr': {'class': 'search-label'}}) }}</div>
+                  {{ form_widget(searchboard.datecreationplus, {'id': 'datecreationplusSelect', 'placeholder': 'Choisir la seconde date'}) }}
+               </div>
+            </div>
+            <div class="w-full md:w-1/4 pr-2">
+               <div class="text-black font-bold">{{ form_label(searchboard.dateselection, 'Option de date', {'label_attr': {'class': 'search-label'}}) }}</div>
+               {{ form_widget(searchboard.dateselection, {'id': 'dateSelect', 'placeholder': 'Option de selection'}) }}
             </div>
             <div class="w-full md:w-1/4">
                <div class="text-black font-bold">{{ form_label(searchboard.game, 'Jeu', {'label_attr': {'class': 'search-label'}}) }}</div>
@@ -233,11 +241,33 @@ Mes tables
    function submitSearchForm() {
        document.getElementById('searchForm').submit();
    }
-   
+
+
+   // Fonction pour afficher ou masquer le champ datecreationplus en fonction de l'option sélectionnée dans dateselection
+   function handleDateCreationPlusVisibility() {
+      var selectedOption = document.getElementById('dateSelect').value;
+      var dateCreationPlusContainer = document.getElementById('datecreationplusContainer');
+
+      if (selectedOption === 'between') {
+         dateCreationPlusContainer.style.display = 'block';
+      } else {
+         dateCreationPlusContainer.style.display = 'none';
+         document.getElementById('dateSelect').addEventListener('change', submitSearchForm);
+      }
+   }
+
+   // Ajouter un écouteur d'événement pour détecter les changements dans le champ dateselection
+   document.getElementById('dateSelect').addEventListener('change', handleDateCreationPlusVisibility);
+
+   // Appeler la fonction pour initialiser l'affichage du champ datecreationplus
+   handleDateCreationPlusVisibility();
+
+
    // Ajouter des écouteurs d'événements pour les changements de sélection
    document.getElementById('statusSelect').addEventListener('change', submitSearchForm);
    document.getElementById('availabilitySelect').addEventListener('change', submitSearchForm);
    document.getElementById('datecreationSelect').addEventListener('change', submitSearchForm);
    document.getElementById('gameSelect').addEventListener('change', submitSearchForm);
+   document.getElementById('datecreationplusSelect').addEventListener('change', submitSearchForm);
 </script>
 {% endblock %}

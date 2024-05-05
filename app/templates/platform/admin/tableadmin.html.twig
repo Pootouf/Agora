@@ -60,7 +60,7 @@ Administration des tables
    grid-template-columns: repeat(3, 1fr); /* 3 colonnes de largeur égale */
    gap: 20px; /* Espacement de 20px entre les colonnes et les lignes */
    }
-   .md\\:col-span-2 {
+   .col-span-2 {
    grid-column: span 3; /* Augmente la couverture de colonne de 2 à 3 */
    }
    .text-xl {
@@ -99,11 +99,19 @@ Administration des tables
                <div class="text-black font-bold">{{ form_label(searchboard.availability, 'Disponibilité', {'label_attr': {'class': 'search-label'}}) }}</div>
                {{ form_widget(searchboard.availability, {'id': 'availabilitySelect', 'placeholder': 'Choisir la disponibilité'}) }}
             </div>
-            <div class="w-full md:w-1/4 pr-2">
-               <div class="text-black font-bold">{{ form_label(searchboard.datecreation, 'Date de création', {'label_attr': {'class': 'search-label'}}) }}</div>
-               {{ form_widget(searchboard.datecreation, {'id': 'datecreationSelect', 'placeholder': 'Choisir la date de création'}) }}
-            </div>
-            <div class="w-full md:w-1/4">
+             <div class="w-full md:w-1/4 pr-2">
+                 <div class="text-black font-bold">{{ form_label(searchboard.datecreation, 'Date de création', {'label_attr': {'class': 'search-label'}}) }}</div>
+                 {{ form_widget(searchboard.datecreation, {'id': 'datecreationSelect', 'placeholder': 'Choisir la date de création'}) }}
+                 <div id="datecreationplusContainer" style="display: none;">
+                     <div class="text-black font-bold label-dateplus">{{ form_label(searchboard.datecreationplus, 'Date d\'intervalle', {'label_attr': {'class': 'search-label'}}) }}</div>
+                     {{ form_widget(searchboard.datecreationplus, {'id': 'datecreationplusSelect', 'placeholder': 'Choisir la seconde date'}) }}
+                 </div>
+             </div>
+             <div class="w-full md:w-1/4 pr-2">
+                 <div class="text-black font-bold">{{ form_label(searchboard.dateselection, 'Option de date', {'label_attr': {'class': 'search-label'}}) }}</div>
+                 {{ form_widget(searchboard.dateselection, {'id': 'dateSelect', 'placeholder': 'Option de selection'}) }}
+             </div>
+                 <div class="w-full md:w-1/4">
                <div class="text-black font-bold">{{ form_label(searchboard.game, 'Jeu', {'label_attr': {'class': 'search-label'}}) }}</div>
                {{ form_widget(searchboard.game, {'id': 'gameSelect', 'placeholder': 'Choisir le jeu'}) }}
             </div>
@@ -143,7 +151,7 @@ Administration des tables
                   <td class="p-2 text-center">
                      {% if board.game is not empty %}
                      <img src="{{ asset(board.game.imgURL) }}" class="w-32 h-16 md:w-24 md:h-24 rounded-md mx-auto" alt="{{ board.game.name }}">
-                     </>
+{#                     </>#}
                      {% else %}
                      <span class="text-red-500">Image non disponible</span>
                      {% endif %}
@@ -425,12 +433,27 @@ Administration des tables
    excludeButtons.forEach(function(button) {
     button.addEventListener('click', handleExcludeButtonClick);
    });
-   
-   // meme chose pour delete-table-btn
-   
-   
-   
-   
+
+   // Fonction pour afficher ou masquer le champ datecreationplus en fonction de l'option sélectionnée dans dateselection
+   function handleDateCreationPlusVisibility() {
+       var selectedOption = document.getElementById('dateSelect').value;
+       var dateCreationPlusContainer = document.getElementById('datecreationplusContainer');
+
+       if (selectedOption === 'between') {
+           dateCreationPlusContainer.style.display = 'block';
+       } else {
+           dateCreationPlusContainer.style.display = 'none';
+           document.getElementById('dateSelect').addEventListener('change', submitSearchForm);
+       }
+   }
+
+   // Ajouter un écouteur d'événement pour détecter les changements dans le champ dateselection
+   document.getElementById('dateSelect').addEventListener('change', handleDateCreationPlusVisibility);
+
+   // Appeler la fonction pour initialiser l'affichage du champ datecreationplus
+   handleDateCreationPlusVisibility();
+
+
    document.getElementById('statusSelect').addEventListener('change', submitSearchForm);
    document.getElementById('availabilitySelect').addEventListener('change', submitSearchForm);
    document.getElementById('datecreationSelect').addEventListener('change', submitSearchForm);

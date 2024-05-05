@@ -137,7 +137,7 @@ class BoardEntityTest extends TestCase
     {
         // GIVEN
         $board = new Board();
-        $invitations = 5;
+        $invitations = 0;
 
         // WHEN
         $board->setNbInvitations($invitations);
