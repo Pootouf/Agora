@@ -1013,16 +1013,18 @@ class MYRService
     {
         $this->clearSeasons($game);
         $yearNum = $game->getMainBoardMYR()->getYearNum();
-        if ($yearNum + 1 > MyrmesParameters::THIRD_YEAR_NUM) {
+        $yearNum += 1;
+        $game->getMainBoardMYR()->setYearNum($yearNum);
+        $this->entityManager->persist($game->getMainBoardMYR());
+        if ($yearNum > MyrmesParameters::THIRD_YEAR_NUM) {
+            $this->entityManager->flush();
             return;
         }
-        $game->getMainBoardMYR()->setYearNum($yearNum + 1);
         $this->initializeNewSeason($game, MyrmesParameters::SPRING_SEASON_NAME);
         $this->initializeNewSeason($game, MyrmesParameters::SUMMER_SEASON_NAME);
         $this->initializeNewSeason($game, MyrmesParameters::FALL_SEASON_NAME);
         $spring = $game->getMainBoardMYR()->getSeasons()->first();
         $spring->setActualSeason(true);
-        $this->entityManager->persist($game->getMainBoardMYR());
         $this->entityManager->persist($spring);
         $this->entityManager->persist($game);
         $this->entityManager->flush();
