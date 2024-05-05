@@ -157,6 +157,7 @@ class MyrmesController extends AbstractController
             'isAnotherPlayerBoard' => false,
             'playerPhase' => $player->getPhase(),
             'availableLarvae' => $this->service->getAvailableLarvae($player),
+            'selectionLvlTwoBonus' => false,
             'nursesOnLarvaeBirthTrack' => $this->service->getNursesAtPosition(
                 $player,
                 MyrmesParameters::LARVAE_AREA
@@ -207,6 +208,7 @@ class MyrmesController extends AbstractController
                 'actualSeason' => $this->service->getActualSeason($game),
                 'availableLarvae' => $this->service->getAvailableLarvae($playerMYR),
                 'isBirthPhase' => $this->service->isInPhase($playerMYR, MyrmesParameters::PHASE_BIRTH),
+                'selectionLvlTwoBonus' => false,
                 'nursesOnLarvaeBirthTrack' => $this->service->getNursesAtPosition(
                     $playerMYR,
                     MyrmesParameters::LARVAE_AREA
@@ -636,10 +638,26 @@ class MyrmesController extends AbstractController
         );
     }
 
-    #[Route('/game/myrmes/{gameId}/placeWorkerOnColonyLevelTrack/{level}', name: 'app_game_myrmes_place_worker_colony')]
+    #[Route('/game/myrmes/{gameId}/selectResourceLvlTwoAnthillLevel', name:'app_game_myrmes_select_resource_lvl_two_anthill')]
+    public function selectResourceLvlTwoAnthill(
+        #[MapEntity(id: 'gameId')] GameMYR $game
+    ) : Response
+    {
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
+        if ($player->getPersonalBoardMYR()->getAnthillLevel() < 2) {
+            return new Response(MyrmesTranslation::ERROR_WORKER_PLACE_IN_ANTHILL, Response::HTTP_FORBIDDEN);
+        }
+        return $this->returnPersonalBoard($game, $player, true);
+    }
+
+    #[Route('/game/myrmes/{gameId}/placeWorkerOnColonyLevelTrack/{level}/{lvlTwoResource}', name: 'app_game_myrmes_place_worker_colony')]
     public function placeWorkerOnColonyLevelTrack(
         #[MapEntity(id: 'gameId')] GameMYR $game,
-        int $level
+        int $level,
+        String $lvlTwoResource = null
     ) : Response
     {
         if ($game->isPaused() || !$game->isLaunched()) {
@@ -657,7 +675,7 @@ class MyrmesController extends AbstractController
         }
 
         try {
-            $this->workerMYRService->placeAntInAnthill($player->getPersonalBoardMYR(), $level);
+            $this->workerMYRService->placeAntInAnthill($player->getPersonalBoardMYR(), $level, $lvlTwoResource);
         } catch (Exception) {
             $this->publishNotification($game, MyrmesParameters::NOTIFICATION_DURATION,
                 MyrmesTranslation::WARNING,
@@ -1640,7 +1658,7 @@ class MyrmesController extends AbstractController
      * @param PlayerMYR $player
      * @return Response
      */
-    private function returnPersonalBoard(GameMYR $game,PlayerMYR $player) : Response
+    private function returnPersonalBoard(GameMYR $game,PlayerMYR $player, ?bool $selectionLvlTwoBonus = false) : Response
     {
         return $this->render('Game/Myrmes/PersonalBoard/personalBoard.html.twig', [
             'game' => $game,
@@ -1651,7 +1669,9 @@ class MyrmesController extends AbstractController
             'needToPlay' => $player->isTurnOfPlayer(),
             'isAnotherPlayerBoard' => false,
             'playerPhase' => $player->getPhase(),
+            'selectionLvlTwoBonus' => $selectionLvlTwoBonus,
             'availableLarvae' => $this->service->getAvailableLarvae($player),
+
             'nursesOnLarvaeBirthTrack' => $this->service->getNursesAtPosition(
                 $player,
                 MyrmesParameters::LARVAE_AREA

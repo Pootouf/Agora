@@ -857,6 +857,9 @@ class GlenmoreController extends AbstractController
                     . $e->getMessage(), Response::HTTP_FORBIDDEN);
             }
         }
+        $player->setActivatedNewResourcesAcqusition(false);
+        $this->entityManager->persist($player);
+        $this->entityManager->flush();
         $this->publishPersonalBoard($player, []);
         $this->publishPersonalBoardSpectator($game);
         $this->publishRanking($game);
@@ -1040,6 +1043,9 @@ class GlenmoreController extends AbstractController
         $this->publishRanking($game);
         $this->publishMainBoardPreview($game);
         $this->publishPlayerRoundManagement($game);
+        if ($this->service->isGameEnded($game)) {
+            $this->publishEndOfGame($game);
+        }
         $this->logService->sendPlayerLog($game, $player,
             $player->getUsername() . GlenmoreTranslation::END_ROUND);
         return new Response(GlenmoreTranslation::RESPONSE_END_ROUND,
@@ -1412,6 +1418,24 @@ class GlenmoreController extends AbstractController
             $this->generateUrl('app_game_show_glm', ['id' => $game->getId()]).'notification'.$targetedPlayer,
             new Response(implode('_', $dataSent))
         );
+    }
+
+    /**
+     * publishEndOfGame : send a mercure notification for the end of a game of Splendor
+     * @param GameGLM $game
+     * @return void
+     * @throws Exception
+     */
+    private function publishEndOfGame(GameGLM $game): void
+    {
+        $winner = $this->service->getWinner($game)[0];
+        $this->logService->sendPlayerLog($game, $winner,
+            $winner->getUsername() . GlenmoreTranslation::WIN_GAME . $game->getId());
+        $this->logService->sendSystemLog($game, GlenmoreTranslation::GAME_DESC
+            . $game->getId() . GlenmoreTranslation::HAS_ENDED);
+        $this->publishService->publish(
+            $this->generateUrl('app_game_show_glm', ['id' => $game->getId()]).'endOfGame',
+            new Response($winner?->getUsername()));
     }
 
     private function typeResources(string $color): string

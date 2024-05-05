@@ -1193,7 +1193,7 @@ class MYRControllerTest extends WebTestCase
         $game->setGamePhase(MyrmesParameters::PHASE_WORKER);
         $this->entityManager->persist($game);
         $this->entityManager->flush();
-        $url = "/game/myrmes/" . $gameId . "/placeWorkerOnColonyLevelTrack/5";
+        $url = "/game/myrmes/" . $gameId . "/placeWorkerOnColonyLevelTrack/5/ ";
         //WHEN
         $this->client->request("GET", $url);
         // THEN
@@ -1207,7 +1207,7 @@ class MYRControllerTest extends WebTestCase
         $gameId = $this->initializeGameWithTwoPlayers();
         /** @var GameMYR $game */
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
-        $url = "/game/myrmes/" . $gameId . "/placeWorkerOnColonyLevelTrack/0";
+        $url = "/game/myrmes/" . $gameId . "/placeWorkerOnColonyLevelTrack/0/ ";
         $player = $game->getPlayers()->first();
         $game->setGamePhase(MyrmesParameters::PHASE_WORKER);
         $this->entityManager->persist($game);

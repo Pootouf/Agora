@@ -88,9 +88,24 @@ export default class extends Controller  {
 
     //place worker on colony level track
 
+    async selectLvlTwoAnthillResource(confirm) {
+        let url = confirm.params.url;
+        const response = await fetch(url);
+        if (response.status === 200) {
+            let personalBoard = document.getElementById('personalBoard');
+            let newPage = await response.text();
+            let placeholder = document.createElement('div');
+            placeholder.innerHTML = newPage;
+            personalBoard.replaceChild(
+                placeholder.firstElementChild.firstElementChild, personalBoard.firstElementChild);
+        }
+    }
+
     async placeWorkerOnColonyLevelTrack(level) {
         let url = level.params.url;
-        if (window.confirm("Confirmez vous le placement de l'ouvrière sur le niveau " + url.split('/').pop())) {
+        let lvl = url.split('/');
+        lvl = lvl.at(lvl.length - 2);
+        if (window.confirm("Confirmez vous le placement de l'ouvrière sur le niveau " + lvl)) {
             await fetch(url);
         }
     }

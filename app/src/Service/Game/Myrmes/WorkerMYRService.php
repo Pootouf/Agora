@@ -443,10 +443,11 @@ class WorkerMYRService
      * placeAntInAnthill: place a free worker ant in the selected area of the anthill
      * @param PersonalBoardMYR $personalBoard
      * @param int $anthillFloor
+     * @param String $lvlTwoResource
      * @return void
      * @throws Exception if invalid floor or no more free ants
      */
-    public function placeAntInAnthill(PersonalBoardMYR $personalBoard, int $anthillFloor) : void
+    public function placeAntInAnthill(PersonalBoardMYR $personalBoard, int $anthillFloor, String $lvlTwoResource) : void
     {
         $maxFloor = $personalBoard->getAnthillLevel();
         $isAnthillLevelIncreased = $personalBoard->getBonus() == MyrmesParameters::BONUS_LEVEL;
@@ -469,7 +470,7 @@ class WorkerMYRService
         }
         $ant->setWorkFloor($anthillFloor);
         $this->entityManager->persist($ant);
-        $this->giveColonyLevelBonus($personalBoard, $anthillFloor);
+        $this->giveColonyLevelBonus($personalBoard, $anthillFloor, $lvlTwoResource);
         $this->entityManager->flush();
     }
 
@@ -1754,14 +1755,25 @@ class WorkerMYRService
      * giveColonyLevelBonus: gives bonus to the player whenever he places a worker into anthill
      * @param PersonalBoardMYR $personalBoard
      * @param int $anthillFloor
+     * @param String $lvlTwoResource
      * @return void
      * @throws Exception
      */
-    private function giveColonyLevelBonus(PersonalBoardMYR $personalBoard, int $anthillFloor) : void
+    private function giveColonyLevelBonus(PersonalBoardMYR $personalBoard, int $anthillFloor, String $lvlTwoResource) : void
     {
         $food = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::RESOURCE_TYPE_GRASS]);
         $playerFood = $this->playerResourceMYRRepository->findOneBy(
             ["personalBoard" => $personalBoard, "resource" => $food]
+        );
+
+        $stone = $this->resourceMYRRepository->findOneBy(["description" => MYRmesParameters::RESOURCE_TYPE_STONE]);
+        $playerStone = $this->playerResourceMYRRepository->findOneBy(
+            ["personalBoard" => $personalBoard, "resource" => $stone]
+        );
+
+        $dirt = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::RESOURCE_TYPE_DIRT]);
+        $playerDirt = $this->playerResourceMYRRepository->findOneBy(
+            ["personalBoard" => $personalBoard, "resource" => $dirt]
         );
         switch ($anthillFloor) {
             case 0 :
@@ -1773,7 +1785,13 @@ class WorkerMYRService
                 $this->entityManager->persist($playerFood);
                 return;
             case 2:
-                //TODO
+                if ($lvlTwoResource == MyrmesParameters::RESOURCE_TYPE_DIRT) {
+                    $playerDirt->setQuantity($playerDirt->getQuantity() + 1);
+                    $this->entityManager->persist($playerDirt);
+                } elseif ($lvlTwoResource == MyrmesParameters::RESOURCE_TYPE_STONE ) {
+                    $playerStone->setQuantity($playerStone->getQuantity() + 1);
+                    $this->entityManager->persist($playerStone);
+                }
                 return;
             case 3:
                 if ($playerFood->getQuantity() <= 0) {
