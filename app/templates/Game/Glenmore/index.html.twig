@@ -197,4 +197,32 @@
 			})
 		}
 	</script>
+
+	{# END OF GAME MANAGEMENT #}
+	<script>
+
+		{% set path = path('app_game_show_glm', {'id': game.id}) ~ 'endOfGame' %}
+		const eventSourceEndOfGame = new EventSource("{{ mercure(path)|escape('js') }}");
+		eventSourceEndOfGame.onmessage = event => {
+			animationQueue.addToQueue(() => {
+				gameFinished(event.data, "{{ not isSpectator ? player.username }}")
+			})
+		}
+
+		{% if isGameFinished %}
+		{% set winner = null %}
+		{# Arbitrary value impossible to reach  #}
+		{% set winnerScore = 0 %}
+		{% for player in game.players %}
+			{% if player.score > winnerScore %}
+				{% set winnerScore = player.score %}
+				{% set winner = player.username %}
+			{% elseif player.score == winnerScore %}
+				{% set winner = null %}
+			{% endif %}
+		{% endfor %}
+		gameFinished("{{ winner }}", "{{ not isSpectator ? player.username }}")
+		{% endif %}
+
+	</script>
 {% endblock %}

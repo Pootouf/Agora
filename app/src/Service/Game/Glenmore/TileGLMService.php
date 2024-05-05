@@ -2,6 +2,7 @@
 
 namespace App\Service\Game\Glenmore;
 
+use App\Controller\Game\GlenmoreController;
 use App\Entity\Game\Glenmore\BoardTileGLM;
 use App\Entity\Game\Glenmore\BuyingTileGLM;
 use App\Entity\Game\Glenmore\CreatedResourceGLM;
@@ -126,12 +127,23 @@ class TileGLMService
     public function getActivableTiles(PlayerTileGLM $playerTileGLM) : ArrayCollection
     {
         $activableTiles = new ArrayCollection();
-        if (!$playerTileGLM->isActivated() && !$playerTileGLM->getTile()->getActivationBonus()->isEmpty()) {
+
+        $resourceNumber = 0;
+        foreach ($playerTileGLM->getPlayerTileResource() as $resource) {
+            $resourceNumber += $resource->getQuantity();
+        }
+
+        if (!$playerTileGLM->isActivated() && !$playerTileGLM->getTile()->getActivationBonus()->isEmpty()
+            and $resourceNumber < GlenmoreParameters::MAX_RESOURCES_PER_TILE) {
             $activableTiles->add($playerTileGLM);
         }
+
+
         $personalBoard = $playerTileGLM->getPersonalBoard();
         $lastTile = $personalBoard->getPlayerTiles()->last()->getTile();
         $card = $lastTile->getCard();
+
+
         // if player just bought Loch Oich then all tiles can be activated
         if ($card != null && $card->getName() === GlenmoreParameters::CARD_LOCH_OICH) {
             $adjacentTiles = $personalBoard->getPlayerTiles();
@@ -139,7 +151,13 @@ class TileGLMService
             $adjacentTiles = $playerTileGLM->getAdjacentTiles();
         }
         foreach ($adjacentTiles as $adjacentTile) {
-            if (!$adjacentTile->isActivated() && !$adjacentTile->getTile()->getActivationBonus()->isEmpty()) {
+            $resourceNumber = 0;
+            foreach ($adjacentTile->getPlayerTileResource() as $resource) {
+                $resourceNumber += $resource->getQuantity();
+            }
+
+            if (!$adjacentTile->isActivated() && !$adjacentTile->getTile()->getActivationBonus()->isEmpty()
+                and $resourceNumber < GlenmoreParameters::MAX_RESOURCES_PER_TILE) {
                 $activableTiles->add($adjacentTile);
             }
         }
