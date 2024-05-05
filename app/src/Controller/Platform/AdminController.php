@@ -3,25 +3,28 @@
 namespace App\Controller\Platform;
 
 use App\Data\SearchData;
+use App\Data\SearchUser;
 use App\Entity\Platform\User;
 use App\Entity\Game\Message;
 use App\Repository\Platform\BoardRepository;
 use App\Form\Platform\GenerateAccountsType;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use App\Service\Platform\NotificationService;
 use Symfony\Bundle\SecurityBundle\Security;
 use App\Form\Platform\SearchBoardType;
+use App\Form\Platform\SearchUserType;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Doctrine\ORM\EntityManagerInterface;
 
 class AdminController extends AbstractController
 {
-    private $notifications;
-    private $security;
-    private $entityManager;
+    private ?array $notifications;
+    private Security $security;
+    private EntityManagerInterface $entityManager;
 
     public function __construct(Security $security, EntityManagerInterface $entityManager, NotificationService $notificationService)
     {
@@ -104,7 +107,7 @@ class AdminController extends AbstractController
 
         $boards = $boardRepository->searchBoards($data);
     
-        if ($user){
+        if ($user!=null){
             $notifications = $notificationService->getNotifications($this->security);
         }
         return $this->render('platform/admin/tableadmin.html.twig', [
@@ -114,5 +117,60 @@ class AdminController extends AbstractController
             'notifications' => $this->notifications,
         ]);
     }
+
+    /**
+     * @param EntityManagerInterface $entityManager The entity manager to interact with the database
+     *
+     * @return Response  HTTP response: list of games page
+     */
+    #[Route('/admin/allusers', name: 'app_dashboard_allusers')]
+    public function dashboard_allusers(Request $request): Response
+    {
+        // Récupérer tous les utilisateurs à partir de votre source de données (par exemple, une entité User)
+        $userRepository = $this->entityManager->getRepository(User::class);
+
+        $data = new SearchUser();
+        $form = $this->createForm(SearchUserType::class, $data);
+        $form->handleRequest($request);
+        $users = $userRepository->searchUsers($data);
+
+
+        // Passer la liste des utilisateurs à votre modèle de vue
+        return $this->render('platform/admin/allusers.html.twig', [
+            'users' => $users,
+            'form' => $form->createView(),
+            'notifications' => $this->notifications, // Assurez-vous que vos notifications sont également disponibles dans ce contrôleur
+        ]);
+    }
+
+    /**
+     * @param EntityManagerInterface $entityManager The entity manager to interact with the database
+     *
+     * @return Response  HTTP response: list of games page
+     */
+    #[Route('/admin/banmanager', name: 'app_dashboard_banmanager')]
+    public function dashboard_banmanager(): Response
+    {
+        // Récupérer tous les utilisateurs à partir de votre source de données (par exemple, une entité User)
+        $userRepository = $this->entityManager->getRepository(User::class);
+        $users = $userRepository->findAll();
+
+        // Passer la liste des utilisateurs à votre modèle de vue
+        return $this->render('platform/admin/banmanager.html.twig', [
+            'users' => $users,
+            'notifications' => $this->notifications, // Assurez-vous que vos notifications sont également disponibles dans ce contrôleur
+        ]);
+    }
+
+    #[Route('/admin/attributerole/{user}/{role}', name: 'app_attribute_role')]
+    public function attributerolemoderate(User $user, String $role): JsonResponse
+    {
+        $user->setRoles([$role]);
+        $this->entityManager->flush();
+        $this->addFlash('success-role', 'L\'utilisateur '. $user->getUsername(). ' a reçu un nouveau rôle');
+        return new JsonResponse(['message' => 'Role attribuée avec succès']);
+    }
+
+
 
 }

@@ -240,7 +240,7 @@ class DashboardController extends AbstractController
         $gameRepository = $this->entityManager->getRepository(Game::class);
         $game = $gameRepository->find($game_id);
 
-        if(!$game) {
+        if(!$game == null) {
             $this->addFlash('warning', 'Le jeu n\'existe pas');
             return $this->redirectToRoute('app_games');
         }
@@ -251,43 +251,7 @@ class DashboardController extends AbstractController
         ]);
     }
 
-    /**
-     * @param EntityManagerInterface $entityManager The entity manager to interact with the database
-     *
-     * @return Response  HTTP response: list of games page
-     */
-    #[Route('/admin/allusers', name: 'app_dashboard_allusers')]
-    public function dashboard_allusers(): Response
-    {
-        // Récupérer tous les utilisateurs à partir de votre source de données (par exemple, une entité User)
-        $userRepository = $this->entityManager->getRepository(User::class);
-        $users = $userRepository->findAll();
 
-        // Passer la liste des utilisateurs à votre modèle de vue
-        return $this->render('platform/admin/allusers.html.twig', [
-            'users' => $users,
-            'notifications' => $this->notifications, // Assurez-vous que vos notifications sont également disponibles dans ce contrôleur
-        ]);
-    }
-
-     /**
-     * @param EntityManagerInterface $entityManager The entity manager to interact with the database
-     *
-     * @return Response  HTTP response: list of games page
-     */
-    #[Route('/admin/banmanager', name: 'app_dashboard_banmanager')]
-    public function dashboard_banmanager(): Response
-    {
-        // Récupérer tous les utilisateurs à partir de votre source de données (par exemple, une entité User)
-        $userRepository = $this->entityManager->getRepository(User::class);
-        $users = $userRepository->findAll();
-
-        // Passer la liste des utilisateurs à votre modèle de vue
-        return $this->render('platform/admin/banmanager.html.twig', [
-            'users' => $users,
-            'notifications' => $this->notifications, // Assurez-vous que vos notifications sont également disponibles dans ce contrôleur
-        ]);
-    }
     #[Route('/readNotification/{notification}', name: 'app_read_notif')]
     public function readNotification(Notification $notification): JsonResponse
     {

@@ -3,6 +3,7 @@
 namespace App\Repository\Platform;
 
 use App\Entity\Platform\User;
+use App\Data\SearchUser;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
@@ -38,6 +39,33 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $this->getEntityManager()->persist($user);
         $this->getEntityManager()->flush();
     }
+
+    /**
+     * Results of users linked with search
+     * @return User[]
+     */
+    public function searchUsers(SearchUser $search): array
+    {
+        $query = $this->createQueryBuilder('u');
+        if(!empty($search->username)){
+            $query->andWhere('u.username LIKE :username')
+                ->setParameter('username', "%{$search->username}%");
+        }
+        if(!empty($search->role)) {
+            if($search->role === 'ROLE_MODERATOR' || $search->role === 'ROLE_USER' || $search->role === 'ROLE_ADMIN'){
+                $query->andWhere('u.roles LIKE :role')
+                    ->setParameter('role', "%{$search->role}%");
+            }
+        }
+        if (!empty($search->isbanned)) {
+            $query->andWhere('u.isBanned = :isBanned')
+                ->setParameter('isBanned', $search->isbanned);
+        }
+        $query->orderBy('u.username', 'DESC');
+
+        return $query->getQuery()->getResult();
+    }
+
 
 //    /**
 //     * @return User[] Returns an array of User objects
