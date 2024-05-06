@@ -104,7 +104,8 @@ export default class extends Controller  {
     async placeWorkerOnColonyLevelTrack(level) {
         let url = level.params.url;
         let lvl = url.split('/');
-        lvl = lvl.at(lvl.length - 2);
+        lvl = lvl.at(lvl.length - 1);
+
         if (window.confirm("Confirmez vous le placement de l'ouvrière sur le niveau " + lvl)) {
             await fetch(url);
         }
@@ -125,12 +126,18 @@ export default class extends Controller  {
 
     async harvestResource(resource){
         let url = resource.params.url;
-        await fetch(url);
+        const response = await fetch(url);
+        if (response.status === 200) {
+            closeSelectedBoxWindow();
+        }
     }
 
     async selectQuarryResource(resource) {
         let url = resource.params.url;
-        await fetch(url);
+        const response = await fetch(url);
+        if (response.status === 200) {
+            closeSelectedBoxWindow();
+        }
     }
 
     async endHarvestPhase(endingPhase) {
