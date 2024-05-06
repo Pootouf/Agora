@@ -2039,7 +2039,17 @@ class MyrmesController extends AbstractController
         }catch (Exception $e){
             return new Response($e->getMessage(), Response::HTTP_FORBIDDEN);
         }
-
+        $this->publishPreview($gameMYR, $player);
+        try {
+            $boardBoxes = $this->dataManagementMYRService->organizeMainBoardRows($gameMYR);
+        } catch (Exception) {
+            return new Response(MyrmesTranslation::RESPONSE_ERROR_CALCULATING_MAIN_BOARD,
+                Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+        $this->publishMainBoard($gameMYR, $player, $boardBoxes, false, false);
+        foreach ($gameMYR->getPlayers() as $p) {
+            $this->publishRanking($gameMYR, $p);
+        }
         return new Response(MyrmesTranslation::RESPONSE_GOAL_VALIDATE, Response::HTTP_OK);
     }
 
