@@ -476,8 +476,6 @@ class MYRService
             $this->replaceNurses($player);
             $this->resetWorkshopActions($player);
             $this->makePheromonesHarvestable($player);
-            $player->setTurnOfPlayer(true);
-            $player->setPhase(MyrmesParameters::PHASE_EVENT);
             $this->entityManager->persist($player);
         }
         $this->endRoundOfFirstPlayer($game);
@@ -993,14 +991,12 @@ class MYRService
         if ($actualSeason->getName() === MyrmesParameters::SPRING_SEASON_NAME) {
             $summer->setActualSeason(true);
             $this->entityManager->persist($summer);
-            $this->initializeEventBonus($game);
-            $this->entityManager->persist($game);
         } elseif ($actualSeason->getName() === MyrmesParameters::SUMMER_SEASON_NAME) {
             $fall->setActualSeason(true);
             $this->entityManager->persist($fall);
-            $this->initializeEventBonus($game);
-            $this->entityManager->persist($game);
         }
+        $this->initializeEventBonus($game);
+        $this->entityManager->persist($game);
         $this->entityManager->flush();
     }
 
