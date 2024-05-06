@@ -101,7 +101,7 @@ class WorkshopMYRServiceTest extends TestCase
 
         $array = new ArrayCollection();
         $nurse = $personalBoard->getNurses()->first();
-        $nurse->setArea(MyrmesParameters::WORKSHOP_LEVEL_AREA);
+        $nurse->setArea(MyrmesParameters::WORKSHOP_AREA);
         $array->add($nurse);
         $this->MYRService->method("getNursesAtPosition")->willReturn($array);
 
@@ -519,6 +519,14 @@ class WorkshopMYRServiceTest extends TestCase
 
             $resource = new ResourceMYR();
             $resource->setDescription(MyrmesParameters::RESOURCE_TYPE_GRASS);
+            $pResource = new PlayerResourceMYR();
+            $pResource->setQuantity(6);
+            $pResource->setResource($resource);
+            $pResource->setPersonalBoard($personalBoard);
+            $personalBoard->addPlayerResourceMYR($pResource);
+
+            $resource = new ResourceMYR();
+            $resource->setDescription(MyrmesParameters::RESOURCE_TYPE_DIRT);
             $pResource = new PlayerResourceMYR();
             $pResource->setQuantity(6);
             $pResource->setResource($resource);

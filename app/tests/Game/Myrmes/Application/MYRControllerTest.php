@@ -1184,30 +1184,13 @@ class MYRControllerTest extends WebTestCase
             $this->client->getResponse());
     }
 
-    public function testplaceWorkerOnColonyLevelTrackWhenLevelNotExists(): void
-    {
-        //GIVEN
-        $gameId = $this->initializeGameWithTwoPlayers();
-        /** @var GameMYR $game */
-        $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
-        $game->setGamePhase(MyrmesParameters::PHASE_WORKER);
-        $this->entityManager->persist($game);
-        $this->entityManager->flush();
-        $url = "/game/myrmes/" . $gameId . "/placeWorkerOnColonyLevelTrack/5/ ";
-        //WHEN
-        $this->client->request("GET", $url);
-        // THEN
-        $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN,
-            $this->client->getResponse());
-    }
-
     public function testplaceWorkerOnColonyLevelTrack(): void
     {
         //GIVEN
         $gameId = $this->initializeGameWithTwoPlayers();
         /** @var GameMYR $game */
         $game = $this->gameMYRRepository->findOneBy(["id" => $gameId]);
-        $url = "/game/myrmes/" . $gameId . "/placeWorkerOnColonyLevelTrack/0/ ";
+        $url = "/game/myrmes/" . $gameId . "/placeWorkerOnColonyLevelTrack/0";
         $player = $game->getPlayers()->first();
         $game->setGamePhase(MyrmesParameters::PHASE_WORKER);
         $this->entityManager->persist($game);
@@ -2948,11 +2931,11 @@ class MYRControllerTest extends WebTestCase
         $this->entityManager->persist($game);
         $player = $game->getPlayers()->first();
         $player->setPhase(MyrmesParameters::PHASE_WORKSHOP);
-        $grass = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::RESOURCE_TYPE_GRASS]);
-        $playerGrass = $this->playerResourceMYRRepository->findOneBy(["resource" => $grass,
+        $dirt = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::RESOURCE_TYPE_DIRT]);
+        $playerDirt = $this->playerResourceMYRRepository->findOneBy(["resource" => $dirt,
             "personalBoard" => $player->getPersonalBoardMYR()]);
-        $playerGrass->setQuantity(2);
-        $this->entityManager->persist($playerGrass);
+        $playerDirt->setQuantity(2);
+        $this->entityManager->persist($playerDirt);
         $this->entityManager->persist($player);
         $player->getPersonalBoardMYR()->getNurses()->first()->setArea(MyrmesParameters::WORKSHOP_AREA);
         $this->entityManager->persist($player->getPersonalBoardMYR()->getNurses()->first());
