@@ -1168,6 +1168,18 @@ class MyrmesController extends AbstractController
 
         $message = $player->getUsername() . " a récolté la ressource sur la tuile " . $tileMYR->getId();
         $this->logService->sendPlayerLog($game, $player, $message);
+        try {
+            $boardBoxes = $this->dataManagementMYRService->organizeMainBoardRows($game);
+        } catch (Exception) {
+            return new Response(MyrmesTranslation::RESPONSE_ERROR_CALCULATING_MAIN_BOARD,
+                Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+        foreach ($game->getPlayers() as $p) {
+            $this->publishMainBoard($game, $p, $boardBoxes, false, false);
+            $this->publishPreview($game, $p);
+            $this->publishRanking($game, $p);
+        }
+
         return new Response("harvested resource on this tile", Response::HTTP_OK);
     }
 

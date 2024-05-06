@@ -125,7 +125,10 @@ export default class extends Controller  {
 
     async harvestResource(resource){
         let url = resource.params.url;
-        await fetch(url);
+        const response = await fetch(url);
+        if (response.status === 200) {
+            closeSelectedBoxWindow();
+        }
     }
 
     async selectQuarryResource(resource) {
