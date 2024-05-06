@@ -63,6 +63,12 @@ Profil : {{ userProfile.username }}
                      </a>
                   </div>
                </div>
+               {% else %}
+                  <div class="mt-2 space-x-2 flex justify-center">
+                     <button type="button" onclick="pressDelButton()" class="text-white bg-red-500 hover:bg-red-400 focus:ring-4 focus:outline-none focus:ring-red-300 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2">
+                        Supprimer le compte
+                     </button>
+                  </div>
                {% endif %}
             </div>
             <div class="bg-white p-3 hover:shadow mt-4">
@@ -153,7 +159,7 @@ Profil : {{ userProfile.username }}
       {% endif %}
       <tbody>
          {% for board in current_boards %}
-         {% if board.status != 'FINISH' and board.status != 'WAITING' %}
+         {% if board.status != 'FINISHED' and board.status != 'WAITING' %}
          {% set users = board.listUsers %}
          {% set availableSeats = board.getNbAvailbleSlots() %}
          {% set colorClass = board.status == 'IN_GAME' ? 'bg-gradient-to-r from-transparent to-orange-200' : (board.isAvailble() ? 'bg-gradient-to-r from-transparent to-green-200' : 'bg-gradient-to-r from-transparent to-red-200') %}
@@ -177,7 +183,7 @@ Profil : {{ userProfile.username }}
                   En attente
                   {% elseif board.status == 'IN_GAME' %}
                   En cours
-                  {% elseif board.status == 'FINISH' %}
+                  {% elseif board.status == 'FINISHED' %}
                   Terminé
                   {% endif %}
                </div>
@@ -266,7 +272,7 @@ Profil : {{ userProfile.username }}
       {% endif %}
       <tbody>
          {% for board in past_boards %}
-         {% if board.status == 'FINISH' %}
+         {% if board.status == 'FINISHED' %}
          {% set users = board.listUsers %}
          {% set availableSeats = board.getNbAvailbleSlots() %}
          {% set colorClass = board.status == 'IN_GAME' ? 'bg-gradient-to-r from-transparent to-orange-200' : (board.isAvailble() ? 'bg-gradient-to-r from-transparent to-green-200' : 'bg-gradient-to-r from-transparent to-red-200') %}
@@ -290,7 +296,7 @@ Profil : {{ userProfile.username }}
                   En attente
                   {% elseif board.status == 'IN_GAME' %}
                   En cours
-                  {% elseif board.status == 'FINISH' %}
+                  {% elseif board.status == 'FINISHED' %}
                   Terminé
                   {% endif %}
                </div>
@@ -333,7 +339,7 @@ Profil : {{ userProfile.username }}
             </td>
             <td class="px-3 py-4">
                {% if app.user %}
-               {% if board.status == 'FINISH' %}
+               {% if board.status == 'FINISHED' %}
                <a href="{{ path('app_join_game', {'id': board.id}) }}" class="text-white bg-primary hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
                Visionner
                </a>
@@ -346,4 +352,14 @@ Profil : {{ userProfile.username }}
       </tbody>
    </table>
 </div>
+<script>
+   const message = "Attention : \n\tVous êtes sur le point de supprimer votre compte. Cette action est " +
+           "irréversible et entraînera la perte définitive de toutes vos données associées. " +
+           "\n\tÊtes-vous sûr de vouloir continuer ?"
+   function pressDelButton() {
+      if (confirm(message)) {
+         location.pathname = "/user/autodelete";
+      }
+   }
+</script>
 {% endblock %}

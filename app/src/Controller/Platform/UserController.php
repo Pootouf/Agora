@@ -21,13 +21,24 @@ class UserController extends AbstractController
 {
     private UserService $userService;
     private Security $security;
+
+    private EntityManagerInterface $entityManager;
+    private UserPasswordHasherInterface $userPasswordHasher;
+
+    private TokenStorageInterface $tokenStorage;
     public function __construct(
         UserService $userService,
-        Security $security
+        Security $security,
+        EntityManagerInterface $entityManager,
+        UserPasswordHasherInterface $passwordHasher,
+        TokenStorageInterface $tokenStorage
     )
     {
         $this->userService = $userService;
         $this->security = $security;
+        $this->entityManager = $entityManager;
+        $this->userPasswordHasher = $passwordHasher;
+        $this->tokenStorage = $tokenStorage;
     }
 
     #[Route('/user/addContact/{contact_id}', name: 'app_user_add_contact', requirements: ['user_id' => '\d+'])]
@@ -75,9 +86,16 @@ class UserController extends AbstractController
         ]);
     }
 
-    #[Route('/user/{id}/editProfile', name: 'app_user_edit_profile')]
-    public function editAccount(EntityManagerInterface $entityManager, Request $request, UserPasswordHasherInterface $userPasswordHarsher, User $user) :Response
+    #[Route('/dashboard/{id}/editProfile', name: 'app_user_edit_profile')]
+        #[Route('/admin/{id}/editProfile', name: 'app_admin_edit_profile')]
+    public function editAccount(Request $request,  User $user) :Response
     {
+        // Récupérer la route de destination
+        $routeDest = 'app_dashboard_settings';
+        if ($request->attributes->get('_route') === 'app_admin_edit_profile') {
+            $routeDest = 'app_admin_settings';
+        }
+
         /*
          * we can use this part of code for edit account without passing by the id in the URL
          * get the logged user
@@ -94,30 +112,29 @@ class UserController extends AbstractController
             // but, the original `$user` variable has also been updated
             $this->addFlash('success', 'the user data has been modified');
             $user->setPassword(
-                $userPasswordHarsher->hashPassword(
+                $this->userPasswordHasher->hashPassword(
                     $user,
                     $form->get('plainPassword')->getData()
                 )
             );
 
-            $entityManager->persist($user);
-            $entityManager->flush();
+            $this->entityManager->persist($user);
+            $this->entityManager->flush();
 
-            return $this->redirectToRoute('app_dashboard_settings');
+            return $this->redirectToRoute($routeDest);
         }
-
-        return $this->render('platform/users/editUserProfile.html.twig', [
-            'form' => $form->createView()
-        ]);
+        $this->addFlash('error', 'invalid form');
+        
+        return $this->redirectToRoute($routeDest);
     }
 
 
 
     #[Route('/user/delete/{id}', name: 'app_user_delete')]
-public function deleteUser(int $id, EntityManagerInterface $entityManager, TokenStorageInterface $tokenStorage, SessionInterface $session): RedirectResponse
+public function deleteUser(int $id, SessionInterface $session): RedirectResponse
 {
     // Récupérer l'utilisateur à supprimer
-    $user = $entityManager->getRepository(User::class)->find($id);
+    $user = $this->entityManager->getRepository(User::class)->find($id);
 
     // RETIRER LES COMMENTAIRES DES QUE LE COMPTE ADMIN SERA CRÉÉ
     // Vérifier si l'utilisateur existe et s'il est autorisé à supprimer d'autres utilisateurs
@@ -127,28 +144,28 @@ public function deleteUser(int $id, EntityManagerInterface $entityManager, Token
    // }
     
     // Supprimer l'utilisateur
-    $entityManager->remove($user);
-    $entityManager->flush();
+    $this->entityManager->remove($user);
+    $this->entityManager->flush();
 
     // Déconnecter l'utilisateur en invalidant le token de sécurité
-    $tokenStorage->setToken(null);
+    $this->tokenStorage->setToken(null);
     $session->getFlashBag()->add('success', 'L\'utilisateur a bien été supprimé.');
     return $this->redirectToRoute('app_home');
 }
 
     #[Route('/user/autodelete', name: 'app_user_autodelete')]
-    public function autoDeleteUser(EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher, TokenStorageInterface $tokenStorage,  SessionInterface $session): RedirectResponse
+    public function autoDeleteUser(SessionInterface $session): RedirectResponse
     {    $user = $this->getUser();
             if (!$user) {
             return $this->redirectToRoute('app_home');
         }
         
         // Supprimer l'utilisateur
-        $entityManager->remove($user);
-        $entityManager->flush();
+        $this->entityManager->remove($user);
+        $this->entityManager->flush();
     
          // Déconnecter l'utilisateur en invalidant le token de sécurité
-         $tokenStorage->setToken(null);
+         $this->tokenStorage->setToken(null);
          $session->getFlashBag()->add('success', 'Votre compte a bien été supprimé.');
          return $this->redirectToRoute('app_home');
     }

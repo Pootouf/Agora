@@ -37,7 +37,7 @@ class Board
     private ?string $invitationHash = null;
 
     #[ORM\Column]
-    private ?int $nbInvitations = null;
+    private ?int $nbInvitations = 0;
 
     #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'boards')]
     private Collection $listUsers;
@@ -53,13 +53,22 @@ class Board
     #[ORM\Column]
     private int $partyId;
 
+    #[ORM\ManyToMany(targetEntity: User::class)]
+    #[ORM\JoinTable(name: "user_invited")]
+    private Collection $invitedContacts;
+
+    //All status of a table
+    private static string $STATUS_WAITING = "WAITING";
+    private static string $STATUS_IN_GAME = "IN_GAME";
+    private static string $STATUS_FINISHED = "FINISHED";
 
 
     public function __construct()
     {
-        $this->status = "WAITING";
+        $this->status = $this::$STATUS_WAITING;
         $this->invitationHash = sha1(random_bytes(10));
         $this->listUsers = new ArrayCollection();
+        $this->invitedContacts = new ArrayCollection();
     }
     /**
      * Gets the ID of the board.
@@ -216,7 +225,7 @@ class Board
      */
     public function getNbInvitations(): ?int
     {
-        return $this->nbInvitations;
+        return $this->getInvitedContacts()->count();
     }
 
     /**
@@ -290,7 +299,7 @@ class Board
      * @return bool Returns true if the board is available, false otherwise.
      */
     public function isAvailble(){
-        return $this->status!="IN_GAME" && $this->listUsers->count() + $this->nbInvitations < $this->nbUserMax;
+        return $this->isWaiting() && $this->listUsers->count() + $this->getNbInvitations() < $this->nbUserMax;
     }
 
     /**
@@ -336,7 +345,7 @@ class Board
      */
     public function getNbAvailbleSlots():int{
         return $this->getNbUserMax() - ($this->listUsers->count() +
-                $this->nbInvitations);
+                $this->getNbInvitations());
     }
 
     /**
@@ -393,6 +402,121 @@ class Board
     public function isFull():bool
     {
         return $this->listUsers->count() == $this->nbUserMax;
+    }
+
+
+    /**
+     * Set the board as "Waiting"
+     *
+     *
+     */
+
+    public function setWaiting(): void
+    {
+        $this->status = $this::$STATUS_WAITING;
+    }
+
+    /**
+     * Check if the board as the status "Waiting"
+     *
+     *
+     */
+
+    public function isWaiting(): bool
+    {
+        return $this->status === $this::$STATUS_WAITING;
+    }
+
+    /**
+     * Set the board as "In_Game"
+     *
+     *
+     */
+
+    public function setInGame(): void
+    {
+        $this->status = $this::$STATUS_IN_GAME;
+    }
+
+    /**
+     * Check if the board as the status "In_Game"
+     *
+     *
+     */
+
+    public function isInGame(): bool
+    {
+        return $this->status === $this::$STATUS_IN_GAME;
+    }
+
+
+    /**
+     * Set the board as "Finished"
+     *
+     *
+     */
+    public function setFinished(): void
+    {
+        $this->status = $this::$STATUS_FINISHED;
+    }
+
+    /**
+     * Check if the board as the status "Finished"
+     *
+     *
+     */
+
+    public function isFinished(): bool
+    {
+        return $this->status === $this::$STATUS_FINISHED;
+    }
+
+
+    /**
+     * @return Collection<int, User>
+     */
+    public function getInvitedContacts(): Collection
+    {
+        return $this->invitedContacts;
+    }
+
+    /**
+     * Add user to the list of invited contacts
+     *
+     *
+     */
+    public function addInvitedContact(User $invitedContact): static
+    {
+        if (!$this->invitedContacts->contains($invitedContact)) {
+            $this->invitedContacts->add($invitedContact);
+            $this->setNbInvitations($this->getNbInvitations());
+        }
+
+        return $this;
+    }
+
+    /**
+     * Remove user form the list of invited contacts
+     *
+     *
+     */
+    public function removeInvitedContact(User $invitedContact): static
+    {
+        $this->invitedContacts->removeElement($invitedContact);
+        $this->setNbInvitations($this->getNbInvitations());
+
+        return $this;
+    }
+
+    /**
+     * Remove all invited contacts from the list
+     *
+     *
+     */
+
+    public function cleanInvitationList() : void
+    {
+        $this->invitedContacts->clear();
     }
 
 }

@@ -15,6 +15,7 @@
         {% for notification in notifications %}
             <div class="notification">
                 <p>{{ notification.content }}</p>
+                <p>{{ notification.type }}</p>
                 <p> -- Date: {{ notification.createdAt|date('Y-m-d H:i:s') }}</p>
             </div>
         {% endfor %}

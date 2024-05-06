@@ -64,6 +64,9 @@ class PublisherController extends AbstractController
             ->add('content', TextareaType::class, [
                 'label' => 'Content',
             ])
+            ->add('type', TextareaType::class, [
+                'label' => 'Type',
+            ])
             ->add('save', SubmitType::class, [
                 'label' => 'Send Notification',
                 'attr' => ['class' => 'btn btn-primary'],
@@ -81,8 +84,9 @@ class PublisherController extends AbstractController
             $receiverId = $notification->getReceiver()->getId();
             $content = $notification->getContent();
             $date = $notification->getCreatedAt()->format('Y-m-d H:i:s.u');
+            $type = $notification->getType();
 
-            $this->notificationService->notifyUser($receiverId, $content, $date);
+            $this->notificationService->notifyUser($receiverId, $content, $date, $type);
 
             return $this->redirectToRoute('app_notification_receive');
         }
