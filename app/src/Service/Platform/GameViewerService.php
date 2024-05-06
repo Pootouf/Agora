@@ -12,7 +12,8 @@ class GameViewerService
         $this->routesArray = [
             "6QP" => "app_game_show_sixqp",
             "SPL" => "app_game_show_spl",
-            "GLM" => "app_game_show_glm"
+            "GLM" => "app_game_show_glm",
+            "MYR" => "app_game_show_myr"
         ];
     }
 

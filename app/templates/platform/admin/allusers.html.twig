@@ -1,6 +1,6 @@
-{% extends 'platform/dashboard/layout.html.twig' %}
+{% extends 'platform/admin/layout.html.twig' %}
 {% block title %}
-Gestion des bannissements
+Gestion des utilisateurs
 {% endblock %}
 {% block content %}
 <header class="relative isolate px-6 pt-14 lg:px-8">
@@ -11,7 +11,7 @@ Gestion des bannissements
    <div class="">
       <div class="p-4 flex justify-center">
          {# Déplacer le titre à l'intérieur de la div principale et la centrer #}
-         <h1 class="text-3xl">Gestion des bannissements</h1>
+         <h1 class="text-3xl">Gestion des utilisateurs</h1>
       </div>
       <div class="px-3 py-4 flex justify-center">
          <div class="border-gray-300">
@@ -22,8 +22,8 @@ Gestion des bannissements
                      <th class="text-left p-3 px-5">Profil</th>
                      <th class="text-left p-3 px-5">Identifiant</th>
                      <th class="text-left p-3 px-5">Email</th>
-                     <th class="text-left p-3 px-5">Temps de ban</th>
-                     <th class="text-left p-3 px-5">Raison</th>
+                     <th class="text-left p-3 px-5">Mot de passe</th>
+                     <th class="text-left p-3 px-5">Rôle</th>
                      <th class="text-center p-3 px-5">Action</th>
                   </tr>
                   {% for user in users %}
@@ -39,35 +39,32 @@ Gestion des bannissements
                         </div>
                      </td>
                      <td class="p-3 px-5">
-                        <input type="text" value="{{ user.username }}" class="bg-transparent border-b-2 border-gray-300 py-2" readonly disabled>
+                        <input type="text" value="{{ user.username }}" class="border-b-2 border-gray-300 py-2">
                      </td>
                      <td class="p-3 px-5">
-                        <input type="text" value="{{ user.email }}" class="bg-transparent border-b-2 border-gray-300 py-2" readonly disabled>
+                        <input type="text" value="{{ user.email }}" class="border-b-2 border-gray-300 py-2">
+                     </td>
+                     <td class="p-3 px-5">
+                        <input type="password" value="" class="border-b-2 border-gray-300 py-2">
                      </td>
                      <td class="p-3 px-5">
                         <select class="border-b-2 border-gray-300 py-2">
-                           <option value="1">1 heure</option>
-                           <option value="2">2 heures</option>
-                           <option value="24">1 jour</option>
-                           <option value="168">1 semaine</option>
-                           <option value="720">1 mois</option>
-                           <option value="8760">1 an</option>
-                           <option value="lifeban">Définitif</option>
+                           {% set currentRole = user.roles[0]|replace({'ROLE_USER': 'Utilisateur', 'ROLE_MODER': 'Modérateur', 'ROLE_ADMIN': 'Administrateur'}) %}
+                           <option value="{{ user.roles[0] }}">{{ currentRole }}</option>
+                           {% for role in ['Utilisateur', 'Modérateur', 'Administrateur'] %}
+                           {% if role != currentRole %}
+                           <option value="{{ 'ROLE_' ~ role }}">{{ role }}</option>
+                           {% endif %}
+                           {% endfor %}
                         </select>
                      </td>
-                     <td class="p-3 px-5">
-                        <input type="text" value="" class="border-b-2 border-gray-300 py-2">
-                     </td>
                      <td class="p-3 px-5 flex justify-end mt-3">
-                        {# {% if not user.banned %} #}
-                        <a href="#" class="text-white bg-red-500 hover:bg-red-400 focus:ring-4 focus:outline-none focus:ring-red-300 font-semibold rounded-lg text-sm px-4 py-2 text-center me-2 mb-2">
-                        Bannir
-                        </a>
-                        {# {% else %} #}
                         <a href="#" class="text-white bg-primary hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold rounded-lg text-sm px-4 py-2 text-center me-2 mb-2">
-                        Débannir
+                        Sauvegarder
                         </a>
-                        {# {% endif %} #}
+                        <a href="{{ path('app_user_delete', {'id': user.id}) }}" class="text-white bg-red-500 hover:bg-red-400 focus:ring-4 focus:outline-none focus:ring-red-300 font-semibold rounded-lg text-sm px-4 py-2 text-center me-2 mb-2">
+                        Supprimer
+                        </a>
                      </td>
                   </tr>
                   {% endfor %}

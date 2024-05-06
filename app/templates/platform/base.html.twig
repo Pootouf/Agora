@@ -19,7 +19,7 @@
 		{% endblock %}
 	</head>
 	<body>
-		{% if app.request.getPathInfo() starts with '/dashboard' %}
+		{% if app.request.getPathInfo() starts with '/dashboard' or app.request.getPathInfo() starts with '/admin' %}
 			{% block dashboard_layout %}{% endblock %}
 		{% else %}
 			{% include 'platform/shared/navbar.html.twig' %}

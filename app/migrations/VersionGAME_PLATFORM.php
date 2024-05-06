@@ -22,8 +22,8 @@ final class Version6QPPLATFORM extends AbstractMigration
     public function up(Schema $schema): void
     {
             $this->connection->insert('game', [
-                'name' => 'Six Qui Prends',
-                'descr_rule' => 'C\'est le six qui prends' ,
+                'name' => 'Six Qui Prend',
+                'descr_rule' => 'C\'est le six qui prend' ,
                 'img_url' => 'images/6qp.jpg',
                 'label' => '6QP',
                 'is_active' => true,
@@ -49,6 +49,16 @@ final class Version6QPPLATFORM extends AbstractMigration
             'is_active' => true,
             'min_players' => 2,
             'max_players' => 5
+        ]);
+
+        $this->connection->insert('game', [
+            'name' => 'Myrmes',
+            'descr_rule' => 'C\'est le myrmes' ,
+            'img_url' => 'images/myrmes.jpg',
+            'label' => 'MYR',
+            'is_active' => true,
+            'min_players' => 2,
+            'max_players' => 4
         ]);
 
 

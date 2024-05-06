@@ -82,7 +82,7 @@ Tables
             {% endif %}
             <tbody id="table-body">
                {% for board in boards %}
-               {% if (board.getNbAvailbleSlots() > 0 and board.status != 'FINISH') or (board.getNbAvailbleSlots() == 0 and board.status == 'IN_GAME') %}
+               {% if (board.getNbAvailbleSlots() > 0 and board.status != 'FINISHED') or (board.getNbAvailbleSlots() == 0 and board.status == 'IN_GAME') %}
                {% set users = board.listUsers %}
                {% set availableSeats = board.getNbAvailbleSlots() %}
                {% set colorClass = board.status == 'IN_GAME' ? 'bg-gradient-to-r from-transparent to-orange-200' : (board.isAvailble() ? 'bg-gradient-to-r from-transparent to-green-200' : 'bg-gradient-to-r from-transparent to-red-200') %}
@@ -108,7 +108,7 @@ Tables
                         En attente
                         {% elseif board.status == 'IN_GAME' %}
                         En cours
-                        {% elseif board.status == 'FINISH' %}
+                        {% elseif board.status == 'FINISHED' %}
                         Terminé
                         {% endif %}
                      </div>

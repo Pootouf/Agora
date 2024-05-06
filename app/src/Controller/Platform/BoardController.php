@@ -48,6 +48,11 @@ class BoardController extends AbstractController
     {
         //Find the game with the id passed in parameters
         $game = $this->entityManagerInterface->getRepository(Game::class)->find($game_id);
+        //get the logged user
+        $userId = $this->security->getUser()->getId();
+        $allUsers = array_filter($this->entityManagerInterface->getRepository(User::class)->findAll(), function($user) use ($userId) {
+            return $user->getId() !== $userId && !$user->isAdmin();
+        });
         //create a board
         $board = new Board();
         //generate the BaordRegistrationType form
@@ -86,6 +91,7 @@ class BoardController extends AbstractController
             'game' => $game,
             'form' => $form->createView(),
             'notifications' => $notifications,
+            'allUsers' => $allUsers
         ]);
     }
 
@@ -99,12 +105,8 @@ class BoardController extends AbstractController
         //get the logged user
         $userId = $this->security->getUser()->getId();
         $user = $this->entityManagerInterface->getRepository(User::class)->find($userId);
-        //get the bord data
-        $boardStatus = $board->getStatus();
-        $boardMaxUser = $board->getNbUserMax();
-        $boardUserNb = $board->getUsersNb();
         //test if the user can join a table
-        if ($board->hasUser($user)||$boardStatus === "IN_GAME" || $boardStatus === "FINISH" || $boardUserNb == $boardMaxUser) {
+        if ($board->hasUser($user)|| !$board->isAvailble()) {
             $errorMessage = "Impossible de rejoindre la table";
             //send the error message to user, using session or flush
             $this->addFlash('warning', $errorMessage);
@@ -114,9 +116,6 @@ class BoardController extends AbstractController
         //add user in the board users list
         $this->boardManagerService->addUserToBoard($board, $user);
         $this->addFlash('success', 'La table a bien été rejointe ');
-
-        //dd($user->getBoards());
-
 
         return $this->redirectToRoute('app_dashboard_user');
     }
@@ -147,5 +146,23 @@ class BoardController extends AbstractController
         //redirect the player to the view of the party, using the party id
         return $this->redirectToRoute($route, ['id' => $board->getPartyId()]);
     }
+
+    #[Route('/checkInvitation/{id}', name: 'app_join_invitation', methods: ['GET'])]
+    public function checkInvitation(int $id):Response
+    {
+        $board = $this->entityManagerInterface->getRepository(Board::class)->find($id);
+        $userId = $this->security->getUser()->getId();
+        $user = $this->entityManagerInterface->getRepository(User::class)->find($userId);
+        $actualDate = new \DateTime();
+        if ($board->getInvitedContacts()->contains($user) && $board->getInvitationTimer() < $actualDate) {
+            return $this->redirectToRoute('app_join_board', ['id' => $id]);
+        }
+        //send the error message to user, using session or flush
+        $this->addFlash('warning', "L'invitation a expiré ou n'est pas valide");
+        return $this->redirectToRoute('app_dashboard_user');
+
+    }
+
+
 
 }
