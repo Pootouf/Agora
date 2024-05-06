@@ -160,17 +160,11 @@
                             {% endfor %}
                         </table>
                     </td>
-					<td class="px-3 py-4">
-					{% if app.user %}
-                     	{% if currentUserID in usersIds %}
-                        	{% if board.status == 'FINISH' %}
-                   				<a href="{{ path('app_join_game', {'id': board.id}) }}" class="text-white bg-primary hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
-                              		Visionner
-                           		</a>
-							{% endif %}
-                     	{% endif %}
-                  {% endif %}
-                  </td>
+                     <td class="px-3 py-4">
+                         <a href="{{ path('app_game_logs', {'board_id': board.id}) }}" class="text-white bg-primary hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
+                              Consulter
+                          </a>
+                     </td>
                 </tr>
             {% endif %}
         {% endif %}

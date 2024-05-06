@@ -8,9 +8,13 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Entity\Game\Log;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class GameController extends AbstractController
 {
+
+
 
      /**
      * Displays a list of games (when the user is not connected).
@@ -115,6 +119,16 @@ class GameController extends AbstractController
         }
     
         return $this->redirectToRoute('app_dashboard_games');
+    }
+
+    #[Route('/game/{gameId}/logs', name: 'game_logs')]
+    public function showGameLogs(int $gameId,EntityManagerInterface $entityManager): Response
+    {
+        $logs = $entityManager->getRepository(Log::class)->findBy(['gameId' => $gameId]);
+
+        return $this->render('platform/dashboard/games/logs.html.twig', [
+            'logs' => $logs,
+        ]);
     }
 }
 
