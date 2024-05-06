@@ -447,7 +447,7 @@ class WorkerMYRService
      * @return void
      * @throws Exception if invalid floor or no more free ants
      */
-    public function placeAntInAnthill(PersonalBoardMYR $personalBoard, int $anthillFloor, String $lvlTwoResource) : void
+    public function placeAntInAnthill(PersonalBoardMYR $personalBoard, int $anthillFloor, ?String $lvlTwoResource) : void
     {
         $maxFloor = $personalBoard->getAnthillLevel();
         $isAnthillLevelIncreased = $personalBoard->getBonus() == MyrmesParameters::BONUS_LEVEL;
@@ -1759,7 +1759,7 @@ class WorkerMYRService
      * @return void
      * @throws Exception
      */
-    private function giveColonyLevelBonus(PersonalBoardMYR $personalBoard, int $anthillFloor, String $lvlTwoResource) : void
+    private function giveColonyLevelBonus(PersonalBoardMYR $personalBoard, int $anthillFloor, ?String $lvlTwoResource) : void
     {
         $food = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::RESOURCE_TYPE_GRASS]);
         $playerFood = $this->playerResourceMYRRepository->findOneBy(

@@ -12,10 +12,9 @@ This section displays menu to select dirt or stone reward for placing worker on 
     <div class="inlineFlex w-full gap-[2vw]">
         <button type="button"
                 {{ stimulus_action('myrmes','placeWorkerOnColonyLevelTrack','click',
-                    {url: path('app_game_myrmes_place_worker_colony',
+                    {url: path('app_game_myrmes_place_worker_colony_two',
                         {
                             gameId: game.id,
-                            level: 2,
                             lvlTwoResource: DIRT
                         })
                     })
@@ -25,10 +24,9 @@ This section displays menu to select dirt or stone reward for placing worker on 
         </button>
         <button type="button"
                 {{ stimulus_action('myrmes','placeWorkerOnColonyLevelTrack','click',
-                    {url: path('app_game_myrmes_place_worker_colony',
+                    {url: path('app_game_myrmes_place_worker_colony_two',
                         {
                             gameId: game.id,
-                            level: 2,
                             lvlTwoResource: STONE
                         })
                     })

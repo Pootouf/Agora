@@ -653,11 +653,11 @@ class MyrmesController extends AbstractController
         return $this->returnPersonalBoard($game, $player, true);
     }
 
-    #[Route('/game/myrmes/{gameId}/placeWorkerOnColonyLevelTrack/{level}/{lvlTwoResource}', name: 'app_game_myrmes_place_worker_colony')]
+    #[Route('/game/myrmes/{gameId}/placeWorkerOnColonyLevelTrack/{level}',
+        name: 'app_game_myrmes_place_worker_colony')]
     public function placeWorkerOnColonyLevelTrack(
         #[MapEntity(id: 'gameId')] GameMYR $game,
-        int $level,
-        String $lvlTwoResource = null
+        int $level
     ) : Response
     {
         if ($game->isPaused() || !$game->isLaunched()) {
@@ -675,7 +675,7 @@ class MyrmesController extends AbstractController
         }
 
         try {
-            $this->workerMYRService->placeAntInAnthill($player->getPersonalBoardMYR(), $level, $lvlTwoResource);
+            $this->workerMYRService->placeAntInAnthill($player->getPersonalBoardMYR(), $level, null);
         } catch (Exception) {
             $this->publishNotification($game, MyrmesParameters::NOTIFICATION_DURATION,
                 MyrmesTranslation::WARNING,
@@ -707,6 +707,65 @@ class MyrmesController extends AbstractController
         $this->publishNotification($game, MyrmesParameters::NOTIFICATION_DURATION,
             MyrmesTranslation::VALIDATION,
             MyrmesTranslation::WORKER_PLACE_IN_ANTHILL.$level,
+            GameParameters::VALIDATION_NOTIFICATION_TYPE,
+            GameParameters::NOTIFICATION_COLOR_GREEN, $player->getUsername());
+        return new Response("placed worker on colony", Response::HTTP_OK);
+    }
+
+    #[Route('/game/myrmes/{gameId}/placeWorkerOnColonyLevelTrackTwo/{lvlTwoResource}',
+        name: 'app_game_myrmes_place_worker_colony_two')]
+    public function placeWorkerOnColonyLevelTrack2(
+        #[MapEntity(id: 'gameId')] GameMYR $game,
+        String $lvlTwoResource
+    ) : Response
+    {
+        if ($game->isPaused() || !$game->isLaunched()) {
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
+        $player = $this->service->getPlayerFromNameAndGame($game, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
+        if (!$player->isTurnOfPlayer()) {
+            return new Response(GameTranslation::NOT_PLAYER_TURN, Response::HTTP_FORBIDDEN);
+        }
+        if ($game->getGamePhase() != MyrmesParameters::PHASE_WORKER) {
+            return new Response(MyrmesTranslation::RESPONSE_NOT_IN_WORKER_PHASE, Response::HTTP_FORBIDDEN);
+        }
+
+        try {
+            $this->workerMYRService->placeAntInAnthill($player->getPersonalBoardMYR(),
+                MyrmesParameters::ANTHILL_LEVEL_TWO, $lvlTwoResource);
+        } catch (Exception) {
+            $this->publishNotification($game, MyrmesParameters::NOTIFICATION_DURATION,
+                MyrmesTranslation::WARNING,
+                MyrmesTranslation::ERROR_WORKER_PLACE_IN_ANTHILL,
+                GameParameters::ALERT_NOTIFICATION_TYPE,
+                GameParameters::NOTIFICATION_COLOR_RED, $player->getUsername());
+            $message = $player->getUsername()
+                . " a essayé de placer une ouvrière sur le niveau de fourmilière 2 "
+                . MyrmesTranslation::NOT_ABLE;
+            $this->logService->sendPlayerLog($game, $player, $message);
+            return new Response('failed to place worker on colony', Response::HTTP_FORBIDDEN);
+        }
+
+        try {
+            $this->managePlayerEndOfRoundWorkerPhase($player, $game);
+        } catch (Exception $e) {
+            return new Response("Impossible to calculate main board positions " . $e->getMessage(),
+                Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        $message = $player->getUsername() . " a placé une ouvrière sur le niveau de fourmilière 2";
+        $this->logService->sendPlayerLog($game, $player, $message);
+
+        $this->publishPersonalBoard($game, $player);
+        $this->publishPreview($game, $player);
+        $this->publishRanking($game, $player);
+        $this->publishInitWorkerPhase($game, $this->service->getActualPlayer($game));
+        $this->publishNotification($game, MyrmesParameters::NOTIFICATION_DURATION,
+            MyrmesTranslation::VALIDATION,
+            MyrmesTranslation::WORKER_PLACE_IN_ANTHILL."2",
             GameParameters::VALIDATION_NOTIFICATION_TYPE,
             GameParameters::NOTIFICATION_COLOR_GREEN, $player->getUsername());
         return new Response("placed worker on colony", Response::HTTP_OK);
@@ -1168,6 +1227,17 @@ class MyrmesController extends AbstractController
 
         $message = $player->getUsername() . " a récolté la ressource sur la tuile " . $tileMYR->getId();
         $this->logService->sendPlayerLog($game, $player, $message);
+        try {
+            $boardBoxes = $this->dataManagementMYRService->organizeMainBoardRows($game);
+        } catch (Exception) {
+            return new Response(MyrmesTranslation::RESPONSE_ERROR_CALCULATING_MAIN_BOARD,
+                Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+        $this->publishPreview($game, $player);
+        foreach ($game->getPlayers() as $p) {
+            $this->publishMainBoard($game, $p, $boardBoxes, false, false);
+            $this->publishRanking($game, $p);
+        }
         return new Response("harvested resource on this tile", Response::HTTP_OK);
     }
 
@@ -1199,6 +1269,17 @@ class MyrmesController extends AbstractController
         $message = $player->getUsername() . " a récolté la ressource" . $resource . "sur la phéromone "
             . $pheromone->getId();
         $this->logService->sendPlayerLog($game, $player, $message);
+        try {
+            $boardBoxes = $this->dataManagementMYRService->organizeMainBoardRows($game);
+        } catch (Exception) {
+            return new Response(MyrmesTranslation::RESPONSE_ERROR_CALCULATING_MAIN_BOARD,
+                Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+        $this->publishPreview($game, $player);
+        foreach ($game->getPlayers() as $p) {
+            $this->publishMainBoard($game, $p, $boardBoxes, false, false);
+            $this->publishRanking($game, $p);
+        }
         return new Response("harvested resource" . $resource . "on pheromone" . $pheromone->getId(),
             Response::HTTP_OK);
     }
@@ -1232,7 +1313,9 @@ class MyrmesController extends AbstractController
             $this->service->setPhase($player, MyrmesParameters::PHASE_WORKSHOP);
         } elseif($this->winterMYRService->canSetPhaseToWinter($game)) {
             $this->service->setPhase($player, MyrmesParameters::PHASE_WINTER);
-            $this->winterMYRService->beginWinter($game);
+            if ($game->getGamePhase() == MyrmesParameters::PHASE_WINTER) {
+                $this->winterMYRService->beginWinter($game);
+            }
         } else {
             $this->service->setPhase($player, MyrmesParameters::PHASE_EVENT);
         }
@@ -1240,6 +1323,18 @@ class MyrmesController extends AbstractController
         $message = $player->getUsername()
             . " a mis fin à la phase de récolte ";
         $this->logService->sendPlayerLog($game, $player, $message);
+        try {
+            $boardBoxes = $this->dataManagementMYRService->organizeMainBoardRows($game);
+        } catch (Exception) {
+            return new Response(MyrmesTranslation::RESPONSE_ERROR_CALCULATING_MAIN_BOARD,
+                Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+        $this->publishMainBoard($game, $player, $boardBoxes, false, false);
+        if ($game->getGamePhase() == MyrmesParameters::PHASE_WORKSHOP) {
+            foreach ($game->getPlayers() as $p) {
+                $this->publishMainBoard($game, $p, $boardBoxes, false, false);
+            }
+        }
         return new Response('ended harvest phase', Response::HTTP_OK);
     }
 
@@ -1269,6 +1364,7 @@ class MyrmesController extends AbstractController
         return $this->returnMainBoard($game, $player, $boardBoxes,
             null, true, false);
     }
+
 
     #[Route('/game/myrmes/{gameId}/workshop/activate/anthillHolePlacement/{tileId}',
         name: 'app_game_myrmes_place_anthill_hole')]
@@ -1308,6 +1404,17 @@ class MyrmesController extends AbstractController
             . " sur la tuile " . $tileMYR->getId();
         $this->logService->sendPlayerLog($game, $player, $message);
         $this->publishRanking($game, $player);
+        try {
+            $boardBoxes = $this->dataManagementMYRService->organizeMainBoardRows($game);
+        } catch (Exception ) {
+            return new Response(MyrmesTranslation::RESPONSE_ERROR_CALCULATING_MAIN_BOARD,
+                Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+        foreach($game->getPlayers() as $p) {
+            $this->publishMainBoard($game, $p, $boardBoxes, false, false);
+        }
+        $this->publishPersonalBoard($game, $player);
+        $this->publishPreview($game, $player);
         return new Response('placed an anthill hole', Response::HTTP_OK);
     }
 
@@ -1329,10 +1436,11 @@ class MyrmesController extends AbstractController
 
         try {
             $this->workshopMYRService->manageWorkshop($player, MyrmesParameters::WORKSHOP_LEVEL_AREA);
-        } catch (Exception) {
+        } catch (Exception $e) {
             $message = $player->getUsername() . " a essayé d'augmenter son niveau de fourmilière mais n'a pas pû";
             $this->logService->sendPlayerLog($game, $player, $message);
-            return new Response('failed to increase anthill level', Response::HTTP_FORBIDDEN);
+            return new Response('failed to increase anthill level' . $e->getMessage(),
+                Response::HTTP_FORBIDDEN);
         }
         $this->publishNotification($game, MyrmesParameters::NOTIFICATION_DURATION,
             MyrmesTranslation::VALIDATION,
@@ -1343,6 +1451,17 @@ class MyrmesController extends AbstractController
         $message = $player->getUsername() . " a augmenté son niveau de fourmilière";
         $this->logService->sendPlayerLog($game, $player, $message);
         $this->publishRanking($game, $player);
+        $this->publishPersonalBoard($game, $player);
+        $this->publishPreview($game, $player);
+        try {
+            $boardBoxes = $this->dataManagementMYRService->organizeMainBoardRows($game);
+        } catch (Exception ) {
+            return new Response(MyrmesTranslation::RESPONSE_ERROR_CALCULATING_MAIN_BOARD,
+                Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+        foreach ($game->getPlayers() as $p) {
+            $this->publishMainBoard($game, $p, $boardBoxes, false, false);
+        }
         return new Response('increased anthill level', Response::HTTP_OK);
     }
 
@@ -1378,6 +1497,17 @@ class MyrmesController extends AbstractController
         $message = $player->getUsername() . " a crée une nourrice.";
         $this->logService->sendPlayerLog($game, $player, $message);
         $this->publishRanking($game, $player);
+        $this->publishPersonalBoard($game, $player);
+        $this->publishPreview($game, $player);
+        try {
+            $boardBoxes = $this->dataManagementMYRService->organizeMainBoardRows($game);
+        } catch (Exception ) {
+            return new Response(MyrmesTranslation::RESPONSE_ERROR_CALCULATING_MAIN_BOARD,
+                Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+        foreach ($game->getPlayers() as $p) {
+            $this->publishMainBoard($game, $p, $boardBoxes, false, false);
+        }
         return new Response("created new nurse");
     }
 
@@ -1404,17 +1534,22 @@ class MyrmesController extends AbstractController
 
         if ($this->winterMYRService->canSetPhaseToWinter($game)) {
             $this->service->setPhase($player, MyrmesParameters::PHASE_WINTER);
-            $this->winterMYRService->beginWinter($game);
+            if ($game->getGamePhase() == MyrmesParameters::PHASE_WINTER) {
+                $this->winterMYRService->beginWinter($game);
+            }
         } else {
             $this->service->setPhase($player, MyrmesParameters::PHASE_EVENT);
         }
 
-        if (!$this->service->canOnePlayerDoWorkshopPhase($game)) {
+        if ($game->getGamePhase() == MyrmesParameters::PHASE_WORKSHOP
+            && !$this->service->canOnePlayerDoWorkshopPhase($game)) {
             $canGoToWinter = $this->winterMYRService->canSetPhaseToWinter($game);
             foreach ($game->getPlayers() as $player) {
                 if($canGoToWinter) {
                     $this->service->setPhase($player, MyrmesParameters::PHASE_WINTER);
-                    $this->winterMYRService->beginWinter($game);
+                    if ($game->getGamePhase() == MyrmesParameters::PHASE_WINTER) {
+                        $this->winterMYRService->beginWinter($game);
+                    }
                 } else {
                     $this->service->setPhase($player, MyrmesParameters::PHASE_EVENT);
                 }
@@ -1424,6 +1559,16 @@ class MyrmesController extends AbstractController
 
         $message = $player->getUsername() . " a confirmé ses actions de l'atelier.";
         $this->logService->sendPlayerLog($game, $player, $message);
+        try {
+            $boardBoxes = $this->dataManagementMYRService->organizeMainBoardRows($game);
+        } catch (Exception ) {
+            return new Response(MyrmesTranslation::RESPONSE_ERROR_CALCULATING_MAIN_BOARD,
+                Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+        foreach ($game->getPlayers() as $p) {
+            $this->publishMainBoard($game, $p, $boardBoxes, false, false);
+            $this->publishRanking($game, $player);
+        }
         return new Response("confirmed workshop actions", Response::HTTP_OK);
     }
 
@@ -1462,6 +1607,12 @@ class MyrmesController extends AbstractController
 
         $message = $player->getUsername() . " a jeté la ressource " . $playerResourceMYR->getId() . " de son entrepôt";
         $this->logService->sendPlayerLog($game, $player, $message);
+        $this->publishPreview($game, $player);
+        $this->publishPersonalBoard($game, $player);
+        foreach ($game->getPlayers() as $p) {
+            $this->publishRanking($game, $p);
+        }
+
 
         if($this->winterMYRService->canManageEndOfWinter($game)) {
             $this->winterMYRService->manageEndOfWinter($game);
@@ -1588,6 +1739,403 @@ class MyrmesController extends AbstractController
         $boardBoxes = $this->dataManagementMYRService->organizeMainBoardRows($game);
         $this->publishMainBoard($game, $player, $boardBoxes, false, false);
         return new Response('larvae successfully sacrificed', Response::HTTP_OK);
+    }
+
+    #[Route('/game/myrmes/{idGame}/displayStoneDirtGoal/{goalId}',
+        name: 'app_game_myrmes_display_stone_dirt_goal')]
+    public function displayStoneDirtGoal(
+        #[MapEntity(id: 'idGame')] GameMYR $gameMYR,
+        #[MapEntity(id: 'goalId')] GameGoalMYR $gameGoalMYR
+    ): Response
+    {
+        if ($gameMYR->isPaused() || !$gameMYR->isLaunched()) {
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
+        $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
+
+        try {
+            if (!$this->workshopMYRService->canPlayerDoGoal($player, $gameGoalMYR)) {
+                throw new Exception(MyrmesTranslation::ERROR_GOAL_CANT_BE_DONE);
+            }
+        } catch (Exception $e) {
+            return new Response($e->getMessage(), Response::HTTP_FORBIDDEN);
+        }
+
+        $quantityNeeded =
+            MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE == $gameGoalMYR->getGoal()->getDifficulty() ?
+            MyrmesParameters::GOAL_NEEDED_RESOURCES_STONE_OR_DIRT_LEVEL_ONE :
+            MyrmesParameters::GOAL_NEEDED_RESOURCES_STONE_OR_DIRT_LEVEL_THREE;
+
+        return $this->render('Game/Myrmes/MainBoard/InteractiveGoals/stoneOrDirtGoal.html.twig', [
+            'game' => $gameMYR,
+            'goal' => $gameGoalMYR,
+            'stoneQuantity' => $this->workshopMYRService->getPlayerResourcesFromSelectedType(
+                $player, MyrmesParameters::RESOURCE_TYPE_STONE
+            )->getQuantity(),
+            'dirtQuantity' => $this->workshopMYRService->getPlayerResourcesFromSelectedType(
+                $player, MyrmesParameters::RESOURCE_TYPE_DIRT
+            )->getQuantity(),
+            'totalQuantityNeeded' => $quantityNeeded
+        ]);
+    }
+
+    #[Route('/game/myrmes/{idGame}/displayPheromoneGoal/{goalId}',
+        name: 'app_game_myrmes_display_pheromone_goal')]
+    public function displayPheromoneGoal(
+        #[MapEntity(id: 'idGame')] GameMYR $gameMYR,
+        #[MapEntity(id: 'goalId')] GameGoalMYR $gameGoalMYR
+    ): Response
+    {
+        if ($gameMYR->isPaused() || !$gameMYR->isLaunched()) {
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
+        $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response(MyrmesTranslation::RESPONSE_INVALID_PLAYER, Response::HTTP_FORBIDDEN);
+        }
+
+        try {
+            if (!$this->workshopMYRService->canPlayerDoGoal($player, $gameGoalMYR)) {
+                throw new Exception(MyrmesTranslation::ERROR_GOAL_CANT_BE_DONE);
+            } else {
+                $neededResources = match ($gameGoalMYR->getGoal()->getDifficulty()) {
+                    MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE =>
+                    MyrmesParameters::GOAL_NEEDED_RESOURCES_NEEDED_PHEROMONE_LEVEL_ONE,
+                    MyrmesParameters::GOAL_DIFFICULTY_LEVEL_THREE =>
+                    MyrmesParameters::GOAL_NEEDED_RESOURCES_NEEDED_PHEROMONE_LEVEL_THREE,
+                    default => throw new Exception(MyrmesTranslation::ERROR_GOAL_DIFFICULTY_INVALID),
+                };
+            }
+        } catch (Exception $e) {
+            return new Response($e->getMessage(), Response::HTTP_FORBIDDEN);
+        }
+
+        $pheromones = $this->workerMYRService->getPlayerPheromones($player)->map(function($pheromone) {
+            $pheromoneId = $pheromone->getId();
+            $tileIds = $pheromone->getPheromonTiles()->map(function($tile) {
+                return $tile->getTile()->getId();
+            })->toArray();
+            return $pheromoneId . '__' . implode('_', $tileIds);
+        });
+
+
+
+        return $this->render('Game/Myrmes/MainBoard/InteractiveGoals/pheromoneAndSpecialTileGoal.html.twig', [
+            'game' => $gameMYR,
+            'goal' => $gameGoalMYR,
+            'tilesOwned' => implode('___', $pheromones->toArray()),
+            'neededResources' => $neededResources
+        ]);
+    }
+
+    #[Route('/game/myrmes/{idGame}/displaySpecialTileGoal/{goalId}',
+        name: 'app_game_myrmes_display_special_tile_goal')]
+    public function displaySpecialTileGoal(
+        #[MapEntity(id: 'idGame')] GameMYR $gameMYR,
+        #[MapEntity(id: 'goalId')] GameGoalMYR $gameGoalMYR
+    ): Response
+    {
+        if ($gameMYR->isPaused() || !$gameMYR->isLaunched()) {
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
+        $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response(MyrmesTranslation::RESPONSE_INVALID_PLAYER, Response::HTTP_FORBIDDEN);
+        }
+
+        try {
+            if (!$this->workshopMYRService->canPlayerDoGoal($player, $gameGoalMYR)) {
+                throw new Exception(MyrmesTranslation::ERROR_GOAL_CANT_BE_DONE);
+            } else {
+                $neededResources = match ($gameGoalMYR->getGoal()->getDifficulty()) {
+                    MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE =>
+                    MyrmesParameters::GOAL_NEEDED_RESOURCES_REMOVED_SPECIAL_TILE_LEVEL_ONE,
+                    MyrmesParameters::GOAL_DIFFICULTY_LEVEL_TWO =>
+                    MyrmesParameters::GOAL_NEEDED_RESOURCES_REMOVED_SPECIAL_TILE_LEVEL_TWO,
+                    default => throw new Exception(MyrmesTranslation::ERROR_GOAL_DIFFICULTY_INVALID),
+                };
+            }
+        } catch (Exception $e) {
+            return new Response($e->getMessage(), Response::HTTP_FORBIDDEN);
+        }
+
+        $specialTiles = $this->workshopMYRService->getSpecialTilesOfPlayer($player)->map(function($specialTile) {
+            $pheromoneId = $specialTile->getId();
+            $tileIds = $specialTile->getPheromonTiles()->map(function($tile) {
+                return $tile->getTile()->getId();
+            })->toArray();
+            return $pheromoneId . '__' . implode('_', $tileIds);
+        });
+
+        return $this->render('Game/Myrmes/MainBoard/InteractiveGoals/pheromoneAndSpecialTileGoal.html.twig', [
+            'game' => $gameMYR,
+            'goal' => $gameGoalMYR,
+            'tilesOwned' => implode('___', $specialTiles->toArray()),
+            'neededResources' => $neededResources
+        ]);
+    }
+
+    #[Route('/game/myrmes/{idGame}/validateGoal/{goalId}',
+        name: 'app_game_myrmes_validate_goal')]
+    public function validateGoal(
+        #[MapEntity(id: 'idGame')] GameMYR $gameMYR,
+        #[MapEntity(id: 'goalId')] GameGoalMYR $gameGoalMYR,
+    ) : Response
+    {
+        if ($gameMYR->isPaused() || !$gameMYR->isLaunched()) {
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
+        $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
+        $nurse = $this->service->getNursesAtPosition($player, MyrmesParameters::WORKSHOP_AREA)->first();
+        if (!$nurse) {
+            return new Response(MyrmesTranslation::RESPONSE_NO_NURSE_WORKSHOP, Response::HTTP_FORBIDDEN);
+        }
+
+        try {
+            $this->workshopMYRService->doGoal($player, $gameGoalMYR, $nurse);
+        }catch (Exception $e){
+            return new Response($e->getMessage(), Response::HTTP_FORBIDDEN);
+        }
+        $this->publishPreview($gameMYR, $player);
+        try {
+            $boardBoxes = $this->dataManagementMYRService->organizeMainBoardRows($gameMYR);
+        } catch (Exception) {
+            return new Response(MyrmesTranslation::RESPONSE_ERROR_CALCULATING_MAIN_BOARD,
+                Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+        $this->publishMainBoard($gameMYR, $player, $boardBoxes, false, false);
+        foreach ($gameMYR->getPlayers() as $p) {
+            $this->publishRanking($gameMYR, $p);
+        }
+        return new Response(MyrmesTranslation::RESPONSE_GOAL_VALIDATE, Response::HTTP_OK);
+    }
+
+    #[Route('/game/myrmes/{idGame}/validateGoal/{goalId}/stone/{stoneQuantity}/dirt/{dirtQuantity}',
+        name: 'app_game_myrmes_validate_stone_or_dirt_goal')]
+    public function validateStoneOrDirtGoal(
+        #[MapEntity(id: 'idGame')] GameMYR $gameMYR,
+        #[MapEntity(id: 'goalId')] GameGoalMYR $gameGoalMYR,
+        #[MapEntity(id: 'stoneQuantity')] int $stoneQuantity,
+        #[MapEntity(id: 'dirtQuantity')] int $dirtQuantity,
+    ) : Response
+    {
+        if ($gameMYR->isPaused() || !$gameMYR->isLaunched()) {
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
+        $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
+        $nurse = $this->service->getNursesAtPosition($player, MyrmesParameters::WORKSHOP_AREA)->first();
+        if (!$nurse) {
+            return new Response(MyrmesTranslation::RESPONSE_NO_NURSE_WORKSHOP, Response::HTTP_FORBIDDEN);
+        }
+
+        try {
+            $this->workshopMYRService->doStoneOrDirtGoal($player, $gameGoalMYR, $nurse, $stoneQuantity, $dirtQuantity);
+        }catch (Exception $e){
+            $this->publishNotification($gameMYR, MyrmesParameters::NOTIFICATION_DURATION,
+                MyrmesTranslation::WARNING,
+                MyrmesTranslation::ERROR_STONE_OR_DIRT_GOAL, GameParameters::ALERT_NOTIFICATION_TYPE,
+                GameParameters::NOTIFICATION_COLOR_RED, $player->getUsername());
+            return new Response($e->getMessage(), Response::HTTP_FORBIDDEN);
+        }
+
+        $this->publishPreview($gameMYR, $player);
+        foreach ($gameMYR->getPlayers() as $p) {
+            $this->publishRanking($gameMYR, $p);
+        }
+        $this->publishNotification($gameMYR, MyrmesParameters::NOTIFICATION_DURATION,
+            MyrmesTranslation::CONGRATULATION,
+            MyrmesTranslation::GOAL_VALIDATE, GameParameters::INFO_NOTIFICATION_TYPE,
+            GameParameters::NOTIFICATION_COLOR_GREEN, $player->getUsername());
+        return new Response(MyrmesTranslation::RESPONSE_GOAL_VALIDATE, Response::HTTP_OK);
+    }
+
+    #[Route('/game/myrmes/{idGame}/validateGoal/{goalId}/pheromones/{pheromoneIds}',
+        name: 'app_game_myrmes_validate_pheromone_goal')]
+    public function validatePheromoneGoal(
+        #[MapEntity(id: 'idGame')] GameMYR $gameMYR,
+        #[MapEntity(id: 'goalId')] GameGoalMYR $gameGoalMYR,
+        #[MapEntity(id: 'pheromoneIds')] String $pheromoneIds,
+    ) : Response
+    {
+        if ($gameMYR->isPaused() || !$gameMYR->isLaunched()) {
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
+        $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
+        $nurse = $this->service->getNursesAtPosition($player, MyrmesParameters::WORKSHOP_AREA)->first();
+        if (!$nurse) {
+            return new Response(MyrmesTranslation::RESPONSE_NO_NURSE_WORKSHOP, Response::HTTP_FORBIDDEN);
+        }
+        $pheromoneIds = explode('_', $pheromoneIds);
+        if (empty($pheromoneIds)) {
+            return new Response(MyrmesTranslation::RESPONSE_NO_PHEROMONE_IDS_GIVEN, Response::HTTP_FORBIDDEN);
+        }
+
+        try {
+            $pheromones = $this->workerMYRService->getPheromonesFromListOfIds($pheromoneIds);
+            $this->workshopMYRService->doPheromoneGoal($player, $gameGoalMYR, $nurse, $pheromones);
+        }catch (Exception $e){
+            $this->publishNotification($gameMYR, MyrmesParameters::NOTIFICATION_DURATION,
+                MyrmesTranslation::WARNING,
+                MyrmesTranslation::ERROR_PHEROMONE_GOAL, GameParameters::ALERT_NOTIFICATION_TYPE,
+                GameParameters::NOTIFICATION_COLOR_RED, $player->getUsername());
+            return new Response($e->getMessage(), Response::HTTP_FORBIDDEN);
+        }
+
+
+        try {
+            $boardBoxes = $this->dataManagementMYRService->organizeMainBoardRows($gameMYR);
+        } catch (Exception) {
+            return new Response(MyrmesTranslation::RESPONSE_ERROR_CALCULATING_MAIN_BOARD,
+                Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+        $this->publishPreview($gameMYR, $player);
+        foreach ($gameMYR->getPlayers() as $p) {
+            $this->publishMainBoard($gameMYR, $p, $boardBoxes, false, false);
+            $this->publishRanking($gameMYR, $p);
+        }
+        $this->publishNotification($gameMYR, MyrmesParameters::NOTIFICATION_DURATION,
+            MyrmesTranslation::CONGRATULATION,
+            MyrmesTranslation::GOAL_VALIDATE, GameParameters::INFO_NOTIFICATION_TYPE,
+            GameParameters::NOTIFICATION_COLOR_GREEN, $player->getUsername());
+        return new Response(MyrmesTranslation::RESPONSE_GOAL_VALIDATE, Response::HTTP_OK);
+    }
+
+    #[Route('/game/myrmes/{idGame}/validateGoal/{goalId}/specialTiles/{pheromoneIds}',
+        name: 'app_game_myrmes_validate_special_tile_goal')]
+    public function validateSpecialTileGoal(
+        #[MapEntity(id: 'idGame')] GameMYR $gameMYR,
+        #[MapEntity(id: 'goalId')] GameGoalMYR $gameGoalMYR,
+        #[MapEntity(id: 'pheromoneIds')] String $pheromoneIds,
+    ) : Response
+    {
+        if ($gameMYR->isPaused() || !$gameMYR->isLaunched()) {
+            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
+        $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
+        if ($player == null) {
+            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
+        }
+        $nurse = $this->service->getNursesAtPosition($player, MyrmesParameters::WORKSHOP_AREA)->first();
+        if (!$nurse) {
+            return new Response(MyrmesTranslation::RESPONSE_NO_NURSE_WORKSHOP, Response::HTTP_FORBIDDEN);
+        }
+
+        $pheromoneIds = explode('_', $pheromoneIds);
+        $specialTiles = $this->workerMYRService->getPheromonesFromListOfIds($pheromoneIds);
+        try {
+            $this->workshopMYRService->doSpecialTileGoal($player, $gameGoalMYR, $nurse, $specialTiles);
+        }catch (Exception $e){
+            $this->publishNotification($gameMYR, MyrmesParameters::NOTIFICATION_DURATION,
+                MyrmesTranslation::WARNING,
+                MyrmesTranslation::ERROR_SPECIAL_TILE_GOAL, GameParameters::ALERT_NOTIFICATION_TYPE,
+                GameParameters::NOTIFICATION_COLOR_RED, $player->getUsername());
+            return new Response($e->getMessage(), Response::HTTP_FORBIDDEN);
+        }
+
+        try {
+            $boardBoxes = $this->dataManagementMYRService->organizeMainBoardRows($gameMYR);
+        } catch (Exception) {
+            return new Response(MyrmesTranslation::RESPONSE_ERROR_CALCULATING_MAIN_BOARD,
+                Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+        $this->publishPreview($gameMYR, $player);
+        foreach ($gameMYR->getPlayers() as $p) {
+            $this->publishMainBoard($gameMYR, $p, $boardBoxes, false, false);
+            $this->publishRanking($gameMYR, $p);
+        }
+        $this->publishNotification($gameMYR, MyrmesParameters::NOTIFICATION_DURATION,
+            MyrmesTranslation::CONGRATULATION,
+            MyrmesTranslation::GOAL_VALIDATE, GameParameters::INFO_NOTIFICATION_TYPE,
+            GameParameters::NOTIFICATION_COLOR_GREEN, $player->getUsername());
+        return new Response(MyrmesTranslation::RESPONSE_GOAL_VALIDATE, Response::HTTP_OK);
+    }
+
+    private function publishNotification(GameMYR $game, int $duration, string $message,
+                                         string $description, string $iconId,
+                                         string $loadingBarColor, string $targetedPlayer): void
+    {
+        $dataSent =  [$duration, $message, $description, $iconId, $loadingBarColor];
+
+        $this->publishService->publish(
+            $this->generateUrl('app_game_show_myr',
+                ['id' => $game->getId()]).'notification'.$targetedPlayer,
+            new Response(implode('_', $dataSent))
+        );
+    }
+
+    /**
+     * publishInitWorkerPhase : publish init worker with mercure
+     * @param GameMYR $game
+     * @param ?PlayerMYR $player
+     * @return void
+     */
+    private function publishInitWorkerPhase(GameMYR $game, ?PlayerMYR $player) : void
+    {
+        if($player == null) {
+            return;
+        }
+        $playerDirtNumber = $player->getPersonalBoardMYR()->getPlayerResourceMYRs()->filter(
+            function (PlayerResourceMYR $playerResourceMYR) {
+                return $playerResourceMYR->getResource()->getDescription() == MyrmesParameters::RESOURCE_TYPE_DIRT;
+            }
+        )->first()->getQuantity();
+        $data = $this->generateUrl('app_game_show_myr',
+                ['id' => $game->getId()])." ".$player->getPersonalBoardMYR()->getWarriorsCount()." ".$playerDirtNumber;
+        $this->publishService->publish(
+            $this->generateUrl('app_game_show_myr',
+                ['id' => $game->getId()]).'initWorkerPhase'.$player->getId(),
+            new Response($data));
+    }
+
+    /**
+     * @param PlayerMYR $player
+     * @param GameMYR $game
+     * @return void
+     * @throws Exception
+     */
+    private function managePlayerEndOfRoundWorkerPhase(PlayerMYR $player, GameMYR $game): void
+    {
+        $this->service->setNextPlayerTurn($player);
+        $this->publishInitWorkerPhase($game, $this->service->getActualPlayer($game));
+
+        foreach ($game->getPlayers() as $player) {
+            if ($this->service->getNumberOfFreeWorkerOfPlayer($player) <= 0) {
+                $this->service->setPhase($player, MyrmesParameters::PHASE_HARVEST);
+            }
+        }
+
+        $boardBoxes = $this->dataManagementMYRService->organizeMainBoardRows($game);
+        $isGamePhaseHarvest = $game->getGamePhase() == MyrmesParameters::PHASE_HARVEST;
+        foreach ($game->getPlayers() as $player) {
+            $hasQuarry = $player->getPheromonMYRs()->filter(
+                function (PheromonMYR $pheromone) {
+                    return $pheromone->getType()->getType() == MyrmesParameters::SPECIAL_TILE_TYPE_QUARRY
+                        && !$pheromone->isHarvested();
+                }
+            )->count() > 0;
+            if($isGamePhaseHarvest and $hasQuarry) {
+                $this->publishNotification($game,MyrmesParameters::NOTIFICATION_DURATION,
+                    MyrmesTranslation::WARNING,
+                    MyrmesTranslation::NEED_TO_SELECT_QUARRY_RESOURCE,
+                    GameParameters::ALERT_NOTIFICATION_TYPE,
+                    GameParameters::NOTIFICATION_COLOR_YELLOW, $player->getUsername());
+            }
+            $this->publishMainBoard(
+                $game, $player, $boardBoxes, false, false
+            );
+        }
     }
 
     /**
@@ -1836,392 +2384,5 @@ class MyrmesController extends AbstractController
             $this->generateUrl('app_game_show_myr',
                 ['id' => $game->getId()]).'ranking'.$player->getId(),
             $response);
-    }
-
-    #[Route('/game/myrmes/{idGame}/displayStoneDirtGoal/{goalId}',
-        name: 'app_game_myrmes_display_stone_dirt_goal')]
-    public function displayStoneDirtGoal(
-        #[MapEntity(id: 'idGame')] GameMYR $gameMYR,
-        #[MapEntity(id: 'goalId')] GameGoalMYR $gameGoalMYR
-    ): Response
-    {
-        if ($gameMYR->isPaused() || !$gameMYR->isLaunched()) {
-            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
-        }
-        $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
-        if ($player == null) {
-            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
-        }
-
-        try {
-            if (!$this->workshopMYRService->canPlayerDoGoal($player, $gameGoalMYR)) {
-                throw new Exception(MyrmesTranslation::ERROR_GOAL_CANT_BE_DONE);
-            }
-        } catch (Exception $e) {
-            return new Response($e->getMessage(), Response::HTTP_FORBIDDEN);
-        }
-
-        $quantityNeeded =
-            MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE == $gameGoalMYR->getGoal()->getDifficulty() ?
-            MyrmesParameters::GOAL_NEEDED_RESOURCES_STONE_OR_DIRT_LEVEL_ONE :
-            MyrmesParameters::GOAL_NEEDED_RESOURCES_STONE_OR_DIRT_LEVEL_THREE;
-
-        return $this->render('Game/Myrmes/MainBoard/InteractiveGoals/stoneOrDirtGoal.html.twig', [
-            'game' => $gameMYR,
-            'goal' => $gameGoalMYR,
-            'stoneQuantity' => $this->workshopMYRService->getPlayerResourcesFromSelectedType(
-                $player, MyrmesParameters::RESOURCE_TYPE_STONE
-            )->getQuantity(),
-            'dirtQuantity' => $this->workshopMYRService->getPlayerResourcesFromSelectedType(
-                $player, MyrmesParameters::RESOURCE_TYPE_DIRT
-            )->getQuantity(),
-            'totalQuantityNeeded' => $quantityNeeded
-        ]);
-    }
-
-    #[Route('/game/myrmes/{idGame}/displayPheromoneGoal/{goalId}',
-        name: 'app_game_myrmes_display_pheromone_goal')]
-    public function displayPheromoneGoal(
-        #[MapEntity(id: 'idGame')] GameMYR $gameMYR,
-        #[MapEntity(id: 'goalId')] GameGoalMYR $gameGoalMYR
-    ): Response
-    {
-        if ($gameMYR->isPaused() || !$gameMYR->isLaunched()) {
-            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
-        }
-        $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
-        if ($player == null) {
-            return new Response(MyrmesTranslation::RESPONSE_INVALID_PLAYER, Response::HTTP_FORBIDDEN);
-        }
-
-        try {
-            if (!$this->workshopMYRService->canPlayerDoGoal($player, $gameGoalMYR)) {
-                throw new Exception(MyrmesTranslation::ERROR_GOAL_CANT_BE_DONE);
-            } else {
-                $neededResources = match ($gameGoalMYR->getGoal()->getDifficulty()) {
-                    MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE =>
-                    MyrmesParameters::GOAL_NEEDED_RESOURCES_NEEDED_PHEROMONE_LEVEL_ONE,
-                    MyrmesParameters::GOAL_DIFFICULTY_LEVEL_THREE =>
-                    MyrmesParameters::GOAL_NEEDED_RESOURCES_NEEDED_PHEROMONE_LEVEL_THREE,
-                    default => throw new Exception(MyrmesTranslation::ERROR_GOAL_DIFFICULTY_INVALID),
-                };
-            }
-        } catch (Exception $e) {
-            return new Response($e->getMessage(), Response::HTTP_FORBIDDEN);
-        }
-
-        $pheromones = $this->workerMYRService->getPlayerPheromones($player)->map(function($pheromone) {
-            $pheromoneId = $pheromone->getId();
-            $tileIds = $pheromone->getPheromonTiles()->map(function($tile) {
-                return $tile->getTile()->getId();
-            })->toArray();
-            return $pheromoneId . '__' . implode('_', $tileIds);
-        });
-
-
-
-        return $this->render('Game/Myrmes/MainBoard/InteractiveGoals/pheromoneAndSpecialTileGoal.html.twig', [
-            'game' => $gameMYR,
-            'goal' => $gameGoalMYR,
-            'tilesOwned' => implode('___', $pheromones->toArray()),
-            'neededResources' => $neededResources
-        ]);
-    }
-
-    #[Route('/game/myrmes/{idGame}/displaySpecialTileGoal/{goalId}',
-        name: 'app_game_myrmes_display_special_tile_goal')]
-    public function displaySpecialTileGoal(
-        #[MapEntity(id: 'idGame')] GameMYR $gameMYR,
-        #[MapEntity(id: 'goalId')] GameGoalMYR $gameGoalMYR
-    ): Response
-    {
-        if ($gameMYR->isPaused() || !$gameMYR->isLaunched()) {
-            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
-        }
-        $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
-        if ($player == null) {
-            return new Response(MyrmesTranslation::RESPONSE_INVALID_PLAYER, Response::HTTP_FORBIDDEN);
-        }
-
-        try {
-            if (!$this->workshopMYRService->canPlayerDoGoal($player, $gameGoalMYR)) {
-                throw new Exception(MyrmesTranslation::ERROR_GOAL_CANT_BE_DONE);
-            } else {
-                $neededResources = match ($gameGoalMYR->getGoal()->getDifficulty()) {
-                    MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE =>
-                    MyrmesParameters::GOAL_NEEDED_RESOURCES_REMOVED_SPECIAL_TILE_LEVEL_ONE,
-                    MyrmesParameters::GOAL_DIFFICULTY_LEVEL_TWO =>
-                    MyrmesParameters::GOAL_NEEDED_RESOURCES_REMOVED_SPECIAL_TILE_LEVEL_TWO,
-                    default => throw new Exception(MyrmesTranslation::ERROR_GOAL_DIFFICULTY_INVALID),
-                };
-            }
-        } catch (Exception $e) {
-            return new Response($e->getMessage(), Response::HTTP_FORBIDDEN);
-        }
-
-        $specialTiles = $this->workshopMYRService->getSpecialTilesOfPlayer($player)->map(function($specialTile) {
-            $pheromoneId = $specialTile->getId();
-            $tileIds = $specialTile->getPheromonTiles()->map(function($tile) {
-                return $tile->getTile()->getId();
-            })->toArray();
-            return $pheromoneId . '__' . implode('_', $tileIds);
-        });
-
-        return $this->render('Game/Myrmes/MainBoard/InteractiveGoals/pheromoneAndSpecialTileGoal.html.twig', [
-            'game' => $gameMYR,
-            'goal' => $gameGoalMYR,
-            'tilesOwned' => implode('___', $specialTiles->toArray()),
-            'neededResources' => $neededResources
-        ]);
-    }
-
-    #[Route('/game/myrmes/{idGame}/validateGoal/{goalId}',
-        name: 'app_game_myrmes_validate_goal')]
-    public function validateGoal(
-        #[MapEntity(id: 'idGame')] GameMYR $gameMYR,
-        #[MapEntity(id: 'goalId')] GameGoalMYR $gameGoalMYR,
-    ) : Response
-    {
-        if ($gameMYR->isPaused() || !$gameMYR->isLaunched()) {
-            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
-        }
-        $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
-        if ($player == null) {
-            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
-        }
-        $nurse = $this->service->getNursesAtPosition($player, MyrmesParameters::WORKSHOP_AREA)->first();
-        if (!$nurse) {
-            return new Response(MyrmesTranslation::RESPONSE_NO_NURSE_WORKSHOP, Response::HTTP_FORBIDDEN);
-        }
-
-        try {
-            $this->workshopMYRService->doGoal($player, $gameGoalMYR, $nurse);
-        }catch (Exception $e){
-            return new Response($e->getMessage(), Response::HTTP_FORBIDDEN);
-        }
-
-        return new Response(MyrmesTranslation::RESPONSE_GOAL_VALIDATE, Response::HTTP_OK);
-    }
-
-    #[Route('/game/myrmes/{idGame}/validateGoal/{goalId}/stone/{stoneQuantity}/dirt/{dirtQuantity}',
-        name: 'app_game_myrmes_validate_stone_or_dirt_goal')]
-    public function validateStoneOrDirtGoal(
-        #[MapEntity(id: 'idGame')] GameMYR $gameMYR,
-        #[MapEntity(id: 'goalId')] GameGoalMYR $gameGoalMYR,
-        #[MapEntity(id: 'stoneQuantity')] int $stoneQuantity,
-        #[MapEntity(id: 'dirtQuantity')] int $dirtQuantity,
-    ) : Response
-    {
-        if ($gameMYR->isPaused() || !$gameMYR->isLaunched()) {
-            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
-        }
-        $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
-        if ($player == null) {
-            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
-        }
-        $nurse = $this->service->getNursesAtPosition($player, MyrmesParameters::WORKSHOP_AREA)->first();
-        if (!$nurse) {
-            return new Response(MyrmesTranslation::RESPONSE_NO_NURSE_WORKSHOP, Response::HTTP_FORBIDDEN);
-        }
-
-        try {
-            $this->workshopMYRService->doStoneOrDirtGoal($player, $gameGoalMYR, $nurse, $stoneQuantity, $dirtQuantity);
-        }catch (Exception $e){
-            $this->publishNotification($gameMYR, MyrmesParameters::NOTIFICATION_DURATION,
-                MyrmesTranslation::WARNING,
-                MyrmesTranslation::ERROR_STONE_OR_DIRT_GOAL, GameParameters::ALERT_NOTIFICATION_TYPE,
-                GameParameters::NOTIFICATION_COLOR_RED, $player->getUsername());
-            return new Response($e->getMessage(), Response::HTTP_FORBIDDEN);
-        }
-
-        $this->publishPreview($gameMYR, $player);
-        foreach ($gameMYR->getPlayers() as $p) {
-            $this->publishRanking($gameMYR, $p);
-        }
-        $this->publishNotification($gameMYR, MyrmesParameters::NOTIFICATION_DURATION,
-            MyrmesTranslation::CONGRATULATION,
-            MyrmesTranslation::GOAL_VALIDATE, GameParameters::INFO_NOTIFICATION_TYPE,
-            GameParameters::NOTIFICATION_COLOR_GREEN, $player->getUsername());
-        return new Response(MyrmesTranslation::RESPONSE_GOAL_VALIDATE, Response::HTTP_OK);
-    }
-
-    #[Route('/game/myrmes/{idGame}/validateGoal/{goalId}/pheromones/{pheromoneIds}',
-        name: 'app_game_myrmes_validate_pheromone_goal')]
-    public function validatePheromoneGoal(
-        #[MapEntity(id: 'idGame')] GameMYR $gameMYR,
-        #[MapEntity(id: 'goalId')] GameGoalMYR $gameGoalMYR,
-        #[MapEntity(id: 'pheromoneIds')] String $pheromoneIds,
-    ) : Response
-    {
-        if ($gameMYR->isPaused() || !$gameMYR->isLaunched()) {
-            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
-        }
-        $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
-        if ($player == null) {
-            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
-        }
-        $nurse = $this->service->getNursesAtPosition($player, MyrmesParameters::WORKSHOP_AREA)->first();
-        if (!$nurse) {
-            return new Response(MyrmesTranslation::RESPONSE_NO_NURSE_WORKSHOP, Response::HTTP_FORBIDDEN);
-        }
-        $pheromoneIds = explode('_', $pheromoneIds);
-        if (empty($pheromoneIds)) {
-            return new Response(MyrmesTranslation::RESPONSE_NO_PHEROMONE_IDS_GIVEN, Response::HTTP_FORBIDDEN);
-        }
-
-        try {
-            $pheromones = $this->workerMYRService->getPheromonesFromListOfIds($pheromoneIds);
-            $this->workshopMYRService->doPheromoneGoal($player, $gameGoalMYR, $nurse, $pheromones);
-        }catch (Exception $e){
-            $this->publishNotification($gameMYR, MyrmesParameters::NOTIFICATION_DURATION,
-                MyrmesTranslation::WARNING,
-                MyrmesTranslation::ERROR_PHEROMONE_GOAL, GameParameters::ALERT_NOTIFICATION_TYPE,
-                GameParameters::NOTIFICATION_COLOR_RED, $player->getUsername());
-            return new Response($e->getMessage(), Response::HTTP_FORBIDDEN);
-        }
-
-
-        try {
-            $boardBoxes = $this->dataManagementMYRService->organizeMainBoardRows($gameMYR);
-        } catch (Exception) {
-            return new Response(MyrmesTranslation::RESPONSE_ERROR_CALCULATING_MAIN_BOARD,
-                Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
-        $this->publishPreview($gameMYR, $player);
-        foreach ($gameMYR->getPlayers() as $p) {
-            $this->publishMainBoard($gameMYR, $p, $boardBoxes, false, false);
-            $this->publishRanking($gameMYR, $p);
-        }
-        $this->publishNotification($gameMYR, MyrmesParameters::NOTIFICATION_DURATION,
-            MyrmesTranslation::CONGRATULATION,
-            MyrmesTranslation::GOAL_VALIDATE, GameParameters::INFO_NOTIFICATION_TYPE,
-            GameParameters::NOTIFICATION_COLOR_GREEN, $player->getUsername());
-        return new Response(MyrmesTranslation::RESPONSE_GOAL_VALIDATE, Response::HTTP_OK);
-    }
-
-    #[Route('/game/myrmes/{idGame}/validateGoal/{goalId}/specialTiles/{pheromoneIds}',
-        name: 'app_game_myrmes_validate_special_tile_goal')]
-    public function validateSpecialTileGoal(
-        #[MapEntity(id: 'idGame')] GameMYR $gameMYR,
-        #[MapEntity(id: 'goalId')] GameGoalMYR $gameGoalMYR,
-        #[MapEntity(id: 'pheromoneIds')] String $pheromoneIds,
-    ) : Response
-    {
-        if ($gameMYR->isPaused() || !$gameMYR->isLaunched()) {
-            return new Response(GameTranslation::GAME_NOT_ACCESSIBLE_MESSAGE, Response::HTTP_FORBIDDEN);
-        }
-        $player = $this->service->getPlayerFromNameAndGame($gameMYR, $this->getUser()->getUsername());
-        if ($player == null) {
-            return new Response(GameTranslation::INVALID_PLAYER_MESSAGE, Response::HTTP_FORBIDDEN);
-        }
-        $nurse = $this->service->getNursesAtPosition($player, MyrmesParameters::WORKSHOP_AREA)->first();
-        if (!$nurse) {
-            return new Response(MyrmesTranslation::RESPONSE_NO_NURSE_WORKSHOP, Response::HTTP_FORBIDDEN);
-        }
-
-        $pheromoneIds = explode('_', $pheromoneIds);
-        $specialTiles = $this->workerMYRService->getPheromonesFromListOfIds($pheromoneIds);
-        try {
-            $this->workshopMYRService->doSpecialTileGoal($player, $gameGoalMYR, $nurse, $specialTiles);
-        }catch (Exception $e){
-            $this->publishNotification($gameMYR, MyrmesParameters::NOTIFICATION_DURATION,
-                MyrmesTranslation::WARNING,
-                MyrmesTranslation::ERROR_SPECIAL_TILE_GOAL, GameParameters::ALERT_NOTIFICATION_TYPE,
-                GameParameters::NOTIFICATION_COLOR_RED, $player->getUsername());
-            return new Response($e->getMessage(), Response::HTTP_FORBIDDEN);
-        }
-
-        try {
-            $boardBoxes = $this->dataManagementMYRService->organizeMainBoardRows($gameMYR);
-        } catch (Exception) {
-            return new Response(MyrmesTranslation::RESPONSE_ERROR_CALCULATING_MAIN_BOARD,
-                Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
-        $this->publishPreview($gameMYR, $player);
-        foreach ($gameMYR->getPlayers() as $p) {
-            $this->publishMainBoard($gameMYR, $p, $boardBoxes, false, false);
-            $this->publishRanking($gameMYR, $p);
-        }
-        $this->publishNotification($gameMYR, MyrmesParameters::NOTIFICATION_DURATION,
-            MyrmesTranslation::CONGRATULATION,
-            MyrmesTranslation::GOAL_VALIDATE, GameParameters::INFO_NOTIFICATION_TYPE,
-            GameParameters::NOTIFICATION_COLOR_GREEN, $player->getUsername());
-        return new Response(MyrmesTranslation::RESPONSE_GOAL_VALIDATE, Response::HTTP_OK);
-    }
-
-    private function publishNotification(GameMYR $game, int $duration, string $message,
-                                         string $description, string $iconId,
-                                         string $loadingBarColor, string $targetedPlayer): void
-    {
-        $dataSent =  [$duration, $message, $description, $iconId, $loadingBarColor];
-
-        $this->publishService->publish(
-            $this->generateUrl('app_game_show_myr',
-                ['id' => $game->getId()]).'notification'.$targetedPlayer,
-            new Response(implode('_', $dataSent))
-        );
-    }
-
-    /**
-     * publishInitWorkerPhase : publish init worker with mercure
-     * @param GameMYR $game
-     * @param ?PlayerMYR $player
-     * @return void
-     */
-    private function publishInitWorkerPhase(GameMYR $game, ?PlayerMYR $player) : void
-    {
-        if($player == null) {
-            return;
-        }
-        $playerDirtNumber = $player->getPersonalBoardMYR()->getPlayerResourceMYRs()->filter(
-            function (PlayerResourceMYR $playerResourceMYR) {
-                return $playerResourceMYR->getResource()->getDescription() == MyrmesParameters::RESOURCE_TYPE_DIRT;
-            }
-        )->first()->getQuantity();
-        $data = $this->generateUrl('app_game_show_myr',
-                ['id' => $game->getId()])." ".$player->getPersonalBoardMYR()->getWarriorsCount()." ".$playerDirtNumber;
-        $this->publishService->publish(
-            $this->generateUrl('app_game_show_myr',
-                ['id' => $game->getId()]).'initWorkerPhase'.$player->getId(),
-            new Response($data));
-    }
-
-    /**
-     * @param PlayerMYR $player
-     * @param GameMYR $game
-     * @return void
-     * @throws Exception
-     */
-    private function managePlayerEndOfRoundWorkerPhase(PlayerMYR $player, GameMYR $game): void
-    {
-        $this->service->setNextPlayerTurn($player);
-        $this->publishInitWorkerPhase($game, $this->service->getActualPlayer($game));
-
-        foreach ($game->getPlayers() as $player) {
-            if ($this->service->getNumberOfFreeWorkerOfPlayer($player) <= 0) {
-                $this->service->setPhase($player, MyrmesParameters::PHASE_HARVEST);
-            }
-        }
-
-        $boardBoxes = $this->dataManagementMYRService->organizeMainBoardRows($game);
-        $isGamePhaseHarvest = $game->getGamePhase() == MyrmesParameters::PHASE_HARVEST;
-        foreach ($game->getPlayers() as $player) {
-            $hasQuarry = $player->getPheromonMYRs()->filter(
-                function (PheromonMYR $pheromone) {
-                    return $pheromone->getType()->getType() == MyrmesParameters::SPECIAL_TILE_TYPE_QUARRY
-                        && !$pheromone->isHarvested();
-                }
-            )->count() > 0;
-            if($isGamePhaseHarvest and $hasQuarry) {
-                $this->publishNotification($game,MyrmesParameters::NOTIFICATION_DURATION,
-                    MyrmesTranslation::WARNING,
-                    MyrmesTranslation::NEED_TO_SELECT_QUARRY_RESOURCE,
-                    GameParameters::ALERT_NOTIFICATION_TYPE,
-                    GameParameters::NOTIFICATION_COLOR_YELLOW, $player->getUsername());
-            }
-            $this->publishMainBoard(
-                $game, $player, $boardBoxes, false, false
-            );
-        }
     }
 }
