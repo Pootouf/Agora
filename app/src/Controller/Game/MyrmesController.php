@@ -1179,7 +1179,6 @@ class MyrmesController extends AbstractController
             $this->publishPreview($game, $p);
             $this->publishRanking($game, $p);
         }
-
         return new Response("harvested resource on this tile", Response::HTTP_OK);
     }
 
@@ -1252,6 +1251,18 @@ class MyrmesController extends AbstractController
         $message = $player->getUsername()
             . " a mis fin à la phase de récolte ";
         $this->logService->sendPlayerLog($game, $player, $message);
+        try {
+            $boardBoxes = $this->dataManagementMYRService->organizeMainBoardRows($game);
+        } catch (Exception) {
+            return new Response(MyrmesTranslation::RESPONSE_ERROR_CALCULATING_MAIN_BOARD,
+                Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+        $this->publishMainBoard($game, $player, $boardBoxes, false, false);
+        if ($game->getGamePhase() == MyrmesParameters::PHASE_WORKSHOP) {
+            foreach ($game->getPlayers() as $p) {
+                $this->publishMainBoard($game, $p, $boardBoxes, false, false);
+            }
+        }
         return new Response('ended harvest phase', Response::HTTP_OK);
     }
 
