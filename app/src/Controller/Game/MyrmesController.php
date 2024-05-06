@@ -1496,6 +1496,12 @@ class MyrmesController extends AbstractController
 
         $message = $player->getUsername() . " a jeté la ressource " . $playerResourceMYR->getId() . " de son entrepôt";
         $this->logService->sendPlayerLog($game, $player, $message);
+        $this->publishPreview($game, $player);
+        $this->publishPersonalBoard($game, $player);
+        foreach ($game->getPlayers() as $p) {
+            $this->publishRanking($game, $p);
+        }
+
 
         if($this->winterMYRService->canManageEndOfWinter($game)) {
             $this->winterMYRService->manageEndOfWinter($game);
