@@ -11,6 +11,7 @@ use App\Entity\Game\Myrmes\GoalMYR;
 use App\Entity\Game\Myrmes\MainBoardMYR;
 use App\Entity\Game\Myrmes\MyrmesParameters;
 use App\Entity\Game\Myrmes\NurseMYR;
+use App\Entity\Game\Myrmes\PheromonMYR;
 use App\Entity\Game\Myrmes\PheromonTileMYR;
 use App\Entity\Game\Myrmes\PlayerMYR;
 use App\Entity\Game\Myrmes\PlayerResourceMYR;
@@ -475,6 +476,7 @@ class MYRService
             $this->replaceNurses($player);
             $this->resetWorkshopActions($player);
             $this->makePheromonesHarvestable($player);
+            $this->entityManager->persist($player);
         }
         $this->endRoundOfFirstPlayer($game);
         $this->endSeason($game);
@@ -989,14 +991,12 @@ class MYRService
         if ($actualSeason->getName() === MyrmesParameters::SPRING_SEASON_NAME) {
             $summer->setActualSeason(true);
             $this->entityManager->persist($summer);
-            $this->initializeEventBonus($game);
-            $this->entityManager->persist($game);
         } elseif ($actualSeason->getName() === MyrmesParameters::SUMMER_SEASON_NAME) {
             $fall->setActualSeason(true);
             $this->entityManager->persist($fall);
-            $this->initializeEventBonus($game);
-            $this->entityManager->persist($game);
         }
+        $this->initializeEventBonus($game);
+        $this->entityManager->persist($game);
         $this->entityManager->flush();
     }
 
@@ -1009,16 +1009,18 @@ class MYRService
     {
         $this->clearSeasons($game);
         $yearNum = $game->getMainBoardMYR()->getYearNum();
-        if ($yearNum + 1 > MyrmesParameters::THIRD_YEAR_NUM) {
+        $yearNum += 1;
+        $game->getMainBoardMYR()->setYearNum($yearNum);
+        $this->entityManager->persist($game->getMainBoardMYR());
+        if ($yearNum > MyrmesParameters::THIRD_YEAR_NUM) {
+            $this->entityManager->flush();
             return;
         }
-        $game->getMainBoardMYR()->setYearNum($yearNum + 1);
         $this->initializeNewSeason($game, MyrmesParameters::SPRING_SEASON_NAME);
         $this->initializeNewSeason($game, MyrmesParameters::SUMMER_SEASON_NAME);
         $this->initializeNewSeason($game, MyrmesParameters::FALL_SEASON_NAME);
         $spring = $game->getMainBoardMYR()->getSeasons()->first();
         $spring->setActualSeason(true);
-        $this->entityManager->persist($game->getMainBoardMYR());
         $this->entityManager->persist($spring);
         $this->entityManager->persist($game);
         $this->entityManager->flush();
@@ -1130,7 +1132,7 @@ class MYRService
     /**
      * setPheromonesHarvestedIfNoResourcesOnIt: get all the pheromones of the players and set them as harvested if
      *                                          there is no resources on them
-     * @param Collection $players
+     * @param Collection<PlayerMYR> $players
      * @return void
      */
     private function setPheromonesHarvestedIfNoResourcesOnIt(Collection $players) : void
@@ -1142,8 +1144,10 @@ class MYRService
                         return $pheromonTile->getResource() == null;
                     }
                 )) {
-                    $pheromone->setHarvested(true);
-                    $this->entityManager->persist($pheromone);
+                    if ($pheromone->getType()->getType() != MyrmesParameters::SPECIAL_TILE_TYPE_QUARRY) {
+                        $pheromone->setHarvested(true);
+                        $this->entityManager->persist($pheromone);
+                    }
                 }
             }
         }
@@ -1157,8 +1161,11 @@ class MYRService
     private function makePheromonesHarvestable(PlayerMYR $player): void
     {
         foreach ($player->getPheromonMYRs() as $pheromone) {
-            $pheromone->setHarvested(false);
-            $this->entityManager->persist($pheromone);
+            if ($pheromone->getType()->getType() !== MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL &&
+                $pheromone->getType()->getType() !== MyrmesParameters::SPECIAL_TILE_TYPE_FARM) {
+                $pheromone->setHarvested(false);
+                $this->entityManager->persist($pheromone);
+            }
         }
     }
 

@@ -79,6 +79,8 @@ interface GlenmoreTranslation
     const string HAS_BEEN_CREATED = " a été créée";
     const string JOIN_GAME = " a rejoint la partie ";
     const string LEAVE_GAME = " a été retiré de la partie ";
+    const string WIN_GAME = " a gagné la partie ";
+    const string GAME_DESC = "La partie";
     const string HAS_ENDED = " a pris fin";
     const string GAME_STARTED = " a débuté";
 

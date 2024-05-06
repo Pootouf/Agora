@@ -22,7 +22,10 @@ This section displays the main board that every player and spectator can see
         <div class="inline-flex align-middle justify-evenly items-center flex-col h-full">
             {% if game.gamePhase == PHASE_HARVEST and needToPlay %}
                 <button {% if not hasFinishedObligatoryHarvesting %} disabled {% endif %}
-                        class="rounded-lg bg-green-900 py-2 px-3 m-1 text-2xl items-center"
+                        class="{% if not hasFinishedObligatoryHarvesting %}
+                                    opacity-25
+                                {% endif %}
+                        rounded-lg bg-green-900 py-2 px-3 m-1 text-2xl items-center"
                         {{ stimulus_action('myrmes','endHarvestPhase','click',
                             {url:path('app_game_myrmes_end_harvest_phase',
                                 {
@@ -85,8 +88,9 @@ This section displays the main board that every player and spectator can see
                                 {idGame: game.id})
                             })
                         }}
-                        class="bg-[#8F901F] py-2 px-3 rounded-lg text-2xl enabled:hover:bg-[#3e3f0d] disabled:opacity-50
-                                disabled:cursor-not-allowed"
+                        class="bg-[#8F901F] py-1 px-2 lg:py-2 lg:px-3 rounded-lg text-xs lg:text-2xl
+                                enabled:hover:bg-[#3e3f0d] disabled:opacity-50
+                                disabled:cursor-not-allowed "
                 >
                     Objectifs
                 </button>

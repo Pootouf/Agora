@@ -35,7 +35,8 @@ This section displays the personal board of a player
 
 
 <div {% if not isPreview %}id="personalBoard"{% endif %}
-     class="absolute top-0 left-0 w-full h-full bg-black bg-opacity-70 flex z-50 text-white items-center justify-center"
+     class="absolute bg-black bg-opacity-70 flex z-50 text-white items-center justify-center
+            {% if isAnotherPlayerBoard %}bottom-0 h-[92%] lg:h-[95%]{% else %}top-0 h-full {% endif%} left-0 w-full"
 >
     <div class="bg-[#c67b24] rounded-lg
         {% if isPreview or isAnotherPlayerBoard %}
@@ -67,7 +68,7 @@ This section displays the personal board of a player
             {{ include('Game/Myrmes/PersonalBoard/displayBirthTrack.html.twig') }}
             {#nurse counter#}
             <div class="w-full" id="nurses">
-                <p class="{% if isPreview %}text_mini {% else %} text1-4 {% endif %}">
+                <p class="{% if isPreview %}text_mini {% else %} text1-3 {% endif %}">
                     Nourrices : {{ nursesOnBaseArea }}</p>
             </div>
             {#event track#}
@@ -85,7 +86,7 @@ This section displays the personal board of a player
         {#colony level track#}
         {{ include('Game/Myrmes/PersonalBoard/displayColonyLevelTrack.html.twig') }}
 
-        {% if not isPreview and playerPhase == PHASE_BIRTH %}
+        {% if not isPreview and game.gamePhase == PHASE_BIRTH and playerPhase == PHASE_BIRTH %}
             <div class="flex flex-col justify-center items-center">
                 <button type="button" class="rounded-lg bg-[#8F901F] py-2 px-3 m-1 portrait:text-2xl items-center"
                         {{ stimulus_action('myrmes','confirmNursesPlacement','click',

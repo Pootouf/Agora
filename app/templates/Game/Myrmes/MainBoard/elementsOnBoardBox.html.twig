@@ -32,7 +32,7 @@
 
 {% if boardBox.anthillHole != null %}
     <div class="visible {{ isAbsolute }} {{ elementsDisplay }} {{ elementsSize }}">
-        <img class="rounded rounded-full size-full -p-4 bg-{{ boardBox.anthillHole.player.color }}-500"
+        <img class="rounded rounded-full size-full bg-{{ boardBox.anthillHole.player.color }}-500"
              src="{{ asset('resourcesGames/Myrmes/anthillHole.svg') }}" alt="anthill hole">
     </div>
 {% endif %}
@@ -48,8 +48,8 @@
      {# Display the directions if it is worker phase and the player has shifts count #}
     {% if isActionable and
         game.gamePhase == PHASE_WORKER and needToPlay and boardBox.ant.shiftsCount > 0 %}
-        <span class="text-xl m-8 whitespace-nowrap">Déplacer la fourmi vers :</span>
-        <div class="relative flex items-center justify-center">
+        <div class="relative text-xl whitespace-nowrap">Déplacer la fourmi vers :</div>
+        <div class="relative flex items-center w-fit justify-center">
 
             <button class="w-6 flex items-center justify-center"
                     {{ stimulus_action('myrmes', 'moveAnt', 'click',

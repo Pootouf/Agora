@@ -3,10 +3,10 @@ This section displays the workshop on the personal board to access at the worksh
 @param :
 @return :
 #}
-<div class="-translate-y-[0.45vw] -translate-y-[2.3vw]" hidden></div>
+<div class="-translate-y-[0.45vw] -translate-y-[1.9vw]" hidden></div>
 
 <div class="inlineFlexCol items-center {{ gapSize }}" id="workshop">
-    <p class="relative w-fit mb-px {% if isPreview %}text_mini {% else %} text2-4 {% endif %}">Atelier</p>
+    <p class="relative w-fit mb-px {% if isPreview %}text_mini {% else %} text1-3 {% endif %}">Atelier</p>
     {#workshop icon#}
     <{% if not isPreview and playerPhase == PHASE_BIRTH %}button{% else %}div{% endif %} type="button"
           {% if playerPhase == PHASE_BIRTH %}
@@ -20,13 +20,13 @@ This section displays the workshop on the personal board to access at the worksh
         <div class="inlineFlexCol {% if isPreview %}w-[3vw]{% else %}w-full{% endif %}">
             {% for i in 1..4 %}
                 {% if i == 2 %}
-                    <div class="inlineFlex {% if isPreview %}gap-[0.6vw]{% else %}gap-[3vw]{% endif %}">
+                    <div class="inlineFlex {% if isPreview %}gap-[0.6vw]{% else %}gap-[2.3vw]{% endif %}">
                 {% endif %}
                 <svg viewBox="0 0 300 250"
                      class="{% if isPreview %} h-[1vw]
                                 {% if i == 1 or i == 4 %}{% if i == 4 %}-{% endif %}translate-y-[0.45vw]{% endif %}
-                            {% else %} h-[5vw]
-                                {% if i == 1 or i == 4 %}{% if i == 4 %}-{% endif %}translate-y-[2.3vw]{% endif %}
+                            {% else %} h-[4vw]
+                                {% if i == 1 or i == 4 %}{% if i == 4 %}-{% endif %}translate-y-[1.9vw]{% endif %}
                             {% endif %} ">
                     <polygon points="90,0 210,0 300,125 210,250 90,250 0,125"
                              fill="{% if nursesOnWorkshop >= i %}{{ player.color }}{% else %}black{% endif %}"/>

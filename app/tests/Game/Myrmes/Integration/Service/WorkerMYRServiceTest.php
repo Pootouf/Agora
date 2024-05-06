@@ -19,6 +19,7 @@ use App\Entity\Game\Myrmes\SeasonMYR;
 use App\Entity\Game\Myrmes\TileMYR;
 use App\Entity\Game\Myrmes\TileTypeMYR;
 use App\Repository\Game\Myrmes\GardenWorkerMYRRepository;
+use App\Repository\Game\Myrmes\ResourceMYRRepository;
 use App\Repository\Game\Myrmes\TileMYRRepository;
 use App\Service\Game\Myrmes\WorkerMYRService;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -32,8 +33,11 @@ class WorkerMYRServiceTest extends KernelTestCase
     private WorkerMYRService $workerMYRService;
     private TileMYRRepository $tileMYRRepository;
 
+    private ResourceMYRRepository $resourceMYRRepository;
+
     protected function setUp() : void
     {
+        $this->resourceMYRRepository = static::getContainer()->get(ResourceMYRRepository::class);
         $this->entityManager = static::getContainer()->get(EntityManagerInterface::class);
         $this->workerMYRService = static::getContainer()->get(WorkerMYRService::class);
         $this->tileMYRRepository = static::getContainer()->get(TileMYRRepository::class);
@@ -189,7 +193,8 @@ class WorkerMYRServiceTest extends KernelTestCase
         $this->entityManager->flush();
         $selectedFloor = 2;
         // WHEN
-        $this->workerMYRService->placeAntInAnthill($player->getPersonalBoardMYR(), $selectedFloor);
+        $this->workerMYRService->placeAntInAnthill($player->getPersonalBoardMYR(), $selectedFloor,
+            MyrmesParameters::RESOURCE_TYPE_STONE);
         // THEN
         $this->assertEquals($selectedFloor, $ant->getWorkFloor());
     }
@@ -215,7 +220,8 @@ class WorkerMYRServiceTest extends KernelTestCase
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
-        $this->workerMYRService->placeAntInAnthill($player->getPersonalBoardMYR(), $selectedFloor);
+        $this->workerMYRService->placeAntInAnthill($player->getPersonalBoardMYR(), $selectedFloor,
+            MyrmesParameters::RESOURCE_TYPE_STONE);
     }
 
     public function testPlaceAntInAnthillFailWithNoMoreFreeAnts()
@@ -237,7 +243,8 @@ class WorkerMYRServiceTest extends KernelTestCase
         // THEN
         $this->expectException(\Exception::class);
         // WHEN
-        $this->workerMYRService->placeAntInAnthill($player->getPersonalBoardMYR(), $selectedFloor);
+        $this->workerMYRService->placeAntInAnthill($player->getPersonalBoardMYR(), $selectedFloor,
+            MyrmesParameters::RESOURCE_TYPE_STONE);
     }
 
     public function testPlaceAnthillHoleWhenPlaceIsAvailable()
@@ -4438,6 +4445,15 @@ class WorkerMYRServiceTest extends KernelTestCase
 
             $this->entityManager->persist($player);
             $this->entityManager->persist($personalBoard);
+            foreach ($this->resourceMYRRepository->findAll() as $resource) {
+                $playerResource = new PlayerResourceMYR();
+                $playerResource->setResource($resource);
+                $playerResource->setQuantity(0);
+                $player->getPersonalBoardMYR()
+                       ->addPlayerResourceMYR($playerResource);
+                $this->entityManager->persist($playerResource);
+                $this->entityManager->persist($player->getPersonalBoardMYR());
+            }
             $this->entityManager->flush();
         }
         $this->entityManager->flush();

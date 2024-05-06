@@ -1722,7 +1722,7 @@ final class VersionGLENMORE_DATA extends AbstractMigration
             ['id' => 55, 'help_id' => null,
                 'card_id' => null, 'type' => GlenmoreParameters::TILE_TYPE_BROWN,
                 'name' => GlenmoreParameters::TILE_NAME_FAIR, 'containing_river' => 0,
-                'containing_road' => 0, 'level' => 3]);
+                'containing_road' => 1, 'level' => 3]);
 
         $this->connection->insert('tile_glm_tile_activation_bonus_glm',
             ['tile_glm_id' => 55, 'tile_activation_bonus_glm_id' => 60]

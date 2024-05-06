@@ -137,11 +137,11 @@ interface MyrmesParameters
     // Buy for add anthill level
 
     const array BUY_RESOURCE_FOR_LEVEL_ONE = array(
-        "grass" => 2
+        "dirt" => 2
     );
 
     const array BUY_RESOURCE_FOR_LEVEL_TWO = array(
-        "grass" => 2,
+        "dirt" => 2,
         "stone" => 1
     );
 

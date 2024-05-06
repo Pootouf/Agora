@@ -31,6 +31,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use InvalidArgumentException;
+use Psr\Log\LoggerInterface;
 use function Symfony\Component\Translation\t;
 
 class WorkerMYRService
@@ -442,10 +443,11 @@ class WorkerMYRService
      * placeAntInAnthill: place a free worker ant in the selected area of the anthill
      * @param PersonalBoardMYR $personalBoard
      * @param int $anthillFloor
+     * @param String $lvlTwoResource
      * @return void
      * @throws Exception if invalid floor or no more free ants
      */
-    public function placeAntInAnthill(PersonalBoardMYR $personalBoard, int $anthillFloor) : void
+    public function placeAntInAnthill(PersonalBoardMYR $personalBoard, int $anthillFloor, ?String $lvlTwoResource) : void
     {
         $maxFloor = $personalBoard->getAnthillLevel();
         $isAnthillLevelIncreased = $personalBoard->getBonus() == MyrmesParameters::BONUS_LEVEL;
@@ -468,9 +470,9 @@ class WorkerMYRService
         }
         $ant->setWorkFloor($anthillFloor);
         $this->entityManager->persist($ant);
+        $this->giveColonyLevelBonus($personalBoard, $anthillFloor, $lvlTwoResource);
         $this->entityManager->flush();
     }
-
 
     /**
      * takeOutAnt: allow the player to transform his ant into a garden worker ant
@@ -1407,7 +1409,7 @@ class WorkerMYRService
                 $playerResource = $playerResourceMYR;
             }
         }
-        return $playerResource != null && $playerResource->getQuantity() > 0;
+       return $playerResource != null && $playerResource->getQuantity() > 0;
     }
 
     /**
@@ -1567,6 +1569,9 @@ class WorkerMYRService
      */
     private function placeResourceOnTile(PheromonTileMYR $tile) : void
     {
+        if ($tile->getPheromonMYR()->getType()->getType() >= MyrmesParameters::SPECIAL_TILE_TYPE_FARM) {
+            return;
+        }
         $grass = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::RESOURCE_TYPE_GRASS]);
         $stone = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::RESOURCE_TYPE_STONE]);
         $dirt = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::RESOURCE_TYPE_DIRT]);
@@ -1635,7 +1640,12 @@ class WorkerMYRService
         $pheromone = new PheromonMYR();
         $pheromone->setPlayer($playerMYR);
         $pheromone->setType($tileTypeMYR);
-        $pheromone->setHarvested(false);
+        if ($tileTypeMYR->getType() === MyrmesParameters::SPECIAL_TILE_TYPE_FARM ||
+            $tileTypeMYR->getType() === MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL) {
+            $pheromone->setHarvested(true);
+        } else {
+            $pheromone->setHarvested(false);
+        }
         foreach ($tiles as $tile) {
             $coordX = $tile[0];
             $coordY = $tile[1];
@@ -1739,6 +1749,66 @@ class WorkerMYRService
         $pheromoneTypes = $this->tileTypeMYRRepository->findBy(['type' => MyrmesParameters::PHEROMONE_TYPES]);
         return new ArrayCollection(
             $this->pheromonMYRRepository->findBy(['player' => $playerMYR, 'type' => $pheromoneTypes]));
+    }
+
+    /**
+     * giveColonyLevelBonus: gives bonus to the player whenever he places a worker into anthill
+     * @param PersonalBoardMYR $personalBoard
+     * @param int $anthillFloor
+     * @param String $lvlTwoResource
+     * @return void
+     * @throws Exception
+     */
+    private function giveColonyLevelBonus(PersonalBoardMYR $personalBoard, int $anthillFloor, ?String $lvlTwoResource) : void
+    {
+        $food = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::RESOURCE_TYPE_GRASS]);
+        $playerFood = $this->playerResourceMYRRepository->findOneBy(
+            ["personalBoard" => $personalBoard, "resource" => $food]
+        );
+
+        $stone = $this->resourceMYRRepository->findOneBy(["description" => MYRmesParameters::RESOURCE_TYPE_STONE]);
+        $playerStone = $this->playerResourceMYRRepository->findOneBy(
+            ["personalBoard" => $personalBoard, "resource" => $stone]
+        );
+
+        $dirt = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::RESOURCE_TYPE_DIRT]);
+        $playerDirt = $this->playerResourceMYRRepository->findOneBy(
+            ["personalBoard" => $personalBoard, "resource" => $dirt]
+        );
+        switch ($anthillFloor) {
+            case 0 :
+                $personalBoard->setLarvaCount($personalBoard->getLarvaCount() + 1);
+                $this->entityManager->persist($personalBoard);
+                return;
+            case 1:
+                $playerFood->setQuantity($playerFood->getQuantity() + 1);
+                $this->entityManager->persist($playerFood);
+                return;
+            case 2:
+                if ($lvlTwoResource == MyrmesParameters::RESOURCE_TYPE_DIRT) {
+                    $playerDirt->setQuantity($playerDirt->getQuantity() + 1);
+                    $this->entityManager->persist($playerDirt);
+                } elseif ($lvlTwoResource == MyrmesParameters::RESOURCE_TYPE_STONE ) {
+                    $playerStone->setQuantity($playerStone->getQuantity() + 1);
+                    $this->entityManager->persist($playerStone);
+                }
+                return;
+            case 3:
+                if ($playerFood->getQuantity() <= 0) {
+                    throw new Exception("not enough food");
+                }
+                $playerFood->setQuantity($playerFood->getQuantity() - 1);
+                $this->entityManager->persist($playerFood);
+                $player = $personalBoard->getPlayer();
+                $score = $player->getScore();
+                $points = 2;
+                if ($personalBoard->getBonus() === MyrmesParameters::BONUS_POINT) {
+                    ++$points;
+                }
+                $player->setScore($score + $points);
+                $this->entityManager->persist($player);
+                return;
+        }
     }
 
 }
