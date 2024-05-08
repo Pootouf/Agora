@@ -1143,10 +1143,12 @@ class WorkerMYRService
             ]);
 
         // Manage score of player
-        $player->setScore($player->getScore()
-            + MyrmesParameters::VICTORY_GAIN_BY_ATTACK_PREY[
-            $prey->getType()
-            ]);
+        $points = MyrmesParameters::VICTORY_GAIN_BY_ATTACK_PREY[
+        $prey->getType()];
+        if ($points > 0) {
+            ++$points;
+        }
+        $player->setScore($player->getScore() + $points);
 
         // Manage quantity of resource
         $playerResource = $this->myrService->getPlayerResourceOfType(
@@ -1666,7 +1668,7 @@ class WorkerMYRService
         } else {
             $points = MyrmesParameters::SPECIAL_TILES_TYPE_LEVEL[$tileTypeMYR->getType()];
         }
-        if ($playerMYR->getPersonalBoardMYR()->getBonus() == MyrmesParameters::BONUS_POINT) {
+        if ($playerMYR->getPersonalBoardMYR()->getBonus() == MyrmesParameters::BONUS_POINT && $points > 0) {
             ++$points;
         }
         $playerMYR->setScore($playerMYR->getScore() + $points);

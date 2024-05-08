@@ -3123,7 +3123,7 @@ class WorkerMYRServiceTest extends TestCase
         // WHEN
         $this->workerMYRService->placePheromone($firstPlayer, $tile, $tileType, 0, 0);
         // THEN
-        $this->assertEquals(MyrmesParameters::PHEROMONE_TYPE_LEVEL[MyrmesParameters::PHEROMONE_TYPE_ZERO] + 1,
+        $this->assertEquals(MyrmesParameters::PHEROMONE_TYPE_LEVEL[MyrmesParameters::PHEROMONE_TYPE_ZERO],
             $firstPlayer->getScore());
     }
 
