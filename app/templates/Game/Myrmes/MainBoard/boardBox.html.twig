@@ -51,7 +51,21 @@
                                                                             {% else %}
                                                                                     fill-[rgba(255,_255,_255,_0.35)]
                                                                             {% endif %}"
-                {% if hasSelectedAnthillHolePlacement and isTileAvailableForAnthillHolePlacement %}
+                {% if game.gamePhase == PHASE_HARVEST and playerPhase == PHASE_HARVEST
+                    and boardBox.pheromonTile != null and boardBox.pheromonTile.resource != null
+                    and (not hasFinishedObligatoryHarvesting or canStillHarvest)
+                    and boardBox.pheromonTile.pheromonMYR.player == player
+                    and not boardBox.pheromonTile.pheromonMYR.harvested
+                %}
+                    {{ stimulus_action('myrmes','harvestResource','click',
+                        {url:path('app_game_myrmes_harvest_resource',
+                            {
+                                gameId: game.id,
+                                tileId: boardBox.tile.id
+                            })
+                        })
+                    }}
+                {% elseif hasSelectedAnthillHolePlacement and isTileAvailableForAnthillHolePlacement %}
                     {{ stimulus_action('myrmes','choseAnthillHolePlacement','click',
                         {url:path('app_game_myrmes_display_main_board_box_actions',
                             {

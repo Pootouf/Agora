@@ -1257,6 +1257,9 @@ class WorkshopMYRService
                         $game->getPlayers()->count()
                     ]
                 );
+                if ($previousPlayer->getPersonalBoardMYR()->getBonus() === MyrmesParameters::BONUS_POINT) {
+                    $previousPlayer->setScore($previousPlayer->getScore() + 1);
+                }
                 $this->entityManager->persist($previousPlayer);
             }
         }
@@ -1271,6 +1274,9 @@ class WorkshopMYRService
                 $player->setScore($player->getScore()
                     + MyrmesParameters::SCORE_INCREASE_GOAL_DIFFICULTY_THREE),
         };
+        if ($player->getPersonalBoardMYR()->getBonus() === MyrmesParameters::BONUS_POINT) {
+            $player->setScore($player->getScore() + 1);
+        }
         $this->entityManager->persist($player);
 
         $gameGoal->addPrecedentsPlayer($player);
