@@ -70,7 +70,7 @@
                                 class="rounded-lg bg-green-900 py-2 px-3 m-3 text-2xl items-center"
                                 {{ stimulus_action('myrmes','cleanPheromoneAction','click') }}
                         >
-                            Nettoyer la phéromone adverse
+                            Nettoyer la phéromone
                         </button>
                     {% endif %}
                 {% endif %}
@@ -91,26 +91,11 @@
                 </button>
             {% endif %}
             {% if boardBox.pheromonTile != null and boardBox.pheromonTile.resource != null %}
-                {% if game.gamePhase == PHASE_HARVEST and playerPhase == PHASE_HARVEST
-                    and (not hasFinishedObligatoryHarvesting or canStillHarvest)
-                    and boardBox.pheromonTile.pheromonMYR.player == player %}
-                    <p>Sélectionner la ressource pour la récolter :</p>
-                    <img class="max-h-[5vw] cursor-pointer"
-                         src="{{ asset('resourcesGames/Myrmes/resources/' ~
-                             boardBox.pheromonTile.resource.description ~ '.svg') }}"
-                         alt="dirt"
-                            {{ stimulus_action('myrmes','harvestResource','click',
-                                {url:path('app_game_myrmes_harvest_resource',
-                                    {
-                                        gameId: game.id,
-                                        tileId: boardBox.tile.id
-                                    })
-                                })
-                            }}
-                    >
-                {% elseif game.gamePhase == PHASE_HARVEST and playerPhase == PHASE_HARVEST and
-                    not hasFinishedObligatoryHarvesting and not canStillHarvest
-                    and boardBox.pheromonTile.pheromonMYR.player == player %}
+                {% if game.gamePhase == PHASE_HARVEST and playerPhase == PHASE_HARVEST and
+                    not hasFinishedObligatoryHarvesting and canStillHarvest
+                    and boardBox.pheromonTile.pheromonMYR.player == player
+                    and boardBox.pheromonTile.pheromonMYR.harvested
+                %}
                     <p>Vous avez déjà récolté une ressource sur cette phéromone </p>
                     <img class="max-h-[5vw] opacity-25"
                          src="{{ asset('resourcesGames/Myrmes/resources/' ~ boardBox.pheromonTile.resource.description ~ '.svg') }}"

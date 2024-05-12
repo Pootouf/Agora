@@ -2170,6 +2170,7 @@ class MyrmesController extends AbstractController
             'availableLarvae' => $player == null ? null : $this->service->getAvailableLarvae($player),
             'hasFinishedObligatoryHarvesting' => $player == null
                 || $this->harvestMYRService->areAllPheromonesHarvested($player),
+            'canStillHarvest' => !($player == null) && $this->harvestMYRService->canStillHarvest($player),
         ]);
     }
 
