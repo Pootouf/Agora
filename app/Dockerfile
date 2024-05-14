@@ -14,7 +14,9 @@ RUN apt-get -y update && apt-get -y install \
 
 #Symfony CLI
 RUN curl -1sLf 'https://dl.cloudsmith.io/public/symfony/stable/setup.deb.sh' | bash \
-    && apt install symfony-cli
+    && apt -y install symfony-cli \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get -y autoremove
 
 
 #PHP Configuration
