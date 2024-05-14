@@ -408,7 +408,7 @@ deploy:dev_game:
     SERVER_USER: $SERVER_GAME_USER
     SERVER_IP: $SERVER_GAME_IP
     SERVER_LOCATION: /var/www/agora
-    DOCKER_COMPOSE_FILE: compose.gametest.yaml
+    DOCKER_COMPOSE_FILE: compose.dev.yaml
     GIT_BRANCH_NAME: develop-game
     ID_RSA: $ID_RSA_GAME
 
