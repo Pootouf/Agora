@@ -8,7 +8,6 @@ use Doctrine\ORM\Mapping\MappedSuperclass;
 #[MappedSuperclass]
 class Pawn extends Component
 {
-
     #[ORM\Column(length: 255)]
     protected ?string $color = null;
 

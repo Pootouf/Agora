@@ -11,7 +11,6 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: PersonalBoardMYRRepository::class)]
 class PersonalBoardMYR extends Component
 {
-
     #[ORM\OneToOne(inversedBy: 'personalBoardMYR', cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?PlayerMYR $player = null;

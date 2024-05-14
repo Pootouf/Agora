@@ -9,7 +9,6 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: NurseMYRRepository::class)]
 class NurseMYR extends Component
 {
-
     #[ORM\Column]
     private ?bool $available = null;
 

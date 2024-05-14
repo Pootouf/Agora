@@ -15,7 +15,6 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: ChosenCardSixQPRepository::class)]
 class ChosenCardSixQP extends Component
 {
-
     #[ORM\OneToOne(inversedBy: 'chosenCardSixQP')]
     #[ORM\JoinColumn(nullable: false)]
     private ?PlayerSixQP $player = null;
@@ -28,7 +27,8 @@ class ChosenCardSixQP extends Component
     #[ORM\JoinColumn(nullable: false)]
     private ?CardSixQP $card = null;
 
-    public function __construct(PlayerSixQP $player, GameSixQP $game, CardSixQP $card) {
+    public function __construct(PlayerSixQP $player, GameSixQP $game, CardSixQP $card)
+    {
         $this -> player = $player;
         $this -> game = $game;
         $this -> card = $card;

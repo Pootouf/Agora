@@ -17,16 +17,15 @@ use App\Service\Game\LogService;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 
-
-
 class MYRGameManagerService extends AbstractGameManagerService
 {
-
-    public function __construct(private readonly EntityManagerInterface $entityManager,
+    public function __construct(
+        private readonly EntityManagerInterface $entityManager,
         private readonly PlayerMYRRepository $playerMYRRepository,
         private readonly MYRService $myrService,
-        private readonly LogService $logService)
-    {}
+        private readonly LogService $logService
+    ) {
+    }
 
 
     /**
@@ -69,7 +68,8 @@ class MYRGameManagerService extends AbstractGameManagerService
             return MYRGameManagerService::ERROR_INVALID_NUMBER_OF_PLAYER;
         }
         if ($this->playerMYRRepository->findOneBy(
-            ['username' => $playerName, 'gameMYR' => $game->getId()]) != null) {
+            ['username' => $playerName, 'gameMYR' => $game->getId()]
+        ) != null) {
             return MYRGameManagerService::ERROR_ALREADY_IN_PARTY;
         }
         $player = new PlayerMYR($playerName, $game);
@@ -89,8 +89,11 @@ class MYRGameManagerService extends AbstractGameManagerService
         $this->entityManager->persist($player);
         $this->entityManager->persist($personalBoard);
         $this->entityManager->flush();
-        $this->logService->sendPlayerLog($game, $player,
-            $playerName . " a rejoint la partie " . $game->getId());
+        $this->logService->sendPlayerLog(
+            $game,
+            $player,
+            $playerName . " a rejoint la partie " . $game->getId()
+        );
         return MYRGameManagerService::SUCCESS;
     }
 
@@ -112,8 +115,10 @@ class MYRGameManagerService extends AbstractGameManagerService
         }
         $this->entityManager->remove($player);
         $this->entityManager->flush();
-        $this->logService->sendSystemLog($game,
-            $playerName . " a été retiré de la partie " . $game->getId());
+        $this->logService->sendSystemLog(
+            $game,
+            $playerName . " a été retiré de la partie " . $game->getId()
+        );
         return MYRGameManagerService::SUCCESS;
     }
 

@@ -11,7 +11,6 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: NobleTileSPLRepository::class)]
 class NobleTileSPL extends Component
 {
-
     #[ORM\Column]
     private ?int $prestigePoints = null;
 

@@ -23,7 +23,7 @@ class DevelopmentCardsSPL extends Card
     public static function createDevelopmentCard(ArrayCollection $array): DevelopmentCardsSPL
     {
         $developmentCard = new DevelopmentCardsSPL();
-        foreach ($array as $cardCostSPL){
+        foreach ($array as $cardCostSPL) {
             $developmentCard->addCardCost($cardCostSPL);
         }
         return $developmentCard;

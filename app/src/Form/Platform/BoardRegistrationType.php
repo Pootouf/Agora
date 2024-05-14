@@ -13,7 +13,6 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Bundle\SecurityBundle\Security;
 
-
 class BoardRegistrationType extends AbstractType
 {
     private Security $security;
@@ -29,7 +28,7 @@ class BoardRegistrationType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $userId = $this->security->getUser()->getId();
-        $allUsers = array_filter($this->entityManager->getRepository(User::class)->findAll(), function($user) use ($userId) {
+        $allUsers = array_filter($this->entityManager->getRepository(User::class)->findAll(), function ($user) use ($userId) {
             return $user->getId() !== $userId && !$user->isAdmin();
         });
         $game = $options["game"];
@@ -45,7 +44,7 @@ class BoardRegistrationType extends AbstractType
         $builder
             ->add('nbUserMax', ChoiceType::class, [
                 'choices' => $choices,
-                'choice_label' => function($choice, $key, $value) {
+                'choice_label' => function ($choice, $key, $value) {
                     return strval($value);
                 }])
             ->add('nbInvitations', ChoiceType::class, [

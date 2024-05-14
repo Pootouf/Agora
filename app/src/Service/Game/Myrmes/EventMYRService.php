@@ -13,8 +13,9 @@ use phpDocumentor\Reflection\Types\Collection;
 
 class EventMYRService
 {
-
-    public function __construct(private readonly EntityManagerInterface $entityManager) {}
+    public function __construct(private readonly EntityManagerInterface $entityManager)
+    {
+    }
 
     /**
      * upBonus : the player spends a larva, if he owns one, to get chosen bonus
@@ -22,7 +23,7 @@ class EventMYRService
      * @return void
      * @throws Exception
      */
-    public function upBonus(PlayerMYR $player) : void
+    public function upBonus(PlayerMYR $player): void
     {
         if ($player->getPhase() != MyrmesParameters::PHASE_EVENT) {
             throw new Exception("Player is not in event phase");
@@ -45,13 +46,15 @@ class EventMYRService
         $newBonus = $playerBonus + 1;
         if ($playerBonus < $gameBonus) {
             $personalBoard->setSelectedEventLarvaeAmount(
-                $selectedLarvae - 1);
+                $selectedLarvae - 1
+            );
         } else {
             if ($larvaeCount + $gameBonus < $newBonus) {
                 throw new Exception("Player can't choose this bonus, not enough larvae owned");
             }
             $personalBoard->setSelectedEventLarvaeAmount(
-                $selectedLarvae + 1);
+                $selectedLarvae + 1
+            );
         }
         $personalBoard->setBonus($newBonus);
         $this->entityManager->persist($personalBoard);
@@ -64,7 +67,7 @@ class EventMYRService
      * @return void
      * @throws Exception
      */
-    public function lowerBonus(PlayerMYR $player) : void
+    public function lowerBonus(PlayerMYR $player): void
     {
         if ($player->getPhase() != MyrmesParameters::PHASE_EVENT) {
             throw new Exception("Player is not in event phase");
@@ -88,13 +91,15 @@ class EventMYRService
         $newBonus = $playerBonus - 1;
         if ($playerBonus > $gameBonus) {
             $personalBoard->setSelectedEventLarvaeAmount(
-                $selectedLarvae - 1);
+                $selectedLarvae - 1
+            );
         } else {
             if ($gameBonus - $larvaeCount > $newBonus) {
                 throw new Exception("Player can't choose this bonus, not enough larvae owned");
             }
             $personalBoard->setSelectedEventLarvaeAmount(
-                $selectedLarvae + 1);
+                $selectedLarvae + 1
+            );
         }
         $personalBoard->setBonus($newBonus);
         $this->entityManager->persist($personalBoard);
@@ -106,13 +111,13 @@ class EventMYRService
      * @param PlayerMYR $player
      * @return void
      */
-    public function confirmBonus(PlayerMYR $player) : void
+    public function confirmBonus(PlayerMYR $player): void
     {
         $bonus = $player->getPersonalBoardMYR()->getBonus();
-        if ($bonus == MyrmesParameters::BONUS_HARVEST)
-        {
+        if ($bonus == MyrmesParameters::BONUS_HARVEST) {
             $player->setRemainingHarvestingBonus(
-                MyrmesParameters::HARVESTED_TILE_BONUS);
+                MyrmesParameters::HARVESTED_TILE_BONUS
+            );
         }
         $this->entityManager->persist($player);
         $this->entityManager->flush();

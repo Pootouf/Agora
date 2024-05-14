@@ -11,7 +11,6 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: WarehouseGLMRepository::class)]
 class WarehouseGLM extends Component
 {
-
     #[ORM\OneToOne(mappedBy: 'warehouse', cascade: ['persist', 'remove'])]
     private ?MainBoardGLM $mainBoardGLM = null;
 

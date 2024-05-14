@@ -15,23 +15,23 @@ use Doctrine\Common\Collections\Collection;
 use Exception;
 use Psr\Log\LoggerInterface;
 
-
 /**
  * Enables to manipulate data and convert it into representable content
  */
 class DataManagementGLMService
 {
-
-    public function __construct(private PlayerTileGLMRepository $playerTileGLMRepository,
-                                private TileGLMService $tileGLMService)
-    {}
+    public function __construct(
+        private PlayerTileGLMRepository $playerTileGLMRepository,
+        private TileGLMService $tileGLMService
+    ) {
+    }
 
     /**
      * getWhiskyCount : return an integer of the number of whisky possessed by a player
      * @param PlayerGLM $playerGLM
      * @return int
      */
-    public function getWhiskyCount(PlayerGLM $playerGLM) : int
+    public function getWhiskyCount(PlayerGLM $playerGLM): int
     {
         $whiskyCount = 0;
         $tiles = $playerGLM->getPersonalBoard()->getPlayerTiles();
@@ -52,14 +52,16 @@ class DataManagementGLMService
      * @param GameGLM $gameGLM
      * @return Collection
      */
-    public function getPlayersResourcesData(GameGLM $gameGLM) : Collection
+    public function getPlayersResourcesData(GameGLM $gameGLM): Collection
     {
         $playersData = new ArrayCollection();
         foreach($gameGLM->getPlayers() as $player) {
-            $playerData = new PlayerResourcesDataGLM($player,
-                                                    $this->tileGLMService->getPlayerProductionResources($player),
-                                                    $this->tileGLMService->getMovementPoints($player),
-                                                    $this->getWhiskyCount($player));
+            $playerData = new PlayerResourcesDataGLM(
+                $player,
+                $this->tileGLMService->getPlayerProductionResources($player),
+                $this->tileGLMService->getMovementPoints($player),
+                $this->getWhiskyCount($player)
+            );
             $playersData->add($playerData);
 
         }
@@ -72,7 +74,7 @@ class DataManagementGLMService
      * @param GameGLM $game
      * @return Collection<BoardBoxGLM>
      */
-    public function createBoardBoxes(GameGLM $game) : Collection
+    public function createBoardBoxes(GameGLM $game): Collection
     {
         $tiles = $game->getMainBoard()->getBoardTiles();
         $pawns = $game->getMainBoard()->getPawns();
@@ -94,7 +96,7 @@ class DataManagementGLMService
      * @param Collection<BoardBoxGLM> $boardBoxes
      * @return Collection<Collection<BoardBoxGLM>>
      */
-    public function organizeMainBoardRows(Collection $boardBoxes) : Collection
+    public function organizeMainBoardRows(Collection $boardBoxes): Collection
     {
         $rows = new ArrayCollection();
 
@@ -136,7 +138,7 @@ class DataManagementGLMService
      * @param PlayerGLM $playerGLM
      * @return Collection
      */
-    public function organizePersonalBoardRows(PlayerGLM $playerGLM, array $possiblePlacement) : Collection
+    public function organizePersonalBoardRows(PlayerGLM $playerGLM, array $possiblePlacement): Collection
     {
         $result = new ArrayCollection();
 
@@ -153,7 +155,7 @@ class DataManagementGLMService
 
         //Sorting by x coord and then by y coord
         $tiles = $playerGLM->getPersonalBoard()->getPlayerTiles()->toArray();
-        usort($tiles, function ($tile1, $tile2){
+        usort($tiles, function ($tile1, $tile2) {
             $value = $tile1->getCoordX() - $tile2->getCoordX();
             return $value == 0 ? $tile1->getCoordY() - $tile2->getCoordY() : $value;
         });
@@ -191,7 +193,11 @@ class DataManagementGLMService
                 ));
                 $y++;
             }
-            $currentLine->add(new PersonalBoardBoxGLM($tile, $x, $y, in_array([$x, $y], $possiblePlacement)
+            $currentLine->add(new PersonalBoardBoxGLM(
+                $tile,
+                $x,
+                $y,
+                in_array([$x, $y], $possiblePlacement)
             ));
             $previousX = $tile->getCoordX();
             $y++;
@@ -245,7 +251,7 @@ class DataManagementGLMService
      * @param Collection $boardBoxes
      * @return bool false if cycle doesn't need emptyBoxes at the end
      */
-    private function addPawn(Collection $pawns, int $index, Collection &$boardBoxes) : bool
+    private function addPawn(Collection $pawns, int $index, Collection &$boardBoxes): bool
     {
         foreach($pawns as $pawn) {
             if($pawn->getPosition() == $index) {

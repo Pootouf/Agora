@@ -21,12 +21,13 @@ use Exception;
 
 class GLMGameManagerService extends AbstractGameManagerService
 {
-
-    public function __construct(private EntityManagerInterface $entityManager,
+    public function __construct(
+        private EntityManagerInterface $entityManager,
         private GLMService $glmService,
         private PlayerGLMRepository $playerGLMRepository,
-        private LogService $logService)
-    {}
+        private LogService $logService
+    ) {
+    }
 
 
     /**
@@ -86,7 +87,8 @@ class GLMGameManagerService extends AbstractGameManagerService
             return GLMGameManagerService::ERROR_INVALID_NUMBER_OF_PLAYER;
         }
         if ($this->playerGLMRepository->findOneBy(
-            ['username' => $playerName, 'gameGLM' => $game->getId()]) != null) {
+            ['username' => $playerName, 'gameGLM' => $game->getId()]
+        ) != null) {
             return GLMGameManagerService::ERROR_ALREADY_IN_PARTY;
         }
         $player = new PlayerGLM($playerName, $game);
@@ -106,8 +108,11 @@ class GLMGameManagerService extends AbstractGameManagerService
         $this->entityManager->persist($pawn);
         $this->entityManager->persist($personalBoard);
         $this->entityManager->flush();
-        $this->logService->sendPlayerLog($game, $player,
-            $playerName . GlenmoreTranslation::JOIN_GAME . $game->getId());
+        $this->logService->sendPlayerLog(
+            $game,
+            $player,
+            $playerName . GlenmoreTranslation::JOIN_GAME . $game->getId()
+        );
         return GLMGameManagerService::SUCCESS;
     }
 
@@ -129,8 +134,10 @@ class GLMGameManagerService extends AbstractGameManagerService
         }
         $this->entityManager->remove($player);
         $this->entityManager->flush();
-        $this->logService->sendSystemLog($game,
-            $playerName . GlenmoreTranslation::LEAVE_GAME . $game->getId());
+        $this->logService->sendSystemLog(
+            $game,
+            $playerName . GlenmoreTranslation::LEAVE_GAME . $game->getId()
+        );
         return GLMGameManagerService::SUCCESS;
     }
 

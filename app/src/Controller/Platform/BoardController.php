@@ -2,8 +2,6 @@
 
 namespace App\Controller\Platform;
 
-
-
 use App\Data\SearchData;
 use App\Entity\Platform\Game;
 use App\Entity\Platform\Board;
@@ -36,12 +34,12 @@ class BoardController extends AbstractController
         EntityManagerInterface $entityManagerInterface,
         BoardManagerService $boardManagerService,
         GameViewerService $gameViewerService,
-        Security $security)
-    {
+        Security $security
+    ) {
         $this->entityManagerInterface = $entityManagerInterface;
         $this->boardManagerService = $boardManagerService;
         $this->gameViewerService = $gameViewerService;
-        $this->security= $security;
+        $this->security = $security;
     }
     #[Route('/dashboard/boardCreation/{game_id}', name: 'app_board_create', requirements: ['game_id' => '\d+'], methods: ['GET', 'POST', 'HEAD'])]
     public function create(Request $request, $game_id, NotificationService $notificationService): Response
@@ -50,19 +48,22 @@ class BoardController extends AbstractController
         $game = $this->entityManagerInterface->getRepository(Game::class)->find($game_id);
         //get the logged user
         $userId = $this->security->getUser()->getId();
-        $allUsers = array_filter($this->entityManagerInterface->getRepository(User::class)->findAll(), function($user) use ($userId) {
+        $allUsers = array_filter($this->entityManagerInterface->getRepository(User::class)->findAll(), function ($user) use ($userId) {
             return $user->getId() !== $userId && !$user->isAdmin();
         });
         //create a board
         $board = new Board();
         //generate the BaordRegistrationType form
-        $form = $this->createForm(BoardRegistrationType::class, $board, [
+        $form = $this->createForm(
+            BoardRegistrationType::class,
+            $board,
+            [
                 'game' => $game]
         );
         $form->handleRequest($request);
         $user = $this->security->getUser();
         $notifications = null;
-        if ($user){
+        if ($user) {
             $notifications = $notificationService->getNotifications($this->security);
         }
 
@@ -106,7 +107,7 @@ class BoardController extends AbstractController
         $userId = $this->security->getUser()->getId();
         $user = $this->entityManagerInterface->getRepository(User::class)->find($userId);
         //test if the user can join a table
-        if ($board->hasUser($user)|| !$board->isAvailble()) {
+        if ($board->hasUser($user) || !$board->isAvailble()) {
             $errorMessage = "Impossible de rejoindre la table";
             //send the error message to user, using session or flush
             $this->addFlash('warning', $errorMessage);
@@ -121,7 +122,7 @@ class BoardController extends AbstractController
     }
 
     #[Route('/leaveBoard/{id}', name: 'app_leave_board')]
-    public function leaveBoard(int $id):Response
+    public function leaveBoard(int $id): Response
     {
         $board = $this->entityManagerInterface->getRepository(Board::class)->find($id);
         //get the logged user
@@ -137,7 +138,7 @@ class BoardController extends AbstractController
 
     //Redirect to the route of the game, using the id of the board
     #[Route('/showGame/{id}', name: 'app_join_game', methods: ['GET'])]
-    public function showGame(int $id):Response
+    public function showGame(int $id): Response
     {
         $board = $this->entityManagerInterface->getRepository(Board::class)->find($id);
         //get the label of the Game, which the GameViewerService need for the redirection
@@ -148,7 +149,7 @@ class BoardController extends AbstractController
     }
 
     #[Route('/checkInvitation/{id}', name: 'app_join_invitation', methods: ['GET'])]
-    public function checkInvitation(int $id):Response
+    public function checkInvitation(int $id): Response
     {
         $board = $this->entityManagerInterface->getRepository(Board::class)->find($id);
         $userId = $this->security->getUser()->getId();

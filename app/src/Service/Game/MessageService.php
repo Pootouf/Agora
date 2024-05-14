@@ -11,9 +11,10 @@ class MessageService
 {
     private MessageRepository $messageRepository;
     private EntityManagerInterface $entityManager;
-    public function __construct(EntityManagerInterface $entityManager,
-                                MessageRepository $messageRepository)
-    {
+    public function __construct(
+        EntityManagerInterface $entityManager,
+        MessageRepository $messageRepository
+    ) {
         $this->entityManager = $entityManager;
         $this->messageRepository = $messageRepository;
     }

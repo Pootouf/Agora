@@ -9,7 +9,6 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: SeasonMYRRepository::class)]
 class SeasonMYR extends Component
 {
-
     #[ORM\Column]
     private ?int $diceResult = null;
 

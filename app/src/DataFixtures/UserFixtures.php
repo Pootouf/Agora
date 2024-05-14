@@ -13,16 +13,16 @@ class UserFixtures extends Fixture
 {
     public function load(ObjectManager $manager): void
     {
-       for ($i = 0; $i <= 11; ++$i) {
-           $user = new User();
-           $username = "test" . $i;
-           $user->setUsername($username);
-           $user->setPassword("test");
-           $user->setEmail("test".$i."@test.com");
-           $user->setRoles(['ROLE_USER']);
-           $manager->persist($user);
-       }
+        for ($i = 0; $i <= 11; ++$i) {
+            $user = new User();
+            $username = "test" . $i;
+            $user->setUsername($username);
+            $user->setPassword("test");
+            $user->setEmail("test".$i."@test.com");
+            $user->setRoles(['ROLE_USER']);
+            $manager->persist($user);
+        }
 
-       $manager->flush();
+        $manager->flush();
     }
 }

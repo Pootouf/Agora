@@ -11,16 +11,16 @@ use Doctrine\ORM\Id\AbstractIdGenerator;
 
 class GameIdGenerator extends AbstractIdGenerator
 {
-
-    public function __construct(private readonly GameSixQPRepository $gameSixQPRepository,
-                                private readonly GameSPLRepository $gameSPLRepository,
-                                private readonly GameGLMRepository $gameGLMRepository,
-                                private readonly GameMYRRepository $gameMYRRepository)
-    {
+    public function __construct(
+        private readonly GameSixQPRepository $gameSixQPRepository,
+        private readonly GameSPLRepository $gameSPLRepository,
+        private readonly GameGLMRepository $gameGLMRepository,
+        private readonly GameMYRRepository $gameMYRRepository
+    ) {
 
     }
 
-    public function generateId(EntityManagerInterface $em, $entity) : mixed
+    public function generateId(EntityManagerInterface $em, $entity): mixed
     {
         $game = $this->gameSixQPRepository->findOneBy([], ['id' => 'DESC']);
         $id = $game == null ? 0 : $game->getId();

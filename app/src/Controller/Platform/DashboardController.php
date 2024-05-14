@@ -20,8 +20,6 @@ use App\Form\Platform\EditProfileType;
 use Symfony\Component\HttpFoundation\Request;
 use App\Entity\Game\Message;
 
-
-
 class DashboardController extends AbstractController
 {
     private $notifications;
@@ -51,8 +49,7 @@ class DashboardController extends AbstractController
             $currentBoards = $userRepository->findBoardsByUserAndStatus($userId, "IN_GAME");
             $pastBoards = $userRepository->findBoardsByUserAndStatus($userId, "WAITING");
             $userBan = $this->security->getUser()->isIsBanned();
-        }
-        else {
+        } else {
             $favGames = null;
             $currentBoards = null;
             $pastBoards = null;
@@ -60,7 +57,7 @@ class DashboardController extends AbstractController
         }
         return $this->render('platform/dashboard/profile.html.twig', [
             'fav_games' => $favGames,
-            'current_boards'=> $currentBoards,
+            'current_boards' => $currentBoards,
             'past_boards' => $pastBoards,
             'notifications' => $this->notifications,
             'userban' => $userBan
@@ -68,7 +65,7 @@ class DashboardController extends AbstractController
     }
 
     #[Route('/dashboard/profile/{user_id}', name: 'app_other_user_profile', requirements: ['user_id' => '\d+'])]
-    public function getUserProfile(int $user_id) : Response
+    public function getUserProfile(int $user_id): Response
     {
         $userRepository = $this->entityManager->getRepository(User::class);
         $boardRepository = $this->entityManager->getRepository(Board::class);
@@ -82,7 +79,7 @@ class DashboardController extends AbstractController
 
         return $this->render('platform/dashboard/profile.html.twig', [
             'fav_games' => $favGames,
-            'current_boards'=> $currentBoards,
+            'current_boards' => $currentBoards,
             'past_boards' => $pastBoards,
             'userProfile' => $user,
             'notifications' => $this->notifications,
@@ -124,14 +121,14 @@ class DashboardController extends AbstractController
     #[Route('/dashboard/user', name: 'app_dashboard_user', methods: ['GET'])]
     public function boardsUser(Request $request, BoardRepository $boardRepository): Response
     {
-//        check if we have a connected user
-        if($this->security->getUser()){
-//        Get all boards where this connected user participate
+        //        check if we have a connected user
+        if($this->security->getUser()) {
+            //        Get all boards where this connected user participate
             $boards = $this->security->getUser()->getBoards();
-        }else{
+        } else {
             $boards = null;
         }
-//        Create a data model to retrieve information of form
+        //        Create a data model to retrieve information of form
         $data = new SearchData();
         $form = $this->createForm(SearchBoardType::class, $data);
         $form->handleRequest($request);
@@ -167,14 +164,14 @@ class DashboardController extends AbstractController
     #[Route('/dashboard/game/{id}/tables', name: 'app_boards_game', requirements: ['id' => '\d+'], methods: ['GET'])]
     public function tablesByGame(int $id, BoardRepository $boardRepository, Request $request): Response
     {
-//        retrieve game by id
+        //        retrieve game by id
         $game = $this->entityManager->getRepository(Game::class)->find($id);
-        if($game){
+        if($game) {
             $boards = $boardRepository->findBy(['game' => $game], ['creationDate' => 'DESC']);
-        }else{
+        } else {
             $boards = null;
         }
-//        Create a data model to retrieve information of form and search boards of a unique game
+        //        Create a data model to retrieve information of form and search boards of a unique game
         $data = new SearchData();
         $form = $this->createForm(SearchBoardType::class, $data);
         $form->handleRequest($request);
@@ -270,11 +267,11 @@ class DashboardController extends AbstractController
         ]);
     }
 
-     /**
-     * @param EntityManagerInterface $entityManager The entity manager to interact with the database
-     *
-     * @return Response  HTTP response: list of games page
-     */
+    /**
+    * @param EntityManagerInterface $entityManager The entity manager to interact with the database
+    *
+    * @return Response  HTTP response: list of games page
+    */
     #[Route('/admin/banmanager', name: 'app_dashboard_banmanager')]
     public function dashboard_banmanager(): Response
     {

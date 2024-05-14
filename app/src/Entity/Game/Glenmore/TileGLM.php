@@ -11,7 +11,6 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: TileGLMRepository::class)]
 class TileGLM extends Tile
 {
-
     #[ORM\ManyToMany(targetEntity: TileBuyCostGLM::class)]
     #[ORM\JoinColumn(nullable: true)]
     private Collection $buyPrice;

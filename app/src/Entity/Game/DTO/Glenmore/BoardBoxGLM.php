@@ -12,7 +12,6 @@ use Exception;
  */
 class BoardBoxGLM
 {
-
     private ?PawnGLM $pawn = null;
     private ?BoardTileGLM $tile = null;
 
@@ -37,7 +36,7 @@ class BoardBoxGLM
      * hasTile : indicate if the board's box has a tile
      * @return bool
      */
-    public function hasTile() : bool
+    public function hasTile(): bool
     {
         return $this->tile != null;
     }
@@ -46,7 +45,7 @@ class BoardBoxGLM
      * hasPawn : indicate if the board's box has a pawn
      * @return bool
      */
-    public function hasPawn() : bool
+    public function hasPawn(): bool
     {
         return $this->pawn != null;
     }
@@ -55,7 +54,7 @@ class BoardBoxGLM
      * isEmptyBox : indicate if the board's box is empty
      * @return bool
      */
-    public function isEmptyBox() : bool
+    public function isEmptyBox(): bool
     {
         return $this->pawn == null && $this->tile == null;
     }
@@ -64,7 +63,7 @@ class BoardBoxGLM
      * getTile : return the tile presents on the board's box
      * @return ?BoardTileGLM
      */
-    public function getTile() : ?BoardTileGLM
+    public function getTile(): ?BoardTileGLM
     {
         return $this->tile;
     }
@@ -73,7 +72,7 @@ class BoardBoxGLM
      * getPawn : return the pawn presents on the board's box
      * @return ?PawnGLM
      */
-    public function getPawn() : ?PawnGLM
+    public function getPawn(): ?PawnGLM
     {
         return $this->pawn;
     }

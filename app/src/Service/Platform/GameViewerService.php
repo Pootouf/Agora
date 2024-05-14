@@ -2,7 +2,6 @@
 
 namespace App\Service\Platform;
 
-
 class GameViewerService
 {
     private array $routesArray;
@@ -20,7 +19,8 @@ class GameViewerService
 
 
     //return the route of the game with its label and id
-    public function getGameViewRouteFromLabel(string $label){
+    public function getGameViewRouteFromLabel(string $label)
+    {
         return $this->routesArray[$label];
     }
 }
