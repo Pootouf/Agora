@@ -9,7 +9,6 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: PlayerSPLRepository::class)]
 class PlayerSPL extends Player
 {
-
     #[ORM\OneToOne(inversedBy: 'playerSPL', cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?PersonalBoardSPL $personalBoard = null;

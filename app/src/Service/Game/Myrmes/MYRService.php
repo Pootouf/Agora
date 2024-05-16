@@ -34,17 +34,17 @@ use Exception;
 
 class MYRService
 {
-
-    public function __construct(private PlayerMYRRepository $playerMYRRepository,
-                private readonly EntityManagerInterface $entityManager,
-                private readonly NurseMYRRepository $nurseMYRRepository,
-                private readonly TileMYRRepository $tileMYRRepository,
-                private readonly TileTypeMYRRepository $tileTypeMYRRepository,
-                private readonly SeasonMYRRepository $seasonMYRRepository,
-                private readonly GoalMYRRepository $goalMYRRepository,
-                private readonly ResourceMYRRepository $resourceMYRRepository,
-                private readonly PlayerResourceMYRRepository $playerResourceMYRRepository,)
-    {
+    public function __construct(
+        private PlayerMYRRepository $playerMYRRepository,
+        private readonly EntityManagerInterface $entityManager,
+        private readonly NurseMYRRepository $nurseMYRRepository,
+        private readonly TileMYRRepository $tileMYRRepository,
+        private readonly TileTypeMYRRepository $tileTypeMYRRepository,
+        private readonly SeasonMYRRepository $seasonMYRRepository,
+        private readonly GoalMYRRepository $goalMYRRepository,
+        private readonly ResourceMYRRepository $resourceMYRRepository,
+        private readonly PlayerResourceMYRRepository $playerResourceMYRRepository,
+    ) {
 
     }
 
@@ -53,7 +53,7 @@ class MYRService
      * @param PlayerMYR $player
      * @return int
      */
-    public function getNumberOfFreeWorkerOfPlayer(PlayerMYR $player) : int
+    public function getNumberOfFreeWorkerOfPlayer(PlayerMYR $player): int
     {
         return $player->getPersonalBoardMYR()->getAnthillWorkers()->filter(
             function (AnthillWorkerMYR $anthillWorkerMYR) {
@@ -67,7 +67,7 @@ class MYRService
      * @param PlayerMYR $player
      * @return Collection<NurseMYR>
      */
-    public function getNursesInWorkshopFromPlayer(PlayerMYR $player) : Collection
+    public function getNursesInWorkshopFromPlayer(PlayerMYR $player): Collection
     {
         return $player->getPersonalBoardMYR()->getNurses()->filter(
             function (NurseMYR $nurse) {
@@ -81,7 +81,7 @@ class MYRService
      * @param int $orientation
      * @return TileTypeMYR|null
      */
-    public function getTileTypeFromTypeAndOrientation(int $type, int $orientation) : ?TileTypeMYR
+    public function getTileTypeFromTypeAndOrientation(int $type, int $orientation): ?TileTypeMYR
     {
         return $this->tileTypeMYRRepository->findOneBy([
             "type" => $type, "orientation" => $orientation
@@ -96,11 +96,11 @@ class MYRService
      */
     public function getPlayerResourceAmount(PlayerMYR $playerMYR, string $resourceName): int
     {
-        $resource = $this->resourceMYRRepository->findOneBy(["description"=>$resourceName]);
+        $resource = $this->resourceMYRRepository->findOneBy(["description" => $resourceName]);
         $playerResource = $this->playerResourceMYRRepository->findOneBy(
             ["resource" => $resource, "personalBoard" => $playerMYR->getPersonalBoardMYR()]
         );
-        return $playerResource== null ? 0 : $playerResource->getQuantity();
+        return $playerResource == null ? 0 : $playerResource->getQuantity();
     }
 
     /**
@@ -159,7 +159,7 @@ class MYRService
      * @param GameMYR $game
      * @return void
      */
-    public function initializeNewGame(GameMYR $game) : void
+    public function initializeNewGame(GameMYR $game): void
     {
         $this->initializeNewYear($game);
 
@@ -192,7 +192,7 @@ class MYRService
      * @param int $type
      * @return ArrayCollection<Int, TileTypeMYR>
      */
-    public function getPheromonesFromType(int $type) : ArrayCollection
+    public function getPheromonesFromType(int $type): ArrayCollection
     {
         return new ArrayCollection($this->tileTypeMYRRepository->findBy(
             ["type" => $type]
@@ -204,7 +204,7 @@ class MYRService
      * @param GameMYR $game
      * @return ArrayCollection<Int, Int>
      */
-    public function getDiceResults(GameMYR $game) : ArrayCollection
+    public function getDiceResults(GameMYR $game): ArrayCollection
     {
         $result = new ArrayCollection();
         $mainBoard = $game->getMainBoardMYR();
@@ -229,7 +229,7 @@ class MYRService
      * @param GameMYR $game
      * @return SeasonMYR|null
      */
-    public function getActualSeason(GameMYR $game) : ?SeasonMYR
+    public function getActualSeason(GameMYR $game): ?SeasonMYR
     {
         foreach ($game->getMainBoardMYR()->getSeasons() as $season) {
             if ($season->isActualSeason()) {
@@ -245,14 +245,12 @@ class MYRService
      * @param string $type
      * @return PlayerResourceMYR|null
      */
-    public function getPlayerResourceOfType(PlayerMYR $player, string $type) : ?PlayerResourceMYR
+    public function getPlayerResourceOfType(PlayerMYR $player, string $type): ?PlayerResourceMYR
     {
         $personalBoard = $player->getPersonalBoardMYR();
 
-        foreach ($personalBoard->getPlayerResourceMYRs() as $playerResource)
-        {
-            if ($playerResource->getResource()->getDescription() === $type)
-            {
+        foreach ($personalBoard->getPlayerResourceMYRs() as $playerResource) {
+            if ($playerResource->getResource()->getDescription() === $type) {
                 return $playerResource;
             }
         }
@@ -265,7 +263,7 @@ class MYRService
      * @param GameMYR $game
      * @return bool
      */
-    public function isGameEnded(GameMYR $game) : bool
+    public function isGameEnded(GameMYR $game): bool
     {
         return $game->getMainBoardMYR()->getYearNum() > MyrmesParameters::THIRD_YEAR_NUM;
     }
@@ -288,7 +286,7 @@ class MYRService
      * @param GameMYR $game
      * @return PlayerMYR|null
      */
-    public function getActualPlayer(GameMYR $game) : ?PlayerMYR
+    public function getActualPlayer(GameMYR $game): ?PlayerMYR
     {
         $result = $game->getPlayers()->filter(
             function (PlayerMYR $player) {
@@ -306,7 +304,7 @@ class MYRService
      * @return void
      * @throws Exception
      */
-    public function manageNursesAfterBonusGive(PlayerMYR $player, int $nurseCount, int $positionOfNurse) : void
+    public function manageNursesAfterBonusGive(PlayerMYR $player, int $nurseCount, int $positionOfNurse): void
     {
         if ($nurseCount > 0) {
             $nurses = $this->getNursesAtPosition($player, $positionOfNurse);
@@ -467,7 +465,7 @@ class MYRService
      * @param GameMYR $game
      * @return void
      */
-    public function manageEndOfRound(GameMYR $game) : void
+    public function manageEndOfRound(GameMYR $game): void
     {
         $players = $game->getPlayers();
         foreach ($players as $player) {
@@ -488,7 +486,7 @@ class MYRService
      * @param PlayerMYR $player
      * @return void
      */
-    public function exchangeLarvaeForFood(PlayerMYR $player) : void
+    public function exchangeLarvaeForFood(PlayerMYR $player): void
     {
         $larvaeAvailable = $this->getAvailableLarvae($player);
         $personalBoard = $player->getPersonalBoardMYR();
@@ -512,7 +510,7 @@ class MYRService
      * @param string $seasonName
      * @return void
      */
-    private function initializeNewSeason(GameMYR $game, string $seasonName) : void
+    private function initializeNewSeason(GameMYR $game, string $seasonName): void
     {
         $season = new SeasonMYR();
         $mainBoard = $game->getMainBoardMYR();
@@ -533,12 +531,12 @@ class MYRService
      * @param GameMYR $game
      * @return void
      */
-    private function resetGameGoalsDoneDuringTheRound(GameMYR $game) : void
+    private function resetGameGoalsDoneDuringTheRound(GameMYR $game): void
     {
         $mainBoard = $game->getMainBoardMYR();
         foreach ($mainBoard->getGameGoalsLevelOne() as $gameGoal) {
-           $gameGoal->getGoalAlreadyDone()->clear();
-           $this->entityManager->persist($gameGoal);
+            $gameGoal->getGoalAlreadyDone()->clear();
+            $this->entityManager->persist($gameGoal);
         }
         foreach ($mainBoard->getGameGoalsLevelTwo() as $gameGoal) {
             $gameGoal->getGoalAlreadyDone()->clear();
@@ -556,7 +554,7 @@ class MYRService
      * @param PlayerMYR $player
      * @return void
      */
-    private function discardLarvae(PlayerMYR $player) : void
+    private function discardLarvae(PlayerMYR $player): void
     {
         $selectedLarvae = $player->getPersonalBoardMYR()->getSelectedEventLarvaeAmount();
         $playerLarvae = $player->getPersonalBoardMYR()->getLarvaCount();
@@ -571,7 +569,7 @@ class MYRService
      * @param PlayerMYR $player
      * @return void
      */
-    private function replaceWorkers(PlayerMYR $player) : void
+    private function replaceWorkers(PlayerMYR $player): void
     {
         $anthillWorkers = $player->getPersonalBoardMYR()->getAnthillWorkers();
         foreach ($anthillWorkers as $worker) {
@@ -587,7 +585,7 @@ class MYRService
      * @param PlayerMYR $player
      * @return void
      */
-    private function replaceNurses(PlayerMYR $player) : void
+    private function replaceNurses(PlayerMYR $player): void
     {
         $nurses = $player->getPersonalBoardMYR()->getNurses();
         foreach ($nurses as $nurse) {
@@ -601,7 +599,7 @@ class MYRService
      * @param GameMYR $game
      * @return void
      */
-    private function initializePreys(GameMYR $game) : void
+    private function initializePreys(GameMYR $game): void
     {
         $positions = MyrmesParameters::PREY_POSITIONS;
         shuffle($positions);
@@ -631,7 +629,7 @@ class MYRService
      * @param array $position
      * @return void
      */
-    private function initializePrey(GameMYR $game, string $type, array $position) : void
+    private function initializePrey(GameMYR $game, string $type, array $position): void
     {
         $prey = new PreyMYR();
         $prey->setType($type);
@@ -648,7 +646,7 @@ class MYRService
      * @param string $color
      * @return void
      */
-    private function initializePlayerData(PlayerMYR $player, string $color) : void
+    private function initializePlayerData(PlayerMYR $player, string $color): void
     {
         $personalBoard = $player->getPersonalBoardMYR();
         for ($i = 0; $i < MyrmesParameters::START_NURSES_COUNT_PER_PLAYER; $i++) {
@@ -676,7 +674,7 @@ class MYRService
      * @param PlayerMYR $player
      * @return void
      */
-    private function initializePlayerWorkshopActions(PlayerMYR $player) : void
+    private function initializePlayerWorkshopActions(PlayerMYR $player): void
     {
         $actions = $player->getWorkshopActions();
         for($i = MyrmesParameters::WORKSHOP_GOAL_AREA; $i <= MyrmesParameters::WORKSHOP_NURSE_AREA; $i++) {
@@ -690,7 +688,7 @@ class MYRService
      * @param PlayerMYR $player
      * @return void
      */
-    private function initializePlayerResources(PlayerMYR $player) : void
+    private function initializePlayerResources(PlayerMYR $player): void
     {
         foreach ($this->resourceMYRRepository->findAll() as $resource) {
             $playerResource = new PlayerResourceMYR();
@@ -708,7 +706,7 @@ class MYRService
      * @param PlayerMYR $player
      * @return void
      */
-    private function initializeNurse(PlayerMYR $player) : void
+    private function initializeNurse(PlayerMYR $player): void
     {
         $nurse = new NurseMYR();
         $nurse->setArea(MyrmesParameters::BASE_AREA);
@@ -723,7 +721,7 @@ class MYRService
      * @param PlayerMYR $player
      * @return void
      */
-    private function initializeWorker(PlayerMYR $player) : void
+    private function initializeWorker(PlayerMYR $player): void
     {
         $worker = new AnthillWorkerMYR();
         $worker->setWorkFloor(MyrmesParameters::NO_WORKFLOOR);
@@ -738,7 +736,7 @@ class MYRService
      * @param array $position
      * @return void
      */
-    private function initializeAnthillHoleForPlayer(PlayerMYR $player, array $position) : void
+    private function initializeAnthillHoleForPlayer(PlayerMYR $player, array $position): void
     {
         $tile = $this->tileMYRRepository->findOneBy(['coordX' => $position[0], 'coordY' => $position[1]]);
         $hole = new AnthillHoleMYR();
@@ -757,7 +755,7 @@ class MYRService
      * @param string $color
      * @return void
      */
-    private function initializeColorForPlayer(PlayerMYR $player, string $color) : void
+    private function initializeColorForPlayer(PlayerMYR $player, string $color): void
     {
         $player->setColor($color);
         $this->entityManager->persist($player);
@@ -770,7 +768,7 @@ class MYRService
      * @param GameMYR $game
      * @return void
      */
-    private function initializeEventBonus(GameMYR $game) : void
+    private function initializeEventBonus(GameMYR $game): void
     {
         foreach ($game->getPlayers() as $player) {
             $player->getPersonalBoardMYR()->setBonus($this->getActualSeason($game)->getDiceResult());
@@ -785,7 +783,7 @@ class MYRService
      * @param GameMYR $game
      * @return void
      */
-    private function initializeMainBoardTiles(GameMYR $game) : void
+    private function initializeMainBoardTiles(GameMYR $game): void
     {
         $numberOfPlayers = $game->getPlayers()->count();
         $tiles = $this->tileMYRRepository->findAll();
@@ -824,7 +822,7 @@ class MYRService
         switch ($phase) {
             case MyrmesParameters::PHASE_HARVEST :
                 $this->setPheromonesHarvestedIfNoResourcesOnIt($players);
-                // No break because harvest is also a parallel phase
+                // no break because harvest is also a parallel phase
             case MyrmesParameters::PHASE_EVENT :
             case MyrmesParameters::PHASE_BIRTH :
             case MyrmesParameters::PHASE_WINTER :
@@ -887,7 +885,7 @@ class MYRService
      * @param GameGoalMYR $goalMYR
      * @return bool
      */
-    private function canDoGoal(PlayerMYR $playerMYR, GameGoalMYR $goalMYR) : bool
+    private function canDoGoal(PlayerMYR $playerMYR, GameGoalMYR $goalMYR): bool
     {
         $playerGameGoals = $playerMYR->getGameGoalMYRs();
         if($playerGameGoals->contains($goalMYR)) {
@@ -911,7 +909,7 @@ class MYRService
      * @param GameGoalMYR $goalMYR
      * @return void
      */
-    private function computePlayerRewardPointsWithGoal(PlayerMYR $playerMYR, GameGoalMYR $goalMYR) : void
+    private function computePlayerRewardPointsWithGoal(PlayerMYR $playerMYR, GameGoalMYR $goalMYR): void
     {
         $precedentPlayers = $goalMYR->getPrecedentsPlayers();
         foreach ($precedentPlayers as $player) {
@@ -941,7 +939,7 @@ class MYRService
      * @param GameMYR $game
      * @return void
      */
-    private function endRoundOfFirstPlayer(GameMYR $game) : void
+    private function endRoundOfFirstPlayer(GameMYR $game): void
     {
         $players = $game->getPlayers();
         $firstPlayer = $game->getFirstPlayer();
@@ -964,7 +962,7 @@ class MYRService
      * @param GameMYR $game
      * @return void
      */
-    private function endSeason(GameMYR $game) : void
+    private function endSeason(GameMYR $game): void
     {
         $mainBoard = $game->getMainBoardMYR();
         if ($game->getGamePhase() == MyrmesParameters::PHASE_WINTER) {
@@ -1005,7 +1003,7 @@ class MYRService
      * @param GameMYR $game
      * @return void
      */
-    private function initializeNewYear(GameMYR $game) : void
+    private function initializeNewYear(GameMYR $game): void
     {
         $this->clearSeasons($game);
         $yearNum = $game->getMainBoardMYR()->getYearNum();
@@ -1031,7 +1029,7 @@ class MYRService
      * @param GameMYR $game
      * @return void
      */
-    private function initializeGoals(GameMYR $game) : void
+    private function initializeGoals(GameMYR $game): void
     {
         $goalsLevelOne = $this->goalMYRRepository->findBy([
             'difficulty' => MyrmesParameters::GOAL_DIFFICULTY_LEVEL_ONE
@@ -1063,7 +1061,7 @@ class MYRService
      * @param MainBoardMYR $mainBoard
      * @return void
      */
-    private function createGameGoal(GoalMYR $goal, MainBoardMYR $mainBoard) : void
+    private function createGameGoal(GoalMYR $goal, MainBoardMYR $mainBoard): void
     {
         $gameGoal = new GameGoalMYR();
         $gameGoal->setGoal($goal);
@@ -1093,7 +1091,7 @@ class MYRService
      * @param GameMYR $game
      * @return void
      */
-    private function clearSeasons(GameMYR $game) : void
+    private function clearSeasons(GameMYR $game): void
     {
         $seasons = $game->getMainBoardMYR()->getSeasons();
         foreach ($seasons as $season) {
@@ -1103,7 +1101,7 @@ class MYRService
         $this->entityManager->flush();
     }
 
-    private function resetWorkshopActions(PlayerMYR $player) : void
+    private function resetWorkshopActions(PlayerMYR $player): void
     {
         $playerActions = array();
         for($j = MyrmesParameters::WORKSHOP_GOAL_AREA; $j <= MyrmesParameters::WORKSHOP_NURSE_AREA; $j += 1) {
@@ -1120,7 +1118,7 @@ class MYRService
      * @param GameMYR $game
      * @return bool
      */
-    private function canPlayersStillDoWorkerPhase(GameMYR $game) : bool
+    private function canPlayersStillDoWorkerPhase(GameMYR $game): bool
     {
         return $game->getPlayers()->exists(
             function (int $key, PlayerMYR $player) {
@@ -1135,7 +1133,7 @@ class MYRService
      * @param Collection<PlayerMYR> $players
      * @return void
      */
-    private function setPheromonesHarvestedIfNoResourcesOnIt(Collection $players) : void
+    private function setPheromonesHarvestedIfNoResourcesOnIt(Collection $players): void
     {
         foreach ($players as $player) {
             foreach ($player->getPheromonMYRs() as $pheromone) {

@@ -11,7 +11,6 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: PlayerTileGLMRepository::class)]
 class PlayerTileGLM extends Component
 {
-
     #[ORM\ManyToOne(inversedBy: 'playerTiles')]
     #[ORM\JoinColumn(nullable: false)]
     private ?PersonalBoardGLM $personalBoard = null;
@@ -35,10 +34,12 @@ class PlayerTileGLM extends Component
     #[ORM\Column]
     private ?bool $activated = false;
 
-    #[ORM\OneToMany(targetEntity: SelectedResourceGLM::class,
+    #[ORM\OneToMany(
+        targetEntity: SelectedResourceGLM::class,
         mappedBy: 'playerTile',
         orphanRemoval: true,
-        cascade: ["persist"])]
+        cascade: ["persist"]
+    )]
     private Collection $selectedResources;
 
     public function __construct()

@@ -11,7 +11,6 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: DiscardSixQPRepository::class)]
 class DiscardSixQP extends Component
 {
-
     #[ORM\OneToOne(inversedBy: 'discardSixQP', cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?PlayerSixQP $player;

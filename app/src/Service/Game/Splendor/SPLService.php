@@ -24,15 +24,16 @@ use Exception;
 
 class SPLService
 {
-
-    public function __construct(private EntityManagerInterface $entityManager,
+    public function __construct(
+        private EntityManagerInterface $entityManager,
         private PlayerSPLRepository $playerSPLRepository,
         private RowSPLRepository $rowSPLRepository,
         private NobleTileSPLRepository $nobleTileSPLRepository,
         private DevelopmentCardsSPLRepository $developmentCardsSPLRepository,
         private PlayerCardSPLRepository $playerCardSPLRepository,
-        private DrawCardsSPLRepository $drawCardsSPLRepository)
-    { }
+        private DrawCardsSPLRepository $drawCardsSPLRepository
+    ) {
+    }
 
     public function getRowsFromGame(GameSPL $game)
     {
@@ -44,7 +45,7 @@ class SPLService
      * @param DrawCardsSPL $draw
      * @return DevelopmentCardsSPL|null
      */
-    public function getCardFromDraw(DrawCardsSPL $draw) : ?DevelopmentCardsSPL
+    public function getCardFromDraw(DrawCardsSPL $draw): ?DevelopmentCardsSPL
     {
         $cards = $draw->getDevelopmentCards()->toArray();
         shuffle($cards);
@@ -77,7 +78,7 @@ class SPLService
      * @param PlayerSPL $player
      * @return array<PlayerCardSPL>
      */
-    public function getReservedCards(PlayerSPL $player) : array
+    public function getReservedCards(PlayerSPL $player): array
     {
         $personalBoard = $player->getPersonalBoard();
 
@@ -92,7 +93,7 @@ class SPLService
      * @param PlayerSPL $player
      * @return array<PlayerCardSPL>
      */
-    public function getPurchasedCards(PlayerSPL $player) : array
+    public function getPurchasedCards(PlayerSPL $player): array
     {
         $personalBoard = $player->getPersonalBoard();
 
@@ -155,14 +156,16 @@ class SPLService
     public function getRanking(GameSPL $gameSPL): array
     {
         $array = $gameSPL->getPlayers()->toArray();
-        usort($array,
-            function(PlayerSPL $player1, PlayerSPL $player2) {
+        usort(
+            $array,
+            function (PlayerSPL $player1, PlayerSPL $player2) {
                 $gap = $player2->getScore() - $player1->getScore();
                 if ($gap == 0) {
                     return $this->getBoughtDevelopmentCards($player2) - $this->getBoughtDevelopmentCards($player1);
                 }
                 return $gap;
-            });
+            }
+        );
         return $array;
     }
 
@@ -171,7 +174,7 @@ class SPLService
      * @param PlayerSPL $player
      * @return int
      */
-    public function getBoughtDevelopmentCards(PlayerSPL $player) : int
+    public function getBoughtDevelopmentCards(PlayerSPL $player): int
     {
         $result = 0;
         foreach ($player->getPersonalBoard()->getPlayerCards() as $card) {
@@ -199,7 +202,7 @@ class SPLService
      * @param GameSPL $game
      * @return Collection<DevelopmentCardsSPL>
      */
-    public function getDrawCardsByLevel(int $level, GameSPL $game) : Collection
+    public function getDrawCardsByLevel(int $level, GameSPL $game): Collection
     {
         return $game->getMainBoard()->getDrawCards()->get($level)->getDevelopmentCards();
     }
@@ -212,8 +215,8 @@ class SPLService
      */
     public function getPlayerCardFromDevelopmentCard(
         GameSPL $game,
-        DevelopmentCardsSPL $developmentCard): ?PlayerCardSPL
-    {
+        DevelopmentCardsSPL $developmentCard
+    ): ?PlayerCardSPL {
         foreach($game->getPlayers() as $player) {
             $temp = $this->playerCardSPLRepository->findOneBy([
                 'personalBoardSPL' => $player->getPersonalBoard(),
@@ -292,14 +295,12 @@ class SPLService
      * @param string $color
      * @return int
      */
-    public function getNumberOfTokenAtColor(Collection $tokens, string $color) : int
+    public function getNumberOfTokenAtColor(Collection $tokens, string $color): int
     {
         $count = 0;
-        for ($i = 0; $i < $tokens->count(); $i++)
-        {
+        for ($i = 0; $i < $tokens->count(); $i++) {
             $token = $tokens->get($i);
-            if ($token->getColor() === $color)
-            {
+            if ($token->getColor() === $color) {
                 $count += 1;
             }
         }
@@ -377,10 +378,9 @@ class SPLService
      * @return array
      * @throws Exception
      */
-    public function reserveCard(PlayerSPL $player, DevelopmentCardsSPL $card) : array
+    public function reserveCard(PlayerSPL $player, DevelopmentCardsSPL $card): array
     {
-        if (!$this->canReserveCard($player, $card))
-        {
+        if (!$this->canReserveCard($player, $card)) {
             throw new Exception("You can't reserve cards");
         }
 
@@ -392,8 +392,7 @@ class SPLService
         //      COMES_OF_ROWS if the player reserve a card from main board
         //      COMES_OF_DRAW_CARD if the player reserve a card directly from the draw card
         $from = $this->whereIsThisCard($mainBoard, $card);
-        if ($from == -1)
-        {
+        if ($from == -1) {
             throw new Exception("An error has been received");
         }
 
@@ -403,8 +402,7 @@ class SPLService
         $this->entityManager->persist($playerCard);
         $this->entityManager->persist($personalBoard);
         $cardFromDraw = null;
-        if ($from === SplendorParameters::COMES_OF_THE_DISCARDS)
-        {
+        if ($from === SplendorParameters::COMES_OF_THE_DISCARDS) {
             $this->manageDiscard($mainBoard, $card);
         } else {
             $cardFromDraw = $this->manageRow($mainBoard, $card);
@@ -469,9 +467,10 @@ class SPLService
      *               newDevCard => the card added on the main board
      * @throws Exception if it's not the card of the player
      */
-    public function buyCard(PlayerSPL $playerSPL,
-                            DevelopmentCardsSPL $developmentCardsSPL): array
-    {
+    public function buyCard(
+        PlayerSPL $playerSPL,
+        DevelopmentCardsSPL $developmentCardsSPL
+    ): array {
         $playerCardSPL = $this->getPlayerCardFromDevelopmentCard($playerSPL->getGameSPL(), $developmentCardsSPL);
         if ($playerCardSPL != null
             && $playerCardSPL->getPersonalBoardSPL()->getPlayerSPL()->getId() != $playerSPL->getId()
@@ -482,7 +481,7 @@ class SPLService
         && !$playerCardSPL->isIsReserved()) {
             throw new Exception('Player already bought this card');
         }
-        if($this->hasEnoughMoney($playerSPL, $developmentCardsSPL)){
+        if($this->hasEnoughMoney($playerSPL, $developmentCardsSPL)) {
             if ($playerCardSPL == null) {
                 $playerCardSPL = new PlayerCardSPL($playerSPL, $developmentCardsSPL, false);
                 $playerSPL->getPersonalBoard()->addPlayerCard($playerCardSPL);
@@ -567,7 +566,8 @@ class SPLService
      * @param Collection $playerCards
      * @return array<String, Collection<PlayerCardSPL>> an array associating color with the cards of the player
      */
-    private function filterCardsByColor(Collection $playerCards): array {
+    private function filterCardsByColor(Collection $playerCards): array
+    {
         return [
             SplendorParameters::COLOR_BLUE => $this->getCardOfColor($playerCards, SplendorParameters::COLOR_BLUE),
             SplendorParameters::COLOR_BLACK => $this->getCardOfColor($playerCards, SplendorParameters::COLOR_BLACK),
@@ -608,8 +608,7 @@ class SPLService
         $cardsInDiscard = $discardsOfLevel->getDevelopmentCards();
         $numberOfCard = $cardsInDiscard->count();
         $discard = null;
-        if ($numberOfCard > 0)
-        {
+        if ($numberOfCard > 0) {
             $discard = $cardsInDiscard->get($numberOfCard - 1);
             $row->addDevelopmentCard($discard);
             $discardsOfLevel->removeDevelopmentCard($discard);
@@ -631,13 +630,13 @@ class SPLService
     {
         $personalBoard = $player->getPersonalBoard();
         $tokens = $personalBoard->getTokens();
-        if ($tokens->count() < SplendorParameters::PLAYER_MAX_TOKEN)
-        {
+        if ($tokens->count() < SplendorParameters::PLAYER_MAX_TOKEN) {
             $game = $player->getGameSPL();
             $mainBoard = $game->getMainBoard();
-            if ($this->getNumberOfTokenAtColorAtMainBoard($mainBoard,
-                SplendorParameters::LABEL_JOKER) > 0)
-            {
+            if ($this->getNumberOfTokenAtColorAtMainBoard(
+                $mainBoard,
+                SplendorParameters::LABEL_JOKER
+            ) > 0) {
                 $joker = $this->getJokerToken($mainBoard);
                 $personalBoard->addToken($joker);
                 $mainBoard->removeToken($joker);
@@ -649,40 +648,36 @@ class SPLService
         return false;
     }
 
-    private function getNumberOfTokenAtColorAtMainBoard(MainBoardSPL $mainBoard, string $color) : int
+    private function getNumberOfTokenAtColorAtMainBoard(MainBoardSPL $mainBoard, string $color): int
     {
         $tokens = $mainBoard->getTokens();
         return $this->getNumberOfTokenAtColor($tokens, $color);
     }
 
 
-    private function whereIsThisCard(MainBoardSPL $mainBoard, DevelopmentCardsSPL $card) : int
+    private function whereIsThisCard(MainBoardSPL $mainBoard, DevelopmentCardsSPL $card): int
     {
         $level = $card->getLevel() - 1;
         $row = $mainBoard->getRowsSPL()->get($level);
-        if ($row->getDevelopmentCards()->contains($card))
-        {
+        if ($row->getDevelopmentCards()->contains($card)) {
             return SplendorParameters::COMES_OF_THE_ROWS;
         }
 
         $discards = $mainBoard->getDrawCards()->get($level);
-        if ($discards->getDevelopmentCards()->contains($card))
-        {
+        if ($discards->getDevelopmentCards()->contains($card)) {
             return SplendorParameters::COMES_OF_THE_DISCARDS;
         }
 
         return -1;
     }
 
-    private function getJokerToken(MainBoardSPL $mainBoard) : TokenSPL
+    private function getJokerToken(MainBoardSPL $mainBoard): TokenSPL
     {
         $token = null;
         $tokens = $mainBoard->getTokens();
-        for ($i = 0; $i < $tokens->count(); $i++)
-        {
+        for ($i = 0; $i < $tokens->count(); $i++) {
             $token = $tokens->get($i);
-            if ($token->getColor() === SplendorParameters::LABEL_JOKER)
-            {
+            if ($token->getColor() === SplendorParameters::LABEL_JOKER) {
                 break;
             }
         }
@@ -703,12 +698,12 @@ class SPLService
 
 
         $difference = 0;
-        foreach ($cardPrice as $color => $amount){
-            if($playerMoney[$color] < $amount){
+        foreach ($cardPrice as $color => $amount) {
+            if($playerMoney[$color] < $amount) {
                 $difference += ($amount - $playerMoney[$color]);
             }
         }
-        if($playerMoney[SplendorParameters::COLOR_YELLOW] >= $difference){
+        if($playerMoney[SplendorParameters::COLOR_YELLOW] >= $difference) {
             return true;
         }
         return false;
@@ -723,14 +718,14 @@ class SPLService
     {
         $money = $this->initializeColorTab();
         $playerCards = $playerSPL->getPersonalBoard()->getPlayerCards();
-        foreach ($playerCards as $playerCard){
+        foreach ($playerCards as $playerCard) {
             if(!$playerCard->isIsReserved()) {
                 $cardColor = $playerCard->getDevelopmentCard()->getColor();
                 $money[$cardColor] += 1;
             }
         }
         $playerTokens = $playerSPL->getPersonalBoard()->getTokens();
-        foreach ($playerTokens as $playerToken){
+        foreach ($playerTokens as $playerToken) {
             $tokenColor = $playerToken->getColor();
             $money[$tokenColor] += 1;
         }
@@ -746,7 +741,7 @@ class SPLService
     {
         $price = $this->initializeColorTab();
         $cardCosts = $developmentCardsSPL->getCardCost();
-        foreach ($cardCosts as $cardCost){
+        foreach ($cardCosts as $cardCost) {
             $costColor = $cardCost->getColor();
             $price[$costColor] += $cardCost->getPrice();
         }
@@ -777,11 +772,11 @@ class SPLService
         $selectedTokensForAnimation = [];
 
         // remove non gold token
-        foreach ($cardPrice as $color => $amount){
+        foreach ($cardPrice as $color => $amount) {
             $tokens = $playerSPL->getPersonalBoard()->getTokens();
-            foreach ($tokens as $token){
+            foreach ($tokens as $token) {
                 if($token->getColor() == $color && $token->getColor() != SplendorParameters::COLOR_YELLOW
-                    && $amount > 0){
+                    && $amount > 0) {
                     $playerSPL->getPersonalBoard()->removeToken($token);
                     $amount -= 1;
                     $playerSPL->getGameSPL()->getMainBoard()->addToken($token);
@@ -791,11 +786,11 @@ class SPLService
         }
 
         // remove gold token if it is needed
-        foreach ($cardPrice as $amount){
-            if($amount > 0){
+        foreach ($cardPrice as $amount) {
+            if($amount > 0) {
                 $tokens = $playerSPL->getPersonalBoard()->getTokens();
-                foreach ($tokens as $token){
-                    if($token->getColor() == SplendorParameters::COLOR_YELLOW && $amount > 0){
+                foreach ($tokens as $token) {
+                    if($token->getColor() == SplendorParameters::COLOR_YELLOW && $amount > 0) {
                         $playerSPL->getPersonalBoard()->removeToken($token);
                         $amount -= 1;
                         $playerSPL->getGameSPL()->getMainBoard()->addToken($token);
@@ -807,7 +802,7 @@ class SPLService
         return $selectedTokensForAnimation;
     }
 
-    private function initializeColorTab():array
+    private function initializeColorTab(): array
     {
         $array[SplendorParameters::COLOR_YELLOW] = 0;
         $array[SplendorParameters::COLOR_RED] = 0;

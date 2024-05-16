@@ -15,9 +15,10 @@ class NotificationService
 
 
 
-    public function __construct(HubInterface $hub, EntityManagerInterface $entityManager){
-    $this->hub = $hub;
-    $this->entityManager = $entityManager;
+    public function __construct(HubInterface $hub, EntityManagerInterface $entityManager)
+    {
+        $this->hub = $hub;
+        $this->entityManager = $entityManager;
     }
 
     public function notifyGroup($topic, $content, $date, $type): void
@@ -43,7 +44,7 @@ class NotificationService
         $this->hub->publish($update);
     }
 
-    public function  storeNotification($user, $content, $type): void
+    public function storeNotification($user, $content, $type): void
     {
         $notification = new Notification();
         $notification->setContent($content);
@@ -65,13 +66,13 @@ class NotificationService
     public function getNotifications(Security $security)
     {
         $user = $security->getUser();
-        if ($user){
+        if ($user) {
             $notifications = $this->entityManager->getRepository(Notification::class)
                 ->findBy(
                     ['receiver' => $user, 'isRead' => false],
                     ['createdAt' => 'DESC'],
                 );
-        }else{
+        } else {
             $notifications = null;
         }
         return $notifications;

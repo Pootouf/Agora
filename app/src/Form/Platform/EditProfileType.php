@@ -15,7 +15,6 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
-
 class EditProfileType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -44,7 +43,7 @@ class EditProfileType extends AbstractType
                 ],
             ])
             ->add('submit', SubmitType::class, [
-                'label'=>'Modifier'
+                'label' => 'Modifier'
             ])
         ;
     }

@@ -23,32 +23,34 @@ class GameManagerService
 {
     private array $gameManagerServices;
 
-    public function __construct(private GameSixQPRepository             $gameSixQPRepository,
-                                private GameSPLRepository               $gameSPLRepository,
-                                private GameGLMRepository               $gameGLMRepository,
-                                private GameMYRRepository               $gameMYRRepository,
-                                private PlayerSixQPRepository           $playerSixQPRepository,
-                                private PlayerSPLRepository             $playerSPLRepository,
-                                private PlayerGLMRepository             $playerGLMRepository,
-                                private PlayerMYRRepository             $playerMYRRepository,
-                                SixQPGameManagerService                 $sixQPGameManagerService,
-                                SPLGameManagerService                   $splGameManagerService,
-                                GLMGameManagerService                   $glmGameManagerService,
-                                MYRGameManagerService                   $myrGameManagerService,
-                                private readonly EntityManagerInterface $entityManager
-    )
-    {
+    public function __construct(
+        private GameSixQPRepository             $gameSixQPRepository,
+        private GameSPLRepository               $gameSPLRepository,
+        private GameGLMRepository               $gameGLMRepository,
+        private GameMYRRepository               $gameMYRRepository,
+        private PlayerSixQPRepository           $playerSixQPRepository,
+        private PlayerSPLRepository             $playerSPLRepository,
+        private PlayerGLMRepository             $playerGLMRepository,
+        private PlayerMYRRepository             $playerMYRRepository,
+        SixQPGameManagerService                 $sixQPGameManagerService,
+        SPLGameManagerService                   $splGameManagerService,
+        GLMGameManagerService                   $glmGameManagerService,
+        MYRGameManagerService                   $myrGameManagerService,
+        private readonly EntityManagerInterface $entityManager
+    ) {
         $this->gameManagerServices[AbstractGameManagerService::SIXQP_LABEL] = $sixQPGameManagerService;
         $this->gameManagerServices[AbstractGameManagerService::SPL_LABEL] = $splGameManagerService;
         $this->gameManagerServices[AbstractGameManagerService::GLM_LABEL] = $glmGameManagerService;
         $this->gameManagerServices[AbstractGameManagerService::MYR_LABEL] = $myrGameManagerService;
     }
 
-    public function createGame(string $gameName): int {
+    public function createGame(string $gameName): int
+    {
         return $this->gameManagerServices[$gameName]->createGame();
     }
 
-    public function joinGame(int $gameId, User $user): int {
+    public function joinGame(int $gameId, User $user): int
+    {
         $game = $this->getGameFromId($gameId);
         if ($game == null) {
             return AbstractGameManagerService::ERROR_INVALID_GAME;
@@ -91,7 +93,8 @@ class GameManagerService
      * @param int $gameId
      * @return Game|null
      */
-    public function getGameFromId(int $gameId): ?Game {
+    public function getGameFromId(int $gameId): ?Game
+    {
         $game = $this->gameSixQPRepository->findOneBy(['id' => $gameId]);
         if ($game == null) {
             $game = $this->gameSPLRepository->findOneBy(['id' => $gameId]);
@@ -109,7 +112,8 @@ class GameManagerService
      * @param int $playerId
      * @return Player|null
      */
-    public function getPlayerFromId(int $playerId): ?Player {
+    public function getPlayerFromId(int $playerId): ?Player
+    {
         $player = $this->playerSixQPRepository->findOneBy(['id' => $playerId]);
         if ($player == null) {
             $player = $this->playerSPLRepository->findOneBy(['id' => $playerId]);
@@ -128,7 +132,8 @@ class GameManagerService
      * @param int $gameId
      * @return Player|null
      */
-    public function getExcludedPlayerFromGameId(int $gameId): ?Player {
+    public function getExcludedPlayerFromGameId(int $gameId): ?Player
+    {
         $player = $this->playerSixQPRepository->findOneBy(['game' => $gameId, 'excluded' => true]);
         if ($player == null) {
             $player = $this->playerSPLRepository->findOneBy(['gameSPL' => $gameId, 'excluded' => true]);

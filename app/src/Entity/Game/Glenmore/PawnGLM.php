@@ -9,7 +9,6 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: PawnGLMRepository::class)]
 class PawnGLM extends Pawn
 {
-
     #[ORM\Column]
     private ?int $position = null;
 

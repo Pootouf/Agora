@@ -16,22 +16,21 @@ class UserService
 
     public function __construct(
         EntityManagerInterface $entityManagerInterface
-    )
-    {
+    ) {
         $this->entityManagerInterface = $entityManagerInterface;
     }
 
     // Add the user $contactId to the contact list of the user $userId
-    public function addContact(int $userId, int $contactId) : int
+    public function addContact(int $userId, int $contactId): int
     {
         //User can't add himself in his contact list
-        if($userId == $contactId){
+        if($userId == $contactId) {
             return UserService::$ADD_HIMSELF_ERROR;
         }
         $userRepository = $this->entityManagerInterface->getRepository(User::class);
         $user = $userRepository->find($userId);
         $newContact = $userRepository->find($contactId);
-        if($user->getContacts()->contains($newContact)){
+        if($user->getContacts()->contains($newContact)) {
             return UserService::$ALREADY_CONTACT_ERROR;
         }
         $user->addContact($newContact);
@@ -45,7 +44,7 @@ class UserService
         $userRepository = $this->entityManagerInterface->getRepository(User::class);
         $user = $userRepository->find($userId);
         $newContact = $userRepository->find($contactId);
-        if(!$user->getContacts()->contains($newContact)){
+        if(!$user->getContacts()->contains($newContact)) {
             return UserService::$NOT_A_CONTACT_ERROR;
         }
         $user->removeContact($newContact);

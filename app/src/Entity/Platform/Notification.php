@@ -32,8 +32,8 @@ class Notification
     private ?string $title = null;
 
 
-    public  static string $TYPE_MESSAGE = "Message";
-    public  static string $TYPE_INVITATION = "Invitation";
+    public static string $TYPE_MESSAGE = "Message";
+    public static string $TYPE_INVITATION = "Invitation";
 
     /**
      * Gets the ID of the notification.
@@ -137,12 +137,11 @@ class Notification
         return $this;
     }
 
-    
+
     /**
      * Constructs a new Notification object.
      */
-    public function __construct
-    ()
+    public function __construct()
     {
         $this->createdAt = new \DateTime();
         $this->isRead = false;

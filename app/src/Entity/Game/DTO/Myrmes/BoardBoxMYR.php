@@ -29,10 +29,16 @@ class BoardBoxMYR
     /**
      * @throws Exception
      */
-    public function __construct(?TileMYR $tile, ?GardenWorkerMYR $ant, ?PheromonTileMYR $pheromonTile,
-                                ?AnthillHoleMYR $anthillHoleMYR, ?PreyMYR $preyMYR, int $coordX, int $coordY,
-                                int $movementPoints = 0)
-    {
+    public function __construct(
+        ?TileMYR $tile,
+        ?GardenWorkerMYR $ant,
+        ?PheromonTileMYR $pheromonTile,
+        ?AnthillHoleMYR $anthillHoleMYR,
+        ?PreyMYR $preyMYR,
+        int $coordX,
+        int $coordY,
+        int $movementPoints = 0
+    ) {
         if ($tile == null && ($pheromonTile != null || $preyMYR != null || $anthillHoleMYR != null)) {
             throw new Exception("Invalid placement");
         }
@@ -54,7 +60,7 @@ class BoardBoxMYR
      * hasTile : indicate if the board's box has a tile
      * @return bool
      */
-    public function hasTile() : bool
+    public function hasTile(): bool
     {
         return $this->tile != null;
     }
@@ -63,7 +69,7 @@ class BoardBoxMYR
      * isEmptyBox : indicate if the board's box is empty
      * @return bool
      */
-    public function isEmptyBox() : bool
+    public function isEmptyBox(): bool
     {
         return $this->ant == null && $this->tile == null && $this->pheromonTile == null;
     }
@@ -72,7 +78,7 @@ class BoardBoxMYR
      * getTile : return the tile presents on the board's box
      * @return ?TileMYR
      */
-    public function getTile() : ?TileMYR
+    public function getTile(): ?TileMYR
     {
         return $this->tile;
     }
@@ -133,4 +139,3 @@ class BoardBoxMYR
         $this->movementPoints = $movementPoints;
     }
 }
-

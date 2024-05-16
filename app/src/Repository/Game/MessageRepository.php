@@ -26,18 +26,18 @@ class MessageRepository extends ServiceEntityRepository
     }
 
 
-   /**
-    * @return Message[] Returns an array of Message objects
-    */
-   public function findByGame(int $gameId): array
-   {
-       return $this->createQueryBuilder('m')
-           ->andWhere('m.gameId = :game')
-           ->setParameter('game', $gameId)
-           ->orderBy('m.date', 'ASC')
-           ->getQuery()
-           ->getResult()
-       ;
-   }
+    /**
+     * @return Message[] Returns an array of Message objects
+     */
+    public function findByGame(int $gameId): array
+    {
+        return $this->createQueryBuilder('m')
+            ->andWhere('m.gameId = :game')
+            ->setParameter('game', $gameId)
+            ->orderBy('m.date', 'ASC')
+            ->getQuery()
+            ->getResult()
+        ;
+    }
 
 }

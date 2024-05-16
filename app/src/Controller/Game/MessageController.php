@@ -16,16 +16,17 @@ class MessageController extends AbstractController
     private MessageService $messageService;
     private PublishService $publishService;
 
-    public function __construct(MessageService $messageService,
-                                PublishService $publishService)
-    {
+    public function __construct(
+        MessageService $messageService,
+        PublishService $publishService
+    ) {
         $this->messageService = $messageService;
         $this->publishService = $publishService;
     }
 
 
     #[Route('/game/{gameId}/message/send/{playerId}/{authorUsername}/{message}', name: 'app_game_send_new_message')]
-    public function sendMessage(int $playerId, int $gameId, string $message, string $authorUsername) : Response
+    public function sendMessage(int $playerId, int $gameId, string $message, string $authorUsername): Response
     {
         $this->messageService->sendMessage($playerId, $gameId, $message, $authorUsername);
         $this->publishMessage($gameId, $message, $authorUsername);
@@ -33,7 +34,7 @@ class MessageController extends AbstractController
     }
 
     #[Route('/game/{gameId}/message/display', name: 'app_game_display_new_messages')]
-    public function receiveMessage(int $gameId) : Response
+    public function receiveMessage(int $gameId): Response
     {
         $messages = $this->messageService->receiveMessage($gameId);
         return $this->render('Game/Utils/chat.html.twig', [
@@ -45,6 +46,7 @@ class MessageController extends AbstractController
     {
         $this->publishService->publish(
             $this->generateUrl('app_game_display_new_messages', ['gameId' => $gameId]).'newMessage',
-            new Response($message."§".$playerUsername));
+            new Response($message."§".$playerUsername)
+        );
     }
 }

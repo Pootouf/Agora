@@ -25,13 +25,14 @@ use Exception;
 
 class SPLGameManagerService extends AbstractGameManagerService
 {
-
-    public function __construct(private EntityManagerInterface $entityManager,
+    public function __construct(
+        private EntityManagerInterface $entityManager,
         private SPLService $splService,
         private PlayerSPLRepository $playerSPLRepository,
         private LogService $logService,
-        private TokenSPLService $tokenSPLService)
-    {}
+        private TokenSPLService $tokenSPLService
+    ) {
+    }
 
 
     /**
@@ -77,7 +78,8 @@ class SPLGameManagerService extends AbstractGameManagerService
             return SPLGameManagerService::ERROR_INVALID_NUMBER_OF_PLAYER;
         }
         if ($this->playerSPLRepository->findOneBy(
-            ['username' => $playerName, 'gameSPL' => $game->getId()]) != null) {
+            ['username' => $playerName, 'gameSPL' => $game->getId()]
+        ) != null) {
             return SPLGameManagerService::ERROR_ALREADY_IN_PARTY;
         }
         $player = new PlayerSPL($playerName, $game);
@@ -90,8 +92,11 @@ class SPLGameManagerService extends AbstractGameManagerService
         $this->entityManager->persist($player);
         $this->entityManager->persist($personalBoard);
         $this->entityManager->flush();
-        $this->logService->sendPlayerLog($game, $player,
-            $playerName . " a rejoint la partie " . $game->getId());
+        $this->logService->sendPlayerLog(
+            $game,
+            $player,
+            $playerName . " a rejoint la partie " . $game->getId()
+        );
         return SPLGameManagerService::SUCCESS;
     }
 
@@ -113,8 +118,10 @@ class SPLGameManagerService extends AbstractGameManagerService
         }
         $this->entityManager->remove($player);
         $this->entityManager->flush();
-        $this->logService->sendSystemLog($game,
-            $playerName . " a été retiré de la partie " . $game->getId());
+        $this->logService->sendSystemLog(
+            $game,
+            $playerName . " a été retiré de la partie " . $game->getId()
+        );
         return SPLGameManagerService::SUCCESS;
     }
 
@@ -161,7 +168,8 @@ class SPLGameManagerService extends AbstractGameManagerService
     }
 
 
-    private function getGameSplendorFromGame(Game $game): ?GameSPL {
+    private function getGameSplendorFromGame(Game $game): ?GameSPL
+    {
         /** @var GameSPL $game */
         return $game->getGameName() == AbstractGameManagerService::SPL_LABEL ? $game : null;
     }

@@ -17,19 +17,19 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Exception;
 
-
 /**
  * Enables to manipulate data and convert it into representable content
  */
 class DataManagementMYRService
 {
-
-    public function __construct(private readonly TileMYRRepository $tileMYRRepository,
-                                private readonly AnthillHoleMYRRepository $anthillHoleMYRRepository,
-                                private readonly PreyMYRRepository $preyMYRRepository,
-                                private readonly GardenWorkerMYRRepository $gardenWorkerMYRRepository,
-                                private readonly PheromonTileMYRRepository $pheromonTileMYRRepository)
-    {}
+    public function __construct(
+        private readonly TileMYRRepository $tileMYRRepository,
+        private readonly AnthillHoleMYRRepository $anthillHoleMYRRepository,
+        private readonly PreyMYRRepository $preyMYRRepository,
+        private readonly GardenWorkerMYRRepository $gardenWorkerMYRRepository,
+        private readonly PheromonTileMYRRepository $pheromonTileMYRRepository
+    ) {
+    }
 
 
     /**
@@ -37,7 +37,7 @@ class DataManagementMYRService
      * @param String $coordinateString
      * @return array<array<int, int>> an array of coordinates
      */
-    public function getListOfCoordinatesFromString(string $coordinateString) : array
+    public function getListOfCoordinatesFromString(string $coordinateString): array
     {
         $coordinateString = str_replace("[", "", $coordinateString);
         $coordinateString = str_replace("]", "", $coordinateString);
@@ -68,16 +68,20 @@ class DataManagementMYRService
      * @return Collection
      * @throws Exception
      */
-    public function organizeMainBoardRows(GameMYR $game, bool $isInWorkerPhase = false, ?int $antCoordX = null,
-                                          ?int $antCoordY = null, ?PlayerMYR $player = null,
-                                          ?int $shiftsCount = null, ?array $cleanedTiles = []
-    ) : Collection
-    {
+    public function organizeMainBoardRows(
+        GameMYR $game,
+        bool $isInWorkerPhase = false,
+        ?int $antCoordX = null,
+        ?int $antCoordY = null,
+        ?PlayerMYR $player = null,
+        ?int $shiftsCount = null,
+        ?array $cleanedTiles = []
+    ): Collection {
         $result = new ArrayCollection();
 
         //Sorting by x coord and then by y coord
         $tiles = $game->getMainBoardMYR()->getTiles()->toArray();
-        usort($tiles, function (TileMYR $tile1, TileMYR $tile2){
+        usort($tiles, function (TileMYR $tile1, TileMYR $tile2) {
             $value = $tile1->getCoordX() - $tile2->getCoordX();
             return $value == 0 ? $tile1->getCoordY() - $tile2->getCoordY() : $value;
         });
@@ -105,7 +109,7 @@ class DataManagementMYRService
                 // Fill the gaps up to y max coord
                 while ($y <= $maxy) {
                     $currentLine->add($this->createBoardBox($game, null, $x, $y));
-                    $y+=2;
+                    $y += 2;
                 }
                 $y = $miny ;
                 $result->add($currentLine);
@@ -115,21 +119,27 @@ class DataManagementMYRService
             // Fill the gaps up to the next y coord
             while ($y < $tile->getCoordY()) {
                 $currentLine->add($this->createBoardBox($game, null, $x, $y));
-                $y+=2;
+                $y += 2;
             }
             !$isInWorkerPhase ?
                 $currentLine->add($this->createBoardBox($game, $tile, $x, $y))
                 : $currentLine->add($this->createBoardBoxWorkerPhase(
-                    $game, $tile, $x, $y, $antCoordX == $x && $antCoordY == ($y - 1 + $x % 2),
-                    $player, $shiftsCount, $cleanedTiles
+                    $game,
+                    $tile,
+                    $x,
+                    $y,
+                    $antCoordX == $x && $antCoordY == ($y - 1 + $x % 2),
+                    $player,
+                    $shiftsCount,
+                    $cleanedTiles
                 ));
             $previousX = $tile->getCoordX();
-            $y+=2;
+            $y += 2;
         }
         // Complete the last added line until max y
         while ($y <= $maxy) {
             $currentLine->add($this->createBoardBox($game, null, $x, $y));
-            $y+=2;
+            $y += 2;
         }
         $result->add($currentLine);
         return $result;
@@ -149,10 +159,16 @@ class DataManagementMYRService
      * @return BoardBoxMYR
      * @throws Exception
      */
-    public function createBoardBoxWorkerPhase(GameMYR $game, ?TileMYR $tile, int $graphicX, int $graphicY,
-                                              bool $hasAnt, PlayerMYR $player,
-                                              ?int $shiftsCount, array $cleanedTiles) : BoardBoxMYR
-    {
+    public function createBoardBoxWorkerPhase(
+        GameMYR $game,
+        ?TileMYR $tile,
+        int $graphicX,
+        int $graphicY,
+        bool $hasAnt,
+        PlayerMYR $player,
+        ?int $shiftsCount,
+        array $cleanedTiles
+    ): BoardBoxMYR {
         $ant = null;
         if($hasAnt) {
             $ant = new GardenWorkerMYR();
@@ -199,7 +215,7 @@ class DataManagementMYRService
      * @return BoardBoxMYR
      * @throws Exception
      */
-    public function createBoardBox(GameMYR $game, ?TileMYR $tile, int $x, int $y) : BoardBoxMYR
+    public function createBoardBox(GameMYR $game, ?TileMYR $tile, int $x, int $y): BoardBoxMYR
     {
         $ant = null;
         $pheromoneTile = null;
@@ -238,7 +254,7 @@ class DataManagementMYRService
         return new BoardBoxMYR($tile, $ant, $pheromoneTile, $anthillHole, $prey, $x, $y);
     }
 
-    public function workerOnAnthillLevels(PersonalBoardMYR $personalBoardMYR) : array
+    public function workerOnAnthillLevels(PersonalBoardMYR $personalBoardMYR): array
     {
         $anthillWorkers = $personalBoardMYR->getAnthillWorkers();
         $result = array(false, false, false, false);

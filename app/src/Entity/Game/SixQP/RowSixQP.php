@@ -11,7 +11,6 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: RowSixQPRepository::class)]
 class RowSixQP extends Component
 {
-
     #[ORM\Column]
     private ?int $position = null;
 

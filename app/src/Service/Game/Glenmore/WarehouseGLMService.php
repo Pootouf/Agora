@@ -18,9 +18,11 @@ use Psr\Log\LoggerInterface;
 
 class WarehouseGLMService
 {
-
-    public function __construct(private readonly EntityManagerInterface $entityManager,
-                                private readonly TileGLMService         $tileGLMService){}
+    public function __construct(
+        private readonly EntityManagerInterface $entityManager,
+        private readonly TileGLMService         $tileGLMService
+    ) {
+    }
 
 
     /**
@@ -31,8 +33,7 @@ class WarehouseGLMService
      * @return void
      * @throws Exception
      */
-    public function sellResource(PlayerGLM $player
-        , ResourceGLM $resource, SelectedResourceGLM $selectedResourceGLM) : void
+    public function sellResource(PlayerGLM $player, ResourceGLM $resource, SelectedResourceGLM $selectedResourceGLM): void
     {
         // Initialization
         $personalBoard = $player->getPersonalBoard();
@@ -44,20 +45,17 @@ class WarehouseGLMService
             $warehouse,
             $resource
         );
-        if ($warehouseLine == null)
-        {
+        if ($warehouseLine == null) {
             throw new Exception("Unable to sell the resource, there is no such resource in warehouse");
         }
 
         $money = GlenmoreParameters::MONEY_FROM_QUANTITY[$warehouseLine->getQuantity() - 1];
-        if ($money == GlenmoreParameters::MIN_TRADE)
-        {
+        if ($money == GlenmoreParameters::MIN_TRADE) {
             throw new Exception("Unable to sell the resource, there is no place to sell");
         }
 
 
-        if ($selectedResourceGLM->getQuantity() == 0)
-        {
+        if ($selectedResourceGLM->getQuantity() == 0) {
             throw new Exception("Unable to sell the resource, player tile does not have enough resource");
         }
 
@@ -170,14 +168,11 @@ class WarehouseGLMService
      * @param ResourceGLM $resource
      * @return WarehouseLineGLM|null
      */
-    private function getWarehouseLineOfResource(WarehouseGLM $warehouse
-        , ResourceGLM $resource) : ?WarehouseLineGLM
+    private function getWarehouseLineOfResource(WarehouseGLM $warehouse, ResourceGLM $resource): ?WarehouseLineGLM
     {
         $warehouseLine = $warehouse->getWarehouseLine();
-        foreach ($warehouseLine as $w)
-        {
-            if ($w->getResource()->getColor() === $resource->getColor())
-            {
+        foreach ($warehouseLine as $w) {
+            if ($w->getResource()->getColor() === $resource->getColor()) {
                 return $w;
             }
         }
@@ -185,7 +180,7 @@ class WarehouseGLMService
     }
 
 
-    private function manageWarehouseLine(WarehouseLineGLM $warehouseLine, int $money, bool $isPurchasable) : void
+    private function manageWarehouseLine(WarehouseLineGLM $warehouseLine, int $money, bool $isPurchasable): void
     {
         if ($isPurchasable) {
             $warehouseLine->setQuantity($warehouseLine->getQuantity() + 1);

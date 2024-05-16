@@ -9,7 +9,6 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: GoalMYRRepository::class)]
 class GoalMYR extends Component
 {
-
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 

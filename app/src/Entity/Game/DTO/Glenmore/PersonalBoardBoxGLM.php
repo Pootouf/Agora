@@ -10,7 +10,6 @@ use App\Entity\Game\Glenmore\PlayerTileGLM;
  */
 class PersonalBoardBoxGLM
 {
-
     private ?PlayerTileGLM $playerTile;
 
     private int $coordX;
@@ -19,7 +18,8 @@ class PersonalBoardBoxGLM
 
     private bool $placeable;
 
-    public function __construct(?PlayerTileGLM $playerTileGLM, int $coordX, int $coordY, bool $placeable) {
+    public function __construct(?PlayerTileGLM $playerTileGLM, int $coordX, int $coordY, bool $placeable)
+    {
         $this->playerTile = $playerTileGLM;
         $this->coordX = $coordX;
         $this->coordY = $coordY;

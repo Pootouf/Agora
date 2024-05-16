@@ -17,7 +17,8 @@ class PublishService
 
     public function publish(string $route, Response $data): Response
     {
-        $update = new Update($route,
+        $update = new Update(
+            $route,
             html_entity_decode($data->getContent())
         );
         $this->hub->publish($update);

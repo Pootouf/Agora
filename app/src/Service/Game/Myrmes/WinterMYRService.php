@@ -2,7 +2,6 @@
 
 namespace App\Service\Game\Myrmes;
 
-
 use App\Entity\Game\DTO\Game;
 use App\Entity\Game\Myrmes\GameMYR;
 use App\Entity\Game\Myrmes\MyrmesParameters;
@@ -16,10 +15,13 @@ use Exception;
 
 class WinterMYRService
 {
-    public function __construct(private readonly EntityManagerInterface      $entityManager,
-                                private readonly ResourceMYRRepository       $resourceMYRRepository,
-                                private readonly PlayerResourceMYRRepository $playerResourceMYRRepository,
-                                private readonly MYRService                  $myrService) {}
+    public function __construct(
+        private readonly EntityManagerInterface      $entityManager,
+        private readonly ResourceMYRRepository       $resourceMYRRepository,
+        private readonly PlayerResourceMYRRepository $playerResourceMYRRepository,
+        private readonly MYRService                  $myrService
+    ) {
+    }
 
 
     /**
@@ -46,7 +48,7 @@ class WinterMYRService
      * @param GameMYR $gameMYR
      * @return bool
      */
-    public function canManageEndOfWinter(GameMYR $gameMYR) : bool
+    public function canManageEndOfWinter(GameMYR $gameMYR): bool
     {
         foreach ($gameMYR->getPlayers() as $player) {
             if($this->mustDropResourcesForWinter($player)) {
@@ -73,7 +75,7 @@ class WinterMYRService
      * @return void
      * @throws Exception
      */
-    public function removeCubeOfWarehouse(PlayerMYR $player, PlayerResourceMYR $playerResource) : void
+    public function removeCubeOfWarehouse(PlayerMYR $player, PlayerResourceMYR $playerResource): void
     {
         $pBoard = $player->getPersonalBoardMYR();
         if ($playerResource->getPersonalBoard() !== $pBoard) {
@@ -83,7 +85,7 @@ class WinterMYRService
             throw new Exception("This resource is not in enough quantity to remove it ");
         }
 
-        $playerResource->setQuantity($playerResource->getQuantity() -1);
+        $playerResource->setQuantity($playerResource->getQuantity() - 1);
 
         $this->entityManager->persist($playerResource);
         $this->entityManager->flush();
@@ -96,7 +98,7 @@ class WinterMYRService
      * @return void
      * @throws Exception
      */
-    public function retrievePoints(PlayerMYR $player) : void
+    public function retrievePoints(PlayerMYR $player): void
     {
         $game = $player->getGameMyr();
         $currentYear = $game->getMainBoardMYR()->getYearNum();
@@ -155,7 +157,7 @@ class WinterMYRService
      * @return void
      * @throws Exception
      */
-    public function beginWinter(GameMYR $game) : void
+    public function beginWinter(GameMYR $game): void
     {
         if ($game->getGamePhase() != MyrmesParameters::PHASE_WINTER) {
             return;
@@ -173,7 +175,7 @@ class WinterMYRService
      * @return int
      * @throws Exception
      */
-    private function getAmountToSpend(PlayerMYR $playerMYR, int $year) : int
+    private function getAmountToSpend(PlayerMYR $playerMYR, int $year): int
     {
         $warriorsCount = $playerMYR->getPersonalBoardMYR()->getWarriorsCount();
         return match ($year) {

@@ -32,31 +32,33 @@ use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
+
 use function Symfony\Component\Translation\t;
 
 class WorkerMYRService
 {
-    public function __construct(private readonly EntityManagerInterface      $entityManager,
-                                private readonly MYRService                  $myrService,
-                                private readonly AnthillWorkerMYRRepository  $anthillWorkerMYRRepository,
-                                private readonly AnthillHoleMYRRepository    $anthillHoleMYRRepository,
-                                private readonly PheromonMYRRepository       $pheromonMYRRepository,
-                                private readonly PreyMYRRepository           $preyMYRRepository,
-                                private readonly TileMYRRepository           $tileMYRRepository,
-                                private readonly PlayerResourceMYRRepository $playerResourceMYRRepository,
-                                private readonly ResourceMYRRepository       $resourceMYRRepository,
-                                private readonly TileTypeMYRRepository       $tileTypeMYRRepository,
-                                private readonly GardenWorkerMYRRepository   $gardenWorkerMYRRepository,
-                                private readonly PheromonTileMYRRepository   $pheromonTileMYRRepository
-    )
-    {}
+    public function __construct(
+        private readonly EntityManagerInterface      $entityManager,
+        private readonly MYRService                  $myrService,
+        private readonly AnthillWorkerMYRRepository  $anthillWorkerMYRRepository,
+        private readonly AnthillHoleMYRRepository    $anthillHoleMYRRepository,
+        private readonly PheromonMYRRepository       $pheromonMYRRepository,
+        private readonly PreyMYRRepository           $preyMYRRepository,
+        private readonly TileMYRRepository           $tileMYRRepository,
+        private readonly PlayerResourceMYRRepository $playerResourceMYRRepository,
+        private readonly ResourceMYRRepository       $resourceMYRRepository,
+        private readonly TileTypeMYRRepository       $tileTypeMYRRepository,
+        private readonly GardenWorkerMYRRepository   $gardenWorkerMYRRepository,
+        private readonly PheromonTileMYRRepository   $pheromonTileMYRRepository
+    ) {
+    }
 
     /**
      * getNumberOfGardenWorkerOfPlayer: return the number of garden worker of the player
      * @param PlayerMYR $player
      * @return int
      */
-    public function getNumberOfGardenWorkerOfPlayer(PlayerMYR $player) : int
+    public function getNumberOfGardenWorkerOfPlayer(PlayerMYR $player): int
     {
         return $player->getGardenWorkerMYRs()->count();
     }
@@ -68,16 +70,25 @@ class WorkerMYRService
      * @return ArrayCollection<Int, array<Int, Int, Int>>
      * @throws Exception
      */
-    public function getAvailablePheromones(PlayerMYR $playerMYR) : ArrayCollection
+    public function getAvailablePheromones(PlayerMYR $playerMYR): ArrayCollection
     {
         $result = new ArrayCollection();
-        $this->getAvailablePheromonesFromAPlayer($playerMYR, MyrmesParameters::PHEROMONE_TYPE_AMOUNT,
-        MyrmesParameters::PHEROMONE_TYPE_ZERO,
-            MyrmesParameters::PHEROMONE_TYPE_SIX, MyrmesParameters::PHEROMONE_TYPE_ORIENTATIONS,
-            $result);
-        $this->getAvailablePheromonesFromAPlayer($playerMYR, MyrmesParameters::SPECIAL_TILE_TYPE_AMOUNT,
-        MyrmesParameters::SPECIAL_TILE_TYPE_FARM, MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL,
-        MyrmesParameters::SPECIAL_TILES_TYPE_ORIENTATIONS, $result);
+        $this->getAvailablePheromonesFromAPlayer(
+            $playerMYR,
+            MyrmesParameters::PHEROMONE_TYPE_AMOUNT,
+            MyrmesParameters::PHEROMONE_TYPE_ZERO,
+            MyrmesParameters::PHEROMONE_TYPE_SIX,
+            MyrmesParameters::PHEROMONE_TYPE_ORIENTATIONS,
+            $result
+        );
+        $this->getAvailablePheromonesFromAPlayer(
+            $playerMYR,
+            MyrmesParameters::SPECIAL_TILE_TYPE_AMOUNT,
+            MyrmesParameters::SPECIAL_TILE_TYPE_FARM,
+            MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL,
+            MyrmesParameters::SPECIAL_TILES_TYPE_ORIENTATIONS,
+            $result
+        );
         return $result;
     }
 
@@ -93,35 +104,82 @@ class WorkerMYRService
      * @return ArrayCollection<Int, ArrayCollection<Int, BoardTileMYR>>
      * @throws Exception
      */
-    public function getAllAvailablePositions(PlayerMYR $player, TileMYR $tile,
-        TileTypeMYR $tileType, int $antCoordX, int $antCoordY, array $availableTiles) : ArrayCollection
-    {
+    public function getAllAvailablePositions(
+        PlayerMYR $player,
+        TileMYR $tile,
+        TileTypeMYR $tileType,
+        int $antCoordX,
+        int $antCoordY,
+        array $availableTiles
+    ): ArrayCollection {
         $type = $tileType->getType();
         return match ($type) {
             MyrmesParameters::PHEROMONE_TYPE_ZERO
-                => $this->getAllAvailablePositionsFromTypeZero($player, $tile, $tileType,
-                $antCoordX, $antCoordY, $availableTiles),
+                => $this->getAllAvailablePositionsFromTypeZero(
+                    $player,
+                    $tile,
+                    $tileType,
+                    $antCoordX,
+                    $antCoordY,
+                    $availableTiles
+                ),
             MyrmesParameters::PHEROMONE_TYPE_ONE
-                => $this->getAllAvailablePositionsFromTypeOne($player, $tile, $tileType,
-                $antCoordX, $antCoordY, $availableTiles),
+                => $this->getAllAvailablePositionsFromTypeOne(
+                    $player,
+                    $tile,
+                    $tileType,
+                    $antCoordX,
+                    $antCoordY,
+                    $availableTiles
+                ),
             MyrmesParameters::SPECIAL_TILE_TYPE_FARM,
             MyrmesParameters::SPECIAL_TILE_TYPE_QUARRY,
             MyrmesParameters::PHEROMONE_TYPE_TWO
-                => $this->getAllAvailablePositionsFromTypeTwo($player, $tile, $tileType,
-                $antCoordX, $antCoordY, $availableTiles),
+                => $this->getAllAvailablePositionsFromTypeTwo(
+                    $player,
+                    $tile,
+                    $tileType,
+                    $antCoordX,
+                    $antCoordY,
+                    $availableTiles
+                ),
             MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL,
             MyrmesParameters::PHEROMONE_TYPE_THREE
-                => $this->getAllAvailablePositionsFromTypeThree($player, $tile, $tileType,
-                $antCoordX, $antCoordY, $availableTiles),
+                => $this->getAllAvailablePositionsFromTypeThree(
+                    $player,
+                    $tile,
+                    $tileType,
+                    $antCoordX,
+                    $antCoordY,
+                    $availableTiles
+                ),
             MyrmesParameters::PHEROMONE_TYPE_FOUR
-                => $this->getAllAvailablePositionsFromTypeFour($player, $tile, $tileType,
-                $antCoordX, $antCoordY, $availableTiles),
+                => $this->getAllAvailablePositionsFromTypeFour(
+                    $player,
+                    $tile,
+                    $tileType,
+                    $antCoordX,
+                    $antCoordY,
+                    $availableTiles
+                ),
             MyrmesParameters::PHEROMONE_TYPE_FIVE
-                => $this->getAllAvailablePositionsFromTypeFive($player, $tile, $tileType,
-                $antCoordX, $antCoordY, $availableTiles),
+                => $this->getAllAvailablePositionsFromTypeFive(
+                    $player,
+                    $tile,
+                    $tileType,
+                    $antCoordX,
+                    $antCoordY,
+                    $availableTiles
+                ),
             MyrmesParameters::PHEROMONE_TYPE_SIX
-                => $this->getAllAvailablePositionsFromTypeSix($player, $tile, $tileType,
-                $antCoordX, $antCoordY, $availableTiles),
+                => $this->getAllAvailablePositionsFromTypeSix(
+                    $player,
+                    $tile,
+                    $tileType,
+                    $antCoordX,
+                    $antCoordY,
+                    $availableTiles
+                ),
             default => new ArrayCollection(),
         };
     }
@@ -133,9 +191,11 @@ class WorkerMYRService
      * @param int $direction
      * @return bool
      */
-    public function canWorkerMove(PlayerMYR $player,
-                                  GardenWorkerMYR $gardenWorker, int $direction) : bool
-    {
+    public function canWorkerMove(
+        PlayerMYR $player,
+        GardenWorkerMYR $gardenWorker,
+        int $direction
+    ): bool {
         $tile =
             $this->getTileAtDirection($gardenWorker->getTile(), $direction);
 
@@ -153,7 +213,10 @@ class WorkerMYRService
             || ($prey != null && $this->canWorkerAttackPrey($player, $prey) && $hasEnoughShiftsCount)
             || (($originPheromoneTile != null || $destinationPheromoneTile != null)
                 && $this->canWorkerWalkAroundPheromone(
-                    $player, $originPheromoneTile, $destinationPheromoneTile, $gardenWorker
+                    $player,
+                    $originPheromoneTile,
+                    $destinationPheromoneTile,
+                    $gardenWorker
                 ));
     }
 
@@ -167,9 +230,12 @@ class WorkerMYRService
      * @return int
      */
     public function getNeededSoldiers(
-        int $coordX, int $coordY, GameMYR $gameMYR, PlayerMYR $player, array $cleanedTiles
-    ): int
-    {
+        int $coordX,
+        int $coordY,
+        GameMYR $gameMYR,
+        PlayerMYR $player,
+        array $cleanedTiles
+    ): int {
         if (in_array([$coordX, $coordY], $cleanedTiles)) {
             return 0;
         }
@@ -227,9 +293,13 @@ class WorkerMYRService
      * @return int
      * @throws InvalidArgumentException
      */
-    public function getNeededMovementPoints(int $coordX1, int $coordY1, int $coordX2, int $coordY2,
-                                            GameMYR $gameMYR) : int
-    {
+    public function getNeededMovementPoints(
+        int $coordX1,
+        int $coordY1,
+        int $coordX2,
+        int $coordY2,
+        GameMYR $gameMYR
+    ): int {
         $tile1 = $this->tileMYRRepository->findOneBy([
             "coordY" => $coordY1,
             "coordX" => $coordX1
@@ -265,8 +335,7 @@ class WorkerMYRService
     public function isValidPositionForAnt(?TileMYR $tile): bool
     {
         if ($tile == null
-            || $tile->getType() == MyrmesParameters::WATER_TILE_TYPE)
-        {
+            || $tile->getType() == MyrmesParameters::WATER_TILE_TYPE) {
             return false;
         }
         return true;
@@ -334,9 +403,12 @@ class WorkerMYRService
      * @return ArrayCollection<Int, TileMYR>
      * @throws Exception
      */
-    public function getAllCoordinatesFromTileType(PlayerMYR $player,
-        TileMYR $tile, TileTypeMYR $tileType, array $availablePositions = []) : ArrayCollection
-    {
+    public function getAllCoordinatesFromTileType(
+        PlayerMYR $player,
+        TileMYR $tile,
+        TileTypeMYR $tileType,
+        array $availablePositions = []
+    ): ArrayCollection {
         switch ($tileType->getType()) {
             case MyrmesParameters::PHEROMONE_TYPE_ZERO:
                 $result = $this->getAllCoordinatesOfPheromoneTypeZero($player, $tile, $tileType, $availablePositions);
@@ -362,7 +434,10 @@ class WorkerMYRService
             case MyrmesParameters::SPECIAL_TILE_TYPE_FARM:
                 if ($this->getAllCoordinatesOfPheromoneFarm($player)) {
                     $result = $this->getAllCoordinatesOfPheromoneTypeTwo(
-                        $player, $tile, $tileType, $availablePositions
+                        $player,
+                        $tile,
+                        $tileType,
+                        $availablePositions
                     );
                 } else {
                     $result = new ArrayCollection();
@@ -371,7 +446,10 @@ class WorkerMYRService
             case MyrmesParameters::SPECIAL_TILE_TYPE_QUARRY:
                 if ($this->getAllCoordinatesOfPheromoneQuarry($player)) {
                     $result = $this->getAllCoordinatesOfPheromoneTypeTwo(
-                        $player, $tile, $tileType, $availablePositions
+                        $player,
+                        $tile,
+                        $tileType,
+                        $availablePositions
                     );
                 } else {
                     $result = new ArrayCollection();
@@ -380,7 +458,10 @@ class WorkerMYRService
             case MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL:
                 if ($this->getAllCoordinatesOfPheromoneSubanthill($player)) {
                     $result = $this->getAllCoordinatesOfPheromoneTypeThree(
-                        $player, $tile, $tileType, $availablePositions
+                        $player,
+                        $tile,
+                        $tileType,
+                        $availablePositions
                     );
                 } else {
                     $result = new ArrayCollection();
@@ -410,11 +491,10 @@ class WorkerMYRService
      * @return void
      * @throws InvalidArgumentException
      */
-    public function cleanPheromone(PheromonMYR $pheromone, PlayerMYR $player) : void
+    public function cleanPheromone(PheromonMYR $pheromone, PlayerMYR $player): void
     {
         $dirtResource = $player->getPersonalBoardMYR()->getPlayerResourceMYRs()->filter(
-            function (PlayerResourceMYR $playerResourceMYR)
-            {
+            function (PlayerResourceMYR $playerResourceMYR) {
                 return $playerResourceMYR->getResource()->getDescription() == MyrmesParameters::DIRT_TILE_TYPE;
             }
         )->first();
@@ -447,7 +527,7 @@ class WorkerMYRService
      * @return void
      * @throws Exception if invalid floor or no more free ants
      */
-    public function placeAntInAnthill(PersonalBoardMYR $personalBoard, int $anthillFloor, ?String $lvlTwoResource) : void
+    public function placeAntInAnthill(PersonalBoardMYR $personalBoard, int $anthillFloor, ?String $lvlTwoResource): void
     {
         $maxFloor = $personalBoard->getAnthillLevel();
         $isAnthillLevelIncreased = $personalBoard->getBonus() == MyrmesParameters::BONUS_LEVEL;
@@ -483,7 +563,7 @@ class WorkerMYRService
      *                  or if the player doesn't have anymore free ants,
      *                  or if there is already an ant at this location
      */
-    public function takeOutAnt(PersonalBoardMYR $personalBoard, AnthillHoleMYR $exitHole) : void
+    public function takeOutAnt(PersonalBoardMYR $personalBoard, AnthillHoleMYR $exitHole): void
     {
         if ($exitHole->getPlayer() !== $personalBoard->getPlayer()) {
             throw new Exception('Not an anthill hole of the player');
@@ -519,7 +599,7 @@ class WorkerMYRService
      * @return void
      * @throws Exception
      */
-    public function placeAnthillHole(PlayerMYR $playerMYR, TileMYR $tileMYR) : void
+    public function placeAnthillHole(PlayerMYR $playerMYR, TileMYR $tileMYR): void
     {
         if(!$this->isPositionAvailable($playerMYR->getGameMyr(), $tileMYR)) {
             throw new Exception("Can't place anthill hole here");
@@ -546,9 +626,14 @@ class WorkerMYRService
      * @param array<array<Int, Int>> $availablePositions (optional)
      * @return bool
      */
-    public function canPlacePheromone(PlayerMYR $player, TileMYR $tile, int $antCoordX, int $antCoordY,
-        TileTypeMYR $tileType, array $availablePositions = []) : bool
-    {
+    public function canPlacePheromone(
+        PlayerMYR $player,
+        TileMYR $tile,
+        int $antCoordX,
+        int $antCoordY,
+        TileTypeMYR $tileType,
+        array $availablePositions = []
+    ): bool {
         $pheromoneCount = $this->getPheromoneCountOfType($player, $tileType);
         try {
             if (!$this->canChoosePheromone($player, $tileType, $pheromoneCount)) {
@@ -557,7 +642,7 @@ class WorkerMYRService
         } catch (Exception $e) {
             return false;
         }
-        if(!$this->canPlaceSpecialTile($player, $tileType)){
+        if(!$this->canPlaceSpecialTile($player, $tileType)) {
             return false;
         }
         try {
@@ -579,7 +664,7 @@ class WorkerMYRService
      * @return void
      * @throws Exception
      */
-    public function placePheromone(PlayerMYR $player, TileMYR $tile, TileTypeMYR $tileType, int $antCoordX, int $antCoordY) : void
+    public function placePheromone(PlayerMYR $player, TileMYR $tile, TileTypeMYR $tileType, int $antCoordX, int $antCoordY): void
     {
         if (!$this->canPlacePheromone($player, $tile, $antCoordX, $antCoordY, $tileType)) {
             throw new Exception("this pheromone can't be placed there");
@@ -593,7 +678,7 @@ class WorkerMYRService
      * @param PlayerMYR $player
      * @return void
      */
-    public function killPlayerGardenWorker(PlayerMYR $player) : void
+    public function killPlayerGardenWorker(PlayerMYR $player): void
     {
         $gardenWorker = $player->getGardenWorkerMYRs()->first();
         $this->entityManager->remove($gardenWorker);
@@ -608,11 +693,12 @@ class WorkerMYRService
      * @return void
      * @throws Exception
      */
-    public function workerMove(PlayerMYR $player,
-       GardenWorkerMYR $gardenWorker, int $direction) : void
-    {
-        if (!$this->canWorkerMove($player, $gardenWorker, $direction))
-        {
+    public function workerMove(
+        PlayerMYR $player,
+        GardenWorkerMYR $gardenWorker,
+        int $direction
+    ): void {
+        if (!$this->canWorkerMove($player, $gardenWorker, $direction)) {
             throw new Exception("Cannot move ant in this direction,
                     maybe there is water or out of board, or maybe not enough resources");
         }
@@ -624,12 +710,10 @@ class WorkerMYRService
         $destinationPheromone = $this->getPheromoneTileOnTile($tile, $player->getGameMyr());
         $startPheromone = $this->getPheromoneTileOnTile($gardenWorker->getTile(), $player->getGameMyr());
 
-        if ($prey != null)
-        {
+        if ($prey != null) {
             $this->attackPrey($player, $prey);
         } elseif ($destinationPheromone != null
-            && $destinationPheromone->getPheromonMYR()->getPlayer() !== $player)
-        {
+            && $destinationPheromone->getPheromonMYR()->getPlayer() !== $player) {
             $personalBoard = $player->getPersonalBoardMYR();
 
             $personalBoard->setWarriorsCount(
@@ -642,8 +726,7 @@ class WorkerMYRService
         if (!($startPheromone != null
             && $destinationPheromone != null
             && $startPheromone->getPheromonMYR()->getPlayer() === $player
-            && $destinationPheromone === $startPheromone))
-        {
+            && $destinationPheromone === $startPheromone)) {
             $gardenWorker->setShiftsCount(
                 $gardenWorker->getShiftsCount() - 1
             );
@@ -678,9 +761,14 @@ class WorkerMYRService
      * @return ArrayCollection<Int, ArrayCollection<Int, BoardTileMYR>>
      * @throws Exception
      */
-    private function getAllAvailablePositionsFromTypeZero(PlayerMYR $player, TileMYR $tile,
-        TileTypeMYR $tileType, int $antCoordX, int $antCoordY, array $availableTiles) : ArrayCollection
-    {
+    private function getAllAvailablePositionsFromTypeZero(
+        PlayerMYR $player,
+        TileMYR $tile,
+        TileTypeMYR $tileType,
+        int $antCoordX,
+        int $antCoordY,
+        array $availableTiles
+    ): ArrayCollection {
         $orientation = $tileType->getOrientation();
         $translations = match ($orientation) {
             0 => [[0, 0], [-1, -1]],
@@ -695,8 +783,14 @@ class WorkerMYRService
             return new ArrayCollection();
         }
         $coords = $this->getAllCoordinatesFromTileType($player, $tile, $tileType, $availableTiles);
-        return $this->getAllAvailablePositionsFromOrientation($player, $coords,
-            $translations, $antCoordX, $antCoordY, $availableTiles);
+        return $this->getAllAvailablePositionsFromOrientation(
+            $player,
+            $coords,
+            $translations,
+            $antCoordX,
+            $antCoordY,
+            $availableTiles
+        );
     }
 
     /**
@@ -711,9 +805,14 @@ class WorkerMYRService
      * @return ArrayCollection<Int, ArrayCollection<Int, BoardTileMYR>>
      * @throws Exception
      */
-    private function getAllAvailablePositionsFromTypeOne(PlayerMYR $player, TileMYR $tile,
-        TileTypeMYR $tileType, int $antCoordX, int $antCoordY, array $availableTiles) : ArrayCollection
-    {
+    private function getAllAvailablePositionsFromTypeOne(
+        PlayerMYR $player,
+        TileMYR $tile,
+        TileTypeMYR $tileType,
+        int $antCoordX,
+        int $antCoordY,
+        array $availableTiles
+    ): ArrayCollection {
         $orientation = $tileType->getOrientation();
         $translations = match ($orientation) {
             0 => [[0, 0], [-1, -1], [1, 1]],
@@ -725,8 +824,14 @@ class WorkerMYRService
             return new ArrayCollection();
         }
         $coords = $this->getAllCoordinatesFromTileType($player, $tile, $tileType);
-        return $this->getAllAvailablePositionsFromOrientation($player, $coords,
-            $translations, $antCoordX, $antCoordY, $availableTiles);
+        return $this->getAllAvailablePositionsFromOrientation(
+            $player,
+            $coords,
+            $translations,
+            $antCoordX,
+            $antCoordY,
+            $availableTiles
+        );
     }
 
     /**
@@ -741,9 +846,14 @@ class WorkerMYRService
      * @return ArrayCollection<Int, ArrayCollection<Int, BoardTileMYR>>
      * @throws Exception
      */
-    private function getAllAvailablePositionsFromTypeTwo(PlayerMYR $player, TileMYR $tile,
-        TileTypeMYR $tileType, int $antCoordX, int $antCoordY, array $availableTiles) : ArrayCollection
-    {
+    private function getAllAvailablePositionsFromTypeTwo(
+        PlayerMYR $player,
+        TileMYR $tile,
+        TileTypeMYR $tileType,
+        int $antCoordX,
+        int $antCoordY,
+        array $availableTiles
+    ): ArrayCollection {
         $orientation = $tileType->getOrientation();
         $translations = match ($orientation) {
             0 => [[0, 0], [-1, 1], [-1, -1]],
@@ -758,8 +868,14 @@ class WorkerMYRService
             return new ArrayCollection();
         }
         $coords = $this->getAllCoordinatesFromTileType($player, $tile, $tileType);
-        return $this->getAllAvailablePositionsFromOrientation($player, $coords,
-            $translations, $antCoordX, $antCoordY, $availableTiles);
+        return $this->getAllAvailablePositionsFromOrientation(
+            $player,
+            $coords,
+            $translations,
+            $antCoordX,
+            $antCoordY,
+            $availableTiles
+        );
     }
 
     /**
@@ -774,9 +890,14 @@ class WorkerMYRService
      * @return ArrayCollection<Int, ArrayCollection<Int, BoardTileMYR>>
      * @throws Exception
      */
-    private function getAllAvailablePositionsFromTypeThree(PlayerMYR $player, TileMYR $tile,
-        TileTypeMYR $tileType, int $antCoordX, int $antCoordY, array $availableTiles) : ArrayCollection
-    {
+    private function getAllAvailablePositionsFromTypeThree(
+        PlayerMYR $player,
+        TileMYR $tile,
+        TileTypeMYR $tileType,
+        int $antCoordX,
+        int $antCoordY,
+        array $availableTiles
+    ): ArrayCollection {
         $orientation = $tileType->getOrientation();
         $translations = match ($orientation) {
             0 => [[0, 0], [-2, 0], [-1, -1], [-1, 1]],
@@ -791,8 +912,14 @@ class WorkerMYRService
             return new ArrayCollection();
         }
         $coords = $this->getAllCoordinatesFromTileType($player, $tile, $tileType);
-        return $this->getAllAvailablePositionsFromOrientation($player, $coords,
-            $translations, $antCoordX, $antCoordY, $availableTiles);
+        return $this->getAllAvailablePositionsFromOrientation(
+            $player,
+            $coords,
+            $translations,
+            $antCoordX,
+            $antCoordY,
+            $availableTiles
+        );
     }
 
     /**
@@ -807,9 +934,14 @@ class WorkerMYRService
      * @return ArrayCollection<Int, ArrayCollection<Int, BoardTileMYR>>
      * @throws Exception
      */
-    private function getAllAvailablePositionsFromTypeFour(PlayerMYR $player, TileMYR $tile,
-        TileTypeMYR $tileType, int $antCoordX, int $antCoordY, array $availableTiles) : ArrayCollection
-    {
+    private function getAllAvailablePositionsFromTypeFour(
+        PlayerMYR $player,
+        TileMYR $tile,
+        TileTypeMYR $tileType,
+        int $antCoordX,
+        int $antCoordY,
+        array $availableTiles
+    ): ArrayCollection {
         $orientation = $tileType->getOrientation();
         $translations = match ($orientation) {
             0 => [[0, 0], [-1, -1], [-2, -2], [0, -2]],
@@ -830,8 +962,14 @@ class WorkerMYRService
             return new ArrayCollection();
         }
         $coords = $this->getAllCoordinatesFromTileType($player, $tile, $tileType);
-        return $this->getAllAvailablePositionsFromOrientation($player, $coords,
-            $translations, $antCoordX, $antCoordY, $availableTiles);
+        return $this->getAllAvailablePositionsFromOrientation(
+            $player,
+            $coords,
+            $translations,
+            $antCoordX,
+            $antCoordY,
+            $availableTiles
+        );
     }
 
     /**
@@ -846,9 +984,14 @@ class WorkerMYRService
      * @return ArrayCollection<Int, ArrayCollection<Int, BoardTileMYR>>
      * @throws Exception
      */
-    private function getAllAvailablePositionsFromTypeFive(PlayerMYR $player, TileMYR $tile,
-        TileTypeMYR $tileType, int $antCoordX, int $antCoordY, array $availableTiles) : ArrayCollection
-    {
+    private function getAllAvailablePositionsFromTypeFive(
+        PlayerMYR $player,
+        TileMYR $tile,
+        TileTypeMYR $tileType,
+        int $antCoordX,
+        int $antCoordY,
+        array $availableTiles
+    ): ArrayCollection {
         $orientation = $tileType->getOrientation();
         $translations = match ($orientation) {
             0 => [[0, 0], [0, -2], [-1, -3], [-1, -1], [-1, 1]],
@@ -863,8 +1006,14 @@ class WorkerMYRService
             return new ArrayCollection();
         }
         $coords = $this->getAllCoordinatesFromTileType($player, $tile, $tileType);
-        return $this->getAllAvailablePositionsFromOrientation($player, $coords,
-            $translations, $antCoordX, $antCoordY, $availableTiles);
+        return $this->getAllAvailablePositionsFromOrientation(
+            $player,
+            $coords,
+            $translations,
+            $antCoordX,
+            $antCoordY,
+            $availableTiles
+        );
     }
 
     /**
@@ -879,9 +1028,14 @@ class WorkerMYRService
      * @return ArrayCollection<Int, ArrayCollection<Int, BoardTileMYR>>
      * @throws Exception
      */
-    private function getAllAvailablePositionsFromTypeSix(PlayerMYR $player, TileMYR $tile,
-        TileTypeMYR $tileType, int $antCoordX, int $antCoordY, array $availableTiles) : ArrayCollection
-    {
+    private function getAllAvailablePositionsFromTypeSix(
+        PlayerMYR $player,
+        TileMYR $tile,
+        TileTypeMYR $tileType,
+        int $antCoordX,
+        int $antCoordY,
+        array $availableTiles
+    ): ArrayCollection {
         $orientation = $tileType->getOrientation();
         $translations = match ($orientation) {
             0 => [[0, 0], [-1, 1], [-1, -1], [-2, +2], [-2, 0], [-2, -2]],
@@ -896,8 +1050,14 @@ class WorkerMYRService
             return new ArrayCollection();
         }
         $coords = $this->getAllCoordinatesFromTileType($player, $tile, $tileType);
-        return $this->getAllAvailablePositionsFromOrientation($player, $coords,
-            $translations, $antCoordX, $antCoordY, $availableTiles);
+        return $this->getAllAvailablePositionsFromOrientation(
+            $player,
+            $coords,
+            $translations,
+            $antCoordX,
+            $antCoordY,
+            $availableTiles
+        );
     }
 
     /**
@@ -913,10 +1073,13 @@ class WorkerMYRService
      * @throws Exception
      */
     private function getAllAvailablePositionsFromOrientation(
-        PlayerMYR $player, ArrayCollection $coords, array $translations,
-        int $antCoordX, int $antCoordY, array $availableTiles
-    ) : ArrayCollection
-    {
+        PlayerMYR $player,
+        ArrayCollection $coords,
+        array $translations,
+        int $antCoordX,
+        int $antCoordY,
+        array $availableTiles
+    ): ArrayCollection {
         $game = $player->getGameMyr();
         $result = new ArrayCollection();
         foreach ($translations as $translation) {
@@ -970,7 +1133,7 @@ class WorkerMYRService
      * @param int                                $antCoordY
      * @return bool
      */
-    private function containsAnt(ArrayCollection $tileList, int $antCoordX, int $antCoordY) : bool
+    private function containsAnt(ArrayCollection $tileList, int $antCoordX, int $antCoordY): bool
     {
         foreach ($tileList as $tile) {
             if ($tile->getTile()->getCoordX() === $antCoordX && $tile->getTile()->getCoordY() === $antCoordY) {
@@ -986,7 +1149,7 @@ class WorkerMYRService
      * @param GameMYR $game
      * @return PreyMYR|null
      */
-    private function getPreyOnTile(TileMYR $tile, GameMYR $game) : ?PreyMYR
+    private function getPreyOnTile(TileMYR $tile, GameMYR $game): ?PreyMYR
     {
         return $this->preyMYRRepository->findOneBy([
             "tile" => $tile,
@@ -1000,7 +1163,7 @@ class WorkerMYRService
      * @param GameMYR $game
      * @return PheromonTileMYR|null
      */
-    private function getPheromoneTileOnTile(TileMYR $tile, GameMYR $game) : ?PheromonTileMYR
+    private function getPheromoneTileOnTile(TileMYR $tile, GameMYR $game): ?PheromonTileMYR
     {
         return $this->pheromonTileMYRRepository->findOneBy(
             [
@@ -1016,9 +1179,10 @@ class WorkerMYRService
      * @param PreyMYR $prey
      * @return bool
      */
-    private function canWorkerAttackPrey(PlayerMYR $player,
-         PreyMYR $prey) : bool
-    {
+    private function canWorkerAttackPrey(
+        PlayerMYR $player,
+        PreyMYR $prey
+    ): bool {
         $personalBoard = $player->getPersonalBoardMYR();
         $needSoldiers =
             MyrmesParameters::NUMBER_SOLDIERS_FOR_ATTACK_PREY[
@@ -1036,10 +1200,12 @@ class WorkerMYRService
      * @param GardenWorkerMYR $gardenWorker
      * @return bool
      */
-    private function canWorkerWalkAroundPheromone(PlayerMYR $player, ?PheromonTileMYR $originPheromoneTile,
-                                                  ?PheromonTileMYR $destinationPheromoneTile,
-                                                  GardenWorkerMYR $gardenWorker) : bool
-    {
+    private function canWorkerWalkAroundPheromone(
+        PlayerMYR $player,
+        ?PheromonTileMYR $originPheromoneTile,
+        ?PheromonTileMYR $destinationPheromoneTile,
+        GardenWorkerMYR $gardenWorker
+    ): bool {
         if($originPheromoneTile != null && $destinationPheromoneTile != null
            && $originPheromoneTile->getPheromonMYR() === $destinationPheromoneTile->getPheromonMYR()) {
             return true;
@@ -1057,8 +1223,7 @@ class WorkerMYRService
      * @param int $direction
      * @return TileMYR|null
      */
-    private function getTileAtDirection(TileMYR $tile
-        , int $direction) : ?TileMYR
+    private function getTileAtDirection(TileMYR $tile, int $direction): ?TileMYR
     {
         $abscissa = $tile->getCoordX();
         $ordinate = $tile->getCoordY();
@@ -1086,7 +1251,7 @@ class WorkerMYRService
      * @param int $y
      * @return TileMYR|null
      */
-    private function getTileAtCoordinate(int $x, int $y) : ?TileMYR
+    private function getTileAtCoordinate(int $x, int $y): ?TileMYR
     {
         return $this->tileMYRRepository->findOneBy([
         "coordX" =>  $x,
@@ -1099,7 +1264,7 @@ class WorkerMYRService
      * @param TileMYR $tileMYR
      * @return bool
      */
-    private function isPositionAvailable(GameMYR $gameMYR, TileMYR $tileMYR) : bool
+    private function isPositionAvailable(GameMYR $gameMYR, TileMYR $tileMYR): bool
     {
         if($tileMYR->getType() == MyrmesParameters::WATER_TILE_TYPE) {
             return false;
@@ -1130,7 +1295,7 @@ class WorkerMYRService
      * @param PreyMYR $prey
      * @return void
      */
-    private function attackPrey(PlayerMYR $player, PreyMYR $prey) : void
+    private function attackPrey(PlayerMYR $player, PreyMYR $prey): void
     {
         $player->addPreyMYR($prey);
         $prey->setTile(null);
@@ -1153,9 +1318,11 @@ class WorkerMYRService
         // Manage quantity of resource
         $playerResource = $this->myrService->getPlayerResourceOfType(
             $player,
-            MyrmesParameters::RESOURCE_TYPE_GRASS);
+            MyrmesParameters::RESOURCE_TYPE_GRASS
+        );
 
-        $playerResource->setQuantity($playerResource->getQuantity()
+        $playerResource->setQuantity(
+            $playerResource->getQuantity()
             + MyrmesParameters::FOOD_GAIN_BY_ATTACK_PREY[$prey->getType()]
         );
 
@@ -1176,9 +1343,12 @@ class WorkerMYRService
      * @return ArrayCollection<Int, TileMYR>
      * @throws Exception
      */
-    private function getAllCoordinatesOfPheromoneTypeZero(PlayerMYR $player,
-        TileMYR $tile, TileTypeMYR $tileType, array $availablePositions = []) : ArrayCollection
-    {
+    private function getAllCoordinatesOfPheromoneTypeZero(
+        PlayerMYR $player,
+        TileMYR $tile,
+        TileTypeMYR $tileType,
+        array $availablePositions = []
+    ): ArrayCollection {
         $coordX = $tile->getCoordX();
         $coordY = $tile->getCoordY();
         $game = $player->getGameMyr();
@@ -1205,9 +1375,12 @@ class WorkerMYRService
      * @return ArrayCollection<Int, TileMYR>
      * @throws Exception
      */
-    private function getAllCoordinatesOfPheromoneTypeOne(PlayerMYR $player,
-        TileMYR $tile, TileTypeMYR $tileType, array $availablePositions = []) : ArrayCollection
-    {
+    private function getAllCoordinatesOfPheromoneTypeOne(
+        PlayerMYR $player,
+        TileMYR $tile,
+        TileTypeMYR $tileType,
+        array $availablePositions = []
+    ): ArrayCollection {
         $coordX = $tile->getCoordX();
         $coordY = $tile->getCoordY();
         $game = $player->getGameMyr();
@@ -1231,9 +1404,12 @@ class WorkerMYRService
      * @return ArrayCollection<Int, TileMYR>
      * @throws Exception
      */
-    private function getAllCoordinatesOfPheromoneTypeTwo(PlayerMYR $player,
-        TileMYR $tile, TileTypeMYR $tileType, array $availablePositions = []) : ArrayCollection
-    {
+    private function getAllCoordinatesOfPheromoneTypeTwo(
+        PlayerMYR $player,
+        TileMYR $tile,
+        TileTypeMYR $tileType,
+        array $availablePositions = []
+    ): ArrayCollection {
         $coordX = $tile->getCoordX();
         $coordY = $tile->getCoordY();
         $game = $player->getGameMyr();
@@ -1260,9 +1436,12 @@ class WorkerMYRService
      * @return ArrayCollection<Int, TileMYR>
      * @throws Exception
      */
-    private function getAllCoordinatesOfPheromoneTypeThree(PlayerMYR $player,
-        TileMYR $tile, TileTypeMYR $tileType, array $availablePositions = []) : ArrayCollection
-    {
+    private function getAllCoordinatesOfPheromoneTypeThree(
+        PlayerMYR $player,
+        TileMYR $tile,
+        TileTypeMYR $tileType,
+        array $availablePositions = []
+    ): ArrayCollection {
         $coordX = $tile->getCoordX();
         $coordY = $tile->getCoordY();
         $game = $player->getGameMyr();
@@ -1290,9 +1469,12 @@ class WorkerMYRService
      * @return ArrayCollection<Int, TileMYR>
      * @throws Exception
      */
-    private function getAllCoordinatesOfPheromoneTypeFour(PlayerMYR $player,
-        TileMYR $tile, TileTypeMYR $tileType, array $availablePositions = []) : ArrayCollection
-    {
+    private function getAllCoordinatesOfPheromoneTypeFour(
+        PlayerMYR $player,
+        TileMYR $tile,
+        TileTypeMYR $tileType,
+        array $availablePositions = []
+    ): ArrayCollection {
         $coordX = $tile->getCoordX();
         $coordY = $tile->getCoordY();
         $game = $player->getGameMyr();
@@ -1325,9 +1507,12 @@ class WorkerMYRService
      * @return ArrayCollection<Int, TileMYR>
      * @throws Exception
      */
-    private function getAllCoordinatesOfPheromoneTypeFive(PlayerMYR $player,
-        TileMYR $tile, TileTypeMYR $tileType, array $availablePositions = []) : ArrayCollection
-    {
+    private function getAllCoordinatesOfPheromoneTypeFive(
+        PlayerMYR $player,
+        TileMYR $tile,
+        TileTypeMYR $tileType,
+        array $availablePositions = []
+    ): ArrayCollection {
         $coordX = $tile->getCoordX();
         $coordY = $tile->getCoordY();
         $game = $player->getGameMyr();
@@ -1354,9 +1539,12 @@ class WorkerMYRService
      * @return ArrayCollection<Int, TileMYR>
      * @throws Exception
      */
-    private function getAllCoordinatesOfPheromoneTypeSix(PlayerMYR $player,
-        TileMYR $tile, TileTypeMYR $tileType, array $availablePositions = []) : ArrayCollection
-    {
+    private function getAllCoordinatesOfPheromoneTypeSix(
+        PlayerMYR $player,
+        TileMYR $tile,
+        TileTypeMYR $tileType,
+        array $availablePositions = []
+    ): ArrayCollection {
         $coordX = $tile->getCoordX();
         $coordY = $tile->getCoordY();
         $game = $player->getGameMyr();
@@ -1379,7 +1567,7 @@ class WorkerMYRService
      * @param TileMYR      $tile
      * @return bool
      */
-    private function containsPrey(GameMYR $game, TileMYR $tile) : bool
+    private function containsPrey(GameMYR $game, TileMYR $tile): bool
     {
         return $this->getPrey($game, $tile) != null;
     }
@@ -1390,11 +1578,11 @@ class WorkerMYRService
      * @param TileMYR $tile
      * @return PreyMYR|null
      */
-    private function getPrey(GameMYR $game, TileMYR $tile) : ?PreyMYR
+    private function getPrey(GameMYR $game, TileMYR $tile): ?PreyMYR
     {
         return $this->preyMYRRepository->findOneBy(
-                ["mainBoardMYR" => $game->getMainBoardMYR(), "tile" => $tile]
-            );
+            ["mainBoardMYR" => $game->getMainBoardMYR(), "tile" => $tile]
+        );
     }
 
     /**
@@ -1402,16 +1590,16 @@ class WorkerMYRService
      * @param PlayerMYR   $player
      * @return bool
      */
-    private function getAllCoordinatesOfPheromoneFarm(PlayerMYR $player) : bool
+    private function getAllCoordinatesOfPheromoneFarm(PlayerMYR $player): bool
     {
         $personalBoard = $player->getPersonalBoardMYR();
         $playerResource = null;
-        foreach ($personalBoard->getPlayerResourceMYRs() as $playerResourceMYR){
+        foreach ($personalBoard->getPlayerResourceMYRs() as $playerResourceMYR) {
             if($playerResourceMYR->getResource()->getDescription() == MyrmesParameters::RESOURCE_TYPE_STONE) {
                 $playerResource = $playerResourceMYR;
             }
         }
-       return $playerResource != null && $playerResource->getQuantity() > 0;
+        return $playerResource != null && $playerResource->getQuantity() > 0;
     }
 
     /**
@@ -1419,11 +1607,11 @@ class WorkerMYRService
      * @param PlayerMYR   $player
      * @return bool
      */
-    private function getAllCoordinatesOfPheromoneQuarry(PlayerMYR $player) : bool
+    private function getAllCoordinatesOfPheromoneQuarry(PlayerMYR $player): bool
     {
         $personalBoard = $player->getPersonalBoardMYR();
         $playerResource = null;
-        foreach ($personalBoard->getPlayerResourceMYRs() as $playerResourceMYR){
+        foreach ($personalBoard->getPlayerResourceMYRs() as $playerResourceMYR) {
             if($playerResourceMYR->getResource()->getDescription() == MyrmesParameters::RESOURCE_TYPE_GRASS) {
                 $playerResource = $playerResourceMYR;
             }
@@ -1436,23 +1624,23 @@ class WorkerMYRService
      * @param PlayerMYR   $player
      * @return bool
      */
-    private function getAllCoordinatesOfPheromoneSubanthill(PlayerMYR $player) : bool
+    private function getAllCoordinatesOfPheromoneSubanthill(PlayerMYR $player): bool
     {
         $playerDirt = null;
         $playerStone = null;
         $playerGrass = null;
         $personalBoard = $player->getPersonalBoardMYR();
-        foreach ($personalBoard->getPlayerResourceMYRs() as $playerResourceMYR){
+        foreach ($personalBoard->getPlayerResourceMYRs() as $playerResourceMYR) {
             if($playerResourceMYR->getResource()->getDescription() == MyrmesParameters::RESOURCE_TYPE_DIRT) {
                 $playerDirt = $playerResourceMYR;
             }
         }
-        foreach ($personalBoard->getPlayerResourceMYRs() as $playerResourceMYR){
+        foreach ($personalBoard->getPlayerResourceMYRs() as $playerResourceMYR) {
             if($playerResourceMYR->getResource()->getDescription() == MyrmesParameters::RESOURCE_TYPE_STONE) {
                 $playerStone = $playerResourceMYR;
             }
         }
-        foreach ($personalBoard->getPlayerResourceMYRs() as $playerResourceMYR){
+        foreach ($personalBoard->getPlayerResourceMYRs() as $playerResourceMYR) {
             if($playerResourceMYR->getResource()->getDescription() == MyrmesParameters::RESOURCE_TYPE_GRASS) {
                 $playerGrass = $playerResourceMYR;
             }
@@ -1468,7 +1656,7 @@ class WorkerMYRService
      * @param TileTypeMYR $type
      * @return int
      */
-    private function getPheromoneCountOfType(PlayerMYR $player, TileTypeMYR $type) : int
+    private function getPheromoneCountOfType(PlayerMYR $player, TileTypeMYR $type): int
     {
         $pheromones = $player->getPheromonMYRs();
         $result = 0;
@@ -1488,7 +1676,7 @@ class WorkerMYRService
      * @return bool
      * @throws Exception
      */
-    private function canChoosePheromone(PlayerMYR $player, TileTypeMYR $tileType, int $pheromoneCount) : bool
+    private function canChoosePheromone(PlayerMYR $player, TileTypeMYR $tileType, int $pheromoneCount): bool
     {
         $anthillLevel = $player->getPersonalBoardMYR()->getAnthillLevel();
         $pheromoneSize = match ($tileType->getType()) {
@@ -1496,7 +1684,7 @@ class WorkerMYRService
             MyrmesParameters::PHEROMONE_TYPE_ONE, MyrmesParameters::SPECIAL_TILE_TYPE_QUARRY,
             MyrmesParameters::SPECIAL_TILE_TYPE_FARM, MyrmesParameters::PHEROMONE_TYPE_TWO => 3,
             MyrmesParameters::PHEROMONE_TYPE_THREE, MyrmesParameters::PHEROMONE_TYPE_FOUR,
-                MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL => 4,
+            MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL => 4,
             MyrmesParameters::PHEROMONE_TYPE_FIVE => 5,
             MyrmesParameters::PHEROMONE_TYPE_SIX => 6,
             default => throw new Exception("pheromone type unknown"),
@@ -1526,7 +1714,7 @@ class WorkerMYRService
      * @param TileTypeMYR $tileType
      * @return bool
      */
-    private function canPlaceSpecialTile(PlayerMYR $player, TileTypeMYR $tileType) : bool
+    private function canPlaceSpecialTile(PlayerMYR $player, TileTypeMYR $tileType): bool
     {
         $playerResources = $player->getPersonalBoardMYR()->getPlayerResourceMYRs();
         switch ($tileType->getType()) {
@@ -1535,7 +1723,7 @@ class WorkerMYRService
                     if(($playerResource->getResource()->getDescription() == MyrmesParameters::RESOURCE_TYPE_GRASS ||
                         $playerResource->getResource()->getDescription() == MyrmesParameters::RESOURCE_TYPE_STONE ||
                         $playerResource->getResource()->getDescription() == MyrmesParameters::RESOURCE_TYPE_DIRT)
-                        && $playerResource->getQuantity() < 1 ){
+                        && $playerResource->getQuantity() < 1) {
                         return false;
                     }
                 }
@@ -1544,7 +1732,7 @@ class WorkerMYRService
                 foreach ($playerResources as $playerResource) {
                     if($playerResource->getResource()->getDescription() == MyrmesParameters::RESOURCE_TYPE_STONE
                         && $playerResource->getQuantity() < 1
-                    ){
+                    ) {
                         return false;
                     }
                 }
@@ -1553,7 +1741,7 @@ class WorkerMYRService
                 foreach ($playerResources as $playerResource) {
                     if($playerResource->getResource()->getDescription() == MyrmesParameters::RESOURCE_TYPE_GRASS
                         && $playerResource->getQuantity() < 1
-                    ){
+                    ) {
                         return false;
                     }
                 }
@@ -1569,7 +1757,7 @@ class WorkerMYRService
      * @param PheromonTileMYR $tile
      * @return void
      */
-    private function placeResourceOnTile(PheromonTileMYR $tile) : void
+    private function placeResourceOnTile(PheromonTileMYR $tile): void
     {
         if ($tile->getPheromonMYR()->getType()->getType() >= MyrmesParameters::SPECIAL_TILE_TYPE_FARM) {
             return;
@@ -1600,10 +1788,11 @@ class WorkerMYRService
      * @return void
      * @throws Exception
      */
-    private function createAndPlacePheromone(ArrayCollection $tiles,
-            PlayerMYR $playerMYR,
-            TileTypeMYR $tileTypeMYR) : void
-    {
+    private function createAndPlacePheromone(
+        ArrayCollection $tiles,
+        PlayerMYR $playerMYR,
+        TileTypeMYR $tileTypeMYR
+    ): void {
         if ($tiles->isEmpty()) {
             throw new Exception("invalid placement");
         }
@@ -1622,7 +1811,7 @@ class WorkerMYRService
                 break;
             case MyrmesParameters::SPECIAL_TILE_TYPE_FARM:
                 foreach ($playerResources as $playerResource) {
-                    if($playerResource->getResource()->getDescription() == MyrmesParameters::RESOURCE_TYPE_STONE){
+                    if($playerResource->getResource()->getDescription() == MyrmesParameters::RESOURCE_TYPE_STONE) {
                         $playerResource->setQuantity($playerResource->getQuantity() - 1);
                         $this->entityManager->persist($playerResource);
                     }
@@ -1630,7 +1819,7 @@ class WorkerMYRService
                 break;
             case MyrmesParameters::SPECIAL_TILE_TYPE_QUARRY:
                 foreach ($playerResources as $playerResource) {
-                    if($playerResource->getResource()->getDescription() == MyrmesParameters::RESOURCE_TYPE_GRASS){
+                    if($playerResource->getResource()->getDescription() == MyrmesParameters::RESOURCE_TYPE_GRASS) {
                         $playerResource->setQuantity($playerResource->getQuantity() - 1);
                         $this->entityManager->persist($playerResource);
                     }
@@ -1690,9 +1879,14 @@ class WorkerMYRService
      * @return void
      * @throws Exception
      */
-    private function getAvailablePheromonesFromAPlayer(PlayerMYR $player, array $pheromoneAmount,
-        int $start, int $end, array $nbOrientations, ArrayCollection &$result) : void
-    {
+    private function getAvailablePheromonesFromAPlayer(
+        PlayerMYR $player,
+        array $pheromoneAmount,
+        int $start,
+        int $end,
+        array $nbOrientations,
+        ArrayCollection &$result
+    ): void {
         for ($i = $start; $i <= $end; ++$i) {
             $tileType = $this->tileTypeMYRRepository->findOneBy(["type" => $i]);
             $remaining = $pheromoneAmount[$i] - $this->getPheromoneCountOfType($player, $tileType);
@@ -1715,9 +1909,12 @@ class WorkerMYRService
      * @throws Exception
      */
     private function getAllTiles(
-        array $coords, GameMYR $game, int $x, int $y, array $availablePositions = []
-    ) : ArrayCollection
-    {
+        array $coords,
+        GameMYR $game,
+        int $x,
+        int $y,
+        array $availablePositions = []
+    ): ArrayCollection {
         $tiles = new ArrayCollection();
         foreach ($coords as $coord) {
             $tmp = array();
@@ -1750,7 +1947,8 @@ class WorkerMYRService
     {
         $pheromoneTypes = $this->tileTypeMYRRepository->findBy(['type' => MyrmesParameters::PHEROMONE_TYPES]);
         return new ArrayCollection(
-            $this->pheromonMYRRepository->findBy(['player' => $playerMYR, 'type' => $pheromoneTypes]));
+            $this->pheromonMYRRepository->findBy(['player' => $playerMYR, 'type' => $pheromoneTypes])
+        );
     }
 
     /**
@@ -1761,7 +1959,7 @@ class WorkerMYRService
      * @return void
      * @throws Exception
      */
-    private function giveColonyLevelBonus(PersonalBoardMYR $personalBoard, int $anthillFloor, ?String $lvlTwoResource) : void
+    private function giveColonyLevelBonus(PersonalBoardMYR $personalBoard, int $anthillFloor, ?String $lvlTwoResource): void
     {
         $food = $this->resourceMYRRepository->findOneBy(["description" => MyrmesParameters::RESOURCE_TYPE_GRASS]);
         $playerFood = $this->playerResourceMYRRepository->findOneBy(
@@ -1778,7 +1976,7 @@ class WorkerMYRService
             ["personalBoard" => $personalBoard, "resource" => $dirt]
         );
         switch ($anthillFloor) {
-            case 0 :
+            case 0:
                 $personalBoard->setLarvaCount($personalBoard->getLarvaCount() + 1);
                 $this->entityManager->persist($personalBoard);
                 return;
@@ -1790,7 +1988,7 @@ class WorkerMYRService
                 if ($lvlTwoResource == MyrmesParameters::RESOURCE_TYPE_DIRT) {
                     $playerDirt->setQuantity($playerDirt->getQuantity() + 1);
                     $this->entityManager->persist($playerDirt);
-                } elseif ($lvlTwoResource == MyrmesParameters::RESOURCE_TYPE_STONE ) {
+                } elseif ($lvlTwoResource == MyrmesParameters::RESOURCE_TYPE_STONE) {
                     $playerStone->setQuantity($playerStone->getQuantity() + 1);
                     $this->entityManager->persist($playerStone);
                 }

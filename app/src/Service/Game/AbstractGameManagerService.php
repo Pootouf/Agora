@@ -4,19 +4,19 @@ namespace App\Service\Game;
 
 use App\Entity\Game\DTO\Game;
 
-abstract class AbstractGameManagerService {
+abstract class AbstractGameManagerService
+{
+    public const string SIXQP_LABEL = "6QP";
+    public const string SPL_LABEL = "SPL";
+    public const string GLM_LABEL = "GLM";
+    public const string MYR_LABEL = "MYR";
 
-    const string SIXQP_LABEL = "6QP";
-    const string SPL_LABEL = "SPL";
-    const string GLM_LABEL = "GLM";
-    const string MYR_LABEL = "MYR";
-
-    const int SUCCESS = 1;
-    const int ERROR_ALREADY_IN_PARTY = -1;
-    const int ERROR_INVALID_GAME = -2;
-    const int ERROR_GAME_ALREADY_LAUNCHED = -3;
-    const int ERROR_INVALID_NUMBER_OF_PLAYER = -4;
-    const int ERROR_PLAYER_NOT_FOUND = -5;
+    public const int SUCCESS = 1;
+    public const int ERROR_ALREADY_IN_PARTY = -1;
+    public const int ERROR_INVALID_GAME = -2;
+    public const int ERROR_GAME_ALREADY_LAUNCHED = -3;
+    public const int ERROR_INVALID_NUMBER_OF_PLAYER = -4;
+    public const int ERROR_PLAYER_NOT_FOUND = -5;
 
 
     /**

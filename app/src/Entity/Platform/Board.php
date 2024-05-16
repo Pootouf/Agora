@@ -8,7 +8,6 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-
 #[ORM\Entity(repositoryClass: BoardRepository::class)]
 class Board
 {
@@ -112,7 +111,7 @@ class Board
     {
         return $this->status;
     }
-    
+
     /**
      * Sets the status of the board.
      *
@@ -126,11 +125,11 @@ class Board
         return $this;
     }
 
-   /**
-     * Gets the creation date of the board.
-     *
-     * @return \DateTimeInterface|null The creation date of the board.
-     */
+    /**
+      * Gets the creation date of the board.
+      *
+      * @return \DateTimeInterface|null The creation date of the board.
+      */
     public function getCreationDate(): ?\DateTimeInterface
     {
         return $this->creationDate;
@@ -184,7 +183,7 @@ class Board
 
     /**
      * Sets the inactivity timer of the board.
-     * 
+     *
      * @param \DateTimeInterface $inactivityTimer The inativity timer to set.
      * @return static
      */
@@ -258,7 +257,7 @@ class Board
     //       $this->listUser->count += 1
     public function addListUser(User $user): int
     {
-        if (!$this->listUsers->contains($user) && $this->isAvailble() ) {
+        if (!$this->listUsers->contains($user) && $this->isAvailble()) {
             $this->listUsers->add($user);
             return 0;
         }
@@ -266,7 +265,7 @@ class Board
         return -1;
     }
 
- 
+
     /**
      * Gets the number of users who have joined the board.
      *
@@ -298,7 +297,8 @@ class Board
      *
      * @return bool Returns true if the board is available, false otherwise.
      */
-    public function isAvailble(){
+    public function isAvailble()
+    {
         return $this->isWaiting() && $this->listUsers->count() + $this->getNbInvitations() < $this->nbUserMax;
     }
 
@@ -331,19 +331,20 @@ class Board
      * @param User $user The user to check.
      * @return bool Returns true if the user exists in the list, false otherwise.
      */
-    public function hasUser(User $user):bool
+    public function hasUser(User $user): bool
     {
         return $this->listUsers->contains($user);
     }
 
-    
+
     /**
      * Gets the number of available slots on the board.
      *
      * @return int The number of available slots on the board.
      * getNbAvailbleSlots() == 0 => isAvailble() == false
      */
-    public function getNbAvailbleSlots():int{
+    public function getNbAvailbleSlots(): int
+    {
         return $this->getNbUserMax() - ($this->listUsers->count() +
                 $this->getNbInvitations());
     }
@@ -366,7 +367,7 @@ class Board
      */
     public function setGame(?Game $game): static
     {
-        $this->game=$game;
+        $this->game = $game;
 
         return $this;
     }
@@ -399,7 +400,7 @@ class Board
      *
      * @return bool Returns true if all places on the board have been taken by players, otherwise false.
      */
-    public function isFull():bool
+    public function isFull(): bool
     {
         return $this->listUsers->count() == $this->nbUserMax;
     }
@@ -514,10 +515,9 @@ class Board
      *
      */
 
-    public function cleanInvitationList() : void
+    public function cleanInvitationList(): void
     {
         $this->invitedContacts->clear();
     }
 
 }
-

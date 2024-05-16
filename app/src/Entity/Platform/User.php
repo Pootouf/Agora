@@ -114,11 +114,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-   /**
-     * Gets a unique identifier representing this user.
-     *
-     * @see UserInterface
-     */
+    /**
+      * Gets a unique identifier representing this user.
+      *
+      * @see UserInterface
+      */
     public function getUserIdentifier(): string
     {
         return (string)$this->email;
@@ -174,7 +174,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
- 
+
     /**
      * Clears any sensitive information stored on the user.
      */
@@ -228,11 +228,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-   /**
-     * Gets the collection of boards associated with the user.
-     *
-     * @return Collection<int, Board> The collection of boards associated with the user.
-     */
+    /**
+      * Gets the collection of boards associated with the user.
+      *
+      * @return Collection<int, Board> The collection of boards associated with the user.
+      */
     public function getBoards(): Collection
     {
         return $this->boards;
@@ -373,7 +373,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         }
         return $this;
     }
-    
+
     /**
      * Removes a contact from the collection of contacts associated with the user.
      *
@@ -416,11 +416,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->username;
     }
 
-    public function isAdmin() : bool
+    public function isAdmin(): bool
     {
         $roles = $this->getRoles();
-        for($i = 0; $i < count($roles); $i++){
-            if($roles[$i] == "ROLE_ADMIN"){
+        for($i = 0; $i < count($roles); $i++) {
+            if($roles[$i] == "ROLE_ADMIN") {
                 return true;
             }
         }

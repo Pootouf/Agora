@@ -13,7 +13,7 @@ use phpDocumentor\Reflection\Types\String_;
 
 class LogService
 {
-    const int SYSTEM_ID = -1;
+    public const int SYSTEM_ID = -1;
     private EntityManagerInterface $entityManager;
     public function __construct(EntityManagerInterface $entityManager)
     {
@@ -27,7 +27,7 @@ class LogService
      * @param String $message : the action performed
      * @throws Exception
      */
-    public function sendPlayerLog(Game $game, Player $player, String $message) : void
+    public function sendPlayerLog(Game $game, Player $player, String $message): void
     {
         $this->sendLog($game->getId(), $player->getId(), $game->getGameName(), $message);
     }
@@ -38,7 +38,7 @@ class LogService
      * @param String $message : the action performed
      * @throws Exception
      */
-    public function sendSystemLog(Game $game, String $message) : void
+    public function sendSystemLog(Game $game, String $message): void
     {
         $this->sendLog($game->getId(), $this::SYSTEM_ID, $game->getGameName(), $message);
     }
@@ -51,7 +51,7 @@ class LogService
      * @param String $message : the action performed
      * @throws Exception
      */
-    private function sendLog(int $gameId, int $playerId, String $gameLabel, String $message) : void
+    private function sendLog(int $gameId, int $playerId, String $gameLabel, String $message): void
     {
         $log = new Log();
         $log->setGameId($gameId);

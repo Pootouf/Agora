@@ -30,7 +30,7 @@ class BoardTileMYR
      * getTile: returns the tile
      * @return TileMYR
      */
-    public function getTile() : TileMYR
+    public function getTile(): TileMYR
     {
         return $this->tileMYR;
     }
@@ -39,7 +39,7 @@ class BoardTileMYR
      * isPivot: checks if the tile is considered as the pivot or not
      * @return bool
      */
-    public function isPivot() : bool
+    public function isPivot(): bool
     {
         return $this->pivot;
     }
