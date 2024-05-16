@@ -45,7 +45,7 @@ final class Version6QPPLATFORM extends AbstractMigration
             'name' => 'Glenmore',
             'descr_rule' => 'C\'est le glenmore' ,
             'img_url' => 'images/glenmore.jpg',
-            'label' => 'SPL',
+            'label' => 'GLM',
             'is_active' => true,
             'min_players' => 2,
             'max_players' => 5
