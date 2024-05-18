@@ -9,7 +9,6 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: PlayerResourceMYRRepository::class)]
 class PlayerResourceMYR extends Component
 {
-
     #[ORM\Column]
     private ?int $quantity = null;
 

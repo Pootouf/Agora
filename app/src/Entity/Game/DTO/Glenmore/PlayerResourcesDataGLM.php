@@ -11,7 +11,8 @@ class PlayerResourcesDataGLM
     private int $movementPoints;
     private int $whiskyCount;
 
-    public function __construct(PlayerGLM $playerGLM, array $productionsCount, int $movementPoints, int $whiskyCount) {
+    public function __construct(PlayerGLM $playerGLM, array $productionsCount, int $movementPoints, int $whiskyCount)
+    {
         $this->player = $playerGLM;
         $this->productionsCount = $productionsCount;
         $this->movementPoints = $movementPoints;

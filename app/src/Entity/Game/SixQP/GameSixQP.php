@@ -12,7 +12,6 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: GameSixQPRepository::class)]
 class GameSixQP extends Game
 {
-
     #[ORM\OneToMany(mappedBy: 'game', targetEntity: RowSixQP::class, orphanRemoval: true)]
     private Collection $rowSixQPs;
 

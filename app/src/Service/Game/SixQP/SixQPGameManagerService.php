@@ -21,11 +21,12 @@ class SixQPGameManagerService extends AbstractGameManagerService
     private PlayerSixQPRepository $playerSixQPRepository;
     private SixQPService $sixQPService;
     private LogService $logService;
-    public function __construct(EntityManagerInterface $entityManager,
+    public function __construct(
+        EntityManagerInterface $entityManager,
         PlayerSixQPRepository $playerSixQPRepository,
         SixQPService $sixQPService,
-        LogService $logService)
-    {
+        LogService $logService
+    ) {
         $this->entityManager = $entityManager;
         $this->playerSixQPRepository = $playerSixQPRepository;
         $this->sixQPService = $sixQPService;
@@ -70,7 +71,8 @@ class SixQPGameManagerService extends AbstractGameManagerService
             return SixQPGameManagerService::ERROR_INVALID_NUMBER_OF_PLAYER;
         }
         if ($this->playerSixQPRepository->findOneBy(
-            ['username' => $playerName, 'game' => $game->getId()]) != null) {
+            ['username' => $playerName, 'game' => $game->getId()]
+        ) != null) {
             return SixQPGameManagerService::ERROR_ALREADY_IN_PARTY;
         }
         $player = new PlayerSixQP($playerName, $game);
@@ -81,8 +83,11 @@ class SixQPGameManagerService extends AbstractGameManagerService
         $this->entityManager->persist($player);
         $this->entityManager->persist($discard);
         $this->entityManager->flush();
-        $this->logService->sendPlayerLog($game, $player,
-            $playerName . " a rejoint la partie " . $game->getId());
+        $this->logService->sendPlayerLog(
+            $game,
+            $player,
+            $playerName . " a rejoint la partie " . $game->getId()
+        );
         return SixQPGameManagerService::SUCCESS;
     }
 
@@ -104,8 +109,10 @@ class SixQPGameManagerService extends AbstractGameManagerService
         }
         $this->entityManager->remove($player);
         $this->entityManager->flush();
-        $this->logService->sendSystemLog($game,
-            $playerName . " a été retiré de la partie " . $game->getId());
+        $this->logService->sendSystemLog(
+            $game,
+            $playerName . " a été retiré de la partie " . $game->getId()
+        );
         return SixQPGameManagerService::SUCCESS;
     }
 
@@ -154,7 +161,8 @@ class SixQPGameManagerService extends AbstractGameManagerService
     }
 
 
-    private function getGameSixQPFromGame(Game $game): ?GameSixQP {
+    private function getGameSixQPFromGame(Game $game): ?GameSixQP
+    {
         /** @var GameSixQP $game */
         return $game->getGameName() == AbstractGameManagerService::SIXQP_LABEL ? $game : null;
     }

@@ -9,7 +9,6 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: GardenWorkerMYRRepository::class)]
 class GardenWorkerMYR extends Component
 {
-
     #[ORM\ManyToOne(inversedBy: 'gardenWorkerMYRs')]
     #[ORM\JoinColumn(nullable: false)]
     private ?PlayerMYR $player = null;

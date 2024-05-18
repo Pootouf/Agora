@@ -42,7 +42,7 @@ class BuyingTileGLM
 
         return $this;
     }
-    
+
     public function getPersonalBoardGLM(): ?PersonalBoardGLM
     {
         return $this->personalBoardGLM;

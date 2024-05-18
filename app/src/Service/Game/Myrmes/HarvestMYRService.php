@@ -12,9 +12,11 @@ use Exception;
 
 class HarvestMYRService
 {
-    public function __construct(private readonly EntityManagerInterface $entityManager,
-                                private readonly MYRService             $myrService)
-    {}
+    public function __construct(
+        private readonly EntityManagerInterface $entityManager,
+        private readonly MYRService             $myrService
+    ) {
+    }
 
     /**
      * areAllPheromonesHarvested : indicate if a player has ended its harvest obligatory phase
@@ -50,7 +52,7 @@ class HarvestMYRService
      * @return void
      * @throws Exception
      */
-    public function harvestSpecialTiles(PlayerMYR $player) : void
+    public function harvestSpecialTiles(PlayerMYR $player): void
     {
         $this->harvestPlayerFarms($player);
         $this->harvestPlayerSubAnthill($player);
@@ -63,7 +65,7 @@ class HarvestMYRService
      * @return void
      * @throws Exception
      */
-    public function harvestPheromone(PlayerMYR $playerMYR, TileMYR $tileMYR) : void
+    public function harvestPheromone(PlayerMYR $playerMYR, TileMYR $tileMYR): void
     {
         $playerPheromones = $playerMYR->getPheromonMYRs();
         foreach ($playerPheromones as $playerPheromone) {
@@ -74,7 +76,8 @@ class HarvestMYRService
                             throw new Exception("Pheromone already harvested");
                         }
                         $playerMYR->setRemainingHarvestingBonus(
-                            $playerMYR->getRemainingHarvestingBonus() - 1);
+                            $playerMYR->getRemainingHarvestingBonus() - 1
+                        );
                         $this->entityManager->persist($playerMYR);
                     }
                     $resource = $tile->getResource();
@@ -99,7 +102,7 @@ class HarvestMYRService
      * @param PlayerMYR $playerMYR
      * @return void
      */
-    public function harvestPlayerFarms(PlayerMYR $playerMYR) : void
+    public function harvestPlayerFarms(PlayerMYR $playerMYR): void
     {
         $playerPheromones = $playerMYR->getPheromonMYRs();
         foreach ($playerPheromones as $playerPheromone) {
@@ -126,9 +129,11 @@ class HarvestMYRService
      * @return void
      * @throws Exception
      */
-    public function harvestPlayerQuarry(PlayerMYR $playerMYR, PheromonMYR $pheromoneMYR,
-                                        string $resourceMYR) : void
-    {
+    public function harvestPlayerQuarry(
+        PlayerMYR $playerMYR,
+        PheromonMYR $pheromoneMYR,
+        string $resourceMYR
+    ): void {
         if($pheromoneMYR->isHarvested()) {
             throw new Exception("Quarry already harvested");
         }
@@ -156,7 +161,7 @@ class HarvestMYRService
      * @param PlayerMYR $playerMYR
      * @return void
      */
-    public function harvestPlayerSubAnthill(PlayerMYR $playerMYR) : void
+    public function harvestPlayerSubAnthill(PlayerMYR $playerMYR): void
     {
         $playerPheromones = $playerMYR->getPheromonMYRs();
         foreach ($playerPheromones as $playerPheromone) {

@@ -20,8 +20,11 @@ use Exception;
 
 class CardGLMService
 {
-    public function __construct(private readonly EntityManagerInterface $entityManager,
-        private readonly ResourceGLMRepository $resourceGLMRepository) {}
+    public function __construct(
+        private readonly EntityManagerInterface $entityManager,
+        private readonly ResourceGLMRepository $resourceGLMRepository
+    ) {
+    }
 
     /** applyCastle Of Mey : applies effect of card Castle Of Mey
      *
@@ -46,7 +49,7 @@ class CardGLMService
      * @param PersonalBoardGLM $personalBoard
      * @return Collection<Int, PlayerTileGLM>
      */
-    public function applyLochNess(PersonalBoardGLM $personalBoard) : Collection
+    public function applyLochNess(PersonalBoardGLM $personalBoard): Collection
     {
         $activableTiles = new ArrayCollection();
         $owns = false;
@@ -70,7 +73,7 @@ class CardGLMService
      * @param PlayerTileGLM $playerTileGLM
      * @return int -1 if Loch Lochy was bought, 0 else
      */
-    public function buyCardManagement(PlayerTileGLM $playerTileGLM) : int
+    public function buyCardManagement(PlayerTileGLM $playerTileGLM): int
     {
         $tile = $playerTileGLM->getTile();
         $personalBoard = $playerTileGLM->getPersonalBoard();
@@ -107,8 +110,12 @@ class CardGLMService
      */
     public function applyIonaAbbey(GameGLM $gameGLM): void
     {
-        $this->applyEndGameCard($gameGLM, GlenmoreParameters::CARD_IONA_ABBEY,
-            GlenmoreParameters::TILE_TYPE_YELLOW, GlenmoreParameters::IONA_ABBEY_POINTS);
+        $this->applyEndGameCard(
+            $gameGLM,
+            GlenmoreParameters::CARD_IONA_ABBEY,
+            GlenmoreParameters::TILE_TYPE_YELLOW,
+            GlenmoreParameters::IONA_ABBEY_POINTS
+        );
     }
 
     /**
@@ -119,8 +126,12 @@ class CardGLMService
      */
     public function applyDuartCastle(GameGLM $gameGLM): void
     {
-        $this->applyEndGameCard($gameGLM, GlenmoreParameters::CARD_DUART_CASTLE,
-            GlenmoreParameters::TILE_TYPE_VILLAGE, GlenmoreParameters::DUART_CASTLE_POINTS);
+        $this->applyEndGameCard(
+            $gameGLM,
+            GlenmoreParameters::CARD_DUART_CASTLE,
+            GlenmoreParameters::TILE_TYPE_VILLAGE,
+            GlenmoreParameters::DUART_CASTLE_POINTS
+        );
     }
 
     /**
@@ -131,8 +142,12 @@ class CardGLMService
      */
     public function applyLochMorar(GameGLM $gameGLM): void
     {
-        $this->applyEndGameCard($gameGLM, GlenmoreParameters::CARD_LOCH_MORAR,
-            GlenmoreParameters::TILE_TYPE_GREEN, GlenmoreParameters::LOCH_MORAR_POINTS);
+        $this->applyEndGameCard(
+            $gameGLM,
+            GlenmoreParameters::CARD_LOCH_MORAR,
+            GlenmoreParameters::TILE_TYPE_GREEN,
+            GlenmoreParameters::LOCH_MORAR_POINTS
+        );
     }
 
     /**
@@ -142,7 +157,7 @@ class CardGLMService
      * @return void
      * @throws Exception
      */
-    public function selectResourceForLochLochy(PlayerGLM $playerGLM, ResourceGLM $resourceGLM) : void
+    public function selectResourceForLochLochy(PlayerGLM $playerGLM, ResourceGLM $resourceGLM): void
     {
         $createdResources = $playerGLM->getPersonalBoard()->getCreatedResources();
         if ($createdResources->count() >= 2) {
@@ -181,7 +196,7 @@ class CardGLMService
      * @param PlayerGLM $playerGLM
      * @return void
      */
-    public function clearCreatedResources(PlayerGLM $playerGLM) : void
+    public function clearCreatedResources(PlayerGLM $playerGLM): void
     {
         $playerGLM->getPersonalBoard()->getCreatedResources()->clear();
         $this->entityManager->persist($playerGLM->getPersonalBoard());
@@ -195,7 +210,7 @@ class CardGLMService
      * @param PlayerGLM $playerGLM
      * @return void
      */
-    public function validateTakingOfResourcesForLochLochy(PlayerGLM $playerGLM) : void
+    public function validateTakingOfResourcesForLochLochy(PlayerGLM $playerGLM): void
     {
         $createdResources = $playerGLM->getPersonalBoard()->getCreatedResources();
         $tile = null;
@@ -222,7 +237,7 @@ class CardGLMService
      * @param PlayerTileGLM $playerTileGLM
      * @return void
      */
-    private function applyCastleMoil(PlayerTileGLM $playerTileGLM) : void
+    private function applyCastleMoil(PlayerTileGLM $playerTileGLM): void
     {
         $this->giveWhisky($playerTileGLM, 1);
     }
@@ -236,9 +251,12 @@ class CardGLMService
      * @param int     $cardPoints the amount of points given by the card
      * @return void
      */
-    private function applyEndGameCard(GameGLM $gameGLM, string $cardName,
-        string $tileColor, int $cardPoints): void
-    {
+    private function applyEndGameCard(
+        GameGLM $gameGLM,
+        string $cardName,
+        string $tileColor,
+        int $cardPoints
+    ): void {
         $players = $gameGLM->getPlayers();
         $owns = false;
         foreach ($players as $player) {
@@ -266,9 +284,9 @@ class CardGLMService
      * @param PlayerTileGLM $playerTileGLM
      * @return void
      */
-    private function applyDonanCastle(PlayerTileGLM $playerTileGLM) : void
+    private function applyDonanCastle(PlayerTileGLM $playerTileGLM): void
     {
-       $this->giveWhisky($playerTileGLM, 2);
+        $this->giveWhisky($playerTileGLM, 2);
     }
 
     /**
@@ -276,7 +294,7 @@ class CardGLMService
      * @param PlayerTileGLM $playerTileGLM
      * @return void
      */
-    private function applyCastleStalker(PlayerTileGLM $playerTileGLM) : void
+    private function applyCastleStalker(PlayerTileGLM $playerTileGLM): void
     {
         foreach ($playerTileGLM->getPlayerTileResource() as $playerTileResource) {
             if ($playerTileResource->getResource()->getType() == GlenmoreParameters::VILLAGER_RESOURCE) {
@@ -295,7 +313,7 @@ class CardGLMService
      * @param int           $amount
      * @return void
      */
-    private function giveWhisky(PlayerTileGLM $playerTileGLM, int $amount) : void
+    private function giveWhisky(PlayerTileGLM $playerTileGLM, int $amount): void
     {
         $resource = $this->resourceGLMRepository->findOneBy(["type" => GlenmoreParameters::WHISKY_RESOURCE]);
         $playerTileResource = new PlayerTileResourceGLM();
@@ -315,7 +333,7 @@ class CardGLMService
      * @param PersonalBoardGLM $personalBoardGLM
      * @return void
      */
-    private function applyArmadaleCastle(PersonalBoardGLM $personalBoardGLM) : void
+    private function applyArmadaleCastle(PersonalBoardGLM $personalBoardGLM): void
     {
         $personalBoardGLM->setMoney($personalBoardGLM->getMoney() + 3);
         $this->entityManager->persist($personalBoardGLM);
@@ -327,7 +345,7 @@ class CardGLMService
      * @param PersonalBoardGLM $personalBoard
      * @return void
      */
-    private function applyLochShiel(PersonalBoardGLM $personalBoard) : void
+    private function applyLochShiel(PersonalBoardGLM $personalBoard): void
     {
         $tiles = $personalBoard->getPlayerTiles();
         foreach ($tiles as $tile) {
@@ -350,7 +368,7 @@ class CardGLMService
      * applyLochLochy : returns an integer to indicate to the controller to publish a Mercure notif
      * @return int
      */
-    private function applyLochLochy() : int
+    private function applyLochLochy(): int
     {
         return -1;
     }
@@ -362,8 +380,7 @@ class CardGLMService
      */
     private function getActivableTilesWithLochNess(
         PersonalBoardGLM $personalBoard
-    ) : Collection
-    {
+    ): Collection {
         $activableTiles = new ArrayCollection();
         $mustActivate = false;
         // gets Loch Ness tile

@@ -1,7 +1,7 @@
 <?php
 
-
 namespace App\Controller\Platform;
+
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,14 +17,14 @@ class RedirectController extends AbstractController
     #[Route('/redirect', name: 'app_redirect')]
     public function index(Security $security): Response
     {
-        if($security->getUser()){
+        if($security->getUser()) {
             $user = $security->getUser();
-            if (in_array("ROLE_ADMIN", $user->getRoles())){
+            if (in_array("ROLE_ADMIN", $user->getRoles())) {
                 return $this->redirectToRoute("app_dashboard_admin");
-            }else{
+            } else {
                 return $this->redirectToRoute("app_dashboard_user");
             }
-        }else{
+        } else {
             return $this->redirectToRoute("app_home");
         }
     }

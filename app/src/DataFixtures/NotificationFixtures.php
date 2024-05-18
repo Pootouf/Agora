@@ -9,8 +9,9 @@ use Doctrine\Persistence\ObjectManager;
 
 class NotificationFixtures extends Fixture
 {
-
-    public function __construct(){}
+    public function __construct()
+    {
+    }
     public function load(ObjectManager $manager)
     {
 
@@ -18,11 +19,11 @@ class NotificationFixtures extends Fixture
 
         //Fake data from the form
 
-        for ($i=0; $i <= 30; $i++) {
+        for ($i = 0; $i <= 30; $i++) {
             $notif = new Notification();
             $notif->setContent("salut l'ami");
             $notif->setType("Message");
-            $notif->setReceiver($users[rand(0,$i)]);
+            $notif->setReceiver($users[rand(0, $i)]);
             $manager->persist($notif);
         }
         $manager->flush();

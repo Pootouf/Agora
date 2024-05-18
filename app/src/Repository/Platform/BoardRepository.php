@@ -25,30 +25,30 @@ class BoardRepository extends ServiceEntityRepository
 
 
 
-//    /**
-//     * @return Board[] Returns an array of Board objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('b')
-//            ->andWhere('b.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('b.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
+    //    /**
+    //     * @return Board[] Returns an array of Board objects
+    //     */
+    //    public function findByExampleField($value): array
+    //    {
+    //        return $this->createQueryBuilder('b')
+    //            ->andWhere('b.exampleField = :val')
+    //            ->setParameter('val', $value)
+    //            ->orderBy('b.id', 'ASC')
+    //            ->setMaxResults(10)
+    //            ->getQuery()
+    //            ->getResult()
+    //        ;
+    //    }
 
-//    public function findOneBySomeField($value): ?Board
-//    {
-//        return $this->createQueryBuilder('b')
-//            ->andWhere('b.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+    //    public function findOneBySomeField($value): ?Board
+    //    {
+    //        return $this->createQueryBuilder('b')
+    //            ->andWhere('b.exampleField = :val')
+    //            ->setParameter('val', $value)
+    //            ->getQuery()
+    //            ->getOneOrNullResult()
+    //        ;
+    //    }
 
     /**
      * Results of boards linked with search
@@ -64,7 +64,7 @@ class BoardRepository extends ServiceEntityRepository
         }
 
         if (!empty($search->availability)) {
-            if ( $search->availability === 'OPEN') {
+            if ($search->availability === 'OPEN') {
                 $query->andWhere('(size(b.listUsers) + b.nbInvitations) < b.nbUserMax');
             } elseif ($search->availability === 'CLOSE') {
                 $query->andWhere('(size(b.listUsers) + b.nbInvitations) >= b.nbUserMax');
@@ -100,7 +100,7 @@ class BoardRepository extends ServiceEntityRepository
         }
 
         if (!empty($search->availability)) {
-            if ( $search->availability === 'OPEN') {
+            if ($search->availability === 'OPEN') {
                 $query->andWhere('(size(b.listUsers) + b.nbInvitations) < b.nbUserMax');
             } elseif ($search->availability === 'CLOSE') {
                 $query->andWhere('(size(b.listUsers) + b.nbInvitations) >= b.nbUserMax');
@@ -112,8 +112,8 @@ class BoardRepository extends ServiceEntityRepository
                 ->setParameter('creationdate', $search->datecreation);
         }
 
-            $query->andWhere('b.game = :game')
-                ->setParameter('game', $game);
+        $query->andWhere('b.game = :game')
+            ->setParameter('game', $game);
 
         $query->orderBy('b.creationDate', 'DESC');
 

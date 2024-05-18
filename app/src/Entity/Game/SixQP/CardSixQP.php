@@ -11,7 +11,6 @@ use Exception;
 #[ORM\Entity(repositoryClass: CardSixQPRepository::class)]
 class CardSixQP extends Card
 {
-
     /**
      * @throws Exception if invalid value
      */

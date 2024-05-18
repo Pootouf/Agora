@@ -9,7 +9,6 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: CardGLMRepository::class)]
 class CardGLM extends Card
 {
-
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 

@@ -9,7 +9,6 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: PlayerCardSPLRepository::class)]
 class PlayerCardSPL extends Component
 {
-
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     private ?DevelopmentCardsSPL $developmentCard = null;
@@ -21,7 +20,8 @@ class PlayerCardSPL extends Component
     #[ORM\JoinColumn(nullable: false)]
     private ?PersonalBoardSPL $personalBoardSPL = null;
 
-    public function __construct(PlayerSPL $player, DevelopmentCardsSPL $card, bool $reserved) {
+    public function __construct(PlayerSPL $player, DevelopmentCardsSPL $card, bool $reserved)
+    {
         $this->developmentCard = $card;
         $this->personalBoardSPL = $player->getPersonalBoard();
         $this->isReserved = $reserved;

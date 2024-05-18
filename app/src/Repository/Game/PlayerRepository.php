@@ -9,5 +9,4 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
  */
 abstract class PlayerRepository extends ServiceEntityRepository
 {
-
 }
