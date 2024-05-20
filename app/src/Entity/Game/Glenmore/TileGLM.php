@@ -11,7 +11,6 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: TileGLMRepository::class)]
 class TileGLM extends Tile
 {
-
     #[ORM\ManyToMany(targetEntity: TileBuyCostGLM::class)]
     #[ORM\JoinColumn(nullable: true)]
     private Collection $buyPrice;
@@ -78,7 +77,7 @@ class TileGLM extends Tile
      */
     public function getBuyBonus(): Collection
     {
-        return $this->buyPrice;
+        return $this->buyBonus;
     }
 
     public function addBuyBonus(TileBuyBonusGLM $buyBonus): static
@@ -141,18 +140,6 @@ class TileGLM extends Tile
     public function removeActivationBonus(TileActivationBonusGLM $activationBonus): static
     {
         $this->activationBonus->removeElement($activationBonus);
-
-        return $this;
-    }
-
-    public function getType(): ?string
-    {
-        return $this->type;
-    }
-
-    public function setType(string $type): static
-    {
-        $this->type = $type;
 
         return $this;
     }

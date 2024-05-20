@@ -13,11 +13,11 @@ export default class extends Controller {
 
     async selectCard(card)  {
         let url = card.params.url;
-        const response = await fetch(url);
+        await fetch(url);
     }
 
     async selectRow(row)  {
         let url = row.params.url;
-        const response = await fetch(url);
+        await fetch(url);
     }
 }

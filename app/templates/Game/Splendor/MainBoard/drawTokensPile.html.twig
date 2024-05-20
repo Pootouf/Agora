@@ -2,7 +2,7 @@
     This section displays the color tokens that can be taken by players
     @param : whiteTokensPile, redTokensPile, blueTokensPile, blackTokensPile, greenTokensPile,
              PlayerSPL player
-    @return :
+    @return : display the token piles grid
 #}
 
 {# Variables initialization #}
@@ -18,9 +18,9 @@
 
 
 
-<div class="grid grid-rows-1 grid-cols-5 w-full mx-2 mt-5 h-max-height
+<div class="grid grid-rows-1 grid-cols-5 w-full mx-2 mt-2 h-max-height
         landscape:md:flex landscape:md:mt-2 landscape:md-justify-center landscape:md:align-center
-        xl:lg:justify-center xl:lg:align-center ">
+        xl:lg:justify-center xl:lg:align-center">
 
     {% for i in 0..tokens|length - 1 %}
         {% set selectedTokens = player.personalBoard.selectedTokens|filter(
@@ -45,7 +45,7 @@
                         })
                     }}
             >
-                <img
+                <img    id="{{ tokensName[i] }}"
                         class=" object-cover w-fit mx-auto aspect-auto rounded-2xl "
                         src="{{ asset('resourcesGames/Splendor/Images/Tokens/' ~ tokensName[i] ~ 'Token.png') }}"
                         alt='{{ tokensName[i] }}'
@@ -82,6 +82,7 @@
                         {% endif %}"
     >
             <img
+                    id="gold"
                     class=" object-cover w-6/12 mx-auto aspect-auto rounded-2xl "
                     src="{{ asset('resourcesGames/Splendor/Images/Tokens/goldToken.png') }}"
                     alt='goldToken'

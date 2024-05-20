@@ -1,8 +1,7 @@
 {#
-This section displays if the current user is the winner and if not, the name of the winner is displayed.
-Comes with a button to the homepage and another one to the game's homepage
+This section displays all the available actions on the card for the player
 
-@return :   display the winner and buttons to the game and platform's homepage
+@return :   display the card actions (buy, reserve or return to the main board)
 #}
 
 {% set card = null %}
@@ -39,6 +38,10 @@ Comes with a button to the homepage and another one to the game's homepage
                 {% set opacity = 'opacity-50' %}
                 {% set disablement = true %}
                 {% for purchasableCard in purchasableCards|filter(purchasableCard => purchasableCard == selectedCard) %}
+                    {% set opacity = '' %}
+                    {% set disablement = false %}
+                {% endfor %}
+                {% for purchasableCard in purchasableCardsOnPersonalBoard|filter(purchasableCard => purchasableCard == selectedReservedCard) %}
                     {% set opacity = '' %}
                     {% set disablement = false %}
                 {% endfor %}

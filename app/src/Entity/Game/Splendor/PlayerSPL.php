@@ -9,7 +9,6 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: PlayerSPLRepository::class)]
 class PlayerSPL extends Player
 {
-
     #[ORM\OneToOne(inversedBy: 'playerSPL', cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?PersonalBoardSPL $personalBoard = null;
@@ -18,14 +17,11 @@ class PlayerSPL extends Player
     #[ORM\JoinColumn(nullable: false)]
     private ?GameSPL $gameSPL = null;
 
-    #[ORM\Column]
-    private ?int $totalPoints = null;
-
     public function __construct(string $username, GameSPL $gameSPL)
     {
         $this->username = $username;
         $this->gameSPL = $gameSPL;
-        $this->totalPoints = 0;
+        $this->score = 0;
     }
     public function getPersonalBoard(): ?PersonalBoardSPL
     {
@@ -47,18 +43,6 @@ class PlayerSPL extends Player
     public function setGameSPL(?GameSPL $gameSPL): static
     {
         $this->gameSPL = $gameSPL;
-
-        return $this;
-    }
-
-    public function getTotalPoints(): ?int
-    {
-        return $this->totalPoints;
-    }
-
-    public function setTotalPoints(int $totalPoints): static
-    {
-        $this->totalPoints = $totalPoints;
 
         return $this;
     }

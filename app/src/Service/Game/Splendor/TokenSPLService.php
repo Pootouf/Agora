@@ -11,16 +11,19 @@ use App\Entity\Game\Splendor\TokenSPL;
 use App\Repository\Game\Splendor\TokenSPLRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\DBAL\Exception;
 use Doctrine\ORM\EntityManagerInterface;
 use phpDocumentor\Reflection\Types\Boolean;
+use Exception;
 
 class TokenSPLService
 {
-    public function __construct(private EntityManagerInterface $entityManager,
-        private TokenSPLRepository $tokenSPLRepository) {}
+    public function __construct(
+        private EntityManagerInterface $entityManager,
+        private TokenSPLRepository $tokenSPLRepository
+    ) {
+    }
 
-    public function getTokenOnMainBoardFromColor(MainBoardSPL $mainBoardSPL, string $color) : ?TokenSPL
+    public function getTokenOnMainBoardFromColor(MainBoardSPL $mainBoardSPL, string $color): ?TokenSPL
     {
         return $mainBoardSPL->getTokens()->filter(function (TokenSPL $tokenSPL) use ($color) {
             return strcmp($tokenSPL->getColor(), $color) == 0;
@@ -33,8 +36,8 @@ class TokenSPLService
      */
     public function getRedTokensFromCollection(Collection $tokens): Collection
     {
-        return $tokens->filter(function($token) {
-            return $token->getColor() == SplendorParameters::$COLOR_RED;
+        return $tokens->filter(function ($token) {
+            return $token->getColor() == SplendorParameters::COLOR_RED;
         });
     }
 
@@ -44,8 +47,8 @@ class TokenSPLService
      */
     public function getBlueTokensFromCollection(Collection $tokens): Collection
     {
-        return $tokens->filter(function($token) {
-            return $token->getColor() == SplendorParameters::$COLOR_BLUE;
+        return $tokens->filter(function ($token) {
+            return $token->getColor() == SplendorParameters::COLOR_BLUE;
         });
     }
 
@@ -55,8 +58,8 @@ class TokenSPLService
      */
     public function getGreenTokensFromCollection(Collection $tokens): Collection
     {
-        return $tokens->filter(function($token) {
-            return $token->getColor() == SplendorParameters::$COLOR_GREEN;
+        return $tokens->filter(function ($token) {
+            return $token->getColor() == SplendorParameters::COLOR_GREEN;
         });
     }
 
@@ -66,8 +69,8 @@ class TokenSPLService
      */
     public function getWhiteTokensFromCollection(Collection $tokens): Collection
     {
-        return $tokens->filter(function($token) {
-            return $token->getColor() == SplendorParameters::$COLOR_WHITE;
+        return $tokens->filter(function ($token) {
+            return $token->getColor() == SplendorParameters::COLOR_WHITE;
         });
     }
 
@@ -77,8 +80,8 @@ class TokenSPLService
      */
     public function getBlackTokensFromCollection(Collection $tokens): Collection
     {
-        return $tokens->filter(function($token) {
-            return $token->getColor() == SplendorParameters::$COLOR_BLACK;
+        return $tokens->filter(function ($token) {
+            return $token->getColor() == SplendorParameters::COLOR_BLACK;
         });
     }
 
@@ -88,11 +91,10 @@ class TokenSPLService
      */
     public function getYellowTokensFromCollection(Collection $tokens): Collection
     {
-        return $tokens->filter(function($token) {
-            return $token->getColor() == SplendorParameters::$COLOR_YELLOW;
+        return $tokens->filter(function ($token) {
+            return $token->getColor() == SplendorParameters::COLOR_YELLOW;
         });
     }
-
 
     /**
      * takeToken : player takes a token from the mainBoard
@@ -100,10 +102,12 @@ class TokenSPLService
      * @param PlayerSPL $playerSPL
      * @param TokenSPL  $tokenSPL
      * @return void
+     * @throws Exception
      */
     public function takeToken(PlayerSPL $playerSPL, TokenSPL $tokenSPL): void
     {
-        if ($playerSPL->getPersonalBoard()->getTokens()->count() >= 10) {
+        if ($playerSPL->getPersonalBoard()->getTokens()->count()
+            + $playerSPL->getPersonalBoard()->getSelectedTokens()->count() >= 10) {
             throw new Exception("Can't pick up more tokens");
         }
         $tokensPickable = $this->canChooseTwoTokens($playerSPL, $tokenSPL);
@@ -139,7 +143,8 @@ class TokenSPLService
         $selectedTokensNb = $selectedTokens->count();
         $firstToken = $selectedTokens->first()->getToken();
         $lastToken = $selectedTokens->last()->getToken();
-        if ($tokensNb + $selectedTokensNb == 10
+        if ($tokensNb + $selectedTokensNb == SplendorParameters::PLAYER_MAX_TOKEN
+                || !$this->canSelectTokenOfOtherColors($playerSPL->getGameSPL(), $selectedTokens)
             || $selectedTokensNb == 3
             || $selectedTokensNb == 2 && $firstToken->getColor() == $lastToken->getColor()
         ) {
@@ -205,8 +210,9 @@ class TokenSPLService
         if ($selectedTokens->count() == 0) {
             return 0;
         }
-        if ($selectedTokens->count() == 1 && $selectedTokens->first()->getToken()->getColor() == $tokenSPL->getColor()) {
-            if ($this->selectTokensWithColor($playerSPL, $tokenSPL) < SplendorParameters::$MIN_AVAILABLE_TOKENS) {
+        if ($selectedTokens->count() == 1
+            && $selectedTokens->first()->getToken()->getColor() == $tokenSPL->getColor()) {
+            if ($this->selectTokensWithColor($playerSPL, $tokenSPL) < SplendorParameters::MIN_AVAILABLE_TOKENS) {
                 return -1;
             }
             return 1;
@@ -241,7 +247,7 @@ class TokenSPLService
      * @param GameSPL $gameSPL
      * @return void
      */
-    public function initializeGameToken(GameSPL $gameSPL) : void
+    public function initializeGameToken(GameSPL $gameSPL): void
     {
         $tokens = new ArrayCollection($this->tokenSPLRepository->findAll());
         $blackTokens = array_values($this->getBlackTokensFromCollection($tokens)->toArray());
@@ -253,24 +259,46 @@ class TokenSPLService
 
         switch($gameSPL->getPlayers()->count()) {
             case 2 :
-                for ($i = 0; $i < SplendorParameters::$TOKENS_NUMBER_2_PLAYERS; $i++) {
-                    $this->addATokenOfEachColor($gameSPL, $blackTokens, $blueTokens,$redTokens,
-                                          $greenTokens, $whiteTokens, $i);
+                for ($i = 0; $i < SplendorParameters::TOKENS_NUMBER_2_PLAYERS; $i++) {
+                    $this->addATokenOfEachColor(
+                        $gameSPL,
+                        $blackTokens,
+                        $blueTokens,
+                        $redTokens,
+                        $greenTokens,
+                        $whiteTokens,
+                        $i
+                    );
                 }
                 break;
             case 3 :
-                for ($i = 1; $i < SplendorParameters::$TOKENS_NUMBER_3_PLAYERS; $i++) {
-                    $this->addATokenOfEachColor($gameSPL, $blackTokens, $blueTokens,$redTokens,
-                        $greenTokens, $whiteTokens, $i);
+                for ($i = 1; $i < SplendorParameters::TOKENS_NUMBER_3_PLAYERS; $i++) {
+                    $this->addATokenOfEachColor(
+                        $gameSPL,
+                        $blackTokens,
+                        $blueTokens,
+                        $redTokens,
+                        $greenTokens,
+                        $whiteTokens,
+                        $i
+                    );
                 }
                 break;
 
             case 4 :
-                for ($i = 1; $i < SplendorParameters::$TOKENS_NUMBER_4_PLAYERS; $i++) {
-                    $this->addATokenOfEachColor($gameSPL, $blackTokens, $blueTokens,$redTokens,
-                        $greenTokens, $whiteTokens, $i);
+                for ($i = 1; $i < SplendorParameters::TOKENS_NUMBER_4_PLAYERS; $i++) {
+                    $this->addATokenOfEachColor(
+                        $gameSPL,
+                        $blackTokens,
+                        $blueTokens,
+                        $redTokens,
+                        $greenTokens,
+                        $whiteTokens,
+                        $i
+                    );
                 }
                 break;
+            default:
         }
 
         foreach ($yellowTokens as $token) {
@@ -278,6 +306,29 @@ class TokenSPLService
         }
 
 
+    }
+
+    /**
+     * canSelectTokenOfOtherColors: return true if there is at least one color of token
+     *              available except the selected tokens
+     * @param GameSPL $game
+     * @param Collection $tokens
+     * @return bool
+     */
+    private function canSelectTokenOfOtherColors(GameSPL $game, Collection $tokens): bool
+    {
+        $selectedColors = $tokens->map(function (SelectedTokenSPL $token) {
+            return $token->getToken()->getColor();
+        });
+
+        $colors = $game->getMainBoard()->getTokens()->map(
+            function (TokenSPL $tokenSPL) {
+                return $tokenSPL->getColor();
+            }
+        )->filter(function (String $color) use ($selectedColors) {
+            return !$selectedColors->contains($color);
+        });
+        return $colors->count() > 0;
     }
 
     /**
@@ -297,10 +348,14 @@ class TokenSPLService
         if ($selectedTokens->count() == 0) {
             return 0;
         }
-        if ($selectedTokens->count() == 1 && $selectedTokens->first()->getToken()->getColor() != $tokenSPL->getColor()) {
+        if ($selectedTokens->count() == 1
+            && $selectedTokens->first()->getToken()->getColor() != $tokenSPL->getColor()) {
             return 0;
         }
-        if ($selectedTokens->count() == 2 && $selectedTokens->first()->getToken()->getColor() != $tokenSPL->getColor() && $selectedTokens[1]->getToken()->getColor() != $tokenSPL->getColor() && $selectedTokens->first()->getToken()->getColor() != $selectedTokens[1]->getToken()->getColor()) {
+        if ($selectedTokens->count() == 2
+            && $selectedTokens->first()->getToken()->getColor() != $tokenSPL->getColor()
+            && $selectedTokens[1]->getToken()->getColor() != $tokenSPL->getColor()
+            && $selectedTokens->first()->getToken()->getColor() != $selectedTokens[1]->getToken()->getColor()) {
             return 1;
         }
         return -1;
@@ -317,10 +372,15 @@ class TokenSPLService
      * @param int $i
      * @return void
      */
-    private function addATokenOfEachColor(GameSPL $gameSPL, array $blackTokens,
-                                          array $blueTokens, array $redTokens,
-                                          array $greenTokens, array $whiteTokens, int $i) : void
-    {
+    private function addATokenOfEachColor(
+        GameSPL $gameSPL,
+        array $blackTokens,
+        array $blueTokens,
+        array $redTokens,
+        array $greenTokens,
+        array $whiteTokens,
+        int $i
+    ): void {
         $gameSPL->getMainBoard()->addToken($blackTokens[$i]);
         $gameSPL->getMainBoard()->addToken($blueTokens[$i]);
         $gameSPL->getMainBoard()->addToken($redTokens[$i]);

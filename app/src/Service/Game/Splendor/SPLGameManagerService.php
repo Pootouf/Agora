@@ -3,6 +3,7 @@
 namespace App\Service\Game\Splendor;
 
 use App\Entity\Game\DTO\Game;
+use App\Entity\Game\DTO\GameTranslation;
 use App\Entity\Game\SixQP\DiscardSixQP;
 use App\Entity\Game\SixQP\GameSixQP;
 use App\Entity\Game\SixQP\PlayerSixQP;
@@ -24,13 +25,14 @@ use Exception;
 
 class SPLGameManagerService extends AbstractGameManagerService
 {
-
-    public function __construct(private EntityManagerInterface $entityManager,
-        private SPLService $SPLService,
+    public function __construct(
+        private EntityManagerInterface $entityManager,
+        private SPLService $splService,
         private PlayerSPLRepository $playerSPLRepository,
         private LogService $logService,
-        private TokenSPLService $tokenSPLService)
-    {}
+        private TokenSPLService $tokenSPLService
+    ) {
+    }
 
 
     /**
@@ -39,10 +41,10 @@ class SPLGameManagerService extends AbstractGameManagerService
     public function createGame(): int
     {
         $game = new GameSPL();
-        $game->setGameName(AbstractGameManagerService::$SPL_LABEL);
+        $game->setGameName(AbstractGameManagerService::SPL_LABEL);
         $mainBoard = new MainBoardSPL();
         $game->setMainBoard($mainBoard);
-        for ($i = 1; $i <= SplendorParameters::$NUMBER_OF_ROWS_BY_GAME; $i++) {
+        for ($i = 1; $i <= SplendorParameters::NUMBER_OF_ROWS_BY_GAME; $i++) {
             $row = new RowSPL();
             $row->setLevel($i);
             $mainBoard->addRowsSPL($row);
@@ -55,7 +57,8 @@ class SPLGameManagerService extends AbstractGameManagerService
         $this->entityManager->persist($mainBoard);
         $this->entityManager->persist($game);
         $this->entityManager->flush();
-        $this->logService->sendSystemLog($game, "game " . $game->getId() . " was created");
+        $this->logService->sendSystemLog($game, GameTranslation::GAME_STRING
+            . $game->getId() . " a été créée");
         return $game->getId();
     }
 
@@ -66,17 +69,18 @@ class SPLGameManagerService extends AbstractGameManagerService
     {
         $game = $this->getGameSplendorFromGame($game);
         if ($game == null) {
-            return SPLGameManagerService::$ERROR_INVALID_GAME;
+            return SPLGameManagerService::ERROR_INVALID_GAME;
         }
         if($game->isLaunched()) {
-            return SPLGameManagerService::$ERROR_GAME_ALREADY_LAUNCHED;
+            return SPLGameManagerService::ERROR_GAME_ALREADY_LAUNCHED;
         }
-        if (count($game->getPlayers()) >= 4) {
-            return SPLGameManagerService::$ERROR_INVALID_NUMBER_OF_PLAYER;
+        if (count($game->getPlayers()) >= SplendorParameters::MAX_NUMBER_OF_PLAYER) {
+            return SPLGameManagerService::ERROR_INVALID_NUMBER_OF_PLAYER;
         }
         if ($this->playerSPLRepository->findOneBy(
-            ['username' => $playerName, 'gameSPL' => $game->getId()]) != null) {
-            return SPLGameManagerService::$ERROR_ALREADY_IN_PARTY;
+            ['username' => $playerName, 'gameSPL' => $game->getId()]
+        ) != null) {
+            return SPLGameManagerService::ERROR_ALREADY_IN_PARTY;
         }
         $player = new PlayerSPL($playerName, $game);
         $personalBoard = new PersonalBoardSPL();
@@ -88,9 +92,12 @@ class SPLGameManagerService extends AbstractGameManagerService
         $this->entityManager->persist($player);
         $this->entityManager->persist($personalBoard);
         $this->entityManager->flush();
-        $this->logService->sendPlayerLog($game, $player,
-            $playerName . " joined game " . $game->getId());
-        return SPLGameManagerService::$SUCCESS;
+        $this->logService->sendPlayerLog(
+            $game,
+            $player,
+            $playerName . " a rejoint la partie " . $game->getId()
+        );
+        return SPLGameManagerService::SUCCESS;
     }
 
     /**
@@ -100,20 +107,22 @@ class SPLGameManagerService extends AbstractGameManagerService
     {
         $game = $this->getGameSplendorFromGame($game);
         if ($game == null) {
-            return SPLGameManagerService::$ERROR_INVALID_GAME;
+            return SPLGameManagerService::ERROR_INVALID_GAME;
         }
         if ($game->isLaunched()) {
-            return SPLGameManagerService::$ERROR_GAME_ALREADY_LAUNCHED;
+            return SPLGameManagerService::ERROR_GAME_ALREADY_LAUNCHED;
         }
-        $player = $this->SPLService->getPlayerFromNameAndGame($game, $playerName);
+        $player = $this->splService->getPlayerFromNameAndGame($game, $playerName);
         if ($player == null) {
-            return SPLGameManagerService::$ERROR_PLAYER_NOT_FOUND;
+            return SPLGameManagerService::ERROR_PLAYER_NOT_FOUND;
         }
         $this->entityManager->remove($player);
         $this->entityManager->flush();
-        $this->logService->sendSystemLog($game,
-            $playerName . " was removed from the game " . $game->getId());
-        return SPLGameManagerService::$SUCCESS;
+        $this->logService->sendSystemLog(
+            $game,
+            $playerName . " a été retiré de la partie " . $game->getId()
+        );
+        return SPLGameManagerService::SUCCESS;
     }
 
     /**
@@ -123,15 +132,15 @@ class SPLGameManagerService extends AbstractGameManagerService
     {
         $game = $this->getGameSplendorFromGame($game);
         if ($game == null) {
-            return SPLGameManagerService::$ERROR_INVALID_GAME;
+            return SPLGameManagerService::ERROR_INVALID_GAME;
         }
         foreach ($game->getPlayers() as $player) {
             $this->entityManager->remove($player);
         }
-        $this->logService->sendSystemLog($game, "game " . $game->getId() . "ended");
+        $this->logService->sendSystemLog($game, GameTranslation::GAME_STRING . $game->getId() . " s'est terminée");
         $this->entityManager->remove($game);
         $this->entityManager->flush();
-        return SPLGameManagerService::$SUCCESS;
+        return SPLGameManagerService::SUCCESS;
     }
 
     /**
@@ -142,24 +151,26 @@ class SPLGameManagerService extends AbstractGameManagerService
     {
         $game = $this->getGameSplendorFromGame($game);
         if ($game == null) {
-            return SPLGameManagerService::$ERROR_INVALID_GAME;
+            return SPLGameManagerService::ERROR_INVALID_GAME;
         }
         $numberOfPlayers = count($game->getPlayers());
-        if ($numberOfPlayers > 4 || $numberOfPlayers < 2) {
-            return SPLGameManagerService::$ERROR_INVALID_NUMBER_OF_PLAYER;
+        if ($numberOfPlayers > SplendorParameters::MAX_NUMBER_OF_PLAYER
+            || $numberOfPlayers < SplendorParameters::MIN_NUMBER_OF_PLAYER) {
+            return SPLGameManagerService::ERROR_INVALID_NUMBER_OF_PLAYER;
         }
         $game->setLaunched(true);
         $this->entityManager->persist($game);
         $this->entityManager->flush();
-        $this->SPLService->initializeNewGame($game);
+        $this->splService->initializeNewGame($game);
         $this->tokenSPLService->initializeGameToken($game);
-        $this->logService->sendSystemLog($game, "game " . $game->getId() . " began");
-        return SPLGameManagerService::$SUCCESS;
+        $this->logService->sendSystemLog($game, GameTranslation::GAME_STRING . $game->getId() . " a débuté");
+        return SPLGameManagerService::SUCCESS;
     }
 
 
-    private function getGameSplendorFromGame(Game $game): ?GameSPL {
+    private function getGameSplendorFromGame(Game $game): ?GameSPL
+    {
         /** @var GameSPL $game */
-        return $game->getGameName() == AbstractGameManagerService::$SPL_LABEL ? $game : null;
+        return $game->getGameName() == AbstractGameManagerService::SPL_LABEL ? $game : null;
     }
 }

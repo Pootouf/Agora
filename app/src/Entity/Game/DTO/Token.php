@@ -10,7 +10,7 @@ class Token extends Component
 {
     #[ORM\Column(length: 255)]
     protected ?string $type = null;
-    
+
     public function getType(): ?string
     {
         return $this->type;

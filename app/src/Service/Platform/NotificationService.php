@@ -107,13 +107,13 @@ class NotificationService
     public function getNotifications(Security $security)
     {
         $user = $security->getUser();
-        if ($user){
+        if ($user) {
             $notifications = $this->entityManager->getRepository(Notification::class)
                 ->findBy(
                     ['receiver' => $user, 'isRead' => false],
                     ['createdAt' => 'DESC'],
                 );
-        }else{
+        } else {
             $notifications = null;
         }
         return $notifications;

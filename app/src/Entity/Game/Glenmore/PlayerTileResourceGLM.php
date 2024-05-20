@@ -2,17 +2,13 @@
 
 namespace App\Entity\Game\Glenmore;
 
+use App\Entity\Game\DTO\Component;
 use App\Repository\Game\Glenmore\PlayerTileResourceGLMRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PlayerTileResourceGLMRepository::class)]
-class PlayerTileResourceGLM
+class PlayerTileResourceGLM extends Component
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
-
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     private ?ResourceGLM $resource = null;
@@ -21,14 +17,12 @@ class PlayerTileResourceGLM
     private ?int $quantity = null;
 
     #[ORM\ManyToOne(inversedBy: 'playerTileResource')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?PlayerTileGLM $playerTileGLM = null;
 
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
-
+    #[ORM\ManyToOne(inversedBy: 'playerTileResourceGLMs')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?PlayerGLM $player = null;
     public function getResource(): ?ResourceGLM
     {
         return $this->resource;
@@ -61,6 +55,18 @@ class PlayerTileResourceGLM
     public function setPlayerTileGLM(?PlayerTileGLM $playerTileGLM): static
     {
         $this->playerTileGLM = $playerTileGLM;
+
+        return $this;
+    }
+
+    public function getPlayer(): ?PlayerGLM
+    {
+        return $this->player;
+    }
+
+    public function setPlayer(?PlayerGLM $player): static
+    {
+        $this->player = $player;
 
         return $this;
     }

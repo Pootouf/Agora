@@ -32,8 +32,7 @@ class UserController extends AbstractController
         EntityManagerInterface $entityManager,
         UserPasswordHasherInterface $passwordHasher,
         TokenStorageInterface $tokenStorage
-    )
-    {
+    ) {
         $this->userService = $userService;
         $this->security = $security;
         $this->entityManager = $entityManager;
@@ -42,11 +41,11 @@ class UserController extends AbstractController
     }
 
     #[Route('/user/addContact/{contact_id}', name: 'app_user_add_contact', requirements: ['user_id' => '\d+'])]
-    public function addContact(int $contact_id) : Response
+    public function addContact(int $contact_id): Response
     {
         $userId = $this->security->getUser()->getId();
         $resultCode = $this->userService->addContact($userId, $contact_id);
-        if($resultCode < 0){
+        if($resultCode < 0) {
             $this->addFlash(
                 'failure',
                 'Erreur lors de l\'ajout du contact'
@@ -57,11 +56,11 @@ class UserController extends AbstractController
     }
 
     #[Route('/user/removeContact/{contact_id}', name: 'app_user_remove_contact', requirements: ['user_id' => '\d+'])]
-    public function removeContact(int $contact_id) : Response
+    public function removeContact(int $contact_id): Response
     {
         $userId = $this->security->getUser()->getId();
         $resultCode = $this->userService->removeContact($userId, $contact_id);
-        if($resultCode < 0){
+        if($resultCode < 0) {
             $this->addFlash(
                 'failure',
                 'Erreur lors du retrait du contact'
@@ -76,10 +75,10 @@ class UserController extends AbstractController
     {
         // Récupérer l'utilisateur actuellement connecté
         $user = $this->getUser();
-    
+
         // Récupérer la liste de contacts pour cet utilisateur
         $contacts = $user->getContacts();
-    
+
         // Afficher la liste de contacts dans le template
         return $this->render('platform/dashboard/contacts.html.twig', [
             'contacts' => $contacts,
@@ -87,8 +86,8 @@ class UserController extends AbstractController
     }
 
     #[Route('/dashboard/{id}/editProfile', name: 'app_user_edit_profile')]
-        #[Route('/admin/{id}/editProfile', name: 'app_admin_edit_profile')]
-    public function editAccount(Request $request,  User $user) :Response
+    #[Route('/admin/{id}/editProfile', name: 'app_admin_edit_profile')]
+    public function editAccount(Request $request, User $user): Response
     {
         // Récupérer la route de destination
         $routeDest = 'app_dashboard_settings';
@@ -124,17 +123,17 @@ class UserController extends AbstractController
             return $this->redirectToRoute($routeDest);
         }
         $this->addFlash('error', 'invalid form');
-        
+
         return $this->redirectToRoute($routeDest);
     }
 
 
 
     #[Route('/user/delete/{id}', name: 'app_user_delete')]
-public function deleteUser(int $id, SessionInterface $session): RedirectResponse
-{
-    // Récupérer l'utilisateur à supprimer
-    $user = $this->entityManager->getRepository(User::class)->find($id);
+    public function deleteUser(int $id, SessionInterface $session): RedirectResponse
+    {
+        // Récupérer l'utilisateur à supprimer
+        $user = $this->entityManager->getRepository(User::class)->find($id);
 
     // Récupérer et supprimer les notifications de l'utilisateur
     $notifications = $user->getNotifications();
@@ -142,7 +141,7 @@ public function deleteUser(int $id, SessionInterface $session): RedirectResponse
         $this->entityManager->remove($notification);
     }
     $this->entityManager->flush();
-   
+
     // RETIRER LES COMMENTAIRES DES QUE LE COMPTE ADMIN SERA CRÉÉ
     // Vérifier si l'utilisateur existe et s'il est autorisé à supprimer d'autres utilisateurs
    // if (!$user || !$this->isGranted('ROLE_ADMIN')) {
@@ -164,10 +163,12 @@ public function deleteUser(int $id, SessionInterface $session): RedirectResponse
 
     #[Route('/user/autodelete', name: 'app_user_autodelete')]
     public function autoDeleteUser(SessionInterface $session): RedirectResponse
-    {    $user = $this->getUser();
-            if (!$user) {
+    {
+        $user = $this->getUser();
+        if (!$user) {
             return $this->redirectToRoute('app_home');
         }
+
             // Récupérer et supprimer les notifications de l'utilisateur
         $notifications = $user->getNotifications();
          foreach ($notifications as $notification) {
@@ -178,11 +179,11 @@ public function deleteUser(int $id, SessionInterface $session): RedirectResponse
         // Supprimer l'utilisateur
         $this->entityManager->remove($user);
         $this->entityManager->flush();
-    
-         // Déconnecter l'utilisateur en invalidant le token de sécurité
-         $this->tokenStorage->setToken(null);
-         $session->getFlashBag()->add('success', 'Votre compte a bien été supprimé.');
-         return $this->redirectToRoute('app_home');
+
+        // Déconnecter l'utilisateur en invalidant le token de sécurité
+        $this->tokenStorage->setToken(null);
+        $session->getFlashBag()->add('success', 'Votre compte a bien été supprimé.');
+        return $this->redirectToRoute('app_home');
     }
 
 }

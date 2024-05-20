@@ -11,7 +11,6 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: PlayerTileGLMRepository::class)]
 class PlayerTileGLM extends Component
 {
-
     #[ORM\ManyToOne(inversedBy: 'playerTiles')]
     #[ORM\JoinColumn(nullable: false)]
     private ?PersonalBoardGLM $personalBoard = null;
@@ -26,10 +25,28 @@ class PlayerTileGLM extends Component
     #[ORM\OneToMany(targetEntity: PlayerTileResourceGLM::class, mappedBy: 'playerTileGLM', orphanRemoval: true)]
     private Collection $playerTileResource;
 
+    #[ORM\Column]
+    private ?int $coordX = null;
+
+    #[ORM\Column]
+    private ?int $coordY = null;
+
+    #[ORM\Column]
+    private ?bool $activated = false;
+
+    #[ORM\OneToMany(
+        targetEntity: SelectedResourceGLM::class,
+        mappedBy: 'playerTile',
+        orphanRemoval: true,
+        cascade: ["persist"]
+    )]
+    private Collection $selectedResources;
+
     public function __construct()
     {
         $this->adjacentTiles = new ArrayCollection();
         $this->playerTileResource = new ArrayCollection();
+        $this->selectedResources = new ArrayCollection();
     }
 
     public function getPersonalBoard(): ?PersonalBoardGLM
@@ -65,10 +82,10 @@ class PlayerTileGLM extends Component
         return $this->adjacentTiles;
     }
 
-    public function addAdjacentTile(self $adjacentTile): static
+    public function addAdjacentTile(self $adjacentTile, int $direction): static
     {
         if (!$this->adjacentTiles->contains($adjacentTile)) {
-            $this->adjacentTiles->add($adjacentTile);
+            $this->adjacentTiles->set($direction, $adjacentTile);
         }
 
         return $this;
@@ -101,11 +118,73 @@ class PlayerTileGLM extends Component
 
     public function removePlayerTileResource(PlayerTileResourceGLM $playerTileResource): static
     {
-        if ($this->playerTileResource->removeElement($playerTileResource)) {
-            // set the owning side to null (unless already changed)
-            if ($playerTileResource->getPlayerTileGLM() === $this) {
-                $playerTileResource->setPlayerTileGLM(null);
-            }
+        if ($this->playerTileResource->removeElement($playerTileResource)
+            && $playerTileResource->getPlayerTileGLM() === $this) {
+            $playerTileResource->setPlayerTileGLM(null);
+        }
+
+        return $this;
+    }
+
+    public function getCoordX(): ?int
+    {
+        return $this->coordX;
+    }
+
+    public function setCoordX(int $coordX): static
+    {
+        $this->coordX = $coordX;
+
+        return $this;
+    }
+
+    public function getCoordY(): ?int
+    {
+        return $this->coordY;
+    }
+
+    public function setCoordY(int $coordY): static
+    {
+        $this->coordY = $coordY;
+
+        return $this;
+    }
+
+    public function isActivated(): ?bool
+    {
+        return $this->activated;
+    }
+
+    public function setActivated(bool $activated): static
+    {
+        $this->activated = $activated;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, SelectedResourceGLM>
+     */
+    public function getSelectedResources(): Collection
+    {
+        return $this->selectedResources;
+    }
+
+    public function addSelectedResource(SelectedResourceGLM $selectedResource): static
+    {
+        if (!$this->selectedResources->contains($selectedResource)) {
+            $this->selectedResources->add($selectedResource);
+            $selectedResource->setPlayerTile($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSelectedResource(SelectedResourceGLM $selectedResource): static
+    {
+        if ($this->selectedResources->removeElement($selectedResource)
+            && $selectedResource->getPlayerTile() === $this) {
+            $selectedResource->setPlayerTile(null);
         }
 
         return $this;

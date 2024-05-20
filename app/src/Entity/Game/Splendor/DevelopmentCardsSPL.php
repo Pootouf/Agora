@@ -11,9 +11,6 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: DevelopmentCardsSPLRepository::class)]
 class DevelopmentCardsSPL extends Card
 {
-    #[ORM\Column]
-    private ?int $prestigePoints = null;
-
     #[ORM\Column(length: 255)]
     private ?string $color = null;
 
@@ -26,7 +23,7 @@ class DevelopmentCardsSPL extends Card
     public static function createDevelopmentCard(ArrayCollection $array): DevelopmentCardsSPL
     {
         $developmentCard = new DevelopmentCardsSPL();
-        foreach ($array as $cardCostSPL){
+        foreach ($array as $cardCostSPL) {
             $developmentCard->addCardCost($cardCostSPL);
         }
         return $developmentCard;
@@ -35,23 +32,6 @@ class DevelopmentCardsSPL extends Card
     public function __construct()
     {
         $this->cardCost = new ArrayCollection();
-    }
-
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
-
-    public function getPrestigePoints(): ?int
-    {
-        return $this->prestigePoints;
-    }
-
-    public function setPrestigePoints(int $prestigePoints): static
-    {
-        $this->prestigePoints = $prestigePoints;
-
-        return $this;
     }
 
     public function getColor(): ?string
@@ -82,15 +62,6 @@ class DevelopmentCardsSPL extends Card
         if (!$this->cardCost->contains($cardCost)) {
             $this->cardCost->add($cardCost);
         }
-
-        return $this;
-    }
-    /**
-     * @codeCoverageIgnore
-     */
-    private function removeCardCost(CardCostSPL $cardCost): static
-    {
-        $this->cardCost->removeElement($cardCost);
 
         return $this;
     }

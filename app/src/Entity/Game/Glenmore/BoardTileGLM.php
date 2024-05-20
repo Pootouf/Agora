@@ -9,7 +9,6 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: BoardTileGLMRepository::class)]
 class BoardTileGLM extends Component
 {
-
     #[ORM\Column]
     private ?int $position = null;
 

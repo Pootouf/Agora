@@ -2,7 +2,6 @@
 
 namespace App\Service\Game\SixQP;
 
-
 use App\Entity\Game\DTO\Game;
 use App\Entity\Game\SixQP\CardSixQP;
 use App\Entity\Game\SixQP\ChosenCardSixQP;
@@ -19,6 +18,7 @@ use App\Service\Game\LogService;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
+
 use function PHPUnit\Framework\isNull;
 
 class SixQPService
@@ -30,12 +30,13 @@ class SixQPService
 
     private LogService $logService;
 
-    public function __construct(EntityManagerInterface $entityManager,
+    public function __construct(
+        EntityManagerInterface $entityManager,
         CardSixQPRepository $cardSixQPRepository,
         ChosenCardSixQPRepository $chosenCardSixQPRepository,
         PlayerSixQPRepository $playerSixQPRepository,
-        LogService $logService)
-    {
+        LogService $logService
+    ) {
         $this->entityManager = $entityManager;
         $this->cardSixQPRepository = $cardSixQPRepository;
         $this->chosenCardSixQPRepository = $chosenCardSixQPRepository;
@@ -54,18 +55,18 @@ class SixQPService
      */
     public function initializeNewRound(GameSixQP $gameSixQP): void
     {
-        if (count($gameSixQP->getRowSixQPs()) != SixQPParameters::$NUMBER_OF_ROWS_BY_GAME) {
+        if (count($gameSixQP->getRowSixQPs()) != SixQPParameters::NUMBER_OF_ROWS_BY_GAME) {
             throw new Exception('Invalid number of rows');
         }
-        $numberOfPlayers = count($gameSixQP->getPlayerSixQPs());
-        if ($numberOfPlayers > SixQPParameters::$MAX_NUMBER_OF_PLAYER ||
-                $numberOfPlayers < SixQPParameters::$MIN_NUMBER_OF_PLAYER) {
+        $numberOfPlayers = count($gameSixQP->getPlayers());
+        if ($numberOfPlayers > SixQPParameters::MAX_NUMBER_OF_PLAYER ||
+                $numberOfPlayers < SixQPParameters::MIN_NUMBER_OF_PLAYER) {
             throw new Exception('Invalid number of players');
         }
 
         $cards = $this->cardSixQPRepository->findAll();
         shuffle($cards);
-        $players = $gameSixQP->getPlayerSixQPs();
+        $players = $gameSixQP->getPlayers();
         $cardIndex = 0;
         foreach ($gameSixQP->getRowSixQPs() as $row) {
             $row->clearCards();
@@ -74,7 +75,7 @@ class SixQPService
         }
         foreach ($players as $player) {
             $player->clearCards();
-            for ($i = 0; $i < SixQPParameters::$NUMBER_OF_CARDS_BY_PLAYER; $i++) {
+            for ($i = 0; $i < SixQPParameters::NUMBER_OF_CARDS_BY_PLAYER; $i++) {
                 $player->addCard($cards[$cardIndex++]);
             }
             $this->entityManager->persist($player);
@@ -100,7 +101,7 @@ class SixQPService
             throw new Exception("Player has already chosen a card");
         }
 
-        $chosenCardSixQP = new ChosenCardSixQP($player, $player->getGame(), $cardSixQP, false);
+        $chosenCardSixQP = new ChosenCardSixQP($player, $player->getGame(), $cardSixQP);
         $player->removeCard($cardSixQP);
         $player->setChosenCardSixQP($chosenCardSixQP);
         $this->entityManager->persist($chosenCardSixQP);
@@ -119,7 +120,7 @@ class SixQPService
         $player = $chosenCardSixQP->getPlayer();
 
         $returnValue = 0;
-        if ($row->getCards()->count() == SixQPParameters::$MAX_CARD_COUNT_IN_LINE) {
+        if ($row->getCards()->count() == SixQPParameters::MAX_CARD_COUNT_IN_LINE) {
             $this->addRowToDiscardOfPlayer($player, $row);
             $returnValue = -1;
         }
@@ -139,19 +140,20 @@ class SixQPService
      */
     public function getRanking(GameSixQP $gameSixQP): array
     {
-        $numberOfPlayers = count($gameSixQP->getPlayerSixQPs());
-        if ($numberOfPlayers > SixQPParameters::$MAX_NUMBER_OF_PLAYER ||
-                $numberOfPlayers < SixQPParameters::$MIN_NUMBER_OF_PLAYER)
-        {
+        $numberOfPlayers = count($gameSixQP->getPlayers());
+        if ($numberOfPlayers > SixQPParameters::MAX_NUMBER_OF_PLAYER ||
+                $numberOfPlayers < SixQPParameters::MIN_NUMBER_OF_PLAYER) {
             throw new Exception('Invalid number of players');
         }
 
 
-        $array = $gameSixQP->getPlayerSixQPs()->toArray();
-        usort($array,
+        $array = $gameSixQP->getPlayers()->toArray();
+        usort(
+            $array,
             function (PlayerSixQP $player1, PlayerSixQP $player2) {
-                return $player1->getDiscardSixQP()->getTotalPoints() - $player2->getDiscardSixQP()->getTotalPoints();
-            });
+                return $player1->getScore() - $player2->getScore();
+            }
+        );
         return $array;
     }
 
@@ -167,8 +169,8 @@ class SixQPService
         foreach ($cards as $card) {
             $totalPoints += $card->getPoints();
         }
-        $discardSixQP->setTotalPoints($totalPoints);
-        $this->entityManager->persist($discardSixQP);
+        $discardSixQP->getPlayer()->setScore($totalPoints);
+        $this->entityManager->persist($discardSixQP->getPlayer());
         $this->entityManager->flush();
     }
 
@@ -177,9 +179,10 @@ class SixQPService
      * @param GameSixQP $game
      * @return bool
      */
-    public function doesAllPlayersHaveChosen(GameSixQP $game): bool {
+    public function doesAllPlayersHaveChosen(GameSixQP $game): bool
+    {
         $chosenCards = $this->chosenCardSixQPRepository->findBy(['game' => $game->getId()]);
-        return count($chosenCards) == count($game->getPlayerSixQPs());
+        return count($chosenCards) == count($game->getPlayers());
     }
 
     /**
@@ -189,7 +192,7 @@ class SixQPService
      */
     public function doesPlayerAlreadyHasPlayed(PlayerSixQP $player): bool
     {
-        $chosenCard = $this->chosenCardSixQPRepository->findOneBy(['player'=>$player->getId()]);
+        $chosenCard = $this->chosenCardSixQPRepository->findOneBy(['player' => $player->getId()]);
         return $chosenCard != null;
     }
 
@@ -198,7 +201,8 @@ class SixQPService
      * @param GameSixQP $game
      * @return array<ChosenCardSixQP> the chosen cards which are not placed
      */
-    public function getNotPlacedCard(GameSixQP $game): array {
+    public function getNotPlacedCard(GameSixQP $game): array
+    {
         $chosenCards = $this->chosenCardSixQPRepository->findBy(['game' => $game->getId()]);
         for ($i = 0; $i < count($chosenCards); $i++) {
             foreach ($game->getRowSixQPs() as $row) {
@@ -209,18 +213,19 @@ class SixQPService
             }
         }
         usort($chosenCards, function (ChosenCardSixQP $a, ChosenCardSixQP $b) {
-            return $a->getCard()->getValue() - $b->getCard()->getValue();});
+            return $a->getCard()->getValue() - $b->getCard()->getValue();
+        });
         return $chosenCards;
     }
 
     /**
      * isGameEnded : checks if game has ended
-     * @param GameSixQP $gameSixQP 
+     * @param GameSixQP $gameSixQP
      * @return bool
      */
     public function isGameEnded(GameSixQP $gameSixQP): bool
     {
-        $players = $gameSixQP->getPlayerSixQPs();
+        $players = $gameSixQP->getPlayers();
         if ($this->hasCardLeft($players)) {
             return false;
         }
@@ -277,14 +282,14 @@ class SixQPService
         $total = 0;
         foreach ($row->getCards() as $card) {
             $player->getDiscardSixQP()->addCard($card);
-            $player->getDiscardSixQP()->addPoints($card->getPoints());
+            $player->addScore($card->getPoints());
             $total += $card->getPoints();
             $row->removeCard($card);
         }
         $game = $player->getGame();
         $this->logService->sendPlayerLog($game, $player, $player->getUsername()
-            . " picked up row " . $game->getRowSixQPs()->indexOf($row)
-             . " and got " . $total . " points");
+            . " a choisi la ligne " . $game->getRowSixQPs()->indexOf($row)
+             . " et a récolté " . $total . " points");
         $this->entityManager->persist($row);
         $this->entityManager->persist($player->getDiscardSixQP());
         $this->entityManager->flush();
@@ -326,11 +331,11 @@ class SixQPService
     {
         $winner = null;
         $winnerScore = INF;
-        foreach ($game->getPlayerSixQPs() as $player) {
-            if ($player->getDiscardSixQP()->getTotalPoints() < $winnerScore) {
+        foreach ($game->getPlayers() as $player) {
+            if ($player->getScore() < $winnerScore) {
                 $winner = $player;
-                $winnerScore = $player->getDiscardSixQP()->getTotalPoints();
-            } elseif ($player->getDiscardSixQP()->getTotalPoints() == $winnerScore) {
+                $winnerScore = $player->getScore();
+            } elseif ($player->getScore() == $winnerScore) {
                 $winner = null;
             }
         }
@@ -353,23 +358,18 @@ class SixQPService
         $this->entityManager->flush();
     }
 
-     /**
-     * hasPlayerLost : checks if at least one player has reached limit of points
-     * @param Collection<PlayerSixQP> $players : a collection of 6QP players
-     * @return bool
-     */
+    /**
+    * hasPlayerLost : checks if at least one player has reached limit of points
+    * @param Collection<PlayerSixQP> $players : a collection of 6QP players
+    * @return bool
+    */
     private function hasPlayerLost(Collection $players): bool
     {
         foreach($players as $player) {
-            if ($player -> getDiscardSixQP() -> getTotalPoints() >= SixQPParameters::$MAX_POINTS) {
+            if ($player->getScore() >= SixQPParameters::MAX_POINTS) {
                 return true;
             }
         }
         return false;
-    }
-
-    private function getGameSixQPFromGame(Game $game): ?GameSixQP {
-        /** @var GameSixQP $game */
-        return $game->getGameName() == AbstractGameManagerService::$SIXQP_LABEL ? $game : null;
     }
 }

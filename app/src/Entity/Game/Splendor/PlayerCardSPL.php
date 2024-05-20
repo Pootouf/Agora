@@ -2,17 +2,13 @@
 
 namespace App\Entity\Game\Splendor;
 
+use App\Entity\Game\DTO\Component;
 use App\Repository\Game\Splendor\PlayerCardSPLRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PlayerCardSPLRepository::class)]
-class PlayerCardSPL
+class PlayerCardSPL extends Component
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
-
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     private ?DevelopmentCardsSPL $developmentCard = null;
@@ -24,15 +20,11 @@ class PlayerCardSPL
     #[ORM\JoinColumn(nullable: false)]
     private ?PersonalBoardSPL $personalBoardSPL = null;
 
-    public function __construct(PlayerSPL $player, DevelopmentCardsSPL $card, bool $reserved) {
+    public function __construct(PlayerSPL $player, DevelopmentCardsSPL $card, bool $reserved)
+    {
         $this->developmentCard = $card;
         $this->personalBoardSPL = $player->getPersonalBoard();
         $this->isReserved = $reserved;
-    }
-
-    public function getId(): ?int
-    {
-        return $this->id;
     }
 
     public function getDevelopmentCard(): ?DevelopmentCardsSPL

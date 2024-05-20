@@ -11,7 +11,6 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: GameSPLRepository::class)]
 class GameSPL extends Game
 {
-
     #[ORM\OneToMany(targetEntity: PlayerSPL::class, mappedBy: 'gameSPL', orphanRemoval: true)]
     private Collection $players;
 
@@ -44,11 +43,8 @@ class GameSPL extends Game
 
     public function removePlayer(PlayerSPL $player): static
     {
-        if ($this->players->removeElement($player)) {
-            // set the owning side to null (unless already changed)
-            if ($player->getGameSPL() === $this) {
-                $player->setGameSPL(null);
-            }
+        if ($this->players->removeElement($player) && $player->getGameSPL() === $this) {
+            $player->setGameSPL(null);
         }
 
         return $this;

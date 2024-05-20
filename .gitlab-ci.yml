@@ -1,18 +1,17 @@
-image: etiennebinginot/agora:1.4
 
 stages:
+  - build
+  - quality_check
   - factory
   - sixqp
   - splendor
   - glenmore
+  - myrmes
   - platform
+  - report
+  - sonarqube
   - deploy
 
-cache:
-  key: ${CI_COMMIT_REF_SLUG}
-  paths:
-    - vendor/
-    - var/
 
 variables:
   MYSQL_ROOT_PASSWORD: password
@@ -26,19 +25,9 @@ variables:
   MERCURE_URL: http://mercure/.well-known/mercure
   MERCURE_PUBLIC_URL: ''
   APP_ENV_SERVER: test
-
-services:
-  - name: mariadb:10.11.2
-    alias: database
-  - name: dunglas/mercure:latest
-    alias: mercure
-
-before_script:
-  - cd app
-  - composer install
-  - symfony console tailwind:build
-  - symfony console --env=test doctrine:migrations:migrate
-  - symfony console doctrine:fixtures:load --env=test -n --append
+  DOCKER_HOST: tcp://docker:2376
+  DOCKER_TLS_CERTDIR: "/certs"
+  DOCKER_BUILDKIT: '1'
 
 .only_game_branches: &only_game_branches
   only:
@@ -70,22 +59,358 @@ before_script:
     - ssh $SERVER_USER@$SERVER_IP "cd $SERVER_LOCATION && docker compose down && docker volume prune -a"
 
     # Launch project
-    - ssh $SERVER_USER@$SERVER_IP "cd $SERVER_LOCATION && docker compose -f compose.yaml -f $DOCKER_COMPOSE_FILE up --build -d"
+    - ssh $SERVER_USER@$SERVER_IP "cd $SERVER_LOCATION && docker compose -f compose_monitor_light.yaml -f $DOCKER_COMPOSE_FILE up --build -d"
+
+
+.cleanReport: &cleanReport
+  #FIX Cobertura report
+  - sed -i 's;filename=";filename="app/src/;g' coverage-cobertura/$COBERTURA_REPORT
+  - sed -i "s;/builds/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}/app/src;;g" coverage-cobertura/$COBERTURA_REPORT
+  #FIX Junit report
+  - sed -i "s;/builds/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}/;;g" reports/$JUNIT_REPORT
+
+.publishReport: &publishReport
+  reports:
+    junit: app/reports/$JUNIT_REPORT
+    coverage_report:
+      coverage_format: cobertura
+      path: app/coverage-cobertura/$COBERTURA_REPORT
+
+.cache: &cache
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - app/vendor/
+    - app/var/
+    - app/assets/vendor
+  policy: pull-push
+  when: on_success
+
+
+.base_test: &base_test
+  needs: [phpstan, phpcs, twig-lint]
+  image: $CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/agora:latest
+  allow_failure: false
+  environment: test
+  artifacts:
+    paths:
+      - app/coverage/*
+      - app/reports/*
+    <<: *publishReport
+    expire_in: 30 min
+  coverage: /^\s*Lines:\s*\d+.\d+\%/
+  cache:
+    <<: *cache
+    policy: pull
+
+.base_integration_test: &base_integration_test
+  <<: *base_test
+  services:
+    - name: mariadb:10.11.2
+      alias: database
+
+.base_application_test: &base_application_test
+  <<: *base_test
+  services:
+    - name: mariadb:10.11.2
+      alias: database
+    - name: dunglas/mercure:latest
+      alias: mercure
+
+before_script:
+  - cd app
+
+
+image_build:
+  stage: build
+  image: docker:24.0.9
+  services:
+    - docker:24.0.9-dind
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker pull $CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/agora:latest || true
+    - docker build --cache-from $CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/agora:latest 
+        --build-arg BUILDKIT_INLINE_CACHE=1
+        -t $CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/agora:$CI_COMMIT_SHA 
+        -t $CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/agora:latest . -f DockerfileCICD
+    - docker push $CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/agora:$CI_COMMIT_SHA
+    - docker push $CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/agora:latest
+
+
+build:
+  stage: build
+  needs: [image_build]
+  image: $CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/agora:latest
+  script:
+    - composer install
+    - symfony console tailwind:build
+    - symfony console importmap:install
+  cache:
+    <<: *cache
+    policy: push
+
+phpstan:
+  image: $CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/agora:latest
+  stage: quality_check
+  script:
+    - php -d memory_limit=4G vendor/bin/phpstan analyse src
+  allow_failure: true
+  cache:
+    <<: *cache
+    policy: pull
+
+phpcs:
+  image: $CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/agora:latest
+  stage: quality_check
+  script:
+    - curl -OL https://phars.phpcodesniffer.com/phpcs.phar
+    - php phpcs.phar --ignore=./src/Kernel.php ./src
+  allow_failure: true
+  cache:
+    <<: *cache
+    policy: pull
+
+
+twig-lint:
+  image: $CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/agora:latest
+  stage: quality_check
+  script:
+    - php bin/console lint:twig ./templates
+  allow_failure: true
+  cache:
+    <<: *cache
+    policy: pull
+
+unitPlatform:
+  stage: platform
+  <<: [*base_test, *only_platform_branches]
+  script:
+    - php bin/phpunit tests/Platform/Unit
+  allow_failure: false
+  environment: test
+
+unitFactory:
+  stage: factory
+  script:
+    - php bin/phpunit --configuration phpUnitConfig/phpunitFactory.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageUnitFactory.xml --log-junit reports/phpUnitFactory.xml --coverage-php coverage/coverageUnitFactory.php --colors=never tests/Game/Factory/Unit -d memory_limit=-1
+    - *cleanReport
+  <<: *base_test
+  variables:
+    JUNIT_REPORT: phpUnitFactory.xml
+    COBERTURA_REPORT: coverageUnitFactory.xml
+
+integrationFactory:
+  stage: factory
+  script:
+    - symfony console --env=test doctrine:migrations:migrate
+    - symfony console doctrine:fixtures:load --env=test -n --append
+    - php bin/phpunit --configuration phpUnitConfig/phpunitFactory.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageIntegrationFactory.xml --log-junit reports/phpIntegrationFactory.xml --coverage-php coverage/coverageIntegrationFactory.php --colors=never tests/Game/Factory/Integration -d memory_limit=-1
+    - *cleanReport
+  <<: [*base_integration_test, *only_game_branches]
+  variables:
+    JUNIT_REPORT: phpIntegrationFactory.xml
+    COBERTURA_REPORT: coverageIntegrationFactory.xml
+
+unit6QP:
+  stage: sixqp
+  script:
+    - php bin/phpunit --configuration phpUnitConfig/phpunit6QP_no_controller.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageUnit6QP.xml --log-junit reports/phpUnit6QP.xml --coverage-php coverage/coverageUnit6QP.php --colors=never tests/Game/SixQP/Unit -d memory_limit=-1
+    - *cleanReport
+  <<: *base_test
+  variables:
+    JUNIT_REPORT: phpUnit6QP.xml
+    COBERTURA_REPORT: coverageUnit6QP.xml
+
+integration6QP:
+  stage: sixqp
+  script:
+    - symfony console --env=test doctrine:migrations:migrate
+    - symfony console doctrine:fixtures:load --env=test -n --append
+    - php bin/phpunit --configuration phpUnitConfig/phpunit6QP_no_controller.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageIntegration6QP.xml --log-junit reports/phpIntegration6QP.xml --coverage-php coverage/coverageIntegration6QP.php --colors=never tests/Game/SixQP/Integration -d memory_limit=-1
+    - *cleanReport
+  <<: [*base_integration_test, *only_game_branches]
+  variables:
+    JUNIT_REPORT: phpIntegration6QP.xml
+    COBERTURA_REPORT: coverageIntegration6QP.xml
+
+
+application6QP:
+  stage: sixqp
+  script:
+    - symfony console --env=test doctrine:migrations:migrate
+    - symfony console doctrine:fixtures:load --env=test -n --append
+    - php bin/phpunit --configuration phpUnitConfig/phpunit6QP.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageApp6QP.xml --log-junit reports/phpApp6QP.xml --coverage-php coverage/coverageApp6QP.php --colors=never tests/Game/SixQP/Application -d memory_limit=-1
+    - *cleanReport
+  <<: [*base_application_test, *only_game_branches]
+  variables:
+    JUNIT_REPORT: phpApp6QP.xml
+    COBERTURA_REPORT: coverageApp6QP.xml
+
+unitSplendor:
+  stage: splendor
+  script:
+    - php bin/phpunit --configuration phpUnitConfig/phpunitSplendor_no_controller.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageUnitSplendor.xml --log-junit reports/phpUnitSplendor.xml --coverage-php coverage/coverageUnitSplendor.php --colors=never tests/Game/Splendor/Unit -d memory_limit=-1
+    - *cleanReport
+  <<: *base_test
+  variables:
+    JUNIT_REPORT: phpUnitSplendor.xml
+    COBERTURA_REPORT: coverageUnitSplendor.xml
+
+integrationSplendor:
+  stage: splendor
+  script:
+    - symfony console --env=test doctrine:migrations:migrate
+    - symfony console doctrine:fixtures:load --env=test -n --append
+    - php bin/phpunit --configuration phpUnitConfig/phpunitSplendor_no_controller.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageIntegrationSplendor.xml --log-junit reports/phpIntegrationSplendor.xml --coverage-php coverage/coverageIntegrationSplendor.php --colors=never tests/Game/Splendor/Integration -d memory_limit=-1
+    - *cleanReport
+  <<: [*base_integration_test, *only_game_branches]
+  variables:
+    JUNIT_REPORT: phpIntegrationSplendor.xml
+    COBERTURA_REPORT: coverageIntegrationSplendor.xml
+
+applicationSplendor:
+  stage: splendor
+  script:
+    - symfony console --env=test doctrine:migrations:migrate
+    - symfony console doctrine:fixtures:load --env=test -n --append
+    - php bin/phpunit --configuration phpUnitConfig/phpunitSplendor.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageAppSplendor.xml --log-junit reports/phpAppSplendor.xml --coverage-php coverage/coverageAppSplendor.php --colors=never tests/Game/Splendor/Application -d memory_limit=-1
+    - *cleanReport
+  <<: [*base_application_test, *only_game_branches]
+  variables:
+    JUNIT_REPORT: phpAppSplendor.xml
+    COBERTURA_REPORT: coverageAppSplendor.xml
+
+unitGlenmore:
+  stage: glenmore
+  script:
+    - php bin/phpunit --configuration phpUnitConfig/phpunitGlenmore_no_controller.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageUnitGlenmore.xml --log-junit reports/phpUnitGlenmore.xml --coverage-php coverage/coverageUnitGlenmore.php --colors=never tests/Game/Glenmore/Unit -d memory_limit=-1
+    - *cleanReport
+  <<: *base_test
+  variables:
+    JUNIT_REPORT: phpUnitGlenmore.xml
+    COBERTURA_REPORT: coverageUnitGlenmore.xml
+
+integrationGlenmore:
+  stage: glenmore
+  script:
+    - symfony console --env=test doctrine:migrations:migrate
+    - symfony console doctrine:fixtures:load --env=test -n --append
+    - php bin/phpunit --configuration phpUnitConfig/phpunitGlenmore_no_controller.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageIntegrationGlenmore.xml --log-junit reports/phpIntegrationGlenmore.xml --coverage-php coverage/coverageIntegrationGlenmore.php --colors=never tests/Game/Glenmore/Integration -d memory_limit=-1
+    - *cleanReport
+  <<: [*base_integration_test, *only_game_branches]
+  variables:
+    JUNIT_REPORT: phpIntegrationGlenmore.xml
+    COBERTURA_REPORT: coverageIntegrationGlenmore.xml
+
+applicationGlenmore:
+  stage: glenmore
+  script:
+    - symfony console --env=test doctrine:migrations:migrate
+    - symfony console doctrine:fixtures:load --env=test -n --append
+    - php bin/phpunit --configuration phpUnitConfig/phpunitGlenmore.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageAppGlenmore.xml --log-junit reports/phpAppGlenmore.xml --coverage-php coverage/coverageAppGlenmore.php --colors=never tests/Game/Glenmore/Application -d memory_limit=-1
+    - *cleanReport
+  <<: [*base_application_test, *only_game_branches]
+  variables:
+    JUNIT_REPORT: phpAppGlenmore.xml
+    COBERTURA_REPORT: coverageAppGlenmore.xml
+
+unitMyrmes:
+  stage: myrmes
+  script:
+    - php bin/phpunit --configuration phpUnitConfig/phpunitMyrmes_no_controller.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageUnitMyrmes.xml --log-junit reports/phpUnitMyrmes.xml --coverage-php coverage/coverageUnitMyrmes.php --colors=never tests/Game/Myrmes/Unit -d memory_limit=-1
+    - *cleanReport
+  <<: *base_test
+  variables:
+    JUNIT_REPORT: phpUnitMyrmes.xml
+    COBERTURA_REPORT: coverageUnitMyrmes.xml
+
+integrationMyrmes:
+  stage: myrmes
+  script:
+    - symfony console --env=test doctrine:migrations:migrate
+    - symfony console doctrine:fixtures:load --env=test -n --append
+    - php bin/phpunit --configuration phpUnitConfig/phpunitMyrmes_no_controller.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageIntegrationMyrmes.xml --log-junit reports/phpIntegrationMyrmes.xml --coverage-php coverage/coverageIntegrationMyrmes.php --colors=never tests/Game/Myrmes/Integration -d memory_limit=-1
+    - *cleanReport
+  <<: [*base_integration_test, *only_game_branches]
+  variables:
+    JUNIT_REPORT: phpIntegrationMyrmes.xml
+    COBERTURA_REPORT: coverageIntegrationMyrmes.xml
+
+
+applicationMyrmes:
+  stage: myrmes
+  script:
+    - symfony console --env=test doctrine:migrations:migrate
+    - symfony console doctrine:fixtures:load --env=test -n --append
+    - php bin/phpunit --configuration phpUnitConfig/phpunitMyrmes.xml.dist --coverage-text --coverage-cobertura coverage-cobertura/coverageAppMyrmes.xml --log-junit reports/phpAppMyrmes.xml --coverage-php coverage/coverageAppMyrmes.php --colors=never tests/Game/Myrmes/Application -d memory_limit=-1
+    - *cleanReport
+  <<: [*base_application_test, *only_game_branches]
+  variables:
+    JUNIT_REPORT: phpAppMyrmes.xml
+    COBERTURA_REPORT: coverageAppMyrmes.xml
+
+
+report:
+  image: $CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/agora:latest
+  stage: report
+  only:
+    - develop-game
+    - preprod
+    - main
+  before_script:
+    - cd app
+    - rm composer.lock
+    - composer require psr/log 1.1.4
+    - composer require nimut/phpunit-merger
+    - composer require sweetchuck/junit-merger-cli 1.0.0 -W
+  script:
+    - vendor/bin/phpunit-merger coverage coverage/ coverage/coverage.xml
+    - find reports/ -type f -name '*.xml' | vendor/bin/junit-merger merge:files --handler='dom_read' > reports/report.xml
+  allow_failure: false
+  artifacts:
+    paths:
+      - app/reports/report.xml
+      - app/coverage/coverage.xml
+
+
+
+sonarqube-check:
+  stage: sonarqube
+  before_script:
+    - ''
+  image:
+    name: sonarsource/sonar-scanner-cli:latest
+    entrypoint: [""]
+  variables:
+    SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
+    GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
+  cache:
+    key: "${CI_JOB_NAME}"
+    paths:
+      - .sonar/cache
+  script:
+    - sonar-scanner
+  allow_failure: true
+  only:
+    - develop-game
+    - preprod
+    - main
+
 
 deploy:dev_game:
   <<: *deploy
+  image: $CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/agora:latest
   environment:
     name: development
     url: http://srv-dpi-proj-agora-dev-jeux.univ-rouen.fr/
+  only:
+    - develop-game
   variables:
     SERVER_USER: $SERVER_GAME_USER
     SERVER_IP: $SERVER_GAME_IP
     SERVER_LOCATION: /var/www/agora
-    DOCKER_COMPOSE_FILE: compose.gametest.yaml
+    DOCKER_COMPOSE_FILE: compose.dev.yaml
     GIT_BRANCH_NAME: develop-game
     ID_RSA: $ID_RSA_GAME
-  only:
-    - develop-game
 
 deploy:dev_platform:
   <<: *deploy
@@ -95,98 +420,8 @@ deploy:dev_platform:
     SERVER_USER: $SERVER_PLATFORM_USER
     SERVER_IP: $SERVER_PLATFORM_IP
     SERVER_LOCATION: /opt/agora
-    DOCKER_COMPOSE_FILE: compose-dev.yaml
+    DOCKER_COMPOSE_FILE: compose.dev.yaml
     GIT_BRANCH_NAME: develop-platform
     ID_RSA: $ID_RSA_PLATFORM
   only:
     - develop-platform
-
-unitPlatform:
-  stage: platform
-  <<: *only_platform_branches
-  script:
-  - php bin/phpunit tests/Platform/Unit
-  allow_failure: false
-  environment: test
-
-unitFactory:
-  stage: factory
-  <<: *only_game_branches
-  script:
-    - php bin/phpunit tests/Game/Factory/Unit
-  allow_failure: false
-  environment: test
-
-integrationFactory:
-  stage: factory
-  <<: *only_game_branches
-  script:
-    - php bin/phpunit tests/Game/Factory/Integration
-  allow_failure: false
-  environment: test
-
-unit6QP:
-  stage: sixqp
-  <<: *only_game_branches
-  script:
-    - php bin/phpunit tests/Game/SixQP/Unit
-  allow_failure: false
-  environment: test
-
-integration6QP:
-  stage: sixqp
-  <<: *only_game_branches
-  script:
-    - php bin/phpunit tests/Game/SixQP/Integration
-  allow_failure: false
-  environment: test
-
-application6QP:
-  stage: sixqp
-  <<: *only_game_branches
-  script:
-    - symfony console tailwind:build
-    - php bin/phpunit tests/Game/SixQP/Application
-  allow_failure: false
-  environment: test
-
-unitSplendor:
-  stage: splendor
-  <<: *only_game_branches
-  script:
-    - php bin/phpunit tests/Game/Splendor/Unit
-  allow_failure: false
-  environment: test
-
-integrationSplendor:
-  stage: splendor
-  <<: *only_game_branches
-  script:
-    - php bin/phpunit tests/Game/Splendor/Integration
-  allow_failure: false
-  environment: test
-
-applicationSplendor:
-  stage: splendor
-  <<: *only_game_branches
-  script:
-    - symfony console tailwind:build
-    - php bin/phpunit tests/Game/Splendor/Application
-  allow_failure: false
-  environment: test
-
-unitGlenmore:
-  stage: glenmore
-  <<: *only_game_branches
-  script:
-    - php bin/phpunit tests/Game/Glenmore/Unit
-  allow_failure: false
-  environment: test
-
-integrationGlenmore:
-  stage: glenmore
-  <<: *only_game_branches
-  script:
-    - php bin/phpunit tests/Game/Glenmore/Integration
-  allow_failure: false
-  environment: test

@@ -23,35 +23,35 @@ final class VersionGLENMORE_DATA extends AbstractMigration
         // Insertion of resources
 
         $this->connection->insert('resource_glm',
-            ['id' => 1, 'help_id' => null, 'type' => GlenmoreParameters::$PRODUCTION_RESOURCE,
-                'color' => GlenmoreParameters::$COLOR_GREEN]);
+            ['id' => 1, 'help_id' => null, 'type' => GlenmoreParameters::PRODUCTION_RESOURCE,
+                'color' => GlenmoreParameters::COLOR_GREEN]);
         $this->connection->insert('resource_glm',
-            ['id' => 2, 'help_id' => null, 'type' => GlenmoreParameters::$PRODUCTION_RESOURCE,
-                'color' => GlenmoreParameters::$COLOR_GREY]);
+            ['id' => 2, 'help_id' => null, 'type' => GlenmoreParameters::PRODUCTION_RESOURCE,
+                'color' => GlenmoreParameters::COLOR_GREY]);
         $this->connection->insert('resource_glm',
-            ['id' => 3, 'help_id' => null, 'type' => GlenmoreParameters::$PRODUCTION_RESOURCE,
-                'color' => GlenmoreParameters::$COLOR_WHITE]);
+            ['id' => 3, 'help_id' => null, 'type' => GlenmoreParameters::PRODUCTION_RESOURCE,
+                'color' => GlenmoreParameters::COLOR_WHITE]);
         $this->connection->insert('resource_glm',
-            ['id' => 4, 'help_id' => null, 'type' => GlenmoreParameters::$PRODUCTION_RESOURCE,
-                'color' => GlenmoreParameters::$COLOR_BROWN]);
+            ['id' => 4, 'help_id' => null, 'type' => GlenmoreParameters::PRODUCTION_RESOURCE,
+                'color' => GlenmoreParameters::COLOR_BROWN]);
         $this->connection->insert('resource_glm',
-            ['id' => 5, 'help_id' => null, 'type' => GlenmoreParameters::$PRODUCTION_RESOURCE,
-                'color' => GlenmoreParameters::$COLOR_YELLOW]);
+            ['id' => 5, 'help_id' => null, 'type' => GlenmoreParameters::PRODUCTION_RESOURCE,
+                'color' => GlenmoreParameters::COLOR_YELLOW]);
         $this->connection->insert('resource_glm',
-            ['id' => 6, 'help_id' => null, 'type' => GlenmoreParameters::$WHISKY_RESOURCE,
-                'color' => GlenmoreParameters::$COLOR_YELLOW]);
+            ['id' => 6, 'help_id' => null, 'type' => GlenmoreParameters::WHISKY_RESOURCE,
+                'color' => GlenmoreParameters::COLOR_YELLOW]);
         $this->connection->insert('resource_glm',
-            ['id' => 7, 'help_id' => null, 'type' => GlenmoreParameters::$HAT_RESOURCE,
-                'color' => GlenmoreParameters::$COLOR_BROWN]);
+            ['id' => 7, 'help_id' => null, 'type' => GlenmoreParameters::HAT_RESOURCE,
+                'color' => GlenmoreParameters::COLOR_BROWN]);
         $this->connection->insert('resource_glm',
-            ['id' => 8, 'help_id' => null, 'type' => GlenmoreParameters::$MOVEMENT_RESOURCE,
-                'color' => GlenmoreParameters::$COLOR_WHITE]);
+            ['id' => 8, 'help_id' => null, 'type' => GlenmoreParameters::MOVEMENT_RESOURCE,
+                'color' => GlenmoreParameters::COLOR_WHITE]);
         $this->connection->insert('resource_glm',
-            ['id' => 9, 'help_id' => null, 'type' => GlenmoreParameters::$VILLAGER_RESOURCE,
-                'color' => GlenmoreParameters::$COLOR_BLACK]);
+            ['id' => 9, 'help_id' => null, 'type' => GlenmoreParameters::VILLAGER_RESOURCE,
+                'color' => GlenmoreParameters::COLOR_BLACK]);
         $this->connection->insert('resource_glm',
-            ['id' => 10, 'help_id' => null, 'type' => GlenmoreParameters::$POINT_RESOURCE,
-                'color' => GlenmoreParameters::$COLOR_GREEN]);
+            ['id' => 10, 'help_id' => null, 'type' => GlenmoreParameters::POINT_RESOURCE,
+                'color' => GlenmoreParameters::COLOR_GREEN]);
 
         // Insertion of cards
 
@@ -64,14 +64,14 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('card_glm',
             ['id' => 1, 'help_id' => null, 'bonus_id' => 1,
-                'value' => null, 'name' => GlenmoreParameters::$CARD_CASTLE_OF_MEY]
+                'value' => null, 'name' => GlenmoreParameters::CARD_CASTLE_OF_MEY]
         );
 
         // Insertion of card 2
 
         $this->connection->insert('card_glm',
             ['id' => 2, 'help_id' => null, 'bonus_id' => null,
-                'value' => null, 'name' => GlenmoreParameters::$CARD_LOCH_LOCHY]
+                'value' => null, 'name' => GlenmoreParameters::CARD_LOCH_LOCHY]
         );
 
         // Insertion of card 3
@@ -83,7 +83,7 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('card_glm',
             ['id' => 3, 'help_id' => null, 'bonus_id' => 3,
-                'value' => null, 'name' => GlenmoreParameters::$CARD_CASTLE_STALKER]
+                'value' => null, 'name' => GlenmoreParameters::CARD_CASTLE_STALKER]
         );
 
         // Insertion of card 4
@@ -94,35 +94,35 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('card_glm',
             ['id' => 4, 'help_id' => null, 'bonus_id' => 2,
-                'value' => null, 'name' => GlenmoreParameters::$CARD_CAWDOR_CASTLE]
+                'value' => null, 'name' => GlenmoreParameters::CARD_CAWDOR_CASTLE]
         );
 
         // Insertion of card 5
 
         $this->connection->insert('card_glm',
             ['id' => 5, 'help_id' => null, 'bonus_id' => null,
-                'value' => null, 'name' => GlenmoreParameters::$CARD_LOCH_MORAR]
+                'value' => null, 'name' => GlenmoreParameters::CARD_LOCH_MORAR]
         );
 
         // Insertion of card 6
 
         $this->connection->insert('card_glm',
             ['id' => 6, 'help_id' => null, 'bonus_id' => null,
-                'value' => null, 'name' => GlenmoreParameters::$CARD_LOCH_NESS]
+                'value' => null, 'name' => GlenmoreParameters::CARD_LOCH_NESS]
         );
 
         // Insertion of card 7
 
         $this->connection->insert('card_glm',
             ['id' => 7, 'help_id' => null, 'bonus_id' => null,
-                'value' => null, 'name' => GlenmoreParameters::$CARD_IONA_ABBEY]
+                'value' => null, 'name' => GlenmoreParameters::CARD_IONA_ABBEY]
         );
 
         // Insertion of card 8
 
         $this->connection->insert('card_glm',
             ['id' => 8, 'help_id' => null, 'bonus_id' => null,
-                'value' => null, 'name' => GlenmoreParameters::$CARD_DUART_CASTLE]
+                'value' => null, 'name' => GlenmoreParameters::CARD_DUART_CASTLE]
         );
 
         // Insertion of card 9
@@ -133,14 +133,14 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('card_glm',
             ['id' => 9, 'help_id' => null, 'bonus_id' => 4,
-                'value' => null, 'name' => GlenmoreParameters::$CARD_CASTLE_MOIL]
+                'value' => null, 'name' => GlenmoreParameters::CARD_CASTLE_MOIL]
         );
 
         // Insertion of card 10
 
         $this->connection->insert('card_glm',
             ['id' => 10, 'help_id' => null, 'bonus_id' => null,
-                'value' => null, 'name' => GlenmoreParameters::$CARD_LOCH_SHIEL]
+                'value' => null, 'name' => GlenmoreParameters::CARD_LOCH_SHIEL]
         );
 
         // Insertion of card 11
@@ -151,14 +151,14 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('card_glm',
             ['id' => 11, 'help_id' => null, 'bonus_id' => 5,
-                'value' => null, 'name' => GlenmoreParameters::$CARD_DONAN_CASTLE]
+                'value' => null, 'name' => GlenmoreParameters::CARD_DONAN_CASTLE]
         );
 
         // Insertion of card 12
 
         $this->connection->insert('card_glm',
             ['id' => 12, 'help_id' => null, 'bonus_id' => null,
-                'value' => null, 'name' => GlenmoreParameters::$CARD_LOCH_OICH]
+                'value' => null, 'name' => GlenmoreParameters::CARD_LOCH_OICH]
         );
 
         // Insertion of card 13
@@ -169,7 +169,7 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('card_glm',
             ['id' => 13, 'help_id' => null, 'bonus_id' => 6,
-                'value' => null, 'name' => GlenmoreParameters::$CARD_ARMADALE_CASTLE]
+                'value' => null, 'name' => GlenmoreParameters::CARD_ARMADALE_CASTLE]
         );
 
         // Insertion of tiles
@@ -184,8 +184,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 1, 'help_id' => null,
-                'card_id' => null, 'type' => GlenmoreParameters::$TILE_TYPE_YELLOW,
-                'name' => GlenmoreParameters::$TILE_NAME_QUARRY, 'containing_river' => 0,
+                'card_id' => null, 'type' => GlenmoreParameters::TILE_TYPE_YELLOW,
+                'name' => GlenmoreParameters::TILE_NAME_QUARRY, 'containing_river' => 0,
                 'containing_road' => 1, 'level' => 0]);
 
         $this->connection->insert('tile_glm_tile_activation_bonus_glm',
@@ -199,8 +199,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 2, 'help_id' => null,
-                'card_id' => null, 'type' => GlenmoreParameters::$TILE_TYPE_YELLOW,
-                'name' => GlenmoreParameters::$TILE_NAME_FOREST, 'containing_river' => 1,
+                'card_id' => null, 'type' => GlenmoreParameters::TILE_TYPE_YELLOW,
+                'name' => GlenmoreParameters::TILE_NAME_FOREST, 'containing_river' => 1,
                 'containing_road' => 0, 'level' => 0]);
 
         $this->connection->insert('tile_glm_tile_activation_bonus_glm',
@@ -214,8 +214,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 3, 'help_id' => null,
-                'card_id' => null, 'type' => GlenmoreParameters::$TILE_TYPE_GREEN,
-                'name' => GlenmoreParameters::$TILE_NAME_PASTURE, 'containing_river' => 1,
+                'card_id' => null, 'type' => GlenmoreParameters::TILE_TYPE_GREEN,
+                'name' => GlenmoreParameters::TILE_NAME_PASTURE, 'containing_river' => 1,
                 'containing_road' => 0, 'level' => 0]);
 
         $this->connection->insert('tile_glm_tile_activation_bonus_glm',
@@ -233,8 +233,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 4, 'help_id' => null,
-                'card_id' => null, 'type' => GlenmoreParameters::$TILE_TYPE_VILLAGE,
-                'name' => GlenmoreParameters::$TILE_NAME_VILLAGE, 'containing_river' => 0,
+                'card_id' => null, 'type' => GlenmoreParameters::TILE_TYPE_VILLAGE,
+                'name' => GlenmoreParameters::TILE_NAME_VILLAGE, 'containing_river' => 0,
                 'containing_road' => 1, 'level' => 0]);
 
         $this->connection->insert('tile_glm_tile_activation_bonus_glm',
@@ -246,13 +246,13 @@ final class VersionGLENMORE_DATA extends AbstractMigration
         // Insertion of tile 5
 
         $this->connection->insert('tile_activation_bonus_glm',
-            ['id' => 5, "help_id" => null, 'amount' => 1, 'resource_id' => 6]
+            ['id' => 5, "help_id" => null, 'amount' => 1, 'resource_id' => 5]
         );
 
         $this->connection->insert('tile_glm',
             ['id' => 5, 'help_id' => null,
-                'card_id' => null, 'type' => GlenmoreParameters::$TILE_TYPE_GREEN,
-                'name' => GlenmoreParameters::$TILE_NAME_FIELD, 'containing_river' => 0,
+                'card_id' => null, 'type' => GlenmoreParameters::TILE_TYPE_GREEN,
+                'name' => GlenmoreParameters::TILE_NAME_FIELD, 'containing_river' => 0,
                 'containing_road' => 1, 'level' => 0]);
 
         $this->connection->insert('tile_glm_tile_activation_bonus_glm',
@@ -267,8 +267,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 6, 'help_id' => null,
-                'card_id' => null, 'type' => GlenmoreParameters::$TILE_TYPE_GREEN,
-                'name' => GlenmoreParameters::$TILE_NAME_CATTLE, 'containing_river' => 1,
+                'card_id' => null, 'type' => GlenmoreParameters::TILE_TYPE_GREEN,
+                'name' => GlenmoreParameters::TILE_NAME_CATTLE, 'containing_river' => 1,
                 'containing_road' => 0, 'level' => 0]);
 
         $this->connection->insert('tile_glm_tile_activation_bonus_glm',
@@ -277,13 +277,13 @@ final class VersionGLENMORE_DATA extends AbstractMigration
         // Insertion of tile 7
 
         $this->connection->insert('tile_activation_bonus_glm',
-            ['id' => 7, "help_id" => null, 'amount' => 1, 'resource_id' => 1]
+            ['id' => 7, "help_id" => null, 'amount' => 1, 'resource_id' => 2]
         );
 
         $this->connection->insert('tile_glm',
             ['id' => 7, 'help_id' => null,
-                'card_id' => null, 'type' => GlenmoreParameters::$TILE_TYPE_YELLOW,
-                'name' => GlenmoreParameters::$TILE_NAME_QUARRY, 'containing_river' => 1,
+                'card_id' => null, 'type' => GlenmoreParameters::TILE_TYPE_YELLOW,
+                'name' => GlenmoreParameters::TILE_NAME_QUARRY, 'containing_river' => 1,
                 'containing_road' => 0, 'level' => 0]);
 
         $this->connection->insert('tile_glm_tile_activation_bonus_glm',
@@ -298,8 +298,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 8, 'help_id' => null,
-                'card_id' => null, 'type' => GlenmoreParameters::$TILE_TYPE_YELLOW,
-                'name' => GlenmoreParameters::$TILE_NAME_FOREST, 'containing_river' => 0,
+                'card_id' => null, 'type' => GlenmoreParameters::TILE_TYPE_YELLOW,
+                'name' => GlenmoreParameters::TILE_NAME_FOREST, 'containing_river' => 0,
                 'containing_road' => 1, 'level' => 0]);
 
         $this->connection->insert('tile_glm_tile_activation_bonus_glm',
@@ -311,8 +311,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 9, 'help_id' => null,
-                'card_id' => 2, 'type' => GlenmoreParameters::$TILE_TYPE_BLUE,
-                'name' => GlenmoreParameters::$CARD_LOCH_LOCHY, 'containing_river' => 1,
+                'card_id' => 2, 'type' => GlenmoreParameters::TILE_TYPE_BLUE,
+                'name' => GlenmoreParameters::CARD_LOCH_LOCHY, 'containing_river' => 1,
                 'containing_road' => 0, 'level' => 1]);
 
         // Insertion of tile 10
@@ -335,8 +335,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 10, 'help_id' => null,
-                'card_id' => null, 'type' => GlenmoreParameters::$TILE_TYPE_BROWN,
-                'name' => GlenmoreParameters::$TILE_NAME_BUTCHER, 'containing_river' => 0,
+                'card_id' => null, 'type' => GlenmoreParameters::TILE_TYPE_BROWN,
+                'name' => GlenmoreParameters::TILE_NAME_BUTCHER, 'containing_river' => 0,
                 'containing_road' => 0, 'level' => 1]);
 
         $this->connection->insert('tile_glm_tile_activation_cost_glm',
@@ -373,8 +373,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 11, 'help_id' => null,
-                'card_id' => null, 'type' => GlenmoreParameters::$TILE_TYPE_YELLOW,
-                'name' => GlenmoreParameters::$TILE_NAME_DISTILLERY, 'containing_river' => 0,
+                'card_id' => null, 'type' => GlenmoreParameters::TILE_TYPE_YELLOW,
+                'name' => GlenmoreParameters::TILE_NAME_DISTILLERY, 'containing_river' => 0,
                 'containing_road' => 0, 'level' => 1]);
 
         $this->connection->insert('tile_glm_tile_buy_cost_glm',
@@ -401,8 +401,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 12, 'help_id' => null,
-                'card_id' => null, 'type' => GlenmoreParameters::$TILE_TYPE_GREEN,
-                'name' => GlenmoreParameters::$TILE_NAME_PASTURE, 'containing_river' => 0,
+                'card_id' => null, 'type' => GlenmoreParameters::TILE_TYPE_GREEN,
+                'name' => GlenmoreParameters::TILE_NAME_PASTURE, 'containing_river' => 0,
                 'containing_road' => 0, 'level' => 1]);
 
         $this->connection->insert('tile_glm_tile_activation_bonus_glm',
@@ -441,8 +441,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 13, 'help_id' => null,
-                'card_id' => null, 'type' => GlenmoreParameters::$TILE_TYPE_BROWN,
-                'name' => GlenmoreParameters::$TILE_NAME_FAIR, 'containing_river' => 0,
+                'card_id' => null, 'type' => GlenmoreParameters::TILE_TYPE_BROWN,
+                'name' => GlenmoreParameters::TILE_NAME_FAIR, 'containing_river' => 0,
                 'containing_road' => 0, 'level' => 1]);
 
         $this->connection->insert('tile_glm_tile_activation_bonus_glm',
@@ -489,8 +489,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 14, 'help_id' => null,
-                'card_id' => null, 'type' => GlenmoreParameters::$TILE_TYPE_VILLAGE,
-                'name' => GlenmoreParameters::$TILE_NAME_VILLAGE, 'containing_river' => 1,
+                'card_id' => null, 'type' => GlenmoreParameters::TILE_TYPE_VILLAGE,
+                'name' => GlenmoreParameters::TILE_NAME_VILLAGE, 'containing_river' => 1,
                 'containing_road' => 0, 'level' => 1]);
 
         $this->connection->insert('tile_glm_tile_buy_cost_glm',
@@ -525,8 +525,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 15, 'help_id' => null,
-                'card_id' => null, 'type' => GlenmoreParameters::$TILE_TYPE_YELLOW,
-                'name' => GlenmoreParameters::$TILE_NAME_DISTILLERY, 'containing_river' => 0,
+                'card_id' => null, 'type' => GlenmoreParameters::TILE_TYPE_YELLOW,
+                'name' => GlenmoreParameters::TILE_NAME_DISTILLERY, 'containing_river' => 0,
                 'containing_road' => 1, 'level' => 1]);
 
         $this->connection->insert('tile_glm_tile_buy_cost_glm',
@@ -561,8 +561,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 16, 'help_id' => null,
-                'card_id' => null, 'type' => GlenmoreParameters::$TILE_TYPE_VILLAGE,
-                'name' => GlenmoreParameters::$TILE_NAME_VILLAGE, 'containing_river' => 0,
+                'card_id' => null, 'type' => GlenmoreParameters::TILE_TYPE_VILLAGE,
+                'name' => GlenmoreParameters::TILE_NAME_VILLAGE, 'containing_river' => 0,
                 'containing_road' => 0, 'level' => 1]);
 
         $this->connection->insert('tile_glm_tile_buy_cost_glm',
@@ -609,9 +609,9 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 17, 'help_id' => null,
-                'card_id' => null, 'type' => GlenmoreParameters::$TILE_TYPE_BROWN,
-                'name' => GlenmoreParameters::$TILE_NAME_FAIR, 'containing_river' => 0,
-                'containing_road' => 0, 'level' => 1]);
+                'card_id' => null, 'type' => GlenmoreParameters::TILE_TYPE_BROWN,
+                'name' => GlenmoreParameters::TILE_NAME_FAIR, 'containing_river' => 0,
+                'containing_road' => 1, 'level' => 1]);
 
         $this->connection->insert('tile_glm_tile_activation_bonus_glm',
             ['tile_glm_id' => 17, 'tile_activation_bonus_glm_id' => 19]
@@ -649,8 +649,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 18, 'help_id' => null,
-                'card_id' => null, 'type' => GlenmoreParameters::$TILE_TYPE_GREEN,
-                'name' => GlenmoreParameters::$TILE_NAME_FIELD, 'containing_river' => 0,
+                'card_id' => null, 'type' => GlenmoreParameters::TILE_TYPE_GREEN,
+                'name' => GlenmoreParameters::TILE_NAME_FIELD, 'containing_river' => 0,
                 'containing_road' => 1, 'level' => 1]);
 
         $this->connection->insert('tile_glm_tile_activation_bonus_glm',
@@ -673,8 +673,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 19, 'help_id' => null,
-                'card_id' => null, 'type' => GlenmoreParameters::$TILE_TYPE_VILLAGE,
-                'name' => GlenmoreParameters::$TILE_NAME_VILLAGE, 'containing_river' => 0,
+                'card_id' => null, 'type' => GlenmoreParameters::TILE_TYPE_VILLAGE,
+                'name' => GlenmoreParameters::TILE_NAME_VILLAGE, 'containing_river' => 0,
                 'containing_road' => 1, 'level' => 1]);
 
         $this->connection->insert('tile_glm_tile_buy_cost_glm',
@@ -705,8 +705,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 20, 'help_id' => null,
-                'card_id' => null, 'type' => GlenmoreParameters::$TILE_TYPE_VILLAGE,
-                'name' => GlenmoreParameters::$TILE_NAME_VILLAGE, 'containing_river' => 1,
+                'card_id' => null, 'type' => GlenmoreParameters::TILE_TYPE_VILLAGE,
+                'name' => GlenmoreParameters::TILE_NAME_VILLAGE, 'containing_river' => 1,
                 'containing_road' => 0, 'level' => 1]);
 
         $this->connection->insert('tile_glm_tile_buy_cost_glm',
@@ -729,8 +729,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 21, 'help_id' => null,
-                'card_id' => null, 'type' => GlenmoreParameters::$TILE_TYPE_GREEN,
-                'name' => GlenmoreParameters::$TILE_NAME_CATTLE, 'containing_river' => 0,
+                'card_id' => null, 'type' => GlenmoreParameters::TILE_TYPE_GREEN,
+                'name' => GlenmoreParameters::TILE_NAME_CATTLE, 'containing_river' => 0,
                 'containing_road' => 0, 'level' => 1]);
 
         $this->connection->insert('tile_glm_tile_activation_bonus_glm',
@@ -745,8 +745,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 22, 'help_id' => null,
-                'card_id' => null, 'type' => GlenmoreParameters::$TILE_TYPE_GREEN,
-                'name' => GlenmoreParameters::$TILE_NAME_FIELD, 'containing_river' => 0,
+                'card_id' => null, 'type' => GlenmoreParameters::TILE_TYPE_GREEN,
+                'name' => GlenmoreParameters::TILE_NAME_FIELD, 'containing_river' => 0,
                 'containing_road' => 0, 'level' => 1]);
 
         $this->connection->insert('tile_glm_tile_activation_bonus_glm',
@@ -761,8 +761,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 23, 'help_id' => null,
-                'card_id' => null, 'type' => GlenmoreParameters::$TILE_TYPE_YELLOW,
-                'name' => GlenmoreParameters::$TILE_NAME_QUARRY, 'containing_river' => 0,
+                'card_id' => null, 'type' => GlenmoreParameters::TILE_TYPE_YELLOW,
+                'name' => GlenmoreParameters::TILE_NAME_QUARRY, 'containing_river' => 0,
                 'containing_road' => 0, 'level' => 1]);
 
         $this->connection->insert('tile_glm_tile_activation_bonus_glm',
@@ -777,8 +777,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 24, 'help_id' => null,
-                'card_id' => null, 'type' => GlenmoreParameters::$TILE_TYPE_YELLOW,
-                'name' => GlenmoreParameters::$TILE_NAME_FOREST, 'containing_river' => 0,
+                'card_id' => null, 'type' => GlenmoreParameters::TILE_TYPE_YELLOW,
+                'name' => GlenmoreParameters::TILE_NAME_FOREST, 'containing_river' => 0,
                 'containing_road' => 0, 'level' => 1]);
 
         $this->connection->insert('tile_glm_tile_activation_bonus_glm',
@@ -793,8 +793,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 25, 'help_id' => null,
-                'card_id' => null, 'type' => GlenmoreParameters::$TILE_TYPE_YELLOW,
-                'name' => GlenmoreParameters::$TILE_NAME_QUARRY, 'containing_river' => 0,
+                'card_id' => null, 'type' => GlenmoreParameters::TILE_TYPE_YELLOW,
+                'name' => GlenmoreParameters::TILE_NAME_QUARRY, 'containing_river' => 0,
                 'containing_road' => 0, 'level' => 1]);
 
         $this->connection->insert('tile_glm_tile_activation_bonus_glm',
@@ -825,8 +825,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 26, 'help_id' => null,
-                'card_id' => 9, 'type' => GlenmoreParameters::$TILE_TYPE_CASTLE,
-                'name' => GlenmoreParameters::$CARD_CASTLE_MOIL, 'containing_river' => 0,
+                'card_id' => 9, 'type' => GlenmoreParameters::TILE_TYPE_CASTLE,
+                'name' => GlenmoreParameters::CARD_CASTLE_MOIL, 'containing_river' => 0,
                 'containing_road' => 0, 'level' => 1]);
 
         $this->connection->insert('tile_glm_tile_buy_cost_glm',
@@ -870,8 +870,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 27, 'help_id' => null,
-                'card_id' => 3, 'type' => GlenmoreParameters::$TILE_TYPE_CASTLE,
-                'name' => GlenmoreParameters::$CARD_CASTLE_STALKER, 'containing_river' => 1,
+                'card_id' => 3, 'type' => GlenmoreParameters::TILE_TYPE_CASTLE,
+                'name' => GlenmoreParameters::CARD_CASTLE_STALKER, 'containing_river' => 1,
                 'containing_road' => 0, 'level' => 1]);
 
         $this->connection->insert('tile_glm_tile_buy_cost_glm',
@@ -899,8 +899,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 28, 'help_id' => null,
-                'card_id' => null, 'type' => GlenmoreParameters::$TILE_TYPE_YELLOW,
-                'name' => GlenmoreParameters::$TILE_NAME_FOREST, 'containing_river' => 0,
+                'card_id' => null, 'type' => GlenmoreParameters::TILE_TYPE_YELLOW,
+                'name' => GlenmoreParameters::TILE_NAME_FOREST, 'containing_river' => 0,
                 'containing_road' => 0, 'level' => 1]);
 
         $this->connection->insert('tile_glm_tile_activation_bonus_glm',
@@ -923,8 +923,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 29, 'help_id' => null,
-                'card_id' => null, 'type' => GlenmoreParameters::$TILE_TYPE_VILLAGE,
-                'name' => GlenmoreParameters::$TILE_NAME_VILLAGE, 'containing_river' => 0,
+                'card_id' => null, 'type' => GlenmoreParameters::TILE_TYPE_VILLAGE,
+                'name' => GlenmoreParameters::TILE_NAME_VILLAGE, 'containing_river' => 0,
                 'containing_road' => 0, 'level' => 1]);
 
         $this->connection->insert('tile_glm_tile_buy_cost_glm',
@@ -960,8 +960,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 30, 'help_id' => null,
-                'card_id' => 13, 'type' => GlenmoreParameters::$TILE_TYPE_CASTLE,
-                'name' => GlenmoreParameters::$CARD_ARMADALE_CASTLE, 'containing_river' => 0,
+                'card_id' => 13, 'type' => GlenmoreParameters::TILE_TYPE_CASTLE,
+                'name' => GlenmoreParameters::CARD_ARMADALE_CASTLE, 'containing_river' => 0,
                 'containing_road' => 0, 'level' => 1]);
 
         $this->connection->insert('tile_glm_tile_buy_cost_glm',
@@ -1001,8 +1001,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 31, 'help_id' => null,
-                'card_id' => null, 'type' => GlenmoreParameters::$TILE_TYPE_BROWN,
-                'name' => GlenmoreParameters::$TILE_NAME_BUTCHER, 'containing_river' => 0,
+                'card_id' => null, 'type' => GlenmoreParameters::TILE_TYPE_BROWN,
+                'name' => GlenmoreParameters::TILE_NAME_BUTCHER, 'containing_river' => 0,
                 'containing_road' => 0, 'level' => 1]);
 
         $this->connection->insert('tile_glm_tile_activation_cost_glm',
@@ -1029,8 +1029,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 32, 'help_id' => null,
-                'card_id' => null, 'type' => GlenmoreParameters::$TILE_TYPE_YELLOW,
-                'name' => GlenmoreParameters::$TILE_NAME_QUARRY, 'containing_river' => 0,
+                'card_id' => null, 'type' => GlenmoreParameters::TILE_TYPE_YELLOW,
+                'name' => GlenmoreParameters::TILE_NAME_QUARRY, 'containing_river' => 0,
                 'containing_road' => 0, 'level' => 2]);
 
         $this->connection->insert('tile_glm_tile_activation_bonus_glm',
@@ -1049,8 +1049,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 33, 'help_id' => null,
-                'card_id' => null, 'type' => GlenmoreParameters::$TILE_TYPE_BROWN,
-                'name' => GlenmoreParameters::$TILE_NAME_TAVERN, 'containing_river' => 0,
+                'card_id' => null, 'type' => GlenmoreParameters::TILE_TYPE_BROWN,
+                'name' => GlenmoreParameters::TILE_NAME_TAVERN, 'containing_river' => 0,
                 'containing_road' => 0, 'level' => 2]);
 
         $this->connection->insert('tile_glm_tile_activation_bonus_glm',
@@ -1062,6 +1062,10 @@ final class VersionGLENMORE_DATA extends AbstractMigration
         );
 
         // Insertion of tile 34
+
+        $this->connection->insert('tile_buy_cost_glm',
+            ['id' => 49, 'help_id' => null, 'resource_id' => 1, 'price' => 1]
+        );
 
         $this->connection->insert('tile_activation_bonus_glm',
             ['id' => 39, 'help_id' => null, 'resource_id' => 10, 'amount' => 5]
@@ -1077,8 +1081,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 34, 'help_id' => null,
-                'card_id' => null, 'type' => GlenmoreParameters::$TILE_TYPE_BROWN,
-                'name' => GlenmoreParameters::$TILE_NAME_BUTCHER, 'containing_river' => 0,
+                'card_id' => null, 'type' => GlenmoreParameters::TILE_TYPE_BROWN,
+                'name' => GlenmoreParameters::TILE_NAME_BUTCHER, 'containing_river' => 0,
                 'containing_road' => 0, 'level' => 2]);
 
         $this->connection->insert('tile_glm_tile_activation_bonus_glm',
@@ -1093,12 +1097,16 @@ final class VersionGLENMORE_DATA extends AbstractMigration
             ['tile_glm_id' => 34, 'tile_activation_cost_glm_id' => 14]
         );
 
+        $this->connection->insert('tile_glm_tile_buy_cost_glm',
+            ['tile_glm_id' => 34, 'tile_buy_cost_glm_id' => 49]
+        );
+
         // Insertion of tile 35
 
         $this->connection->insert('tile_glm',
             ['id' => 35, 'help_id' => null,
-                'card_id' => 5, 'type' => GlenmoreParameters::$TILE_TYPE_BLUE,
-                'name' => GlenmoreParameters::$CARD_LOCH_MORAR, 'containing_river' => 1,
+                'card_id' => 5, 'type' => GlenmoreParameters::TILE_TYPE_BLUE,
+                'name' => GlenmoreParameters::CARD_LOCH_MORAR, 'containing_river' => 1,
                 'containing_road' => 0, 'level' => 2]);
 
         // Insertion of tile 36
@@ -1121,8 +1129,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 36, 'help_id' => null,
-                'card_id' => null, 'type' => GlenmoreParameters::$TILE_TYPE_YELLOW,
-                'name' => GlenmoreParameters::$TILE_NAME_DISTILLERY, 'containing_river' => 0,
+                'card_id' => null, 'type' => GlenmoreParameters::TILE_TYPE_YELLOW,
+                'name' => GlenmoreParameters::TILE_NAME_DISTILLERY, 'containing_river' => 0,
                 'containing_road' => 0, 'level' => 2]);
 
         $this->connection->insert('tile_glm_tile_buy_cost_glm',
@@ -1149,8 +1157,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 37, 'help_id' => null,
-                'card_id' => 6, 'type' => GlenmoreParameters::$TILE_TYPE_BLUE,
-                'name' => GlenmoreParameters::$CARD_LOCH_NESS, 'containing_river' => 1,
+                'card_id' => 6, 'type' => GlenmoreParameters::TILE_TYPE_BLUE,
+                'name' => GlenmoreParameters::CARD_LOCH_NESS, 'containing_river' => 1,
                 'containing_road' => 0, 'level' => 2]);
 
         $this->connection->insert('tile_glm_tile_buy_cost_glm',
@@ -1182,8 +1190,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 38, 'help_id' => null,
-                'card_id' => 1, 'type' => GlenmoreParameters::$TILE_TYPE_CASTLE,
-                'name' => GlenmoreParameters::$CARD_CASTLE_OF_MEY, 'containing_river' => 0,
+                'card_id' => 1, 'type' => GlenmoreParameters::TILE_TYPE_CASTLE,
+                'name' => GlenmoreParameters::CARD_CASTLE_OF_MEY, 'containing_river' => 0,
                 'containing_road' => 0, 'level' => 2]);
 
         $this->connection->insert('tile_glm_tile_buy_cost_glm',
@@ -1214,8 +1222,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 39, 'help_id' => null,
-                'card_id' => null, 'type' => GlenmoreParameters::$TILE_TYPE_GREEN,
-                'name' => GlenmoreParameters::$TILE_NAME_CATTLE, 'containing_river' => 0,
+                'card_id' => null, 'type' => GlenmoreParameters::TILE_TYPE_GREEN,
+                'name' => GlenmoreParameters::TILE_NAME_CATTLE, 'containing_river' => 0,
                 'containing_road' => 1, 'level' => 2]);
 
         $this->connection->insert('tile_glm_tile_activation_bonus_glm',
@@ -1230,8 +1238,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 40, 'help_id' => null,
-                'card_id' => null, 'type' => GlenmoreParameters::$TILE_TYPE_YELLOW,
-                'name' => GlenmoreParameters::$TILE_NAME_FOREST, 'containing_river' => 0,
+                'card_id' => null, 'type' => GlenmoreParameters::TILE_TYPE_YELLOW,
+                'name' => GlenmoreParameters::TILE_NAME_FOREST, 'containing_river' => 0,
                 'containing_road' => 1, 'level' => 2]);
 
         $this->connection->insert('tile_glm_tile_activation_bonus_glm',
@@ -1254,8 +1262,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 41, 'help_id' => null,
-                'card_id' => null, 'type' => GlenmoreParameters::$TILE_TYPE_VILLAGE,
-                'name' => GlenmoreParameters::$TILE_NAME_VILLAGE, 'containing_river' => 0,
+                'card_id' => null, 'type' => GlenmoreParameters::TILE_TYPE_VILLAGE,
+                'name' => GlenmoreParameters::TILE_NAME_VILLAGE, 'containing_river' => 0,
                 'containing_road' => 1, 'level' => 2]);
 
         $this->connection->insert('tile_glm_tile_activation_bonus_glm',
@@ -1282,8 +1290,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 42, 'help_id' => null,
-                'card_id' => null, 'type' => GlenmoreParameters::$TILE_TYPE_BROWN,
-                'name' => GlenmoreParameters::$TILE_NAME_TAVERN, 'containing_river' => 0,
+                'card_id' => null, 'type' => GlenmoreParameters::TILE_TYPE_BROWN,
+                'name' => GlenmoreParameters::TILE_NAME_TAVERN, 'containing_river' => 0,
                 'containing_road' => 0, 'level' => 2]);
 
         $this->connection->insert('tile_glm_tile_activation_bonus_glm',
@@ -1318,8 +1326,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 43, 'help_id' => null,
-                'card_id' => 8, 'type' => GlenmoreParameters::$TILE_TYPE_CASTLE,
-                'name' => GlenmoreParameters::$CARD_DUART_CASTLE, 'containing_river' => 0,
+                'card_id' => 8, 'type' => GlenmoreParameters::TILE_TYPE_CASTLE,
+                'name' => GlenmoreParameters::CARD_DUART_CASTLE, 'containing_river' => 0,
                 'containing_road' => 0, 'level' => 2]);
 
         $this->connection->insert('tile_glm_tile_buy_cost_glm',
@@ -1358,8 +1366,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 44, 'help_id' => null,
-                'card_id' => null, 'type' => GlenmoreParameters::$TILE_TYPE_VILLAGE,
-                'name' => GlenmoreParameters::$TILE_NAME_VILLAGE, 'containing_river' => 1,
+                'card_id' => null, 'type' => GlenmoreParameters::TILE_TYPE_VILLAGE,
+                'name' => GlenmoreParameters::TILE_NAME_VILLAGE, 'containing_river' => 1,
                 'containing_road' => 0, 'level' => 2]);
 
         $this->connection->insert('tile_glm_tile_activation_bonus_glm',
@@ -1390,8 +1398,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 45, 'help_id' => null,
-                'card_id' => null, 'type' => GlenmoreParameters::$TILE_TYPE_VILLAGE,
-                'name' => GlenmoreParameters::$TILE_NAME_VILLAGE, 'containing_river' => 0,
+                'card_id' => null, 'type' => GlenmoreParameters::TILE_TYPE_VILLAGE,
+                'name' => GlenmoreParameters::TILE_NAME_VILLAGE, 'containing_river' => 0,
                 'containing_road' => 0, 'level' => 2]);
 
         $this->connection->insert('tile_glm_tile_activation_bonus_glm',
@@ -1414,8 +1422,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 46, 'help_id' => null,
-                'card_id' => null, 'type' => GlenmoreParameters::$TILE_TYPE_GREEN,
-                'name' => GlenmoreParameters::$TILE_NAME_FIELD, 'containing_river' => 0,
+                'card_id' => null, 'type' => GlenmoreParameters::TILE_TYPE_GREEN,
+                'name' => GlenmoreParameters::TILE_NAME_FIELD, 'containing_river' => 0,
                 'containing_road' => 0, 'level' => 2]);
 
         $this->connection->insert('tile_glm_tile_activation_bonus_glm',
@@ -1430,8 +1438,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 47, 'help_id' => null,
-                'card_id' => null, 'type' => GlenmoreParameters::$TILE_TYPE_GREEN,
-                'name' => GlenmoreParameters::$TILE_NAME_FIELD, 'containing_river' => 0,
+                'card_id' => null, 'type' => GlenmoreParameters::TILE_TYPE_GREEN,
+                'name' => GlenmoreParameters::TILE_NAME_FIELD, 'containing_river' => 0,
                 'containing_road' => 0, 'level' => 2]);
 
         $this->connection->insert('tile_glm_tile_activation_bonus_glm',
@@ -1458,8 +1466,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 48, 'help_id' => null,
-                'card_id' => 7, 'type' => GlenmoreParameters::$TILE_TYPE_YELLOW,
-                'name' => GlenmoreParameters::$CARD_IONA_ABBEY, 'containing_river' => 0,
+                'card_id' => 7, 'type' => GlenmoreParameters::TILE_TYPE_YELLOW,
+                'name' => GlenmoreParameters::CARD_IONA_ABBEY, 'containing_river' => 0,
                 'containing_road' => 1, 'level' => 2]);
 
         $this->connection->insert('tile_glm_tile_buy_cost_glm',
@@ -1518,8 +1526,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 49, 'help_id' => null,
-                'card_id' => null, 'type' => GlenmoreParameters::$TILE_TYPE_BROWN,
-                'name' => GlenmoreParameters::$TILE_NAME_FAIR, 'containing_river' => 0,
+                'card_id' => null, 'type' => GlenmoreParameters::TILE_TYPE_BROWN,
+                'name' => GlenmoreParameters::TILE_NAME_FAIR, 'containing_river' => 0,
                 'containing_road' => 1, 'level' => 2]);
 
         $this->connection->insert('tile_glm_tile_activation_bonus_glm',
@@ -1566,8 +1574,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 50, 'help_id' => null,
-                'card_id' => null, 'type' => GlenmoreParameters::$TILE_TYPE_GREEN,
-                'name' => GlenmoreParameters::$TILE_NAME_PASTURE, 'containing_river' => 1,
+                'card_id' => null, 'type' => GlenmoreParameters::TILE_TYPE_GREEN,
+                'name' => GlenmoreParameters::TILE_NAME_PASTURE, 'containing_river' => 1,
                 'containing_road' => 0, 'level' => 2]);
 
         $this->connection->insert('tile_glm_tile_activation_bonus_glm',
@@ -1600,8 +1608,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 51, 'help_id' => null,
-                'card_id' => 4, 'type' => GlenmoreParameters::$TILE_TYPE_CASTLE,
-                'name' => GlenmoreParameters::$CARD_CAWDOR_CASTLE, 'containing_river' => 0,
+                'card_id' => 4, 'type' => GlenmoreParameters::TILE_TYPE_CASTLE,
+                'name' => GlenmoreParameters::CARD_CAWDOR_CASTLE, 'containing_river' => 0,
                 'containing_road' => 0, 'level' => 3]);
 
         $this->connection->insert('tile_glm_tile_buy_cost_glm',
@@ -1628,8 +1636,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 52, 'help_id' => null,
-                'card_id' => 10, 'type' => GlenmoreParameters::$TILE_TYPE_CASTLE,
-                'name' => GlenmoreParameters::$CARD_LOCH_SHIEL, 'containing_river' => 1,
+                'card_id' => 10, 'type' => GlenmoreParameters::TILE_TYPE_CASTLE,
+                'name' => GlenmoreParameters::CARD_LOCH_SHIEL, 'containing_river' => 1,
                 'containing_road' => 0, 'level' => 3]);
 
         // Insertion of tile 53
@@ -1640,8 +1648,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 53, 'help_id' => null,
-                'card_id' => null, 'type' => GlenmoreParameters::$TILE_TYPE_YELLOW,
-                'name' => GlenmoreParameters::$TILE_NAME_FOREST, 'containing_river' => 0,
+                'card_id' => null, 'type' => GlenmoreParameters::TILE_TYPE_YELLOW,
+                'name' => GlenmoreParameters::TILE_NAME_FOREST, 'containing_river' => 0,
                 'containing_road' => 0, 'level' => 3]);
 
         $this->connection->insert('tile_glm_tile_activation_bonus_glm',
@@ -1656,8 +1664,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 54, 'help_id' => null,
-                'card_id' => null, 'type' => GlenmoreParameters::$TILE_TYPE_GREEN,
-                'name' => GlenmoreParameters::$TILE_NAME_FOREST, 'containing_river' => 0,
+                'card_id' => null, 'type' => GlenmoreParameters::TILE_TYPE_GREEN,
+                'name' => GlenmoreParameters::TILE_NAME_FOREST, 'containing_river' => 0,
                 'containing_road' => 0, 'level' => 3]);
 
         $this->connection->insert('tile_glm_tile_activation_bonus_glm',
@@ -1712,9 +1720,9 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 55, 'help_id' => null,
-                'card_id' => null, 'type' => GlenmoreParameters::$TILE_TYPE_BROWN,
-                'name' => GlenmoreParameters::$TILE_NAME_FAIR, 'containing_river' => 0,
-                'containing_road' => 0, 'level' => 3]);
+                'card_id' => null, 'type' => GlenmoreParameters::TILE_TYPE_BROWN,
+                'name' => GlenmoreParameters::TILE_NAME_FAIR, 'containing_river' => 0,
+                'containing_road' => 1, 'level' => 3]);
 
         $this->connection->insert('tile_glm_tile_activation_bonus_glm',
             ['tile_glm_id' => 55, 'tile_activation_bonus_glm_id' => 60]
@@ -1776,8 +1784,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 56, 'help_id' => null,
-                'card_id' => null, 'type' => GlenmoreParameters::$TILE_TYPE_BROWN,
-                'name' => GlenmoreParameters::$TILE_NAME_GROCER, 'containing_river' => 0,
+                'card_id' => null, 'type' => GlenmoreParameters::TILE_TYPE_BROWN,
+                'name' => GlenmoreParameters::TILE_NAME_GROCER, 'containing_river' => 0,
                 'containing_road' => 0, 'level' => 3]);
 
         $this->connection->insert('tile_glm_tile_buy_cost_glm',
@@ -1800,8 +1808,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 57, 'help_id' => null,
-                'card_id' => null, 'type' => GlenmoreParameters::$TILE_TYPE_GREEN,
-                'name' => GlenmoreParameters::$TILE_NAME_PASTURE, 'containing_river' => 0,
+                'card_id' => null, 'type' => GlenmoreParameters::TILE_TYPE_GREEN,
+                'name' => GlenmoreParameters::TILE_NAME_PASTURE, 'containing_river' => 0,
                 'containing_road' => 0, 'level' => 3]);
 
         $this->connection->insert('tile_glm_tile_activation_bonus_glm',
@@ -1824,8 +1832,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 58, 'help_id' => null,
-                'card_id' => null, 'type' => GlenmoreParameters::$TILE_TYPE_VILLAGE,
-                'name' => GlenmoreParameters::$TILE_NAME_VILLAGE, 'containing_river' => 1,
+                'card_id' => null, 'type' => GlenmoreParameters::TILE_TYPE_VILLAGE,
+                'name' => GlenmoreParameters::TILE_NAME_VILLAGE, 'containing_river' => 1,
                 'containing_road' => 0, 'level' => 3]);
 
         $this->connection->insert('tile_glm_tile_activation_bonus_glm',
@@ -1860,8 +1868,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 59, 'help_id' => null,
-                'card_id' => null, 'type' => GlenmoreParameters::$TILE_TYPE_YELLOW,
-                'name' => GlenmoreParameters::$TILE_NAME_DISTILLERY, 'containing_river' => 0,
+                'card_id' => null, 'type' => GlenmoreParameters::TILE_TYPE_YELLOW,
+                'name' => GlenmoreParameters::TILE_NAME_DISTILLERY, 'containing_river' => 0,
                 'containing_road' => 1, 'level' => 3]);
 
         $this->connection->insert('tile_glm_tile_buy_cost_glm',
@@ -1888,8 +1896,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 60, 'help_id' => null,
-                'card_id' => 12, 'type' => GlenmoreParameters::$TILE_TYPE_BLUE,
-                'name' => GlenmoreParameters::$CARD_LOCH_OICH, 'containing_river' => 1,
+                'card_id' => 12, 'type' => GlenmoreParameters::TILE_TYPE_BLUE,
+                'name' => GlenmoreParameters::CARD_LOCH_OICH, 'containing_river' => 1,
                 'containing_road' => 0, 'level' => 3]);
 
         $this->connection->insert('tile_glm_tile_buy_cost_glm',
@@ -1912,8 +1920,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 61, 'help_id' => null,
-                'card_id' => null, 'type' => GlenmoreParameters::$TILE_TYPE_VILLAGE,
-                'name' => GlenmoreParameters::$TILE_NAME_VILLAGE, 'containing_river' => 0,
+                'card_id' => null, 'type' => GlenmoreParameters::TILE_TYPE_VILLAGE,
+                'name' => GlenmoreParameters::TILE_NAME_VILLAGE, 'containing_river' => 0,
                 'containing_road' => 1, 'level' => 3]);
 
         $this->connection->insert('tile_glm_tile_activation_bonus_glm',
@@ -1944,8 +1952,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 62, 'help_id' => null,
-                'card_id' => null, 'type' => GlenmoreParameters::$TILE_TYPE_VILLAGE,
-                'name' => GlenmoreParameters::$TILE_NAME_VILLAGE, 'containing_river' => 0,
+                'card_id' => null, 'type' => GlenmoreParameters::TILE_TYPE_VILLAGE,
+                'name' => GlenmoreParameters::TILE_NAME_VILLAGE, 'containing_river' => 0,
                 'containing_road' => 0, 'level' => 3]);
 
         $this->connection->insert('tile_glm_tile_activation_bonus_glm',
@@ -1972,8 +1980,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 63, 'help_id' => null,
-                'card_id' => null, 'type' => GlenmoreParameters::$TILE_TYPE_BROWN,
-                'name' => GlenmoreParameters::$TILE_NAME_TAVERN, 'containing_river' => 0,
+                'card_id' => null, 'type' => GlenmoreParameters::TILE_TYPE_BROWN,
+                'name' => GlenmoreParameters::TILE_NAME_TAVERN, 'containing_river' => 0,
                 'containing_road' => 0, 'level' => 3]);
 
         $this->connection->insert('tile_glm_tile_activation_bonus_glm',
@@ -2008,8 +2016,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 64, 'help_id' => null,
-                'card_id' => 11, 'type' => GlenmoreParameters::$TILE_TYPE_CASTLE,
-                'name' => GlenmoreParameters::$CARD_DONAN_CASTLE, 'containing_river' => 0,
+                'card_id' => 11, 'type' => GlenmoreParameters::TILE_TYPE_CASTLE,
+                'name' => GlenmoreParameters::CARD_DONAN_CASTLE, 'containing_river' => 0,
                 'containing_road' => 1, 'level' => 3]);
 
         $this->connection->insert('tile_glm_tile_buy_cost_glm',
@@ -2040,8 +2048,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 65, 'help_id' => null,
-                'card_id' => null, 'type' => GlenmoreParameters::$TILE_TYPE_GREEN,
-                'name' => GlenmoreParameters::$TILE_NAME_CATTLE, 'containing_river' => 0,
+                'card_id' => null, 'type' => GlenmoreParameters::TILE_TYPE_GREEN,
+                'name' => GlenmoreParameters::TILE_NAME_CATTLE, 'containing_river' => 0,
                 'containing_road' => 0, 'level' => 3]);
 
         $this->connection->insert('tile_glm_tile_activation_bonus_glm',
@@ -2065,8 +2073,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 66, 'help_id' => null,
-                'card_id' => null, 'type' => GlenmoreParameters::$TILE_TYPE_BROWN,
-                'name' => GlenmoreParameters::$TILE_NAME_BRIDGE, 'containing_river' => 1,
+                'card_id' => null, 'type' => GlenmoreParameters::TILE_TYPE_BROWN,
+                'name' => GlenmoreParameters::TILE_NAME_BRIDGE, 'containing_river' => 1,
                 'containing_road' => 0, 'level' => 3]);
 
         $this->connection->insert('tile_glm_tile_activation_bonus_glm',
@@ -2089,8 +2097,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
         $this->connection->insert('tile_glm',
             ['id' => 67, 'help_id' => null,
-                'card_id' => null, 'type' => GlenmoreParameters::$TILE_TYPE_YELLOW,
-                'name' => GlenmoreParameters::$TILE_NAME_QUARRY, 'containing_river' => 0,
+                'card_id' => null, 'type' => GlenmoreParameters::TILE_TYPE_YELLOW,
+                'name' => GlenmoreParameters::TILE_NAME_QUARRY, 'containing_river' => 0,
                 'containing_road' => 1, 'level' => 3]);
 
         $this->connection->insert('tile_glm_tile_activation_bonus_glm',
@@ -2113,8 +2121,8 @@ final class VersionGLENMORE_DATA extends AbstractMigration
 
             $this->connection->insert('tile_glm',
                 ['id' => $i, 'help_id' => null,
-                    'card_id' => null, 'type' => GlenmoreParameters::$TILE_TYPE_VILLAGE,
-                    'name' => GlenmoreParameters::$TILE_NAME_START_VILLAGE, 'containing_river' => 1,
+                    'card_id' => null, 'type' => GlenmoreParameters::TILE_TYPE_VILLAGE,
+                    'name' => GlenmoreParameters::TILE_NAME_START_VILLAGE, 'containing_river' => 1,
                     'containing_road' => 1, 'level' => -1]);
 
             $this->connection->insert('tile_glm_tile_activation_bonus_glm',

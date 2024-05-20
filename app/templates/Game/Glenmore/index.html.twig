@@ -3,41 +3,226 @@
 {% block title %}Agora - Glenmore{% endblock %}
 
 {% block body %}
-    <div class="h-screen w-screen overflow-hidden absolute" {{ stimulus_controller('glenmore') }}>
-        <div id="index_splendor" class="h-full w-full overflow-hidden">
-            {% block nav %}
-                {{ include('/Game/Utils/navigation.html.twig') }}
-            {% endblock %}
-            {% block endGame %}
-                    {{ include('/Game/Glenmore/endGameScreenResult.html.twig') }}
-            {% endblock %}
-            {% block ranking %}
-            <div id="ranking" class="absolute bg-gradient-to-b from-[#4C6E9Bff] to-[#20222Dff] w-[25%] h-full right-0">
-                {{  include('/Game/Glenmore/Ranking/ranking.html.twig') }}
-            </div>
-            {% endblock %}
-                <div id="mainBoard" class="flow float-start w-[75%]
-                        {% if isSpectator %}h-full pb-3{% else %}h-[84%]{% endif %}">
-                    {{ include('/Game/Glenmore/MainBoard/mainBoard.html.twig') }}
-                </div>
-            {% block personalBoard %}
-                {% if not isSpectator %}
-                <div class="flex bg-[#20222Dff] h-[16%] w-[75%] float-bottom-0" id="personalBoard">
-                    {{ include('/Game/Glenmore/PersonalBoard/personalBoard.html.twig') }}
-                </div>
-                {% endif %}
-            {% endblock %}
-        </div>
-    </div>
-    <script>
-        {% if needToPlay %}
-        alert("A toi de jouer ! ");
-        {% endif %}
-    </script>
-    <script>
-        function closeWindow() {
-            let window = document.getElementById('selectedCardActions'); //TODO: close personal board or main board
+	<div class="h-screen w-screen overflow-hidden absolute" {{ stimulus_controller('glenmore') }}>
+		<div id="index_glenmore" class="h-full w-full static overflow-hidden">
+			<div id="animationContainer" class="absolute top-0 left-0 w-full h-full bg-black bg-opacity-0 z-50"></div>
+			{% block playerRound %}
+				<div id="playerRoundManagement" class="absolute bg-gradient-to-b absolute from-[#09090b] to-[#14532d]
+                                     flex justify-center items-center
+                                     w-[70%] h-[10%]">
+					{{ include('Game/Glenmore/MainBoard/playerRoundManagement.html.twig') }}
+				</div>
+			{% endblock %}
+			{% block nav %}
+				{{ include('/Game/Utils/navigation.html.twig') }}
+			{% endblock %}
+			{% block endGame %}
+				{{ include('/Game/Glenmore/endGameScreenResult.html.twig') }}
+			{% endblock %}
+			{% block ranking %}
+				<div id="ranking"
+				     class="absolute bg-gradient-to-b from-[#ca8a04] to-[#052e16] w-[30%] h-[75%] top-0 right-0">
+					{{ include('/Game/Glenmore/Ranking/ranking.html.twig') }}
+				</div>
+			{% endblock %}
+			{% block previewMainBoard %}
+				<div id="preview"
+				     class="absolute bottom-0 pb-3 flex justify-around items-center
+                     bg-gradient-to-b from-[#052e16] to-[#09090b] w-[30%] h-[25%] right-0 bottom-0 ">
+					{{ include('/Game/Glenmore/MainBoard/preview.html.twig') }}
+				</div>
+			{% endblock %}
+			{% block personalBoard %}
+				{% if not isSpectator %}
+					<div id="personalBoard" class="absolute bg-gradient-to-r from-[#422006] to-[#ca8a04]
+													bottom-0 pb-6 w-[70%] h-[90%]"
+					>
+						{{ include('/Game/Glenmore/PersonalBoard/personalBoard.html.twig') }}
+					</div>
+					<div id="playerPersonalBoard" class="flow float-start w-[70%] h-[5/6]"></div>
+				{% endif %}
+			{% endblock %}
+			{% block notification %}
+				<div id="notificationsContainer"
+					 class="absolute space-y-2 landscape:sm:w-[27%] portrait:w-[30%] landscape:lg:w-[20%]
+					 		top-0 right-0 ">
+				</div>
+				{{ include('/Game/Utils/notification.html.twig') }}
+			{% endblock %}
+		</div>
+	</div>
+	<script>
+		document.addEventListener('DOMContentLoaded', () => {
+			{% if needToPlay %}
+			new GameNotification(10, 'C\'est votre tour !', 'Jouez votre meilleur coup !', 'ringing', 'yellow');
+			{% else %}
+			new GameNotification(5, 'C\'est au tour d\'un autre joueur !', '', 'info', 'green');
+			{% endif %}
+		})
+	</script>
+	<script>
+		function closePropertyCardsDisplayWindow() {
+			let window = document.getElementById('propertyCardsDisplay');
+			window.remove();
+		}
+
+		function closeSelectedTileWindow() {
+			let window = document.getElementById('selectedTileActions');
+			window.remove();
+		}
+        function closeSelectedWarehouseResource() {
+            let window = document.getElementById('selectedWarehouseResource');
             window.remove();
         }
-    </script>
+	</script>
+	{# MAIN BOARD CLOSURE MANAGEMENT #}
+	<script>
+		function closeWindow() {
+			let window = document.getElementById('mainBoard');
+			window.remove();
+		}
+	</script>
+	{# ANIMATION MANAGEMENT #}
+	<script type="text/javascript" src="{{ asset('resourcesGames/utils/ingameNotification.js') }}"></script>
+	<script type="text/javascript" src="{{ asset('resourcesGames/utils/animationQueue.js') }}"></script>
+	<script type="text/javascript" src="{{ asset('resourcesGames/Glenmore/animation.js') }}"></script>
+	{# NOTIFICATION POPUP MANAGEMENT #}
+	<script>
+
+		{% if isSpectator %}
+			{% set path = path('app_game_show_glm', {'id': game.id}) ~ 'notification' %}
+		{% else %}
+			{% set path = path('app_game_show_glm', {'id': game.id}) ~ 'notification' ~ player.username %}
+		{% endif %}
+		const eventSourceNotification = new EventSource("{{ mercure(path)|escape('js') }}");
+		eventSourceNotification.onmessage = event => {
+			animationQueue.addToQueue(() => {
+				let data = event.data.split('_');
+				if (data.length >= 5 ) {
+					new GameNotification(Number(data[0]), data[1], data[2], data[3], data[4]);
+				}
+				animationQueue.executeNextInQueue();
+			})
+		}
+	</script>
+
+	{# NOTIFICATION MANAGEMENT #}
+	<script>
+		{% set path = path('app_game_show_glm', {'id': game.id}) ~ 'mainBoardPreview' ~ player.id %}
+		const eventSourceMainBoardPreview = new EventSource("{{ mercure(path)|escape('js') }}");
+		eventSourceMainBoardPreview.onmessage = event => {
+			animationQueue.addToQueue(() => {
+				let mainBoard = document.getElementById('preview');
+				mainBoard.innerHTML = event.data;
+				setTimeout(() => animationQueue.executeNextInQueue(), 100)
+			})
+		}
+
+		{% set path = path('app_game_show_glm', {'id': game.id}) ~ 'personalBoard' ~ player.id %}
+		const eventSourcePersonalBoard = new EventSource("{{ mercure(path)|escape('js') }}");
+		eventSourcePersonalBoard.onmessage = event => {
+			animationQueue.addToQueue(() => {
+				let personalBoard = document.getElementById('personalBoard');
+				personalBoard.innerHTML = event.data;
+				setTimeout(() => animationQueue.executeNextInQueue(), 100)
+			})
+		}
+
+		{% set path = path('app_game_show_glm', {'id': game.id}) ~ 'ranking' ~ player.id %}
+		const eventSourceRanking = new EventSource("{{ mercure(path)|escape('js') }}");
+		eventSourceRanking.onmessage = event => {
+			animationQueue.addToQueue(() => {
+				let ranking = document.getElementById('ranking');
+				ranking.innerHTML = event.data;
+				setTimeout(() => animationQueue.executeNextInQueue(), 100)
+			})
+		}
+
+		{% set path = path('app_game_show_glm', {'id': game.id}) ~ 'playerRoundManagement' ~ player.id %}
+		const eventSourcePlayerRoundManagement = new EventSource("{{ mercure(path)|escape('js') }}");
+		eventSourcePlayerRoundManagement .onmessage = event => {
+			animationQueue.addToQueue(() => {
+				let playerRoundManagement = document.getElementById('playerRoundManagement');
+				playerRoundManagement.innerHTML = event.data;
+				setTimeout(() => animationQueue.executeNextInQueue(), 100)
+			})
+		}
+
+		{% set path = path('app_game_show_glm', {'id': game.id}) ~ 'mainBoard' ~ player.id %}
+		const eventSourceMainBoard = new EventSource("{{ mercure(path)|escape('js') }}");
+		eventSourceMainBoard .onmessage = event => {
+			animationQueue.addToQueue(() => {
+				let mainBoard = document.getElementById('mainBoard');
+				if (mainBoard != null) {
+					mainBoard.innerHTML = event.data;
+					setTimeout(() => animationQueue.executeNextInQueue(), 100)
+				} else {
+					animationQueue.executeNextInQueue()
+				}
+			})
+		}
+        {% set path = path('app_game_show_glm', {'id': game.id}) ~ 'createResource' ~ player.id %}
+        const createResource = new EventSource("{{ mercure(path)|escape('js') }}");
+        createResource .onmessage = event => {
+	        animationQueue.addToQueue(() => {
+		        let createResource = document.getElementById('selectedTileActions');
+		        createResource.innerHTML = event.data;
+		        setTimeout(() => animationQueue.executeNextInQueue(), 100)
+	        })
+        }
+		{% set path = path('app_game_show_glm', {'id': game.id}) ~ 'selectResource' ~ player.id %}
+		const selectResource = new EventSource("{{ mercure(path)|escape('js') }}");
+		selectResource .onmessage = event => {
+			animationQueue.addToQueue(() => {
+				let selectResource = document.getElementById('selectedTileActions');
+				let div = document.createElement("div")
+				div.innerHTML = event.data
+				selectResource.innerHTML = div.firstElementChild.innerHTML;
+				setTimeout(() => animationQueue.executeNextInQueue(), 100)
+			})
+		}
+	</script>
+
+
+	{# VILLAGER MOVEMENT ANIMATION MANAGEMENT #}
+	<script>
+		{% set path = path('app_game_show_glm', {'id': game.id}) ~ 'animVillagerMovement' ~ player.id %}
+		const eventSourceVillagerMovement = new EventSource("{{ mercure(path)|escape('js') }}");
+		eventSourceVillagerMovement.onmessage = event => {
+			animationQueue.addToQueue(() => {
+				let originTileId = event.data.split('_')[0];
+				let tileTargetedId = event.data.split('_')[1];
+				console.log(event.data);
+				moveVillagerOnPersonnalBoard("{{ player.id }}", originTileId, tileTargetedId).then(() => animationQueue.executeNextInQueue());
+			})
+		}
+	</script>
+
+	{# END OF GAME MANAGEMENT #}
+	<script>
+
+		{% set path = path('app_game_show_glm', {'id': game.id}) ~ 'endOfGame' %}
+		const eventSourceEndOfGame = new EventSource("{{ mercure(path)|escape('js') }}");
+		eventSourceEndOfGame.onmessage = event => {
+			animationQueue.addToQueue(() => {
+				gameFinished(event.data, "{{ not isSpectator ? player.username }}")
+			})
+		}
+
+		{% if isGameFinished %}
+		{% set winner = null %}
+		{# Arbitrary value impossible to reach  #}
+		{% set winnerScore = 0 %}
+		{% for player in game.players %}
+			{% if player.score > winnerScore %}
+				{% set winnerScore = player.score %}
+				{% set winner = player.username %}
+			{% elseif player.score == winnerScore %}
+				{% set winner = null %}
+			{% endif %}
+		{% endfor %}
+		gameFinished("{{ winner }}", "{{ not isSpectator ? player.username }}")
+		{% endif %}
+
+	</script>
 {% endblock %}

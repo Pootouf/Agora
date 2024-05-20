@@ -1,0 +1,59 @@
+@import "hex.css";
+@import "birthTrack.css";
+
+.inlineFlex {
+    @apply inline-flex align-middle justify-center;
+}
+
+.inlineFlexCol {
+    @apply inline-flex align-middle justify-center flex-col;
+}
+
+.text2-4 {
+    @apply font-extrabold text-white text-2xl lg:text-4xl
+    text-center tracking-normal whitespace-nowrap;
+}
+
+.text3-4 {
+    @apply font-extrabold text-white text-3xl lg:text-4xl
+    text-center tracking-normal whitespace-nowrap;
+}
+
+.text1-4 {
+    @apply font-extrabold text-white text-xl lg:text-4xl
+    text-center tracking-normal whitespace-nowrap;
+}
+
+.text3-5 {
+    @apply font-extrabold text-white text-3xl lg:text-5xl
+    text-center tracking-normal whitespace-nowrap;
+}
+
+.text1-3 {
+    @apply font-extrabold text-white text-xl lg:text-3xl
+    text-center tracking-normal whitespace-nowrap;
+}
+
+
+
+
+.text_mini {
+    @apply font-extrabold text-white text-xs
+    text-center tracking-normal whitespace-nowrap;
+}
+
+@keyframes blink {
+    50% { color: white; border-color: white; background-color: white; }
+}
+
+.linkedTilePlacement {
+    animation: blink 2s infinite;
+}
+
+.selectedTilePlacement {
+    color: white; border-color: white; background-color: white;
+}
+
+.selectedPheromoneTile div svg polygon {
+    fill: #ffffff;
+}

@@ -9,7 +9,6 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: PawnGLMRepository::class)]
 class PawnGLM extends Pawn
 {
-
     #[ORM\Column]
     private ?int $position = null;
 
@@ -19,6 +18,9 @@ class PawnGLM extends Pawn
     #[ORM\ManyToOne(inversedBy: 'pawns')]
     #[ORM\JoinColumn(nullable: false)]
     private ?MainBoardGLM $mainBoardGLM = null;
+
+    #[ORM\Column]
+    private ?bool $dice = false;
 
     public function getPosition(): ?int
     {
@@ -57,6 +59,18 @@ class PawnGLM extends Pawn
     public function setMainBoardGLM(?MainBoardGLM $mainBoardGLM): static
     {
         $this->mainBoardGLM = $mainBoardGLM;
+
+        return $this;
+    }
+
+    public function isDice(): ?bool
+    {
+        return $this->dice;
+    }
+
+    public function setDice(bool $dice): static
+    {
+        $this->dice = $dice;
 
         return $this;
     }

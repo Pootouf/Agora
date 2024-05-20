@@ -24,7 +24,7 @@ class CardCostSPLTest extends TestCase
     public function testSetColor(): void
     {
         //GIVEN
-        $color = SplendorParameters::$COLOR_BLACK;
+        $color = SplendorParameters::COLOR_BLACK;
         //WHEN
         $this->cardCostSPL->setColor($color);
         //THEN

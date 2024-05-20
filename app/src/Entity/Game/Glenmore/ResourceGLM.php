@@ -9,7 +9,6 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: ResourceGLMRepository::class)]
 class ResourceGLM extends Component
 {
-
     #[ORM\Column(length: 255)]
     private ?string $type = null;
 

@@ -77,16 +77,16 @@ class GameController extends AbstractController
             return $this->redirectToRoute('app_dashboard_games');
         }
         $user = $security->getUser();
-        if ($user){
-//            Add game as favorite game
-            if(!$user->getFavoriteGames()->contains($game)){
+        if ($user) {
+            //            Add game as favorite game
+            if(!$user->getFavoriteGames()->contains($game)) {
                 $user->addFavoriteGame($game);
                 $entityManager->flush();
                 $this->addFlash('success', 'Le jeu '. $game->getLabel() . ' a été ajouté à vos favoris.');
-            }else{
+            } else {
                 $this->addFlash('warning', 'Le jeu '. $game->getLabel() . ' a déja été ajouté à vos favoris.');
             }
-        }else{
+        } else {
             $this->addFlash('warning', 'Le joueur n\'est pas connecté.');
         }
 
@@ -98,12 +98,12 @@ class GameController extends AbstractController
     {
         $gameRepository = $entityManager->getRepository(Game::class);
         $game = $gameRepository->find($game_id);
-    
+
         if (!$game) {
             $this->addFlash('warning', 'Le jeu n\'existe pas');
             return $this->redirectToRoute('app_dashboard_games');
         }
-    
+
         $user = $security->getUser();
         if ($user) {
             // Remove the game from the user's favorite games
@@ -117,7 +117,7 @@ class GameController extends AbstractController
         } else {
             $this->addFlash('warning', 'Le joueur n\'est pas connecté.');
         }
-    
+
         return $this->redirectToRoute('app_dashboard_games');
     }
 

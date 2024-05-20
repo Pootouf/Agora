@@ -12,7 +12,6 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class BoardManagerService
 {
-
     private GameManagerService $gameManagerService;
 
     //Success return code
@@ -28,8 +27,7 @@ class BoardManagerService
         GameManagerService $gameManagerService,
         EntityManagerInterface $entityManagerInterface,
         notificationService $notificationService
-    )
-    {
+    ) {
         $this->gameManagerService = $gameManagerService;
         $this->entityManagerInterface = $entityManagerInterface;
         $this->notificationService = $notificationService;
@@ -37,7 +35,7 @@ class BoardManagerService
 
 
     //Set up all informations which didn't come from the form
-    public function setUpBoard(Board $board, Game $game):int
+    public function setUpBoard(Board $board, Game $game): int
     {
 
         $actualDate = new \DateTime();
@@ -68,18 +66,18 @@ class BoardManagerService
 
     // Add $user to the board, and to the game
     // Precondition : $board->isFull() == false
-    public function addUserToBoard(Board $board, User $user):int
+    public function addUserToBoard(Board $board, User $user): int
     {
-        $this->gameManagerService->joinGame($board->getPartyId() , $user);
+        $this->gameManagerService->joinGame($board->getPartyId(), $user);
         $board->addListUser($user);
 
         //this part manage the case where an invited user joint the table but not by using his invitation
-        if($board->getInvitedContacts()->contains($user)){
+        if($board->getInvitedContacts()->contains($user)) {
             $board->removeInvitedContact($user);
         }
 
         //If it was the last player to complete the board, launch the game
-        if($board->isFull()){
+        if($board->isFull()) {
             $board->cleanInvitationList();
             $this->gameManagerService->launchGame($board->getPartyId());
             $board->setInGame();
@@ -96,7 +94,7 @@ class BoardManagerService
     }
 
     // Remove $user from the board
-    public function removePlayerFromBoard(Board $board, User $user):int
+    public function removePlayerFromBoard(Board $board, User $user): int
     {
         $board->removeListUser($user);
         $this->gameManagerService->quitGame($board->getPartyId(), $user);

@@ -4,12 +4,80 @@
     @return : display exit button to homepage
 #}
 
-<div class="absolute p-2">
-	<a href="{{ path('app_home') }}">
-		<svg width="64" height="64" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd">
-			<path d="M11 21h8.033v-2l1-1v4h-9.033v2l-10-3v-18l10-3v2h9.033v5l-1-1v-3h-8.033v18zm-1 1.656v-21.312l-8
-				            2.4v16.512l8 2.4zm11.086-10.656l-3.293-3.293.707-.707 4.5 4.5-4.5 4.5-.707-.707
-				            3.293-3.293h-9.053v-1h9.053z"></path>
-		</svg>
-	</a>
-</div>
+{% set hiddenMenuStyle = "invisible block absolute z-10 mt-2 rounded-md
+                    bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none" %}
+
+<nav class="left-0 top-0 absolute bg-black p-2 z-100 rounded-r-lg" {{ stimulus_controller('gameNavigationMenu') }}>
+    <div class="container mx-auto rem-0.375 py-2 px-2 flex justify-between items-center">
+        <div class="block">
+            <button class="flex items-center rem-0.125 py-2 border rounded text-gray-500 border-gray-600 hover:text-gray-800
+                            hover:border-teal-500 appearance-none focus:outline-none"
+                    data-dropdown-toggle="dropdown"
+                    onclick="showHiddenMenu('hidden_menu')">
+                <svg class="fill-current h-3 w-3" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                    <title>Menu</title>
+                    <path d="M0 3h20v2H0V3zm0 6h20v2H0V9zm0 6h20v2H0v-2z"></path>
+                </svg>
+            </button>
+            <div id='hidden_menu' class="flex items-center justify-center left-0 origin-top-right w-[300%] {{ hiddenMenuStyle }}"
+                 role="menu"
+                 aria-orientation="vertical"
+                 aria-labelledby="menu-button" tabindex="-1">
+                <div class="py-1" role="none">
+                    <!-- Active: "bg-gray-100 text-gray-900", Not Active: "text-gray-700" -->
+                    <a href="{{ path('app_home') }}" class="text-gray-700 block px-4 py-2 text-sm"
+                       role="menuitem" tabindex="-1" id="menu-item-0">
+                        Page d'accueil
+                    </a>
+                    <button
+                            {{ stimulus_action('gameNavigationMenu', 'excludePlayer', 'click',
+                                {url: path('app_game_exclude_player',
+                                    {playerId: player.id, gameId: game.id}
+                                )}
+                            )}}
+                            class="w-full bg-red-600 text-white z-10 text-gray-700 block px-4 py-2 text-sm"
+                            role="menuitem" tabindex="-1" id="menu-item-1">
+                        Quitter la partie
+                    </button>
+                    <button class="flex items-center rem-0.125 h-full bg-red-600 text-white z-10 block px-4 text-sm"
+                            data-dropdown-toggle="dropdown"
+                            onclick="showHiddenMenu('hidden_menu_exclude')"
+                             role="menuitem" tabindex="-1" id="menu-item-1">
+                            Exclure un joueur
+                    </button>
+                    <div id="hidden_menu_exclude" class="left-[100%] h-fit w-full {{ hiddenMenuStyle }} "
+                         role="menu"
+                         aria-orientation="vertical"
+                         aria-labelledby="menu-button" tabindex="-1">
+                        {% for p in game.players %}
+                            {% if player.username != p.username %}
+                                <button
+
+                                        {{ stimulus_action('gameNavigationMenu', 'excludePlayer', 'click',
+                                            {url: path('app_game_exclude_player',
+                                                {playerId: p.id, gameId: game.id}
+                                            )}
+                                        )}}
+                                        class="w-full flex items-center bg-red-600 text-white z-10 text-gray-700 block px-4 py-2 text-sm"
+                                        role="menuitem" tabindex="-1" id="menu-item-1">
+                                        Exclure {{ p.username }}
+                                </button>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<script>
+    function showHiddenMenu(menuName) {
+        let menu = document.getElementById(menuName);
+        if(menuName === "hidden_menu" && menu.style.visibility  === 'visible') {
+            let excludeMenu = document.getElementById('hidden_menu_exclude')
+            excludeMenu.style.visibility = 'hidden'
+        }
+        menu.style.visibility = (menu.style.visibility  === 'hidden' || menu.style.visibility === '' ? 'visible' : 'hidden');
+    }
+</script>
