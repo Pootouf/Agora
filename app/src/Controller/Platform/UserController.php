@@ -157,6 +157,8 @@ public function deleteUser(int $id, SessionInterface $session): RedirectResponse
     // Déconnecter l'utilisateur en invalidant le token de sécurité
     $this->tokenStorage->setToken(null);
     $session->getFlashBag()->add('success', 'L\'utilisateur a bien été supprimé.');
+
+
     return $this->redirectToRoute('app_home');
 }
 

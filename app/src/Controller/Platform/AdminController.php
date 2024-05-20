@@ -17,7 +17,6 @@ use App\Service\Platform\NotificationService;
 use Symfony\Bundle\SecurityBundle\Security;
 use App\Form\Platform\SearchBoardType;
 use App\Form\Platform\SearchUserType;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -176,7 +175,7 @@ class AdminController extends AbstractController
     {
         $user->setRoles([$role]);
         $this->entityManager->flush();
-        $this->addFlash('success-role', 'L\'utilisateur '. $user->getUsername(). ' a reçu un nouveau rôle');
+        $this->addFlash('success', 'L\'utilisateur '. $user->getUsername(). ' a reçu un nouveau rôle');
         return new JsonResponse(['message' => 'Role attribuée avec succès']);
     }
 
