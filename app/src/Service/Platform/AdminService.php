@@ -43,13 +43,12 @@ class AdminService
         for ($i = 0; $i < $numberOfAccounts; $i++) {
             $username = "user_" . $currentNumber;
 
-            // Vérifiez si le nom d'utilisateur existe déjà
+            // Verify if username exist
             while ($this->userRepository->findOneBy(['username' => $username])) {
                 $currentNumber++;
                 $username = "user_" . $currentNumber;
             }
 
-            // Créer et persister le nouvel utilisateur
             $user = new User();
             $user->setUsername($username);
             $users[] = $username;
@@ -60,7 +59,6 @@ class AdminService
             $user->setRoles(['ROLE_USER']);
             $this->entityManager->persist($user);
 
-            // Incrémenter le numéro pour le prochain utilisateur
             $currentNumber++;
         }
 

@@ -175,7 +175,7 @@ class AdminController extends AbstractController
     {
         $user->setRoles([$role]);
         $this->entityManager->flush();
-        $this->addFlash('success-role', 'L\'utilisateur '. $user->getUsername(). ' a reçu un nouveau rôle');
+        $this->addFlash('success', 'L\'utilisateur '. $user->getUsername(). ' a reçu un nouveau rôle');
         return new JsonResponse(['message' => 'Role attribuée avec succès']);
     }
 
