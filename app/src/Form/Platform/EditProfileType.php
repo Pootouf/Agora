@@ -20,7 +20,8 @@ class EditProfileType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('username', TextType::class)
+            ->add('username', TextType::class, [
+                'attr' =>['readonly' => true]])
             ->add('email', EmailType::class)
             ->add('plainPassword', RepeatedType::class, [
                 'type' => PasswordType::class,

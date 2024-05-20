@@ -109,7 +109,7 @@ class UserController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             // $form->getData() holds the submitted values
             // but, the original `$user` variable has also been updated
-            $this->addFlash('success', 'the user data has been modified');
+            $this->addFlash('success', 'Vos modifications ont bien été pris en compte');
             $user->setPassword(
                 $this->userPasswordHasher->hashPassword(
                     $user,
@@ -122,7 +122,7 @@ class UserController extends AbstractController
 
             return $this->redirectToRoute($routeDest);
         }
-        $this->addFlash('error', 'invalid form');
+        $this->addFlash('error', 'Certaines informations ne sont pas valides');
 
         return $this->redirectToRoute($routeDest);
     }
