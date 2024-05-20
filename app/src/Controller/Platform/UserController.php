@@ -136,6 +136,13 @@ public function deleteUser(int $id, SessionInterface $session): RedirectResponse
     // Récupérer l'utilisateur à supprimer
     $user = $this->entityManager->getRepository(User::class)->find($id);
 
+    // Récupérer et supprimer les notifications de l'utilisateur
+    $notifications = $user->getNotifications();
+    foreach ($notifications as $notification) {
+        $this->entityManager->remove($notification);
+    }
+    $this->entityManager->flush();
+   
     // RETIRER LES COMMENTAIRES DES QUE LE COMPTE ADMIN SERA CRÉÉ
     // Vérifier si l'utilisateur existe et s'il est autorisé à supprimer d'autres utilisateurs
    // if (!$user || !$this->isGranted('ROLE_ADMIN')) {
@@ -159,7 +166,13 @@ public function deleteUser(int $id, SessionInterface $session): RedirectResponse
             if (!$user) {
             return $this->redirectToRoute('app_home');
         }
-        
+            // Récupérer et supprimer les notifications de l'utilisateur
+        $notifications = $user->getNotifications();
+         foreach ($notifications as $notification) {
+         $this->entityManager->remove($notification);
+        }
+        $this->entityManager->flush();
+
         // Supprimer l'utilisateur
         $this->entityManager->remove($user);
         $this->entityManager->flush();
