@@ -20,7 +20,6 @@ class SearchBoardType extends AbstractType
                 'choices' => [
                     'En cours' => 'IN_GAME',
                     'En attente' => 'WAITING',
-                    'Terminé' => 'FINISHED'
                 ],
                 'required' => false,
                 'placeholder' => 'Sélectionner le statut',

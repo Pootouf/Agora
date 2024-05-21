@@ -28,4 +28,5 @@ class RedirectController extends AbstractController
             return $this->redirectToRoute("app_home");
         }
     }
+
 }

@@ -237,9 +237,9 @@ class DashboardController extends AbstractController
         $gameRepository = $this->entityManager->getRepository(Game::class);
         $game = $gameRepository->find($game_id);
 
-        if(!$game == null) {
+        if(!$game) {
             $this->addFlash('warning', 'Le jeu n\'existe pas');
-            return $this->redirectToRoute('app_games');
+            return $this->redirectToRoute('app_dashboard_games');
         }
 
         return $this->render('platform/dashboard/games/description.html.twig', [

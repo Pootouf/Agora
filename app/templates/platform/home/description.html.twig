@@ -101,7 +101,34 @@ Description : {{ game.name }}
       Prêt à devenir un chef de clan puissant en Écosse ? Plongez dans une partie de Glen More dès maintenant !
    </p>
 {% endif %}
-               </br>
+               {% if game.label == 'MYR' %}
+                  <br>
+                  <p class="mb-3 font-normal text-gray-700">
+                     Myrmes est un jeu de société de gestion et de développement de colonie de fourmis. Les joueurs incarnent des reines fourmis cherchant à étendre leur territoire, à nourrir leur colonie et à se protéger des prédateurs.
+                     <br><br>
+                     <strong>Règles du Jeu :</strong>
+                     <br>
+                     Les joueurs acquièrent des tuiles représentant des terrains et des ressources, qu'ils placent sur leur plateau de jeu pour former un territoire. Chaque tuile placée offre des avantages et des possibilités d'interaction avec les autres joueurs.
+                     <br>
+                     Les joueurs doivent également gérer leur colonie de fourmis, en envoyant des ouvrières récolter des ressources, en élevant des larves pour former de nouvelles fourmis et en se protégeant des prédateurs.
+                     <br>
+                     Le jeu se déroule en plusieurs tours, pendant lesquels les joueurs choisissent des tuiles à ajouter à leur territoire, gèrent leur colonie et effectuent des actions pour développer leur territoire.
+                     <br>
+                     À la fin du jeu, les joueurs marquent des points en fonction de la taille et de la qualité de leur territoire, ainsi que des objectifs qu'ils ont atteints au cours de la partie. Le joueur ayant le plus grand territoire et le plus grand nombre de points remporte la partie.
+                     <br><br>
+                     <strong>Comment Jouer :</strong>
+                     <br>
+                     Chaque tour, les joueurs choisissent une tuile disponible sur le plateau central et l'ajoutent à leur territoire, puis effectuent des actions en fonction des tuiles présentes sur leur plateau et de leur colonie de fourmis.
+                     <br><br>
+                     <strong>Objectif du Jeu :</strong>
+                     <br>
+                     L'objectif est de construire le territoire le plus prospère et le plus étendu possible, en maximisant l'efficacité des actions et en atteignant les objectifs spécifiques du jeu pour marquer le plus de points.
+                     <br><br>
+                     <strong>Jouer Maintenant !</strong>
+                     <br>
+                     Prêt à devenir une reine fourmi puissante ? Plongez dans une partie de Myrmes dès maintenant !
+                  </p>
+               {% endif %}
                {% if app.user %}
                <a href="#" onclick="javascript:history.back();" class="text-white bg-red-500 hover:bg-red-400 focus:ring-4 focus:outline-none focus:ring-red-300 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
                RETOUR

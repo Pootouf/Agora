@@ -82,9 +82,9 @@ class GameController extends AbstractController
             if(!$user->getFavoriteGames()->contains($game)) {
                 $user->addFavoriteGame($game);
                 $entityManager->flush();
-                $this->addFlash('success', 'Le jeu '. $game->getLabel() . ' a été ajouté à vos favoris.');
+                $this->addFlash('success', 'Le jeu '. $game->getName() . ' a été ajouté à vos favoris.');
             } else {
-                $this->addFlash('warning', 'Le jeu '. $game->getLabel() . ' a déja été ajouté à vos favoris.');
+                $this->addFlash('warning', 'Le jeu '. $game->getName() . ' a déja été ajouté à vos favoris.');
             }
         } else {
             $this->addFlash('warning', 'Le joueur n\'est pas connecté.');
@@ -110,9 +110,9 @@ class GameController extends AbstractController
             if ($user->getFavoriteGames()->contains($game)) {
                 $user->removeFavoriteGame($game);
                 $entityManager->flush();
-                $this->addFlash('success', 'Le jeu ' . $game->getLabel() . ' a été retiré de vos favoris.');
+                $this->addFlash('success', 'Le jeu ' . $game->getName() . ' a été retiré de vos favoris.');
             } else {
-                $this->addFlash('warning', 'Le jeu ' . $game->getLabel() . ' n\'est pas dans vos favoris.');
+                $this->addFlash('warning', 'Le jeu ' . $game->getName() . ' n\'est pas dans vos favoris.');
             }
         } else {
             $this->addFlash('warning', 'Le joueur n\'est pas connecté.');

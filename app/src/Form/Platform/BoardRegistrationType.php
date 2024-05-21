@@ -59,10 +59,10 @@ class BoardRegistrationType extends AbstractType
             ])
             ->add('inactivityHours', NumberType::class, [
                 'attr' => array(
-                    "min" => 24,
-                    "max" => 168,
+                    "min" => 1,
+                    "max" => 7,
                     "step" => 1,
-                    "placeholder" => "24",
+                    "placeholder" => "1",
                 ),
                 'html5' => true,
             ])
