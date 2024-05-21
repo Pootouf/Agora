@@ -26,7 +26,7 @@ class Board
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $creationDate = null;
 
-    #[ORM\Column(type: Types::TIME_MUTABLE)]
+    #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $invitationTimer = null;
 
     #[ORM\Column(type: Types::TIME_MUTABLE)]
@@ -257,7 +257,7 @@ class Board
     //       $this->listUser->count += 1
     public function addListUser(User $user): int
     {
-        if (!$this->listUsers->contains($user) && $this->isAvailble()) {
+        if (!$this->listUsers->contains($user) && $this->isAvailble() || $this->getInvitedContacts()->contains($user)) {
             $this->listUsers->add($user);
             return 0;
         }

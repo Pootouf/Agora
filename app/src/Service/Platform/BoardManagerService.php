@@ -40,14 +40,12 @@ class BoardManagerService
 
         $actualDate = new \DateTime();
         $actualDate->setTimezone(new \DateTimeZone('Europe/Paris'));
-        //FIX TO DO : new DateTime get the date 8 days after today, for no reasons
-        $actualDate->modify('-8 days');
 
         //setting creation date
         $board->setCreationDate($actualDate);
 
         // Calculating expiration date of invitation
-        $expirationDate = $actualDate;
+        $expirationDate = new \DateTime();
         $expirationDate->modify($this::$DAYS_BEFORE_EXPIRATION);
         $expirationDate->modify('tomorrow')->setTime(0, 0, 0);
         $board->setInvitationTimer($expirationDate);
