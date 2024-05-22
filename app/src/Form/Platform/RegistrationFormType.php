@@ -21,7 +21,7 @@ class RegistrationFormType extends AbstractType
             ->add('username')
             ->add('plainPassword', RepeatedType::class, [
                 'type' => PasswordType::class,
-                'invalid_message' => 'Les mots de passe données ne correspondent pas.',
+                'invalid_message' => 'Les mots de passe donnés ne correspondent pas.',
                 'first_options'  => ['label' => 'Password'],
                 'second_options' => ['label' => 'Repeat Password'],
                 'mapped' => false,
@@ -31,10 +31,10 @@ class RegistrationFormType extends AbstractType
                         'message' => 'Veuillez donner un mot de passe',
                     ]),
                     new Length([
-                        'min' => 6,
+                        'min' => 8,
                         'minMessage' => 'Votre mot de passe doit être composé au moins de {{ limit }} caractères',
                         // max length allowed by Symfony for security reasons
-                        'max' => 4096,
+                        'max' => 30,
                         'maxMessage' => 'Votre mot de passe doit être composé au plus de {{ limit }} caractères',
                     ]),
                 ],

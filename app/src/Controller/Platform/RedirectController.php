@@ -19,13 +19,14 @@ class RedirectController extends AbstractController
     {
         if($security->getUser()) {
             $user = $security->getUser();
-            if (in_array("ROLE_ADMIN", $user->getRoles())) {
-                return $this->redirectToRoute("app_dashboard_admin");
-            } else {
+            if (in_array("ROLE_ADMIN", $user->getRoles())){
+                return $this->redirectToRoute("app_dashboard_allusers");
+            }else{
                 return $this->redirectToRoute("app_dashboard_user");
             }
         } else {
             return $this->redirectToRoute("app_home");
         }
     }
+
 }

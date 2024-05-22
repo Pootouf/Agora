@@ -22,6 +22,16 @@ class SearchData
     public $datecreation;
 
     /**
+     * @var string
+     */
+    public $dateselection;
+
+    /**
+     * @var \DateTime | null
+     */
+    public $datecreationplus;
+
+    /**
      * @var Game
      */
     public $game;

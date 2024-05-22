@@ -3,6 +3,7 @@
 namespace App\Repository\Platform;
 
 use App\Entity\Platform\User;
+use App\Data\SearchUser;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
@@ -39,20 +40,65 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $this->getEntityManager()->flush();
     }
 
-    //    /**
-    //     * @return User[] Returns an array of User objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('u')
-    //            ->andWhere('u.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('u.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    /**
+     * Results of users linked with search
+     * @return User[]
+     */
+    public function searchUsers(SearchUser $search): array
+    {
+        $query = $this->createQueryBuilder('u');
+        if(!empty($search->username)){
+            $query->andWhere('u.username LIKE :username')
+                ->setParameter('username', "%{$search->username}%");
+        }
+        if(!empty($search->role)) {
+            if($search->role === 'ROLE_MODERATOR' || $search->role === 'ROLE_USER' || $search->role === 'ROLE_ADMIN'){
+                $query->andWhere('u.roles LIKE :role')
+                    ->setParameter('role', "%{$search->role}%");
+            }
+        }
+        if (!empty($search->isbanned)) {
+            $query->andWhere('u.isBanned = :isBanned')
+                ->setParameter('isBanned', $search->isbanned);
+        }
+        $query->orderBy('u.username', 'DESC');
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
+     * Results of number of user
+     * @return int
+     */
+    public function countUsers(string $name): int
+    {
+        $queryBuilder = $this->createQueryBuilder('u');
+
+        if (!empty($name)) {
+            $queryBuilder->andWhere('u.username LIKE :username')
+                ->setParameter('username', "%{$name}%");
+        }
+
+        return (int) $queryBuilder->select('COUNT(u.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+
+//    /**
+//     * @return User[] Returns an array of User objects
+//     */
+//    public function findByExampleField($value): array
+//    {
+//        return $this->createQueryBuilder('u')
+//            ->andWhere('u.exampleField = :val')
+//            ->setParameter('val', $value)
+//            ->orderBy('u.id', 'ASC')
+//            ->setMaxResults(10)
+//            ->getQuery()
+//            ->getResult()
+//        ;
+//    }
 
     //    public function findOneBySomeField($value): ?User
     //    {

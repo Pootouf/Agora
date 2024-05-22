@@ -20,7 +20,6 @@ class SearchBoardType extends AbstractType
                 'choices' => [
                     'En cours' => 'IN_GAME',
                     'En attente' => 'WAITING',
-                    'Terminé' => 'FINISHED'
                 ],
                 'required' => false,
                 'placeholder' => 'Sélectionner le statut',
@@ -38,6 +37,21 @@ class SearchBoardType extends AbstractType
                 'required' => false,
                 'format' => 'yyyy-MM-dd',
             ])
+            ->add('dateselection', ChoiceType::class, [
+                'choices' => [
+                    'Date avant' => 'before',
+                    'Date après' => 'after',
+                    'Entre les dates' => 'between'
+                ],
+                'required' => false,
+                'placeholder' => 'Sélectionner une option de date',
+            ])
+            ->add('datecreationplus', DateType::class, [
+                'widget' => 'single_text',
+                'required' => false,
+                'format' => 'yyyy-MM-dd',
+            ])
+
             ->add('game', EntityType::class, [
                 'class' => Game::class,
                 'choice_label' => 'name',

@@ -99,15 +99,13 @@ class BoardController extends AbstractController
     #[Route('/joinBoard/{id}', name: 'app_join_board')]
     public function joinBoardController(int $id): Response
     {
-        /*$boards = $entityManager->getRepository(Board::class)->findAll();
-        dd($boards);*/
         //get the board object
         $board = $this->entityManagerInterface->getRepository(Board::class)->find($id);
         //get the logged user
         $userId = $this->security->getUser()->getId();
         $user = $this->entityManagerInterface->getRepository(User::class)->find($userId);
         //test if the user can join a table
-        if ($board->hasUser($user) || !$board->isAvailble()) {
+        if ($board->hasUser($user) || !$board->isAvailble() && !$board->getInvitedContacts()->contains($user)) {
             $errorMessage = "Impossible de rejoindre la table";
             //send the error message to user, using session or flush
             $this->addFlash('warning', $errorMessage);
@@ -148,15 +146,19 @@ class BoardController extends AbstractController
         return $this->redirectToRoute($route, ['id' => $board->getPartyId()]);
     }
 
-    #[Route('/checkInvitation/{id}', name: 'app_join_invitation', methods: ['GET'])]
-    public function checkInvitation(int $id): Response
+    //Check if invitation is valid, then process to join the board or send an error message
+    #[Route('/checkInvitation/{notification_id}/{id}', name: 'app_join_invitation', methods: ['GET'])]
+    public function checkInvitation(Notification $notification_id, int $id): Response
     {
+        $notification_id->setIsRead(true);
+        $this->entityManagerInterface->flush();
         $board = $this->entityManagerInterface->getRepository(Board::class)->find($id);
         $userId = $this->security->getUser()->getId();
         $user = $this->entityManagerInterface->getRepository(User::class)->find($userId);
+
         $actualDate = new \DateTime();
-        if ($board->getInvitedContacts()->contains($user) && $board->getInvitationTimer() < $actualDate) {
-            return $this->redirectToRoute('app_join_board', ['id' => $id]);
+        if ($board->getInvitedContacts()->contains($user) && $board->getInvitationTimer() > $actualDate) {
+           return $this->redirectToRoute('app_join_board', ['id' => $id]);
         }
         //send the error message to user, using session or flush
         $this->addFlash('warning', "L'invitation a expiré ou n'est pas valide");
@@ -164,6 +166,30 @@ class BoardController extends AbstractController
 
     }
 
+    #[Route('/finishBoard/{id}', name: 'app_finish_board')]
+    public function finishBoard(int $id, NotificationService $notificationService): Response
+    {
+        $board = $this->entityManagerInterface->getRepository(Board::class)->find($id);
 
+        if (!$board) {
+            $this->addFlash('warning', 'Board not found');
+            return $this->redirectToRoute('app_dashboard_user');
+        }
+
+        $board->setFinished();
+        $this->entityManagerInterface->persist($board);
+        $this->entityManagerInterface->flush();
+
+        $users = $board->getListUsers();
+        $content = "La partie est finie!";
+        $date = new \DateTime();
+        $type = "Fin de partie";
+
+        $notificationService->notifyManyUser($users, $content, $date, $type);
+
+        $this->addFlash('success', 'Le statut de la table est passée à "Finie" et les joueurs ont été notifiés');
+
+        return $this->redirectToRoute('app_dashboard_user');
+    }
 
 }

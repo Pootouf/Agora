@@ -109,7 +109,7 @@ class UserController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             // $form->getData() holds the submitted values
             // but, the original `$user` variable has also been updated
-            $this->addFlash('success', 'the user data has been modified');
+            $this->addFlash('success', 'Vos modifications ont bien été pris en compte');
             $user->setPassword(
                 $this->userPasswordHasher->hashPassword(
                     $user,
@@ -122,7 +122,7 @@ class UserController extends AbstractController
 
             return $this->redirectToRoute($routeDest);
         }
-        $this->addFlash('error', 'invalid form');
+        $this->addFlash('error', 'Certaines informations ne sont pas valides');
 
         return $this->redirectToRoute($routeDest);
     }
@@ -135,22 +135,31 @@ class UserController extends AbstractController
         // Récupérer l'utilisateur à supprimer
         $user = $this->entityManager->getRepository(User::class)->find($id);
 
-        // RETIRER LES COMMENTAIRES DES QUE LE COMPTE ADMIN SERA CRÉÉ
-        // Vérifier si l'utilisateur existe et s'il est autorisé à supprimer d'autres utilisateurs
-        // if (!$user || !$this->isGranted('ROLE_ADMIN')) {
-        // Rediriger vers une page appropriée en cas d'erreur ou d'autorisation insuffisante
-        //     return $this->redirectToRoute('app_home');
-        // }
-
-        // Supprimer l'utilisateur
-        $this->entityManager->remove($user);
-        $this->entityManager->flush();
-
-        // Déconnecter l'utilisateur en invalidant le token de sécurité
-        $this->tokenStorage->setToken(null);
-        $session->getFlashBag()->add('success', 'L\'utilisateur a bien été supprimé.');
-        return $this->redirectToRoute('app_home');
+    // Récupérer et supprimer les notifications de l'utilisateur
+    $notifications = $user->getNotifications();
+    foreach ($notifications as $notification) {
+        $this->entityManager->remove($notification);
     }
+    $this->entityManager->flush();
+
+    // RETIRER LES COMMENTAIRES DES QUE LE COMPTE ADMIN SERA CRÉÉ
+    // Vérifier si l'utilisateur existe et s'il est autorisé à supprimer d'autres utilisateurs
+   // if (!$user || !$this->isGranted('ROLE_ADMIN')) {
+     // Rediriger vers une page appropriée en cas d'erreur ou d'autorisation insuffisante
+   //     return $this->redirectToRoute('app_home');
+   // }
+    
+    // Supprimer l'utilisateur
+    $this->entityManager->remove($user);
+    $this->entityManager->flush();
+
+    // Déconnecter l'utilisateur en invalidant le token de sécurité
+    $this->tokenStorage->setToken(null);
+    $session->getFlashBag()->add('success', 'L\'utilisateur a bien été supprimé.');
+
+
+    return $this->redirectToRoute('app_home');
+}
 
     #[Route('/user/autodelete', name: 'app_user_autodelete')]
     public function autoDeleteUser(SessionInterface $session): RedirectResponse
@@ -159,6 +168,13 @@ class UserController extends AbstractController
         if (!$user) {
             return $this->redirectToRoute('app_home');
         }
+
+            // Récupérer et supprimer les notifications de l'utilisateur
+        $notifications = $user->getNotifications();
+         foreach ($notifications as $notification) {
+         $this->entityManager->remove($notification);
+        }
+        $this->entityManager->flush();
 
         // Supprimer l'utilisateur
         $this->entityManager->remove($user);

@@ -149,14 +149,6 @@
 				<!-- Separator -->
 				<div class="h-6 w-px bg-gray-900/10 lg:hidden" aria-hidden="true"></div>
 				<div class="flex items-center gap-x-4 lg:gap-x-6 justify-end w-full">
-					
-
-
-
-
-
-					<!-- Separator -->
-					<div class="hidden lg:block lg:h-6 lg:w-px lg:bg-gray-900/10" aria-hidden="true"></div>
 					<!-- Profile dropdown -->
 					<div class="relative">
 						<button type="button" class="-m-1.5 flex items-center p-1.5" id="user-menu-button" aria-expanded="false" aria-haspopup="true">
@@ -238,9 +230,6 @@ sidebar.classList.toggle('flex');
 document.addEventListener("DOMContentLoaded", function() {
     // Récupérer l'URL actuelle
     var currentURL = window.location.pathname;
-    
-    const markAsReadLinks = document.querySelectorAll('.mark-as-read');
-    const notificationItems = document.querySelectorAll('.notification-item'); // Sélectionner tous les éléments de notification
 
     // Parcourir tous les liens dans les deux zones de navigation
     var allNavLinks = document.querySelectorAll(".flex-1 a, #sidebar .flex-1 a");
@@ -269,55 +258,6 @@ document.addEventListener("DOMContentLoaded", function() {
             link.classList.remove("text-gray-400", "hover:text-white", "hover:bg-gray-800");
             link.classList.add("bg-gray-800", "text-white");
         });
-
-	// Ajouter un écouteur d'événements au lien "Tout marquer comme lu"
-    const markAllAsReadLink = document.getElementById('mark-all-as-read');
-    markAllAsReadLink.addEventListener('click', function(event) {
-        event.preventDefault(); // Empêcher le comportement par défaut du lien
-
-        // Supprimer toutes les notifications
-        notificationItems.forEach(function(notificationItem) {
-            notificationItem.remove();
-        });
-    });
-
-		// Ajouter un écouteur d'événements à chaque lien
-markAsReadLinks.forEach(function(link) {
-    link.addEventListener('click', function(event) {
-        event.preventDefault(); // Empêcher le comportement par défaut du lien
-        event.stopPropagation(); // Empêcher la propagation de l'événement
-
-        const notificationItem = this.closest('.notification-item'); // Trouver l'élément parent de la notification
-        if (notificationItem) {
-            notificationItem.remove(); // Supprimer l'élément de notification du DOM
-        }
-    });
-});
-
-    });
-
-    // Notification menu functionality
-    const notificationButton = document.getElementById('notification-button');
-    const notificationMenu = document.getElementById('notification-menu');
-
-    notificationButton.addEventListener('click', () => {
-        const isMenuExpanded = notificationButton.getAttribute('aria-expanded') === 'true';
-        if (!isMenuExpanded) {
-            notificationMenu.classList.remove('hidden', 'opacity-0', 'scale-95');
-            notificationMenu.classList.add('opacity-100', 'scale-100');
-        } else {
-            notificationMenu.classList.remove('opacity-100', 'scale-100');
-            notificationMenu.classList.add('opacity-0', 'scale-95');
-        }
-        notificationButton.setAttribute('aria-expanded', !isMenuExpanded);
-    });
-
-    // Close the notification menu when the user clicks outside of it
-    document.addEventListener('click', function(event) {
-        if (!notificationButton.contains(event.target) && !notificationMenu.contains(event.target)) {
-            notificationButton.setAttribute('aria-expanded', 'false');
-            notificationMenu.classList.add('hidden', 'opacity-0', 'scale-95');
-        }
     });
 });
 

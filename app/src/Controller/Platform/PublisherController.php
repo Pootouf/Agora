@@ -35,14 +35,14 @@ class PublisherController extends AbstractController
     #[Route('/notifications', name: 'app_notification_receive')]
     public function notificationsByReceiver(): Response
     {
-        if($this->security->getUser()) {
+        if($this->security->getUser()){
             $user = $this->security->getUser();
             $notifications = $this->entityManager->getRepository(Notification::class)
                 ->findBy(
                     ['receiver' => $user],
                     ['createdAt' => 'DESC']
                 );
-        } else {
+        }else{
             $notifications = null;
         }
 

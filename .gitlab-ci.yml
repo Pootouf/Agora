@@ -414,6 +414,7 @@ deploy:dev_game:
 
 deploy:dev_platform:
   <<: *deploy
+  image: $CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/agora:latest
   environment:
     name: development
   variables:

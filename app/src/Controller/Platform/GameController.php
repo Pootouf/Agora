@@ -8,18 +8,23 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Entity\Game\Log;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class GameController extends AbstractController
 {
-    /**
-    * Displays a list of games (when the user is not connected).
-    *
-    * This method retrieves all games from the database using the entity manager
-    *
-    * @param EntityManagerInterface $entityManager The entity manager to interact with the database
-    *
-    * @return Response  HTTP response: list of games page
-    */
+
+
+
+     /**
+     * Displays a list of games (when the user is not connected).
+     *
+     * This method retrieves all games from the database using the entity manager
+     *
+     * @param EntityManagerInterface $entityManager The entity manager to interact with the database
+     *
+     * @return Response  HTTP response: list of games page
+     */
     #[Route('/games', name: 'app_games')]
     public function game_index(EntityManagerInterface $entityManager): Response
     {
@@ -77,9 +82,9 @@ class GameController extends AbstractController
             if(!$user->getFavoriteGames()->contains($game)) {
                 $user->addFavoriteGame($game);
                 $entityManager->flush();
-                $this->addFlash('success', 'Le jeu '. $game->getLabel() . ' a été ajouté à vos favoris.');
+                $this->addFlash('success', 'Le jeu '. $game->getName() . ' a été ajouté à vos favoris.');
             } else {
-                $this->addFlash('warning', 'Le jeu '. $game->getLabel() . ' a déja été ajouté à vos favoris.');
+                $this->addFlash('warning', 'Le jeu '. $game->getName() . ' a déja été ajouté à vos favoris.');
             }
         } else {
             $this->addFlash('warning', 'Le joueur n\'est pas connecté.');
@@ -105,9 +110,9 @@ class GameController extends AbstractController
             if ($user->getFavoriteGames()->contains($game)) {
                 $user->removeFavoriteGame($game);
                 $entityManager->flush();
-                $this->addFlash('success', 'Le jeu ' . $game->getLabel() . ' a été retiré de vos favoris.');
+                $this->addFlash('success', 'Le jeu ' . $game->getName() . ' a été retiré de vos favoris.');
             } else {
-                $this->addFlash('warning', 'Le jeu ' . $game->getLabel() . ' n\'est pas dans vos favoris.');
+                $this->addFlash('warning', 'Le jeu ' . $game->getName() . ' n\'est pas dans vos favoris.');
             }
         } else {
             $this->addFlash('warning', 'Le joueur n\'est pas connecté.');
@@ -115,4 +120,15 @@ class GameController extends AbstractController
 
         return $this->redirectToRoute('app_dashboard_games');
     }
+
+    #[Route('/game/{gameId}/logs', name: 'game_logs')]
+    public function showGameLogs(int $gameId,EntityManagerInterface $entityManager): Response
+    {
+        $logs = $entityManager->getRepository(Log::class)->findBy(['gameId' => $gameId]);
+
+        return $this->render('platform/dashboard/games/logs.html.twig', [
+            'logs' => $logs,
+        ]);
+    }
 }
+

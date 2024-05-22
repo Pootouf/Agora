@@ -39,14 +39,19 @@ class BoardManagerService
     {
 
         $actualDate = new \DateTime();
+        $actualDate->setTimezone(new \DateTimeZone('Europe/Paris'));
 
         //setting creation date
         $board->setCreationDate($actualDate);
+
         // Calculating expiration date of invitation
-        $expirationDate = $actualDate->modify($this::$DAYS_BEFORE_EXPIRATION);
+        $expirationDate = new \DateTime();
+        $expirationDate->modify($this::$DAYS_BEFORE_EXPIRATION);
         $expirationDate->modify('tomorrow')->setTime(0, 0, 0);
         $board->setInvitationTimer($expirationDate);
 
+        //convert days into hours for invitation timer
+        $board->setInactivityHours($board->getInactivityHours() * 24);
 
         $board->setInactivityTimer(new \DateTime());
 
@@ -106,8 +111,6 @@ class BoardManagerService
 
         return BoardManagerService::$SUCCESS;
     }
-
-
 
 
 
