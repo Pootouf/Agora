@@ -64,6 +64,7 @@ class BoardRegistrationType extends AbstractType
                     "step" => 1,
                     "placeholder" => "1",
                 ),
+                'data' => 7,
                 'html5' => true,
             ])
         ;
