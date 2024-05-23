@@ -104,10 +104,18 @@ class BoardManagerService
         $board->removeListUser($user);
         $this->gameManagerService->quitGame($board->getPartyId(), $user);
 
-        $this->entityManagerInterface->persist($board);
-        $this->entityManagerInterface->flush();
+        if($board->getListUsers()->count() <= 0){
+            $this->entityManagerInterface->remove($board);
+            $this->entityManagerInterface->flush();
+
+        }
+        else {
+            $this->entityManagerInterface->persist($board);
+            $this->entityManagerInterface->flush();
+        }
         $this->entityManagerInterface->persist($user);
         $this->entityManagerInterface->flush();
+
 
         return BoardManagerService::$SUCCESS;
     }
