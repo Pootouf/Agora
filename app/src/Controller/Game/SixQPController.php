@@ -14,6 +14,7 @@ use App\Service\Game\LogService;
 use App\Service\Game\MessageService;
 use App\Service\Game\SixQP\SixQPService;
 use App\Service\Game\PublishService;
+use App\Service\Platform\BoardManagerService;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
@@ -31,6 +32,7 @@ class SixQPController extends AbstractController
     private PublishService $publishService;
     private LogService $logService;
     private MessageService $messageService;
+    private BoardManagerService $boardManagerService;
 
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -38,7 +40,8 @@ class SixQPController extends AbstractController
         SixQPService $service,
         LogService $logService,
         PublishService $publishService,
-        MessageService $messageService
+        MessageService $messageService,
+        BoardManagerService $boardManagerService
     ) {
         $this->publishService = $publishService;
         $this->entityManager = $entityManager;
@@ -46,6 +49,7 @@ class SixQPController extends AbstractController
         $this->logService = $logService;
         $this->service = $service;
         $this->messageService = $messageService;
+        $this->boardManagerService = $boardManagerService;
     }
 
     #[Route('/game/sixqp/{id}', name: 'app_game_show_sixqp')]
@@ -248,6 +252,7 @@ class SixQPController extends AbstractController
     {
 
         if ($this->service->isGameEnded($game)) {
+            $this->boardManagerService->endBoard($game->getId());
             $this->publishEndOfGame($game);
         } elseif (!$this->service->hasCardLeft($game->getPlayers())) {
             try {
