@@ -104,14 +104,38 @@ class BoardManagerService
         $board->removeListUser($user);
         $this->gameManagerService->quitGame($board->getPartyId(), $user);
 
-        $this->entityManagerInterface->persist($board);
-        $this->entityManagerInterface->flush();
+        if($board->getListUsers()->count() <= 0){
+            $this->entityManagerInterface->remove($board);
+            $this->entityManagerInterface->flush();
+
+        }
+        else {
+            $this->entityManagerInterface->persist($board);
+            $this->entityManagerInterface->flush();
+        }
         $this->entityManagerInterface->persist($user);
         $this->entityManagerInterface->flush();
+
 
         return BoardManagerService::$SUCCESS;
     }
 
+    public function endBoard(int $gameId){
+        $board = $this->entityManagerInterface->getRepository(Board::class)->findOneBy(["partyId" => $gameId]);
+        $board->setStatus("FINISHED");
+        $this->entityManagerInterface->persist($board);
+        $this->entityManagerInterface->flush();
+
+
+        $users = $board->getListUsers();
+        $content = "La partie est finie!";
+        $date = new \DateTime();
+        $type = "Fin de partie";
+
+        $this->notificationService->notifyManyUser($users, $content, $date, $type);
+        $this->entityManagerInterface->persist($board);
+        $this->entityManagerInterface->flush();
+    }
 
 
 }

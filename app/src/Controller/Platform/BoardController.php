@@ -166,30 +166,4 @@ class BoardController extends AbstractController
 
     }
 
-    #[Route('/finishBoard/{id}', name: 'app_finish_board')]
-    public function finishBoard(int $id, NotificationService $notificationService): Response
-    {
-        $board = $this->entityManagerInterface->getRepository(Board::class)->find($id);
-
-        if (!$board) {
-            $this->addFlash('warning', 'Board not found');
-            return $this->redirectToRoute('app_dashboard_user');
-        }
-
-        $board->setFinished();
-        $this->entityManagerInterface->persist($board);
-        $this->entityManagerInterface->flush();
-
-        $users = $board->getListUsers();
-        $content = "La partie est finie!";
-        $date = new \DateTime();
-        $type = "Fin de partie";
-
-        $notificationService->notifyManyUser($users, $content, $date, $type);
-
-        $this->addFlash('success', 'Le statut de la table est passée à "Finie" et les joueurs ont été notifiés');
-
-        return $this->redirectToRoute('app_dashboard_user');
-    }
-
 }

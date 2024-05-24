@@ -188,6 +188,11 @@ class DashboardController extends AbstractController
     #[Route('/dashboard/history', name: 'app_board_history')]
     public function history(Request $request, BoardRepository $boardRepository): Response
     {
+
+        $this->addFlash('warning', 'Cette page n\'est pas disponible pour le moment');
+        return $this->redirectToRoute('app_dashboard_user');
+
+        /*FEATURE NON TERMINÉ : A COMPLETER ULTERIEUREMENT
         $data = new SearchData();
         $form = $this->createForm(SearchBoardType::class, $data);
         $form->handleRequest($request);
@@ -198,6 +203,7 @@ class DashboardController extends AbstractController
             'searchboard' => $form->createView(),
             'notifications' => $this->notifications,
         ]);
+        */
     }
 
 
