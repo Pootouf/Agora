@@ -1,0 +1,200 @@
+\documentclass{article}
+\usepackage{graphicx} % Required for inserting images
+\usepackage{hyperref}
+\usepackage[francais]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{multirow}
+\usepackage{ulem}
+\usepackage{geometry}
+\geometry{left=25mm,right=25mm,%
+bindingoffset=0mm, top=25mm,bottom=25mm}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=blue,
+}
+
+\title{Docker - Comment et pourquoi l'installer ?}
+\date{28 Novembre 2023}
+
+\begin{document}
+
+    \maketitle
+    
+    \begin{center}
+        \begin{tabular}{|| c | c ||}
+                \hline 
+                Version & 2 \\
+                \hline 
+                Date & 6 décembre 2023 \\
+                \hline
+                \multirow{1} {*} {Rédigé par} & BINGINOT Etienne\\
+                \multirow{1} {*}  & MONTAGNE Erwann\\
+                \hline
+        \end{tabular}
+    \end{center}
+
+    \newpage
+    \section*{Mises à jour du document}
+    
+    \begin{center}
+        \begin{tabular}{|| c | c | c ||}
+                \hline 
+                Version & Date & Modification réalisée \\
+                \hline
+                \hline 
+                1 & 24 novembre 2023 & Création du document \\
+                \hline
+                2 & 06 décembre 2023 & Ajout de l'installation Ubuntu\\
+                \hline
+        \end{tabular}
+    \end{center}
+    
+    \newpage
+    \tableofcontents
+    
+    \newpage
+    \section{Pourquoi utiliser Docker}
+    Docker est une application permettant de gérer des conteneurs, ayant pour but d'isoler efficacement une application d'une autre. Chaque personne utilisant Docker doit pouvoir avoir exactement la même configuration que son voisin : si un bug arrive dans le code de quelqu'un, il arrivera également dans le code de l'autre (la solution technique ne dépend donc pas de la plateforme, et les applications ne peuvent pas se gêner l'une l'autre).
+
+    \subsection{Qu'est-ce qu'un conteneur}
+    Un conteneur est un concept qui dépasse Docker : bien que celui-ci soit un gestionnaire de conteneurs, le concept en lui même existe depuis longtemps. Le but d'un conteneur est de pouvoir isoler une application du système d'exploitation qui le fait tourner.\\ \\
+    \indent En somme, un conteneur est une machine virtuelle légère : celui-ci se base sur le système d'exploitation de la machine pour simuler un système d'exploitation sans perte de performance. Ceux-ci sont donc totalement indépendants les uns des autres.
+
+    \subsection{Comment fonctionne Docker}
+    Comme dit précédemment, Docker est donc un gestionnaire de conteneurs. Celui-ci fonctionne via un système d'images : une image est une représentation d'un conteneur à un moment donné. Il est donc possible à partir de cette image de la configurer à notre souhait en installant tout ce que nous souhaitons dessus, et ainsi de créer notre propre nouvelle image ! \\ \\
+    \indent Ces images sont accessibles directement depuis des dépôts en ligne (Docker Hub) et sont régulièrement mis à jour. Il est ainsi possible de trouver une image correspondant à un serveur Linux vierge, à une installation de php dans la version de notre choix, à un serveur Windows, ou même Minecraft ! Il est possible de conteneuriser tout et n'importe quoi.
+
+    \subsection{Les différents fichiers de Docker}
+    \subsubsection{Le Dockerfile}
+    Le Dockerfile est le fichier principal de Docker : c'est lui qui va créer l'image de votre conteneur.\\ \\
+    Celui-ci fonctionne d'une manière simple :\\
+    \indent - Une première directive (FROM) permet d'indiquer l'image qu'on importe (on se base donc sur une image publique qui sera automatiquement téléchargée par Docker et que l'on personnalisera ensuite)\\
+    \indent - On utilise ensuite des directives comme COPY (copier des fichiers dans le conteneur), RUN (exécuter une commande dans le conteneur, comme dans un bash), ... pour personnaliser à notre souhait notre image (copie des fichiers d'un projet, installation de dépendances (apt install), etc)\\
+    \indent - Enfin, Docker va créer une nouvelle image à partir des directives que nous lui avons donnée, qui est maintenant accessible dans la liste des images docker (docker image ls, ou dans l'onglet images sur l'application)\\\\
+    \indent La command permettant de dire à Docker de lancer la création de l'image depuis un dockerfile est docker build.
+
+    \subsubsection{Le fichier docker-compose.yml}
+    Ce fichier permet de dire à Docker comment lancer vos conteneurs. En effet, depuis ce fichier, il est possible de lancer plusieurs conteneurs à la fois en spécifiant leurs images respectives (Docker va directement rechercher dans votre liste d'image). Il est ainsi possible de spécifier comment les conteneurs vont interargir entre eux (ouverture / fermeture de ports réseaux), qui doit démarrer en premier, les commandes à exécuter au démarrage, etc.\\\\
+    Ainsi, le lancement d'une application Docker se résume bien souvent à une unique commande : \\
+    \indent docker-compose up\\\\
+    Cette commande permet à Docker de lancer la lecture du fichier docker-compose et donc de lancer les conteneurs et l'application.
+
+    \newpage
+    \section{Installer Docker sur Windows}
+
+    \subsection{Installer l'application Docker}
+    La première étape de l'installation Docker correspond tout d'abord à télécharger l'application Docker pour Windows :\\\\
+    https://www.docker.com/products/docker-desktop/\\\\
+    Il s'agit d'un exécutable, et l'application s'installera comme n'importe quelle autre application Windows.
+
+    \begin{center}
+        \includegraphics[width=0.7\textwidth]{docker download.png}
+    \end{center}
+
+    \subsection{OPTIONNEL (mais très recommandé) : Installation de WSL}
+    WSL est un sous-noyau Linux pour Windows (une forme de machine virtuelle légère pour Windows permettant de lancer des conteneurs sur une machine Linux).\\
+    Les conteneurs utiliseront donc un système Linux pour fonctionner ce qui leur apportera plus de fiabilité, plus d'efficacité, etc.\\\\
+
+    L'installation de WSL sur Windows est extrêmement simple : \\
+    \indent- Lancer le Microsoft Store\\
+    \indent- Rechercher Ubuntu\\
+    \indent- Prendre la version de base d'Ubuntu (Ubuntu sans numéro de version derrière)\\
+    \indent- Redémarrer votre ordinateur\\\\
+
+    \begin{center}
+        \includegraphics[width=0.4\textwidth]{wsl.png}
+    \end{center}
+
+    Il vous faut ensuite ouvrir un terminal sur votre système windows (rechercher le programme cmd), et exécuter la commande wsl --install. Si tout se déroule sans soucis, on vous demandera de créer un utilisateur pour votre système ubuntu (mettez les informations que vous voulez), et ensuite un bash s'ouvrira directement dans votre Ubuntu. Vous pouvez ensuite redémarrer votre ordinateur.\\\\
+
+    Maintenant, WSL est installé sur votre système Windows !\\\\
+    
+    Il faut ensuite configurer Docker pour qu'il utilise WSL : \\
+    - Démarrer Docker\\
+    - Accéder aux paramètres de Docker \\
+    \begin{center}
+        \includegraphics[width=0.7\textwidth]{param.png}
+    \end{center}
+    \indent- Accéder à l'onglet ressources \\
+    \begin{center}
+        \includegraphics[width=0.7\textwidth]{resources.png}
+    \end{center}
+    \indent- Accéder à l'onglet WSL integration \\
+    \begin{center}
+        \includegraphics[width=0.7\textwidth]{integ.png}
+    \end{center}
+    \indent- Activer l'intégration avec Ubuntu \\
+    \begin{center}
+        \includegraphics[width=0.7\textwidth]{ubuntu.png}
+    \end{center}
+    
+    \subsection{Utiliser Docker}
+
+    Docker est maintenant installé sur votre système !\\
+    Pour l'utiliser, vous pouvez, dans un terminal windows, réaliser les commandes docker suivantes :\\
+    \indent- docker build : permet de créer l'image docker du dockerfile de votre dossier\\
+    \indent- docker-compose up : permet de lancer les conteneurs définis dans votre fichier docker-compose.yml (permet souvent de lancer toute votre application)\\
+    \indent- docker image ls : permet de lister vos images\\
+    \indent- docker ps : permet de lister vos conteneurs\\
+    \indent- docker run : permet de lancer un conteneur à partir d'une image\\
+    
+    \section{Installer Docker sur Linux}
+    \subsection{Préparation de l'installation}
+
+    Afin de pouvoir installer Docker sur une machine Ubuntu, il va falloir installer quelques packages.
+    \\
+    \\
+    Pour ceux n'ayant pas un environoement gnome, il faut tout d'abord installer le package gnome-terminal :
+    \\
+    \indent sudo apt install gnome-terminal 
+    \\
+    \\
+    Il faudra aussi supprimer les vielles versions de Docker qui ont pu potentiellement être installées :
+    \\
+    \indent sudo apt remove docker-desktop
+    \\
+    \\
+    Pour supprimer proprement les anciennes versons de Docker, il faudra aussi supprimer les fichiers de configuration via les commandes suivantes :
+    \\
+    \indent rm -r \$HOME/.docker/desktop \\
+    \indent sudo rm /usr/local/bin/com.docker.cli \\
+    \indent sudo apt purge docker-desktop \\
+
+    \subsection{Installation de Docker}
+
+    Pour installer Docker nous allons effectuer quelques commandes :
+    \\
+    \indent sudo apt-get update
+    \\
+    \\
+    Il va maintenant falloir trouver la version de Docker qui vous convient en fonction de l'architecture de votre machine.
+    Vous devriez pouvoir trouver celle-ci en suivant le lien suivant:
+    \\
+    \indent\href{https://desktop.docker.com/linux/main/amd64/docker-desktop-4.26.0-amd64.deb?utm_source=docker&utm_medium=webreferral&utm_campaign=docs-driven-download-linux-amd64}{Cliquez ici pour télécharger le .deb}
+    \\
+    \\
+    Une fois le fichier .deb téléchargé, exécutez la commande suivante :
+    \\
+    \indent sudo apt-get insatll ./docker-desktop-"version"-"arch".deb
+    \\
+    Remplacer version et arch par les valeurs données dans le fichier .deb téléchargé
+    \\
+    \\
+    Félicitations, Docker est maintenant installé sur votre machine
+
+    \subsection{Premier lancement de Docker}
+
+    Pour lancer Docker pour la première fois, utilisez la commande suivante :
+    \\
+    \indent systemctl  {-}{-}user start docker-desktop
+    \\
+    \\
+    L'application Docker doit maintenant être démarrée et vous devriez avoir une fenêtre semblable à celle ci-dessous :
+    \\
+    \includegraphics[scale = 0.20]{dockerDesktop.png}
+    \\
+    Normalement vous pouvez aussi lancer Docker depuis votre menu "Demarrer"
+
+\end{document}
