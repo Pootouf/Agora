@@ -288,8 +288,8 @@ class SplendorController extends AbstractController
             );
         }
 
-        return $this->reserveCard($player, $game, $card);
-    }
+         return $this->reserveCard($player, $game, $card, $card->getLevel());
+     }
 
     #[Route('/game/{idGame}/splendor/reserve/draw/{level}', name: 'app_game_splendor_reserve_card_draw')]
     public function reserveCardOnDraw(
@@ -318,8 +318,8 @@ class SplendorController extends AbstractController
             );
         }
 
-        return $this->reserveCard($player, $game, $card);
-    }
+         return $this->reserveCard($player, $game, $card, $level);
+     }
 
     #[Route('/game/{idGame}/splendor/cancelTokensSelection', name: 'app_game_splendor_cancel_tokens_selection')]
     public function cancelTokensSelection(
@@ -762,6 +762,22 @@ class SplendorController extends AbstractController
     }
 
     /**
+     * publishAnimCardOnDraw: publish the animation of moving card from draw
+     * @param GameSPL $game
+     * @param string $player
+     * @param int $cardId
+     * @return void
+     */
+    private function publishAnimCardOnDraw(GameSPL $game, string $player, int $cardId): void
+    {
+        $this->publishService->publish(
+            $this->generateUrl('app_game_show_spl', ['id' => $game->getId()]).'animDrawCard',
+            new Response($player . '__' . $cardId)
+        );
+    }
+
+
+    /**
      * publishAnimTakenJoker: publish the animation of taking a joker
      * @param GameSPL $game
      * @param string $player
@@ -854,7 +870,7 @@ class SplendorController extends AbstractController
      * @param DevelopmentCardsSPL $card
      * @return Response
      */
-    private function reserveCard(PlayerSPL $player, GameSPL $game, DevelopmentCardsSPL $card): Response
+    private function reserveCard(PlayerSPL $player, GameSPL $game, DevelopmentCardsSPL $card, int $level) : Response
     {
         try {
             $returnedData = $this->splService->reserveCard($player, $card);
@@ -872,6 +888,8 @@ class SplendorController extends AbstractController
         $this->notifyActionValidated($game, $player);
         if ($returnedData["cardFromDraw"] != null) {
             $this->publishAnimTakenCard($game, $player->getUsername(), $card, $returnedData["cardFromDraw"]);
+        } else {
+            $this->publishAnimCardOnDraw($game, $player->getUsername(), $level);
         }
         if ($returnedData["isJokerTaken"]) {
             $this->publishAnimTakenJoker($game, $player->getUsername());
