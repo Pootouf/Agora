@@ -1,0 +1,17 @@
+{#
+This section displays the prey count of already hunted prey by player.
+@param :
+@return :
+#}
+<div class="inlineFlexCol items-center {{ gapSize }}" id="prey">
+    <p class="relative w-fit mb-px {% if isPreview %}text_mini {% else %} text1-3 {% endif %}">Proies</p>
+    <div class="relative w-full h-fit inline-flex align-center justify-around items-center" id="countPrey">
+        <p class="h-fit w-[25%] {% if isPreview %}text_mini {% else %} text1-3 {% endif %}">
+            {{ player.preyMYRs.count }}
+        </p>
+        {#prey icon#}
+        <img class="w-[50%]" id="preyIcon"
+             src="{{ asset('resourcesGames/Myrmes/personalBoard/preyIcon.svg') }}"
+             alt=" prey icon">
+    </div>
+</div>

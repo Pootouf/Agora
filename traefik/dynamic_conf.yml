@@ -1,0 +1,22 @@
+http:
+  routers:
+    agora-router:
+      rule: "PathPrefix(`/`)"
+      service: agora-service
+      tls: {}
+
+  services:
+    mercure-service:
+      loadBalancer:
+        servers:
+          - url: "http://mercure/"
+    agora-service:
+      loadBalancer:
+        servers:
+          - url: "http://agora:7070/"
+
+
+tls:
+  certificates:
+    - certFile: /etc/traefik/server.cert
+      keyFile: /etc/traefik/server.key

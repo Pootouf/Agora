@@ -1,0 +1,28 @@
+entryPoints:
+  agora:
+    address: ":443"
+
+  web:
+    address: ":80"
+    http:
+      redirections:
+        entryPoint:
+          to: agora
+          scheme: https
+          permanent: true
+
+api:
+  # Dashboard
+  #
+  # Optional
+  # Default: true
+  #
+  dashboard: true
+  insecure: true
+
+providers:
+  file:
+    filename: /etc/traefik/dynamic_conf.yml
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    watch: true
