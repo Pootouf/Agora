@@ -1,0 +1,111 @@
+{#
+    This section displays main board preview.
+#}
+<div class="h-[95%] w-[45%] bg-gradient-to-b from-[#14532d] to-[#052e16] cursor-pointer"
+        {{ stimulus_action('glenmore','showMainBoard','click',
+            {url:path('app_game_glenmore_show_main_board',
+                {idGame: game.id})})
+        }}>
+    <div hidden class="bg-red-600 bg-white bg-blue-600 bg-green-600 bg-yellow-600"></div>
+
+    <div class="h-full w-full grid grid-rows-4 grid-cols-5 gap-1">
+        <div class="col-start-2 row-start-2 col-span-3 row-span-2 bg-green-500 flex">
+            <div class="w-3/5 h-full">
+                {% set resourcesTable = game.mainBoard.warehouse.warehouseLine %}
+                <div class="grid grid-cols-4 grid-rows-5 max-h-full inline-flex justify-center items-center gap-1 mb-1">
+                    {% for resourceLine in resourcesTable %}
+                        <div class="flex items-center justify-center h-full w-full max-h-full">
+                            <img class="items-center aspect-auto justify-center max-h-full "
+                                 src="{{
+                                 asset('resourcesGames/Glenmore/ResourcesProduction/'
+                                     ~ resourceLine.resource.color ~'.png')
+                                 }}"
+                                 alt="{{ resourceLine.resource.color }}"
+                            />
+                        </div>
+                        {% for ind in 0..resourceLine.quantity %}
+                            {% if ind >= 1 %}
+                                <div class="relative justify-center items-center aspect-auto my-auto p-auto
+                            max-h-full w-full h-full">
+                                    <div class="h-full flex items-center justify-center">
+                                        <img class="items-center aspect-auto justify-center m-auto
+                                max-h-full"
+                                             src="{{ asset('resourcesGames/Glenmore/money.png') }}" alt="money"/>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                        {% for ind in resourceLine.quantity..3 %}
+                            {% if ind >= (resourceLine.quantity + 1)  %}
+                                <div class="flex justify-center items-center h-full w-full">
+                                    <span class="bg-yellow-600 rounded-full w-4/5 h-4/5 flex items-center justify-center
+                                                    text-[0rem] lg:text-xs">
+                                        {{ ind }}
+                                    </span>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+
+
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="w-2/5 h-full">
+                {% set  pointsDifferences = [1, 2, 3, 4, 5] %}
+                {% set assignedPoints = [1, 2, 3, 5, 8] %}
+
+                <div class="w-full h-full grid grid-cols-2 grid-rows-{{ pointsDifferences|length + 1 }}">
+                    <span class="bg-green-400 flex items-center justify-center text-[0.33rem] lg:text-xs">Diff</span>
+                    <span class="bg-green-400 flex items-center justify-center text-[0.33rem] lg:text-xs">Pts</span>
+                    {% for i in 0..pointsDifferences|length - 1%}
+                        {% if pointsDifferences[i] == 5 %}
+                            <span class="bg-green-400 flex items-center justify-center text-[0.28rem] lg:text-[0.5rem]">
+                                +{{ pointsDifferences[i] }}
+                            </span>
+                        {% else %}
+                            <span class="bg-green-400 flex items-center justify-center text-[0.28rem] lg:text-[0.5rem]">
+                                {{ pointsDifferences[i] }}
+                            </span>
+                        {% endif %}
+
+                        <span class="bg-green-400 flex items-center justify-center text-[0.28rem] lg:text-[0.5rem]">
+                            {{ assignedPoints[i] }}
+                        </span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% for row in boardTiles %}
+            {% for box in row %}
+                {% if box.isEmptyBox %}
+                    <span class="w-full h-full bg-opacity-25 bg-gray-500"></span>
+                {% endif %}
+                {% if box.hasTile %}
+                    <div class="flex justify-center items-center h-full w-full">
+                        <img
+                                class="bg-opacity-25 {% if player.personalBoard.buyingTile != null and
+                                    player.personalBoard.buyingTile.boardTile.id == box.tile.id %}
+                                        opacity-25
+                                {% endif %}bg-gray-500 aspect-auto max-h-full"
+                                src="{{ asset('resourcesGames/Glenmore/BoardTiles/' ~ box.tile.tile.id ~ '.svg')
+                                }}"
+                                alt="{{ box.tile.id }}"
+                        />
+                    </div>
+                {% endif %}
+                {% if box.hasPawn %}
+                    <div class=" flex items-center justify-center bg-opacity-25 bg-gray-500 space-x-8">
+                        <div class="w-3/5 h-3/5 {% if box.pawn.color == 'white' %}
+                                            bg-{{ box.pawn.color }}
+                                      {% else %}
+                                            bg-{{ box.pawn.color }}-600
+                                      {% endif %}
+                                      rounded-full"
+                        >
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% endfor %}
+    </div>
+</div>

@@ -1,0 +1,117 @@
+\documentclass{article}
+\usepackage{graphicx} % Required for inserting images
+\usepackage{hyperref}
+\usepackage[francais]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{multirow}
+\usepackage{ulem}
+\usepackage{geometry}
+\geometry{left=25mm,right=25mm,%
+bindingoffset=0mm, top=25mm,bottom=25mm}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=blue,
+}
+
+\title{Master 1 GIL - Document technique - Environnement Docker d'Agora}
+\author{Groupe 1 Agora V3-1 : Partie bibliothèque de jeux}
+\date{12 mai 2024}
+
+\begin{document}
+\maketitle
+    \begin{center}
+        \begin{tabular}{|| c | c ||}
+                \hline 
+                Version & 1 \\
+                \hline 
+                Date & 12 mai 2024 \\
+                \hline
+                Rédigé par & BINGINOT Etienne\\
+                \hline
+        \end{tabular}
+    \end{center}
+
+    \newpage
+    \section*{Mises à jour du document}
+
+    \begin{center}
+        \begin{tabular}{|| c | c | c ||}
+                \hline 
+                Version & Date & Modification réalisée \\
+                \hline
+                \hline 
+                1 & 12 mai 2024 & Création du document \\
+                \hline
+        \end{tabular}
+    \end{center}
+
+    \newpage
+    \tableofcontents
+    \newpage
+
+    \section{Pourquoi Dockeriser Agora}
+
+        Agora est une application complexe, nécessitant de nombreux outils annexes pour fonctionner. En effet, en plus de l'application Agora en elle-même, une base de données, un serveur mail, un serveur Mercure et un reverse-proxy. Ces composants, ayant chacun une configuration spécifique et des ports à utiliser, ne sont pas facilement synchronisables.\\
+        \\
+        \indent Ainsi, Docker permet de répondre à ce problème, en centralisant les configurations et en permettant de facilement synchroniser les différents serveurs que l'application utilise.
+
+    \section{Les différents Dockerfile}
+
+        Deux Dockerfile sont utilisés dans l'application : celui de l'application de base mais également un Dockerfile utilisé dans la CI/CD.
+
+        \subsection{Dockerfile de l'application}
+
+            Ce premier Dockerfile se base sur l'image Frankenphp. Cette image contient un serveur Caddy (serveur web) optimisé pour PHP. Ainsi, le compilateur PHP et le serveur Caddy sont réunis dans la même image et donc le même conteneur, permettant une communication entre les deux quasi instantanée. Ce serveur PHP utilise un système de Worker pour charger en mémoire la totalité de l'application dans différents processus, pour permettre par la suite de répondre de façon très rapide aux requêtes.\\
+            \\
+            \indent La suite du Dockerfile se base sur l'installation des dépendances, notamment Symfony puis des dépendances Symfony via l'utilisation de composer (gestionnaire de dépendances du projet). La fin du Dockerfile ouvre le port 7070, le port que le conteneur Agora utilise.
+
+        \subsection{Dockerfile de la CI/CD}
+
+            Ce Dockerfile est une version minimaliste du Dockerfile précédent. Celui-ci utilise une image PHP plus légère (php fpm), et ne va installer en dépendance que Symfony et Composer. Les autres dépendances seront installés lors du lancement de la CI/CD.
+
+    \section{Les différents Docker-compose}
+
+        De nombreux fichiers compose sont disponibles pour l'application. Il y a tout d'abord une base, compose.yaml, définissant tous les concepts globaux à tous les autres fichiers docker compose. Ainsi, tous les autres fichiers ne seront que des "précisions" de ce fichier de base.
+
+        \subsection{compose.yaml}
+
+            Ce fichier définit les 3 conteneurs de base : 
+            \begin{itemize}
+                \item reverse-proxy: point d'entrée de l'application, son but est d'optimiser les accès à Agora en réalisant un système de cache. De plus, de nombreuses métriques sont récoltées pour analyser les données de l'application. Il configure également l'HTTPS
+                \item agora: il s'agit du conteneur de base de Agora. Celui-ci se concentre donc sur la compilation du Dockerfile, puis du lancement de cette image avec les configurations choisies. La configuration Mercure est également présente ici, le serveur Mercure étant intégré dans l'image frankenphp.
+                \item database: définit la base de données du projet, en utilisant mariaDB. Un volume est utilisé pour permettre de configurer la base de données de test. Un healthcheck est également utilisé pour assurer que le conteneur Agora ne se lance uniquement quand la base de données est initialisé
+            \end{itemize}
+
+        \subsection{compose.override.yaml}
+
+            Ce fichier sert à lancer l'application dans un environnement de développement de base. Ainsi, les bases de données de base et de test sont initialisés, tailwind est compilé en mode écoute (chaque modification CSS recompilera Tailwind) et le serveur php est lancé. De plus, un serveur mail est lancé.
+
+        \subsection{compose.staging.yaml}
+
+            Ce fichier a pour but de lancer l'application dans un environnement de test. Ainsi, un environnement de prod est simulé mais avec l'initialisation de la base de données de test et un serveur mail en plus. Les nombreux tests peuvent ainsi être exécutés ici sans impacter l'application en production.
+
+        \subsection{compose.prod.yaml}
+
+            Enfin, ce fichier compose permet de lancer l'application de production dans un environnement minimal. Ainsi, la base de données de test n'est pas initialisé et aucun serveur mail n'est lancé (un vrai serveur mail doit être utilisé).
+
+        \subsection{Monitoring de l'application}
+
+            A la place du fichier compose.yaml, deux autres fichiers sont disponibles : compose\_monitor.yaml et compose\_monitor\_light.yaml.
+
+            \subsubsection{compose\_monitor\_light.yaml}
+
+                Ce fichier rajoute 3 conteneurs supplémentaires pour monitorer l'application :
+                \begin{itemize}
+                    \item Jaeger: permet d'analyser les appels qui sont réalisés sur l'application, et les différentes routes qui sont appelées.
+                    \item Prometheus: analyse les temps de réponses de l'application, les différents code de retour HTTP, ...
+                    \item Grafana: permet de visualiser les données de Prometheus avec une interface graphique agréable
+                \end{itemize}
+
+            \subsubsection{compose\_monitor.yaml}
+
+                Ce fichier rajoute en plus des 3 conteneurs précédents une stack ELK complète. Ainsi, les logs de l'application Agora mais également des autres conteneurs comme Traefik sont centralisés dans l'outil, permettant de visualiser facilement les erreurs dans l'application et son état.\\
+                \\
+                \indent De plus, des outils comme metricbeat permettent de visualiser l'état du serveur, comme l'utilisation du CPU ou de la mémoire du serveur. Cet outil peut analyser l'application Docker afin de récupérer ces différentes informations.
+\end{document}

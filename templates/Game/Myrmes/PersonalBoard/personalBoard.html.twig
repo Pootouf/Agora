@@ -1,0 +1,122 @@
+{#
+This section displays the personal board of a player
+@param :
+@return :
+#}
+
+{# Definition of variables #}
+{% set gapSize = '' %}
+{% set gapBetweenAreasSize = '' %}
+{% if isPreview %}
+    {% set gapSize = 'gap-[0.3vw]' %}
+    {% set gapBetweenAreasSize = '' %}
+{% else %}
+    {% set gapSize = 'gap-[1vw]' %}
+    {% set gapBetweenAreasSize = 'gap-[2vw] sm:gap-[1vw]' %}
+{% endif %}
+
+{# Definition of constants #}
+{% set PHASE_EVENT = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::PHASE_EVENT') %}
+{% set PHASE_BIRTH = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::PHASE_BIRTH') %}
+{% set PHASE_WORKER = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::PHASE_WORKER') %}
+{% set PHASE_HARVEST = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::PHASE_HARVEST') %}
+{% set PHASE_WORKSHOP = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::PHASE_WORKSHOP') %}
+{% set PHASE_WINTER = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::PHASE_WINTER') %}
+
+{% set SPRING_SEASON_NAME = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::SPRING_SEASON_NAME') %}
+{% set SUMMER_SEASON_NAME = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::SUMMER_SEASON_NAME') %}
+{% set FALL_SEASON_NAME = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::FALL_SEASON_NAME') %}
+{% set WINTER_SEASON_NAME = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::WINTER_SEASON_NAME') %}
+
+{% set LARVAE_BIRTH_TRACK_POSITION = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::LARVAE_AREA') %}
+{% set SOLDIERS_BIRTH_TRACK_POSITION = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::SOLDIERS_AREA') %}
+{% set WORKERS_BIRTH_TRACK_POSITION = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::WORKER_AREA') %}
+{% set WORKSHOP_AREA = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::WORKSHOP_AREA') %}
+
+
+<div {% if not isPreview %}id="personalBoard"{% endif %}
+     class="absolute bg-black bg-opacity-70 flex z-50 text-white items-center justify-center
+            {% if isAnotherPlayerBoard %}bottom-0 h-[92%] lg:h-[95%]{% else %}top-0 h-full {% endif%} left-0 w-full"
+>
+    <div class="bg-[#c67b24] rounded-lg
+        {% if isPreview or isAnotherPlayerBoard %}
+            w-full h-full
+        {% else %}
+            absolute left-0 w-[75%] h-full
+        {% endif %}
+        inlineFlex gap-[1vw]"
+    >
+        {# loading tailwind data#}
+        {{ include('Game/Myrmes/PersonalBoard/loadingPersonalBoardData.html.twig') }}
+        <div class="inlineFlexCol {% if isPreview %}gap-[0.3vw]{% else %}gap-[1vw]{% endif %} w-[45%]" id="left-column">
+            {#send worker on garden#}
+            {% if not isAnotherPlayerBoard and not isPreview and playerPhase == PHASE_WORKER and player.personalBoardMYR.anthillWorkers|length > 0 and needToPlay %}
+                <div class="w-full inlineFlex">
+                    <button type="button" class="h-[4vw]"
+                            {{ stimulus_action('myrmes','selectAntHillHoleToSendWorker','click',
+                                {url: path('app_game_myrmes_select_anthillhole',
+                                    {gameId: game.id})
+                                })
+                            }}>
+                        <img class="h-full"
+                             src="{{ asset('resourcesGames/Myrmes/personalBoard/sendWorkerToGardenButton.svg') }}"
+                             alt="send a worker to garden">
+                    </button>
+                </div>
+            {% endif %}
+            {#birth tracks#}
+            {{ include('Game/Myrmes/PersonalBoard/displayBirthTrack.html.twig') }}
+            {#nurse counter#}
+            <div class="w-full" id="nurses">
+                <p class="{% if isPreview %}text_mini {% else %} text1-3 {% endif %}">
+                    Nourrices : {{ nursesOnBaseArea }}</p>
+            </div>
+            {#event track#}
+            {{ include('Game/Myrmes/PersonalBoard/displayEventTrack.html.twig') }}
+        </div>
+        <div class="inline-flex flex-col items-center justify-around w-[20%] {{ gapBetweenAreasSize }}"
+             id="rightColumn">
+            {#workshop#}
+            {{ include('Game/Myrmes/PersonalBoard/displayWorkshop.html.twig') }}
+            {#prey counter#}
+            {{ include('Game/Myrmes/PersonalBoard/displayPreyCount.html.twig') }}
+            {#warehouse#}
+            {{ include('Game/Myrmes/PersonalBoard/displayWarehouse.html.twig') }}
+        </div>
+        {#colony level track#}
+        {{ include('Game/Myrmes/PersonalBoard/displayColonyLevelTrack.html.twig') }}
+
+        {% if not isPreview and game.gamePhase == PHASE_BIRTH and playerPhase == PHASE_BIRTH %}
+            <div class="flex flex-col justify-center items-center">
+                <button type="button" class="rounded-lg bg-[#8F901F] py-2 px-3 m-1 portrait:text-2xl items-center"
+                        {{ stimulus_action('myrmes','confirmNursesPlacement','click',
+                            {url: path('app_game_myrmes_confirm_nurses', {gameId: game.id})})
+                        }}>
+                    <img class="h-6 max-h-full"
+                         src="{{ asset('resourcesGames/utils/checkmark.svg') }}"
+                         alt="confirm nurses placement">
+                </button>
+                <button type="button" class="rounded-lg bg-[#8F901F] py-2 px-3 m-1 portrait:text-2xl items-center"
+                        {{ stimulus_action('myrmes','cancelNursesPlacement','click',
+                            {url: path('app_game_myrmes_cancel_nurses', {gameId: game.id})})
+                        }}>
+                    <img class="h-6 max-h-full"
+                         src="{{ asset('resourcesGames/utils/cross.svg') }}"
+                         alt="confirm nurses placement">
+                </button>
+            </div>
+        {% endif %}
+
+        {% if not isAnotherPlayerBoard and not isPreview %}
+            <button id="return_board" onclick="closeWindow()"
+                    class="rounded-lg bg-[#8F901F] py-2 px-3 m-1 portrait:text-2xl items-center"
+            >
+                <img src="{{ asset('resourcesGames/utils/return-arrow.svg') }}" id="returnArrow"
+                     alt="return on board"
+                     class="h-6 max-h-full">
+            </button>
+        {% endif %}
+    </div>
+    {%  if not isAnotherPlayerBoard %}
+</div>
+{% endif %}

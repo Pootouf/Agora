@@ -1,0 +1,124 @@
+{#
+    Display the pheromones borders
+    param: boardBox
+    return :
+#}
+
+{# Define constants #}
+{% set PLAYER_COLOR_GRAY = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::PLAYER_COLOR_GRAY') %}
+{% set PLAYER_COLOR_BLUE = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::PLAYER_COLOR_BLUE') %}
+{% set PLAYER_COLOR_RED = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::PLAYER_COLOR_RED') %}
+{% set PLAYER_COLOR_YELLOW = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::PLAYER_COLOR_YELLOW') %}
+
+{# Special tile types #}
+{% set QUARRY_SPECIAL_TILE_TYPE = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::SPECIAL_TILE_TYPE_QUARRY') %}
+{% set FARM_SPECIAL_TILE_TYPE = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::SPECIAL_TILE_TYPE_FARM')%}
+{% set SUBANTHILL_SPECIAL_TILE_TYPE = constant('App\\Entity\\Game\\Myrmes\\MyrmesParameters::SPECIAL_TILE_TYPE_SUBANTHILL') %}
+
+
+{% set fill = "" %}
+{% set stroke = "" %}
+{% if boardBox.pheromonTile.pheromonMYR.player.color is not defined %}
+    {% set fill = 'fill-[rgba(153,_153,_153,_1)]' %}
+    {% set stroke = "stroke:#595959;stroke-width:18" %}
+{% elseif boardBox.pheromonTile.pheromonMYR.player.color ==  PLAYER_COLOR_BLUE %}
+    {% set fill = 'fill-[rgba(0,_0,_255,_1)]' %}
+    {% set stroke = "stroke:#3d6ab2;stroke-width:18" %}
+{% elseif boardBox.pheromonTile.pheromonMYR.player.color ==  PLAYER_COLOR_RED %}
+    {% set fill = 'fill-[rgba(255,_0,_0,_1)]' %}
+    {% set stroke = "stroke:#f881a5;stroke-width:18" %}
+{% elseif  boardBox.pheromonTile.pheromonMYR.player.color ==  PLAYER_COLOR_YELLOW %}
+    {% set fill = 'fill-[rgba(255,_255,_0,_1)]' %}
+    {% set stroke = "stroke:#ff9700;stroke-width:18" %}
+{% else %}
+    {% set fill = 'fill-[rgba(128,_128,_128,_1)]' %}
+    {% set stroke = "stroke:#ffffff;stroke-width:18" %}
+{% endif %}
+
+{% if boardBox.pheromonTile.pheromonMYR.type.type == FARM_SPECIAL_TILE_TYPE %}
+    {% set fill = 'fill-[rgba(16,_110,_8,_1)]' %}
+{% elseif boardBox.pheromonTile.pheromonMYR.type.type == QUARRY_SPECIAL_TILE_TYPE %}
+    {% set fill = 'fill-[rgba(132,_136,_131,_1)]' %}
+{% elseif boardBox.pheromonTile.pheromonMYR.type.type == SUBANTHILL_SPECIAL_TILE_TYPE %}
+    {% set fill = 'fill-[rgba(104,_57,_17,_1)]' %}
+{% endif %}
+
+
+
+<svg id="{{ boardBox.tile.coordX ~ ' ' ~ boardBox.tile.coordY ~ ' ' ~ boardBox.pheromonTile.pheromonMYR.id }}"
+     class="absolute bg-transparent h-full w-full"
+     viewbox="0 0 300 300" width="100%" height="100%" >
+    <polygon points="150,300 300,225 300,75 150,0 0,75 0,225" class="{{ fill }}"></polygon>
+    <line class="south-east" x1="150" y1="300" x2="300" y2="225" style="{{stroke}}"></line>
+    <line class="east" x1="295" y1="225" x2="295" y2="75" style="{{ stroke }}"></line>
+    <line class="north-east" x1="300" y1="75" x2="150" y2="0" style="{{stroke}}"></line>
+    <line class="north-west" x1="150" y1="0" x2="0" y2="75" style="{{stroke}}"></line>
+    <line class="west" x1="5" y1="75" x2="5" y2="225" style="{{ stroke }}"></line>
+    <line class="south-west" x1="0" y1="225" x2="150" y2="300" style="{{stroke}}"></line>
+</svg>
+
+<script>
+    window.addEventListener("load", function () {
+        updatePheromoneBorder{{ boardBox.pheromonTile.id }}();
+    });
+
+    if (window.borderFunctions == null) {
+        window.borderFunctions = []
+    }
+    window.borderFunctions.push(updatePheromoneBorder{{ boardBox.pheromonTile.id }})
+
+    function updatePheromoneBorder{{ boardBox.pheromonTile.id }}() {
+        let boardBoxCoordX = {{ boardBox.tile.coordX }};
+        let boardBoxCoordY = {{ boardBox.tile.coordY }};
+        let pheromoneId = {{ boardBox.pheromonTile.pheromonMYR.id }};
+
+        let westPheromone = document.getElementById(boardBoxCoordX + ' '
+            + (boardBoxCoordY - 2) + ' '
+            + pheromoneId);
+        if(westPheromone != null) {
+            document.getElementById(boardBoxCoordX + ' '
+                + (boardBoxCoordY) + ' '
+                + pheromoneId).getElementsByClassName('west')[0].classList.add('hidden')
+        }
+        let eastPheromone = document.getElementById(boardBoxCoordX + ' '
+            + (boardBoxCoordY + 2) + ' '
+            + pheromoneId);
+        if(eastPheromone != null) {
+            document.getElementById(boardBoxCoordX + ' '
+                + (boardBoxCoordY) + ' '
+                + pheromoneId).getElementsByClassName('east')[0].classList.add('hidden')
+        }
+        let northWest = document.getElementById((boardBoxCoordX - 1) + ' '
+            + (boardBoxCoordY - 1) + ' '
+            + pheromoneId);
+        if(northWest != null) {
+            document.getElementById(boardBoxCoordX + ' '
+                + (boardBoxCoordY) + ' '
+                + pheromoneId).getElementsByClassName('north-west')[0].classList.add('hidden')
+        }
+        let northEast = document.getElementById((boardBoxCoordX - 1) + ' '
+            + (boardBoxCoordY + 1) + ' '
+            + pheromoneId);
+        if(northEast != null) {
+            document.getElementById(boardBoxCoordX + ' '
+                + (boardBoxCoordY) + ' '
+                + pheromoneId).getElementsByClassName('north-east')[0].classList.add('hidden')
+        }
+        let southWest = document.getElementById((boardBoxCoordX + 1) + ' '
+            + (boardBoxCoordY - 1) + ' '
+            + pheromoneId);
+        if(southWest != null) {
+            document.getElementById(boardBoxCoordX + ' '
+                + (boardBoxCoordY) + ' '
+                + pheromoneId).getElementsByClassName('south-west')[0].classList.add('hidden')
+        }
+        let southEast = document.getElementById((boardBoxCoordX + 1) + ' '
+            + (boardBoxCoordY + 1) + ' '
+            + pheromoneId);
+        if(southEast != null) {
+            document.getElementById(boardBoxCoordX + ' '
+                + (boardBoxCoordY) + ' '
+                + pheromoneId).getElementsByClassName('south-east')[0].classList.add('hidden')
+        }
+    }
+</script>

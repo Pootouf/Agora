@@ -1,0 +1,72 @@
+{#
+    This section displays the development cards that can be reserved or bought by players
+    @param : int drawCardsLevelOneCount, int drawCardsLevelTwoCount, int drawCardsLevelThreeCount,
+             bool isSpectator, bool NeedToPlay,
+             array<RowSPL> rows
+    @return : display the development cards grid, and the different draw cards by level
+#}
+
+{# Loading of Tailwind values #}
+<div hidden="hidden" class="shadow-green-700 shadow-red-800"></div>
+
+{#variable declaration#}
+{% set drawCardsCount = [drawCardsLevelOneCount, drawCardsLevelTwoCount, drawCardsLevelThreeCount] %}
+
+{#development cards#}
+<div id="developmentCards" class="inline-flex flex-col justify-around w-full">
+
+    {#cards rows#}
+    {% for i in 3..1 %}
+        <div id="developmentCardsRow{{ i }}" class="inlineFlex pl-[5vw] w-full">
+
+            {#pick#}
+            <svg id="pickLevel{{ i }}" class="h-[13vw] landscape:h-[10vw]" viewBox="0 0 90 100">
+                <image x="0" y="2" width="70"
+                       href="{{ asset('resourcesGames/Splendor/Images/pick/cardLevel' ~ i ~ '.svg') }}"
+                        {% if needToPlay and not isSpectator %}
+                            class="cursor-pointer"
+                            {{ stimulus_action('splendor', 'selectCard', 'click',
+                                {url:path('app_game_splendor_select_from_draw',
+                                    {idGame: game.id, level: i})
+                                })
+                            }}
+                        {% endif %}
+                />
+                <circle cx="70" cy="5" r="10" fill="red" stroke="white" stroke-width="1"/>
+                <text text-anchor="middle" x="70" y="9" class="text-[70%] font-extrabold" fill="white">{{ drawCardsCount[i-1] }}</text>
+            </svg>
+
+            {#buyable cards#}
+            <div class="inline-flex justify-evenly w-full">
+                {% for card in rows[i - 1].developmentCards|filter(card => card.level == i) %}
+                    <div class="h-[13vw] landscape:h-[10vw]
+                        {% if needToPlay and not isSpectator %}
+                            cursor-pointer"
+                            {{ stimulus_action('splendor', 'selectCard', 'click',
+                                {url:path('app_game_splendor_select_from_board',
+                                    {idGame: game.id, idCard: card.id})
+                                })
+                            }}
+                        {% else %}
+                            "
+                        {% endif %}
+                    >
+                        <img alt="development card {{ card.id }}" id='image_card_{{ card.id }}'
+                                {% set shadowColor = 'red-800' %}
+                                {% for purchasableCard in purchasableCards|filter(purchasableCard => purchasableCard == card) %}
+                                    {% set shadowColor = 'green-700' %}
+                                {% endfor %}
+                             class="hover:scale-[2] transition ease-in-out delay-100
+                                    items-center justify-center rounded-lg shadow-{{ shadowColor }}
+                                    shadow-lg max-h-full
+                                    {% if isSpectator %}transform hover:-translate-y-20{% endif %}
+                                    {% if card.id == takenCard %} portrait:opacity-0 landscape:opacity-0 {% endif %}"
+                             src="{{ asset('resourcesGames/Splendor/Images/DevelopmentCards/'~ card.id ~ '.png') }}"
+                             alt="{{ 'cardLevel' ~ i }}"
+                        >
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endfor %}
+</div>

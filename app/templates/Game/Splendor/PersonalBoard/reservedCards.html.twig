@@ -1,0 +1,34 @@
+{#
+    This section displays the reserved cards that can have a player, only visible by him
+    @param : bool needToPlay, array<PlayerCardSPL> playerCard, int developmentCardId
+    @return : display the reserved cards on the player's personal board
+#}
+<div hidden="hidden" class="shadow-green-700 shadow-red-800"></div>
+
+<div class="flex float-right h-fit w-fit mt-2 mr-4">
+    <p class="text-lg text-white ">Cartes réservées</p>
+</div>
+<div class="w-full flex justify-around">
+    {% for playerCard in playerReservedCards %}
+        {% set developmentCardId = playerCard.developmentCard.id %}
+        <button {{ stimulus_action('splendor', 'selectCard', 'click',
+                    {url:path('app_game_splendor_select_from_personal_board',
+                        {idGame: game.id, idCard: developmentCardId})
+                    })
+                }}
+                {% if not needToPlay %}
+                disabled
+                {% endif %}class="w-[20vw] hover:-translate-y-[100%] hover:scale-y-150 hover:scale-x-[1.4] transition ease-in-out delay-100">
+            <img
+                    alt="development card {{ developmentCardId }}"
+                    {% set shadowColor = 'red-800' %}
+                    {% for purchasableCard in purchasableCardsOnPersonalBoard|filter(purchasableCard => purchasableCard == playerCard.developmentCard) %}
+                        {% set shadowColor = 'green-700' %}
+                    {% endfor %}
+                    class="rounded-2xl shadow-lg {{ 'shadow-' ~ shadowColor }}"
+                 src="{{ asset('resourcesGames/Splendor/Images/DevelopmentCards/' ~ developmentCardId ~ '.png') }}"
+                 alt="{{ developmentCardId }}"
+            >
+        </button>
+    {% endfor %}
+</div>
